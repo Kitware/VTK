@@ -27,7 +27,6 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkConvexPointSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
 #include "vtkEndian.h"
@@ -35,6 +34,7 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkHexahedron.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -50,6 +50,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
+#include "vtk_hdf5.h"
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
 
@@ -63,30 +64,33 @@
 #include <sys/stat.h>
 #include <vector>
 
+#define CHECK_HDF(fct)                                                                             \
+  if (fct < 0)                                                                                     \
+  throw std::runtime_error("HDF5 error in vtkFLUENTCFFReader: " + std::string(__func__) + " at " + \
+    std::to_string(__LINE__))
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFLUENTCFFReader);
 
 //------------------------------------------------------------------------------
-vtkFLUENTCFFReader::vtkFLUENTCFFReader()
+struct vtkFLUENTCFFReader::vtkInternals
 {
-  this->Status = H5open();
-  if (this->Status < 0)
-  {
-    vtkErrorMacro("HDF5 library initialisation error");
-  }
-  this->Status = H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+  hid_t FluentCaseFile;
+  hid_t FluentDataFile;
+};
+
+//------------------------------------------------------------------------------
+vtkFLUENTCFFReader::vtkFLUENTCFFReader()
+  : HDFImpl(new vtkFLUENTCFFReader::vtkInternals)
+{
+  this->HDFImpl->FluentCaseFile = -1;
+  this->HDFImpl->FluentDataFile = -1;
+  H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
   this->SetNumberOfInputPorts(0);
 }
 
 //------------------------------------------------------------------------------
-vtkFLUENTCFFReader::~vtkFLUENTCFFReader()
-{
-  this->Status = H5close();
-  if (this->Status < 0)
-  {
-    vtkWarningMacro("HDF5 library closing error");
-  }
-}
+vtkFLUENTCFFReader::~vtkFLUENTCFFReader() = default;
 
 //------------------------------------------------------------------------------
 int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
@@ -98,7 +102,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  if (this->FluentCaseFile < 0)
+  if (this->HDFImpl->FluentCaseFile < 0)
   {
     vtkErrorMacro("HDF5 file not opened!");
     return 0;
@@ -110,36 +114,42 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkMultiBlockDataSet::DATA_OBJECT()));
 
   // Read data (Fluent Format)
-  this->ParseCaseFile();
+  int parseFlag = this->ParseCaseFile();
+  if (parseFlag == 0)
+  {
+    vtkErrorMacro("Unable to read the Case CFF file. The structure of the file may have changed.");
+    return 0;
+  }
   this->CleanCells();
   this->PopulateCellNodes();
   this->GetNumberOfCellZones();
   this->NumberOfScalars = 0;
   this->NumberOfVectors = 0;
-  if (this->DataPass == 1)
+  if (this->FileState == DataState::AVAILABLE)
   {
-    this->GetData();
+    int flagData = this->GetData();
+    if (flagData == 0)
+    {
+      vtkErrorMacro(
+        "Unable to read the Data CFF file. The structure of the file may have changed.");
+      return 0;
+    }
     this->PopulateCellTree();
+    this->FileState = DataState::LOADED;
   }
+  this->Faces.clear();
+
   // Convert Fluent format to VTK
-  for (const auto& DataChunk : this->ScalarDataChunks)
-  {
-    this->CellDataArraySelection->AddArray(DataChunk.variableName.c_str());
-  }
-  for (const auto& DataChunk : this->VectorDataChunks)
-  {
-    this->CellDataArraySelection->AddArray(DataChunk.variableName.c_str());
-  }
   this->NumberOfCells = static_cast<vtkIdType>(this->Cells.size());
 
   output->SetNumberOfBlocks(static_cast<unsigned int>(this->CellZones.size()));
 
-  std::vector<vtkUnstructuredGrid*> grid;
-  grid.resize(this->CellZones.size());
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> grid(
+    this->CellZones.size(), vtkSmartPointer<vtkUnstructuredGrid>::New());
 
-  for (size_t test = 0; test < this->CellZones.size(); test++)
+  for (auto& g : grid)
   {
-    grid[test] = vtkUnstructuredGrid::New();
+    g = vtkUnstructuredGrid::New();
   }
 
   for (const auto& cell : this->Cells)
@@ -198,36 +208,33 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else if (cell.type == 7)
     {
-      this->ConvexPointSet->GetPointIds()->SetNumberOfIds(
-        static_cast<vtkIdType>(cell.nodes.size()));
+      vtkNew<vtkIdList> pointIds;
       for (size_t j = 0; j < cell.nodes.size(); j++)
       {
-        this->ConvexPointSet->GetPointIds()->SetId(static_cast<vtkIdType>(j), cell.nodes[j]);
+        pointIds->InsertNextId(static_cast<vtkIdType>(cell.nodes[j]));
       }
-      grid[location]->InsertNextCell(
-        this->ConvexPointSet->GetCellType(), this->ConvexPointSet->GetPointIds());
+      grid[location]->InsertNextCell(VTK_POLYHEDRON, pointIds);
     }
   }
 
   // Scalar Data
-  for (size_t l = 0; l < this->ScalarDataChunks.size(); l++)
+  for (const auto& ScalarDataChunk : this->ScalarDataChunks)
   {
-    if (this->CellDataArraySelection->ArrayIsEnabled(
-          this->ScalarDataChunks[l].variableName.c_str()))
+    if (this->CellDataArraySelection->ArrayIsEnabled(ScalarDataChunk.variableName.c_str()))
     {
       for (size_t location = 0; location < this->CellZones.size(); location++)
       {
         vtkNew<vtkDoubleArray> v;
         unsigned int i = 0;
-        for (size_t m = 0; m < this->ScalarDataChunks[l].scalarData.size(); m++)
+        for (size_t m = 0; m < ScalarDataChunk.scalarData.size(); m++)
         {
           if (this->Cells[m].zone == this->CellZones[location])
           {
-            v->InsertValue(static_cast<vtkIdType>(i), this->ScalarDataChunks[l].scalarData[m]);
+            v->InsertValue(static_cast<vtkIdType>(i), ScalarDataChunk.scalarData[m]);
             i++;
           }
         }
-        v->SetName(this->ScalarDataChunks[l].variableName.c_str());
+        v->SetName(ScalarDataChunk.variableName.c_str());
         grid[location]->GetCellData()->AddArray(v);
       }
     }
@@ -235,42 +242,43 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->ScalarDataChunks.clear();
 
   // Vector Data
-  for (size_t l = 0; l < this->VectorDataChunks.size(); l++)
+  for (const auto& VectorDataChunk : VectorDataChunks)
   {
-    if (this->CellDataArraySelection->ArrayIsEnabled(
-          this->VectorDataChunks[l].variableName.c_str()))
+    if (this->CellDataArraySelection->ArrayIsEnabled(VectorDataChunk.variableName.c_str()))
     {
       for (size_t location = 0; location < this->CellZones.size(); location++)
       {
         vtkNew<vtkDoubleArray> v;
-        unsigned int i = 0;
-        v->SetNumberOfComponents(3);
-        for (size_t m = 0; m < this->VectorDataChunks[l].iComponentData.size(); m++)
+        v->SetNumberOfComponents(static_cast<int>(VectorDataChunk.dim));
+        for (size_t k = 0; k < VectorDataChunk.dim; k++)
         {
-          if (this->Cells[m].zone == this->CellZones[location])
+          unsigned int i = 0;
+          for (size_t m = 0; m < VectorDataChunk.vectorData.size() / VectorDataChunk.dim; m++)
           {
-            v->InsertComponent(
-              static_cast<vtkIdType>(i), 0, this->VectorDataChunks[l].iComponentData[m]);
-            v->InsertComponent(
-              static_cast<vtkIdType>(i), 1, this->VectorDataChunks[l].jComponentData[m]);
-            v->InsertComponent(
-              static_cast<vtkIdType>(i), 2, this->VectorDataChunks[l].kComponentData[m]);
-            i++;
+            if (this->Cells[m].zone == this->CellZones[location])
+            {
+              v->InsertComponent(static_cast<vtkIdType>(i), static_cast<int>(k),
+                VectorDataChunk.vectorData[k + VectorDataChunk.dim * m]);
+              i++;
+            }
           }
         }
-        v->SetName(this->VectorDataChunks[l].variableName.c_str());
+        v->SetName(VectorDataChunk.variableName.c_str());
         grid[location]->GetCellData()->AddArray(v);
       }
     }
   }
   this->VectorDataChunks.clear();
 
-  for (size_t addTo = 0; addTo < this->CellZones.size(); addTo++)
+  for (size_t location = 0; location < this->CellZones.size(); location++)
   {
-    grid[addTo]->SetPoints(Points);
-    output->SetBlock(static_cast<unsigned int>(addTo), grid[addTo]);
-    grid[addTo]->Delete();
+    grid[location]->SetPoints(this->Points);
+    output->SetBlock(static_cast<unsigned int>(location), grid[location]);
+    grid[location]->Delete();
   }
+  this->Cells.clear();
+  this->CellZones.clear();
+
   return 1;
 }
 
@@ -281,7 +289,7 @@ void vtkFLUENTCFFReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "File Name: " << this->FileName << endl;
   os << indent << "Number Of Cells: " << this->NumberOfCells << endl;
   os << indent << "Number Of cell Zone: " << this->CellZones.size() << endl;
-  if (this->DataPass == 1)
+  if (this->FileState != DataState::NOT_LOADED)
   {
     os << indent << "List Of Scalar Value : " << this->ScalarDataChunks.size() << endl;
     if (!this->ScalarDataChunks.empty())
@@ -318,18 +326,45 @@ int vtkFLUENTCFFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   if (!this->OpenCaseFile(this->FileName))
   {
-    vtkErrorMacro("Unable to open cas file.");
+    vtkErrorMacro("Unable to open case file.");
     return 0;
   }
 
-  this->DataPass = this->OpenDataFile(this->FileName);
-  if (this->DataPass == 0)
+  this->FileState = this->OpenDataFile(this->FileName);
+  if (this->FileState == DataState::NOT_LOADED)
   {
-    vtkWarningMacro("Unable to open dat file.");
+    vtkWarningMacro("No data file (.dat.h5) found. Only the case file will be opened.");
+  }
+  if (this->FileState == DataState::ERROR)
+  {
+    vtkErrorMacro("The data file associated to " << this->FileName << " is not a HDF5 file.");
+    return 0;
   }
 
   this->GridDimension = this->GetDimension();
+  if (this->GridDimension == 0)
+    return 0;
   vtkDebugMacro(<< "\nDimension of file " << this->GridDimension);
+
+  if (this->FileState == DataState::AVAILABLE)
+  {
+    int flagData = this->GetMetaData();
+    if (flagData == 0)
+    {
+      vtkErrorMacro(
+        "Unable to read the Data CFF file. The structure of the file may have changed.");
+      return 0;
+    }
+    // Create CellDataArraySelection from pre-read variable name
+    for (const auto& variableName : this->PreReadScalarData)
+    {
+      this->CellDataArraySelection->AddArray(variableName.c_str());
+    }
+    for (const auto& variableName : this->PreReadVectorData)
+    {
+      this->CellDataArraySelection->AddArray(variableName.c_str());
+    }
+  }
 
   return 1;
 }
@@ -345,10 +380,10 @@ bool vtkFLUENTCFFReader::OpenCaseFile(const std::string& filename)
     return false;
   }
   // Open file with default properties access
-  this->FluentCaseFile = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  this->HDFImpl->FluentCaseFile = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
   // Check if file is CFF Format like
-  herr_t s1 = H5Gget_objinfo(this->FluentCaseFile, "/meshes", false, nullptr);
-  herr_t s2 = H5Gget_objinfo(this->FluentCaseFile, "/settings", false, nullptr);
+  herr_t s1 = H5Gget_objinfo(this->HDFImpl->FluentCaseFile, "/meshes", false, nullptr);
+  herr_t s2 = H5Gget_objinfo(this->HDFImpl->FluentCaseFile, "/settings", false, nullptr);
   if (s1 == 0 && s2 == 0)
   {
     return true;
@@ -404,7 +439,7 @@ void vtkFLUENTCFFReader::DisableAllCellArrays()
 }
 
 //------------------------------------------------------------------------------
-bool vtkFLUENTCFFReader::OpenDataFile(const std::string& filename)
+vtkFLUENTCFFReader::DataState vtkFLUENTCFFReader::OpenDataFile(const std::string& filename)
 {
   // dfilename represent the dat file name (extension .dat.h5)
   // when opening a .cas.h5, it will automatically open the associated .dat.h5 (if exist)
@@ -415,16 +450,20 @@ bool vtkFLUENTCFFReader::OpenDataFile(const std::string& filename)
 
   // Check if the file is HDF5 or exist
   htri_t file_type = H5Fis_hdf5(dfilename.c_str());
-  if (file_type != 1)
+  // If there is a file but is not HDF5
+  if (file_type == 0)
   {
-    vtkWarningMacro("Could not open data file "
-      << dfilename << "associated with cas file " << filename
-      << ". Please verify the cas and dat files have the same base name.");
-    return false;
+    return DataState::ERROR;
   }
+  // If there is no file, read only the case file
+  if (file_type < 0)
+  {
+    return DataState::NOT_LOADED;
+  }
+
   // Open file with default properties access
-  this->FluentDataFile = H5Fopen(dfilename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-  return true;
+  this->HDFImpl->FluentDataFile = H5Fopen(dfilename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  return DataState::AVAILABLE;
 }
 
 //------------------------------------------------------------------------------
@@ -439,9 +478,9 @@ void vtkFLUENTCFFReader::GetNumberOfCellZones()
     else
     {
       int match = 0;
-      for (size_t j = 0; j < this->CellZones.size(); j++)
+      for (const auto& CellZone : CellZones)
       {
-        if (this->CellZones[j] == cell.zone)
+        if (CellZone == cell.zone)
         {
           match = 1;
         }
@@ -455,22 +494,31 @@ void vtkFLUENTCFFReader::GetNumberOfCellZones()
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTCFFReader::ParseCaseFile()
+int vtkFLUENTCFFReader::ParseCaseFile()
 {
-  this->GetNodesGlobal();
-  this->GetCellsGlobal();
-  this->GetFacesGlobal();
-  // .cas is always DP
-  // .dat is DP or SP
-  this->GetNodes();
-  this->GetCells();
-  this->GetFaces();
+  try
+  {
+    this->GetNodesGlobal();
+    this->GetCellsGlobal();
+    this->GetFacesGlobal();
+    // .cas is always DP
+    // .dat is DP or SP
+    this->GetNodes();
+    this->GetCells();
+    this->GetFaces();
 
-  this->GetCellTree();
-  this->GetCellOverset();
-  this->GetFaceTree();
-  this->GetInterfaceFaceParents();
-  this->GetNonconformalGridInterfaceFaceInformation();
+    this->GetCellTree();
+    this->GetCellOverset();
+    this->GetFaceTree();
+    this->GetInterfaceFaceParents();
+    this->GetNonconformalGridInterfaceFaceInformation();
+  }
+  catch (std::runtime_error const& e)
+  {
+    vtkErrorMacro(<< e.what());
+    return 0;
+  }
+  return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -478,11 +526,33 @@ int vtkFLUENTCFFReader::GetDimension()
 {
   hid_t group, attr;
   int32_t dimension;
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1", H5P_DEFAULT);
+  if (group < 0)
+  {
+    vtkErrorMacro("Unable to open HDF group (GetDimension).");
+    return 0;
+  }
   attr = H5Aopen(group, "dimension", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_INT32, &dimension);
-  this->Status = H5Aclose(attr);
-  this->Status = H5Gclose(group);
+  if (attr < 0)
+  {
+    vtkErrorMacro("Unable to open HDF attribute (GetDimension).");
+    return 0;
+  }
+  if (H5Aread(attr, H5T_NATIVE_INT32, &dimension) < 0)
+  {
+    vtkErrorMacro("Unable to read HDF attribute (GetDimension).");
+    return 0;
+  }
+  if (H5Aclose(attr))
+  {
+    vtkErrorMacro("Unable to close HDF attribute (GetDimension).");
+    return 0;
+  }
+  if (H5Gclose(group))
+  {
+    vtkErrorMacro("Unable to close HDF group (GetDimension).");
+    return 0;
+  }
   return static_cast<int>(dimension);
 }
 
@@ -491,14 +561,26 @@ void vtkFLUENTCFFReader::GetNodesGlobal()
 {
   hid_t group, attr;
   uint64_t firstIndex, lastIndex;
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetNodesGlobal).");
+  }
   attr = H5Aopen(group, "nodeOffset", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &firstIndex);
-  this->Status = H5Aclose(attr);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetNodesGlobal).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &firstIndex));
+  CHECK_HDF(H5Aclose(attr));
   attr = H5Aopen(group, "nodeCount", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &lastIndex);
-  this->Status = H5Aclose(attr);
-  this->Status = H5Gclose(group);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetNodesGlobal).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &lastIndex));
+  CHECK_HDF(H5Aclose(attr));
+  CHECK_HDF(H5Gclose(group));
   this->Points->Allocate(lastIndex);
 }
 
@@ -507,45 +589,84 @@ void vtkFLUENTCFFReader::GetNodes()
 {
   hid_t group, attr, dset;
   uint64_t nZones;
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1/nodes/zoneTopology", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/nodes/zoneTopology", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetNodes).");
+  }
   attr = H5Aopen(group, "nZones", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nZones);
-  this->Status = H5Aclose(attr);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetNodes).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nZones));
+  CHECK_HDF(H5Aclose(attr));
 
   std::vector<uint64_t> minId(nZones);
   dset = H5Dopen(group, "minId", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, minId.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetNodes).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, minId.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<uint64_t> maxId(nZones);
   dset = H5Dopen(group, "maxId", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, maxId.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetNodes).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, maxId.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> Id(nZones);
   dset = H5Dopen(group, "id", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, Id.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetNodes).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, Id.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<uint64_t> dimension(nZones);
   dset = H5Dopen(group, "dimension", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, dimension.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetNodes).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, dimension.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   for (uint64_t iZone = 0; iZone < nZones; iZone++)
   {
     uint64_t coords_minId, coords_maxId;
     hid_t group_coords, dset_coords;
-    group_coords = H5Gopen(this->FluentCaseFile, "/meshes/1/nodes/coords", H5P_DEFAULT);
-    dset_coords = H5Dopen(group_coords, std::to_string(iZone + 1).c_str(), H5P_DEFAULT);
+    group_coords = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/nodes/coords", H5P_DEFAULT);
+    if (group_coords < 0)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetNodes coords).");
+    }
+    dset_coords = H5Dopen(group_coords, std::to_string(Id[iZone]).c_str(), H5P_DEFAULT);
+    if (dset_coords < 0)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetNodes coords).");
+    }
 
     attr = H5Aopen(dset_coords, "minId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &coords_minId);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetNodes coords).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &coords_minId));
+    CHECK_HDF(H5Aclose(attr));
     attr = H5Aopen(dset_coords, "maxId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &coords_maxId);
-    this->Status = H5Aclose(attr);
-
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetNodes coords).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &coords_maxId));
+    CHECK_HDF(H5Aclose(attr));
     unsigned int firstIndex = static_cast<unsigned int>(coords_minId);
     unsigned int lastIndex = static_cast<unsigned int>(coords_maxId);
 
@@ -561,10 +682,10 @@ void vtkFLUENTCFFReader::GetNodes()
     }
 
     std::vector<double> nodeData(gSize);
-    this->Status =
-      H5Dread(dset_coords, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, nodeData.data());
-    this->Status = H5Dclose(dset_coords);
-    this->Status = H5Gclose(group_coords);
+    CHECK_HDF(
+      H5Dread(dset_coords, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, nodeData.data()));
+    CHECK_HDF(H5Dclose(dset_coords));
+    CHECK_HDF(H5Gclose(group_coords));
 
     if (this->GridDimension == 3)
     {
@@ -584,7 +705,7 @@ void vtkFLUENTCFFReader::GetNodes()
     }
   }
 
-  this->Status = H5Gclose(group);
+  CHECK_HDF(H5Gclose(group));
 }
 
 //------------------------------------------------------------------------------
@@ -592,14 +713,26 @@ void vtkFLUENTCFFReader::GetCellsGlobal()
 {
   hid_t group, attr;
   uint64_t firstIndex, lastIndex;
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetCellsGlobal).");
+  }
   attr = H5Aopen(group, "cellOffset", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &firstIndex);
-  this->Status = H5Aclose(attr);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetCellsGlobal).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &firstIndex));
+  CHECK_HDF(H5Aclose(attr));
   attr = H5Aopen(group, "cellCount", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &lastIndex);
-  this->Status = H5Aclose(attr);
-  this->Status = H5Gclose(group);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetCellsGlobal).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &lastIndex));
+  CHECK_HDF(H5Aclose(attr));
+  CHECK_HDF(H5Gclose(group));
   this->Cells.resize(lastIndex);
 }
 
@@ -608,40 +741,72 @@ void vtkFLUENTCFFReader::GetCells()
 {
   hid_t group, attr, dset;
   uint64_t nZones;
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1/cells/zoneTopology", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/cells/zoneTopology", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetCells).");
+  }
   attr = H5Aopen(group, "nZones", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nZones);
-  this->Status = H5Aclose(attr);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetCells).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nZones));
+  CHECK_HDF(H5Aclose(attr));
 
   std::vector<uint64_t> minId(nZones);
   dset = H5Dopen(group, "minId", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, minId.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetCells).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, minId.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<uint64_t> maxId(nZones);
   dset = H5Dopen(group, "maxId", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, maxId.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetCells).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, maxId.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> Id(nZones);
   dset = H5Dopen(group, "id", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, Id.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetCells).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, Id.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<uint64_t> dimension(nZones);
   dset = H5Dopen(group, "dimension", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, dimension.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetCells).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, dimension.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> cellType(nZones);
   dset = H5Dopen(group, "cellType", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, cellType.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetCells).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, cellType.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> childZoneId(nZones);
   dset = H5Dopen(group, "childZoneId", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, childZoneId.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetCells).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, childZoneId.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   for (uint64_t iZone = 0; iZone < nZones; iZone++)
   {
@@ -659,11 +824,19 @@ void vtkFLUENTCFFReader::GetCells()
       std::vector<int16_t> cellTypeData;
       hid_t group_ctype;
       uint64_t nSections;
-      group_ctype = H5Gopen(this->FluentCaseFile, "/meshes/1/cells/ctype", H5P_DEFAULT);
+      group_ctype = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/cells/ctype", H5P_DEFAULT);
+      if (group_ctype < 0)
+      {
+        throw std::runtime_error("Unable to open HDF group (GetCells ctype).");
+      }
       attr = H5Aopen(group_ctype, "nSections", H5P_DEFAULT);
-      this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nSections);
-      this->Status = H5Aclose(attr);
-      this->Status = H5Gclose(group_ctype);
+      if (attr < 0)
+      {
+        throw std::runtime_error("Unable to open HDF attribute (GetCells ctype).");
+      }
+      CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nSections));
+      CHECK_HDF(H5Aclose(attr));
+      CHECK_HDF(H5Gclose(group_ctype));
 
       // Search for ctype section linked to the mixed zone
       uint64_t ctype_minId = 0, ctype_maxId = 0;
@@ -672,17 +845,33 @@ void vtkFLUENTCFFReader::GetCells()
         int16_t ctype_elementType;
         std::string groupname =
           std::string("/meshes/1/cells/ctype/" + std::to_string(iSection + 1));
-        group_ctype = H5Gopen(this->FluentCaseFile, groupname.c_str(), H5P_DEFAULT);
+        group_ctype = H5Gopen(this->HDFImpl->FluentCaseFile, groupname.c_str(), H5P_DEFAULT);
+        if (group_ctype < 0)
+        {
+          throw std::runtime_error("Unable to open HDF group (GetCells ctype section).");
+        }
 
         attr = H5Aopen(group_ctype, "elementType", H5P_DEFAULT);
-        this->Status = H5Aread(attr, H5T_NATIVE_INT16, &ctype_elementType);
-        this->Status = H5Aclose(attr);
+        if (attr < 0)
+        {
+          throw std::runtime_error("Unable to open HDF attribute (GetCells ctype section).");
+        }
+        CHECK_HDF(H5Aread(attr, H5T_NATIVE_INT16, &ctype_elementType));
+        CHECK_HDF(H5Aclose(attr));
         attr = H5Aopen(group_ctype, "minId", H5P_DEFAULT);
-        this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &ctype_minId);
-        this->Status = H5Aclose(attr);
+        if (attr < 0)
+        {
+          throw std::runtime_error("Unable to open HDF attribute (GetCells ctype section).");
+        }
+        CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &ctype_minId));
+        CHECK_HDF(H5Aclose(attr));
         attr = H5Aopen(group_ctype, "maxId", H5P_DEFAULT);
-        this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &ctype_maxId);
-        this->Status = H5Aclose(attr);
+        if (attr < 0)
+        {
+          throw std::runtime_error("Unable to open HDF attribute (GetCells ctype section).");
+        }
+        CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &ctype_maxId));
+        CHECK_HDF(H5Aclose(attr));
 
         if (static_cast<unsigned int>(ctype_elementType) == elementType &&
           static_cast<unsigned int>(ctype_minId) <= firstIndex &&
@@ -690,13 +879,17 @@ void vtkFLUENTCFFReader::GetCells()
         {
           cellTypeData.resize(ctype_maxId - ctype_minId + 1);
           dset = H5Dopen(group_ctype, "cell-types", H5P_DEFAULT);
-          this->Status =
-            H5Dread(dset, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL, H5P_DEFAULT, cellTypeData.data());
-          this->Status = H5Dclose(dset);
-          this->Status = H5Gclose(group_ctype);
+          if (dset < 0)
+          {
+            throw std::runtime_error("Unable to open HDF dataset (GetCells ctype section).");
+          }
+          CHECK_HDF(
+            H5Dread(dset, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL, H5P_DEFAULT, cellTypeData.data()));
+          CHECK_HDF(H5Dclose(dset));
+          CHECK_HDF(H5Gclose(group_ctype));
           break;
         }
-        this->Status = H5Gclose(group_ctype);
+        CHECK_HDF(H5Gclose(group_ctype));
       }
 
       if (!cellTypeData.empty())
@@ -722,7 +915,7 @@ void vtkFLUENTCFFReader::GetCells()
     }
   }
 
-  this->Status = H5Gclose(group);
+  CHECK_HDF(H5Gclose(group));
 }
 
 //------------------------------------------------------------------------------
@@ -730,14 +923,26 @@ void vtkFLUENTCFFReader::GetFacesGlobal()
 {
   hid_t group, attr;
   uint64_t firstIndex, lastIndex;
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetFacesGlobal).");
+  }
   attr = H5Aopen(group, "faceOffset", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &firstIndex);
-  this->Status = H5Aclose(attr);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetFacesGlobal).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &firstIndex));
+  CHECK_HDF(H5Aclose(attr));
   attr = H5Aopen(group, "faceCount", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &lastIndex);
-  this->Status = H5Aclose(attr);
-  this->Status = H5Gclose(group);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetFacesGlobal).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &lastIndex));
+  CHECK_HDF(H5Aclose(attr));
+  CHECK_HDF(H5Gclose(group));
   this->Faces.resize(lastIndex);
 }
 
@@ -746,56 +951,99 @@ void vtkFLUENTCFFReader::GetFaces()
 {
   hid_t group, attr, dset;
   uint64_t nZones;
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1/faces/zoneTopology", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/zoneTopology", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetFaces).");
+  }
   attr = H5Aopen(group, "nZones", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nZones);
-  this->Status = H5Aclose(attr);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetFaces).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nZones));
+  CHECK_HDF(H5Aclose(attr));
 
   std::vector<uint64_t> minId(nZones);
   dset = H5Dopen(group, "minId", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, minId.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, minId.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<uint64_t> maxId(nZones);
   dset = H5Dopen(group, "maxId", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, maxId.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, maxId.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> Id(nZones);
   dset = H5Dopen(group, "id", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, Id.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, Id.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<uint64_t> dimension(nZones);
   dset = H5Dopen(group, "dimension", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, dimension.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, dimension.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> zoneT(nZones);
   dset = H5Dopen(group, "zoneType", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, zoneT.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, zoneT.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> faceT(nZones);
   dset = H5Dopen(group, "faceType", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, faceT.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, faceT.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> childZoneId(nZones);
   dset = H5Dopen(group, "childZoneId", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, childZoneId.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, childZoneId.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> shadowZoneId(nZones);
   dset = H5Dopen(group, "shadowZoneId", H5P_DEFAULT);
-  this->Status =
-    H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, shadowZoneId.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, shadowZoneId.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> flags(nZones);
   dset = H5Dopen(group, "flags", H5P_DEFAULT);
-  this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, flags.data());
-  this->Status = H5Dclose(dset);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, flags.data()));
+  CHECK_HDF(H5Dclose(dset));
 
   for (uint64_t iZone = 0; iZone < nZones; iZone++)
   {
@@ -821,44 +1069,76 @@ void vtkFLUENTCFFReader::GetFaces()
     }
   }
 
-  this->Status = H5Gclose(group);
+  CHECK_HDF(H5Gclose(group));
 
   // FaceType
   uint64_t nSections;
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1/faces/nodes", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/nodes", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetFaces nodes).");
+  }
   attr = H5Aopen(group, "nSections", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nSections);
-  this->Status = H5Aclose(attr);
-  this->Status = H5Gclose(group);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetFaces nodes).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nSections));
+  CHECK_HDF(H5Aclose(attr));
+  CHECK_HDF(H5Gclose(group));
 
   for (uint64_t iSection = 0; iSection < nSections; iSection++)
   {
     uint64_t minId_fnodes, maxId_fnodes, nodes_size;
     std::string groupname = std::string("/meshes/1/faces/nodes/" + std::to_string(iSection + 1));
-    group = H5Gopen(this->FluentCaseFile, groupname.c_str(), H5P_DEFAULT);
+    group = H5Gopen(this->HDFImpl->FluentCaseFile, groupname.c_str(), H5P_DEFAULT);
+    if (group < 0)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetFaces nodes isection).");
+    }
 
     attr = H5Aopen(group, "minId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &minId_fnodes);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetFaces nodes isection).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &minId_fnodes));
+    CHECK_HDF(H5Aclose(attr));
     attr = H5Aopen(group, "maxId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &maxId_fnodes);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetFaces nodes isection).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &maxId_fnodes));
+    CHECK_HDF(H5Aclose(attr));
 
     std::vector<int16_t> nnodes_fnodes(maxId_fnodes - minId_fnodes + 1);
     dset = H5Dopen(group, "nnodes", H5P_DEFAULT);
-    this->Status =
-      H5Dread(dset, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL, H5P_DEFAULT, nnodes_fnodes.data());
-    this->Status = H5Dclose(dset);
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetFaces nodes isection).");
+    }
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL, H5P_DEFAULT, nnodes_fnodes.data()));
+    CHECK_HDF(H5Dclose(dset));
 
     dset = H5Dopen(group, "nodes", H5P_DEFAULT);
-    attr = H5Aopen(dset, "chunkDim", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nodes_size);
-    this->Status = H5Aclose(attr);
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetFaces nodes isection).");
+    }
+    hid_t space = H5Dget_space(dset);
+    hid_t ndims = H5Sget_simple_extent_ndims(space);
+    if (ndims < 1)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetFaces ndims < 1).");
+    }
+    std::vector<hsize_t> dims(ndims);
+    CHECK_HDF(H5Sget_simple_extent_dims(space, dims.data(), nullptr));
+    nodes_size = static_cast<uint64_t>(dims[0]);
 
     std::vector<uint32_t> nodes_fnodes(nodes_size);
-    this->Status =
-      H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, nodes_fnodes.data());
-    this->Status = H5Dclose(dset);
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, nodes_fnodes.data()));
+    CHECK_HDF(H5Dclose(dset));
 
     int numberOfNodesInFace = 0;
     uint64_t ptr = minId_fnodes;
@@ -876,30 +1156,49 @@ void vtkFLUENTCFFReader::GetFaces()
         ptr++;
       }
     }
-    this->Status = H5Gclose(group);
+    CHECK_HDF(H5Gclose(group));
   }
 
   // C0 C1
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1/faces/c0", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/c0", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetFaces c0).");
+  }
   attr = H5Aopen(group, "nSections", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nSections);
-  this->Status = H5Aclose(attr);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetFaces c0).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nSections));
+  CHECK_HDF(H5Aclose(attr));
   for (uint64_t iSection = 0; iSection < nSections; iSection++)
   {
     uint64_t minc0, maxc0;
 
     dset = H5Dopen(group, std::to_string(iSection + 1).c_str(), H5P_DEFAULT);
-
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetFaces c0 iSection).");
+    }
     attr = H5Aopen(dset, "minId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &minc0);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetFaces c0 iSection).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &minc0));
+    CHECK_HDF(H5Aclose(attr));
     attr = H5Aopen(dset, "maxId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &maxc0);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetFaces c0 iSection).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &maxc0));
+    CHECK_HDF(H5Aclose(attr));
 
     std::vector<uint32_t> c0(maxc0 - minc0 + 1);
-    this->Status = H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, c0.data());
-    this->Status = H5Dclose(dset);
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, c0.data()));
+    CHECK_HDF(H5Dclose(dset));
 
     for (unsigned int i = static_cast<unsigned int>(minc0); i <= static_cast<unsigned int>(maxc0);
          i++)
@@ -911,12 +1210,20 @@ void vtkFLUENTCFFReader::GetFaces()
       }
     }
   }
-  this->Status = H5Gclose(group);
+  CHECK_HDF(H5Gclose(group));
 
-  group = H5Gopen(this->FluentCaseFile, "/meshes/1/faces/c1", H5P_DEFAULT);
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/c1", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetFaces c1).");
+  }
   attr = H5Aopen(group, "nSections", H5P_DEFAULT);
-  this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nSections);
-  this->Status = H5Aclose(attr);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetFaces c1).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nSections));
+  CHECK_HDF(H5Aclose(attr));
   for (size_t i = 0; i < this->Faces.size(); i++)
   {
     this->Faces[i].c1 = -1;
@@ -926,17 +1233,28 @@ void vtkFLUENTCFFReader::GetFaces()
     uint64_t minc1, maxc1;
 
     dset = H5Dopen(group, std::to_string(iSection + 1).c_str(), H5P_DEFAULT);
-
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetFaces c1 iSection).");
+    }
     attr = H5Aopen(dset, "minId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &minc1);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetFaces c1 iSection).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &minc1));
+    CHECK_HDF(H5Aclose(attr));
     attr = H5Aopen(dset, "maxId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &maxc1);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetFaces c1 iSection).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &maxc1));
+    CHECK_HDF(H5Aclose(attr));
 
     std::vector<uint32_t> c1(maxc1 - minc1 + 1);
-    this->Status = H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, c1.data());
-    this->Status = H5Dclose(dset);
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, c1.data()));
+    CHECK_HDF(H5Dclose(dset));
 
     for (unsigned int i = static_cast<unsigned int>(minc1); i <= static_cast<unsigned int>(maxc1);
          i++)
@@ -949,7 +1267,7 @@ void vtkFLUENTCFFReader::GetFaces()
     }
   }
 
-  this->Status = H5Gclose(group);
+  CHECK_HDF(H5Gclose(group));
 }
 
 //------------------------------------------------------------------------------
@@ -962,7 +1280,7 @@ void vtkFLUENTCFFReader::GetPeriodicShadowFaces()
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::GetCellOverset()
 {
-  herr_t s1 = H5Gget_objinfo(this->FluentCaseFile, "/special/Overset_DCI", false, nullptr);
+  herr_t s1 = H5Gget_objinfo(this->HDFImpl->FluentCaseFile, "/special/Overset_DCI", false, nullptr);
   if (s1 == 0)
   {
     vtkWarningMacro("The overset layout of this CFF file cannot be displayed by this reader.");
@@ -970,36 +1288,66 @@ void vtkFLUENTCFFReader::GetCellOverset()
     // containing overset cell zone
     // This function can read the overset structure but Ansys Fluent does not
     // give any explanation about the structure of the overset data.
-    /*herr_t status;
+    /*
     hid_t group, attr, dset;
     uint64_t nSections;
-    group = H5Gopen(this->FluentCaseFile, "/special/Overset_DCI/cells", H5P_DEFAULT);
-
+    group = H5Gopen(this->HDFImpl->FluentCaseFile, "/special/Overset_DCI/cells", H5P_DEFAULT);
+    if (group < 0)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetCellOverset).");
+    }
     dset = H5Dopen(group, "topology", H5P_DEFAULT);
-    attr = H5Aopen(dset, "chunkDim", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nSections);
-    this->Status = H5Aclose(attr);
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetCellOverset).");
+    }
+    hid_t space = H5Dget_space(dset);
+    hid_t ndims = H5Sget_simple_extent_ndims(space);
+    if (ndims < 1)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetCellOverset ndims < 1).");
+    }
+    std::vector<hsize_t> dims(ndims);
+    CHECK_HDF(H5Sget_simple_extent_dims(space, dims.data(), nullptr));
+    nSections = static_cast<uint64_t>(dims[0]);
 
     std::vector<int32_t> topology(nSections);
-    this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, topology.data());
-    this->Status = H5Dclose(dset);
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+topology.data()); CHECK_HDF(H5Dclose(dset));
 
     for (int iSection = 0; iSection < nSections; iSection++)
     {
       hid_t groupTopo = H5Gopen(group, std::to_string(topology[iSection]).c_str(), H5P_DEFAULT);
+      if (groupTopo < 0)
+      {
+        throw std::runtime_error("Unable to open HDF group (GetCellOverset topology).");
+      }
 
       uint64_t minId, maxId;
       attr = H5Aopen(groupTopo, "minId", H5P_DEFAULT);
-      this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &minId);
-      this->Status = H5Aclose(attr);
+      if (attr < 0)
+      {
+        throw std::runtime_error("Unable to open HDF attribute (GetCellOverset topology).");
+      }
+      CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &minId));
+      CHECK_HDF(H5Aclose(attr));
       attr = H5Aopen(groupTopo, "maxId", H5P_DEFAULT);
-      this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &maxId);
-      this->Status = H5Aclose(attr);
+      if (attr < 0)
+      {
+        throw std::runtime_error("Unable to open HDF attribute (GetCellOverset topology).");
+      }
+      CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &maxId));
+      CHECK_HDF(H5Aclose(attr));
 
       std::vector<int32_t> ndata(maxId - minId + 1);
       dset = H5Dopen(groupTopo, "ndata", H5P_DEFAULT);
-      this->Status = H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, ndata.data());
-      this->Status = H5Dclose(dset);
+      if (dset < 0)
+      {
+        throw std::runtime_error("Unable to open HDF dataset (GetCellOverset topology).");
+      }
+      CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+ndata.data()));
+      CHECK_HDF(H5Dclose(dset));
 
       for (unsigned int i = static_cast<unsigned int>(minId); i <= static_cast<unsigned int>(maxId);
 i++)
@@ -1009,52 +1357,85 @@ i++)
       }
 
       dset = H5Dopen(groupTopo, "data", H5P_DEFAULT);
+      if (dset < 0)
+      {
+        throw std::runtime_error("Unable to open HDF dataset (GetCellOverset topology).");
+      }
       uint64_t size_data;
-      attr = H5Aopen(dset, "chunkDim", H5P_DEFAULT);
-      this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &size_data);
-      this->Status = H5Aclose(attr);
+      hid_t space = H5Dget_space(dset);
+      hid_t ndims = H5Sget_simple_extent_ndims(space);
+      std::vector<hsize_t> dims(ndims);
+      CHECK_HDF(H5Sget_simple_extent_dims(space, dims.data(), nullptr));
+      size_data = static_cast<uint64_t>(dims[0]);
       std::vector<int8_t> data(size_data);
-      this->Status = H5Dread(dset, H5T_NATIVE_INT8, H5S_ALL, H5S_ALL, H5P_DEFAULT, data.data());
-      this->Status = H5Dclose(dset);
+      CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT8, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+data.data()));
+      CHECK_HDF(H5Dclose(dset));
 
-      this->Status = H5Dclose(dset);
-      this->Status = H5Gclose(groupTopo);
+      CHECK_HDF(H5Dclose(dset));
+      CHECK_HDF(H5Gclose(groupTopo));
     }
 
-    this->Status = H5Gclose(group);*/
+    CHECK_HDF(H5Gclose(group));*/
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::GetCellTree()
 {
-  herr_t s1 = H5Gget_objinfo(this->FluentCaseFile, "/meshes/1/cells/tree", false, nullptr);
+  herr_t s1 = H5Gget_objinfo(this->HDFImpl->FluentCaseFile, "/meshes/1/cells/tree", false, nullptr);
   if (s1 == 0)
   {
     hid_t group, attr, dset;
     uint64_t minId, maxId;
-    group = H5Gopen(this->FluentCaseFile, "/meshes/1/cells/tree/1", H5P_DEFAULT);
+    group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/cells/tree/1", H5P_DEFAULT);
+    if (group < 0)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetCellTree).");
+    }
     attr = H5Aopen(group, "minId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &minId);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetCellTree).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &minId));
+    CHECK_HDF(H5Aclose(attr));
     attr = H5Aopen(group, "maxId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &maxId);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetCellTree).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &maxId));
+    CHECK_HDF(H5Aclose(attr));
 
     std::vector<int16_t> nkids(maxId - minId + 1);
     dset = H5Dopen(group, "nkids", H5P_DEFAULT);
-    this->Status = H5Dread(dset, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL, H5P_DEFAULT, nkids.data());
-    this->Status = H5Dclose(dset);
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetCellTree).");
+    }
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL, H5P_DEFAULT, nkids.data()));
+    CHECK_HDF(H5Dclose(dset));
 
     uint64_t kids_size;
     dset = H5Dopen(group, "kids", H5P_DEFAULT);
-    attr = H5Aopen(dset, "chunkDim", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &kids_size);
-    this->Status = H5Aclose(attr);
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetCellTree).");
+    }
+    hid_t space = H5Dget_space(dset);
+    hid_t ndims = H5Sget_simple_extent_ndims(space);
+    if (ndims < 1)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetCellTree ndims < 1).");
+    }
+    std::vector<hsize_t> dims(ndims);
+    CHECK_HDF(H5Sget_simple_extent_dims(space, dims.data(), nullptr));
+    kids_size = static_cast<uint64_t>(dims[0]);
 
     std::vector<uint32_t> kids(kids_size);
-    this->Status = H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, kids.data());
-    this->Status = H5Dclose(dset);
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, kids.data()));
+    CHECK_HDF(H5Dclose(dset));
 
     uint64_t ptr = 0;
     for (unsigned int i = static_cast<unsigned int>(minId); i <= static_cast<unsigned int>(maxId);
@@ -1071,40 +1452,66 @@ void vtkFLUENTCFFReader::GetCellTree()
       }
     }
 
-    this->Status = H5Gclose(group);
+    CHECK_HDF(H5Gclose(group));
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::GetFaceTree()
 {
-  herr_t s1 = H5Gget_objinfo(this->FluentCaseFile, "/meshes/1/faces/tree", false, nullptr);
+  herr_t s1 = H5Gget_objinfo(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/tree", false, nullptr);
   if (s1 == 0)
   {
     hid_t group, attr, dset;
     uint64_t minId, maxId;
-    group = H5Gopen(this->FluentCaseFile, "/meshes/1/faces/tree/1", H5P_DEFAULT);
+    group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/tree/1", H5P_DEFAULT);
+    if (group < 0)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetFaceTree).");
+    }
     attr = H5Aopen(group, "minId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &minId);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetFaceTree).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &minId));
+    CHECK_HDF(H5Aclose(attr));
     attr = H5Aopen(group, "maxId", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &maxId);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetFaceTree).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &maxId));
+    CHECK_HDF(H5Aclose(attr));
 
     std::vector<int16_t> nkids(maxId - minId + 1);
     dset = H5Dopen(group, "nkids", H5P_DEFAULT);
-    this->Status = H5Dread(dset, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL, H5P_DEFAULT, nkids.data());
-    this->Status = H5Dclose(dset);
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetFaceTree).");
+    }
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL, H5P_DEFAULT, nkids.data()));
+    CHECK_HDF(H5Dclose(dset));
 
     uint64_t kids_size;
     dset = H5Dopen(group, "kids", H5P_DEFAULT);
-    attr = H5Aopen(dset, "chunkDim", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &kids_size);
-    this->Status = H5Aclose(attr);
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetFaceTree).");
+    }
+    hid_t space = H5Dget_space(dset);
+    hid_t ndims = H5Sget_simple_extent_ndims(space);
+    if (ndims < 1)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetFaceTree ndims < 1).");
+    }
+    std::vector<hsize_t> dims(ndims);
+    CHECK_HDF(H5Sget_simple_extent_dims(space, dims.data(), nullptr));
+    kids_size = static_cast<uint64_t>(dims[0]);
 
     std::vector<uint32_t> kids(kids_size);
-    this->Status = H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, kids.data());
-    this->Status = H5Dclose(dset);
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, kids.data()));
+    CHECK_HDF(H5Dclose(dset));
 
     uint64_t ptr = 0;
     for (unsigned int i = static_cast<unsigned int>(minId); i <= static_cast<unsigned int>(maxId);
@@ -1119,31 +1526,47 @@ void vtkFLUENTCFFReader::GetFaceTree()
       }
     }
 
-    this->Status = H5Gclose(group);
+    CHECK_HDF(H5Gclose(group));
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::GetInterfaceFaceParents()
 {
-  herr_t s1 = H5Gget_objinfo(this->FluentCaseFile, "/meshes/1/faces/interface", false, nullptr);
+  herr_t s1 =
+    H5Gget_objinfo(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/interface", false, nullptr);
   if (s1 == 0)
   {
     hid_t group, attr, dset;
     uint64_t nData, nZones;
-    group = H5Gopen(this->FluentCaseFile, "/meshes/1/faces/interface", H5P_DEFAULT);
+    group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/interface", H5P_DEFAULT);
+    if (group < 0)
+    {
+      throw std::runtime_error("Unable to open HDF group (GetInterfaceFaceParents).");
+    }
     attr = H5Aopen(group, "nData", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nData);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetInterfaceFaceParents).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nData));
+    CHECK_HDF(H5Aclose(attr));
     attr = H5Aopen(group, "nZones", H5P_DEFAULT);
-    this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nZones);
-    this->Status = H5Aclose(attr);
+    if (attr < 0)
+    {
+      throw std::runtime_error("Unable to open HDF attribute (GetInterfaceFaceParents).");
+    }
+    CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nZones));
+    CHECK_HDF(H5Aclose(attr));
 
     std::vector<uint64_t> nciTopology(nData * nZones);
     dset = H5Dopen(group, "nciTopology", H5P_DEFAULT);
-    this->Status =
-      H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, nciTopology.data());
-    this->Status = H5Dclose(dset);
+    if (dset < 0)
+    {
+      throw std::runtime_error("Unable to open HDF dataset (GetInterfaceFaceParents).");
+    }
+    CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, nciTopology.data()));
+    CHECK_HDF(H5Dclose(dset));
 
     for (uint64_t iZone = 0; iZone < nZones; iZone++)
     {
@@ -1152,15 +1575,26 @@ void vtkFLUENTCFFReader::GetInterfaceFaceParents()
       int maxId = static_cast<int>(nciTopology[iZone * nData + 2]);
 
       hid_t group_int = H5Gopen(group, std::to_string(zoneId).c_str(), H5P_DEFAULT);
-
+      if (group_int < 0)
+      {
+        throw std::runtime_error("Unable to open HDF group (GetInterfaceFaceParents topology).");
+      }
       std::vector<uint64_t> pf0(maxId - minId + 1);
       std::vector<uint64_t> pf1(maxId - minId + 1);
       dset = H5Dopen(group_int, "pf0", H5P_DEFAULT);
-      this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, pf0.data());
-      this->Status = H5Dclose(dset);
+      if (dset < 0)
+      {
+        throw std::runtime_error("Unable to open HDF dataset (GetInterfaceFaceParents topology).");
+      }
+      CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, pf0.data()));
+      CHECK_HDF(H5Dclose(dset));
       dset = H5Dopen(group_int, "pf1", H5P_DEFAULT);
-      this->Status = H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, pf1.data());
-      this->Status = H5Dclose(dset);
+      if (dset < 0)
+      {
+        throw std::runtime_error("Unable to open HDF dataset (GetInterfaceFaceParents topology).");
+      }
+      CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, pf1.data()));
+      CHECK_HDF(H5Dclose(dset));
 
       for (unsigned int i = static_cast<unsigned int>(minId); i <= static_cast<unsigned int>(maxId);
            i++)
@@ -1172,10 +1606,10 @@ void vtkFLUENTCFFReader::GetInterfaceFaceParents()
         this->Faces[parentId1 - 1].interfaceFaceParent = 1;
         this->Faces[i - 1].interfaceFaceChild = 1;
       }
-      this->Status = H5Gclose(group_int);
+      CHECK_HDF(H5Gclose(group_int));
     }
 
-    this->Status = H5Gclose(group);
+    CHECK_HDF(H5Gclose(group));
   }
 }
 
@@ -1233,7 +1667,7 @@ void vtkFLUENTCFFReader::PopulateCellTree()
     // If cell is parent cell -> interpolate data from children
     if (cell.parent == 1)
     {
-      for (size_t k = 0; k < this->ScalarDataChunks.size(); k++)
+      for (auto& ScalarDataChunk : this->ScalarDataChunks)
       {
         double data = 0.0;
         int ncell = 0;
@@ -1241,46 +1675,29 @@ void vtkFLUENTCFFReader::PopulateCellTree()
         {
           if (this->Cells[cell.childId[j]].parent == 0)
           {
-            data += this->ScalarDataChunks[k].scalarData[cell.childId[j]];
+            data += ScalarDataChunk.scalarData[cell.childId[j]];
             ncell++;
           }
         }
-        if (ncell == 0)
-        {
-          this->ScalarDataChunks[k].scalarData.push_back(0.0);
-        }
-        else
-        {
-          this->ScalarDataChunks[k].scalarData.push_back(data / (double)ncell);
-        }
+        ScalarDataChunk.scalarData.emplace_back(
+          (ncell != 0 ? data / static_cast<double>(ncell) : 0.0));
       }
-      for (size_t k = 0; k < this->VectorDataChunks.size(); k++)
+      for (auto& VectorDataChunk : this->VectorDataChunks)
       {
-        double datax = 0.0;
-        double datay = 0.0;
-        double dataz = 0.0;
-        int ncell = 0;
-        for (size_t j = 0; j < cell.childId.size(); j++)
+        for (size_t k = 0; k < VectorDataChunk.dim; k++)
         {
-          if (this->Cells[cell.childId[j]].parent == 0)
+          double data = 0.0;
+          int ncell = 0;
+          for (size_t j = 0; j < cell.childId.size(); j++)
           {
-            datax += this->VectorDataChunks[k].iComponentData[cell.childId[j]];
-            datay += this->VectorDataChunks[k].jComponentData[cell.childId[j]];
-            dataz += this->VectorDataChunks[k].kComponentData[cell.childId[j]];
-            ncell++;
+            if (this->Cells[cell.childId[j]].parent == 0)
+            {
+              data += VectorDataChunk.vectorData[k + VectorDataChunk.dim * cell.childId[j]];
+              ncell++;
+            }
           }
-        }
-        if (ncell == 0)
-        {
-          this->VectorDataChunks[k].iComponentData.push_back(0.0);
-          this->VectorDataChunks[k].jComponentData.push_back(0.0);
-          this->VectorDataChunks[k].kComponentData.push_back(0.0);
-        }
-        else
-        {
-          this->VectorDataChunks[k].iComponentData.push_back(datax / (double)ncell);
-          this->VectorDataChunks[k].jComponentData.push_back(datay / (double)ncell);
-          this->VectorDataChunks[k].kComponentData.push_back(dataz / (double)ncell);
+          VectorDataChunk.vectorData.emplace_back(
+            (ncell != 0 ? data / static_cast<double>(ncell) : 0.0));
         }
       }
     }
@@ -1830,49 +2247,53 @@ void vtkFLUENTCFFReader::PopulateWedgeCell(int i)
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::PopulatePolyhedronCell(int i)
 {
-  //  We can't set the size on the nodes std::vector because we
-  //  are not sure how many we are going to have.
-  //  All we have to do here is add the nodes from the faces into
-  //  nodes std::vector within the cell.  All we have to check for is
-  //  duplicate nodes.
-  //
+  // Reconstruct polyhedron cell for VTK
+  // For polyhedron cell, a special ptIds input format is required:
+  // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
 
+  this->Cells[i].nodes.push_back(static_cast<int>(this->Cells[i].faces.size()));
   for (size_t j = 0; j < this->Cells[i].faces.size(); j++)
   {
-    for (size_t k = 0; k < this->Faces[this->Cells[i].faces[j]].nodes.size(); k++)
+    size_t numFacePts = this->Faces[this->Cells[i].faces[j]].nodes.size();
+    if (numFacePts != 0)
     {
-      int flag = 0;
-      // Is the node already in the cell?
-      for (size_t n = 0; n < this->Cells[i].nodes.size(); n++)
+      this->Cells[i].nodes.push_back(static_cast<int>(numFacePts));
+      for (size_t k = 0; k < numFacePts; k++)
       {
-        if (this->Cells[i].nodes[n] == this->Faces[this->Cells[i].faces[j]].nodes[k])
-        {
-          flag = 1;
-        }
-      }
-      if (flag == 0)
-      {
-        // No match - insert node into cell.
         this->Cells[i].nodes.push_back(this->Faces[this->Cells[i].faces[j]].nodes[k]);
       }
+    }
+    else
+    {
+      this->Cells[i].nodes[0]--;
     }
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTCFFReader::GetData()
+int vtkFLUENTCFFReader::GetData()
 {
-  if (H5Gget_objinfo(this->FluentDataFile, "/results/1", false, nullptr) == 0)
+  if (H5Gget_objinfo(this->HDFImpl->FluentDataFile, "/results/1", false, nullptr) == 0)
   {
     int iphase = 1;
     while (
-      H5Gget_objinfo(this->FluentDataFile,
+      H5Gget_objinfo(this->HDFImpl->FluentDataFile,
         std::string("/results/1/phase-" + std::to_string(iphase)).c_str(), false, nullptr) == 0)
     {
       hid_t group, attr, dset, groupcell, space, dataType;
-      group = H5Gopen(this->FluentDataFile,
+      group = H5Gopen(this->HDFImpl->FluentDataFile,
         std::string("/results/1/phase-" + std::to_string(iphase)).c_str(), H5P_DEFAULT);
+      if (group < 0)
+      {
+        vtkErrorMacro("Unable to open HDF group (GetData).");
+        return 0;
+      }
       groupcell = H5Gopen(group, "cells", H5P_DEFAULT);
+      if (groupcell < 0)
+      {
+        vtkErrorMacro("Unable to open HDF group (GetData cells).");
+        return 0;
+      }
 
       char* strchar;
       dset = H5Dopen(groupcell, "fields", H5P_DEFAULT);
@@ -1880,10 +2301,10 @@ void vtkFLUENTCFFReader::GetData()
       dataType = H5Dget_type(dset);
       size_t stringLength = H5Tget_size(dataType);
       strchar = new char[stringLength];
-      this->Status = H5Dread(dset, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, strchar);
-      this->Status = H5Dclose(dset);
-      this->Status = H5Tclose(dataType);
-      this->Status = H5Sclose(space);
+      CHECK_HDF(H5Dread(dset, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, strchar));
+      CHECK_HDF(H5Dclose(dset));
+      CHECK_HDF(H5Tclose(dataType));
+      CHECK_HDF(H5Sclose(space));
       std::string str(strchar);
       delete[] strchar;
       std::vector<std::string> v_str;
@@ -1896,109 +2317,232 @@ void vtkFLUENTCFFReader::GetData()
       for (auto strSectionName : v_str)
       {
         hid_t groupdata = H5Gopen(groupcell, strSectionName.c_str(), H5P_DEFAULT);
+        if (groupdata < 0)
+        {
+          vtkErrorMacro("Unable to open HDF group (GetData data).");
+          return 0;
+        }
         if (iphase > 1)
         {
           strSectionName =
-            std::string("phase_") + std::to_string(iphase) + std::string("-") + strSectionName;
+            std::string("phase_") + std::to_string(iphase - 1) + std::string("-") + strSectionName;
+        }
+
+        if (this->CellDataArraySelection->ArrayIsEnabled(strSectionName.c_str()))
+        {
+          uint64_t nSections = 0;
+          attr = H5Aopen(groupdata, "nSections", H5P_DEFAULT);
+          if (attr < 0)
+          {
+            throw std::runtime_error("Unable to open HDF attribute (GetData data).");
+          }
+          CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nSections));
+          CHECK_HDF(H5Aclose(attr));
+
+          for (uint64_t iSection = 0; iSection < nSections; iSection++)
+          {
+            dset = H5Dopen(groupdata, std::to_string(iSection + 1).c_str(), H5P_DEFAULT);
+            if (dset < 0)
+            {
+              throw std::runtime_error("Unable to open HDF dataset (GetData dat iSection).");
+            }
+            uint64_t minId, maxId;
+            attr = H5Aopen(dset, "minId", H5P_DEFAULT);
+            if (attr < 0)
+            {
+              throw std::runtime_error("Unable to open HDF attribute (GetData data iSection).");
+            }
+            CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &minId));
+            CHECK_HDF(H5Aclose(attr));
+            attr = H5Aopen(dset, "maxId", H5P_DEFAULT);
+            if (attr < 0)
+            {
+              throw std::runtime_error("Unable to open HDF attribute (GetData data iSection).");
+            }
+            CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &maxId));
+            CHECK_HDF(H5Aclose(attr));
+
+            space = H5Dget_space(dset);
+            hid_t ndims = H5Sget_simple_extent_ndims(space);
+            std::vector<hsize_t> dims(ndims);
+            CHECK_HDF(H5Sget_simple_extent_dims(space, dims.data(), nullptr));
+            hsize_t total_dim = 1;
+            for (hid_t k = 0; k < ndims; k++)
+            {
+              total_dim *= dims[k];
+            }
+
+            // Data precision only in DAT file
+            int type_prec = 0;
+            hid_t type = H5Dget_type(dset);
+            if (H5Tget_precision(type) == 32)
+            {
+              type_prec = 1;
+            }
+            CHECK_HDF(H5Tclose(type));
+
+            std::vector<double> data(total_dim);
+            if (type_prec == 0)
+            {
+              CHECK_HDF(
+                H5Dread(dset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data.data()));
+            }
+            else
+            {
+              // This could be improved by using datatype and dataspace in HDF5
+              // to directly read the float data into double format.
+              std::vector<float> dataf(total_dim);
+              CHECK_HDF(
+                H5Dread(dset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, dataf.data()));
+              for (size_t j = 0; j < total_dim; j++)
+              {
+                data[j] = static_cast<double>(dataf[j]);
+              }
+            }
+
+            if (ndims == 1)
+            {
+              this->NumberOfScalars++;
+              this->ScalarDataChunks.emplace_back();
+              this->ScalarDataChunks.back().variableName = strSectionName;
+              for (size_t j = minId; j <= maxId; j++)
+              {
+                this->ScalarDataChunks.back().scalarData.push_back(data[j - 1]);
+              }
+            }
+            else if (ndims <= 3) // Maximum number of component for vector (2 or 3)
+            {
+              this->NumberOfVectors++;
+              this->VectorDataChunks.emplace_back();
+              this->VectorDataChunks.back().dim = ndims;
+              this->VectorDataChunks.back().variableName = strSectionName;
+              for (size_t k = 0; k < static_cast<size_t>(ndims); k++)
+              {
+                for (size_t j = minId; j <= maxId; j++)
+                {
+                  this->VectorDataChunks.back().vectorData.push_back(data[dims[1] * (j - 1) + k]);
+                }
+              }
+            }
+
+            CHECK_HDF(H5Sclose(space));
+            CHECK_HDF(H5Dclose(dset));
+          }
+        }
+
+        CHECK_HDF(H5Gclose(groupdata));
+      }
+
+      CHECK_HDF(H5Gclose(groupcell));
+      CHECK_HDF(H5Gclose(group));
+      iphase++;
+    }
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkFLUENTCFFReader::GetMetaData()
+{
+  if (H5Gget_objinfo(this->HDFImpl->FluentDataFile, "/results/1", false, nullptr) == 0)
+  {
+    int iphase = 1;
+    while (
+      H5Gget_objinfo(this->HDFImpl->FluentDataFile,
+        std::string("/results/1/phase-" + std::to_string(iphase)).c_str(), false, nullptr) == 0)
+    {
+      hid_t group, attr, dset, groupcell, space, dataType;
+      group = H5Gopen(this->HDFImpl->FluentDataFile,
+        std::string("/results/1/phase-" + std::to_string(iphase)).c_str(), H5P_DEFAULT);
+      if (group < 0)
+      {
+        vtkErrorMacro("Unable to open HDF group (GetMetaData).");
+        return 0;
+      }
+      groupcell = H5Gopen(group, "cells", H5P_DEFAULT);
+      if (groupcell < 0)
+      {
+        vtkErrorMacro("Unable to open HDF group (GetMetaData cells).");
+        return 0;
+      }
+
+      char* strchar;
+      dset = H5Dopen(groupcell, "fields", H5P_DEFAULT);
+      if (dset < 0)
+      {
+        throw std::runtime_error("Unable to open HDF dataset (GetMetaData).");
+      }
+      space = H5Dget_space(dset);
+      dataType = H5Dget_type(dset);
+      size_t stringLength = H5Tget_size(dataType);
+      strchar = new char[stringLength];
+      CHECK_HDF(H5Dread(dset, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, strchar));
+      CHECK_HDF(H5Dclose(dset));
+      CHECK_HDF(H5Tclose(dataType));
+      CHECK_HDF(H5Sclose(space));
+      std::string str(strchar);
+      delete[] strchar;
+      std::vector<std::string> v_str;
+      size_t npos = 0;
+      while (npos < str.length())
+      {
+        v_str.push_back(str.substr(npos, str.find(';', npos) - npos));
+        npos = str.find(';', npos) + 1;
+      }
+      for (auto strSectionName : v_str)
+      {
+        hid_t groupdata = H5Gopen(groupcell, strSectionName.c_str(), H5P_DEFAULT);
+        if (groupdata < 0)
+        {
+          vtkErrorMacro("Unable to open HDF group (GetMetaData data).");
+          return 0;
+        }
+        if (iphase > 1)
+        {
+          strSectionName =
+            std::string("phase_") + std::to_string(iphase - 1) + std::string("-") + strSectionName;
         }
 
         uint64_t nSections;
         attr = H5Aopen(groupdata, "nSections", H5P_DEFAULT);
-        this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &nSections);
-        this->Status = H5Aclose(attr);
+        if (attr < 0)
+        {
+          throw std::runtime_error("Unable to open HDF attribute (GetMetaData data).");
+        }
+        CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nSections));
+        CHECK_HDF(H5Aclose(attr));
 
-        for (int iSection = 0; iSection < static_cast<int>(nSections); iSection++)
+        for (uint64_t iSection = 0; iSection < nSections; iSection++)
         {
           dset = H5Dopen(groupdata, std::to_string(iSection + 1).c_str(), H5P_DEFAULT);
-
-          uint64_t minId, maxId;
-          attr = H5Aopen(dset, "minId", H5P_DEFAULT);
-          this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &minId);
-          this->Status = H5Aclose(attr);
-          attr = H5Aopen(dset, "maxId", H5P_DEFAULT);
-          this->Status = H5Aread(attr, H5T_NATIVE_UINT64, &maxId);
-          this->Status = H5Aclose(attr);
-
+          if (dset < 0)
+          {
+            throw std::runtime_error("Unable to open HDF dataset (GetMetaData data iSection).");
+          }
           space = H5Dget_space(dset);
           hid_t ndims = H5Sget_simple_extent_ndims(space);
-          std::vector<hsize_t> dims(ndims);
-          this->Status = H5Sget_simple_extent_dims(space, dims.data(), nullptr);
-          hsize_t total_dim = 1;
-          for (hid_t k = 0; k < ndims; k++)
-          {
-            total_dim *= dims[k];
-          }
-
-          // Data precision only in DAT file
-          int type_prec = 0;
-          hid_t type = H5Dget_type(dset);
-          if (H5Tget_precision(type) == 32)
-          {
-            type_prec = 1;
-          }
-          this->Status = H5Tclose(type);
-
-          std::vector<double> data(total_dim);
-          if (type_prec == 0)
-          {
-            this->Status =
-              H5Dread(dset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data.data());
-          }
-          else
-          {
-            // This could be improved by using datatype and dataspace in HDF5
-            // to directly read the float data into double format.
-            std::vector<float> dataf(total_dim);
-            this->Status =
-              H5Dread(dset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, dataf.data());
-            for (size_t j = 0; j < total_dim; j++)
-            {
-              data[j] = static_cast<double>(dataf[j]);
-            }
-          }
 
           if (ndims == 1)
           {
-            this->NumberOfScalars++;
-            this->ScalarDataChunks.emplace_back();
-            this->ScalarDataChunks.back().variableName = strSectionName;
-            for (size_t j = minId; j <= maxId; j++)
-            {
-              this->ScalarDataChunks.back().scalarData.push_back(data[j - 1]);
-            }
+            this->PreReadScalarData.push_back(strSectionName);
           }
           else
           {
-            this->NumberOfVectors++;
-            this->VectorDataChunks.emplace_back();
-            this->VectorDataChunks.back().variableName = strSectionName;
-            for (size_t j = minId; j <= maxId; j++)
-            {
-              this->VectorDataChunks.back().iComponentData.push_back(data[dims[1] * (j - 1)]);
-              this->VectorDataChunks.back().jComponentData.push_back(data[dims[1] * (j - 1) + 1]);
-              if (ndims == 3)
-              {
-                this->VectorDataChunks.back().kComponentData.push_back(data[dims[1] * (j - 1) + 2]);
-              }
-              else
-              {
-                this->VectorDataChunks.back().kComponentData.push_back(0.0);
-              }
-            }
+            this->PreReadVectorData.push_back(strSectionName);
           }
 
-          this->Status = H5Tclose(dataType);
-          this->Status = H5Sclose(space);
-          this->Status = H5Dclose(dset);
+          CHECK_HDF(H5Sclose(space));
+          CHECK_HDF(H5Dclose(dset));
         }
 
-        this->Status = H5Gclose(groupdata);
+        CHECK_HDF(H5Gclose(groupdata));
       }
 
-      this->Status = H5Gclose(groupcell);
-      this->Status = H5Gclose(group);
+      CHECK_HDF(H5Gclose(groupcell));
+      CHECK_HDF(H5Gclose(group));
       iphase++;
     }
   }
+  return 1;
 }
 VTK_ABI_NAMESPACE_END

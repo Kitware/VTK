@@ -134,7 +134,9 @@ if (VTK_WRAP_PYTHON)
     Data/vwgt.coords
     Data/vwgt.graph
     Data/room.dat.h5
-    Data/room.cas.h5)
+    Data/room.cas.h5
+    Data/mesh_3ddp.dat.h5
+    Data/mesh_3ddp.cas.h5)
 
   add_subdirectory(Python)
 endif ()

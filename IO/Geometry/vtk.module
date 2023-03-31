@@ -11,7 +11,6 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
-  VTK::hdf5
   VTK::IOCore
   VTK::IOLegacy
   VTK::nlohmannjson
@@ -24,6 +23,7 @@ PRIVATE_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersHybrid
   VTK::FiltersVerdict
+  VTK::hdf5
   VTK::ImagingCore
   VTK::IOImage
   VTK::RenderingCore
