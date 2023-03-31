@@ -90,12 +90,16 @@ public:
   virtual void PrefFullScreen();
 
   /**
-   * Set the size (width and height) of the rendering window in
-   * screen coordinates (in pixels). This resizes the operating
-   * system's view/window and redraws it.
+   * Set the size (width and height in pixels) of the rendering window.
+   * If this is a toplevel window with borders, then the request for a
+   * new size is redirected to the window manager. If the window manager
+   * chooses a different size for the window, the size it chooses will
+   * take effect at the next render, otherwise the size change will take
+   * effect immediately. In the rare case that the window manager does
+   * does not respond at all (buggy/frozen window manager), the SetSize()
+   * method will wait for the response for two seconds before returning.
    *
-   * If the size has changed, this method will fire
-   * vtkCommand::WindowResizeEvent.
+   * If the size has changed, a vtkCommand::WindowResizeEvent will fire.
    */
   void SetSize(int width, int height) override;
   void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
