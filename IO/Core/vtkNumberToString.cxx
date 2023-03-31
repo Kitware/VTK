@@ -19,21 +19,18 @@
 #include VTK_DOUBLECONVERSION_HEADER(double-conversion.h)
 // clang-format on
 
+#include <array>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
+
 namespace
 {
 template <typename TagT>
 inline ostream& ToString(ostream& stream, const TagT& tag)
 {
-  char buf[256];
-  const double_conversion::DoubleToStringConverter& converter =
-    double_conversion::DoubleToStringConverter::EcmaScriptConverter();
-  double_conversion::StringBuilder builder(buf, sizeof(buf));
-  builder.Reset();
-  converter.ToShortest(tag.Value, &builder);
-  stream << builder.Finalize();
+  vtkNumberToString converter;
+  stream << converter.Convert(tag.Value);
   return stream;
 }
 }
@@ -49,4 +46,62 @@ ostream& operator<<(ostream& stream, const vtkNumberToString::TagFloat& tag)
 {
   return ToString(stream, tag);
 }
+
+//------------------------------------------------------------------------------
+void vtkNumberToString::SetLowExponent(int lowExponent)
+{
+  this->LowExponent = lowExponent;
+}
+
+//------------------------------------------------------------------------------
+int vtkNumberToString::GetLowExponent()
+{
+  return this->LowExponent;
+}
+
+//------------------------------------------------------------------------------
+void vtkNumberToString::SetHighExponent(int highExponent)
+{
+  this->HighExponent = highExponent;
+}
+
+//------------------------------------------------------------------------------
+int vtkNumberToString::GetHighExponent()
+{
+  return this->HighExponent;
+}
+
+//------------------------------------------------------------------------------
+std::string vtkNumberToString::Convert(double val)
+{
+  // Copied from double-conversion::EcmaScriptConverter
+  // the last two arguments of the constructor have no effect with ToShortest
+  constexpr int flags = double_conversion::DoubleToStringConverter::UNIQUE_ZERO |
+    double_conversion::DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN;
+  double_conversion::DoubleToStringConverter converter(
+    flags, "Infinity", "NaN", 'e', this->LowExponent, this->HighExponent + 1, 6, 0);
+
+  std::array<char, 256> buf;
+  double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
+  builder.Reset();
+  converter.ToShortest(val, &builder);
+  return builder.Finalize();
+}
+
+std::string vtkNumberToString::Convert(float val)
+{
+  // Copied from double-conversion::EcmaScriptConverter
+  // the last two arguments of the constructor have no effect with ToShortest
+  constexpr int flags = double_conversion::DoubleToStringConverter::UNIQUE_ZERO |
+    double_conversion::DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN;
+  double_conversion::DoubleToStringConverter converter(
+    flags, "Infinity", "NaN", 'e', this->LowExponent, this->HighExponent + 1, 6, 0);
+
+  std::array<char, 256> buf;
+  double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
+  builder.Reset();
+  converter.ToShortestSingle(val, &builder);
+  return builder.Finalize();
+}
+
 VTK_ABI_NAMESPACE_END

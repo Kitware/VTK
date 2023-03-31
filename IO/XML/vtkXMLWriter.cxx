@@ -1593,14 +1593,14 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
 template <class T>
 int vtkXMLWriterWriteVectorAttribute(ostream& os, const char* name, int length, T* data)
 {
-  vtkNumberToString convert;
+  vtkNumberToString converter;
   os << " " << name << "=\"";
   if (length)
   {
-    os << convert(data[0]);
+    os << converter.Convert(data[0]);
     for (int i = 1; i < length; ++i)
     {
-      os << " " << convert(data[i]);
+      os << " " << converter.Convert(data[i]);
     }
   }
   os << "\"";
@@ -1896,8 +1896,8 @@ bool vtkXMLWriter::WriteInformation(vtkInformation* info, vtkIndent indent)
 template <class T>
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const T& value)
 {
-  vtkNumberToString convert;
-  os << convert(value);
+  vtkNumberToString converter;
+  os << converter.Convert(value);
   return os;
 }
 
