@@ -969,6 +969,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
   if (!(shaderModule = wgpuRenderer->HasShaderCache(PolyData)))
   {
     shaderModule = vtkWebGPUInternalsShaderModule::CreateFromWGSL(device, PolyData);
+    wgpuRenderer->InsertShader(PolyData, shaderModule);
   }
 
   vtkWebGPUInternalsRenderPipelineDescriptor descriptor;
