@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkSDL2OpenGL2RenderWindow.h
+Module:    vtkSDL2WebGPURenderWindow.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -13,47 +13,27 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
- * @class   vtkSDL2OpenGL2RenderWindow
+ * @class   vtkSDL2WebGPURenderWindow
  * @brief   OpenGL rendering window
  *
- * vtkSDL2OpenGL2RenderWindow is a concrete implementation of the abstract
+ * vtkSDL2WebGPURenderWindow is a concrete implementation of the abstract
  * class vtkRenderWindow. vtkSDL2OpenGL2Renderer interfaces to the standard
  * OpenGL graphics library using SDL2
  */
 
-#ifndef vtkSDL2OpenGLRenderWindow_h
-#define vtkSDL2OpenGLRenderWindow_h
+#ifndef vtkSDL2WebGPURenderWindow_h
+#define vtkSDL2WebGPURenderWindow_h
 
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-// Ignore reserved-identifier warnings from
-// 1. SDL2/SDL_stdinc.h: warning: identifier '_SDL_size_mul_overflow_builtin'
-// 2. SDL2/SDL_stdinc.h: warning: identifier '_SDL_size_add_overflow_builtin'
-// 3. SDL2/SDL_audio.h: warning: identifier '_SDL_AudioStream'
-// 4. SDL2/SDL_joystick.h: warning: identifier '_SDL_Joystick'
-// 5. SDL2/SDL_sensor.h: warning: identifier '_SDL_Sensor'
-// 6. SDL2/SDL_gamecontroller.h: warning: identifier '_SDL_GameController'
-// 7. SDL2/SDL_haptic.h: warning: identifier '_SDL_Haptic'
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wreserved-identifier"
-#endif
-#ifdef __EMSCRIPTEN__
-#include "SDL.h" // for ivar
-#else
-#include "SDL2/SDL.h" // for ivar
-#endif
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-#include <stack> // for ivar
+#include "vtkWebGPURenderWindow.h"
+
+#include "vtkRenderingWebGPUModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGOPENGL2_EXPORT vtkSDL2OpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGWEBGPU_EXPORT vtkSDL2WebGPURenderWindow : public vtkWebGPURenderWindow
 {
 public:
-  static vtkSDL2OpenGLRenderWindow* New();
-  vtkTypeMacro(vtkSDL2OpenGLRenderWindow, vtkOpenGLRenderWindow);
+  static vtkSDL2WebGPURenderWindow* New();
+  vtkTypeMacro(vtkSDL2WebGPURenderWindow, vtkWebGPURenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -62,7 +42,7 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  void Initialize() override;
+  bool Initialize() override;
 
   /**
    * Finalize the rendering window.  This will shutdown all system-specific
@@ -86,7 +66,7 @@ public:
    * Set the size of the window in pixels.
    */
   void SetSize(int, int) override;
-  void SetSize(int a[2]) override { vtkOpenGLRenderWindow::SetSize(a); }
+  void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
   ///@}
 
   /**
@@ -99,7 +79,7 @@ public:
    * Set the position of the window.
    */
   void SetPosition(int, int) override;
-  void SetPosition(int a[2]) override { vtkOpenGLRenderWindow::SetPosition(a); }
+  void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   ///@}
 
   /**
@@ -118,24 +98,17 @@ public:
    */
   void SetWindowName(const char*) override;
 
-  void* GetGenericDisplayId() override { return (void*)this->ContextId; }
   void* GetGenericWindowId() override { return (void*)this->WindowId; }
   void* GetGenericDrawable() override { return (void*)this->WindowId; }
 
-  /**
-   * Make this windows OpenGL context the current context.
-   */
-  void MakeCurrent() override;
+  void MakeCurrent() override {}
 
-  /**
-   * Release the current context.
-   */
-  void ReleaseCurrent() override;
+  void ReleaseCurrent() override {}
 
   /**
    * Tells if this window is the current OpenGL context for the calling thread.
    */
-  bool IsCurrent() override;
+  bool IsCurrent() override { return false; }
 
   /**
    * Clean up device contexts, rendering contexts, etc.
@@ -147,29 +120,6 @@ public:
    * to do things like swapping buffers (if necessary) or similar actions.
    */
   void Frame() override;
-
-  ///@{
-  /**
-   * Ability to push and pop this window's context
-   * as the current context. The idea being to
-   * if needed make this window's context current
-   * and when done releasing resources restore
-   * the prior context
-   */
-  void PushContext() override;
-  void PopContext() override;
-  ///@}
-
-  /**
-   * Set the number of vertical syncs required between frames.
-   * A value of 0 means swap buffers as quickly as possible
-   * regardless of the vertical refresh. A value of 1 means swap
-   * buffers in sync with the vertical refresh to eliminate tearing.
-   * A value of -1 means use a value of 1 unless we missed a frame
-   * in which case swap immediately. Returns true if the call
-   * succeeded.
-   */
-  bool SetSwapControl(int i) override;
 
   /**
    * Get the size of the color buffer.
@@ -187,13 +137,10 @@ public:
   ///@}
 
 protected:
-  vtkSDL2OpenGLRenderWindow();
-  ~vtkSDL2OpenGLRenderWindow() override;
+  vtkSDL2WebGPURenderWindow();
+  ~vtkSDL2WebGPURenderWindow() override;
 
-  SDL_Window* WindowId;
-  SDL_GLContext ContextId;
-  std::stack<SDL_GLContext> ContextStack;
-  std::stack<SDL_Window*> WindowStack;
+  void* WindowId = nullptr;
   static const std::string DEFAULT_BASE_WINDOW_NAME;
 
   void CleanUpRenderers();
@@ -201,8 +148,8 @@ protected:
   void DestroyWindow() override;
 
 private:
-  vtkSDL2OpenGLRenderWindow(const vtkSDL2OpenGLRenderWindow&) = delete;
-  void operator=(const vtkSDL2OpenGLRenderWindow&) = delete;
+  vtkSDL2WebGPURenderWindow(const vtkSDL2WebGPURenderWindow&) = delete;
+  void operator=(const vtkSDL2WebGPURenderWindow&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

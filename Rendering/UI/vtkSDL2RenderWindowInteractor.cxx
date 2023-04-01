@@ -32,7 +32,11 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 #endif
-#include <SDL.h>
+#ifdef __EMSCRIPTEN__
+#include "SDL.h"
+#else
+#include "SDL2/SDL.h"
+#endif
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
@@ -216,8 +220,13 @@ bool vtkSDL2RenderWindowInteractor::ProcessEvent(void* arg)
       // The precise y value is more robust because browsers set a value b/w 0 and 1.
       // Otherwise, the value is often rounded to an integer =zero which causes a stutter
       // in dolly motion.
+#ifdef __EMSCRIPTEN__
       int ev = event->wheel.preciseY > 0 ? vtkCommand::MouseWheelForwardEvent
                                          : vtkCommand::MouseWheelBackwardEvent;
+#else
+      int ev = event->wheel.y > 0 ? vtkCommand::MouseWheelForwardEvent
+                                  : vtkCommand::MouseWheelBackwardEvent;
+#endif
       this->InvokeEvent(ev, nullptr);
     }
     break;

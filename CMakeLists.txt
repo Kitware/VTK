@@ -43,6 +43,12 @@ if (VTK_WHEEL_BUILD)
   include(vtkWheelPreparation)
 endif ()
 
+option(VTK_ENABLE_WEBGPU "Enable the WebGPU experimental rendering backend." OFF)
+mark_as_advanced(VTK_ENABLE_WEBGPU)
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(VTK_ENABLE_WEBGPU ON)
+endif ()
+
 include(GNUInstallDirs)
 
 add_library(vtkbuild INTERFACE)

@@ -52,11 +52,6 @@ elseif (ANDROID)
     OVERRIDE vtkAndroidRenderWindowInteractor)
   list(APPEND classes vtkAndroidRenderWindowInteractor)
   include_directories("${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")
-elseif (EMSCRIPTEN)
-  # Add some custom overrides
-  vtk_object_factory_declare(
-    BASE vtkRenderWindowInteractor
-    OVERRIDE vtkSDL2RenderWindowInteractor)
 elseif (APPLE_IOS)
   # Add some custom overrides
   vtk_object_factory_declare(
@@ -77,15 +72,80 @@ else () # use generic
     OVERRIDE vtkGenericRenderWindowInteractor)
 endif ()
 
+if (VTK_USE_SDL2 OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  # Add some custom overrides
+  vtk_object_factory_declare(
+    BASE vtkRenderWindowInteractor
+    OVERRIDE vtkSDL2RenderWindowInteractor)
+  list(APPEND classes vtkSDL2RenderWindowInteractor)
+  set (intial_cpp_code
+    "
+    // defaults
+    #ifdef __EMSCRIPTEN__
+    int use_platform = 0\;
+    int use_sdl2 = 1\;
+    #else
+    int use_platform = 1\;
+    int use_sdl2 = 0\;
+    #endif
+    // Query the enviromental for backend to use.
+    if(const char* p = std::getenv(\"VTK_WINDOW_BACKEND\"))
+    {
+      const std::string backend(p)\;
+      if(backend == \"PLATFORM\")
+      {
+        use_sdl2 = 0\;
+        use_platform = 1\;
+      }
+      else if(backend == \"SDL2\")
+      {
+        #ifndef VTK_ENABLE_SDL2
+        vtkLogF(ERROR,\"SDL2 backend requested but the SDL2 backend was not compiled\")\;
+        #else
+        use_sdl2 = 1\;
+        use_platform = 0\;
+        #endif
+      }
+      else
+      {
+        vtkLogF(ERROR,\"Unknown backend '%p', using default platform native window\",backend.c_str())\;
+      }
+    }
+      // register the factory before modyfing the overrrides so it is found below
+    vtkRenderingUIObjectFactory* renderingUIFactory = vtkRenderingUIObjectFactory::New()\;
+    if (renderingUIFactory)
+    {
+      // vtkObjectFactory keeps a reference to the factory,
+      vtkObjectFactory::RegisterFactory(renderingUIFactory)\;
+      renderingUIFactory->Delete()\;
+    }
+    vtkObjectFactory* object_factory\;
+    vtkCollectionSimpleIterator osit\;
+    for (vtkObjectFactory::GetRegisteredFactories()->InitTraversal(osit)\;
+        (object_factory = vtkObjectFactory::GetRegisteredFactories()->GetNextObjectFactory(osit))\;)
+    {
+      if (object_factory->HasOverride(\"vtkRenderWindowInteractor\"))
+      {
+        if (use_sdl2 && !use_platform)
+        {
+          object_factory->SetEnableFlag(use_sdl2, \"vtkRenderWindowInteractor\", \"vtkSDL2RenderWindowInteractor\")\;
+          // disable ALL other interactor overrides.
+          object_factory->SetEnableFlag(0, \"vtkRenderWindowInteractor\", \"vtkGenericRenderWindowInteractor\")\;
+          object_factory->SetEnableFlag(0, \"vtkRenderWindowInteractor\", \"vtkCocoaRenderWindowInteractor\")\;
+          object_factory->SetEnableFlag(0, \"vtkRenderWindowInteractor\", \"vtkWin32RenderWindowInteractor\")\;
+          object_factory->SetEnableFlag(0, \"vtkRenderWindowInteractor\", \"vtkXRenderWindowInteractor\")\;
+        }
+      }
+    }"
+  )
+endif()
+
 vtk_object_factory_configure(
   SOURCE_FILE vtk_object_factory_source
   HEADER_FILE vtk_object_factory_header
   EXPORT_MACRO "VTKRENDERINGUI_EXPORT"
-  )
-
-if (VTK_USE_SDL2)
-  list(APPEND classes vtkSDL2RenderWindowInteractor)
-endif ()
+  EXTRA_INCLUDES "<vtkCollection.h>" "<vtkObjectFactoryCollection.h>" "<vtkLogger.h>" "<cstdlib>"
+  INITIAL_CODE ${intial_cpp_code})
 
 vtk_module_add_module(VTK::RenderingUI
   CLASSES ${classes}
@@ -95,10 +155,20 @@ vtk_module_add_module(VTK::RenderingUI
   PRIVATE_HEADERS ${vtk_object_factory_header}
   )
 
-if (VTK_USE_SDL2)
+if (VTK_USE_SDL2 OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_find_package(PACKAGE SDL2)
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_link(VTK::RenderingUI
-      PRIVATE SDL2::SDL2)
+    PUBLIC
+      SDL2::SDL2)
+  else()
+    vtk_module_link(VTK::RenderingUI
+      PRIVATE SDL2)
+  endif()
+  vtk_module_definitions(VTK::RenderingUI
+    PUBLIC
+      VTK_ENABLE_SDL2
+  )
 endif ()
 
 if (VTK_USE_X)
