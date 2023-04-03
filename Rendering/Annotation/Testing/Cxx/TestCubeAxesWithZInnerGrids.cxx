@@ -99,7 +99,7 @@ int TestCubeAxesWithZInnerGrids(int argc, char* argv[])
   axes2->SetScreenSize(15.0);
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);
-  axes2->SetDrawZInnerGridlines(1);
+  axes2->SetDrawZInnerGridlines(true);
 
   ren2->AddViewProp(axes2);
   renWin->Render();

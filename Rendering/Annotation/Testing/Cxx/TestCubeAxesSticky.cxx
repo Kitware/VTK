@@ -101,8 +101,8 @@ int TestCubeAxesSticky(int argc, char* argv[])
   axes->SetScreenSize(15.);
   axes->SetFlyModeToClosestTriad();
   axes->SetCornerOffset(.0);
-  axes->SetStickyAxes(1);
-  axes->SetCenterStickyAxes(0);
+  axes->SetStickyAxes(true);
+  axes->SetCenterStickyAxes(false);
 
   // Use red color for X axis
   axes->GetXAxesLinesProperty()->SetColor(1., 0., 0.);

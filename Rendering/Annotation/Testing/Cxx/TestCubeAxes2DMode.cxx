@@ -72,14 +72,14 @@ int TestCubeAxes2DMode(int argc, char* argv[])
   axes->SetCamera(renderer->GetActiveCamera());
   axes->SetBounds(-.5, .5, -.5, .5, 0., 0.);
   axes->SetCornerOffset(.0);
-  axes->SetXAxisVisibility(1);
-  axes->SetYAxisVisibility(1);
-  axes->SetZAxisVisibility(0);
-  axes->SetUse2DMode(1);
+  axes->SetXAxisVisibility(true);
+  axes->SetYAxisVisibility(true);
+  axes->SetZAxisVisibility(false);
+  axes->SetUse2DMode(true);
 
   // Deactivate LOD for all axes
-  axes->SetEnableDistanceLOD(0);
-  axes->SetEnableViewAngleLOD(0);
+  axes->SetEnableDistanceLOD(false);
+  axes->SetEnableViewAngleLOD(false);
 
   // Use red color for X axis
   axes->GetXAxesLinesProperty()->SetColor(1., 0., 0.);

@@ -105,7 +105,7 @@ int TestCubeAxesWithXLines(int argc, char* argv[])
   axes2->SetCornerOffset(0.0);
 
   // Draw X (outer) grid lines
-  axes2->SetDrawXGridlines(1);
+  axes2->SetDrawXGridlines(true);
 
   // Use red color for X axis lines, gridlines, title, and labels
   axes2->GetTitleTextProperty(0)->SetColor(1., 0., 0.);

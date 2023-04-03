@@ -36,7 +36,7 @@ int TestAxisActor3D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   axis->SetAxisTypeToX();
   axis->SetTitle("1.0");
   axis->SetTitleScale(0.5);
-  axis->SetTitleVisibility(1);
+  axis->SetTitleVisibility(true);
   axis->SetMajorTickSize(0.01);
   axis->SetRange(0, 1);
 
@@ -48,8 +48,8 @@ int TestAxisActor3D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   axis->SetLabelScale(.2);
   axis->MinorTicksVisibleOff();
   axis->SetDeltaMajor(0, .1);
-  axis->SetCalculateTitleOffset(0);
-  axis->SetCalculateLabelOffset(0);
+  axis->SetCalculateTitleOffset(false);
+  axis->SetCalculateLabelOffset(false);
   axis->Print(std::cout);
 
   vtkSmartPointer<vtkSphereSource> source = vtkSmartPointer<vtkSphereSource>::New();
