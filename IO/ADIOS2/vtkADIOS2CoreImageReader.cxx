@@ -361,12 +361,12 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
     vtkMPICommunicator* comm =
       static_cast<vtkMPICommunicator*>(this->Controller->GetCommunicator());
 
-    this->Impl->Adios.reset(new adios2::ADIOS(*comm->GetMPIComm()->GetHandle(), adios2::DebugON));
+    this->Impl->Adios.reset(new adios2::ADIOS(*comm->GetMPIComm()->GetHandle()));
 #else
     // Make sure the ADIOS subsystem is initialized before processing any
     // sort of request.
 
-    this->Impl->Adios.reset(new adios2::ADIOS(adios2::DebugON));
+    this->Impl->Adios.reset(new adios2::ADIOS());
     // Before processing any request, read the meta data first
 #endif
   }
