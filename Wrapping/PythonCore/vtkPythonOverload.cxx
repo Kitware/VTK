@@ -249,6 +249,11 @@ static int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
 
 static bool vtkPythonCanConvertToInt(PyObject* arg)
 {
+#if PY_VERSION_HEX >= 0x030A0000
+  unaryfunc asint = (unaryfunc)PyType_GetSlot(Py_TYPE(arg), Py_nb_int);
+  unaryfunc asindex = (unaryfunc)PyType_GetSlot(Py_TYPE(arg), Py_nb_index);
+  return (asint || asindex);
+#else
   // Python 3.8 deprecated implicit conversions via __int__, so we must
   // check for the existence of the __int__ and __index__ slots ourselves
   // instead of simply attempting a conversion.
@@ -257,6 +262,7 @@ static bool vtkPythonCanConvertToInt(PyObject* arg)
   return (nb && (nb->nb_int || nb->nb_index));
 #else
   return (nb && nb->nb_int);
+#endif
 #endif
 }
 
@@ -436,7 +442,7 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
       }
       // make sure that arg can act as a buffer
-      else if (Py_TYPE(arg)->tp_as_buffer == nullptr)
+      else if (!PyObject_CheckBuffer(arg))
       {
         penalty = VTK_PYTHON_INCOMPATIBLE;
       }
@@ -481,12 +487,22 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
           if (Py_TYPE(arg) != pytype)
           {
             // Check superclasses
-            PyTypeObject* basetype = Py_TYPE(arg)->tp_base;
+            PyTypeObject* basetype =
+#if PY_VERSION_HEX >= 0x030A0000
+              (PyTypeObject*)PyType_GetSlot(Py_TYPE(arg), Py_tp_base)
+#else
+              Py_TYPE(arg)->tp_base
+#endif
+              ;
             penalty = VTK_PYTHON_GOOD_MATCH;
             while (basetype && basetype != pytype)
             {
               penalty++;
+#if PY_VERSION_HEX >= 0x030A0000
+              basetype = (PyTypeObject*)PyType_GetSlot(basetype, Py_tp_base);
+#else
               basetype = basetype->tp_base;
+#endif
             }
             if (!basetype)
             {
@@ -517,12 +533,22 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         if (Py_TYPE(arg) != pytype)
         {
           // Check superclasses
-          PyTypeObject* basetype = Py_TYPE(arg)->tp_base;
+          PyTypeObject* basetype =
+#if PY_VERSION_HEX >= 0x030A0000
+            (PyTypeObject*)PyType_GetSlot(Py_TYPE(arg), Py_tp_base)
+#else
+            Py_TYPE(arg)->tp_base
+#endif
+            ;
           penalty = VTK_PYTHON_GOOD_MATCH;
           while (basetype && basetype != pytype)
           {
             penalty++;
+#if PY_VERSION_HEX >= 0x030A0000
+            basetype = (PyTypeObject*)PyType_GetSlot(basetype, Py_tp_base);
+#else
             basetype = basetype->tp_base;
+#endif
           }
           if (!basetype)
           {
@@ -558,12 +584,22 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         if (Py_TYPE(arg) != pytype)
         {
           // Check superclasses
-          PyTypeObject* basetype = Py_TYPE(arg)->tp_base;
+          PyTypeObject* basetype =
+#if PY_VERSION_HEX >= 0x030A0000
+            (PyTypeObject*)PyType_GetSlot(Py_TYPE(arg), Py_tp_base)
+#else
+            Py_TYPE(arg)->tp_base
+#endif
+            ;
           penalty = VTK_PYTHON_GOOD_MATCH;
           while (basetype && basetype != pytype)
           {
             penalty++;
+#if PY_VERSION_HEX >= 0x030A0000
+            basetype = (PyTypeObject*)PyType_GetSlot(basetype, Py_tp_base);
+#else
             basetype = basetype->tp_base;
+#endif
           }
           if (!basetype)
           {

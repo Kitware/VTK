@@ -373,7 +373,7 @@ static void vtkWrapPython_GenerateObjectNew(
 
   /* if type is already ready, then return */
   fprintf(fp,
-    "  if ((pytype->tp_flags & Py_TPFLAGS_READY) != 0)\n"
+    "  if ((PyType_GetFlags(pytype) & Py_TPFLAGS_READY) != 0)\n"
     "  {\n"
     "    return (PyObject *)pytype;\n"
     "  }\n\n");

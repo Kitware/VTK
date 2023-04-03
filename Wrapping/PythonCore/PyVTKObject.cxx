@@ -68,7 +68,14 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
     if (PyType_IsSubtype(newtypeobj, typeobj))
     {
       // Make sure "type" and intermediate classes aren't wrapped classes
-      for (PyTypeObject* tp = newtypeobj; tp && tp != typeobj; tp = tp->tp_base)
+      for (PyTypeObject* tp = newtypeobj; tp && tp != typeobj;
+           tp =
+#if PY_VERSION_HEX >= 0x030A0000
+             (PyTypeObject*)PyType_GetSlot(tp, Py_tp_base)
+#else
+             tp->tp_base
+#endif
+      )
       {
         PyVTKClass* c = vtkPythonUtil::FindClass(vtkPythonUtil::StripModuleFromType(tp));
         if (c && tp == c->py_type)
@@ -251,7 +258,7 @@ PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
   // XXX(python3-abi3): all types will be heap types in abi3
   // If type was subclassed within python, then skip arg checks and
   // simply create a new object.
-  if ((tp->tp_flags & Py_TPFLAGS_HEAPTYPE) == 0)
+  if ((PyType_GetFlags(tp) & Py_TPFLAGS_HEAPTYPE) == 0)
   {
     if (kwds != nullptr && PyDict_Size(kwds))
     {
@@ -260,7 +267,7 @@ PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
     }
 
     PyObject* o = nullptr;
-    if (!PyArg_UnpackTuple(args, tp->tp_name, 0, 1, &o))
+    if (!PyArg_UnpackTuple(args, vtkPythonUtil::GetTypeName(tp), 0, 1, &o))
     {
       return nullptr;
     }
@@ -595,7 +602,7 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
     }
   }
 
-  if ((pytype->tp_flags & Py_TPFLAGS_HEAPTYPE) != 0)
+  if ((PyType_GetFlags(pytype) & Py_TPFLAGS_HEAPTYPE) != 0)
   {
     // Incref if class was declared in python (see PyType_GenericAlloc).
     Py_INCREF(pytype);

@@ -92,12 +92,18 @@ static PyObject* PyVTKReference_CompatibleObject(PyObject* self, PyObject* opn)
     }
 
     // check if it has number protocol and suitable methods
+#if PY_VERSION_HEX < 0x030A0000
     PyNumberMethods* nb = Py_TYPE(opn)->tp_as_number;
     if (nb)
+#endif
     {
-      if (nb->nb_index)
+#if PY_VERSION_HEX >= 0x030A0000
+      if (unaryfunc nb_index = (unaryfunc)PyType_GetSlot(Py_TYPE(opn), Py_nb_index))
+#else
+      if (unaryfunc nb_index = nb->nb_index)
+#endif
       {
-        opn = nb->nb_index(opn);
+        opn = nb_index(opn);
         if (opn == nullptr || !PyLong_Check(opn))
         {
           PyErr_SetString(PyExc_TypeError, "nb_index should return integer object");
@@ -105,9 +111,13 @@ static PyObject* PyVTKReference_CompatibleObject(PyObject* self, PyObject* opn)
         }
         return opn;
       }
-      else if (nb->nb_float)
+#if PY_VERSION_HEX >= 0x030A0000
+      else if (unaryfunc nb_float = (unaryfunc)PyType_GetSlot(Py_TYPE(opn), Py_nb_float))
+#else
+      else if (unaryfunc nb_float = nb->nb_float)
+#endif
       {
-        opn = nb->nb_float(opn);
+        opn = nb_float(opn);
         if (opn == nullptr || !PyFloat_Check(opn))
         {
           PyErr_SetString(PyExc_TypeError, "nb_float should return float object");
@@ -228,8 +238,8 @@ static PyObject* PyVTKReference_Trunc(PyObject* self, PyObject* args)
     PyObject* meth = _PyType_Lookup(Py_TYPE(ob), attr);
     if (meth == nullptr)
     {
-      PyErr_Format(
-        PyExc_TypeError, "type %.100s doesn't define __trunc__ method", Py_TYPE(ob)->tp_name);
+      PyErr_Format(PyExc_TypeError, "type %.100s doesn't define __trunc__ method",
+        vtkPythonUtil::GetTypeNameForObject(ob));
       return nullptr;
     }
     return PyObject_CallFunction(meth, "O", ob);
@@ -249,8 +259,8 @@ static PyObject* PyVTKReference_Round(PyObject* self, PyObject* args)
     PyObject* meth = _PyType_Lookup(Py_TYPE(ob), attr);
     if (meth == nullptr)
     {
-      PyErr_Format(
-        PyExc_TypeError, "type %.100s doesn't define __round__ method", Py_TYPE(ob)->tp_name);
+      PyErr_Format(PyExc_TypeError, "type %.100s doesn't define __round__ method",
+        vtkPythonUtil::GetTypeNameForObject(ob));
       return nullptr;
     }
     if (opn)
@@ -628,7 +638,7 @@ static void PyVTKReference_Delete(PyObject* ob)
 static PyObject* PyVTKReference_Repr(PyObject* ob)
 {
   PyObject* r = nullptr;
-  const char* name = Py_TYPE(ob)->tp_name;
+  const char* name = vtkPythonUtil::GetTypeNameForObject(ob);
   PyObject* s = PyObject_Repr(((PyVTKReference*)ob)->value);
   if (s)
   {
@@ -686,8 +696,8 @@ static PyObject* PyVTKReference_GetAttr(PyObject* self, PyObject* attr)
     PyErr_Clear();
   }
 
-  PyErr_Format(
-    PyExc_AttributeError, "'%.50s' object has no attribute '%U'", Py_TYPE(self)->tp_name, attr);
+  PyErr_Format(PyExc_AttributeError, "'%.50s' object has no attribute '%U'",
+    vtkPythonUtil::GetTypeNameForObject(self), attr);
   return nullptr;
 }
 

@@ -26,8 +26,10 @@
 // Add a wrapped enum type
 PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype, const char* name)
 {
+#if PY_VERSION_HEX < 0x030A0000
   // do not allow direct instantiation
   pytype->tp_new = nullptr;
+#endif
   vtkPythonUtil::AddEnumToMap(pytype, name);
   return pytype;
 }
