@@ -530,6 +530,25 @@ struct WriteTypedArray
 }
 
 //------------------------------------------------------------------------------
+vtkTypeFloat32Array* vtkWebGPUPolyDataMapper::ComputeEdgeArray(vtkCellArray* polys)
+{
+  auto polysIter = vtk::TakeSmartPointer(polys->NewIterator());
+  auto edgeArray = vtkTypeFloat32Array::New();
+  for (polysIter->GoToFirstCell(); !polysIter->IsDoneWithTraversal(); polysIter->GoToNextCell())
+  {
+    const vtkIdType* pts = nullptr;
+    vtkIdType npts = 0;
+    polysIter->GetCurrentCell(npts, pts);
+    for (vtkIdType i = 1; i < npts - 1; ++i)
+    {
+      vtkTypeFloat32 val = npts == 3 ? -1 : i == 1 ? 2 : i == npts - 2 ? 0 : 1;
+      edgeArray->InsertNextValue(val);
+    }
+  }
+  return edgeArray;
+}
+
+//------------------------------------------------------------------------------
 bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& device, vtkActor* actor)
 {
   if (this->CachedInput == nullptr)
