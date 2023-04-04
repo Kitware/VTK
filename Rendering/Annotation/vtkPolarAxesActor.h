@@ -110,6 +110,19 @@ public:
 
   ///@{
   /**
+   * Set/Get whether the number of polar axis ticks and arcs should be automatically calculated.
+   * Default: false.
+   */
+  VTK_DEPRECATED_IN_9_3_0("Use SetDeltaRangeMajor instead or enable AxisTickMatchesPolarAxes")
+  vtkSetMacro(AutoSubdividePolarAxis, bool);
+  VTK_DEPRECATED_IN_9_3_0("Use SetDeltaRangeMajor instead or enable AxisTickMatchesPolarAxes")
+  vtkGetMacro(AutoSubdividePolarAxis, bool);
+  void AutoSubdividePolarAxisOn();
+  void AutoSubdividePolarAxisOff();
+  ///@}
+
+  ///@{
+  /**
    * Set/Get a number of ticks that one would like to display along polar axis.
    * NB: it modifies DeltaRangeMajor to correspond to this number.
    */
@@ -1002,6 +1015,11 @@ protected:
    * Range between 2 major ticks (values displayed on the axis).
    */
   double DeltaRangeMajor = 1.0;
+
+  /**
+   * DEPRECATED: Automatically subdivide polar axis.
+   */
+  bool AutoSubdividePolarAxis = false;
 
   /**
    * Range between 2 polar axes.
