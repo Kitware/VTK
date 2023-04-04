@@ -19,6 +19,7 @@
 
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkSmartPointer.h"          // for ivar
+#include "vtkTypeUInt32Array.h"       // for ivar
 #include "vtk_wgpu.h"                 // for webgpu
 
 #include <string>        // for ivar
@@ -158,12 +159,22 @@ protected:
   wgpu::BindGroup ActorBindGroup;
   wgpu::BindGroupLayout ActorBindGroupLayout;
 
+#ifdef __EMSCRIPTEN__
+  bool UseRenderBundles = true;
+#else
   bool UseRenderBundles = false;
+#endif
   // one bundle per actor. bundle gets reused every frame.
   // these bundles can be built in parallel with vtkSMPTools. holding off because not
   // sure how to get emscripten to thread.
   std::vector<wgpu::RenderBundle> Bundles;
-  std::vector<int> ReBundleProps;
+  struct vtkWGPUPropItem
+  {
+    wgpu::RenderBundle Bundle = nullptr;
+    vtkSmartPointer<vtkTypeUInt32Array> DynamicOffsets;
+  };
+  std::unordered_map<vtkProp*, vtkWGPUPropItem> PropWGPUItems;
+
   std::unordered_map<std::string, wgpu::ShaderModule> ShaderCache;
   std::size_t NumberOfPropsUpdated = 0;
   int LightingComplexity = 0;

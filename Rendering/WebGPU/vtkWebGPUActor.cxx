@@ -117,7 +117,7 @@ wgpu::RenderBundle vtkWebGPUActor::RenderToBundle(vtkRenderer* ren, vtkMapper* m
   this->CurrentMapperRenderType = MapperRenderType::None;
 
   auto bundle = this->CurrentBundler.Finish();
-  this->CurrentBundler.Release();
+  this->CurrentBundler = nullptr;
   return bundle;
 }
 

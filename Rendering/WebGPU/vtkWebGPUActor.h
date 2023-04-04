@@ -104,7 +104,10 @@ public:
 
   inline MapperRenderType GetMapperRenderType() { return this->CurrentMapperRenderType; }
   inline wgpu::RenderBundleEncoder GetRenderBundleEncoder() { return this->CurrentBundler; }
-  inline void SetDynamicOffsets(vtkTypeUInt32Array* offsets) { this->DynamicOffsets = offsets; }
+  inline void SetDynamicOffsets(vtkSmartPointer<vtkTypeUInt32Array> offsets)
+  {
+    this->DynamicOffsets = offsets;
+  }
 
 protected:
   vtkWebGPUActor();

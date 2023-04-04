@@ -1,5 +1,8 @@
+# Description
+
 This module contains the WebGPU native backend for `RenderingCore`. At the moment, only polygonal geometry can be rendered in different representations with point/cell scalar mapped colors.
 
+## Available features
 Here is a list of currently implemented features:
 1. Polygonal geometry rendering with point, line and triangle primitives.
 2. Point scalar mapped coloring of surfaces.
@@ -11,11 +14,35 @@ Here is a list of currently implemented features:
 8. `vtkSDL2WebGPURenderWindow` is a reference implementation of `vtkWebGPURenderWindow` that works on WebAssembly and desktop.
 9. Depth testing.
 
+## Future work
 Since WebGPU is already an abstraction over graphics APIs, this module doesn't create another level of abstraction. It uses WebGPU's C++ flavor
 for it's object-oriented API and RAII. There are helper classes in the `vtkWebGPUInternals...` files for convenience and to make the bind group
 initialization code look clean.
 
 A lot of work remains to be done. Selections, volume mappers, textures, dual-depth peeling, fancy lights, platform native render windows are few that come to mind.
+
+## References
+Here are some very interesting references to learn WebGPU from examples if you prefer code over spec.
+1. https://toji.github.io/webgpu-gltf-case-study/
+  A case-study that slowly builds up an efficient gltf renderer in WebGPU using javascript. The author describes downfalls in
+  certain methods and proposes alternative ways when applicable.
+2. https://github.com/samdauwe/webgpu-native-examples
+  A curated list of single file examples if you want to see how to do X with Y like constraints using WebGPU C API.
+3. https://eliemichel.github.io/LearnWebGPU/index.html
+  Similar to LearnOpenGL or the vulka-tutorial.com. Walks you through getting a window, triangle, buffers, textures and 3D rendering.
+  This tutorial has good coverage and the author provides a simple to use WebGPU C++ distribution.
+4. https://sotrh.github.io/learn-wgpu/
+  A very nice coverage of the beginner concepts of webgpu. This tutorial uses wgpu.rs
+5. https://alain.xyz/blog/raw-webgpu
+  Another small tutorial that lets you break the ice with WebGPU and get comfy with the concepts. This tutorial targets javascript API.
+6. https://carmencincotti.com/2022-12-19/how-to-render-a-webgpu-triangle-series-part-three-video/
+  A detailed, yet fun to read explaination of the swapchain and image presentation process. The author has several other
+  targeted posts on WebGPU concepts.
+7. https://webgpu.rocks/
+  You want to look at the WebGPU API, but are afraid of reading the spec and do not want to read C headers. This website
+  presents the WebGPU API and WGSL summary in a fancy way with syntax highlights.
+
+Finally, for wgsl, the spec does a good job https://www.w3.org/TR/WGSL/
 
 
 ## How to build VTK with Dawn (Highly experimental)

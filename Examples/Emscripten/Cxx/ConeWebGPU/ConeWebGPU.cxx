@@ -37,20 +37,19 @@ int main(int argc, char* argv[])
   iren->SetInteractorStyle(style);
   style->SetDefaultRenderer(renderer);
 
-  for (int i = 0; i < 16; ++i)
+  for (int i = 0; i < 100; ++i)
   {
-    for (int j = 0; j < 16; ++j)
+    for (int j = 0; j < 100; ++j)
     {
       vtkNew<vtkConeSource> cone;
       cone->SetCenter(i, j, 0);
       vtkNew<vtkPolyDataMapper> mapper;
       mapper->SetInputConnection(cone->GetOutputPort());
       mapper->Update();
-      mapper->SetStatic(1);
+      // mapper->SetStatic(1);
       vtkNew<vtkActor> actor;
       actor->SetMapper(mapper);
-      // actor->GetProperty()->SetPointSize(8);
-      // actor->GetProperty()->SetRepresentationToPoints();
+      actor->GetProperty()->EdgeVisibilityOn();
       renderer->AddActor(actor);
     }
   }
