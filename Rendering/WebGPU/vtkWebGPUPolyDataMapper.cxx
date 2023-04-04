@@ -27,6 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
+#include "vtkTypeFloat32Array.h"
 #include "vtkWGPUContext.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
@@ -495,9 +496,9 @@ std::vector<unsigned long> vtkWebGPUPolyDataMapper::GetExactConnecitivityBufferS
     results.emplace_back(result);
   }
 
-  vtkDebugMacro(<< __func__ << "=" << this->PointPrimitiveBGInfo.VertexCount);
-  vtkDebugMacro(<< __func__ << "=" << this->LinePrimitiveBGInfo.VertexCount);
-  vtkDebugMacro(<< __func__ << "=" << this->TrianglePrimitiveBGInfo.VertexCount);
+  vtkDebugMacro(<< __func__ << "[verts]=" << this->PointPrimitiveBGInfo.VertexCount);
+  vtkDebugMacro(<< __func__ << "[lines]=" << this->LinePrimitiveBGInfo.VertexCount);
+  vtkDebugMacro(<< __func__ << "[polys]=" << this->TrianglePrimitiveBGInfo.VertexCount);
   return results;
 }
 
@@ -507,24 +508,26 @@ template <typename DestT>
 struct WriteTypedArray
 {
   std::size_t Offset = 0;
-  void* Dst = nullptr;
+  const wgpu::Buffer& DstBuffer;
+  const wgpu::Device& Device;
   float Denominator = 1.0;
 
   template <typename SrcArrayT>
   void operator()(SrcArrayT* array)
   {
-    if (array == nullptr || this->Dst == nullptr)
+    if (array == nullptr || this->DstBuffer.Get() == nullptr)
     {
       return;
     }
-    DestT* dst = reinterpret_cast<DestT*>(this->Dst);
     const auto values = vtk::DataArrayValueRange(array);
+    vtkNew<vtkAOSDataArrayTemplate<DestT>> data;
     for (const auto& value : values)
     {
-      *dst++ = value / this->Denominator;
-      this->Offset += sizeof(DestT);
-      this->Dst = dst;
+      data->InsertNextValue(value / this->Denominator);
     }
+    const std::size_t nbytes = data->GetNumberOfValues() * sizeof(DestT);
+    this->Device.GetQueue().WriteBuffer(this->DstBuffer, this->Offset, data->GetPointer(0), nbytes);
+    this->Offset += nbytes;
   }
 };
 }
@@ -642,168 +645,144 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   MeshAttributeDescriptor meshAttrDescriptor;
 
   vtkPointData* pointData = this->CurrentInput->GetPointData();
-  vtkDataArray* points = this->CurrentInput->GetPoints()->GetData();
-  vtkDataArray* colors = this->HasPointColors ? vtkDataArray::SafeDownCast(this->Colors) : nullptr;
-  vtkDataArray* normals = pointData->GetNormals();
-  vtkDataArray* tangents = pointData->GetTangents();
-  vtkDataArray* uvs = pointData->GetTCoords();
+  vtkDataArray* pointPositions = this->CurrentInput->GetPoints()->GetData();
+  vtkDataArray* pointColors =
+    this->HasPointColors ? vtkDataArray::SafeDownCast(this->Colors) : nullptr;
+  vtkDataArray* pointNormals = pointData->GetNormals();
+  vtkDataArray* pointTangents = pointData->GetTangents();
+  vtkDataArray* pointUvs = pointData->GetTCoords();
 
+  using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
   if (this->MeshSSBO.Point.Buffer.Get() != nullptr)
   {
     this->MeshSSBO.Point.Buffer.Destroy();
   }
+
+  wgpu::BufferDescriptor pointBufDescriptor{};
+  pointBufDescriptor.size = this->GetExactPointBufferSize();
+  pointBufDescriptor.label = "Upload point buffer";
+  pointBufDescriptor.mappedAtCreation = false;
+  pointBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+  this->MeshSSBO.Point.Buffer = device.CreateBuffer(&pointBufDescriptor);
+
+  ::WriteTypedArray<vtkTypeFloat32> pointDataWriter{ 0, this->MeshSSBO.Point.Buffer, device, 1. };
+
+  pointDataWriter.Denominator = 1.0;
+  pointDataWriter.Offset = 0;
+
+  // positions
+  meshAttrDescriptor.Positions.Start = 0;
+  if (!DispatchT::Execute(pointPositions, pointDataWriter))
+  {
+    pointDataWriter(pointPositions);
+  }
+  meshAttrDescriptor.Positions.NumComponents = pointPositions->GetNumberOfComponents();
+  meshAttrDescriptor.Positions.NumTuples = pointPositions->GetNumberOfTuples();
+  vtkDebugMacro(<< "[Positions] "
+                << "-- " << pointDataWriter.Offset << " bytes ");
+
+  // point colors
+  pointDataWriter.Denominator = 255.0f;
+  meshAttrDescriptor.Colors.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
+  if (!DispatchT::Execute(pointColors, pointDataWriter))
+  {
+    pointDataWriter(pointColors);
+  }
+  pointDataWriter.Denominator = 1.0f;
+  meshAttrDescriptor.Colors.NumComponents = pointColors ? pointColors->GetNumberOfComponents() : 0;
+  meshAttrDescriptor.Colors.NumTuples = pointColors ? pointColors->GetNumberOfTuples() : 0;
+  vtkDebugMacro(<< "[Colors] "
+                << "-- " << pointDataWriter.Offset << " bytes ");
+
+  // point normals
+  meshAttrDescriptor.Normals.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
+  if (!DispatchT::Execute(pointNormals, pointDataWriter))
+  {
+    pointDataWriter(pointNormals);
+  }
+  meshAttrDescriptor.Normals.NumComponents =
+    pointNormals ? pointNormals->GetNumberOfComponents() : 0;
+  meshAttrDescriptor.Normals.NumTuples = pointNormals ? pointNormals->GetNumberOfTuples() : 0;
+  vtkDebugMacro(<< "[Normals] "
+                << "-- " << pointDataWriter.Offset << " bytes ");
+
+  // point tangents
+  meshAttrDescriptor.Tangents.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
+  if (!DispatchT::Execute(pointTangents, pointDataWriter))
+  {
+    pointDataWriter(pointTangents);
+  }
+  meshAttrDescriptor.Tangents.NumComponents =
+    pointTangents ? pointTangents->GetNumberOfComponents() : 0;
+  meshAttrDescriptor.Tangents.NumTuples = pointTangents ? pointTangents->GetNumberOfTuples() : 0;
+  vtkDebugMacro(<< "[Tangents] "
+                << "-- " << pointDataWriter.Offset << " bytes ");
+
+  // point uvs
+  meshAttrDescriptor.UVs.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
+  if (!DispatchT::Execute(pointUvs, pointDataWriter))
+  {
+    pointDataWriter(pointUvs);
+  }
+  meshAttrDescriptor.UVs.NumComponents = pointUvs ? pointUvs->GetNumberOfComponents() : 0;
+  meshAttrDescriptor.UVs.NumTuples = pointUvs ? pointUvs->GetNumberOfTuples() : 0;
+  vtkDebugMacro(<< "[UVs] "
+                << "-- " << pointDataWriter.Offset << " bytes ");
+
   if (this->MeshSSBO.Cell.Buffer.Get() != nullptr)
   {
     this->MeshSSBO.Cell.Buffer.Destroy();
   }
-
-  wgpu::BufferDescriptor pointBufDescriptor;
-  pointBufDescriptor.size = this->GetExactPointBufferSize();
-  pointBufDescriptor.label = "Upload point buffer";
-  pointBufDescriptor.mappedAtCreation = true;
-  pointBufDescriptor.usage = wgpu::BufferUsage::Storage;
-  this->MeshSSBO.Point.Buffer = device.CreateBuffer(&pointBufDescriptor);
-
-  ::WriteTypedArray<vtkTypeFloat32> f32Writer;
-
-  f32Writer.Denominator = 1.0;
-  f32Writer.Offset = 0;
-  using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
-
-  meshAttrDescriptor.Positions.Start = 0;
-  void* mapped =
-    this->MeshSSBO.Point.Buffer.GetMappedRange(f32Writer.Offset, pointBufDescriptor.size);
-  assert(mapped != nullptr);
-  f32Writer.Dst = mapped;
-  if (!DispatchT::Execute(points, f32Writer))
-  {
-    f32Writer(points);
-  }
-  meshAttrDescriptor.Positions.NumComponents = points->GetNumberOfComponents();
-  meshAttrDescriptor.Positions.NumTuples = points->GetNumberOfTuples();
-  vtkDebugMacro(<< "[Positions] "
-                << "+ " << f32Writer.Offset << " bytes ");
-
-  if (this->HasPointColors)
-  {
-    f32Writer.Denominator = 255.0f;
-    meshAttrDescriptor.Colors.Start = f32Writer.Offset / sizeof(vtkTypeFloat32);
-    if (!DispatchT::Execute(colors, f32Writer))
-    {
-      f32Writer(colors);
-    }
-    f32Writer.Denominator = 1.0f;
-    meshAttrDescriptor.Colors.NumComponents = colors->GetNumberOfComponents();
-    meshAttrDescriptor.Colors.NumTuples = colors->GetNumberOfTuples();
-    vtkDebugMacro(<< "[Colors] "
-                  << "+ " << f32Writer.Offset << " bytes ");
-  }
-  if (this->HasPointNormals)
-  {
-    meshAttrDescriptor.Normals.Start = f32Writer.Offset / sizeof(vtkTypeFloat32);
-    if (!DispatchT::Execute(normals, f32Writer))
-    {
-      f32Writer(normals);
-    }
-    meshAttrDescriptor.Normals.NumComponents = normals->GetNumberOfComponents();
-    meshAttrDescriptor.Normals.NumTuples = normals->GetNumberOfTuples();
-    vtkDebugMacro(<< "[Normals] "
-                  << "+ " << f32Writer.Offset << " bytes ");
-  }
-  if (this->HasPointTangents)
-  {
-    meshAttrDescriptor.Tangents.Start = f32Writer.Offset / sizeof(vtkTypeFloat32);
-    if (!DispatchT::Execute(tangents, f32Writer))
-    {
-      f32Writer(tangents);
-    }
-    meshAttrDescriptor.Tangents.NumComponents = tangents->GetNumberOfComponents();
-    meshAttrDescriptor.Tangents.NumTuples = tangents->GetNumberOfTuples();
-    vtkDebugMacro(<< "[Tangents] "
-                  << "+ " << f32Writer.Offset << " bytes ");
-  }
-  if (this->HasPointUVs)
-  {
-    meshAttrDescriptor.UVs.Start = f32Writer.Offset / sizeof(vtkTypeFloat32);
-    if (!DispatchT::Execute(uvs, f32Writer))
-    {
-      f32Writer(uvs);
-    }
-    meshAttrDescriptor.UVs.NumComponents = uvs->GetNumberOfComponents();
-    meshAttrDescriptor.UVs.NumTuples = uvs->GetNumberOfTuples();
-    vtkDebugMacro(<< "[UVs] "
-                  << "+ " << f32Writer.Offset << " bytes ");
-  }
-  mapped = nullptr;
-  f32Writer.Dst = nullptr;
-  this->MeshSSBO.Point.Buffer.Unmap();
-
-  wgpu::BufferDescriptor cellBufDescriptor;
+  wgpu::BufferDescriptor cellBufDescriptor{};
   cellBufDescriptor.size = this->GetExactCellBufferSize();
   cellBufDescriptor.label = "Upload cell buffer";
-  cellBufDescriptor.mappedAtCreation = true;
-  cellBufDescriptor.usage = wgpu::BufferUsage::Storage;
+  cellBufDescriptor.mappedAtCreation = false;
+  cellBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
   this->MeshSSBO.Cell.Buffer = device.CreateBuffer(&cellBufDescriptor);
 
-  f32Writer.Denominator = 1.0;
-  f32Writer.Offset = 0;
+  ::WriteTypedArray<vtkTypeFloat32> cellBufWriter{ 0, this->MeshSSBO.Cell.Buffer, device, 1. };
 
   vtkCellData* cellData = this->CurrentInput->GetCellData();
   vtkDataArray* cellColors =
     this->HasCellColors ? vtkDataArray::SafeDownCast(this->Colors) : nullptr;
   vtkDataArray* cellNormals = this->HasCellNormals ? cellData->GetNormals() : nullptr;
 
-  meshAttrDescriptor.CellEdgeArray.Start = f32Writer.Offset / sizeof(vtkTypeFloat32);
-  mapped = this->MeshSSBO.Cell.Buffer.GetMappedRange(f32Writer.Offset, cellBufDescriptor.size);
-  assert(mapped != nullptr);
-  // edge array
-  auto polysIter = vtk::TakeSmartPointer(this->CurrentInput->GetPolys()->NewIterator());
-  auto* dst = reinterpret_cast<vtkTypeFloat32*>(mapped);
-  for (polysIter->GoToFirstCell(); !polysIter->IsDoneWithTraversal(); polysIter->GoToNextCell())
   {
-    const vtkIdType* pts = nullptr;
-    vtkIdType npts = 0;
-    polysIter->GetCurrentCell(npts, pts);
-    for (vtkIdType i = 1; i < npts - 1; ++i)
+    // edge array
+    auto edgeArray = vtk::TakeSmartPointer(this->ComputeEdgeArray(this->CurrentInput->GetPolys()));
+    meshAttrDescriptor.CellEdgeArray.Start = cellBufWriter.Offset / sizeof(vtkTypeFloat32);
+    if (!DispatchT::Execute(edgeArray, cellBufWriter))
     {
-      vtkTypeFloat32 val = npts == 3 ? -1 : i == 1 ? 2 : i == npts - 2 ? 0 : 1;
-      *dst++ = val;
-      f32Writer.Offset += sizeof(vtkTypeFloat32);
-      f32Writer.Dst = dst;
+      cellBufWriter(edgeArray.Get());
     }
+    meshAttrDescriptor.CellEdgeArray.NumComponents = 1;
+    meshAttrDescriptor.CellEdgeArray.NumTuples = this->EdgeArrayCount;
+    vtkDebugMacro(<< "[Cell edge array] "
+                  << "-- " << cellBufWriter.Offset << " bytes ");
   }
-  meshAttrDescriptor.CellEdgeArray.NumComponents = 1;
-  meshAttrDescriptor.CellEdgeArray.NumTuples = this->EdgeArrayCount;
-  vtkDebugMacro(<< "[Cell edge array] "
-                << "+ " << f32Writer.Offset << " bytes ");
 
-  if (this->HasCellColors)
+  meshAttrDescriptor.CellColors.Start = cellBufWriter.Offset / sizeof(vtkTypeFloat32);
+  cellBufWriter.Denominator = 255.0f;
+  if (!DispatchT::Execute(cellColors, cellBufWriter))
   {
-    meshAttrDescriptor.CellColors.Start = f32Writer.Offset / sizeof(vtkTypeFloat32);
-    f32Writer.Denominator = 255.0f;
-    if (!DispatchT::Execute(cellColors, f32Writer))
-    {
-      f32Writer(cellColors);
-    }
-    f32Writer.Denominator = 1.0f;
-    meshAttrDescriptor.CellColors.NumComponents = cellColors->GetNumberOfComponents();
-    meshAttrDescriptor.CellColors.NumTuples = cellColors->GetNumberOfTuples();
-    vtkDebugMacro(<< "[Cell colors] "
-                  << "+ " << f32Writer.Offset << " bytes ");
+    cellBufWriter(cellColors);
   }
-  if (this->HasCellNormals)
+  cellBufWriter.Denominator = 1.0f;
+  meshAttrDescriptor.CellColors.NumComponents =
+    cellColors ? cellColors->GetNumberOfComponents() : 0;
+  meshAttrDescriptor.CellColors.NumTuples = cellColors ? cellColors->GetNumberOfTuples() : 0;
+  vtkDebugMacro(<< "[Cell colors] "
+                << "-- " << cellBufWriter.Offset << " bytes ");
+  meshAttrDescriptor.CellNormals.Start = cellBufWriter.Offset / sizeof(vtkTypeFloat32);
+  if (!DispatchT::Execute(cellNormals, cellBufWriter))
   {
-    meshAttrDescriptor.CellNormals.Start = f32Writer.Offset / sizeof(vtkTypeFloat32);
-    if (!DispatchT::Execute(cellNormals, f32Writer))
-    {
-      f32Writer(cellNormals);
-    }
-    meshAttrDescriptor.CellNormals.NumComponents = cellNormals->GetNumberOfComponents();
-    meshAttrDescriptor.CellNormals.NumTuples = cellNormals->GetNumberOfTuples();
-    vtkDebugMacro(<< "[Cell normals] "
-                  << "+ " << f32Writer.Offset << " bytes ");
+    cellBufWriter(cellNormals);
   }
-  this->MeshSSBO.Cell.Buffer.Unmap();
+  meshAttrDescriptor.CellNormals.NumComponents =
+    cellNormals ? cellNormals->GetNumberOfComponents() : 0;
+  meshAttrDescriptor.CellNormals.NumTuples = cellNormals ? cellNormals->GetNumberOfTuples() : 0;
+  vtkDebugMacro(<< "[Cell normals] "
+                << "-- " << cellBufWriter.Offset << " bytes ");
 
   this->AttributeDescriptorBuffer = vtkWebGPUInternalsBuffer::Upload(device, 0, &meshAttrDescriptor,
     sizeof(meshAttrDescriptor), wgpu::BufferUsage::Uniform, "Mesh attribute descriptor");
@@ -848,15 +827,8 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
         this->PointPrimitiveBGInfo.Buffer.Destroy();
       }
       // point primitives.
-      wgpu::BufferDescriptor topoBufDescriptor;
-      topoBufDescriptor.size = sizes[0];
-      topoBufDescriptor.label = "Upload vtkPolyData::Verts";
-      topoBufDescriptor.mappedAtCreation = true;
-      topoBufDescriptor.usage = wgpu::BufferUsage::Storage;
-
-      this->PointPrimitiveBGInfo.Buffer = device.CreateBuffer(&topoBufDescriptor);
-      void* mapped = this->PointPrimitiveBGInfo.Buffer.GetMappedRange(0, sizes[0]);
-      auto* mappedAsU32 = reinterpret_cast<vtkTypeUInt32*>(mapped);
+      vtkNew<vtkTypeUInt32Array> indices;
+      indices->Allocate(sizes[0]);
       vtkSmartPointer<vtkCellArrayIterator> vertsIter = vtk::TakeSmartPointer(verts->NewIterator());
       for (vertsIter->GoToFirstCell(); !vertsIter->IsDoneWithTraversal();
            vertsIter->GoToNextCell(), ++cellCount)
@@ -864,14 +836,16 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
         vertsIter->GetCurrentCell(npts, pts);
         for (int i = 0; i < npts; ++i)
         {
-          *mappedAsU32++ = cellCount;
-          *mappedAsU32++ = pts[i];
+          indices->InsertNextValue(cellCount);
+          indices->InsertNextValue(pts[i]);
         }
       }
-      this->PointPrimitiveBGInfo.Buffer.Unmap();
+      const std::size_t sizeBytes = indices->GetDataSize() * indices->GetDataTypeSize();
+      this->PointPrimitiveBGInfo.Buffer = vtkWebGPUInternalsBuffer::Upload(device, 0,
+        indices->GetPointer(0), sizeBytes, wgpu::BufferUsage::Storage, "Upload vtkPolyData::Verts");
     }
     vtkDebugMacro(<< "[Verts] "
-                  << "+ " << sizes[0] << " bytes ");
+                  << "-- " << sizes[0] << " bytes ");
   }
   {
     vtkCellArray* lines = this->CurrentInput->GetLines();
@@ -882,15 +856,8 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
         this->LinePrimitiveBGInfo.Buffer.Destroy();
       }
       // line primitives.
-      wgpu::BufferDescriptor topoBufDescriptor;
-      topoBufDescriptor.size = sizes[1];
-      topoBufDescriptor.label = "Upload vtkPolyData::Lines";
-      topoBufDescriptor.mappedAtCreation = true;
-      topoBufDescriptor.usage = wgpu::BufferUsage::Storage;
-
-      this->LinePrimitiveBGInfo.Buffer = device.CreateBuffer(&topoBufDescriptor);
-      void* mapped = this->LinePrimitiveBGInfo.Buffer.GetMappedRange(0, sizes[1]);
-      auto* mappedAsU32 = reinterpret_cast<vtkTypeUInt32*>(mapped);
+      vtkNew<vtkTypeUInt32Array> indices;
+      indices->Allocate(sizes[1]);
       vtkSmartPointer<vtkCellArrayIterator> linesIter = vtk::TakeSmartPointer(lines->NewIterator());
       for (linesIter->GoToFirstCell(); !linesIter->IsDoneWithTraversal();
            linesIter->GoToNextCell(), ++cellCount)
@@ -899,16 +866,18 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
         const int numSubLines = npts - 1;
         for (int i = 0; i < numSubLines; ++i)
         {
-          *mappedAsU32++ = cellCount;
-          *mappedAsU32++ = pts[i];
-          *mappedAsU32++ = cellCount;
-          *mappedAsU32++ = pts[i + 1];
+          indices->InsertNextValue(cellCount);
+          indices->InsertNextValue(pts[i]);
+          indices->InsertNextValue(cellCount);
+          indices->InsertNextValue(pts[i + 1]);
         }
       }
-      this->LinePrimitiveBGInfo.Buffer.Unmap();
+      const std::size_t sizeBytes = indices->GetDataSize() * indices->GetDataTypeSize();
+      this->LinePrimitiveBGInfo.Buffer = vtkWebGPUInternalsBuffer::Upload(device, 0,
+        indices->GetPointer(0), sizeBytes, wgpu::BufferUsage::Storage, "Upload vtkPolyData::Lines");
     }
     vtkDebugMacro(<< "[Lines] "
-                  << "+ " << sizes[1] << " bytes ");
+                  << "-- " << sizes[1] << " bytes ");
   }
   {
     vtkCellArray* polys = this->CurrentInput->GetPolys();
@@ -920,15 +889,8 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
         this->TrianglePrimitiveBGInfo.Buffer.Destroy();
       }
       // triangle primitives.
-      wgpu::BufferDescriptor topoBufDescriptor;
-      topoBufDescriptor.size = sizes[2];
-      topoBufDescriptor.label = "Upload vtkPolyData::{Tris,Strips}";
-      topoBufDescriptor.mappedAtCreation = true;
-      topoBufDescriptor.usage = wgpu::BufferUsage::Storage;
-
-      this->TrianglePrimitiveBGInfo.Buffer = device.CreateBuffer(&topoBufDescriptor);
-      void* mapped = this->TrianglePrimitiveBGInfo.Buffer.GetMappedRange(0, sizes[2]);
-      auto* mappedAsU32 = reinterpret_cast<vtkTypeUInt32*>(mapped);
+      vtkNew<vtkTypeUInt32Array> indices;
+      indices->Allocate(sizes[2]);
       vtkSmartPointer<vtkCellArrayIterator> polysIter = vtk::TakeSmartPointer(polys->NewIterator());
       for (polysIter->GoToFirstCell(); !polysIter->IsDoneWithTraversal();
            polysIter->GoToNextCell(), ++cellCount)
@@ -937,12 +899,12 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
         const int numSubTriangles = npts - 2;
         for (int i = 0; i < numSubTriangles; ++i)
         {
-          *mappedAsU32++ = cellCount;
-          *mappedAsU32++ = pts[0];
-          *mappedAsU32++ = cellCount;
-          *mappedAsU32++ = pts[i + 1];
-          *mappedAsU32++ = cellCount;
-          *mappedAsU32++ = pts[i + 2];
+          indices->InsertNextValue(cellCount);
+          indices->InsertNextValue(pts[0]);
+          indices->InsertNextValue(cellCount);
+          indices->InsertNextValue(pts[i + 1]);
+          indices->InsertNextValue(cellCount);
+          indices->InsertNextValue(pts[i + 2]);
         }
       }
       vtkSmartPointer<vtkCellArrayIterator> stripsIter =
@@ -951,27 +913,30 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
            stripsIter->GoToNextCell(), ++cellCount)
       {
         stripsIter->GetCurrentCell(npts, pts);
-        *mappedAsU32++ = cellCount;
-        *mappedAsU32++ = pts[0];
-        *mappedAsU32++ = cellCount;
-        *mappedAsU32++ = pts[1];
-        *mappedAsU32++ = cellCount;
-        *mappedAsU32++ = pts[2];
+        indices->InsertNextValue(cellCount);
+        indices->InsertNextValue(pts[0]);
+        indices->InsertNextValue(cellCount);
+        indices->InsertNextValue(pts[1]);
+        indices->InsertNextValue(cellCount);
+        indices->InsertNextValue(pts[2]);
         for (int i = 2; i < npts; ++i)
         {
-          *mappedAsU32++ = cellCount;
-          *mappedAsU32++ = pts[i - 2];
-          *mappedAsU32++ = cellCount;
-          *mappedAsU32++ = pts[i - 1];
-          *mappedAsU32++ = cellCount;
-          *mappedAsU32++ = pts[i];
+          indices->InsertNextValue(cellCount);
+          indices->InsertNextValue(pts[i - 2]);
+          indices->InsertNextValue(cellCount);
+          indices->InsertNextValue(pts[i - 1]);
+          indices->InsertNextValue(cellCount);
+          indices->InsertNextValue(pts[i]);
         }
       }
-      this->TrianglePrimitiveBGInfo.Buffer.Unmap();
+      const std::size_t sizeBytes = indices->GetDataSize() * indices->GetDataTypeSize();
+      this->TrianglePrimitiveBGInfo.Buffer =
+        vtkWebGPUInternalsBuffer::Upload(device, 0, indices->GetPointer(0), sizeBytes,
+          wgpu::BufferUsage::Storage, "Upload vtkPolyData::{Tris,Strips}");
     }
   }
   vtkDebugMacro(<< "[Triangles] "
-                << "+ " << sizes[2] << " bytes ");
+                << "-- " << sizes[2] << " bytes ");
   this->Primitive2CellIDsBuildTimestamp.Modified();
   vtkDebugMacro(<< __func__ << " bufferModifiedTime=" << this->Primitive2CellIDsBuildTimestamp);
   return true;
@@ -984,8 +949,8 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
   auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(renderer);
   // build shaders if needed.
-  wgpu::ShaderModule shaderModule;
-  if (!(shaderModule = wgpuRenderer->HasShaderCache(PolyData)))
+  wgpu::ShaderModule shaderModule = wgpuRenderer->HasShaderCache(PolyData);
+  if (shaderModule == nullptr)
   {
     shaderModule = vtkWebGPUInternalsShaderModule::CreateFromWGSL(device, PolyData);
     wgpuRenderer->InsertShader(PolyData, shaderModule);
