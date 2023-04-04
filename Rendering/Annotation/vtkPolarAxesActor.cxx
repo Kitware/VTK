@@ -1105,9 +1105,10 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
   char titleValue[64];
   for (alphaDeg = alphaStart; i < this->NumberOfRadialAxes; alphaDeg += dAlpha, ++i)
   {
+    const bool isLastAxis = i == this->NumberOfRadialAxes - 1;
     currentAlpha = alphaDeg;
 
-    if (i == this->NumberOfRadialAxes - 1)
+    if (isLastAxis)
     {
       currentAlpha = angleSection + this->MinimumAngle;
     }
@@ -1139,7 +1140,7 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
     vtkAxisActor* axis = this->RadialAxes[i].Get();
 
     // The last arc has its own property
-    if (i < this->NumberOfRadialAxes - 1)
+    if (isLastAxis)
     {
       axis->SetAxisLinesProperty(this->LastRadialAxisProperty);
       axis->SetTitleTextProperty(this->LastRadialAxisTextProperty);

@@ -87,14 +87,15 @@ int TestPolarAxes(int argc, char* argv[])
   polaxes->SetRequestedNumberOfRadialAxes(10);
   polaxes->SetCamera(renderer->GetActiveCamera());
   polaxes->SetPolarLabelFormat("%6.1f");
-  polaxes->GetLastRadialAxisProperty()->SetColor(.0, .0, 1.);
-  polaxes->GetSecondaryRadialAxesProperty()->SetColor(.0, .0, 1.);
-  polaxes->GetPolarArcsProperty()->SetColor(1., .0, 0.);
-  polaxes->GetSecondaryPolarArcsProperty()->SetColor(1., 1., 1.);
-  polaxes->GetPolarAxisProperty()->SetColor(.2, .2, .2);
-  polaxes->GetPolarAxisTitleTextProperty()->SetColor(1, 1, 0);
-  polaxes->GetPolarAxisLabelTextProperty()->SetColor(0, 1, 1);
-  polaxes->GetSecondaryRadialAxesTextProperty()->SetColor(1, 0, 1);
+  polaxes->GetLastRadialAxisProperty()->SetColor(0.0, 1.0, 0.0);
+  polaxes->GetSecondaryRadialAxesProperty()->SetColor(0.0, 0.0, 1.0);
+  polaxes->GetPolarArcsProperty()->SetColor(1.0, 0.0, 0.0);
+  polaxes->GetSecondaryPolarArcsProperty()->SetColor(1.0, 0.0, 1.0);
+  polaxes->GetPolarAxisProperty()->SetColor(1.0, 0.5, 0.0);
+  polaxes->GetPolarAxisTitleTextProperty()->SetColor(0.0, 0.0, 0.0);
+  polaxes->GetPolarAxisLabelTextProperty()->SetColor(1.0, 1.0, 0.0);
+  polaxes->GetLastRadialAxisTextProperty()->SetColor(0.0, 0.5, 0.0);
+  polaxes->GetSecondaryRadialAxesTextProperty()->SetColor(0.0, 1.0, 1.0);
   polaxes->SetScreenSize(9.0);
 
   vtkNew<vtkRenderWindow> renWin;
