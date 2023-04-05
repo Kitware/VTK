@@ -35,7 +35,7 @@
       document.addEventListener("keypress", eventForward, false);
       document.addEventListener("keydown", eventForward, false);
       document.addEventListener("keyup", eventForward, false);
-      var vtk = WrappedMace(Module).then((runtime) => {
+      var vtk = createWrappedMaceModule(Module).then((runtime) => {
         var renderer = new Module.vtkRenderer();
         var renWin = new Module.vtkSDL2OpenGLRenderWindow();
         renWin.AddRenderer(renderer);

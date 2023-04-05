@@ -5,9 +5,8 @@ docker run --rm --entrypoint /bin/bash -v $PWD:/work -p 8000:8000 -it dockcross/
 
 cd /work/build-example
 
-cmake \
+emcmake cmake \
   -G Ninja \
-  -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} \
   -DVTK_DIR=/work/build-vtk-wasm \
   /work/src/Examples/Emscripten/Cxx/WrappedMace
 
