@@ -22,23 +22,79 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 #include "vtkViewport.h"
 
 #include <map>
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+// Parameters used when creating cursor shapes
+double CURSOR_COLOR[3] = { 1.0, 0.0, 0.0 };
+constexpr double CROSS_LINE_WIDTH = 2.0;
+constexpr double SPHERE_RES = 16;
+}
+
 struct vtk3DCursorRepresentation::vtkInternals
 {
+  vtkInternals(vtk3DCursorRepresentation* parent)
+    : Parent(parent)
+  {
+  }
+  ~vtkInternals() = default;
+
+  // Update the cursor actor
+  void UpdateCursor();
+
+  // Helper methods to create cursor actors
+  vtkSmartPointer<vtkActor> CreateCrossCursor();
+  vtkSmartPointer<vtkActor> CreateSphereCursor();
+
+  vtk3DCursorRepresentation* Parent = nullptr;
+  vtkSmartPointer<vtkActor> Cursor;
   vtkNew<vtkHardwarePicker> Picker;
+  bool NeedUpdate = true;
 };
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtk3DCursorRepresentation);
+void vtk3DCursorRepresentation::vtkInternals::UpdateCursor()
+{
+  if (!this->NeedUpdate)
+  {
+    return;
+  }
+
+  this->NeedUpdate = false;
+
+  switch (this->Parent->GetShape())
+  {
+    case CUSTOM_SHAPE:
+    {
+      if (this->Parent->CustomCursor)
+      {
+        this->Cursor = this->Parent->GetCustomCursor();
+      }
+      break;
+    }
+    case SPHERE_SHAPE:
+    {
+      this->Cursor = this->CreateSphereCursor();
+      break;
+    }
+    case CROSS_SHAPE:
+    default:
+    {
+      this->Cursor = this->CreateCrossCursor();
+      break;
+    }
+  }
+}
 
 //------------------------------------------------------------------------------
-vtk3DCursorRepresentation::vtk3DCursorRepresentation()
-  : Internals(new vtk3DCursorRepresentation::vtkInternals())
+vtkSmartPointer<vtkActor> vtk3DCursorRepresentation::vtkInternals::CreateCrossCursor()
 {
   vtkNew<vtkCursor3D> cross;
   cross->AllOff();
@@ -46,17 +102,48 @@ vtk3DCursorRepresentation::vtk3DCursorRepresentation()
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(cross->GetOutputPort());
-  mapper->Update();
-  // We disable this option because it do not give good
-  // results when zooming close to the actors in the scene
+  // Disabling it gives better results when zooming close
+  // to the picked actor in the scene
   mapper->SetResolveCoincidentTopologyToOff();
+  mapper->Update();
 
-  this->Cursor = vtkSmartPointer<vtkActor>::New();
-  this->Cursor->SetMapper(mapper);
-  this->Cursor->SetPickable(false);
-  this->Cursor->GetProperty()->SetColor(1., 0., 0.);
-  this->Cursor->GetProperty()->SetLineWidth(2.);
+  vtkNew<vtkActor> cursor;
+  cursor->SetMapper(mapper);
+  cursor->GetProperty()->SetColor(CURSOR_COLOR);
+  cursor->GetProperty()->SetLineWidth(CROSS_LINE_WIDTH);
 
+  return cursor;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkActor> vtk3DCursorRepresentation::vtkInternals::CreateSphereCursor()
+{
+  vtkNew<vtkSphereSource> sphere;
+  sphere->SetThetaResolution(SPHERE_RES);
+  sphere->SetPhiResolution(SPHERE_RES);
+
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputConnection(sphere->GetOutputPort());
+  // Disabling it gives better results when zooming close
+  // to the picked actor in the scene
+  mapper->SetResolveCoincidentTopologyToOff();
+  mapper->Update();
+
+  vtkNew<vtkActor> cursor;
+  cursor->SetMapper(mapper);
+  cursor->GetProperty()->SetColor(CURSOR_COLOR);
+
+  return cursor;
+}
+
+//------------------------------------------------------------------------------
+vtkStandardNewMacro(vtk3DCursorRepresentation);
+
+//------------------------------------------------------------------------------
+vtk3DCursorRepresentation::vtk3DCursorRepresentation()
+  : Internals(new vtk3DCursorRepresentation::vtkInternals(this))
+{
+  this->Internals->UpdateCursor();
   this->HandleSize = 15;
   this->ValidPick = true;
 }
@@ -117,19 +204,21 @@ void vtk3DCursorRepresentation::WidgetInteraction(double newEventPos[2])
 
   double pos[3] = { 0.0 };
   this->Internals->Picker->GetPickPosition(pos);
-  this->Cursor->SetPosition(pos);
+  this->Internals->Cursor->SetPosition(pos);
 }
 
 //------------------------------------------------------------------------------
 void vtk3DCursorRepresentation::BuildRepresentation()
 {
+  this->Internals->UpdateCursor();
+
   // Target size = HandleSize in world coordinates
-  double cursorPos[3];
-  this->Cursor->GetPosition(cursorPos);
+  double cursorPos[3] = { 0.0 };
+  this->Internals->Cursor->GetPosition(cursorPos);
   double targetSize = this->SizeHandlesInPixels(1.0, cursorPos);
 
   double cursorBounds[6] = { 0.0 };
-  this->Cursor->GetBounds(cursorBounds);
+  this->Internals->Cursor->GetBounds(cursorBounds);
 
   // Safety check
   if (cursorBounds[1] - cursorBounds[0] == 0)
@@ -149,22 +238,69 @@ void vtk3DCursorRepresentation::BuildRepresentation()
 
   // Rescale the actor to fit the target size
   double scale[3] = { 0.0 };
-  this->Cursor->GetScale(scale);
+  this->Internals->Cursor->GetScale(scale);
   vtkMath::MultiplyScalar(scale, sizeRatio);
-  this->Cursor->SetScale(scale);
+  this->Internals->Cursor->SetScale(scale);
 }
 
 //------------------------------------------------------------------------------
 void vtk3DCursorRepresentation::ReleaseGraphicsResources(vtkWindow* win)
 {
-  this->Cursor->ReleaseGraphicsResources(win);
+  this->Internals->Cursor->ReleaseGraphicsResources(win);
 }
 
 //------------------------------------------------------------------------------
 int vtk3DCursorRepresentation::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   this->BuildRepresentation();
-  return this->Cursor->RenderOpaqueGeometry(viewport);
+  return this->Internals->Cursor->RenderOpaqueGeometry(viewport);
+}
+
+//------------------------------------------------------------------------------
+void vtk3DCursorRepresentation::SetCursorShape(int shape)
+{
+  if (shape < CROSS_SHAPE || shape > CUSTOM_SHAPE)
+  {
+    vtkWarningMacro("Given shape doesn't exist. Valid values are ranging between "
+      << CROSS_SHAPE << " and " << CUSTOM_SHAPE << ".\n Previous cursor shape is preserved.");
+    return;
+  }
+
+  if (shape != this->Shape)
+  {
+    this->Shape = shape;
+    this->Internals->NeedUpdate = true;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtk3DCursorRepresentation::SetCustomCursor(vtkActor* customCursor)
+{
+  if (customCursor && customCursor != this->CustomCursor)
+  {
+    this->CustomCursor = customCursor;
+    this->Modified();
+
+    if (this->Shape == CUSTOM_SHAPE)
+    {
+      this->Internals->NeedUpdate = true;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_3_0
+void vtk3DCursorRepresentation::SetCursor(vtkActor* cursor)
+{
+  this->SetCursorShape(CUSTOM_SHAPE);
+  this->SetCustomCursor(cursor);
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_3_0
+vtkActor* vtk3DCursorRepresentation::GetCursor()
+{
+  return this->GetCustomCursor();
 }
 
 //------------------------------------------------------------------------------

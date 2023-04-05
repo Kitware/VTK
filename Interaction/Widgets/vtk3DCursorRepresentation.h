@@ -36,6 +36,7 @@
 #define vtk3DCursorRepresentation_h
 
 #include "vtkActor.h"                    // For vtkActor
+#include "vtkDeprecation.h"              // For deprecation macros
 #include "vtkHardwarePicker.h"           // For vtkHardwarePicker
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // For vtkNew
@@ -74,20 +75,47 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   ///@}
 
+  enum CursorShape
+  {
+    CROSS_SHAPE = 0,
+    SPHERE_SHAPE = 1,
+    CUSTOM_SHAPE = 2
+  };
+
+  ///@{
+  /**
+   * Set / Get the shape of the cursor.
+   * You can choose between CROSS, SPHERE and CUSTOM.
+   * Choose CUSTOM if you want to use the actor you pass
+   * with SetCustomCursor.
+   */
+  void SetCursorShape(int shape);
+  vtkGetMacro(Shape, int);
+  ///@}
+
+  ///@{
+  /**
+   * Set / Get an actor to use as custom cursor.
+   * You must set the cursor shape to CUSTOM enable it.
+   */
+  void SetCustomCursor(vtkActor* customCursor);
+  vtkGetSmartPointerMacro(CustomCursor, vtkActor);
+  ///@}
+
   ///@{
   /**
    * Set / Get the actor currently used as the 3D cursor.
    * By default, the cursor is a 3D cross (vtkCursor3D).
    */
-  vtkSetSmartPointerMacro(Cursor, vtkActor);
-  vtkGetSmartPointerMacro(Cursor, vtkActor);
+  VTK_DEPRECATED_IN_9_3_0("Please use SetCursorShape and SetCustomCursor instead.")
+  virtual void SetCursor(vtkActor* cursor);
+  VTK_DEPRECATED_IN_9_3_0("Please use GetCustomCursor instead.")
+  virtual vtkActor* GetCursor();
   ///@}
 
 protected:
   vtk3DCursorRepresentation();
   ~vtk3DCursorRepresentation() override;
-
-  vtkSmartPointer<vtkActor> Cursor;
 
 private:
   vtk3DCursorRepresentation(const vtk3DCursorRepresentation&) = delete;
@@ -95,6 +123,9 @@ private:
 
   struct vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
+
+  vtkSmartPointer<vtkActor> CustomCursor;
+  int Shape = CROSS_SHAPE;
 };
 
 VTK_ABI_NAMESPACE_END
