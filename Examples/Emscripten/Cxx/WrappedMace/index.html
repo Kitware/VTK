@@ -37,7 +37,7 @@
       document.addEventListener("keyup", eventForward, false);
       var vtk = createWrappedMaceModule(Module).then((runtime) => {
         var renderer = new Module.vtkRenderer();
-        var renWin = new Module.vtkSDL2OpenGLRenderWindow();
+        var renWin = new Module.vtkRenderWindow();
         renWin.AddRenderer(renderer);
         var iren = new Module.vtkSDL2RenderWindowInteractor();
         iren.SetRenderWindow(renWin);

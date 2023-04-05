@@ -14,9 +14,9 @@
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSDL2OpenGLRenderWindow.h"
-#include "vtkSDL2RenderWindowInteractor.h"
 
 //------------------------------------------------------------------------------
 // Main
@@ -26,10 +26,10 @@ int main(int argc, char* argv[])
 {
   // Create a renderer, render window, and interactor
   vtkNew<vtkRenderer> renderer;
-  vtkNew<vtkSDL2OpenGLRenderWindow> renderWindow;
+  vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetMultiSamples(0);
   renderWindow->AddRenderer(renderer);
-  vtkNew<vtkSDL2RenderWindowInteractor> renderWindowInteractor;
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
