@@ -326,7 +326,7 @@ int vtkDebugLeaks::PrintCurrentLeaks()
   vtkDebugLeaks::TraceManager->PrintObjects(std::cerr);
 
 #ifdef _WIN32
-  if (getenv("DASHBOARD_TEST_FROM_CTEST"))
+  if (getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
   {
     // Skip dialogs when running on dashboard.
     return 1;
