@@ -22,11 +22,6 @@ VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsBuffer
 {
 public:
-  /**
-   * Creates a buffer on the device and schedules a writeBuffer on the queue.
-   * Please prefer doing it yourself for larger buffers on WASM with mappedAtCreation=true
-   * instead of this approach to avoid an extra copy from WASM Heap.
-   */
   static wgpu::Buffer Upload(const wgpu::Device& device, unsigned long offset, void* data,
     unsigned long sizeBytes, wgpu::BufferUsage usage, const char* label = nullptr);
 

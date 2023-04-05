@@ -22,6 +22,8 @@
 #include "vtk_wgpu.h"                 // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkCellArray;
+class vtkTypeFloat32Array;
 class vtkWebGPURenderWindow;
 
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUPolyDataMapper : public vtkPolyDataMapper
@@ -131,6 +133,7 @@ protected:
   std::vector<unsigned long> GetExactConnecitivityBufferSizes();
   bool UpdateMeshGeometryBuffers(const wgpu::Device& device, vtkActor* actor);
   bool UpdateMeshIndexBuffers(const wgpu::Device& device);
+  vtkTypeFloat32Array* ComputeEdgeArray(vtkCellArray* polys);
 
   /**
    * Creates the graphics pipeline. Rendering state is frozen after this point.
