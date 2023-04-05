@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
+// VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkPolarAxesActor.h"
 
 #include "vtkAxisFollower.h"
@@ -860,6 +863,18 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport* viewport)
 }
 
 //------------------------------------------------------------------------------
+void vtkPolarAxesActor::AutoSubdividePolarAxisOn()
+{
+  this->SetAutoSubdividePolarAxis(true);
+}
+
+//------------------------------------------------------------------------------
+void vtkPolarAxesActor::AutoSubdividePolarAxisOff()
+{
+  this->SetAutoSubdividePolarAxis(false);
+}
+
+//------------------------------------------------------------------------------
 void vtkPolarAxesActor::AutoComputeTicksProperties()
 {
   // set DeltaRangeMajor according to Range[1] magnitude
@@ -950,6 +965,12 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
   else
   {
     axis->SetExponentVisibility(false);
+  }
+
+  // Compute delta Range values (if log == 1, deltaRange properties will be overwritten)
+  if (this->AutoSubdividePolarAxis)
+  {
+    this->AutoComputeTicksProperties();
   }
 
   // Set polar axis labels
@@ -1084,9 +1105,10 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
   char titleValue[64];
   for (alphaDeg = alphaStart; i < this->NumberOfRadialAxes; alphaDeg += dAlpha, ++i)
   {
+    const bool isLastAxis = i == this->NumberOfRadialAxes - 1;
     currentAlpha = alphaDeg;
 
-    if (i == this->NumberOfRadialAxes - 1)
+    if (isLastAxis)
     {
       currentAlpha = angleSection + this->MinimumAngle;
     }
@@ -1118,7 +1140,7 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
     vtkAxisActor* axis = this->RadialAxes[i].Get();
 
     // The last arc has its own property
-    if (i < this->NumberOfRadialAxes - 1)
+    if (isLastAxis)
     {
       axis->SetAxisLinesProperty(this->LastRadialAxisProperty);
       axis->SetTitleTextProperty(this->LastRadialAxisTextProperty);
