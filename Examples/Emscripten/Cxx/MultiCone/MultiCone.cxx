@@ -17,17 +17,17 @@
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSDL2OpenGLRenderWindow.h"
-#include "vtkSDL2RenderWindowInteractor.h"
 
 //------------------------------------------------------------------------------
 // Global objects
 //------------------------------------------------------------------------------
 
 vtkRenderer* renderer = nullptr;
-vtkSDL2OpenGLRenderWindow* renderWindow = nullptr;
-vtkSDL2RenderWindowInteractor* renderWindowInteractor = nullptr;
+vtkRenderWindow* renderWindow = nullptr;
+vtkRenderWindowInteractor* renderWindowInteractor = nullptr;
 vtkInteractorStyleTrackballCamera* style = nullptr;
 
 vtkConeSource* coneSource = nullptr;
@@ -40,8 +40,8 @@ void createPipeline()
 {
   // Create a renderer, render window, and interactor
   renderer = vtkRenderer::New();
-  renderWindow = vtkSDL2OpenGLRenderWindow::New();
-  renderWindowInteractor = vtkSDL2RenderWindowInteractor::New();
+  renderWindow = vtkRenderWindow::New();
+  renderWindowInteractor = vtkRenderWindowInteractor::New();
   style = vtkInteractorStyleTrackballCamera::New();
 
   renderWindow->SetMultiSamples(0);

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(Cone)
+project(ConeMultiBackend)
 
 # -----------------------------------------------------------------------------
 # EMSCRIPTEN only
@@ -18,7 +18,8 @@ find_package(VTK
   COMPONENTS
     FiltersSources      # VTK pipeline
     InteractionStyle    # Mouse handling
-    RenderingOpenGL2    # For Rendering
+    RenderingOpenGL2    # For Rendering with OpenGL
+    RenderingWebGPU     # For Rendering with WebGPU
     RenderingUI         # For SDL2 Window
 )
 
@@ -31,13 +32,14 @@ endif ()
 # Compile example code
 # -----------------------------------------------------------------------------
 
-add_executable(Cone Cone.cxx)
+add_executable(ConeMultiBackend ConeMultiBackend.cxx)
 
-target_link_libraries(Cone
+target_link_libraries(ConeMultiBackend
   PRIVATE
     VTK::FiltersSources
     VTK::InteractionStyle
     VTK::RenderingOpenGL2
+    VTK::RenderingWebGPU
     VTK::RenderingUI
 )
 
@@ -48,7 +50,11 @@ set(emscripten_link_options)
 set(emscripten_compile_options)
 
 list(APPEND emscripten_link_options
-  "SHELL:-s WASM=1"
+  "-sWASM=1"
+  "-sMODULARIZE=1"
+  "-sALLOW_MEMORY_GROWTH=1"
+  "-sEXPORT_NAME=createConeMultiBackendModule"
+  "-sEXPORTED_RUNTIME_METHODS=['ENV']" # ENV holds the environment variables accessible by C getenv
 )
 
 set(emscripten_debug_options)
@@ -70,22 +76,22 @@ elseif(DEBUGINFO STREQUAL "READABLE_JS")
     "-g1"
   )
   list(APPEND emscripten_link_options
-    "SHELL:-s DEMANGLE_SUPPORT=1"
+    "-sDEMANGLE_SUPPORT=1"
   )
 elseif(DEBUGINFO STREQUAL "PROFILE")
   list(APPEND emscripten_debug_options
     "-g2"
   )
   list(APPEND emscripten_link_options
-    "SHELL:-s DEMANGLE_SUPPORT=1"
+    "-sDEMANGLE_SUPPORT=1"
   )
 elseif(DEBUGINFO STREQUAL "DEBUG_NATIVE")
   list(APPEND emscripten_debug_options
     "-g3"
   )
   list(APPEND emscripten_link_options
-    "SHELL:-s ASSERTIONS=1"
-    "SHELL:-s DEMANGLE_SUPPORT=1"
+    "-sASSERTIONS=1"
+    "-sDEMANGLE_SUPPORT=1"
   )
 endif()
 
@@ -138,14 +144,14 @@ elseif(OPTIMIZE STREQUAL "SMALLEST_WITH_CLOSURE")
   )
 endif()
 
-target_compile_options(Cone
+target_compile_options(ConeMultiBackend
   PUBLIC
     ${emscripten_compile_options}
     ${emscripten_optimizations}
     ${emscripten_debug_options}
 )
 
-target_link_options(Cone
+target_link_options(ConeMultiBackend
   PUBLIC
     ${emscripten_link_options}
     ${emscripten_optimizations}
@@ -157,7 +163,7 @@ target_link_options(Cone
 # -----------------------------------------------------------------------------
 
 vtk_module_autoinit(
-  TARGETS  Cone
+  TARGETS  ConeMultiBackend
   MODULES  ${VTK_LIBRARIES}
 )
 
@@ -166,10 +172,9 @@ vtk_module_autoinit(
 # -----------------------------------------------------------------------------
 
 add_custom_command(
-  TARGET Cone
-  POST_BUILD
+  TARGET ConeMultiBackend
   COMMAND
-    ${CMAKE_COMMAND} -E copy_if_different
-      "${CMAKE_CURRENT_SOURCE_DIR}/index.html"
-      $<TARGET_FILE_DIR:Cone>
+    ${CMAKE_COMMAND} -E copy_directory
+      "${CMAKE_CURRENT_SOURCE_DIR}/web"
+      "${CMAKE_CURRENT_BINARY_DIR}"
 )

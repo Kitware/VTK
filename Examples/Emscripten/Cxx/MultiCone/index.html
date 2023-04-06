@@ -84,7 +84,7 @@
         };
 
         activate(el);
-        vtkCone(context).then((runtime) => {
+        createMultiConeModule(context).then((runtime) => {
           const api = {
             stopInteractor: runtime.cwrap('stop','void',[]),
             getResolution: runtime.cwrap('getConeResolution','int',[]),

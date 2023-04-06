@@ -135,10 +135,16 @@ set (intial_cpp_code
       object_factory->SetEnableFlag(use_webgpu, \"vtkHardwareSelector\", \"vtkWebGPUHardwareSelector\")\;
       object_factory->SetEnableFlag(use_opengl, \"vtkHardwareSelector\", \"vtkOpenGLHardwareSelector\")\;
     }
+    if (object_factory->HasOverride(\"vtkLight\"))
+    {
+      object_factory->SetEnableFlag(use_webgpu, \"vtkLight\", \"vtkWebGPULight\")\;
+      object_factory->SetEnableFlag(use_opengl, \"vtkLight\", \"vtkOpenGLLight\")\;
+    }
     if (object_factory->HasOverride(\"vtkPolyDataMapper\"))
     {
       object_factory->SetEnableFlag(use_webgpu, \"vtkPolyDataMapper\", \"vtkWebGPUPolyDataMapper\")\;
       object_factory->SetEnableFlag(use_opengl, \"vtkPolyDataMapper\", \"vtkOpenGLPolyDataMapper\")\;
+      object_factory->SetEnableFlag(use_opengl, \"vtkPolyDataMapper\", \"vtkOpenGLES30PolyDataMapper\")\;
     }
     if (object_factory->HasOverride(\"vtkProperty\"))
     {

@@ -27,17 +27,29 @@
 
 int main(int argc, char* argv[])
 {
-  vtkNew<vtkRenderWindow> renWin;
-  renWin->SetWindowName(__func__);
-  renWin->SetMultiSamples(0);
-
+  // Create a renderer, render window, and interactor
   vtkNew<vtkRenderer> renderer;
-  renWin->AddRenderer(renderer);
+  vtkNew<vtkRenderWindow> renderWindow;
+  renderWindow->SetMultiSamples(0);
+  renderWindow->AddRenderer(renderer);
+
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+
+  vtkNew<vtkInteractorStyleTrackballCamera> style;
+  renderWindowInteractor->SetInteractorStyle(style);
+  style->SetDefaultRenderer(renderer);
+
+  vtkNew<vtkMinimalStandardRandomSequence> seq;
+
+  double spacingX = 2.0, spacingY = 2.0, spacingZ = 2.0;
+
+  const int nx = std::atoi(argv[1]);
+  const int ny = std::atoi(argv[2]);
+  const int nz = std::atoi(argv[3]);
+  const int mapperIsStatic = std::atoi(argv[4]);
 
   double x = 0.0, y = 0.0, z = 0.0;
-  vtkNew<vtkMinimalStandardRandomSequence> seq;
-  double spacingX = 2.0, spacingY = 2.0, spacingZ = 2.0;
-  int nx = 100, ny = 10, nz = 10;
   for (int k = 0; k < nz; ++k)
   {
     for (int j = 0; j < ny; ++j)
@@ -46,15 +58,16 @@ int main(int argc, char* argv[])
       {
         vtkNew<vtkConeSource> coneSrc;
         coneSrc->SetResolution(10);
+        // position the cone
         coneSrc->SetCenter(x, y, z);
-        x += spacingX;
 
         coneSrc->Update();
         vtkPolyData* cone = coneSrc->GetOutput();
 
-        seq->SetSeed(k * ny * nx + j * nx + i);
+        // generate random colors for each face of the cone.
         vtkNew<vtkUnsignedCharArray> colors;
         colors->SetNumberOfComponents(4);
+        seq->SetSeed(k * ny * nx + j * nx + i);
         for (vtkIdType cellId = 0; cellId < cone->GetNumberOfPolys(); ++cellId)
         {
           double red = seq->GetNextRangeValue(0, 255.);
@@ -67,7 +80,8 @@ int main(int argc, char* argv[])
         vtkNew<vtkPolyDataMapper> mapper;
         mapper->SetInputData(cone);
         mapper->Update();
-        mapper->SetStatic(true);
+        mapper->SetStatic(mapperIsStatic);
+
         vtkNew<vtkActor> actor;
         actor->SetMapper(mapper);
         actor->GetProperty()->SetEdgeVisibility(1);
@@ -76,6 +90,8 @@ int main(int argc, char* argv[])
         actor->SetOrigin(x, y, z);
         actor->RotateZ(i * j);
         renderer->AddActor(actor);
+
+        x += spacingX;
       }
       x = 0.0;
       y += spacingY;
@@ -83,18 +99,15 @@ int main(int argc, char* argv[])
     y = 0.0;
     z += spacingZ;
   }
+  std::cout << "Created " << nx * ny * nz << " cones" << std::endl;
 
-  renderer->ResetCamera();
+  // Start rendering app
   renderer->SetBackground(0.2, 0.3, 0.4);
-  renWin->Render();
+  renderWindow->SetSize(300, 300);
+  renderWindow->Render();
 
-  vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin);
-  vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style);
-  style->SetDefaultRenderer(renderer);
-  renWin->Render();
+  // Start event loop
+  renderWindowInteractor->Start();
 
-  iren->Start();
   return 0;
 }

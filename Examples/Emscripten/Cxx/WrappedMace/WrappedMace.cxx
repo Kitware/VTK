@@ -17,8 +17,9 @@
 #include "vtkGlyph3D.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSDL2OpenGLRenderWindow.h"
 #include "vtkSDL2RenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 
@@ -48,7 +49,6 @@ vtkAddDestructor(vtkProp);
 vtkAddDestructor(vtkRenderer);
 vtkAddDestructor(vtkRenderWindow);
 vtkAddDestructor(vtkRenderWindowInteractor);
-vtkAddDestructor(vtkSDL2OpenGLRenderWindow);
 vtkAddDestructor(vtkSDL2RenderWindowInteractor);
 vtkAddDestructor(vtkSphereSource);
 vtkAddDestructor(vtkViewport);
@@ -116,24 +116,16 @@ EMSCRIPTEN_BINDINGS(webtest)
     .constructor(&vtkRenderWindow::New, emscripten::allow_raw_pointers())
     .function("SetMultiSamples", &vtkRenderWindow::SetMultiSamples)
     .function("Render", &vtkRenderWindow::Render)
-    .function("AddRenderer", &vtkRenderWindow::AddRenderer, emscripten::allow_raw_pointers());
+    .function("AddRenderer", &vtkRenderWindow::AddRenderer, emscripten::allow_raw_pointers())
+    .function("SetSize",
+      emscripten::select_overload<void(vtkRenderWindow&, int, int)>(
+        [](vtkRenderWindow& self, int w, int h) { self.SetSize(w, h); }));
 
   // vtkRenderWindowInteractor ----------------------------------------
   emscripten::class_<vtkRenderWindowInteractor>("vtkRenderWindowInteractor")
     .function("Start", &vtkRenderWindowInteractor::Start)
     .function("SetRenderWindow", &vtkRenderWindowInteractor::SetRenderWindow,
       emscripten::allow_raw_pointers());
-
-  // vtkSDL2OpenGLRenderWindow ----------------------------------------
-  emscripten::class_<vtkSDL2OpenGLRenderWindow, emscripten::base<vtkRenderWindow>>(
-    "vtkSDL2OpenGLRenderWindow")
-    .constructor(&vtkSDL2OpenGLRenderWindow::New, emscripten::allow_raw_pointers())
-    .function("Frame", &vtkSDL2OpenGLRenderWindow::Frame)
-    .function("SetSize",
-      emscripten::select_overload<void(vtkSDL2OpenGLRenderWindow&, int, int)>(
-        [](vtkSDL2OpenGLRenderWindow& self, int w, int h) {
-          self.vtkSDL2OpenGLRenderWindow::SetSize(w, h);
-        }));
 
   // vtkSDL2RenderWindowInteractor ------------------------------------
   emscripten::class_<vtkSDL2RenderWindowInteractor, emscripten::base<vtkRenderWindowInteractor>>(
