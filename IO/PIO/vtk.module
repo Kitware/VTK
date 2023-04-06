@@ -23,6 +23,7 @@ PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
   VTK::ParallelCore
+  VTK::hdf5
   VTK::vtksys
 TEST_DEPENDS
   VTK::FiltersGeometry

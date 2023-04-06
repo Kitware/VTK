@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-# Test the PIO Reader using native binary PIO files
+# Test the HDF5 functionality of the PIO Reader
 
 from vtkmodules.vtkCommonCore import vtkLookupTable
-from vtkmodules.vtkFiltersHyperTree import vtkHyperTreeGridGeometry
 from vtkmodules.vtkIOPIO import vtkPIOReader
 from vtkmodules.vtkParallelCore import vtkMultiProcessController
 from vtkmodules.vtkRenderingCore import (
@@ -27,7 +26,7 @@ controller = vtkMultiProcessController.GetGlobalController()
 rank = controller.GetLocalProcessId()
 
 pioreader = vtkPIOReader()
-pioreader.SetFileName(VTK_DATA_ROOT + "/Data/PIO/simple.pio")
+pioreader.SetFileName(VTK_DATA_ROOT + "/Data/PIO/simple_h5.pio")
 pioreader.UpdateInformation()
 
 # confirm default arrays are enabled
@@ -47,9 +46,6 @@ pioreader.Update()
 grid = pioreader.GetOutput()
 block = grid.GetBlock(0)
 piece = block.GetPieceAsDataObject(rank)
-geometryFilter = vtkHyperTreeGridGeometry()
-geometryFilter.SetInputData(piece)
-geometryFilter.Update()
 
 # ---------------------------------------------------------------------
 # Rendering
@@ -71,9 +67,9 @@ syncRenderers.SetRenderer(ren);
 syncRenderers.SetParallelController(controller);
 
 lut = vtkLookupTable()
-lut.SetHueRange(0.66, 0)
-lut.SetSaturationRange(1.0, 0.25);
-lut.SetTableRange(48.5, 50)
+lut.SetHueRange(0.77, 0)
+lut.SetSaturationRange(1.0, 0.65);
+lut.SetTableRange(48.5, 62.29)
 lut.Build()
 
 mapper = vtkDataSetMapper()
@@ -82,10 +78,10 @@ mapper.SetColorModeToMapScalars()
 mapper.SetScalarModeToUseCellFieldData()
 mapper.SelectColorArray('cell_energy')
 
-mapper.SetInputConnection(geometryFilter.GetOutputPort())
+mapper.SetInputData(piece)
 
 mapper.UseLookupTableScalarRangeOn()
-mapper.SetScalarRange(48.5, 50)
+mapper.SetScalarRange(48.5, 62.29)
 
 actor = vtkActor()
 actor.SetMapper(mapper)
@@ -94,12 +90,13 @@ ren.AddActor(actor)
 renWin.SetSize(300,300)
 ren.SetBackground(0.5,0.5,0.5)
 
-ren.GetActiveCamera().SetPosition(0.0108652, -0.00586516, 0.0143301)
-ren.GetActiveCamera().SetViewUp(0.707107, 0.707107, 0)
-ren.GetActiveCamera().SetParallelScale(0.00433013)
-ren.GetActiveCamera().SetFocalPoint(0.0025, 0.0025, 0.0025)
+ren.GetActiveCamera().SetPosition(0.0189, -0.0109, 0.0160)
+ren.GetActiveCamera().SetViewUp(0.444, 0.8211, 0.3576)
+ren.GetActiveCamera().SetParallelScale(0.0061)
+ren.GetActiveCamera().SetFocalPoint(0.0049, 0.002, 0.0024)
 
 renWin.Render()
+#iren.GetRenderWindow().Render()
 
 # prevent the tk window from showing up then start the event loop
 pioreader.SetDefaultExecutivePrototype(None)
