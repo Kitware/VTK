@@ -134,74 +134,74 @@ public:
     return false;
   }
 
-  template <>
-  bool operator()(vtkUnstructuredGrid* lhs, vtkUnstructuredGrid* rhs)
-  {
-    CheckerWorklet checks(this->Tolerance);
-
-    // Geometry checks
-    auto refRange = vtk::DataArrayValueRange<3>(lhs->GetPoints()->GetData());
-    auto getLHSPoints = [&](vtkIdType iPComp) { return refRange[iPComp]; };
-    auto hdfRange = vtk::DataArrayValueRange<3>(rhs->GetPoints()->GetData());
-    auto getRHSPoints = [&](vtkIdType iPComp) { return hdfRange[iPComp]; };
-    if (!checks(0, lhs->GetNumberOfPoints() * 3, getLHSPoints, getRHSPoints))
-    {
-      std::cout << "Points: Failed point geometry checks" << std::endl;
-      return false;
-    }
-
-    auto refConnRange = vtk::DataArrayValueRange<1>(lhs->GetCells()->GetConnectivityArray());
-    auto getLHSConn = [&](vtkIdType iConn) { return refConnRange[iConn]; };
-    auto hdfConnRange = vtk::DataArrayValueRange<1>(rhs->GetCells()->GetConnectivityArray());
-    auto getRHSConn = [&](vtkIdType iConn) { return hdfConnRange[iConn]; };
-    if (!checks(0, refConnRange.size(), getLHSConn, getRHSConn))
-    {
-      std::cout << "Connectivity: Failed connectivity geometry checks" << std::endl;
-      return false;
-    }
-
-    auto refOffRange = vtk::DataArrayValueRange<1>(lhs->GetCells()->GetOffsetsArray());
-    auto getLHSOff = [&](vtkIdType iOff) { return refOffRange[iOff]; };
-    auto hdfOffRange = vtk::DataArrayValueRange<1>(rhs->GetCells()->GetOffsetsArray());
-    auto getRHSOff = [&](vtkIdType iOff) { return hdfOffRange[iOff]; };
-    if (!checks(0, refOffRange.size(), getLHSOff, getRHSOff))
-    {
-      std::cout << "Offsets: Failed offsets geometry checks" << std::endl;
-      return false;
-    }
-    return true;
-  }
-
-  template <>
-  bool operator()(vtkImageData* lhs, vtkImageData* rhs)
-  {
-    const auto lExtent = lhs->GetExtent();
-    const auto rExtent = rhs->GetExtent();
-    for (vtkIdType iE = 0; iE < 6; ++iE)
-    {
-      if (lExtent[iE] - rExtent[iE] > this->Tolerance)
-      {
-        std::cout << "Extents: Failed extent geometry checks" << std::endl;
-        return false;
-      }
-    }
-
-    const auto lSpacing = lhs->GetSpacing();
-    const auto rSpacing = rhs->GetSpacing();
-    for (vtkIdType iS = 0; iS < 3; ++iS)
-    {
-      if (lSpacing[iS] - rSpacing[iS] > this->Tolerance)
-      {
-        std::cout << "Spacing: Failed spacing geometry checks" << std::endl;
-        return false;
-      }
-    }
-    return true;
-  }
-
 private:
   double Tolerance = CHECK_TOLERANCE;
 };
+
+template <>
+bool GeometryCheckerWorklet::operator()(vtkUnstructuredGrid* lhs, vtkUnstructuredGrid* rhs)
+{
+  CheckerWorklet checks(this->Tolerance);
+
+  // Geometry checks
+  auto refRange = vtk::DataArrayValueRange<3>(lhs->GetPoints()->GetData());
+  auto getLHSPoints = [&](vtkIdType iPComp) { return refRange[iPComp]; };
+  auto hdfRange = vtk::DataArrayValueRange<3>(rhs->GetPoints()->GetData());
+  auto getRHSPoints = [&](vtkIdType iPComp) { return hdfRange[iPComp]; };
+  if (!checks(0, lhs->GetNumberOfPoints() * 3, getLHSPoints, getRHSPoints))
+  {
+    std::cout << "Points: Failed point geometry checks" << std::endl;
+    return false;
+  }
+
+  auto refConnRange = vtk::DataArrayValueRange<1>(lhs->GetCells()->GetConnectivityArray());
+  auto getLHSConn = [&](vtkIdType iConn) { return refConnRange[iConn]; };
+  auto hdfConnRange = vtk::DataArrayValueRange<1>(rhs->GetCells()->GetConnectivityArray());
+  auto getRHSConn = [&](vtkIdType iConn) { return hdfConnRange[iConn]; };
+  if (!checks(0, refConnRange.size(), getLHSConn, getRHSConn))
+  {
+    std::cout << "Connectivity: Failed connectivity geometry checks" << std::endl;
+    return false;
+  }
+
+  auto refOffRange = vtk::DataArrayValueRange<1>(lhs->GetCells()->GetOffsetsArray());
+  auto getLHSOff = [&](vtkIdType iOff) { return refOffRange[iOff]; };
+  auto hdfOffRange = vtk::DataArrayValueRange<1>(rhs->GetCells()->GetOffsetsArray());
+  auto getRHSOff = [&](vtkIdType iOff) { return hdfOffRange[iOff]; };
+  if (!checks(0, refOffRange.size(), getLHSOff, getRHSOff))
+  {
+    std::cout << "Offsets: Failed offsets geometry checks" << std::endl;
+    return false;
+  }
+  return true;
+}
+
+template <>
+bool GeometryCheckerWorklet::operator()(vtkImageData* lhs, vtkImageData* rhs)
+{
+  const auto lExtent = lhs->GetExtent();
+  const auto rExtent = rhs->GetExtent();
+  for (vtkIdType iE = 0; iE < 6; ++iE)
+  {
+    if (lExtent[iE] - rExtent[iE] > this->Tolerance)
+    {
+      std::cout << "Extents: Failed extent geometry checks" << std::endl;
+      return false;
+    }
+  }
+
+  const auto lSpacing = lhs->GetSpacing();
+  const auto rSpacing = rhs->GetSpacing();
+  for (vtkIdType iS = 0; iS < 3; ++iS)
+  {
+    if (lSpacing[iS] - rSpacing[iS] > this->Tolerance)
+    {
+      std::cout << "Spacing: Failed spacing geometry checks" << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
 
 int TestUGTransient(const std::string& dataRoot)
 {

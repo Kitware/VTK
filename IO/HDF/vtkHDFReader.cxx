@@ -359,7 +359,8 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     }
     this->TimeRange[0] = *std::min_element(values.begin(), values.end());
     this->TimeRange[1] = *std::max_element(values.begin(), values.end());
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), values.data(), values.size());
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), values.data(),
+      static_cast<int>(values.size()));
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), this->TimeRange.data(), 2);
   }
   else

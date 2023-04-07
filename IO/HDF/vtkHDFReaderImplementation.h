@@ -250,13 +250,6 @@ private:
   ///@}
 };
 
-//------------------------------------------------------------------------------
-// explicit template instantiation declaration
-extern template bool vtkHDFReader::Implementation::GetAttribute<int>(
-  const char* attributeName, size_t dim, int* value);
-extern template bool vtkHDFReader::Implementation::GetAttribute<double>(
-  const char* attributeName, size_t dim, double* value);
-
 VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkHDFReaderImplementation.h
