@@ -34,20 +34,10 @@ Modelling - A variety of examples showing how to construct, edit, and
 
 ParallelProcessing - Use VTK for parallel processing, including MPI and
                      threaded approaches.
+                     
+Rendering and Tutorial examples are now in
+https://github.com/Kitware/vtk-examples
 
-Rendering - Examples showing how to use VTK's many rendering, and related
-            facilities, such as LOD actors, assemblies, picking, and
-            camera manipulation.
-
-Tutorial - Some simple step-by-step instructions looking at things like
-           creating pipelines, processing events, and creating data.
-
-VisualizationAlgorithms - A variety of examples showing how to use common
-                          visualization algorithms such as contouring,
-                          cutting, probing, and streamlines.
-
-VolumeRendering - Learn how to perform volume rendering from the examples
-                  in this directory.
 
 
 Additional Resources
