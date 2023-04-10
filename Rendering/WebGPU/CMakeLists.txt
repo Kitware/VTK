@@ -294,7 +294,6 @@ else ()
     # TODO
   endif ()
   vtk_module_find_package(PACKAGE Dawn)
-  # Must include these source files here.
   vtk_module_link(VTK::RenderingWebGPU
     PUBLIC
       dawn::webgpu_dawn)
