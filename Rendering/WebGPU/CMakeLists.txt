@@ -98,12 +98,8 @@ set(intial_cpp_code
     }
     else if(backend == \"WEBGPU\")
     {
-      #ifndef VTK_ENABLE_WEBGPU
-      vtkLogF(ERROR,\"WEBGPU backend requested but the WEBGPU backend was not compiled\")\;
-      #else
       use_webgpu = 1\;
       use_opengl = 0\;
-      #endif
     }
     else
     {
