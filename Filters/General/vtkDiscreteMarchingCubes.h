@@ -66,9 +66,14 @@
  * contour an image (i.e., a volume slice), use vtFlyingEdges2D or
  * vtkMarchingSquares.
  *
+ * @warning
+ * See also vtkPackLabels which is a utility class for renumbering the labels
+ * found in the input segmentation mask to contiguous forms of smaller type.
+ *
  * @sa
  * vtkSurfaceNets3D vtkDiscreteFlyingEdges3D vtkSurfaceNets2D
  * vtkContourFilter vtkSliceCubes vtkMarchingSquares vtkDividingCubes
+ * vtkPackLabels
  */
 
 #ifndef vtkDiscreteMarchingCubes_h

@@ -110,10 +110,14 @@
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
+ * @warning
+ * See also vtkPackLabels which is a utility class for renumbering the labels
+ * found in the input segmentation mask to contiguous forms of smaller type.
+ *
  * @sa
  * vtkSurfaceNets3D vtkDiscreteFlyingEdges2D vtkDiscreteFlyingEdgesClipper2D
  * vtkConstrainedSmoothingFilter vtkFlyingEdges2D vtkFlyingEdges3D
- * vtkWindowedSincPolyDataFilter
+ * vtkWindowedSincPolyDataFilter vtkPackLabels
  */
 
 #ifndef vtkSurfaceNets2D_h
