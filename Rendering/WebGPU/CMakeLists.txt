@@ -281,9 +281,9 @@ else ()
     vtk_module_link(VTK::RenderingWebGPU PUBLIC X11::X11)
     if (TARGET X11::Xcursor)
       vtk_module_link(VTK::RenderingWebGPU PRIVATE X11::Xcursor)
-    else()
+    else ()
       message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
-    endif()
+    endif ()
     set_property(SOURCE vtkXOpenGLRenderWindow.cxx APPEND
       PROPERTY
         COMPILE_DEFINITIONS "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
