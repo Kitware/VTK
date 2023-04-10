@@ -40,7 +40,6 @@ vtkStandardNewMacro(vtkPackLabels);
 // + The filter is really a vtkDataSet to vtkDataSet filter since it operates
 //   scalars independent of vtkDataSet type.
 // + Use the data array to process to select the appropriate array to pack
-// + Booleans for controlling pass cell data and pass point data could be added.
 // + Additional threading
 // + Use of ArrayTuple type access
 // + Output an array of counts of each label (GetLabelCounts)
@@ -132,6 +131,8 @@ struct MapLabels
 vtkPackLabels::vtkPackLabels()
 {
   this->OutputScalarType = VTK_DEFAULT_TYPE;
+  this->PassPointData = true;
+  this->PassCellData = true;
 }
 
 //------------------------------------------------------------------------------
@@ -234,9 +235,18 @@ int vtkPackLabels::RequestData(
   // where found to be packed.
   // Start by passing data, replace the output scalars if necessary.
   output->CopyStructure(input);
-  output->GetPointData()->PassData(input->GetPointData());
-  output->GetCellData()->PassData(input->GetCellData());
-  output->GetFieldData()->PassData(input->GetFieldData());
+  if (this->PassPointData)
+  {
+    output->GetPointData()->PassData(input->GetPointData());
+  }
+  if (this->PassCellData)
+  {
+    output->GetCellData()->PassData(input->GetCellData());
+  }
+  if (this->PassFieldData)
+  {
+    output->GetFieldData()->PassData(input->GetFieldData());
+  }
 
   // Replace scalar array with packed array.
   output->GetPointData()->SetScalars(outScalars);
@@ -258,6 +268,9 @@ void vtkPackLabels::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Labels Array: " << this->LabelsArray.Get() << "\n";
   os << indent << "Output Scalar Type: " << this->OutputScalarType << "\n";
+  os << indent << "Pass Point Data: " << (this->PassPointData ? "On\n" : "Off\n");
+  os << indent << "Pass Cell Data: " << (this->PassCellData ? "On\n" : "Off\n");
+  os << indent << "Pass Field Data: " << (this->PassFieldData ? "On\n" : "Off\n");
 }
 
 VTK_ABI_NAMESPACE_END

@@ -104,6 +104,24 @@ public:
   void SetOutputScalarTypeToUnsignedLong() { this->SetOutputScalarType(VTK_UNSIGNED_LONG); }
   ///@}
 
+  ///@{
+  /**
+   * Indicate whether to pass point data, cell data, or field data through to
+   * the output. This can be useful to limit the data being processed down a
+   * pipeline, including writing output files. By default, point data and
+   * cell data is passed from input to output.
+   */
+  vtkSetMacro(PassPointData, bool);
+  vtkGetMacro(PassPointData, bool);
+  vtkBooleanMacro(PassPointData, bool);
+  vtkSetMacro(PassCellData, bool);
+  vtkGetMacro(PassCellData, bool);
+  vtkBooleanMacro(PassCellData, bool);
+  vtkSetMacro(PassFieldData, bool);
+  vtkGetMacro(PassFieldData, bool);
+  vtkBooleanMacro(PassFieldData, bool);
+  ///@}
+
   /**
    * Indicate whether the input data is packed. This is useful for diagnostic
    * purposes. The input is packed is for N input labels, then the labels are
@@ -117,6 +135,9 @@ protected:
 
   vtkSmartPointer<vtkDataArray> LabelsArray;
   int OutputScalarType;
+  bool PassPointData;
+  bool PassCellData;
+  bool PassFieldData;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
