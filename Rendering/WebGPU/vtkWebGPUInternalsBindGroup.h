@@ -10,7 +10,7 @@
 #include <initializer_list>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsBindGroup
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsBindGroup
 {
 public:
   // Helpers to make creating bind groups look nicer:

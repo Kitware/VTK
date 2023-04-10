@@ -7,7 +7,7 @@
 #include "vtk_wgpu.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsBuffer
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsBuffer
 {
 public:
   static wgpu::Buffer Upload(const wgpu::Device& device, unsigned long offset, void* data,
