@@ -17,7 +17,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
-#include "vtkImageData.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -37,8 +37,6 @@ vtkStandardNewMacro(vtkPackLabels);
 
 // TODO:
 // This is a work in progress. There is much else that could be done:
-// + The filter is really a vtkDataSet to vtkDataSet filter since it operates
-//   scalars independent of vtkDataSet type.
 // + Use the data array to process to select the appropriate array to pack
 // + Additional threading
 // + Use of ArrayTuple type access
@@ -104,7 +102,7 @@ struct MapLabels
     // The labels are the same type as the input scalars.
     Array0T* labels = static_cast<Array0T*>(labelsArray);
 
-    // To create a packed image, a map must be created that maps from the
+    // To create a packed array, a map must be created that maps from the
     // original label value to the new packed label.
     std::map<T0, T1> labelMap;
     vtkIdType numLabels = labels->GetNumberOfTuples();
@@ -113,8 +111,8 @@ struct MapLabels
       labelMap[labels->GetValue(i)] = i;
     }
 
-    // Now loop over the input image, map the data values into the new
-    // labels. This could be sped up with a templated lambda within
+    // Now loop over the input scalar array, and map the data values into the
+    // new labels. This could be sped up with a templated lambda within
     // vtkSMPTools (exercise left for the user).
     for (auto id = 0; id < numScalars; ++id)
     {
@@ -161,8 +159,8 @@ int vtkPackLabels::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Copy the input data to the output. The temporary sortScalars
   // and labels array must be the same type as the input scalars.
@@ -251,13 +249,6 @@ int vtkPackLabels::RequestData(
   // Replace scalar array with packed array.
   output->GetPointData()->SetScalars(outScalars);
 
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkPackLabels::FillInputPortInformation(int, vtkInformation* info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 

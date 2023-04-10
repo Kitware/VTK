@@ -18,15 +18,20 @@
  *
  * vtkPackLabels is a filter that renumbers a set of segmentation labels into
  * a contiguous sequence of label values. The input segmentation labels are
- * represented by an image of arbitrary type, and the labels may be
+ * represented by a scalar array of arbitrary type, and the labels may be
  * non-contiguous (i.e., there may be "gaps" in the labels used to annotate
  * structured in the segmentation). After execution, the output of this
- * filter consists of an output image with the same input dimensions/extent
- * and spacing, however the labels are renumbered so that they are contiguous
- * (starting with value==0, [0,NumberOfLabels)). After filter execution, an
- * array of labels present in the input can be retrieved, listed in ascending
- * order, this is useful in various filters such as isocontouring filters
- * which require iso/label-values.
+ * filter consists of an output of the same dataset type as the input;
+ * however the labels are renumbered so that they are contiguous (starting
+ * with value==0, [0,NumberOfLabels)). After filter execution, an array of
+ * labels present in the input can be retrieved (named "PackedLabels"),
+ * listed in ascending order, this is useful in various filters such as
+ * isocontouring filters which require iso/label-values.
+ *
+ * Note that this filter mostly works on input dataset types of vtkImage
+ * (segmenation maps are commonly used in medical computing). However,
+ * because this filter operates on scalar point data, it has been generalized
+ * to work on any dataset type.
  *
  * The filter also converts the input data from one type to another. By
  * default, the output labels are of an unsigned integral type large enough
@@ -48,15 +53,15 @@
 #ifndef vtkPackLabels_h
 #define vtkPackLabels_h
 
-#include "vtkDataArray.h"         // For returning list of labels
+#include "vtkDataArray.h" // For returning list of labels
+#include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkImageAlgorithm.h"
-#include "vtkSmartPointer.h" // For returning list of labels
+#include "vtkSmartPointer.h"      // For returning list of labels
 
 VTK_ABI_NAMESPACE_BEGIN
 struct vtkLabelMap;
 
-class VTKFILTERSCORE_EXPORT vtkPackLabels : public vtkImageAlgorithm
+class VTKFILTERSCORE_EXPORT vtkPackLabels : public vtkDataSetAlgorithm
 {
 public:
   ///@{
@@ -65,7 +70,7 @@ public:
    * printing an object.
    */
   static vtkPackLabels* New();
-  vtkTypeMacro(vtkPackLabels, vtkImageAlgorithm);
+  vtkTypeMacro(vtkPackLabels, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
@@ -140,7 +145,6 @@ protected:
   bool PassFieldData;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkPackLabels(const vtkPackLabels&) = delete;
