@@ -66,6 +66,8 @@ exist to make sure a broken build is not being made. Essentially:
   * `VTK_DEFAULT_EGL_DEVICE_INDEX` (default `0`; requires
     `VTK_OPENGL_HAS_EGL`): The default EGL device to use for EGL render
     windows.
+  * `VTK_ENABLE_WEBGPU` (default `OFF`; required if using Emscripten): Enable
+    WebGPU rendering support.
   * `VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN` (default `OFF`): Whether to default
     to offscreen render windows by default or not.
   * `VTK_USE_OPENGL_DELAYED_LOAD` (default `OFF`; requires Windows and CMake >=
