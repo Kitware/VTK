@@ -73,7 +73,7 @@ struct BuildLabels
     T label = data[0];
     T nextLabel;
     labels->InsertNextValue(label);
-    for (auto i = 1; i < numScalars; ++i)
+    for (vtkIdType i = 1; i < numScalars; ++i)
     {
       nextLabel = data[i];
       if (nextLabel != label)
@@ -114,7 +114,7 @@ struct MapLabels
     // Now loop over the input scalar array, and map the data values into the
     // new labels. This could be sped up with a templated lambda within
     // vtkSMPTools (exercise left for the user).
-    for (auto id = 0; id < numScalars; ++id)
+    for (vtkIdType id = 0; id < numScalars; ++id)
     {
       typename std::map<T0, T1>::iterator it = labelMap.find(data0[id]);
       data1[id] = it->second;
