@@ -105,7 +105,7 @@ set(nowrap_headers
 )
 
 # add opengl support test executable on windows
-if (WIN32 AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))
+if (VTK_USE_WIN32_OPENGL AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))
   vtk_module_add_executable(vtkTestOpenGLVersion vtkTestOpenGLVersion.cxx)
   set_target_properties(vtkTestOpenGLVersion
     PROPERTIES
@@ -258,7 +258,7 @@ if (VTK_USE_X)
     set(has_vtkRenderWindow_override 1)
   endif ()
   list(APPEND classes vtkXOpenGLRenderWindow)
-elseif (WIN32)
+elseif (VTK_USE_WIN32_OPENGL)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
     vtk_object_factory_declare(
@@ -401,7 +401,7 @@ if (VTK_USE_X)
   )
 elseif (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework Cocoa")
-elseif (WIN32)
+elseif (VTK_USE_WIN32_OPENGL)
   # vtkWin32OpenGLDXRenderWindow requires D3D.
   vtk_module_find_package(PACKAGE DirectX)
   vtk_module_link(VTK::RenderingOpenGL2 PRIVATE DirectX::d3d11 DirectX::dxgi)

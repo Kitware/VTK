@@ -192,8 +192,6 @@ setup(
             '.dylibs',
             # Windows modules.
             '*.pyd',
-            # Windows shared libraries.
-            '*.dll',
             # Type information stubs
             '*.pyi',
             # Type information indicators

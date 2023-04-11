@@ -225,8 +225,7 @@ Less common, but variables which may be of interest to some:
 OpenGL-related options:
 
 Note that if OpenGL is used, there must be a "sensible" setup. Sanity checks
-exist to make sure a broken build is not being made. Note that on Windows, the
-Win32 OpenGL context is always available. Essentially:
+exist to make sure a broken build is not being made. Essentially:
 
 - at least one rendering environment (X, Cocoa, SDL2, OSMesa, EGL, etc.) must
   be available;
@@ -257,6 +256,9 @@ Win32 OpenGL context is always available. Essentially:
     3.13): If set, use delayed loading to load the OpenGL DLL at runtime.
   * `VTK_DEFAULT_RENDER_WINDOW_HEADLESS` (default `OFF`; only available if
     applicable): Default to a headless render window.
+  * `VTK_USE_WIN32_OPENGL` (default `ON` for Windows, forced `OFF` otherwise):
+    Use Win32 APIs for render windows (typically only relevant for OSMesa on
+    Windows builds).
 
 More advanced options:
 

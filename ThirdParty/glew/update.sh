@@ -8,7 +8,7 @@ readonly name="glew"
 readonly ownership="glew Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/glew.git"
-readonly tag="for/vtk-20210727-2.2.0"
+readonly tag="for/vtk-20230328-2.2.0"
 readonly paths="
 auto
 config/version

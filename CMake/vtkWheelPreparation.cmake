@@ -58,11 +58,9 @@ set(vtk_hierarchy_destination_args
   HIERARCHY_DESTINATION "${wheel_data_dir}/headers/hierarchy")
 set(setup_py_build_dir
   "${build_platlib}")
-# Required for Windows DLL placement.
+# Required for shared library placement.
 if (WIN32)
-  set(CMAKE_INSTALL_BINDIR
-    # Must correlate with `vtk_module_wrap_python(PYTHON_PACKAGE)` argument
-    "${setup_py_build_dir}/vtkmodules")
+  # Defaults are fine; handled by `delvewheel`.
 elseif (APPLE)
   set(CMAKE_INSTALL_LIBDIR
     # Store libraries in a subdirectory here.
