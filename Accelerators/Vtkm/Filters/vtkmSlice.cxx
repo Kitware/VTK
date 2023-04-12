@@ -17,6 +17,7 @@
 
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -33,9 +34,13 @@
 #include "vtkmlib/ImplicitFunctionConverter.h"
 #include "vtkmlib/PolyDataConverter.h"
 
+#include <vtkm/cont/ArrayCopy.h>
 #include <vtkm/cont/ErrorFilterExecution.h>
+#include <vtkm/cont/Invoker.h>
 #include <vtkm/filter/contour/Slice.h>
+#include <vtkm/filter/entity_extraction/Threshold.h>
 #include <vtkm/worklet/WorkletMapField.h>
+#include <vtkm/worklet/WorkletMapTopology.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmSlice);
@@ -148,6 +153,34 @@ void ChangeTriangleOrientation(vtkm::cont::DataSet& dataset)
   }
 }
 
+struct IdentifyCellsToDiscard : public vtkm::worklet::WorkletVisitCellsWithPoints
+{
+  using ControlSignature = void(CellSetIn cellset, FieldInCell cellGhostFlag,
+    FieldInPoint pointGhostFlags, FieldOutCell discard);
+
+  using ExecutionSignature = _4(_2, _3, PointCount);
+
+  template <typename VecType>
+  VTKM_EXEC vtkm::UInt8 operator()(
+    vtkm::UInt8 cellGhostFlag, const VecType& pointGhostFlags, vtkm::IdComponent numPoints) const
+  {
+    if (cellGhostFlag & (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL))
+    {
+      return 1;
+    }
+
+    for (vtkm::IdComponent i = 0; i < numPoints; ++i)
+    {
+      if (pointGhostFlags[i] & vtkDataSetAttributes::HIDDENPOINT)
+      {
+        return 1;
+      }
+    }
+
+    return 0;
+  }
+};
+
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -216,6 +249,63 @@ int vtkmSlice::RequestData(
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
     vtkm::cont::DataSet result = filter.Execute(in);
     ChangeTriangleOrientation(result);
+
+    // discard hidden and duplicate cells
+    if (input->GetCellGhostArray() || input->GetPointGhostArray())
+    {
+      using GhostValueTypeList = vtkm::List<vtkm::UInt8>;
+      using GhostStorageList =
+        vtkm::List<vtkm::cont::StorageTagConstant, vtkm::cont::StorageTagBasic>;
+      vtkm::cont::UncertainArrayHandle<GhostValueTypeList, GhostStorageList> cellGhostArray,
+        pointGhostArray;
+      if (input->GetCellGhostArray())
+      {
+        const auto& field = result.GetCellField(input->GetCellGhostArray()->GetName());
+
+        // FIXME: The ghost fields get converted to float in the slice filter. This is fixed in
+        // newer version of VTK-m. The copy should be removed when we update and replaced with:
+        // cellGhostArray = field.GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
+        vtkm::cont::ArrayHandle<vtkm::UInt8> copy;
+        vtkm::cont::ArrayCopy(
+          field.GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::FloatDefault>>(), copy);
+        cellGhostArray = copy;
+      }
+      else
+      {
+        cellGhostArray = vtkm::cont::ArrayHandleConstant<vtkm::UInt8>(0, result.GetNumberOfCells());
+      }
+
+      if (input->GetPointGhostArray())
+      {
+        const auto& field = result.GetPointField(input->GetPointGhostArray()->GetName());
+
+        // FIXME: The ghost fields get converted to float in the slice filter. This is fixed in
+        // newer version of VTK-m. The copy should be removed when we update and replaced with:
+        // pointGhostArray = field.GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
+        vtkm::cont::ArrayHandle<vtkm::UInt8> copy;
+        vtkm::cont::ArrayCopy(
+          field.GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::FloatDefault>>(), copy);
+        pointGhostArray = copy;
+      }
+      else
+      {
+        pointGhostArray =
+          vtkm::cont::ArrayHandleConstant<vtkm::UInt8>(0, result.GetNumberOfPoints());
+      }
+
+      vtkm::cont::ArrayHandle<vtkm::UInt8> discard;
+      vtkm::cont::Invoker{}(
+        IdentifyCellsToDiscard{}, result.GetCellSet(), cellGhostArray, pointGhostArray, discard);
+
+      result.AddCellField("discard", discard);
+
+      vtkm::filter::entity_extraction::Threshold threshold;
+      threshold.SetActiveField("discard", vtkm::cont::Field::Association::Cells);
+      threshold.SetThresholdBelow(0);
+      threshold.SetFieldsToPass(
+        vtkm::filter::FieldSelection("discard", vtkm::filter::FieldSelection::Mode::Exclude));
+      result = threshold.Execute(result);
+    }
 
     // convert back the dataset to VTK
     if (!fromvtkm::Convert(result, output, input))
