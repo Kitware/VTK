@@ -12,6 +12,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestBiDimensionalWidget.cxx
   TestBorderWidget.cxx
   TestBrokenLineWidget.cxx
+  TestCamera3DWidget.cxx
   TestCameraWidget.cxx
   TestCaptionWidget.cxx
   TestCellCentersPointPlacer.cxx

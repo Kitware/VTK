@@ -66,7 +66,8 @@ int vtkCameraActor::RenderOpaqueGeometry(vtkViewport* viewport)
   this->UpdateViewProps();
 
   int result = 0;
-  if (this->FrustumActor != nullptr && this->FrustumActor->GetMapper() != nullptr)
+  if (this->GetVisibility() && this->FrustumActor != nullptr &&
+    this->FrustumActor->GetMapper() != nullptr)
   {
     result = this->FrustumActor->RenderOpaqueGeometry(viewport);
   }
