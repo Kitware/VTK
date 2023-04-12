@@ -38,6 +38,7 @@ set(test_sources
   TestHyperTreeGridBinaryClipPlanes.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
+  TestHyperTreeGridGeometryPassCellIds.cxx
   TestHyperTreeGridTernary2D.cxx
   TestHyperTreeGridTernary2DBiMaterial.cxx
   TestHyperTreeGridTernary2DFullMaterialBits.cxx
