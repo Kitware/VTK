@@ -9,8 +9,10 @@ debugPrint = 0
 # filters such as vtkSurfaceNets3D, vtkDiscreteMarchingCubes,
 # and vtkDiscreteFlyingEdges.
 
-# Create a small volume with non-packed voxel values
-VTK_USHORT = 5
+# Create a small volume with non-packed voxel values. The output
+# data should be packed into unsigned char since there are less
+# than 256 labels.
+VTK_UCHAR = 3
 VTK_INT = 6
 xDim = 3
 yDim = 3
@@ -42,7 +44,7 @@ if debugPrint:
         print(i,scalars.GetTuple1(i))
     print("\n")
 
-# Pack the labels
+# Pack the labels. This should automatically pack into unsigned char.
 pack = vtk.vtkPackLabels()
 pack.SetInputData(image)
 pack.Update()
@@ -58,11 +60,13 @@ if debugPrint:
 
 # Look at the resulting volume
 outScalars = pack.GetOutput().GetPointData().GetScalars()
+dataType = outScalars.GetDataType()
 if debugPrint:
     for i in range(0,numVoxels):
         print(i,outScalars.GetTuple1(i))
 
 # Now check for proper output
+assert(dataType == VTK_UCHAR)
 assert(numLabels == 9)
 assert(labels.GetTuple1(0) == 0)
 assert(labels.GetTuple1(numLabels-1) == 123)

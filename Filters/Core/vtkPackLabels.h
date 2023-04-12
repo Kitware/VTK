@@ -93,8 +93,11 @@ public:
    * an unsigned integral type. Note that DEFAULT_TYPE value indicates that
    * the output data type will be of a type large enough to represent the N
    * labels present in the input (this is on by default). Explicit
-   * specification of the output type may result in the loss of precision if
-   * not performed carefully.
+   * specification of the output type can cause labels in the input scalars
+   * to be replaced with the BackgroundValue in the output scalars. This
+   * occurs when trying to represent N labels in a data type that cannot
+   * represent all N values (e.g., trying to pack 500 labels unto an unsigned
+   * char label map).
    */
   enum DefaultScalarType
   {
@@ -107,6 +110,18 @@ public:
   void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
   void SetOutputScalarTypeToUnsignedInt() { this->SetOutputScalarType(VTK_UNSIGNED_INT); }
   void SetOutputScalarTypeToUnsignedLong() { this->SetOutputScalarType(VTK_UNSIGNED_LONG); }
+  ///@}
+
+  ///@{
+  /**
+   * Specify a background label value. This value is used when the ith label is
+   * i >= N where N is the number of labels that the OutputScalarType can represent.
+   * So for example, when trying to pack 500 labels into an unsigned char output scalar
+   * type, all i labels i>=256 would be set to this background value. By default the
+   * BackgroundValue == 0.
+   */
+  vtkSetMacro(BackgroundValue, unsigned long);
+  vtkGetMacro(BackgroundValue, unsigned long);
   ///@}
 
   ///@{
@@ -140,6 +155,7 @@ protected:
 
   vtkSmartPointer<vtkDataArray> LabelsArray;
   int OutputScalarType;
+  unsigned long BackgroundValue;
   bool PassPointData;
   bool PassCellData;
   bool PassFieldData;

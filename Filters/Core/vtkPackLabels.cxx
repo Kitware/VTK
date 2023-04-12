@@ -89,7 +89,8 @@ struct BuildLabels
 struct MapLabels
 {
   template <typename Array0T, typename Array1T>
-  void operator()(Array0T* inScalars, Array1T* outScalars, vtkDataArray* labelsArray)
+  void operator()(Array0T* inScalars, Array1T* outScalars, vtkDataArray* labelsArray,
+    unsigned long maxLabels, unsigned long backgroundValue)
   {
     vtkIdType numScalars = inScalars->GetNumberOfTuples();
     using T0 = vtk::GetAPIType<Array0T>;
@@ -106,6 +107,7 @@ struct MapLabels
     // original label value to the new packed label.
     std::map<T0, T1> labelMap;
     vtkIdType numLabels = labels->GetNumberOfTuples();
+    numLabels = (numLabels > maxLabels ? maxLabels : numLabels);
     for (vtkIdType i = 0; i < numLabels; ++i)
     {
       labelMap[labels->GetValue(i)] = i;
@@ -117,10 +119,42 @@ struct MapLabels
     for (vtkIdType id = 0; id < numScalars; ++id)
     {
       typename std::map<T0, T1>::iterator it = labelMap.find(data0[id]);
-      data1[id] = it->second;
+      if (it != labelMap.end())
+      {
+        data1[id] = it->second;
+      }
+      else
+      {
+        data1[id] = backgroundValue;
+      }
     }
   } // operator()
 };  // MapLabels
+
+// Give a VTK data type, determine the maximum number of
+// labels that can be represented.
+unsigned long GetMaxLabels(int dataType)
+{
+  unsigned long maxLabels;
+  if (dataType == VTK_UNSIGNED_CHAR)
+  {
+    maxLabels = std::numeric_limits<unsigned char>::max();
+  }
+  else if (dataType == VTK_UNSIGNED_SHORT)
+  {
+    maxLabels = std::numeric_limits<unsigned short>::max();
+  }
+  else if (dataType == VTK_UNSIGNED_INT)
+  {
+    maxLabels = std::numeric_limits<unsigned int>::max();
+  }
+  else // if ( dataType == VTK_UNSIGNED_LONG )
+  {
+    maxLabels = std::numeric_limits<unsigned long>::max();
+  }
+
+  return maxLabels;
+} // GetMaxLabels
 
 } // end anonymous
 
@@ -129,8 +163,14 @@ struct MapLabels
 vtkPackLabels::vtkPackLabels()
 {
   this->OutputScalarType = VTK_DEFAULT_TYPE;
+  this->BackgroundValue = 0;
   this->PassPointData = true;
   this->PassCellData = true;
+  this->PassFieldData = true;
+
+  // By default process point scalars, then cell scalars
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
 //------------------------------------------------------------------------------
@@ -216,6 +256,14 @@ int vtkPackLabels::RequestData(
       outScalars.TakeReference(vtkDataArray::CreateDataArray(VTK_UNSIGNED_LONG));
     }
   }
+  unsigned long maxLabels = GetMaxLabels(outScalars->GetDataType());
+  if (N > maxLabels)
+  {
+    vtkWarningMacro(
+      "Due to specified output data type, truncating number of labels to: " << maxLabels);
+  }
+
+  outScalars->SetName("PackedLabels");
   vtkDebugMacro("Create packed scalars of type:" << outScalars->GetDataType());
   outScalars->SetNumberOfTuples(inScalars->GetNumberOfTuples());
 
@@ -224,7 +272,8 @@ int vtkPackLabels::RequestData(
     vtkTypeList::Create<unsigned char, unsigned short, unsigned int, unsigned long>;
   using MapDispatch = vtkArrayDispatch::Dispatch2ByValueType<AllTypes, LabelTypes>;
   MapLabels mapLabels;
-  MapDispatch::Execute(inScalars, outScalars.Get(), mapLabels, this->LabelsArray.Get());
+  MapDispatch::Execute(inScalars, outScalars.Get(), mapLabels, this->LabelsArray.Get(), maxLabels,
+    this->BackgroundValue);
 
   // Finally, create the output scalars. If passData is set, then the
   // input is simply passed to the output. Otherwise, the output scalars
