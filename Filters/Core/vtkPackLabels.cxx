@@ -202,18 +202,23 @@ int vtkPackLabels::RequestData(
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // Copy the input data to the output. The temporary sortScalars
+  // Copy the input scalar data to the output. The temporary sortScalars
   // and labels array must be the same type as the input scalars.
   vtkDataArray* inScalars = input->GetPointData()->GetScalars();
+  if (!inScalars)
+  {
+    vtkErrorMacro("No input scalars");
+    return 1;
+  }
   vtkSmartPointer<vtkDataArray> sortScalars;
   sortScalars.TakeReference(inScalars->NewInstance());
   sortScalars->DeepCopy(inScalars);
   this->LabelsArray.TakeReference(inScalars->NewInstance());
 
-  // Now populate the labels array.  We could use a std::set or std::map. But
-  // these are not threaded. So instead we use a threaded sort, and then
-  // build the array of labels from that.  We'll have to use a typed
-  // dispatch.
+  // Now populate the labels array which requires sorting the scalars.  We
+  // could use a std::set or std::map. But these are not threaded. So instead
+  // we use a threaded sort, and then build the array of labels from that.
+  // We'll have to use a typed dispatch.
   using AllTypes = vtkArrayDispatch::AllTypes;
   using BuildDispatch = vtkArrayDispatch::DispatchByValueType<AllTypes>;
   BuildLabels buildLabels;
