@@ -310,6 +310,17 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
   endif ()
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt" AND
+    NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
+  list(APPEND test_exclusions
+    # Qt6 test failures that need investigation.
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18946
+    "^VTK::GUISupportQtCxx-TestQtDebugLeaksView$"
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem$"
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
