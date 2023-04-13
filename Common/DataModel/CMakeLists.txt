@@ -265,7 +265,7 @@ set(template_classes
   vtkPeriodicDataArray
   vtkStaticCellLinksTemplate
   vtkStaticEdgeLocatorTemplate
-  vtkStaticFaceHashMapTemplate)
+  vtkStaticFaceHashLinksTemplate)
 
 set(nowrap_classes
   vtkHyperTreeGridEntry

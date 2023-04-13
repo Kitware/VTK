@@ -40,7 +40,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticCellLinksTemplate.h"
-#include "vtkStaticFaceHashMapTemplate.h"
+#include "vtkStaticFaceHashLinksTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
@@ -1348,19 +1348,19 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
 {
   // The unstructured grid to process
   vtkUnstructuredGrid* Grid;
-  using TFaceHashMap = vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>;
-  const TFaceHashMap& FaceHashMap;
+  using TFaceHashLinks = vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>;
+  const TFaceHashLinks& FaceHashLinks;
   bool RemoveGhostInterfaces;
 
   vtkIdType NumberOfCells;
   const unsigned char MASKED_CELL;
 
-  ExtractUG(vtkGeometryFilter* self, vtkUnstructuredGrid* grid, TFaceHashMap& faceHashMap,
+  ExtractUG(vtkGeometryFilter* self, vtkUnstructuredGrid* grid, TFaceHashLinks& faceHashLinks,
     const char* cellVis, const unsigned char* cellGhost, const unsigned char* pointGhost,
     vtkExcludedFaces<TInputIdType>* exc, ThreadOutputType<TInputIdType>* t)
     : ExtractCellBoundaries<TInputIdType>(self, cellVis, cellGhost, pointGhost, exc, t)
     , Grid(grid)
-    , FaceHashMap(faceHashMap)
+    , FaceHashLinks(faceHashLinks)
     , RemoveGhostInterfaces(self->GetRemoveGhostInterfaces())
     , NumberOfCells(grid->GetNumberOfCells())
     , MASKED_CELL(
@@ -1385,7 +1385,7 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
     void operator()(CellStateT& state, ExtractUG* This, vtkIdType beginHash, vtkIdType endHash)
     {
       auto& localData = This->LocalData.Local();
-      auto& faceHashMap = This->FaceHashMap;
+      auto& faceHashLinks = This->FaceHashLinks;
       auto& faceList = localData.FaceList;
       auto& polys = localData.Polys;
 
@@ -1407,13 +1407,13 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
         {
           break;
         }
-        const auto numberOfFaces = faceHashMap.GetNumberOfFacesInHash(hash);
+        const auto numberOfFaces = faceHashLinks.GetNumberOfFacesInHash(hash);
         if (numberOfFaces == 0)
         {
           continue;
         }
-        const auto cellsOfFacesInHash = faceHashMap.GetCellIdOfFacesInHash(hash);
-        const auto facesOfFacesInHash = faceHashMap.GetFaceIdOfFacesInHash(hash);
+        const auto cellsOfFacesInHash = faceHashLinks.GetCellIdOfFacesInHash(hash);
+        const auto facesOfFacesInHash = faceHashLinks.GetFaceIdOfFacesInHash(hash);
         for (localFaceId = 0; localFaceId < numberOfFaces; ++localFaceId)
         {
           auto& cellId = cellsOfFacesInHash[localFaceId];
@@ -1431,7 +1431,7 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
           // For 3d cells, we have 2 cases:
           // 1) When RemoveGhostInterfaces is on, we want to remove all types of ghosts.
           // Since isGhost is always true for every type of ghost, these cells will be processed
-          // and their faces will be removed in the PopulateCellArray step of the FaceHashMap.
+          // and their faces will be removed in the PopulateCellArray step of the faceList.
           // 2) When RemoveGhostInterfaces is off, we want to keep only the duplicate ghosts.
           // Since isGhost is always false for duplicates, the duplicate cells will be kept and the
           // the rest will be skipped.
@@ -1458,7 +1458,7 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
       if (isFirst)
       {
         This->Self->UpdateProgress(
-          static_cast<double>(0.4 * endHash / faceHashMap.GetNumberOfHashes() + 0.4));
+          static_cast<double>(0.4 * endHash / faceHashLinks.GetNumberOfHashes() + 0.4));
       }
     }
   };
@@ -3026,9 +3026,9 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   output->SetPolys(polys);
   output->SetStrips(strips);
 
-  // Build a face hash table to quickly determine the faces that have the same hash.
-  vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType> faceHashMap;
-  faceHashMap.BuildHashMap(uGrid);
+  // Build a face hash links to quickly determine the faces that have the same hash.
+  vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType> faceHashLinks;
+  faceHashLinks.BuildHashLinks(uGrid);
   self->UpdateProgress(0.4);
 
   // Threaded visit of each cell to extract boundary features. Each thread gathers
@@ -3040,12 +3040,12 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   // initial reduction and allocation of the output. It also computes offsets
   // and sizes for allocation and writing of data.
   auto* extract = new ExtractUG<TInputIdType, TFaceIdType>(
-    self, uGrid, faceHashMap, cellVis, cellGhosts, pointGhosts, exc, &threads);
-  vtkSMPTools::For(0, faceHashMap.GetNumberOfHashes(), *extract);
+    self, uGrid, faceHashLinks, cellVis, cellGhosts, pointGhosts, exc, &threads);
+  vtkSMPTools::For(0, faceHashLinks.GetNumberOfHashes(), *extract);
   numCells = extract->NumCells;
   self->UpdateProgress(0.8);
-  // free up the hash map
-  faceHashMap.Reset();
+  // free up the hash links
+  faceHashLinks.Reset();
 
   // If merging points, then it's necessary to allocate the points array,
   // configure the point map, and generate the new points. Here we are using

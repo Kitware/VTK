@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStaticFaceHashMapTemplate.txx
+  Module:    vtkStaticFaceHashLinksTemplate.txx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkStaticFaceHashMapTemplate.h"
+#include "vtkStaticFaceHashLinksTemplate.h"
 
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
@@ -27,13 +27,13 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-#ifndef vtkStaticFaceHashMapTemplate_txx
-#define vtkStaticFaceHashMapTemplate_txx
+#ifndef vtkStaticFaceHashLinksTemplate_txx
+#define vtkStaticFaceHashLinksTemplate_txx
 
 VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------------
 template <typename TInputIdType, typename TFaceIdType>
-struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::GeometryInformation
+struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::GeometryInformation
 {
   //-----------------------------------------------------------------------------
   struct GeometryBatch
@@ -83,7 +83,7 @@ struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::GeometryInformat
  * Functor to compute the number of faces and the memory size for all the faces per batch of cells.
  */
 template <typename TInputIdType, typename TFaceIdType>
-struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::CountFaces
+struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CountFaces
 {
   vtkUnstructuredGrid* Input;
   GeometryInformation& GeometryInfo;
@@ -135,7 +135,7 @@ struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::CountFaces
  */
 template <typename TInputIdType, typename TFaceIdType>
 template <typename TCellOffSetIdType>
-struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::CreateFacesInformation
+struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInformation
 {
   vtkUnstructuredGrid* Input;
   GeometryInformation& GeometryInfo;
@@ -365,7 +365,7 @@ struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::CreateFacesInfor
  */
 template <typename TInputIdType, typename TFaceIdType>
 template <typename TCellOffSetIdType>
-struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::CountHashes
+struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CountHashes
 {
   std::shared_ptr<TCellOffSetIdType> CellOffsets;
   std::shared_ptr<TInputIdType> FaceHashValues;
@@ -404,7 +404,7 @@ struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::CountHashes
  * Functor to compute the prefix sum of the counts, a.k.a. the offsets of the faces.
  */
 template <typename TInputIdType, typename TFaceIdType>
-struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::PrefixSum
+struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::PrefixSum
 {
   std::atomic<TInputIdType>* Counts;
   std::shared_ptr<vtkIdType> FaceOffsets;
@@ -475,7 +475,7 @@ struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::PrefixSum
  */
 template <typename TInputIdType, typename TFaceIdType>
 template <typename TCellOffSetIdType>
-struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::BuildFaceHashLinks
+struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildFaceHashLinks
 {
   std::shared_ptr<TCellOffSetIdType> CellOffsets;
   std::shared_ptr<TInputIdType> FaceHashValues;
@@ -537,7 +537,7 @@ struct vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::BuildFaceHashLin
  */
 template <typename TInputIdType, typename TFaceIdType>
 template <typename TCellOffSetIdType>
-void vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::BuildHashMapInternal(
+void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildHashLinksInternal(
   vtkUnstructuredGrid* input, GeometryInformation& geometryInfo)
 {
   const vtkIdType numberOfCells = input->GetNumberOfCells();
@@ -583,7 +583,7 @@ void vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::BuildHashMapIntern
 
 //----------------------------------------------------------------------------
 template <typename TInputIdType, typename TFaceIdType>
-void vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::BuildHashMap(
+void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildHashLinks(
   vtkUnstructuredGrid* input)
 {
   const vtkIdType numberOfCells = input->GetNumberOfCells();
@@ -600,19 +600,19 @@ void vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::BuildHashMap(
   if (use64BitIdsOffsets)
   {
     using TCellOffSetIdType = vtkTypeInt64;
-    this->BuildHashMapInternal<TCellOffSetIdType>(input, geometryInfo);
+    this->BuildHashLinksInternal<TCellOffSetIdType>(input, geometryInfo);
   }
   else
 #endif
   {
     using TCellOffSetIdType = vtkTypeInt32;
-    this->BuildHashMapInternal<TCellOffSetIdType>(input, geometryInfo);
+    this->BuildHashLinksInternal<TCellOffSetIdType>(input, geometryInfo);
   }
 }
 
 //----------------------------------------------------------------------------
 template <typename TInputIdType, typename TFaceIdType>
-void vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::Reset()
+void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::Reset()
 {
   this->NumberOfFaces = 0;
   this->NumberOfHashes = 0;
@@ -621,4 +621,4 @@ void vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>::Reset()
   this->FaceOffsets.reset();
 }
 VTK_ABI_NAMESPACE_END
-#endif // vtkStaticFaceHashMapTemplate_h
+#endif // vtkStaticFaceHashLinksTemplate_txx
