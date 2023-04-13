@@ -1397,15 +1397,19 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
       vtkIdType localFaceId;
       bool isGhost;
       const bool isFirst = vtkSMPTools::GetSingleThread();
+      const auto checkAbortInterval = std::min((endHash - beginHash) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType hash = beginHash; hash < endHash; ++hash)
       {
-        if (isFirst)
+        if (hash % checkAbortInterval == 0)
         {
-          This->Self->CheckAbort();
-        }
-        if (This->Self->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            This->Self->CheckAbort();
+          }
+          if (This->Self->GetAbortOutput())
+          {
+            break;
+          }
         }
         const auto numberOfFaces = faceHashLinks.GetNumberOfFacesInHash(hash);
         if (numberOfFaces == 0)
@@ -1621,16 +1625,21 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
     int ijk[3];
     ijk[axis] = this->MinFace ? extent[axis2] : extent[axis2 + 1] - 1;
     const int faceWidth_1 = dims[iAxis] - 1;
-    bool isFirst = vtkSMPTools::GetSingleThread();
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    const auto checkAbortInterval =
+      std::min((faceEndCellId - faceBeginCellId) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType faceCellId = faceBeginCellId; faceCellId < faceEndCellId; ++faceCellId)
     {
-      if (isFirst)
+      if (faceCellId % checkAbortInterval == 0)
       {
-        this->Self->CheckAbort();
-      }
-      if (this->Self->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Self->CheckAbort();
+        }
+        if (this->Self->GetAbortOutput())
+        {
+          break;
+        }
       }
       ijk[iAxis] = extent[iAxis2] + static_cast<int>(faceCellId % faceWidth_1);
       ijk[jAxis] = extent[jAxis2] + static_cast<int>(faceCellId / faceWidth_1);
@@ -1679,16 +1688,21 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
     bool minFace;
     int ijk[3];
     const int faceWidth_1 = dims[iAxis] - 1;
-    bool isFirst = vtkSMPTools::GetSingleThread();
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    const auto checkAbortInterval =
+      std::min((faceEndCellId - faceBeginCellId) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType faceCellId = faceBeginCellId; faceCellId < faceEndCellId; ++faceCellId)
     {
-      if (isFirst)
+      if (faceCellId % checkAbortInterval == 0)
       {
-        this->Self->CheckAbort();
-      }
-      if (this->Self->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Self->CheckAbort();
+        }
+        if (this->Self->GetAbortOutput())
+        {
+          break;
+        }
       }
       ijk[iAxis] = extent[iAxis2] + static_cast<int>(faceCellId % faceWidth_1);
       ijk[jAxis] = extent[jAxis2] + static_cast<int>(faceCellId / faceWidth_1);
@@ -1744,7 +1758,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
 
   void operator()(vtkIdType faceBeginCellId, vtkIdType faceEndCellId)
   {
-    bool isFirst = vtkSMPTools::GetSingleThread();
+    const bool isFirst = vtkSMPTools::GetSingleThread();
     if (this->AllCellsVisible || this->ForceSimpleVisibilityCheck)
     {
       this->FaceOperator(faceBeginCellId, faceEndCellId);
@@ -1859,17 +1873,20 @@ struct ExtractDS : public ExtractCellBoundaries<TInputIdType>
   void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     auto& localData = this->LocalData.Local();
-    bool isFirst = vtkSMPTools::GetSingleThread();
-
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    const auto checkAbortInterval = std::min((endCellId - beginCellId) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Self->CheckAbort();
-      }
-      if (this->Self->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Self->CheckAbort();
+        }
+        if (this->Self->GetAbortOutput())
+        {
+          break;
+        }
       }
       // Handle ghost cells here.  Another option was used cellVis array.
       if (this->CellGhosts && this->CellGhosts[cellId] & this->MASKED_CELL)
@@ -1972,24 +1989,28 @@ struct GenerateExpPoints
   {
   }
 
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType beginPtId, vtkIdType endPtId)
   {
     const auto inPts = vtk::DataArrayTupleRange<3>(this->InPts);
     auto outPts = vtk::DataArrayTupleRange<3>(this->OutPts);
     vtkIdType mapId;
-    bool isFirst = vtkSMPTools::GetSingleThread();
-
-    for (; ptId < endPtId; ++ptId)
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    const auto checkAbortInterval = std::min((endPtId - beginPtId) / 10 + 1, (vtkIdType)1000);
+    for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
-      if ((mapId = this->PointMap[ptId]) >= 0)
+      mapId = this->PointMap[ptId];
+      if (mapId >= 0)
       {
         auto xIn = inPts[ptId];
         auto xOut = outPts[mapId];
@@ -2022,24 +2043,28 @@ struct GenerateImpPoints
   {
   }
 
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType beginPtId, vtkIdType endPtId)
   {
     auto outPts = vtk::DataArrayTupleRange<3>(this->OutPts);
     double xIn[3];
     vtkIdType mapId;
-    bool isFirst = vtkSMPTools::GetSingleThread();
-
-    for (; ptId < endPtId; ++ptId)
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    const auto checkAbortInterval = std::min((endPtId - beginPtId) / 10 + 1, (vtkIdType)1000);
+    for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
-      if ((mapId = this->PointMap[ptId]) >= 0)
+      mapId = this->PointMap[ptId];
+      if (mapId >= 0)
       {
         this->InPts->GetPoint(ptId, xIn);
         auto xOut = outPts[mapId];
@@ -2270,20 +2295,24 @@ struct CompositeCells
     }
   }
 
-  void operator()(vtkIdType thread, vtkIdType threadEnd)
+  void operator()(vtkIdType threadBegin, vtkIdType threadEnd)
   {
     auto* extract = this->Extractor;
 
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    for (; thread < threadEnd; ++thread)
+    const auto checkAbortInterval = std::min((threadEnd - threadBegin) / 10 + 1, (vtkIdType)1000);
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    for (vtkIdType thread = threadBegin; thread < threadEnd; ++thread)
     {
-      if (isFirst)
+      if (thread % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       auto tItr = (*this->Threads)[thread];
 
@@ -2343,21 +2372,24 @@ struct CompositeCellIds
     }
   }
 
-  void operator()(vtkIdType thread, vtkIdType threadEnd)
+  void operator()(vtkIdType threadBegin, vtkIdType threadEnd)
   {
     auto* extract = this->Extractor;
     auto* compositeCells = this->CompositeCells;
-    bool isFirst = vtkSMPTools::GetSingleThread();
-
-    for (; thread < threadEnd; ++thread)
+    const auto checkAbortInterval = std::min((threadEnd - threadBegin) / 10 + 1, (vtkIdType)1000);
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    for (vtkIdType thread = threadBegin; thread < threadEnd; ++thread)
     {
-      if (isFirst)
+      if (thread % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       auto tItr = (*this->Threads)[thread];
 
