@@ -25,27 +25,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 //-----------------------------------------------------------------------------
-vtkThreadedCallbackQueue::vtkSharedFutureBase::vtkSharedFutureBase()
-  : NumberOfPriorSharedFuturesRemaining(0)
-  , Status(CONSTRUCTING)
-{
-}
-
-//-----------------------------------------------------------------------------
-void vtkThreadedCallbackQueue::vtkSharedFutureBase::Wait() const
-{
-  if (this->Status == READY)
-  {
-    return;
-  }
-  std::unique_lock<std::mutex> lock(this->Mutex);
-  if (this->Status != READY)
-  {
-    this->ConditionVariable.wait(lock, [this] { return this->Status == READY; });
-  }
-}
-
-//-----------------------------------------------------------------------------
 template <>
 struct vtkThreadedCallbackQueue::ReturnValueWrapper<void, false>
 {

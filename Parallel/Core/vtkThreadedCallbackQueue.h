@@ -113,12 +113,27 @@ public:
   public:
     vtkBaseTypeMacro(vtkSharedFutureBase, vtkObjectBase);
 
-    vtkSharedFutureBase();
+    vtkSharedFutureBase()
+      : NumberOfPriorSharedFuturesRemaining(0)
+      , Status(CONSTRUCTING)
+    {
+    }
 
     /**
      * Blocks current thread until the task associated with this future has terminated.
      */
-    virtual void Wait() const;
+    virtual void Wait() const
+    {
+      if (this->Status == READY)
+      {
+        return;
+      }
+      std::unique_lock<std::mutex> lock(this->Mutex);
+      if (this->Status != READY)
+      {
+        this->ConditionVariable.wait(lock, [this] { return this->Status == READY; });
+      }
+    }
 
     friend class vtkThreadedCallbackQueue;
 
