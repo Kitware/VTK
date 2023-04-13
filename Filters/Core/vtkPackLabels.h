@@ -21,17 +21,18 @@
  * represented by a scalar array of arbitrary type, and the labels may be
  * non-contiguous (i.e., there may be "gaps" in the labels used to annotate
  * structured in the segmentation). After execution, the output of this
- * filter consists of an output of the same dataset type as the input;
- * however the labels are renumbered so that they are contiguous (starting
- * with value==0, [0,NumberOfLabels)). After filter execution, an array of
- * labels present in the input can be retrieved (named "PackedLabels"),
- * listed in ascending order, this is useful in various filters such as
- * isocontouring filters which require iso/label-values.
+ * filter consists of (by default) an output of the same dataset type as the
+ * input; however the labels are renumbered so that they are contiguous
+ * (starting with value==0, [0,NumberOfLabels)). After filter execution, an
+ * array of labels present in the input can be retrieved (named
+ * "PackedLabels"), listed in ascending order, this is useful in various
+ * filters such as discrete isocontouring filters which require
+ * iso/label-values (e.g., vtkSurfaceNets3D).
  *
- * Note that this filter mostly works on input dataset types of vtkImage
- * (segmenation maps are commonly used in medical computing). However,
- * because this filter operates on scalar point data, it has been generalized
- * to work on any dataset type.
+ * Note that this filter mostly works on input dataset types of vtkImageData
+ * (segmentation maps are commonly used in medical computing). However,
+ * because this filter operates on scalar point or cell data independent of
+ * dataset type, it has been generalized to work on any dataset type.
  *
  * The filter also converts the input data from one type to another. By
  * default, the output labels are of an unsigned integral type large enough
@@ -41,9 +42,16 @@
  * useful when an algorithm performs better, or requires, a certain type of
  * input data. Note however, that manual specification can be dangerous:
  * trying to pack a large number of labels into a manually specified reduced
- * precision can result in conversion issues. By default, the filter will
- * select the unsigned integral type that can represent the N annotation
- * labels.
+ * precision label values may result in setting some label values to the
+ * BackgroundValue.
+ *
+ * Finally, in advanced usage, it is possible to control how sorting of the
+ * output labels is performed. By default, the labels are assorted based on
+ * their associated input label values (SortByLabelValue). However, it is
+ * possible to arrange the labels based on their frequency of use
+ * (SortByLabelCount). Sorting is useful for gathering data statistics, or to
+ * extract and display the segmented objects that are the "largest" in the
+ * dataset.
  *
  * @sa
  * vtkSurfaceNets3D vtkSurfaceNets2D vtkDiscreteFlyingEdges3D
@@ -56,6 +64,7 @@
 #include "vtkDataArray.h" // For returning list of labels
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkIdTypeArray.h"       // For returning count of labels
 #include "vtkSmartPointer.h"      // For returning list of labels
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -78,13 +87,54 @@ public:
   /**
    * Return the number of and list of labels found in the input label map.
    * The methods return a vtkDataArray with the same data type as the input
-   * scalar type. The labels are listed in ascending order.
+   * scalar type. By default, the labels are sorted in ascending order based
+   * on the input data (label) values (i.e., SortByLabelValue). However, if
+   * SortByLabelCount is specified, then the labels are sorted in descending
+   * order based on their frequency of occurrence (i.e., their counts).
    */
   vtkDataArray* GetLabels() { return this->LabelsArray; }
   vtkIdType GetNumberOfLabels()
   {
     return (this->LabelsArray ? this->LabelsArray->GetNumberOfTuples() : 0);
   }
+  ///@}
+
+  /**
+   * Return the frequency of occurence (i.e., the count) of each label
+   * returned in the LabelsArray. The methods returns a vtkIdTypeArray that is
+   * implicitly ordered consistent with the LabelsArray (i.e., LabelsCount[i]
+   * gives the frequency count for LabelsArray[i]). Note that if
+   * SortByLabelCount is set, then the labels array and labels count are
+   * sorted in descending order based on the frequency of occurrence of
+   * labels. If SortByLabelValue is set, then the labels array and label
+   * counts are sorted in ascending order based on input label values. Also
+   * note that the size of the LabelsCount array is identical to the size
+   * of the LabelsCount array.
+   */
+  vtkIdTypeArray* GetLabelsCount() { return this->LabelsCount; }
+
+  /**
+   * Flags to control how sorting of the labels is performed.
+   */
+  enum SortBy
+  {
+    SORT_BY_LABEL_VALUE = 0,
+    SORT_BY_LABEL_COUNT
+  };
+
+  ///@{
+  /**
+   * Indicate whether to sort the output labels by their input scalars label
+   * value (SortByLabelValue), or to sort by the frequency of occurence of
+   * the label values(SortByLabelCount). By default, sorting is performed by
+   * label value.  Note that typically the background label has the highest
+   * frequency of occurence, with a label value == 0 (but this is not a
+   * guarantee).
+   */
+  vtkSetClampMacro(SortBy, int, SORT_BY_LABEL_VALUE, SORT_BY_LABEL_COUNT);
+  vtkGetMacro(SortBy, int);
+  void SortByLabelValue() { this->SetSortBy(SORT_BY_LABEL_VALUE); }
+  void SortByLabelCount() { this->SetSortBy(SORT_BY_LABEL_COUNT); }
   ///@}
 
   ///@{
@@ -97,7 +147,7 @@ public:
    * to be replaced with the BackgroundValue in the output scalars. This
    * occurs when trying to represent N labels in a data type that cannot
    * represent all N values (e.g., trying to pack 500 labels unto an unsigned
-   * char label map).
+   * char packed label map).
    */
   enum DefaultScalarType
   {
@@ -126,10 +176,10 @@ public:
 
   ///@{
   /**
-   * Indicate whether to pass point data, cell data, or field data through to
-   * the output. This can be useful to limit the data being processed down a
-   * pipeline, including writing output files. By default, point data and
-   * cell data is passed from input to output.
+   * Indicate whether to pass point data, cell data, and/or field data
+   * through to the output. This can be useful to limit the data being
+   * processed down a pipeline, including writing output files. By default,
+   * point data and cell data is passed from input to output.
    */
   vtkSetMacro(PassPointData, bool);
   vtkGetMacro(PassPointData, bool);
@@ -142,18 +192,13 @@ public:
   vtkBooleanMacro(PassFieldData, bool);
   ///@}
 
-  /**
-   * Indicate whether the input data is packed. This is useful for diagnostic
-   * purposes. The input is packed is for N input labels, then the labels are
-   * counting integer contiguous from [l_0....l_(N-1)].
-   */
-  bool IsInputPacked();
-
 protected:
   vtkPackLabels();
   ~vtkPackLabels() override = default;
 
   vtkSmartPointer<vtkDataArray> LabelsArray;
+  vtkSmartPointer<vtkIdTypeArray> LabelsCount;
+  int SortBy;
   int OutputScalarType;
   unsigned long BackgroundValue;
   bool PassPointData;

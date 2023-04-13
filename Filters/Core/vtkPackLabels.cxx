@@ -31,30 +31,79 @@
 #include "vtkUnsignedShortArray.h"
 
 #include <map>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPackLabels);
 
 // TODO:
 // This is a work in progress. There is much else that could be done:
-// + Use the data array to process to select the appropriate array to pack
 // + Additional threading
 // + Use of ArrayTuple type access
-// + Output an array of counts of each label (GetLabelCounts)
-// + Specify a desired output number of labels M, which would output the top M
-//   most used labels. Any label outside of the top M would be set to a specified
-//   background label.
 
 //------------------------------------------------------------------------------
 // Internal classes and methods for packing.
 namespace
 { // anonymous
 
-// Sort scalars identify unique labels.
+// This struct is used to sort labels by the frequency of occurrence (i.e.,
+// its count).
+template <typename T>
+struct LabelTuple
+{
+  T Label;
+  vtkIdType Count;
+  LabelTuple()
+    : Label(0)
+    , Count(0){};
+
+  // This comparison produces a stable sort because it also
+  // considers the label value (it the label count is a tie).
+  bool operator>(const LabelTuple& tuple) const
+  {
+    if (Count > tuple.Count)
+      return true;
+    if (tuple.Count > Count)
+      return false;
+    if (Label > tuple.Label)
+      return true;
+    return false;
+  }
+}; // LabelTuple
+
+// This helper function performs the sorting of labels by count.
+// Used when SortByLabelCount is on.
+template <typename T>
+void SortLabelsByCount(vtkIdType numLabels, T* labels, vtkIdType* counts)
+{
+  // Insert tuples into pre-allocated vector
+  std::vector<LabelTuple<T>> labelTuples(numLabels);
+  for (vtkIdType i = 0; i < numLabels; ++i)
+  {
+    labelTuples[i].Label = labels[i];
+    labelTuples[i].Count = counts[i];
+  }
+
+  // Sort the vector of tuples.
+  vtkSMPTools::Sort(labelTuples.begin(), labelTuples.end(), std::greater<LabelTuple<T>>());
+
+  // Now repopulate the LabelsArray and LabelsCount arrays.
+  for (vtkIdType i = 0; i < numLabels; ++i)
+  {
+    labels[i] = labelTuples[i].Label;
+    counts[i] = labelTuples[i].Count;
+  }
+} // SortLabelsByCount
+
+// Sort input scalars to identify unique labels (labels array). Also extract
+// the frequency of occurrence of each label (labels count). Finally if
+// requested, sort the labels array based on labels count in descending order
+// of occurrence.
 struct BuildLabels
 {
   template <typename ArrayT>
-  void operator()(ArrayT* sortScalars, vtkDataArray* labelsArray)
+  void operator()(
+    ArrayT* sortScalars, vtkDataArray* labelsArray, vtkIdTypeArray* labelsCount, int sortBy)
   {
     vtkIdType numScalars = sortScalars->GetNumberOfTuples();
     using T = vtk::GetAPIType<ArrayT>;
@@ -65,14 +114,16 @@ struct BuildLabels
     // The labels are the same type as the input scalars.
     ArrayT* labels = static_cast<ArrayT*>(labelsArray);
 
-    // Sort the input array to identify unique labels
+    // Sort the input array to identify unique labels.
     vtkSMPTools::Sort(data, data + numScalars);
 
-    // Now run through the labels and identify unique. Insert the
-    // unique labels into the labels array.
+    // Now run through the labels and identify unique. Insert the unique
+    // labels into the labels array. The result of this process is a sorted
+    // list of labels by the label value (SORT_BY_LABEL_VALUE).
     T label = data[0];
     T nextLabel;
     labels->InsertNextValue(label);
+    vtkIdType count = 1;
     for (vtkIdType i = 1; i < numScalars; ++i)
     {
       nextLabel = data[i];
@@ -80,8 +131,25 @@ struct BuildLabels
       {
         labels->InsertNextValue(nextLabel);
         label = nextLabel;
+        labelsCount->InsertNextValue(count);
+        count = 1;
+      }
+      else
+      {
+        count++;
       }
     }
+    labelsCount->InsertNextValue(count);
+
+    // If sorting by label counts is enabled, do it now.
+    if (sortBy == vtkPackLabels::SORT_BY_LABEL_COUNT)
+    {
+      vtkIdType numLabels = labels->GetNumberOfTuples();
+      T* labelsPtr = labels->GetPointer(0);
+      vtkIdType* countsPtr = labelsCount->GetPointer(0);
+      SortLabelsByCount(numLabels, labelsPtr, countsPtr);
+    } // if SORT_BY_LABEL_COUNT
+
   } // operator()
 };  // BuildLabels
 
@@ -159,9 +227,10 @@ unsigned long GetMaxLabels(int dataType)
 } // end anonymous
 
 //------------------------------------------------------------------------------
-// Okay define the VTK class proper
+// Define the VTK class proper
 vtkPackLabels::vtkPackLabels()
 {
+  this->SortBy = SORT_BY_LABEL_VALUE;
   this->OutputScalarType = VTK_DEFAULT_TYPE;
   this->BackgroundValue = 0;
   this->PassPointData = true;
@@ -171,20 +240,6 @@ vtkPackLabels::vtkPackLabels()
   // By default process point scalars, then cell scalars
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
-}
-
-//------------------------------------------------------------------------------
-bool vtkPackLabels::IsInputPacked()
-{
-  if (this->LabelsArray == nullptr)
-  {
-    return false;
-  }
-
-  vtkIdType numLabels = this->LabelsArray->GetNumberOfTuples();
-  vtkIdType startId = this->LabelsArray->GetTuple1(0);
-  vtkIdType endId = this->LabelsArray->GetTuple1(numLabels - 1);
-  return ((endId - startId + 1) == numLabels ? true : false);
 }
 
 //------------------------------------------------------------------------------
@@ -214,6 +269,7 @@ int vtkPackLabels::RequestData(
   sortScalars.TakeReference(inScalars->NewInstance());
   sortScalars->DeepCopy(inScalars);
   this->LabelsArray.TakeReference(inScalars->NewInstance());
+  this->LabelsCount.TakeReference(vtkIdTypeArray::New());
 
   // Now populate the labels array which requires sorting the scalars.  We
   // could use a std::set or std::map. But these are not threaded. So instead
@@ -222,7 +278,8 @@ int vtkPackLabels::RequestData(
   using AllTypes = vtkArrayDispatch::AllTypes;
   using BuildDispatch = vtkArrayDispatch::DispatchByValueType<AllTypes>;
   BuildLabels buildLabels;
-  if (!BuildDispatch::Execute(sortScalars, buildLabels, this->LabelsArray.Get()))
+  if (!BuildDispatch::Execute(
+        sortScalars, buildLabels, this->LabelsArray.Get(), this->LabelsCount.Get(), this->SortBy))
   { // Fallback should never happen
     vtkErrorMacro("Data array not supported");
     return 1;
@@ -312,6 +369,9 @@ void vtkPackLabels::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Labels Array: " << this->LabelsArray.Get() << "\n";
+  os << indent << "Labels Count: " << this->LabelsCount.Get() << "\n";
+  os << indent
+     << "Sort By: " << (this->SortBy == SORT_BY_LABEL_VALUE ? "Label Value\n" : "Label Count\n");
   os << indent << "Output Scalar Type: " << this->OutputScalarType << "\n";
   os << indent << "Pass Point Data: " << (this->PassPointData ? "On\n" : "Off\n");
   os << indent << "Pass Cell Data: " << (this->PassCellData ? "On\n" : "Off\n");
