@@ -158,6 +158,13 @@ void vtkCompositeDataWriter::WriteData()
     vtkErrorMacro("Unsupported input type: " << input->GetClassName());
   }
 
+  // Try to write field data
+  vtkFieldData* fieldData = input->GetFieldData();
+  if (fieldData)
+  {
+    this->WriteFieldData(fp, fieldData);
+  }
+
   this->CloseVTKFile(fp);
 }
 
@@ -185,7 +192,6 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkMultiBlockDataSe
     *fp << "ENDCHILD\n";
   }
 
-  this->WriteFieldData(fp, mb->GetFieldData());
   return true;
 }
 
