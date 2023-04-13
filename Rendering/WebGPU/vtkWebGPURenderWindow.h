@@ -283,6 +283,8 @@ protected:
 
   vtkNew<vtkTypeUInt8Array> CachedPixelBytes;
 
+  int ScreenSize[2];
+
 private:
   vtkWebGPURenderWindow(const vtkWebGPURenderWindow&) = delete;
   void operator=(const vtkWebGPURenderWindow&) = delete;

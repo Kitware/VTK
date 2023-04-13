@@ -114,7 +114,11 @@ PixelReadDescriptor GetPixelReadDesriptor(
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPURenderWindow::vtkWebGPURenderWindow() = default;
+vtkWebGPURenderWindow::vtkWebGPURenderWindow()
+{
+  this->ScreenSize[0] = 0;
+  this->ScreenSize[1] = 0;
+}
 
 //------------------------------------------------------------------------------
 vtkWebGPURenderWindow::~vtkWebGPURenderWindow() = default;
