@@ -13,6 +13,8 @@ vtk_module_test_data(
   Data/amr_gaussian_pulse/amr_gaussian_pulse_0.vti
   Data/amr_gaussian_pulse/amr_gaussian_pulse_1.vti
   Data/amr_gaussian_pulse/amr_gaussian_pulse_2.vti
+  Data/transient_sphere.hdf
+  Data/transient_wavelet.hdf
   )
 
 add_subdirectory(Cxx)
