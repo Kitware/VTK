@@ -40,9 +40,9 @@ scalars.SetTuple1(24,0)
 
 # Print out data as constructed
 if debugPrint:
+    print("Input to pack labels:")
     for i in range(0,numVoxels):
         print(i,scalars.GetTuple1(i))
-    print("\n")
 
 # Pack the labels. This should automatically pack into unsigned char.
 pack = vtk.vtkPackLabels()
@@ -53,15 +53,15 @@ pack.Update()
 labels = pack.GetLabels()
 numLabels = labels.GetNumberOfTuples()
 if debugPrint:
-    print("Number of labels: ",labels.GetNumberOfTuples())
+    print("\nNumber of resulting labels: ",labels.GetNumberOfTuples())
     for i in range(0,numLabels):
         print("Label: ", labels.GetTuple1(i))
-    print("\n")
 
 # Look at the resulting volume
 outScalars = pack.GetOutput().GetPointData().GetScalars()
 dataType = outScalars.GetDataType()
 if debugPrint:
+    print("\nPoint scalars: ")
     for i in range(0,numVoxels):
         print(i,outScalars.GetTuple1(i))
 
@@ -72,3 +72,52 @@ assert(labels.GetTuple1(0) == 0)
 assert(labels.GetTuple1(numLabels-1) == 123)
 assert(outScalars.GetTuple1(0) == 1)
 assert(outScalars.GetTuple1(numVoxels-1) == 0)
+
+# Now test sorting of packed labels by frequency count,
+# and make sure that packing works for cell data as well.
+numVoxelCells = (xDim-1) * (yDim-1) * (zDim-1)
+
+cellScalars = vtk.vtkShortArray()
+cellScalars.SetName("cellScalars")
+cellScalars.SetNumberOfTuples(numVoxelCells)
+cellScalars.Fill(0)
+cellScalars.SetTuple1(7,1)
+cellScalars.SetTuple1(6,2)
+cellScalars.SetTuple1(5,2)
+cellScalars.SetTuple1(3,3)
+cellScalars.SetTuple1(2,3)
+cellScalars.SetTuple1(1,3)
+
+image.GetCellData().SetScalars(cellScalars)
+
+if debugPrint:
+    print("\nCell scalars input to pack labels:")
+    for i in range(0,numVoxelCells):
+        print(i,cellScalars.GetTuple1(i))
+
+pack.SetInputArrayToProcess(0,0,0,vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS,"cellScalars")
+pack.SortByLabelCount()
+pack.Update()
+outCellScalars = pack.GetOutput().GetCellData().GetScalars()
+dataType = outCellScalars.GetDataType()
+
+labels = pack.GetLabels()
+counts = pack.GetLabelsCount()
+numLabels = labels.GetNumberOfTuples()
+
+if debugPrint:
+    print("\nNumber of sorted cell labels with counts: ",labels.GetNumberOfTuples())
+    for i in range(0,numLabels):
+        print("Label: ", labels.GetTuple1(i), ", count: ", counts.GetTuple1(i))
+
+if debugPrint:
+    print("\nOutput cell scalars:")
+    for i in range(0,numVoxelCells):
+        print(i,outCellScalars.GetTuple1(i))
+
+assert(dataType == VTK_UCHAR)
+assert(numLabels == 4)
+assert(counts.GetTuple1(0) == 3)
+assert(counts.GetTuple1(3) == 1)
+assert(labels.GetTuple1(0) == 3)
+assert(labels.GetTuple1(3) == 1)

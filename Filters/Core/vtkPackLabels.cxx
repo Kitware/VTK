@@ -158,7 +158,7 @@ struct MapLabels
 {
   template <typename Array0T, typename Array1T>
   void operator()(Array0T* inScalars, Array1T* outScalars, vtkDataArray* labelsArray,
-    unsigned long maxLabels, unsigned long backgroundValue)
+    vtkIdType maxLabels, unsigned long backgroundValue)
   {
     vtkIdType numScalars = inScalars->GetNumberOfTuples();
     using T0 = vtk::GetAPIType<Array0T>;
@@ -245,7 +245,7 @@ vtkPackLabels::vtkPackLabels()
 //------------------------------------------------------------------------------
 // Find all the labels in the input.
 int vtkPackLabels::RequestData(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDebugMacro(<< "Executing Pack Labels");
 
@@ -259,7 +259,8 @@ int vtkPackLabels::RequestData(
 
   // Copy the input scalar data to the output. The temporary sortScalars
   // and labels array must be the same type as the input scalars.
-  vtkDataArray* inScalars = input->GetPointData()->GetScalars();
+  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
+  int fieldAssociation = this->GetInputArrayAssociation(0, inputVector);
   if (!inScalars)
   {
     vtkErrorMacro("No input scalars");
@@ -318,7 +319,7 @@ int vtkPackLabels::RequestData(
       outScalars.TakeReference(vtkDataArray::CreateDataArray(VTK_UNSIGNED_LONG));
     }
   }
-  unsigned long maxLabels = GetMaxLabels(outScalars->GetDataType());
+  vtkIdType maxLabels = GetMaxLabels(outScalars->GetDataType());
   if (N > maxLabels)
   {
     vtkWarningMacro(
@@ -357,8 +358,16 @@ int vtkPackLabels::RequestData(
     output->GetFieldData()->PassData(input->GetFieldData());
   }
 
-  // Replace scalar array with packed array.
-  output->GetPointData()->SetScalars(outScalars);
+  // Replace scalar array with packed array. Depending on whether the
+  // data origin is from point or cell data, update appropriately.
+  if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    output->GetPointData()->SetScalars(outScalars);
+  }
+  else
+  {
+    output->GetCellData()->SetScalars(outScalars);
+  }
 
   return 1;
 }
