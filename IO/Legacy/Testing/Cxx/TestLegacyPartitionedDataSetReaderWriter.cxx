@@ -1,11 +1,13 @@
-
-#include <vtkGenericDataObjectReader.h>
-#include <vtkGenericDataObjectWriter.h>
-#include <vtkInformation.h>
-#include <vtkLogger.h>
-#include <vtkMappedUnstructuredGridGenerator.h>
-#include <vtkPartitionedDataSet.h>
-#include <vtkUnstructuredGrid.h>
+#include "vtkFieldData.h"
+#include "vtkFloatArray.h"
+#include "vtkGenericDataObjectReader.h"
+#include "vtkGenericDataObjectWriter.h"
+#include "vtkInformation.h"
+#include "vtkLogger.h"
+#include "vtkMappedUnstructuredGridGenerator.h"
+#include "vtkNew.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkUnstructuredGrid.h"
 
 int TestLegacyPartitionedDataSetReaderWriter(int, char*[])
 {
@@ -13,8 +15,15 @@ int TestLegacyPartitionedDataSetReaderWriter(int, char*[])
   vtkMappedUnstructuredGridGenerator::GenerateUnstructuredGrid(&unstructuredGrid1);
   vtkMappedUnstructuredGridGenerator::GenerateUnstructuredGrid(&unstructuredGrid2);
 
+  // Add field data to check if we keep it in the output of the after writer/reader
+  vtkNew<vtkFloatArray> fieldArray;
+  fieldArray->SetName("fieldArray");
+  fieldArray->SetNumberOfTuples(1);
+  fieldArray->SetTuple1(0, 3.14);
+
   vtkNew<vtkPartitionedDataSet> partitionedDS;
   partitionedDS->SetNumberOfPartitions(4);
+  partitionedDS->GetFieldData()->AddArray(fieldArray);
 
   partitionedDS->SetPartition(0, unstructuredGrid1);
   partitionedDS->SetPartition(3, unstructuredGrid2);
@@ -76,6 +85,8 @@ int TestLegacyPartitionedDataSetReaderWriter(int, char*[])
     "Expected 1 metadata key n partition index 0");
   vtkLogIf(ERROR, 1 != readDS->GetMetaData(0u)->GetNumberOfKeys(),
     "Expected 1 metadata key n partition index 3");
+  vtkLogIf(ERROR, 1 != readDS->GetFieldData()->HasArray("fieldArray"),
+    "Expected result data to have a field data on partition-index 0");
 
   unstructuredGrid1->Delete();
   unstructuredGrid2->Delete();
