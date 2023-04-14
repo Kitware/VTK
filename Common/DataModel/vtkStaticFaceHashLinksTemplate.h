@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStaticFaceHashMapTemplate.h
+  Module:    vtkStaticFaceHashLinksTemplate.h
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -13,16 +13,16 @@
 
 =========================================================================*/
 /**
- * @class   vtkStaticFaceHashMapTemplate
- * @brief   templated HashMap for extracting faces from a vtkUnstructuredGrid
+ * @class   vtkStaticFaceHashLinksTemplate
+ * @brief   templated hashLinks for extracting faces from a vtkUnstructuredGrid
  *
- * vtkStaticFaceHashMapTemplate is a templated class for grouping faces
+ * vtkStaticFaceHashLinksTemplate is a templated class for grouping faces
  * of an unstructured grid. The faces are grouped by their hash value.
  * Their hash value is the minimum of the ids of the points defining the
  * face of a 3D cells, or the the number of points of the unstructured
  * grid if the cell is a 1D-2D.
  *
- * To use this class first you need to call BuildHashMap() with the
+ * To use this class first you need to call BuildHashLinks() with the
  * vtkUnstructuredGrid as argument. Then you can use the methods
  * 1) GetNumberOfFaces() to get the number of faces in the grid
  * 2) GetNumberOfHashes() to get the number of hashes
@@ -54,8 +54,8 @@
  * @sa
  * vtkStaticEdgeLocatorTemplate, vtkStaticCellLinksTemplate
  */
-#ifndef vtkStaticFaceHashMapTemplate_h
-#define vtkStaticFaceHashMapTemplate_h
+#ifndef vtkStaticFaceHashLinksTemplate_h
+#define vtkStaticFaceHashLinksTemplate_h
 
 #include "vtkABINamespace.h"
 #include "vtkType.h"
@@ -72,18 +72,18 @@ VTK_ABI_NAMESPACE_BEGIN
  * Templated on types of ids defining an edge.
  */
 template <typename TInputIdType, typename TFaceIdType>
-class vtkStaticFaceHashMapTemplate
+class vtkStaticFaceHashLinksTemplate
 {
 public:
-  vtkStaticFaceHashMapTemplate() = default;
+  vtkStaticFaceHashLinksTemplate() = default;
 
   /**
-   * Build the hash map.
+   * Build the hash links.
    */
-  void BuildHashMap(vtkUnstructuredGrid* input);
+  void BuildHashLinks(vtkUnstructuredGrid* input);
 
   /**
-   * Reset the hash map and free the memory.
+   * Reset the hash links and free the memory.
    */
   void Reset();
 
@@ -129,8 +129,8 @@ protected:
   std::shared_ptr<vtkIdType> FaceOffsets;
 
 private:
-  vtkStaticFaceHashMapTemplate(const vtkStaticFaceHashMapTemplate&) = delete;
-  void operator=(const vtkStaticFaceHashMapTemplate&) = delete;
+  vtkStaticFaceHashLinksTemplate(const vtkStaticFaceHashLinksTemplate&) = delete;
+  void operator=(const vtkStaticFaceHashLinksTemplate&) = delete;
 
   struct GeometryInformation;
 
@@ -148,11 +148,11 @@ private:
   struct BuildFaceHashLinks;
 
   template <typename TCellOffSetIdType>
-  void BuildHashMapInternal(vtkUnstructuredGrid* input, GeometryInformation& geometryInformation);
+  void BuildHashLinksInternal(vtkUnstructuredGrid* input, GeometryInformation& geometryInformation);
 };
 
 VTK_ABI_NAMESPACE_END
-#include "vtkStaticFaceHashMapTemplate.txx"
+#include "vtkStaticFaceHashLinksTemplate.txx"
 
-#endif // vtkStaticFaceHashMapTemplate_h
-// VTK-HeaderTest-Exclude: vtkStaticFaceHashMapTemplate.h
+#endif // vtkStaticFaceHashLinksTemplate_h
+// VTK-HeaderTest-Exclude: vtkStaticFaceHashLinksTemplate.h
