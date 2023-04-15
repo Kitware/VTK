@@ -471,7 +471,7 @@ class wxVTKRenderWindow(baseClass):
         if event.GetKeyCode() == ord('p'):
             self.PickActor(event)
 
-        if event.GetKeyCode() < 256:
+        if event.GetKeyCode() < 128:
             self.OnChar(event)
 
     def OnKeyUp(self, event):
