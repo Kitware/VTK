@@ -313,7 +313,7 @@ class vtkTkRenderWindowInteractor(tkinter.Widget):
 
     def KeyPressEvent(self, event, ctrl, shift):
         key = chr(0)
-        if event.keysym_num < 256:
+        if event.keysym_num < 128:
             key = chr(event.keysym_num)
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, key, 0, event.keysym)
@@ -322,7 +322,7 @@ class vtkTkRenderWindowInteractor(tkinter.Widget):
 
     def KeyReleaseEvent(self, event, ctrl, shift):
         key = chr(0)
-        if event.keysym_num < 256:
+        if event.keysym_num < 128:
             key = chr(event.keysym_num)
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, key, 0, event.keysym)

@@ -560,7 +560,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         keycode, keysym = event.GetKeyCode(), None
         key = chr(0)
-        if keycode < 256:
+        if keycode < 128:
             key = chr(keycode)
 
         # wxPython 2.6.0.1 does not return a valid event.Get{X,Y}()
@@ -585,7 +585,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         keycode, keysym = event.GetKeyCode(), None
         key = chr(0)
-        if keycode < 256:
+        if keycode < 128:
             key = chr(keycode)
 
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
