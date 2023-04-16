@@ -302,15 +302,15 @@ int vtkPackLabels::RequestData(
   else
   {
     // Create smallest type that can represent N labels
-    if (N < std::numeric_limits<unsigned char>::max())
+    if (N < static_cast<vtkIdType>(std::numeric_limits<unsigned char>::max()))
     {
       outScalars.TakeReference(vtkDataArray::CreateDataArray(VTK_UNSIGNED_CHAR));
     }
-    else if (N < std::numeric_limits<unsigned short>::max())
+    else if (N < static_cast<vtkIdType>(std::numeric_limits<unsigned short>::max()))
     {
       outScalars.TakeReference(vtkDataArray::CreateDataArray(VTK_UNSIGNED_SHORT));
     }
-    else if (N < std::numeric_limits<unsigned int>::max())
+    else if (N < static_cast<vtkIdType>(std::numeric_limits<unsigned int>::max()))
     {
       outScalars.TakeReference(vtkDataArray::CreateDataArray(VTK_UNSIGNED_INT));
     }
