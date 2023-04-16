@@ -60,9 +60,8 @@ public:
   void TerminateApp() override;
 
   /**
-   * Run the event loop and return. This is provided so that you can
-   * implement your own event loop but yet use the vtk event handling as
-   * well.
+   * Process all user-interaction, timer events and return.
+   * If there are no events, this method returns immediately.
    */
   void ProcessEvents() override;
 
@@ -143,6 +142,11 @@ protected:
    * application is exited.
    */
   void StartEventLoop() override;
+
+  /**
+   * Wait for new events
+   */
+  void WaitForEvents();
 
   /**
    * Deallocate X resource that may have been allocated
