@@ -47,6 +47,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
   TestMappedGridDeepCopy.cxx
+  TestMappedGridShallowCopy.cxx
   TestPath.cxx
   TestPentagonalPrism.cxx
   TestPiecewiseFunction.cxx

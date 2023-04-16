@@ -1923,6 +1923,13 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
   }
   else if (vtkUnstructuredGridBase* ugb = vtkUnstructuredGridBase::SafeDownCast(dataObject))
   {
+    bool isNewAlloc = false;
+    if (!this->Connectivity || !this->Types)
+    {
+      this->AllocateEstimate(ugb->GetNumberOfCells(), ugb->GetMaxCellSize());
+      isNewAlloc = true;
+    }
+
     // The source object has vtkUnstructuredGrid topology, but a different
     // cell implementation. Deep copy the cells, and shallow copy the rest:
     auto cellIter = vtkSmartPointer<vtkCellIterator>::Take(ugb->NewCellIterator());
@@ -1931,6 +1938,11 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
       this->InsertNextCell(cellIter->GetCellType(), cellIter->GetNumberOfPoints(),
         cellIter->GetPointIds()->GetPointer(0), cellIter->GetNumberOfFaces(),
         cellIter->GetFaces()->GetPointer(1));
+    }
+
+    if (isNewAlloc)
+    {
+      this->Squeeze();
     }
   }
 }
