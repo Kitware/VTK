@@ -114,11 +114,9 @@ public:
 
   /**
    * Process all user-interaction, timer events and return.
-   * If there are no events, this method may or may not return immediately.
-   * The behavior depends on the operating system.
-   * On macOS and Windows, this method returns immediately.
-   * On linux, the X11 interactor waits for a short interval of time
-   * until a new event arrives or the interval expires.
+   * If there are no events, this method returns immediately.
+   * This method is implemented only on desktop (macOS, linux, windows) and WebAssembly (SDL2).
+   * It is not implemented on iOS and Android platforms.
    */
   virtual void ProcessEvents() {}
 
