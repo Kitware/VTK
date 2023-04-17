@@ -16,6 +16,7 @@
 #include "vtkPlotParallelCoordinates.h"
 
 #include "vtkAxis.h"
+#include "vtkBrush.h"
 #include "vtkChartParallelCoordinates.h"
 #include "vtkContext2D.h"
 #include "vtkContextDevice2D.h"
@@ -174,10 +175,17 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D* painter)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int)
+bool vtkPlotParallelCoordinates::PaintLegend(
+  vtkContext2D* painter, const vtkRectf& rect, int legendIndex)
 {
+  if (this->Colors)
+  {
+    this->Brush->SetColor(this->Colors->GetPointer(4 * legendIndex));
+  }
   painter->ApplyPen(this->Pen);
+  painter->ApplyBrush(this->Brush);
   painter->DrawLine(rect[0], rect[1] + 0.5 * rect[3], rect[0] + rect[2], rect[1] + 0.5 * rect[3]);
+  painter->DrawRect(rect[0], rect[1], rect[2], rect[3]);
   return true;
 }
 

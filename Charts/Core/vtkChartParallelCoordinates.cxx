@@ -18,16 +18,15 @@
 #include "vtkAnnotationLink.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
+#include "vtkChartLegend.h"
 #include "vtkCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
-#include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkPen.h"
 #include "vtkPlotParallelCoordinates.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
@@ -86,6 +85,12 @@ vtkChartParallelCoordinates::vtkChartParallelCoordinates()
   this->Selection = vtkIdTypeArray::New();
   this->Storage->Plot->SetSelection(this->Selection);
   this->Storage->InteractiveSelection = false;
+
+  this->Legend = vtkChartLegend::New();
+  this->Legend->SetChart(this);
+  this->Legend->SetVisible(false);
+  this->AddItem(this->Legend);
+  this->Legend->Delete();
 
   // Set up default mouse button assignments for parallel coordinates.
   this->SetActionToButton(vtkChart::PAN, vtkContextMouseEvent::RIGHT_BUTTON);
@@ -154,6 +159,8 @@ void vtkChartParallelCoordinates::Update()
     axis->SetTitle(this->VisibleColumns->GetValue(i));
   }
 
+  this->Legend->Update();
+
   this->GeometryValid = false;
   this->BuildTime.Modified();
 }
@@ -170,7 +177,7 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D* painter)
   }
 
   this->Update();
-  this->UpdateGeometry();
+  this->UpdateGeometry(painter);
 
   // Handle selections
   vtkIdTypeArray* idArray = nullptr;
@@ -241,6 +248,21 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D* painter)
         this->PaintRect(painter, static_cast<int>(axis), min, max);
       }
     }
+  }
+
+  // Put the legend in the top corner of the chart
+  vtkRectf legendRect = this->Legend->GetBoundingRect(painter);
+  if (this->Legend->GetInline())
+  {
+    this->Legend->SetPoint(
+      this->Point2[0] - legendRect.GetWidth(), this->Point2[1] - legendRect.GetHeight());
+    this->Legend->Paint(painter);
+  }
+  else
+  {
+    int padding = 5;
+    this->Legend->SetPoint(this->Point2[0] + padding, this->Point2[1] - legendRect.GetHeight());
+    this->Legend->Paint(painter);
   }
 
   return true;
@@ -365,6 +387,8 @@ void vtkChartParallelCoordinates::SetPlot(vtkPlotParallelCoordinates* plot)
 {
   this->Storage->Plot = plot;
   this->Storage->Plot->SetParent(this);
+  // Ensure legend remains on top
+  this->Raise(this->GetItemIndex(this->Legend));
 }
 
 //------------------------------------------------------------------------------
@@ -377,6 +401,19 @@ vtkPlot* vtkChartParallelCoordinates::GetPlot(vtkIdType)
 vtkIdType vtkChartParallelCoordinates::GetNumberOfPlots()
 {
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkChartParallelCoordinates::SetShowLegend(bool visible)
+{
+  this->vtkChart::SetShowLegend(visible);
+  this->Legend->SetVisible(visible);
+}
+
+//------------------------------------------------------------------------------
+vtkChartLegend* vtkChartParallelCoordinates::GetLegend()
+{
+  return this->Legend;
 }
 
 //------------------------------------------------------------------------------
@@ -399,7 +436,7 @@ vtkIdType vtkChartParallelCoordinates::GetNumberOfAxes()
 }
 
 //------------------------------------------------------------------------------
-void vtkChartParallelCoordinates::UpdateGeometry()
+void vtkChartParallelCoordinates::UpdateGeometry(vtkContext2D* painter)
 {
   vtkVector2i geometry(this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight());
 
@@ -410,8 +447,21 @@ void vtkChartParallelCoordinates::UpdateGeometry()
     this->SetGeometry(geometry.GetData());
 
     vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
-    this->SetBorders(
-      60 * tileScale.GetX(), 50 * tileScale.GetY(), 60 * tileScale.GetX(), 20 * tileScale.GetY());
+    // if chart legend in not inlined, then we need to reserve space for it at the top right corner
+    if (this->Legend->GetVisible() && !this->Legend->GetInline())
+    {
+      this->Legend->Update();
+      const int padding = 10;
+      const vtkRectf rect = this->Legend->GetBoundingRect(painter);
+      this->SetBorders(60 * tileScale.GetX(), 50 * tileScale.GetY(),
+        (60 + static_cast<int>(rect.GetWidth()) + padding) * tileScale.GetX(),
+        20 * tileScale.GetY());
+    }
+    else
+    {
+      this->SetBorders(
+        60 * tileScale.GetX(), 50 * tileScale.GetY(), 60 * tileScale.GetX(), 20 * tileScale.GetY());
+    }
 
     // Iterate through the axes and set them up to span the chart area.
     int xStep =
