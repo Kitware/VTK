@@ -186,12 +186,10 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
       // Retrieve geometric size of input cursor
       const double* size = cursor->GetSize();
 
-      // Check whether cursor is below hyperplane
-      if (origin[axis] + size[axis] < inter)
-      {
-        return !this->InsideOut;
-      }
-      break;
+      // Check if the cell pointed to by the cursor is under the plane:
+      // returns true if the cell is skipped
+      // returns false if the cell is kept
+      return this->InsideOut ? (origin[axis] > inter) : (origin[axis] + size[axis] < inter);
     } // case PLANE
     case vtkHyperTreeGridAxisClip::BOX:
     {
