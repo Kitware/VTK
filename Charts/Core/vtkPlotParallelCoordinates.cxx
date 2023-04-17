@@ -65,6 +65,7 @@ vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()
   this->LookupTable = nullptr;
   this->Colors = nullptr;
   this->ScalarVisibility = 0;
+  this->ColorMode = VTK_COLOR_MODE_MAP_SCALARS;
 }
 
 //------------------------------------------------------------------------------
@@ -391,7 +392,7 @@ bool vtkPlotParallelCoordinates::UpdateCache()
       {
         this->CreateDefaultLookupTable();
       }
-      this->Colors = this->LookupTable->MapScalars(c, VTK_COLOR_MODE_MAP_SCALARS, -1);
+      this->Colors = this->LookupTable->MapScalars(c, this->ColorMode, -1);
       // Consistent register and unregisters
       this->Colors->Register(this);
       this->Colors->Delete();
