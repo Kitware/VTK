@@ -25,6 +25,31 @@
 namespace
 {
 //------------------------------------------------------------------------------
+struct CopyWorker
+{
+  // Copy tuples from inArray (indexed on global ids) to outArray (indexed on local ids).
+  // pointIdMap is used to map global ids to local ids.
+  // WARNING: this worker only make sense in the vtkPolyhedron scope (where `globalIds` corresponds
+  // to vtkPolyhedron::PointIds and `pointIdMap` corresponds to `vtkPolyhedron::PointIdMap`).
+  // It should not be used in other cases, nothing guarantying that localPtId is in the
+  // range of outArray.
+  template <typename ArrayType1, typename ArrayType2>
+  void operator()(ArrayType1* inArray, ArrayType2* outArray, vtkIdList* globalIds,
+    vtkPolyhedron::vtkPointIdMap* pointIdMap)
+  {
+    // Number of components is already set by calling CopyStructure beforehand
+    outArray->SetNumberOfTuples(globalIds->GetNumberOfIds());
+
+    for (int i = 0; i < globalIds->GetNumberOfIds(); i++)
+    {
+      auto globalPtId = globalIds->GetId(i);
+      auto localPtId = pointIdMap->at(globalPtId);
+      outArray->SetTuple(localPtId, globalPtId, inArray);
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
 struct InitWorker
 {
   // Insert new tuple to the array and initialize all its components to 0
@@ -123,15 +148,48 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
 {
   if (!polyhedron->GetPoints() || !polyhedron->GetNumberOfPoints())
   {
-    return 0;
+    return nullptr;
   }
 
   vtkNew<vtkUnstructuredGrid> outputGrid;
+  ::CopyWorker copyWorker;
   ::InitWorker initWorker;
   ::AccuWorker accuWorker;
   ::DivWorker divWorker;
   typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> Dispatcher;
   typedef vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes> Dispatcher2;
+
+  vtkPolyhedron::vtkPointIdMap* pointIdMap = polyhedron->PointIdMap;
+  vtkIdList* pointIds = polyhedron->GetPointIds();
+
+  ////////// Copy point data to the output //////////
+  // Output point data should follow the output unstructured grid indexation, that corresponds
+  // initially to polyhedron's canonical ids (new point data will be added for barycenters).
+  // Therefore, we can use polyhedron's pointIdMap to do the mapping between input ids and output
+  // ids.
+  vtkPointData* outPd = outputGrid->GetPointData();
+  if (inPd)
+  {
+    outPd->CopyStructure(inPd);
+    for (vtkIdType arrayId = 0; arrayId < outPd->GetNumberOfArrays(); arrayId++)
+    {
+      vtkAbstractArray* inAbstArray = inPd->GetAbstractArray(arrayId);
+      vtkDataArray* inArray = vtkDataArray::SafeDownCast(inAbstArray);
+      vtkAbstractArray* outAbstArray = outPd->GetAbstractArray(arrayId);
+      vtkDataArray* outArray = vtkDataArray::SafeDownCast(outAbstArray);
+      if (inArray && outArray)
+      {
+        if (!Dispatcher2::Execute(inArray, outArray, copyWorker, pointIds, pointIdMap))
+        {
+          copyWorker(inArray, outArray, pointIds, pointIdMap); // Fallback for vtkDataArray subtypes
+        }
+      }
+      else
+      {
+        copyWorker(inAbstArray, outAbstArray, pointIds, pointIdMap); // Fallback for other arrays
+      }
+    }
+  }
 
   ////////// Compute barycenters and barycenters data //////////
   // Here we iterate over each face and generate a new point (barycenter of the face).
@@ -139,16 +197,11 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
   // XXX Consider rework this code in order to include the face and face points interations
   // inside the workers in order to reduce the number of dispatchs (that are costly)
 
-  // Copy the point data to the output
-  vtkPointData* outPd = outputGrid->GetPointData();
-  outPd->DeepCopy(inPd);
-
   // Global faces are faces with global point indexes
   vtkIdType* globalFaces = polyhedron->GetFaces();
   vtkIdType facesNb = globalFaces[0];
   vtkIdType* globalFace = globalFaces + 1;
   vtkIdType numberOfNewCells = 0; // Account for the number of cells of the output UG
-  vtkPolyhedron::vtkPointIdMap* pointIdMap = polyhedron->PointIdMap;
 
   vtkNew<vtkPoints> barycenters;
   // Iterate on each face to compute face barycenters and barycenters data (point data)
@@ -186,7 +239,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
     {
       // Accumulate face points coordinates
       auto globalPtId = globalFace[i];
-      auto localPtId = (*pointIdMap)[globalPtId];
+      auto localPtId = pointIdMap->at(globalPtId);
 
       std::array<double, 3> pt = { 0.0, 0.0, 0.0 };
       polyhedron->GetPoints()->GetPoint(localPtId, pt.data());
@@ -204,7 +257,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
           if (!Dispatcher2::Execute(inArray, outArray, accuWorker, globalPtId))
           {
             // We only need to fallback for vtkDataArray subtypes, other types
-            // are just initialised and no mean value is computed.
+            // are just initialized and no mean value is computed.
             accuWorker(inArray, outArray, globalPtId);
           }
         }
@@ -300,7 +353,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
   /////////////////// Construct output UG  ///////////////////
   // Here we construct the output UG (geometry and topology).
   // For each concave face, we generate a tetrahedron for each face edge (2 edge points + face
-  // barycenter + cell barycenter) We also fill the cell data here.
+  // barycenter + cell barycenter). We also fill the cell data here.
 
   // Copy the original points to the output UG
   vtkNew<vtkPoints> outputPoints;
@@ -326,9 +379,9 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
   // ptId1, ptId2 (forming one face edge), face barycenter, polyhedron barycenter
   auto insertTetra = [&](vtkCell* face, vtkIdType ptId1, vtkIdType ptId2) {
     vtkIdType ptIds[4] = { 0 };
-    ptIds[0] = face->GetPointId(ptId1);
+    ptIds[0] = pointIdMap->at(face->GetPointId(ptId1));
     ptIds[1] = barycenterId;
-    ptIds[2] = face->GetPointId(ptId2);
+    ptIds[2] = pointIdMap->at(face->GetPointId(ptId2));
     ptIds[3] = polyBarycenterId;
     vtkIdType newCellId = outputGrid->InsertNextCell(VTK_TETRA, 4, ptIds);
     outCd->CopyData(inCd, cellId, newCellId);

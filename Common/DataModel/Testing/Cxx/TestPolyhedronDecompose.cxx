@@ -58,31 +58,34 @@ int TestPolyhedronDecompose(int argc, char* argv[])
 
   // Add some cell data
   vtkNew<vtkDoubleArray> cellArray;
-  cellArray->SetNumberOfValues(1);
+  cellArray->SetNumberOfValues(2);
   cellArray->SetName("Cell array");
   cellArray->SetValue(0, 1.5);
+  cellArray->SetValue(1, 1.5);
 
   vtkNew<vtkCellData> cellData;
   cellData->AddArray(cellArray);
 
   // Add some point data
-  constexpr std::array<double, 8> doubleValues = { 2, 5, 2, 2, 2, 3, 2, 3 };
-  const std::array<std::string, 8> stringValues = { "A", "A", "A", "A", "A", "A", "A", "A" };
-  constexpr std::array<int, 8> bitValues = { 0, 0, 0, 0, 0, 0, 0, 0 };
+  constexpr std::array<double, 16> doubleValues = { 2, 5, 2, 2, 2, 3, 2, 3, 2, 5, 2, 2, 2, 3, 2,
+    3 };
+  const std::array<std::string, 16> stringValues = { "A", "A", "A", "A", "A", "A", "A", "A", "A",
+    "A", "A", "A", "A", "A", "A", "A" };
+  constexpr std::array<int, 16> bitValues = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
   vtkNew<vtkDoubleArray> pointArrayDouble; // Will be dispatched
-  pointArrayDouble->SetNumberOfValues(8);
+  pointArrayDouble->SetNumberOfValues(16);
   pointArrayDouble->SetName("Doubles");
 
   vtkNew<vtkStringArray> pointArrayString; // Will not
-  pointArrayString->SetNumberOfValues(8);
+  pointArrayString->SetNumberOfValues(16);
   pointArrayString->SetName("Strings");
 
   vtkNew<vtkBitArray> pointArrayBits; // Will not
-  pointArrayBits->SetNumberOfValues(8);
+  pointArrayBits->SetNumberOfValues(16);
   pointArrayBits->SetName("Bits");
 
-  for (int i = 0; i < 8; i++)
+  for (int i = 0; i < 16; i++)
   {
     pointArrayDouble->SetValue(i, doubleValues[i]);
     pointArrayString->SetValue(i, stringValues[i]);
@@ -96,114 +99,120 @@ int TestPolyhedronDecompose(int argc, char* argv[])
 
   // Decompose polyhedra
   auto decomposedUG1 = vtkPolyhedronUtilities::Decompose(polyhedron1, pointData, 0, cellData);
-  auto decomposedUG2 = vtkPolyhedronUtilities::Decompose(polyhedron2, pointData, 0, cellData);
+  auto decomposedUG2 = vtkPolyhedronUtilities::Decompose(polyhedron2, pointData, 1, cellData);
 
-  ////////// Test geometry //////////
-
-  // New number of pts = original pts + face barycenters + cell barycenter
-  auto numberOfPts = decomposedUG1->GetNumberOfPoints();
-  if (!testValue("number of points", numberOfPts, vtkIdType(8 + 6 + 1)))
+  std::array<vtkSmartPointer<vtkUnstructuredGrid>, 2> decomposedUGs = { decomposedUG1,
+    decomposedUG2 };
+  for (auto const& decomposedUG : decomposedUGs)
   {
-    return EXIT_FAILURE;
-  }
+    ////////// Test geometry //////////
 
-  // New number of cells = original nb of faces * 4
-  auto numberOfCells = decomposedUG1->GetNumberOfCells();
-  if (!testValue("number of cells", numberOfCells, vtkIdType(6 * 4)))
-  {
-    return EXIT_FAILURE;
-  }
-
-  ////////// Test data //////////
-
-  auto pointDataDec = decomposedUG1->GetPointData();
-  auto cellDataDec = decomposedUG1->GetCellData();
-
-  // Test barycenters point data
-  // Face barycenter: mean value of face point data
-  // Cell barycenter (last one): mean value of face barycenters point data
-  vtkDoubleArray* doubleArray =
-    vtkDoubleArray::SafeDownCast(pointDataDec->GetAbstractArray("Doubles"));
-  if (!doubleArray)
-  {
-    std::cerr << "Unable to retrieve \"Doubles\" point data." << std::endl;
-  }
-
-  if (!testValue("point data (\"Doubles\") nb of tuples", doubleArray->GetNumberOfTuples(),
-        decomposedUG1->GetNumberOfPoints()))
-  {
-    return EXIT_FAILURE;
-  }
-
-  constexpr double expectedValues[7] = { 2.75, 3, 2, 3.25, 2.25, 2.5, 2.625 };
-  for (int i = 0; i < 7; i++)
-  {
-    if (!testValue("point data (\"Doubles\") at index " + i, doubleArray->GetValue(i + 8),
-          expectedValues[i]))
+    // New number of pts = original pts + face barycenters + cell barycenter
+    auto numberOfPts = decomposedUG->GetNumberOfPoints();
+    if (!testValue("number of points", numberOfPts, vtkIdType(8 + 6 + 1)))
     {
       return EXIT_FAILURE;
     }
-  }
 
-  // vtkStringArray is not dispatched, check that the fallback initialized
-  // the values as an empty string
-  vtkStringArray* stringArray =
-    vtkStringArray::SafeDownCast(pointDataDec->GetAbstractArray("Strings"));
-  if (!stringArray)
-  {
-    std::cerr << "Unable to retrieve \"Strings\" point data." << std::endl;
-  }
-
-  if (!testValue("point data (\"Strings\") nb of tuples", stringArray->GetNumberOfTuples(),
-        decomposedUG1->GetNumberOfPoints()))
-  {
-    return EXIT_FAILURE;
-  }
-
-  for (int i = 0; i < 7; i++)
-  {
-    if (!testValue(
-          "point data (\"Strings\") at index " + i, stringArray->GetValue(i + 8), vtkStdString()))
+    // New number of cells = original nb of faces * 4
+    auto numberOfCells = decomposedUG->GetNumberOfCells();
+    if (!testValue("number of cells", numberOfCells, vtkIdType(6 * 4)))
     {
       return EXIT_FAILURE;
     }
-  }
 
-  // vtkBitArray is not dispatched, check that the fallback initialized
-  // the values with 0
-  vtkBitArray* bitArray = vtkBitArray::SafeDownCast(pointDataDec->GetAbstractArray("Bits"));
-  if (!bitArray)
-  {
-    std::cerr << "Unable to retrieve \"Bits\" point data." << std::endl;
-  }
+    ////////// Test data //////////
 
-  if (!testValue("point data (\"Bits\") nb of tuples", bitArray->GetNumberOfTuples(),
-        decomposedUG1->GetNumberOfPoints()))
-  {
-    return EXIT_FAILURE;
-  }
+    auto pointDataDec = decomposedUG->GetPointData();
+    auto cellDataDec = decomposedUG->GetCellData();
 
-  for (int i = 0; i < 7; i++)
-  {
-    if (!testValue("point data (\"Bits\") at index " + i, bitArray->GetValue(i + 8), 0))
+    // Test barycenters point data
+    // Face barycenter: mean value of face point data
+    // Cell barycenter (last one): mean value of face barycenters point data
+    vtkDoubleArray* doubleArray =
+      vtkDoubleArray::SafeDownCast(pointDataDec->GetAbstractArray("Doubles"));
+    if (!doubleArray)
+    {
+      std::cerr << "Unable to retrieve \"Doubles\" point data." << std::endl;
+    }
+
+    if (!testValue("point data (\"Doubles\") nb of tuples", doubleArray->GetNumberOfTuples(),
+          decomposedUG->GetNumberOfPoints()))
     {
       return EXIT_FAILURE;
     }
-  }
 
-  // Cell data should be copied to all cells
-  vtkDoubleArray* doubleArrayCells =
-    vtkDoubleArray::SafeDownCast(cellDataDec->GetAbstractArray("Cell array"));
-  if (!doubleArrayCells)
-  {
-    std::cerr << "Unable to retrieve \"Cell array\" cell data." << std::endl;
-  }
+    constexpr double expectedValues[7] = { 2.75, 3, 2, 3.25, 2.25, 2.5, 2.625 };
+    for (int i = 0; i < 7; i++)
+    {
+      if (!testValue("point data (\"Doubles\") at index " + std::to_string(i),
+            doubleArray->GetValue(i + 8), expectedValues[i]))
+      {
+        return EXIT_FAILURE;
+      }
+    }
 
-  for (vtkIdType cellId = 0; cellId < decomposedUG1->GetNumberOfCells(); cellId++)
-  {
-    if (!testValue("Cell array", doubleArrayCells->GetValue(cellId), 1.5))
+    // vtkStringArray is not dispatched, check that the fallback initialized
+    // the values as an empty string
+    vtkStringArray* stringArray =
+      vtkStringArray::SafeDownCast(pointDataDec->GetAbstractArray("Strings"));
+    if (!stringArray)
+    {
+      std::cerr << "Unable to retrieve \"Strings\" point data." << std::endl;
+    }
+
+    if (!testValue("point data (\"Strings\") nb of tuples", stringArray->GetNumberOfTuples(),
+          decomposedUG->GetNumberOfPoints()))
     {
       return EXIT_FAILURE;
+    }
+
+    for (int i = 0; i < 7; i++)
+    {
+      if (!testValue("point data (\"Strings\") at index " + std::to_string(i),
+            stringArray->GetValue(i + 8), vtkStdString()))
+      {
+        return EXIT_FAILURE;
+      }
+    }
+
+    // vtkBitArray is not dispatched, check that the fallback initialized
+    // the values with 0
+    vtkBitArray* bitArray = vtkBitArray::SafeDownCast(pointDataDec->GetAbstractArray("Bits"));
+    if (!bitArray)
+    {
+      std::cerr << "Unable to retrieve \"Bits\" point data." << std::endl;
+    }
+
+    if (!testValue("point data (\"Bits\") nb of tuples", bitArray->GetNumberOfTuples(),
+          decomposedUG->GetNumberOfPoints()))
+    {
+      return EXIT_FAILURE;
+    }
+
+    for (int i = 0; i < 7; i++)
+    {
+      if (!testValue(
+            "point data (\"Bits\") at index " + std::to_string(i), bitArray->GetValue(i + 8), 0))
+      {
+        return EXIT_FAILURE;
+      }
+    }
+
+    // Cell data should be copied to all cells
+    vtkDoubleArray* doubleArrayCells =
+      vtkDoubleArray::SafeDownCast(cellDataDec->GetAbstractArray("Cell array"));
+    if (!doubleArrayCells)
+    {
+      std::cerr << "Unable to retrieve \"Cell array\" cell data." << std::endl;
+    }
+
+    for (vtkIdType cellId = 0; cellId < decomposedUG->GetNumberOfCells(); cellId++)
+    {
+      if (!testValue("Cell array", doubleArrayCells->GetValue(cellId), 1.5))
+      {
+        return EXIT_FAILURE;
+      }
     }
   }
 
@@ -336,7 +345,7 @@ vtkSmartPointer<vtkPolyhedron> MakePolyhedron2()
   vtkSmartPointer<vtkPolyhedron> polyhedron = vtkSmartPointer<vtkPolyhedron>::New();
 
   // Point Ids
-  for (int i = 0; i < 8; ++i)
+  for (int i = 8; i < 16; ++i)
   {
     polyhedron->GetPointIds()->InsertNextId(i);
   }
@@ -352,8 +361,8 @@ vtkSmartPointer<vtkPolyhedron> MakePolyhedron2()
   polyhedron->GetPoints()->InsertNextPoint(6.25, -13.75, 6.25);
 
   // Faces
-  vtkIdType faces[31] = { 6, 4, 2, 3, 1, 0, 4, 1, 5, 4, 0, 4, 4, 6, 2, 0, 4, 3, 7, 5, 1, 4, 2, 6, 7,
-    3, 4, 5, 7, 6, 4 };
+  vtkIdType faces[31] = { 6, 4, 10, 11, 9, 8, 4, 9, 13, 12, 8, 4, 12, 14, 10, 8, 4, 11, 15, 13, 9,
+    4, 10, 14, 15, 11, 4, 13, 15, 14, 12 };
 
   polyhedron->SetFaces(faces);
   polyhedron->Initialize();
