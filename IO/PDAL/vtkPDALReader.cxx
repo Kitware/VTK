@@ -146,12 +146,17 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage& reader, vtkPolyData* points
   std::vector<vtkTypeInt64Array*> int64Array(dims.size(), nullptr);
   vtkTypeUInt16Array* colorArray = nullptr;
   // check if we have a color field, and create the required array
-  bool hasColor = false, hasRed = false, hasGreen = false, hasBlue = false;
+  bool hasCoords = false, hasColor = false, hasRed = false, hasGreen = false, hasBlue = false;
   for (size_t i = 0; i < dims.size(); ++i)
   {
     pdal::Dimension::Id dimensionId = dims[i];
     switch (dimensionId)
     {
+      case pdal::Dimension::Id::X:
+      case pdal::Dimension::Id::Y:
+      case pdal::Dimension::Id::Z:
+        hasCoords = true;
+        break;
       case pdal::Dimension::Id::Red:
         hasRed = true;
         break;
@@ -164,6 +169,16 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage& reader, vtkPolyData* points
       default:
         continue;
     }
+  }
+  if (!hasCoords)
+  {
+    std::string noCoordsError("PDAL Reader did not find any points coordinates in this file.");
+    if (reader.getName() == "readers.e57")
+    {
+      noCoordsError.append(
+        "\n Note: e57 PDAL reader doesn't support point clouds stored in spherical format.");
+    }
+    vtkWarningMacro(<< noCoordsError);
   }
   if (hasRed && hasGreen && hasBlue)
   {
