@@ -141,9 +141,14 @@
  * of managing threads. To force serial execution set VTK_IMPLEMENTATION_TYPE
  * to "Sequential".
  *
+ * @warning
+ * See also vtkPackLabels which is a utility class for renumbering the labels
+ * found in the input segmentation mask to contiguous forms of smaller type.
+ *
  * @sa
  * vtkSurfaceNets2D vtkDiscreteMarchingCubes vtkDiscreteFlyingEdges3D
  * vtkConstrainedSmoothingFilter vtkFlyingEdges3D vtkWindowedSincPolyDataFilter
+ * vtkPackLabels
  */
 
 #ifndef vtkSurfaceNets3D_h
