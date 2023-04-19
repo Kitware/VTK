@@ -74,7 +74,6 @@ int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
 
-  int iArr = 0;
   for (auto val : vtk::DataArrayValueRange<1>(identity))
   {
     if (val != 1)
@@ -82,7 +81,6 @@ int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       res = EXIT_FAILURE;
       std::cout << "range iterator failed with vtkConstantArray" << std::endl;
     }
-    iArr++;
   }
 
 #ifdef VTK_DISPATCH_CONSTANT_ARRAYS
@@ -100,7 +98,6 @@ int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     worker(identity.Get(), destination.Get(), 3.0);
   }
 
-  iArr = 0;
   for (auto val : vtk::DataArrayValueRange<1>(destination))
   {
     if (val != 3)
@@ -108,7 +105,6 @@ int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       res = EXIT_FAILURE;
       std::cout << "dispatch failed to populate the array with the correct values" << std::endl;
     }
-    iArr++;
   }
 #endif // VTK_DISPATCH_CONSTANT_ARRAYS
   return res;
