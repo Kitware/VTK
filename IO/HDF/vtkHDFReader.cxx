@@ -406,6 +406,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
   for (int attributeType = 0; attributeType < vtkHDFReader::GetNumberOfAttributeTypes();
        ++attributeType)
   {
+    const hsize_t pointModifier = (attributeType == vtkDataObject::POINT) ? 1 : 0;
     std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
     for (const std::string& name : names)
     {
@@ -444,7 +445,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
             extentBuffer[rIDim * 2] = 0;
           }
           fileExtent[iDim * 2] = extentBuffer[rIDim * 2];
-          fileExtent[iDim * 2 + 1] = extentBuffer[rIDim * 2 + 1];
+          fileExtent[iDim * 2 + 1] = extentBuffer[rIDim * 2 + 1] + pointModifier;
         }
         if ((array = vtk::TakeSmartPointer(
                this->Impl->NewArray(attributeType, name.c_str(), fileExtent))) == nullptr)
