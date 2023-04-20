@@ -7,6 +7,7 @@ vtk_add_test_python(
   TestEllipseArcSourceResolution.py
   TestExponentialPointSource.py
   TestGlyphScaling.py
+  TestPlatonicNormals.py
   TestPlatonicSolids.py
   TestRegularPolygonSource.py
   TestStaticCellLocatorLineIntersection.py
