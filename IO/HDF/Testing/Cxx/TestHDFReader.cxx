@@ -30,6 +30,7 @@
 #include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <cstdlib>
 #include <iterator>
 #include <string>
 
@@ -217,6 +218,38 @@ int TestImageData(const std::string& dataRoot)
   return TestDataSet(data, expectedData);
 }
 
+int TestImageCellData(const std::string& dataRoot)
+{
+  // ImageData file with cell data
+  // ------------------------------------------------------------
+  std::string fileName = dataRoot + "/Data/wavelet_cell_data.hdf";
+  std::cout << "Testing: " << fileName << std::endl;
+  vtkNew<vtkHDFReader> reader;
+  if (!reader->CanReadFile(fileName.c_str()))
+  {
+    return EXIT_FAILURE;
+  }
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  vtkImageData* data = vtkImageData::SafeDownCast(reader->GetOutput());
+  vtkSmartPointer<vtkImageData> expectedData =
+    ReadImageData(dataRoot + "/Data/wavelet_cell_data.vti");
+
+  int* dims = data->GetDimensions();
+  int* edims = expectedData->GetDimensions();
+  if (dims[0] != edims[0] || dims[1] != edims[1] || dims[2] != edims[2])
+  {
+    std::cerr << "Error: vtkImageData with wrong dimensions: "
+              << "expecting "
+              << "[" << edims[0] << ", " << edims[1] << ", " << edims[2] << "]"
+              << " got "
+              << "[" << dims[0] << ", " << dims[1] << ", " << dims[2] << "]" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return TestDataSet(data, expectedData);
+}
+
 template <bool parallel>
 int TestUnstructuredGrid(const std::string& dataRoot)
 {
@@ -319,6 +352,11 @@ int TestHDFReader(int argc, char* argv[])
 
   std::string dataRoot = testHelper->GetDataRoot();
   if (TestImageData(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (TestImageCellData(dataRoot))
   {
     return EXIT_FAILURE;
   }
