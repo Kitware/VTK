@@ -1,4 +1,6 @@
-find_package(ADIOS2 2.4 REQUIRED)
+find_package(ADIOS2 2.4 REQUIRED
+  COMPONENTS CXX
+  OPTIONAL_COMPONENTS MPI)
 
 if (ADIOS2_HAVE_MPI)
   if (vtk_io_adios2_core_enabled)
