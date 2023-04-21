@@ -633,7 +633,7 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
     return false;
   }
 
-  if (this->DeltaRangeMajor <= 0.0 || this->DeltaRangeMinor > fabs(this->Range[1] - this->Range[0]))
+  if (this->DeltaRangeMajor <= 0.0 || this->DeltaRangeMajor > fabs(this->Range[1] - this->Range[0]))
   {
     vtkWarningMacro(<< "Axis Major Step invalid or range length invalid: "
                     << "DeltaRangeMajor: " << this->DeltaRangeMajor
