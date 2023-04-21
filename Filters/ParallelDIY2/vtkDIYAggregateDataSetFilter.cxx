@@ -660,12 +660,32 @@ void vtkDIYAggregateDataSetFilter::ExtractDataSetInformation(vtkDataSet* source,
   }
   target->GetPointData()->CopyStructuredData(
     source->GetPointData(), sourceExtent, targetExtent, !this->OutputInitialized);
-  sourceExtent[1]--;
-  sourceExtent[3]--;
-  sourceExtent[5]--;
-  targetExtent[1]--;
-  targetExtent[3]--;
-  targetExtent[5]--;
+  // keep in mind that for 1D or 2D structured grids that we still have cell data
+  // but the extent in that topological direction is already 0 so we can't decrement it
+  if (sourceExtent[1] > sourceExtent[0])
+  {
+    sourceExtent[1]--;
+  }
+  if (sourceExtent[3] > sourceExtent[2])
+  {
+    sourceExtent[3]--;
+  }
+  if (sourceExtent[5] > sourceExtent[4])
+  {
+    sourceExtent[5]--;
+  }
+  if (targetExtent[1] > targetExtent[0])
+  {
+    targetExtent[1]--;
+  }
+  if (targetExtent[3] > targetExtent[2])
+  {
+    targetExtent[3]--;
+  }
+  if (targetExtent[5] > targetExtent[4])
+  {
+    targetExtent[5]--;
+  }
   target->GetCellData()->CopyStructuredData(
     source->GetCellData(), sourceExtent, targetExtent, !this->OutputInitialized);
 
