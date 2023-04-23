@@ -42,10 +42,8 @@ include_directories(
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-# CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
-qt5_wrap_ui(UI_Srcs ${UIs})
 add_executable(QtVTKTouchscreenRenderWindows
-  ${Srcs} ${Hdrs} ${UI_Srcs})
+  ${Srcs} ${Hdrs} ${UIs})
 target_link_libraries(QtVTKTouchscreenRenderWindows
   PRIVATE
     ${VTK_LIBRARIES}
