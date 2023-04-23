@@ -62,6 +62,7 @@ modernize-*,\
 -modernize-use-auto,\
 -modernize-use-default-member-init,\
 -modernize-use-equals-delete,\
+-modernize-use-nodiscard,\
 -modernize-use-trailing-return-type,\
 -modernize-use-using,\
 mpi-*,\
