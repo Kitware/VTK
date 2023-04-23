@@ -18,8 +18,6 @@ unset(shader_h_files)
 foreach(file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${file}"
-    EXPORT_SYMBOL "VTKRENDERINGCELLGRID_EXPORT"
-    EXPORT_HEADER "vtkRenderingCellGridModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source
   )

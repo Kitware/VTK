@@ -35,8 +35,6 @@ set(geometry_files
 foreach (geometry_file IN LISTS geometry_files)
   vtk_encode_string(
     INPUT         "${geometry_file}"
-    EXPORT_SYMBOL "VTKRENDERINGVR_EXPORT"
-    EXPORT_HEADER "vtkRenderingVRModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source
     BINARY

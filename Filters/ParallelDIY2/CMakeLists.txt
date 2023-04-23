@@ -7,6 +7,7 @@ vtk_object_factory_declare(
 
 set(classes
   vtkAdaptiveResampleToImage
+  vtkDIYKdTreeUtilities
   vtkExtractSubsetWithSeed
   vtkGenerateGlobalIds
   vtkGhostCellsGenerator
@@ -33,6 +34,6 @@ vtk_object_factory_configure(
 
 vtk_module_add_module(VTK::FiltersParallelDIY2
   CLASSES ${classes}
-  SOURCES ${vtk_object_factory_source} vtkDIYKdTreeUtilities.cxx
-  PRIVATE_HEADERS ${vtk_object_factory_header} vtkDIYKdTreeUtilities.h)
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})
 vtk_add_test_mangling(VTK::FiltersParallelDIY2)

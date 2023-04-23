@@ -155,19 +155,33 @@ set(shader_files
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
   glsl/vtkSphereMapperGS.glsl
   glsl/vtkStickMapperGS.glsl
-  glsl/vtkTextureObjectFS.glsl
+  glsl/vtkTextureObjectFS.glsl)
+set(public_shader_files
   glsl/vtkTextureObjectVS.glsl)
 unset(shader_h_files)
 foreach(file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${file}"
-    EXPORT_SYMBOL "VTKRENDERINGOPENGL2_EXPORT"
-    EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources
     "${source}")
   list(APPEND private_headers
+    "${header}")
+endforeach()
+foreach(file IN LISTS public_shader_files)
+  vtk_encode_string(
+    INPUT         "${file}"
+    EXPORT_SYMBOL "VTKRENDERINGOPENGL2_EXPORT"
+    EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source
+    ABI_MANGLE_HEADER       "vtkABINamespace.h"
+    ABI_MANGLE_SYMBOL_BEGIN "VTK_ABI_NAMESPACE_BEGIN"
+    ABI_MANGLE_SYMBOL_END   "VTK_ABI_NAMESPACE_END")
+  list(APPEND sources
+    "${source}")
+  list(APPEND headers
     "${header}")
 endforeach()
 
