@@ -14,9 +14,9 @@ set(Hdrs
 set(Rcs
   Icons/icons.qrc)
 
-find_package(Qt5 COMPONENTS Widgets)
-if (NOT TARGET Qt5::Widgets)
-  message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
+find_package("Qt${VTK_QT_VERSION}" COMPONENTS Widgets)
+if (NOT TARGET "Qt${VTK_QT_VERSION}::Widgets")
+  message("Skipping example: ${Qt${VTK_QT_VERSION}_NOT_FOUND_MESSAGE}")
   return ()
 endif ()
 

@@ -16,10 +16,10 @@ set(Hdrs
 set(Rcs
   Icons/icons.qrc)
 
-# We have ui files, this will bring in the macro: qt5_wrap_ui
-find_package(Qt5 COMPONENTS Widgets)
-if (NOT TARGET Qt5::Widgets)
-  message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
+# We have ui files
+find_package("Qt${VTK_QT_VERSION}" COMPONENTS Widgets)
+if (NOT TARGET "Qt${VTK_QT_VERSION}::Widgets")
+  message("Skipping example: ${Qt${VTK_QT_VERSION}_NOT_FOUND_MESSAGE}")
   return ()
 endif ()
 
@@ -33,7 +33,7 @@ add_executable(EasyView
 target_link_libraries(EasyView
   PRIVATE
     ${VTK_LIBRARIES}
-    Qt5::Widgets)
+    "Qt${VTK_QT_VERSION}::Widgets")
 vtk_module_autoinit(
   TARGETS EasyView
   MODULES ${VTK_LIBRARIES})

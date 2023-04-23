@@ -10,9 +10,9 @@ if (NOT VTK_FOUND)
   return ()
 endif ()
 
-find_package(Qt5 COMPONENTS Core Widgets)
-if (NOT TARGET Qt5::Core OR NOT TARGET Qt5::Widgets)
-  message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
+find_package("Qt${VTK_QT_VERSION}" COMPONENTS Core Widgets)
+if (NOT TARGET "Qt${VTK_QT_VERSION}::Core" OR NOT TARGET "Qt${VTK_QT_VERSION}::Widgets")
+  message("Skipping example: ${Qt${VTK_QT_VERSION}_NOT_FOUND_MESSAGE}")
   return ()
 endif ()
 
@@ -31,8 +31,8 @@ add_executable(MinimalQtVTKApp
 target_link_libraries(MinimalQtVTKApp
   PRIVATE
     ${VTK_LIBRARIES}
-    Qt5::Core
-    Qt5::Widgets)
+    "Qt${VTK_QT_VERSION}::Core"
+    "Qt${VTK_QT_VERSION}::Widgets")
 vtk_module_autoinit(
   TARGETS MinimalQtVTKApp
   MODULES ${VTK_LIBRARIES})
