@@ -49,7 +49,7 @@ This is a quick start guide so that you can start contributing to VTK easily.
 To understand the process more deeply, you can jump to the [workflow](#workflow)
 section.
 
-### Developement
+### Development
 
 Create a local branch for your changes:
 
@@ -136,7 +136,7 @@ git reset --hard gitlab/your_branch
 ```
 
 To fix the changelog warning, create, add, commit and push a markdown (.md) file in `Documentation/release/dev` folder.
-In this file, write a small markdown paragrah describing the developement.
+In this file, write a small markdown paragraph describing the development.
 See other .md files in this folder for examples. It may look like this:
 
 ```
