@@ -18,7 +18,7 @@ specify the name and location strings associated with the key -- for instance,
 the `vtkDataArray::UNITS_LABEL()` key has `name="UNITS_LABEL"` and
 `location="vtkDataArray"`. The `length` attribute is required for vector keys.
 
-```
+```xml
 <DataArray [...]>
   <InformationKey name="KeyName" location="KeyLocation" [ length="N" ]>
     [...]
@@ -34,7 +34,7 @@ Specific examples of supported key types:
 
 ### vtkInformationDoubleKey
 
-```
+```xml
 <InformationKey name="Double" location="XMLTestKey">
   1
 </InformationKey>
@@ -42,7 +42,7 @@ Specific examples of supported key types:
 
 ### vtkInformationDoubleVectorKey
 
-```
+```xml
 <InformationKey name="DoubleVector" location="XMLTestKey" length="3">
   <Value index="0">
     1
@@ -58,7 +58,7 @@ Specific examples of supported key types:
 
 ### vtkInformationIdTypeKey
 
-```
+```xml
 <InformationKey name="IdType" location="XMLTestKey">
   5
 </InformationKey>
@@ -66,7 +66,7 @@ Specific examples of supported key types:
 
 ### vtkInformationStringKey
 
-```
+```xml
 <InformationKey name="String" location="XMLTestKey">
   Test String!
 Line2
@@ -75,7 +75,7 @@ Line2
 
 ### vtkInformationIntegerKey
 
-```
+```xml
 <InformationKey name="Integer" location="XMLTestKey">
   408
 </InformationKey>
@@ -83,7 +83,7 @@ Line2
 
 ### vtkInformationIntegerVectorKey
 
-```
+```xml
 <InformationKey name="IntegerVector" location="XMLTestKey" length="3">
   <Value index="0">
     1
@@ -99,7 +99,7 @@ Line2
 
 ### vtkInformationStringVectorKey
 
-```
+```xml
 <InformationKey name="StringVector" location="XMLTestKey" length="3">
   <Value index="0">
     First
@@ -116,7 +116,7 @@ newline!)
 
 ### vtkInformationUnsignedLongKey
 
-```
+```xml
 <InformationKey name="UnsignedLong" location="XMLTestKey">
   9
 </InformationKey>
