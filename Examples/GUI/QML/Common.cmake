@@ -41,7 +41,7 @@ else ()
 endif ()
 
 target_compile_definitions(${MYNAME} PRIVATE
-  $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>
+  "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>"
 )
 
 target_link_libraries(${MYNAME}
