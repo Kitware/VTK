@@ -57,11 +57,73 @@
 // clang-format on
 
 #include <map>
-#include <set>
 #include <numeric>
+#include <set>
 
 namespace
 {
+//=============================================================================
+void HandleGlobalIds(vtkIOSSWriter* writer, vtkPartitionedDataSetCollection* pdc, int association,
+  vtkMultiProcessController* controller)
+{
+  const auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pdc);
+  // check if global ids are present, otherwise create them.
+  int hasGlobalIds = true;
+  for (auto& ds : datasets)
+  {
+    auto* pd = ds->GetAttributes(association);
+    auto* gids = vtkIdTypeArray::SafeDownCast(pd->GetGlobalIds());
+    if (!gids)
+    {
+      hasGlobalIds = false;
+      break;
+    }
+  }
+  if (controller->GetNumberOfProcesses() > 1)
+  {
+    controller->AllReduce(&hasGlobalIds, &hasGlobalIds, 1, vtkCommunicator::MIN_OP);
+  }
+
+  if (!hasGlobalIds)
+  {
+    const std::string assoc = association == vtkDataObject::POINT ? "point" : "cell";
+    vtkWarningWithObjectMacro(
+      writer, "Global " << assoc << " ids are not present. Creating them assuming uniqueness.");
+    const auto numElements = std::accumulate(datasets.begin(), datasets.end(), 0,
+      [&](int sum, vtkUnstructuredGrid* ds) { return sum + ds->GetNumberOfElements(association); });
+
+    vtkIdType startId = 1; // start with 1 since Exodus ids start with 1.
+    if (controller->GetNumberOfProcesses() > 1)
+    {
+      vtkNew<vtkIdTypeArray> sourceNumberOfElements;
+      sourceNumberOfElements->InsertNextValue(numElements);
+      vtkNew<vtkIdTypeArray> resultNumberOfElementsPerCore;
+      controller->AllGatherV(sourceNumberOfElements, resultNumberOfElementsPerCore);
+
+      startId = std::accumulate(resultNumberOfElementsPerCore->GetPointer(0),
+        resultNumberOfElementsPerCore->GetPointer(controller->GetLocalProcessId()), startId);
+    }
+    for (auto& ds : datasets)
+    {
+      const auto numberOfElements = ds->GetNumberOfElements(association);
+      vtkNew<vtkIdTypeArray> globalIds;
+      globalIds->SetName("ids");
+      globalIds->SetNumberOfComponents(1);
+      globalIds->SetNumberOfTuples(numberOfElements);
+      vtkSMPTools::For(0, numberOfElements, [&](vtkIdType begin, vtkIdType end) {
+        auto globalIdsPtr = globalIds->GetPointer(0);
+        for (vtkIdType i = begin; i < end; ++i)
+        {
+          globalIdsPtr[i] = startId + i;
+        }
+      });
+      ds->GetAttributes(association)->SetGlobalIds(globalIds);
+      startId += numberOfElements;
+    }
+  }
+}
+
+//=============================================================================
 std::set<unsigned int> GetDatasetIndices(vtkDataAssembly* assembly, const char* name)
 {
   if (assembly && assembly->GetRootNodeName() && strcmp(assembly->GetRootNodeName(), "IOSS") == 0)
@@ -76,6 +138,7 @@ std::set<unsigned int> GetDatasetIndices(vtkDataAssembly* assembly, const char* 
   return {};
 }
 
+//=============================================================================
 std::map<unsigned char, int64_t> GetElementCounts(
   vtkPartitionedDataSet* pd, vtkMultiProcessController* controller)
 {
@@ -122,6 +185,7 @@ std::map<unsigned char, int64_t> GetElementCounts(
   return { elementCounts.begin(), elementCounts.end() };
 }
 
+//=============================================================================
 Ioss::Field::BasicType GetFieldType(vtkDataArray* array)
 {
   if (array->GetDataType() == VTK_DOUBLE || array->GetDataType() == VTK_FLOAT)
@@ -138,6 +202,7 @@ Ioss::Field::BasicType GetFieldType(vtkDataArray* array)
   }
 }
 
+//=============================================================================
 std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(
   int association, vtkCompositeDataSet* pdc, vtkMultiProcessController* vtkNotUsed(controller))
 {
@@ -174,6 +239,7 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(
   return fields;
 }
 
+//=============================================================================
 template <typename T>
 struct PutFieldWorker
 {
@@ -248,6 +314,7 @@ struct DisplacementWorker
   }
 };
 
+//=============================================================================
 struct vtkGroupingEntity
 {
   vtkIOSSWriter* Writer = nullptr;
@@ -800,18 +867,29 @@ class vtkIOSSModel::vtkInternals
 {
 public:
   vtkSmartPointer<vtkMultiProcessController> Controller;
+  vtkSmartPointer<vtkPartitionedDataSetCollection> DataSet;
   std::multimap<Ioss::EntityType, std::shared_ptr<vtkGroupingEntity>> EntityGroups;
 };
 
 //----------------------------------------------------------------------------
-vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* dataset, vtkIOSSWriter* writer)
+vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* writer)
   : Internals(new vtkIOSSModel::vtkInternals())
 {
-  auto* controller = writer->GetController();
   auto& internals = (*this->Internals);
-  internals.Controller = controller
-    ? vtk::MakeSmartPointer(controller)
+  auto& dataset = internals.DataSet;
+  internals.Controller = writer->GetController()
+    ? vtk::MakeSmartPointer(writer->GetController())
     : vtk::TakeSmartPointer(vtkMultiProcessController::SafeDownCast(vtkDummyController::New()));
+  const auto& controller = internals.Controller;
+  auto& entityGroups = internals.EntityGroups;
+
+  dataset = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
+  dataset->CopyStructure(pdc);
+  dataset->ShallowCopy(pdc);
+  // create global point ids if needed
+  ::HandleGlobalIds(writer, dataset, vtkDataObject::POINT, controller);
+  // create global cell ids if needed
+  ::HandleGlobalIds(writer, dataset, vtkDataObject::CELL, controller);
 
   auto* assembly = dataset->GetDataAssembly();
   const bool isIOSS = writer->GetPreserveInputEntityGroups() &&
@@ -822,8 +900,8 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* dataset, vtkIOSSWrit
 
   // first things first, determine all information necessary about nodes.
   // there's just 1 node block for exodus, build that.
-  internals.EntityGroups.emplace(Ioss::EntityType::NODEBLOCK,
-    std::make_shared<vtkNodeBlock>(dataset, "nodeblock_1", internals.Controller, writer));
+  entityGroups.emplace(Ioss::EntityType::NODEBLOCK,
+    std::make_shared<vtkNodeBlock>(dataset, "nodeblock_1", controller, writer));
 
   // process element blocks.
   // now, if input is not coming for IOSS reader, then all blocks are simply
@@ -845,9 +923,9 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* dataset, vtkIOSSWrit
     {
       try
       {
-        internals.EntityGroups.emplace(Ioss::EntityType::ELEMENTBLOCK,
+        entityGroups.emplace(Ioss::EntityType::ELEMENTBLOCK,
           std::make_shared<vtkElementBlock>(
-            dataset->GetPartitionedDataSet(pidx), bname, internals.Controller, writer));
+            dataset->GetPartitionedDataSet(pidx), bname, controller, writer));
         continue;
       }
       catch (std::runtime_error&)
@@ -861,9 +939,9 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* dataset, vtkIOSSWrit
     {
       try
       {
-        internals.EntityGroups.emplace(Ioss::EntityType::SIDESET,
+        entityGroups.emplace(Ioss::EntityType::SIDESET,
           std::make_shared<vtkSideSet>(
-            dataset->GetPartitionedDataSet(pidx), bname, internals.Controller, writer));
+            dataset->GetPartitionedDataSet(pidx), bname, controller, writer));
         continue;
       }
       catch (std::runtime_error&)
@@ -877,9 +955,9 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* dataset, vtkIOSSWrit
     {
       try
       {
-        internals.EntityGroups.emplace(Ioss::EntityType::NODESET,
+        entityGroups.emplace(Ioss::EntityType::NODESET,
           std::make_shared<vtkNodeSet>(
-            dataset->GetPartitionedDataSet(pidx), bname, internals.Controller, writer));
+            dataset->GetPartitionedDataSet(pidx), bname, controller, writer));
         continue;
       }
       catch (std::runtime_error&)
