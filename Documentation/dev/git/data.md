@@ -1,5 +1,5 @@
-VTK Data
-========
+Test Data
+=========
 
 This page documents how to add test data while developing VTK with [Git][].
 See the [README](README.md) for more information.
@@ -10,7 +10,7 @@ Setup
 -----
 
 The workflow below depends on local hooks to function properly.
-Follow the main [developer setup instructions](develop.md#setup)
+Follow the main [developer setup instructions](develop.md#initial-setup)
 before proceeding.  In particular, run [SetupForDevelopment.sh][]:
 
     $ ./Utilities/SetupForDevelopment.sh

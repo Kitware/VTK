@@ -1,14 +1,16 @@
 @page IOLegacyInformationFormat VTK Legacy Reader/Writer Information Format
 @tableofcontents
 
-# Overview #
+# VTK Legacy Reader/Writer Information Format
+
+## Overview
 
 The legacy vtk data file readers / writers store certain `vtkInformation`
 entries that are set on `vtkAbstractArray`'s `GetInformation()` object. Support
 is currently limited to numeric and string information keys, both single- and
 vector-valued. Only the information objects attached to arrays are encoded.
 
-# Array Metadata Blocks #
+## Array Metadata Blocks
 
 A block of metadata may immediately follow the specification of an array.
 Whitespace is permitted between the array data and the opening `METADATA` tag.
@@ -76,13 +78,13 @@ As shown, a metadata block can have two sections, `COMPONENT_NAMES` and
 `INFORMATION`. The `INFORMATION` tag is followed by the number of information
 keys that follow.
 
-## COMPONENT_NAMES ##
+### COMPONENT_NAMES
 
 If the `METADATA` block contains the line `COMPONENT_NAMES`, the following lines
 are expected to be encoded strings containing the names of each component. There
 must be one line per component.
 
-## INFORMATION ##
+### INFORMATION
 
 If the `METADATA` block contains the line `INFORMATION`, the number of information
 keys is read from the INFORMATION line and `vtkInformation` data that follows is
@@ -105,49 +107,49 @@ newlines.
 
 Specific examples of supported key types:
 
-### vtkInformationDoubleKey ###
+#### vtkInformationDoubleKey
 
 ```
 NAME Double LOCATION TestKey
 DATA 1
 ```
 
-### vtkInformationDoubleVectorKey ###
+#### vtkInformationDoubleVectorKey
 
 ```
 NAME DoubleVector LOCATION TestKey
 DATA 3 1 90 260
 ```
 
-### vtkInformationIdTypeKey ###
+#### vtkInformationIdTypeKey
 
 ```
 NAME IdType LOCATION TestKey
 DATA 5
 ```
 
-### vtkInformationStringKey ###
+#### vtkInformationStringKey
 
 ```
 NAME String LOCATION TestKey
 DATA Test%20String!%0ALine2
 ```
 
-### vtkInformationIntegerKey ###
+#### vtkInformationIntegerKey
 
 ```
 NAME Integer LOCATION TestKey
 DATA 408
 ```
 
-### vtkInformationIntegerVectorKey ###
+#### vtkInformationIntegerVectorKey
 
 ```
 NAME IntegerVector LOCATION TestKey
 DATA 3 1 5 45
 ```
 
-### vtkInformationStringVectorKey ###
+#### vtkInformationStringVectorKey
 
 ```
 NAME StringVector LOCATION TestKey
@@ -157,7 +159,7 @@ Second%20(with%20whitespace!)
 Third%20(with%0Anewline!)
 ```
 
-### vtkInformationUnsignedLongKey ###
+#### vtkInformationUnsignedLongKey
 
 ```
 NAME UnsignedLong LOCATION TestKey

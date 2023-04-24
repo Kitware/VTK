@@ -1,5 +1,5 @@
-Develop VTK
-===========
+Develop
+=======
 
 This page documents how to develop VTK using [GitLab][] and [Git][].
 See the [README](README.md) for more information.

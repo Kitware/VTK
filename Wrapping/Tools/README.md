@@ -1,4 +1,4 @@
-# The Wrapping Tools
+# Wrapping Tools
 
 The wrapping tools consist of executables that pull information from C++
 header files, and produce wrapper code that allows the C++ interfaces to

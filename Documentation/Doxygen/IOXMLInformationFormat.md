@@ -1,14 +1,16 @@
 @page IOXMLInformationFormat VTK XML Reader/Writer Information Format
 @tableofcontents
 
-# Overview #
+# VTK XML Reader/Writer Information Format
+
+## Overview
 
 The vtk xml data file readers / writers store certain `vtkInformation`
 entries that are set on `vtkAbstractArray`'s `GetInformation()` object. Support
 is currently limited to numeric and string information keys, both single- and
 vector-valued. Only the information objects attached to arrays are written/read.
 
-# Array Information #
+## Array Information
 
 Array information is embedded in the `<DataArray>` XML element as a series of
 `<InformationKey>` elements. The required attributes `name` and `location`
@@ -30,7 +32,7 @@ the `vtkDataArray::UNITS_LABEL()` key has `name="UNITS_LABEL"` and
 
 Specific examples of supported key types:
 
-### vtkInformationDoubleKey ###
+### vtkInformationDoubleKey
 
 ```
 <InformationKey name="Double" location="XMLTestKey">
@@ -38,7 +40,7 @@ Specific examples of supported key types:
 </InformationKey>
 ```
 
-### vtkInformationDoubleVectorKey ###
+### vtkInformationDoubleVectorKey
 
 ```
 <InformationKey name="DoubleVector" location="XMLTestKey" length="3">
@@ -54,7 +56,7 @@ Specific examples of supported key types:
 </InformationKey>
 ```
 
-### vtkInformationIdTypeKey ###
+### vtkInformationIdTypeKey
 
 ```
 <InformationKey name="IdType" location="XMLTestKey">
@@ -62,7 +64,7 @@ Specific examples of supported key types:
 </InformationKey>
 ```
 
-### vtkInformationStringKey ###
+### vtkInformationStringKey
 
 ```
 <InformationKey name="String" location="XMLTestKey">
@@ -71,7 +73,7 @@ Line2
 </InformationKey>
 ```
 
-### vtkInformationIntegerKey ###
+### vtkInformationIntegerKey
 
 ```
 <InformationKey name="Integer" location="XMLTestKey">
@@ -79,7 +81,7 @@ Line2
 </InformationKey>
 ```
 
-### vtkInformationIntegerVectorKey ###
+### vtkInformationIntegerVectorKey
 
 ```
 <InformationKey name="IntegerVector" location="XMLTestKey" length="3">
@@ -95,7 +97,7 @@ Line2
 </InformationKey>
 ```
 
-### vtkInformationStringVectorKey ###
+### vtkInformationStringVectorKey
 
 ```
 <InformationKey name="StringVector" location="XMLTestKey" length="3">
@@ -112,7 +114,7 @@ newline!)
 </InformationKey>
 ```
 
-### vtkInformationUnsignedLongKey ###
+### vtkInformationUnsignedLongKey
 
 ```
 <InformationKey name="UnsignedLong" location="XMLTestKey">

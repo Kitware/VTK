@@ -1,4 +1,6 @@
-# Rotation-invariant Pattern Detection
+# MomentInvariants Architecture
+
+## Rotation-invariant Pattern Detection
 For pattern detection, the orientation of the pattern is usually not known a priory. The process should not be decelerated more than necessary while the pattern detection algorithm looks for all possible rotated copies of the template. Therefore, rotation invariance is a critical requirement.
 Moment invariants can achieve rotation invariance without the need for point to point correlations, which are difficult to generate in smooth fields. For an introduction, we recommend
 
@@ -38,7 +40,7 @@ Langbein et al. have generalized the definition of the moment tensor to tensor v
 where $x^{\otimes o}$ denotes the $o$-th tensor power of the vector $x$.
 -->
 
-# Extensions
+## Extensions
 The **MomentInvariants** module contains actually a bunch of extra algorithms and helper classes.
 
 The class **vtkMomentsHelper** provides functions for the moments computation that will be needed by vtkComputeMoments and vtkMomentInvariants.

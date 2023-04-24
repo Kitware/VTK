@@ -4,14 +4,14 @@ Currently, to create a valid 3D Tiles dataset we may need additional
 conversions: from GLTF to GLB and from GLB to B3DM. We can use
 JavaScript tools to do these conversions.
 
-# Install conversion and validation scripts
+## Install conversion and validation scripts
 - Using node and npm installed on Ubuntu 20.04:
 - `cd ~/external/3d-tiles-tools/;npm install 3d-tiles-tools`. Help at: <https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/tree/master/tools>
 - `cd ~/external/gltf-pipeline;npm install gltf-pipeline`. Help at: <https://github.com/CesiumGS/gltf-pipeline>
 - Clone <https://github.com/CesiumGS/3d-tiles-samples>. and then `npm install.`
 - Clone <https://github.com/KhronosGroup/glTF-Validator> and then follow Building section.
 
-# Convert data to GLB or B3DM - Optional
+## Convert data to GLB or B3DM - Optional
 See Testing/Cxx/Test3DTilesWriter for conversions of Jacksonville data
 stored in OBJs and or Berlin data stored in CityGML.
 Note that the test saves the 3D Tiles data using GLTF files.
@@ -37,7 +37,7 @@ find . -name '*.glb' -exec bash -c 'nodejs ~/external/3d-tiles-tools/tools/bin/3
 find . -name '*.glb' -exec rm {} \;
 
 ```
-# View in Cesium
+## View in Cesium
 1. Use 3d-tiles-samples
   - Link the tileset created for previous set:
   `cd ~/external/3d-tiles-samples/tilesets; ln -s ~/projects/VTK/build/Testing/Temporary/jacksonville-3dtiles`
@@ -46,7 +46,7 @@ find . -name '*.glb' -exec rm {} \;
   `cd ..;npm start`
 2. `google-chrome jacksonville-3dtiles.html;google-chrome berlin-3dtiles.html`
 
-# Test the tilesets using 3d-tiles-validator
+## Test the tilesets using 3d-tiles-validator
 ```
 cd ~/external/3d-tiles-validator/validator/
 node ./bin/3d-tiles-validator.js -i ~/projects/VTK/build/Testing/Temporary/jacksonville-3dtiles-points/tileset.json

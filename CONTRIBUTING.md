@@ -1,5 +1,5 @@
-Contributing to VTK
-===================
+Contributing
+============
 
 This page documents at a very high level how to contribute to VTK.
 Please check our [developer instructions] for a more detailed guide to

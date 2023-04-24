@@ -4,7 +4,7 @@ VTK 9.0 introduces a new build system compared to previous versions. This
 version uses CMake's built-in functionality for behaviors that were performed
 manually in the previous iteration of the build system.
 
-# Terminology
+## Terminology
 
   - **module**: A unit of API provided by a project. This is the core of the
     system and there are lots of features available through this mechanism that
@@ -21,7 +21,7 @@ manually in the previous iteration of the build system.
   - **enable status**: A 4-way state to allow for "weak" and "strong" selection
     or deselection of a module or group for building.
 
-# Principles
+## Principles
 
 The module system was designed with a number of principles in mind. These
 should be followed as much as possible when developing extensions as well.
@@ -67,7 +67,7 @@ should be followed as much as possible when developing extensions as well.
 [cmake-CMAKE_PROJECT_NAME]: https://cmake.org/cmake/help/latest/variable/CMAKE_PROJECT_NAME.html
 [cmake-project]: https://cmake.org/cmake/help/latest/command/project.html
 
-# Build process
+## Build process
 
 Building modules involves two phases. The first phase is called "scanning" and
 involves collecting all the information necessary for the second phase,
@@ -90,7 +90,7 @@ when they are built.
 [vtk.module]: @ref module-parse-module
 [vtk_module_build]: @ref vtk_module_build
 
-# Modules
+## Modules
 
 Modules are described by [vtk.module][] files. These files are "scanned" using
 the [vtk_module_scan][] function. They provide all the information necessary for
@@ -132,7 +132,7 @@ module is treated as if it did not exist at all.
 [vtk_module_find_modules]: @ref vtk_module_find_modules
 [cmake-find_package]: https://cmake.org/cmake/help/latest/command/find_package.html
 
-## Module metadata
+### Module metadata
 
 A number of pieces of metadata are considered important enough to indicate them
 at the module level. These are used for managing slightly different workflows
@@ -152,7 +152,7 @@ for modules which have these properties.
     implicitly `EXCLUDE_WRAP`, not `IMPLEMENTABLE` and do not `IMPLEMENTS` any
     module.
 
-## Enabling modules for build
+### Enabling modules for build
 
 Modules are enabled in a number of ways. These ways allow for project control
 and user control of which modules should be built or not. There are 4 states for
@@ -197,7 +197,7 @@ the modules.
 
 [enable-status]: @ref module-enable-status
 
-## Dependencies
+### Dependencies
 
 Modules have three types of dependencies:
 
@@ -235,7 +235,7 @@ command. The required json argument is only available in a build tree though.
 
 `Utilities/Maintenance/FindNeededModules.py -s /path/to/sources -j path/to/vtk_build/modules.json`
 
-## Testing
+### Testing
 
 There is some support for testing in the module system, but it is not as
 comprehensive as the build side. This is because testing infrastructure and
@@ -281,7 +281,7 @@ be used for optional module dependencies.
 
 [cmake-add_subdirectory]: https://cmake.org/cmake/help/latest/command/add_subdirectory.html
 
-# Building modules
+## Building modules
 
 After scanning is complete, [vtk_module_scan][] returns a list of modules and
 kits to build in the variables given by the `PROVIDES_MODULES` and
@@ -308,7 +308,7 @@ When using [vtk_module_build][], the `PROVIDES_MODULES` and `PROVIDES_KITS` from
 a single scan should be passed together. Multiple scans may be built together as
 well if they all use the same build parameters as each other.
 
-## Build-time parameters
+### Build-time parameters
 
 The [vtk_module_build][] function is where the decision to build with or without
 kits is decided through the `BUILD_WITH_KITS` option. Only if this is set will
@@ -334,7 +334,7 @@ targets not built under [vtk_module_build][] also end up at a sensible location.
 [cmake-CMAKE_LIBRARY_OUTPUT_DIRECTORY]: https://cmake.org/cmake/help/latest/variable/CMAKE_LIBRARY_OUTPUT_DIRECTORY.html
 [cmake-CMAKE_RUNTIME_OUTPUT_DIRECTORY]: https://cmake.org/cmake/help/latest/variable/CMAKE_RUNTIME_OUTPUT_DIRECTORY.html
 
-## Library parameters
+### Library parameters
 
 When building libraries, it is sometimes useful to have top-level control of
 library metadata. For example, VTK suffixes its library filenames with a version
@@ -352,7 +352,7 @@ number. The variables that control this include:
 [cmake-VERSION]: https://cmake.org/cmake/help/latest/prop_tgt/VERSION.html
 [cmake-SOVERSION]: https://cmake.org/cmake/help/latest/prop_tgt/SOVERSION.html
 
-## Installation support
+### Installation support
 
 [vtk_module_build][] also offers arguments to aid in installing module
 artifacts. These include destinations for pieces that are installed, CMake
@@ -399,7 +399,7 @@ true).
 
 [cmake-CMAKE_INSTALL_PREFIX]: https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html
 
-## Test data information
+### Test data information
 
 The directory that is looked for in each module is specified by using the
 `TEST_DIRECTORY_NAME` argument. If it is set to the value of `NONE`, no testing
@@ -422,7 +422,7 @@ Each is provided in the testing subdirectory as `_vtk_build_${name}`, so the
 
 [ExternalData]: https://cmake.org/cmake/help/latest/module/ExternalData.html
 
-# Building a module
+## Building a module
 
 Building a module is basically the same as a normal CMake library or executable,
 but is wrapped to use arguments to facilitate wrapping, exporting, and
@@ -439,7 +439,7 @@ associated with the module. The module system requires that the `CMakeLists.txt`
 for a module create a target with the name of the module. In the case of
 `INTERFACE` modules, it suffices to create the module manually in many cases.
 
-## Libraries
+### Libraries
 
 Most modules end up being libraries that can be linked against by other
 libraries. Due to cross-platform support generally being a good thing, the
@@ -477,7 +477,7 @@ should be supported, but might not work at the moment.
 [vtk_module_add_executable]: @ref vtk_module_add_executable
 [GenerateExportHeader]: https://cmake.org/cmake/help/latest/module/GenerateExportHeader.html
 
-### Source listing
+#### Source listing
 
 Instead of using CMake's "all sources in a single list" pattern for
 `add_library`, [vtk_module_add_module][] classifies its source files explicitly:
@@ -518,7 +518,7 @@ conventions to ease usage. These include:
 
 [vtk_module_install_headers]: @ref vtk_module_install_headers
 
-## Executables
+### Executables
 
 Executables may be created using [vtk_module_add_executable][]. The first
 argument is the name of the executable to build. Since the scanning phase does
@@ -536,7 +536,7 @@ tree. It will not be available to consumers of the project. If the name of the
 executable is different from the target name, `BASENAME` may be used to change
 the executable's name.
 
-## Module APIs
+### Module APIs
 
 All of CMake's `target_` function calls have [analogues][module-as-target] for
 modules. This is primarily due to the kits feature which causes the target name
@@ -589,14 +589,14 @@ differences, if any) is:
 [vtk_module_link]: @ref vtk_module_link
 [vtk_module_link_options]: @ref vtk_module_link_options
 
-# Packaging support
+## Packaging support
 
 Getting installed packages to work for CMake is, unfortunately, not trivial. The
 module system provides some support for helping with this, but it does place
 some extra constraints on the project so that some assumptions that vastly
 simplify the process can be made.
 
-## Assumptions
+### Assumptions
 
 The main assumption is that all modules passed to a single [vtk_module_build][]
 have the same CMake namespace (the part up to and including the `::`, if any,
@@ -618,7 +618,7 @@ to allow the component to not exist while not failing the main
 
 [cmake-CMAKE_FIND_PACKAGE_NAME]: https://cmake.org/cmake/help/latest/variable/CMAKE_FIND_PACKAGE_NAME.html
 
-## Creating a full package
+### Creating a full package
 
 The module system provides no support for the top-level file that is used by
 [`find_package`][cmake-find_package]. This is because this logic is highly
@@ -636,7 +636,7 @@ Here, the list of files generated are based on the `PACKAGE` argument passed to
 The module properties file must be included after the targets file so that they
 exist when it tries to add properties to the imported targets.
 
-## External dependencies
+### External dependencies
 
 Since the module system is heavily skewed towards using imported targets, these
 targets show up by name in the [`find_package`][cmake-find_package] of the
@@ -667,7 +667,7 @@ so that the package can collate the reason why things are not available.
 [vtk_module_export_find_packages]: @ref vtk_module_export_find_packages
 [vtk_module_find_package]: @ref vtk_module_find_package
 
-## Setting the `_FOUND` variable
+### Setting the `_FOUND` variable
 
 The module system does not currently help in determining the top-level
 `${CMAKE_FIND_PACKAGE_NAME}_FOUND` variable based on the results of the
@@ -691,12 +691,12 @@ details about [creating a package configuration][cmake-create-package-config].
 
 [cmake-create-package-config]: https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html#creating-a-package-configuration-file
 
-# Advanced topics
+## Advanced topics
 
 There are a number of advanced features provided by the module system that are
 not normally required in a simple project.
 
-## Kits
+### Kits
 
 Kits are described in [vtk.kit][] files which act much like [vtk.module][]
 files. However, they only have `NAME`, `LIBRARY_NAME`, and `DESCRIPTION` fields.
@@ -712,7 +712,7 @@ that they do not know about.
 [vtk.kit]: @ref module-parse-kit
 [vtk_module_find_kits]: @ref vtk_module_find_kits
 
-### Requirements
+#### Requirements
 
 In order to actually use kits, CMake 3.12 is necessary in order to do the
 [`OBJECT`][cmake-OBJECT] library manipulations done behind the scenes to make it
@@ -728,7 +728,7 @@ and other usage requirements should not leak from other modules that are members
 of the same kit.
 
 <a name="autoinit"></a>
-## Autoinit
+### Autoinit
 
 The module system supports a mechanism for triggering static code construction
 for modules which require it. This cannot be done through normal CMake usage
@@ -751,7 +751,7 @@ For details on the implementation of the autoinit system, please see
 [autoinit]: @ref module-autoinit
 
 <a name="wrapping"></a>
-## Wrapping
+### Wrapping
 
 VTK comes with support for wrapping its classes into other languages.
 Currently, VTK supports wrapping its classes for use in the Python and Java
@@ -762,7 +762,7 @@ All languages read the headers of classes with a `__VTK_WRAP__` preprocessor
 definition defined. This may be used to hide methods or other details from the
 wrapping code if wanted.
 
-### Python
+#### Python
 
 For Python, the [vtk_module_wrap_python][] function must be used. This function
 takes a list of modules in its `MODULES` argument and creates Python modules
@@ -790,7 +790,7 @@ wrapping code.
 [vtk_module_wrap_python]: @ref vtk_module_wrap_python
 [vtk_module_python_default_destination]: @ref vtk_module_python_default_destination
 
-### Java
+#### Java
 
 For Java, the [vtk_module_wrap_java][] function must be used. This function
 creates Java sources for classes in the modules passed in its `MODULES`
@@ -809,14 +809,14 @@ wrapping code.
 
 [vtk_module_wrap_java]: @ref vtk_module_wrap_java
 
-### Hierarchy files
+#### Hierarchy files
 
 Hierarchy files are used by the language wrapper tools to know the class
 inheritance for classes within a module. Each module has a hierarchy file
 associated with it. The path to a module's hierarchy file is stored in its
 `hierarchy` module property.
 
-## Third party
+### Third party
 
 The module system has support for representing third party modules in its
 build. These may be built as part of the project or represented using other
@@ -841,7 +841,7 @@ participate in autoinit.
 [vtk_module_third_party_internal]: @ref vtk_module_third_party_internal
 [vtk_module_third_party_external]: @ref vtk_module_third_party_external
 
-### External third party modules
+#### External third party modules
 
 External modules are found using CMake's [`find_package`][cmake-find_package]
 mechanism. In addition to the arguments supported by
@@ -862,7 +862,7 @@ The `STANDARD_INCLUDE_DIRS` argument creates an include interface for the
 module target which includes the "standard" module include directories to.
 Basically, the source and binary directories of the module.
 
-### Internal third party modules
+#### Internal third party modules
 
 Internal modules are those that may be built as part of the build. These should
 ideally specify a set of `LICENSE_FILES` indicating the license status of the
@@ -888,7 +888,7 @@ be used by setting the `HEADERS_SUBDIR` option. It is implied for
 After the subdirectory is added a target with the module's name must exist.
 However, a target is automatically created if it is `HEADERS_ONLY`.
 
-#### Properly shipping internal third party code
+##### Properly shipping internal third party code
 
 There are many things that really should be done to ship internal third party
 code (also known as vendoring) properly. The issue is mainly that the internal
@@ -921,7 +921,7 @@ external package. In this case, it is recommended that code using the third
 party module use unmangled names and let the module interface and mangling
 headers handle the mangling at that level.
 
-## Debugging
+### Debugging
 
 The module system can output debugging information about its inner workings by
 using the `_vtk_module_log` variable. This variable is a list of "domains" to
@@ -938,7 +938,7 @@ following domains are used in the internals of the module system:
 It is encouraged that projects expose user-friendly flags to control logging
 rather than exposing `_vtk_module_log` directly.
 
-## Control variables
+### Control variables
 
 These variables do not follow the API convention and are used if set:
 

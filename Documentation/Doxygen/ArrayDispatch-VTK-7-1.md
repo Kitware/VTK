@@ -1,7 +1,9 @@
 @page VTK-7-1-ArrayDispatch vtkArrayDispatch and Related Tools
 @tableofcontents
 
-# Background # {#VTKAD-Background}
+# vtkArrayDispatch and Related Tools
+
+## Background # {#VTKAD-Background}
 
 VTK datasets store most of their important information in subclasses of
 `vtkDataArray`. Vertex locations (`vtkPoints::Data`), cell topology
@@ -9,7 +11,7 @@ VTK datasets store most of their important information in subclasses of
 (`vtkFieldData::Data`) are the dataset features accessed most frequently by VTK
 algorithms, and these all rely on the `vtkDataArray` API.
 
-# Terminology # {#VTKAD-Terminology}
+## Terminology # {#VTKAD-Terminology}
 
 This page uses the following terms:
 
@@ -32,7 +34,7 @@ __Template explosion__ refers to a sharp increase in the size of a compiled
 binary that results from instantiating a template function or class on many
 different types.
 
-## vtkDataArray ## {#VTKAD-vtkDataArray}
+### vtkDataArray ## {#VTKAD-vtkDataArray}
 
 The data array type hierarchy in VTK has a unique feature when compared to
 typical C++ containers: a non-templated base class. All arrays containing
@@ -66,7 +68,7 @@ void calcMagnitude(vtkDataArray *vectors, vtkDataArray *magnitude)
 }
 ```
 
-## The Costs of Flexiblity ## {#VTKAD-TheCostsOfFlexiblity}
+### The Costs of Flexiblity ## {#VTKAD-TheCostsOfFlexiblity}
 
 However, this flexibility comes at a cost. Passing data through a generic API
 has a number of issues:
@@ -91,7 +93,7 @@ such as vectorization.
 So what can one do if they want fast, optimized, type-safe access to the data
 stored in a `vtkDataArray`? What options are available?
 
-## The Old Solution: vtkTemplateMacro ##  {#VTKAD-vtkTemplateMacro}
+### The Old Solution: vtkTemplateMacro ##  {#VTKAD-vtkTemplateMacro}
 
 The `vtkTemplateMacro` is described in this section. While it is no longer
 considered a best practice to use this construct in new code, it is still
@@ -199,7 +201,7 @@ ValueType, but now we have to ensure this, since we cast both arrays' `void`
 pointers to `VTK_TT`*. What if vectors is an array of integers, but we want to
 calculate floating point magnitudes?
 
-## vtkTemplateMacro with Multiple Arrays ## {#VTKAD-Dual-vtkTemplateMacro}
+### vtkTemplateMacro with Multiple Arrays ## {#VTKAD-Dual-vtkTemplateMacro}
 
 The best solution prior to VTK 7.1 was to use two worker functions. The first
 is templated on vector's ValueType, and the second is templated on both array
@@ -266,7 +268,7 @@ the final worker function would be generated. As more arrays are considered,
 the need for some form of restricted dispatch becomes very important to keep
 this template explosion in check.
 
-## Data Array Changes in VTK 7.1 ## {#VTKAD-Changes-in-VTK-71}
+### Data Array Changes in VTK 7.1 ## {#VTKAD-Changes-in-VTK-71}
 
 Starting with VTK 7.1, the Array-Of-Structs (AOS) memory layout is no longer
 the only `vtkDataArray` implementation provided by the library. The
@@ -301,7 +303,7 @@ buffer operations. And while we're at it, let's look at removing the tedium of
 multi-array dispatch and reducing the problem of 'template explosion'. The
 remainder of this page details such a system.
 
-# Best Practices for vtkDataArray Post-7.1 # {#VTKAD-BestPractices}
+## Best Practices for vtkDataArray Post-7.1 # {#VTKAD-BestPractices}
 
 We'll describe a new set of tools that make managing template instantiations
 for efficient array access both easy and extensible. As an overview, the
@@ -385,7 +387,7 @@ void calcMagnitude(vtkDataArray *vectors, vtkDataArray *magnitude)
 }
 ```
 
-# vtkGenericDataArray # {#VTKAD-vtkGenericDataArray}
+## vtkGenericDataArray # {#VTKAD-vtkGenericDataArray}
 
 The `vtkGenericDataArray` class template drives the new `vtkDataArray` class
 hierarchy. The ValueType is introduced here, both as a template parameter and a
@@ -402,7 +404,7 @@ There are two main subclasses of `vtkGenericDataArray`:
 `vtkAOSDataArrayTemplate` and `vtkSOADataArrayTemplate`. These implement
 array-of-structs and struct-of-arrays storage, respectively.
 
-# vtkTypeList # {#VTKAD-vtkTypeList}
+## vtkTypeList # {#VTKAD-vtkTypeList}
 
 Type lists are a metaprogramming construct used to generate a list of C++
 types. They are used in VTK to implement restricted array dispatching. As we'll
@@ -456,7 +458,7 @@ option `VTK_DISPATCH_SOA_ARRAYS` will enable SOA array dispatch as well. More
 advanced possibilities exist and are described in
 `VTK/Common/Core/vtkCreateArrayDispatchArrayList.cmake`.
 
-# vtkArrayDownCast # {#VTKAD-vtkArrayDownCast}
+## vtkArrayDownCast # {#VTKAD-vtkArrayDownCast}
 
 In VTK, all subclasses of `vtkObject` (including the data arrays) support a
 downcast method called `SafeDownCast`. It is used similarly to the C++
@@ -525,7 +527,7 @@ void DoSomeAction(vtkAbstractArray *array)
 the ArrayType, and otherwise falls back to `SafeDownCast`. This is the
 preferred array downcast method for performance, uniformity, and reliability.
 
-# vtkDataArrayAccessor # {#VTKAD-vtkDataArrayAccessor}
+## vtkDataArrayAccessor # {#VTKAD-vtkDataArrayAccessor}
 
 Array dispatching relies on having templated worker code carry out some
 operation. For instance, take this `vtkArrayDispatch` code that locates the
@@ -694,7 +696,7 @@ Using the above pattern for calling a worker and always going through
 `vtkDataArrayAccessor` to `Get`/`Set` array elements ensures that any worker
 implementation can be its own fallback path.
 
-# VTK_ASSUME # {#VTKAD-VTK_ASSUME}
+## VTK_ASSUME # {#VTKAD-VTK_ASSUME}
 
 While performance testing the new array classes, we compared the performance of
 a dispatched worker using the `vtkDataArrayAccessor` class to the same
@@ -752,7 +754,7 @@ There are many scenarios where `VTK_ASSUME` can offer a serious performance
 boost, the case of known tuple size is a common one that's really worth
 remembering.
 
-# vtkArrayDispatch # {#VTKAD-vtkArrayDispatch}
+## vtkArrayDispatch # {#VTKAD-vtkArrayDispatch}
 
 The dispatchers implemented in the vtkArrayDispatch namespace provide array
 dispatching with customizable restrictions on code generation and a simple
@@ -760,12 +762,12 @@ syntax that hides the messy details of type resolution and multi-array
 dispatch. There are several "flavors" of dispatch available that operate on up
 to three arrays simultaneously.
 
-## Components Of A Dispatch ## {#VTKAD-ComponentsOfADispatch}
+### Components Of A Dispatch ## {#VTKAD-ComponentsOfADispatch}
 
 Using the `vtkArrayDispatch` system requires three elements: the array(s), the
 worker, and the dispatcher.
 
-### The Arrays ### {#VTKAD-TheArrays}
+#### The Arrays ### {#VTKAD-TheArrays}
 
 All dispatched arrays must be subclasses of `vtkDataArray`. It is important to
 identify as many restrictions as possible. Must every ArrayType be considered
@@ -774,7 +776,7 @@ restricted? If dispatching multiple arrays at once, are they expected to have
 the same ValueType? These scenarios are common, and these conditions can be
 used to reduce the number of instantiations of the worker template.
 
-### The Worker ### {#VTKAD-TheWorker}
+#### The Worker ### {#VTKAD-TheWorker}
 
 The worker is some generic callable. In C++98, a templated functor is a good
 choice. In C++14, a generic lambda is a usable option as well. For our
@@ -824,7 +826,7 @@ struct FindMax
 };
 ```
 
-### The Dispatcher ### {#VTKAD-TheDispatcher}
+#### The Dispatcher ### {#VTKAD-TheDispatcher}
 
 The dispatcher is the workhorse of the system. It is responsible for applying
 restrictions, resolving array types, and generating the requested template
@@ -847,7 +849,7 @@ interest. If it finds a match, it calls the worker's `operator()` method with
 the properly typed arrays. If no match is found, it returns `false` without
 executing the worker.
 
-## Restrictions: Why They Matter ## {#VTKAD-RestrictionsWhyTheyMatter}
+### Restrictions: Why They Matter ## {#VTKAD-RestrictionsWhyTheyMatter}
 
 We've made several mentions of using restrictions to reduce the number of
 template instantiations during a dispatch operation. You may be wondering if it
@@ -883,7 +885,7 @@ to 104 instantiations from 17,576.
 Always apply restrictions when they are known, especially for multi-array
 dispatches. The savings are worth it.
 
-## Types of Dispatchers ## {#VTKAD-TypesOfDispatchers}
+### Types of Dispatchers ## {#VTKAD-TypesOfDispatchers}
 
 Now that we've discussed the components of a dispatch operation, what the
 dispatchers do, and the importance of restricting dispatches, let's take a look
@@ -891,7 +893,7 @@ at the types of dispatchers available.
 
 ---
 
-### vtkArrayDispatch::Dispatch ### {#VTKAD-Dispatch}
+#### vtkArrayDispatch::Dispatch ### {#VTKAD-Dispatch}
 
 This family of dispatchers take no parameters and perform an unrestricted
 dispatch over all arrays in `vtkArrayDispatch::Arrays`.
@@ -916,7 +918,7 @@ vtkArrayDispatch::Dispatch::Execute(array, worker);
 
 ---
 
-### vtkArrayDispatch::DispatchByArray ### {#VTKAD-DispatchByArray}
+#### vtkArrayDispatch::DispatchByArray ### {#VTKAD-DispatchByArray}
 
 This family of dispatchers takes a `vtkTypeList` of explicit array types to use
 during dispatching. They should only be used when an array's exact type is
@@ -977,7 +979,7 @@ MyDispatch::Execute(input, output, someWorker);
 
 ---
 
-### vtkArrayDispatch::DispatchByValueType ### {#VTKAD-DispatchByValueType}
+#### vtkArrayDispatch::DispatchByValueType ### {#VTKAD-DispatchByValueType}
 
 This family of dispatchers takes a vtkTypeList of ValueTypes for each array and
 restricts dispatch to only arrays in vtkArrayDispatch::Arrays that have one of
@@ -1026,7 +1028,7 @@ MyDispatch::Execute(array1, array2, array3, someWorker);
 
 ---
 
-### vtkArrayDispatch::DispatchByArrayWithSameValueType ### {#VTKAD-DispatchByArrayWithSameValueType}
+#### vtkArrayDispatch::DispatchByArrayWithSameValueType ### {#VTKAD-DispatchByArrayWithSameValueType}
 
 This family of dispatchers takes a `vtkTypeList` of ArrayTypes for each array
 and restricts dispatch to only consider arrays from those typelists, with the
@@ -1083,7 +1085,7 @@ MyDispatch::Execute(array1, array2, someWorker);
 
 ---
 
-### vtkArrayDispatch::DispatchBySameValueType ### {#VTKAD-DispatchBySameValueType}
+#### vtkArrayDispatch::DispatchBySameValueType ### {#VTKAD-DispatchBySameValueType}
 
 This family of dispatchers takes a single `vtkTypeList` of ValueType and
 restricts dispatch to only consider arrays from `vtkArrayDispatch::Arrays` with
@@ -1135,9 +1137,9 @@ MyDispatch::Execute(array1, array2, someWorker);
 
 ---
 
-# Advanced Usage # {#VTKAD-AdvancedUsage}
+## Advanced Usage # {#VTKAD-AdvancedUsage}
 
-## Accessing Memory Buffers ## {#VTKAD-AccessingMemoryBuffers}
+### Accessing Memory Buffers ## {#VTKAD-AccessingMemoryBuffers}
 
 Despite the thin `vtkGenericDataArray` API's nice feature that compilers can
 optimize memory accesses, sometimes there are still legitimate reasons to
@@ -1199,7 +1201,7 @@ struct DeepCopyWorker
 };
 ```
 
-# Putting It All Together # {#VTKAD-PuttingItAllTogether}
+## Putting It All Together # {#VTKAD-PuttingItAllTogether}
 
 Now that we've explored the new tools introduced with VTK 7.1 that allow
 efficient, implementation agnostic array access, let's take another look at the
