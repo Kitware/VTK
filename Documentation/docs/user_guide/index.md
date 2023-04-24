@@ -21,6 +21,9 @@ If you are looking for an example usage of some VTK class check the [Select Exam
 ## Examples
 A big collection of examples exist in [vtk-examples](https://kitware.github.io/vtk-examples/site/) website.
 
+## VTK File format
+The VTK file format is described in detail [here](VTKFileFormats.md).
+
 ## VTK Book
 A thorough introduction in visualization in general but also into the internals of VTK can be found in the [vtk-textbook](https://gitlab.kitware.com/vtk/textbook/raw/master/VTKBook/VTKTextBook.pdf)
 
@@ -29,8 +32,3 @@ Visit VTK's [Discourse](https://discourse.vtk.org) for announcements, guides and
 
 ## Contributing
 See our [contribution guide](../developer_guide/contributing.md)
-
-
-```{todo}
-Add a link to VTK format description
-```
