@@ -916,4 +916,12 @@ cdef import from "mpi.h" nogil:
     MPI_File       MPI_File_f2c       (MPI_Fint)
     MPI_Errhandler MPI_Errhandler_f2c (MPI_Fint)
 
+    ## ctypedef struct MPI_F08_status #:= MPI_Status
+    ## MPI_F08_status* MPI_F08_STATUS_IGNORE   #:= 0
+    ## MPI_F08_status* MPI_F08_STATUSES_IGNORE #:= 0
+    ## int MPI_Status_c2f08(MPI_Status*, MPI_F08_status*)
+    ## int MPI_Status_f082c(MPI_F08_status*, MPI_Status*)
+    ## int MPI_Status_f2f08(MPI_Fint*, MPI_F08_status*)
+    ## int MPI_Status_f082f(MPI_F08_status*, MPI_Fint*)
+
     #-----------------------------------------------------------------

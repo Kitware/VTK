@@ -1,18 +1,13 @@
 #if defined(MS_WINDOWS)
-#  if !defined(MSMPI_VER) && (defined(MPICH2) && defined(MPIAPI))
-#    define MSMPI_VER 0x100
+#  if !defined(MSMPI_VER)
+#    if defined(MPICH2) && defined(MPIAPI)
+#      define MSMPI_VER 0x100
+#    endif
 #  endif
 #endif
 
 #if defined(MPT_VERSION)
 #  define SGI_MPT
-#endif
-
-#if defined(MPICH_NAME) && (MPICH_NAME==3)
-#  define MPICH3 1
-#endif
-#if defined(MPICH_NAME) && (MPICH_NAME==1)
-  #define MPICH1 1
 #endif
 
 #if !defined(MPIAPI)
@@ -25,9 +20,9 @@
 #include "config/msmpi.h"
 #elif defined(SGI_MPT)
 #include "config/sgi-mpt.h"
-#elif defined(MPICH3)
-#include "config/mpich3.h"
-#elif defined(MPICH2)
+#elif defined(MPICH_NAME) && (MPICH_NAME >= 3)
+#include "config/mpich.h"
+#elif defined(MPICH_NAME) && (MPICH_NAME == 2)
 #include "config/mpich2.h"
 #elif defined(OPEN_MPI)
 #include "config/openmpi.h"
