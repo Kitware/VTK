@@ -854,8 +854,8 @@ T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored
 // Definition of ToNumeric
 
 VTK_ABI_NAMESPACE_END
-// NOLINTNEXTLINE(bugprone-suspicious-include)
-#include "vtkVariantToNumeric.cxx"
+
+#include "vtkVariantToNumeric.inl"
 
 //------------------------------------------------------------------------------
 // Explicitly instantiate the ToNumeric member template to make sure
