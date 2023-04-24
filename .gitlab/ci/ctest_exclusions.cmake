@@ -225,7 +225,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
 
     # Line rendering differences.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18229
-    "^VTK::FiltersGeneralPython-TestCellDerivs$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes$"
     "^VTK::RenderingAnnotationCxx-TestCubeAxes3$"
     "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
