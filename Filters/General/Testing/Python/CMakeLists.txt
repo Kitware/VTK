@@ -28,6 +28,7 @@ vtk_add_test_python(
   TestStaticCellLocator.py
   TestStaticCellLocatorPlaneIntersection.py
   TestSynchronizeTimeFilter.py,NO_OUTPUT,NO_VALID
+  TestTemporalPathLineFilter.py,NO_OUTPUT,NO_VALID
   TestTemporalStatistics.py,NO_OUTPUT,NO_VALID
   TestTriangulateContours.py
   TestWarpScalar.py,NO_VALID

@@ -161,25 +161,32 @@ protected:
    * The necessary parts of the standard pipeline update mechanism
    */
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   //
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
+  int ExecuteStreaming(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+  int Execute(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
   ///@}
 
   TrailPointer GetTrail(vtkIdType i);
   void IncrementTrail(TrailPointer trail, vtkDataSet* input, vtkIdType i);
+
+  // void Initialize(vtkDataSet* input, vtkDataSet* selection,
+  //  vtkPolyData* pathLines, vtkPolyData* particles);
 
   // internal data variables
   int NumberOfTimeSteps = 0;
   int MaskPoints = 200;
   unsigned int MaxTrackLength = 10;
   unsigned int LastTrackLength = 10;
-  int FirstTime = 1;
   char* IdChannelArray = nullptr;
   double MaxStepDistance[3] = { 1, 1, 1 };
   double LatestTime;
   bool KeepDeadTrails = false;
-  bool UsingSelection = false;
   bool BackwardTime = false;
   //
 
@@ -189,10 +196,15 @@ protected:
   vtkSmartPointer<vtkPoints> VertexCoordinates;
   vtkSmartPointer<vtkFloatArray> TrailId;
   vtkSmartPointer<vtkTemporalPathLineFilterInternals> Internals;
-  std::set<vtkIdType> SelectionIds;
+
+  int CurrentTimeIndex = 0;
 
   //
 private:
+  void AccumulateTrails(vtkDataSet* input, vtkDataSet* selection);
+  void PostExecute(vtkDataSet* input, vtkPolyData* pathLines, vtkPolyData* particles);
+  void InitializeExecute(vtkDataSet* input, vtkPolyData* pathLines);
+
   vtkTemporalPathLineFilter(const vtkTemporalPathLineFilter&) = delete;
   void operator=(const vtkTemporalPathLineFilter&) = delete;
 };
