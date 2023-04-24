@@ -65,7 +65,9 @@ static void PyMPI_OPENMPI_dlopen_libmpi(void)
   mode |= RTLD_NOLOAD;
   #endif
   #if defined(OMPI_MAJOR_VERSION)
-  #if OMPI_MAJOR_VERSION == 3
+  #if   OMPI_MAJOR_VERSION >= 4
+  if (!handle) handle = dlopen("libmpi.40.dylib", mode);
+  #elif OMPI_MAJOR_VERSION == 3
   if (!handle) handle = dlopen("libmpi.40.dylib", mode);
   #elif OMPI_MAJOR_VERSION == 2
   if (!handle) handle = dlopen("libmpi.20.dylib", mode);
@@ -88,6 +90,8 @@ static void PyMPI_OPENMPI_dlopen_libmpi(void)
   if (!handle) handle = dlopen("libmpi_ibm.so.2", mode);
   if (!handle) handle = dlopen("libmpi_ibm.so.1", mode);
   if (!handle) handle = dlopen("libmpi_ibm.so", mode);
+  #elif OMPI_MAJOR_VERSION >= 4
+  if (!handle) handle = dlopen("libmpi.so.40", mode);
   #elif OMPI_MAJOR_VERSION == 3
   if (!handle) handle = dlopen("libmpi.so.40", mode);
   #elif OMPI_MAJOR_VERSION == 2
@@ -288,6 +292,62 @@ static int PyMPI_OPENMPI_MPI_Mrecv(void *buf, int count, MPI_Datatype type,
 #undef  MPI_Mrecv
 #define MPI_Mrecv PyMPI_OPENMPI_MPI_Mrecv
 #endif  /* !(PyMPI_OPENMPI_VERSION > 10700) */
+
+/* ------------------------------------------------------------------------- */
+
+/*
+ * Open MPI < 1.10.3 errors with MPI_Get_address(MPI_BOTTOM, &address).
+ */
+
+#if PyMPI_OPENMPI_VERSION < 11003
+
+static int PyMPI_OPENMPI_Get_address(const void *location, MPI_Aint *address)
+{
+  if (location == MPI_BOTTOM && address) {
+    *address = 0;
+    return MPI_SUCCESS;
+  }
+  return MPI_Get_address(location, address);
+}
+#undef  MPI_Get_address
+#define MPI_Get_address PyMPI_OPENMPI_Get_address
+
+#endif
+
+/* ------------------------------------------------------------------------- */
+
+/*
+ * Open MPI < 2.0.0 matched probes do not return MPI_MESSAGE_NO_PROC
+ * for source=MPI_PROC_NULL if status=MPI_STATUS_IGNORE.
+ */
+
+#if PyMPI_OPENMPI_VERSION < 20000
+
+static int PyMPI_OPENMPI_Mprobe(int source, int tag, MPI_Comm comm,
+                                MPI_Message *message, MPI_Status *status)
+{
+  MPI_Status _pympi_status;
+  if (source == MPI_PROC_NULL &&
+      status == MPI_STATUS_IGNORE)
+    status = &_pympi_status;
+  return MPI_Mprobe(source, tag, comm, message, status);
+}
+#undef  MPI_Mprobe
+#define MPI_Mprobe PyMPI_OPENMPI_Mprobe
+
+static int PyMPI_OPENMPI_Improbe(int source, int tag, MPI_Comm comm, int *flag,
+                                 MPI_Message *message, MPI_Status *status)
+{
+  MPI_Status _pympi_status;
+  if (source == MPI_PROC_NULL &&
+      status == MPI_STATUS_IGNORE)
+    status = &_pympi_status;
+  return MPI_Improbe(source, tag, comm, flag, message, status);
+}
+#undef  MPI_Improbe
+#define MPI_Improbe PyMPI_OPENMPI_Improbe
+
+#endif
 
 /* ------------------------------------------------------------------------- */
 

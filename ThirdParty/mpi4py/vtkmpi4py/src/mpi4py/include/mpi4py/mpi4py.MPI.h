@@ -4,8 +4,8 @@
 #define __PYX_HAVE__mpi4py__MPI
 
 #include "Python.h"
-struct PyMPIStatusObject;
 struct PyMPIDatatypeObject;
+struct PyMPIStatusObject;
 struct PyMPIRequestObject;
 struct PyMPIPrequestObject;
 struct PyMPIGrequestObject;
@@ -27,20 +27,6 @@ struct PyMPIFileObject;
 /* "mpi4py/MPI.pxd":28
  *     ctypedef MPI_Count  Count  "MPI_Count"
  * 
- * ctypedef public api class Status [             # <<<<<<<<<<<<<<
- *     type   PyMPIStatus_Type,
- *     object PyMPIStatusObject,
- */
-struct PyMPIStatusObject {
-  PyObject_HEAD
-  MPI_Status ob_mpi;
-  unsigned int flags;
-};
-typedef struct PyMPIStatusObject PyMPIStatusObject;
-
-/* "mpi4py/MPI.pxd":35
- *     cdef unsigned   flags
- * 
  * ctypedef public api class Datatype [             # <<<<<<<<<<<<<<
  *     type   PyMPIDatatype_Type,
  *     object PyMPIDatatypeObject,
@@ -49,11 +35,27 @@ struct PyMPIDatatypeObject {
   PyObject_HEAD
   MPI_Datatype ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
 };
 typedef struct PyMPIDatatypeObject PyMPIDatatypeObject;
 
-/* "mpi4py/MPI.pxd":42
- *     cdef unsigned     flags
+/* "mpi4py/MPI.pxd":36
+ *     cdef object     __weakref__
+ * 
+ * ctypedef public api class Status [             # <<<<<<<<<<<<<<
+ *     type   PyMPIStatus_Type,
+ *     object PyMPIStatusObject,
+ */
+struct PyMPIStatusObject {
+  PyObject_HEAD
+  MPI_Status ob_mpi;
+  unsigned int flags;
+  PyObject *__weakref__;
+};
+typedef struct PyMPIStatusObject PyMPIStatusObject;
+
+/* "mpi4py/MPI.pxd":44
+ *     cdef object   __weakref__
  * 
  * ctypedef public api class Request [             # <<<<<<<<<<<<<<
  *     type   PyMPIRequest_Type,
@@ -63,11 +65,12 @@ struct PyMPIRequestObject {
   PyObject_HEAD
   MPI_Request ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
   PyObject *ob_buf;
 };
 typedef struct PyMPIRequestObject PyMPIRequestObject;
 
-/* "mpi4py/MPI.pxd":50
+/* "mpi4py/MPI.pxd":53
  *     cdef object      ob_buf
  * 
  * ctypedef public api class Prequest(Request) [             # <<<<<<<<<<<<<<
@@ -79,7 +82,7 @@ struct PyMPIPrequestObject {
 };
 typedef struct PyMPIPrequestObject PyMPIPrequestObject;
 
-/* "mpi4py/MPI.pxd":56
+/* "mpi4py/MPI.pxd":59
  *     pass
  * 
  * ctypedef public api class Grequest(Request) [             # <<<<<<<<<<<<<<
@@ -92,7 +95,7 @@ struct PyMPIGrequestObject {
 };
 typedef struct PyMPIGrequestObject PyMPIGrequestObject;
 
-/* "mpi4py/MPI.pxd":62
+/* "mpi4py/MPI.pxd":65
  *     cdef MPI_Request ob_grequest
  * 
  * ctypedef public api class Message [             # <<<<<<<<<<<<<<
@@ -103,11 +106,12 @@ struct PyMPIMessageObject {
   PyObject_HEAD
   MPI_Message ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
   PyObject *ob_buf;
 };
 typedef struct PyMPIMessageObject PyMPIMessageObject;
 
-/* "mpi4py/MPI.pxd":70
+/* "mpi4py/MPI.pxd":74
  *     cdef object      ob_buf
  * 
  * ctypedef public api class Op [             # <<<<<<<<<<<<<<
@@ -118,12 +122,13 @@ struct PyMPIOpObject {
   PyObject_HEAD
   MPI_Op ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
   PyObject *(*ob_func)(PyObject *, PyObject *);
   int ob_usrid;
 };
 typedef struct PyMPIOpObject PyMPIOpObject;
 
-/* "mpi4py/MPI.pxd":79
+/* "mpi4py/MPI.pxd":84
  *     cdef int      ob_usrid
  * 
  * ctypedef public api class Group [             # <<<<<<<<<<<<<<
@@ -134,11 +139,12 @@ struct PyMPIGroupObject {
   PyObject_HEAD
   MPI_Group ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
 };
 typedef struct PyMPIGroupObject PyMPIGroupObject;
 
-/* "mpi4py/MPI.pxd":86
- *     cdef unsigned  flags
+/* "mpi4py/MPI.pxd":92
+ *     cdef object  __weakref__
  * 
  * ctypedef public api class Info [             # <<<<<<<<<<<<<<
  *     type   PyMPIInfo_Type,
@@ -148,11 +154,12 @@ struct PyMPIInfoObject {
   PyObject_HEAD
   MPI_Info ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
 };
 typedef struct PyMPIInfoObject PyMPIInfoObject;
 
-/* "mpi4py/MPI.pxd":93
- *     cdef unsigned flags
+/* "mpi4py/MPI.pxd":100
+ *     cdef object __weakref__
  * 
  * ctypedef public api class Errhandler [             # <<<<<<<<<<<<<<
  *     type   PyMPIErrhandler_Type,
@@ -162,11 +169,12 @@ struct PyMPIErrhandlerObject {
   PyObject_HEAD
   MPI_Errhandler ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
 };
 typedef struct PyMPIErrhandlerObject PyMPIErrhandlerObject;
 
-/* "mpi4py/MPI.pxd":100
- *     cdef unsigned       flags
+/* "mpi4py/MPI.pxd":108
+ *     cdef object       __weakref__
  * 
  * ctypedef public api class Comm [             # <<<<<<<<<<<<<<
  *     type   PyMPIComm_Type,
@@ -176,11 +184,12 @@ struct PyMPICommObject {
   PyObject_HEAD
   MPI_Comm ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
 };
 typedef struct PyMPICommObject PyMPICommObject;
 
-/* "mpi4py/MPI.pxd":107
- *     cdef unsigned flags
+/* "mpi4py/MPI.pxd":116
+ *     cdef object __weakref__
  * 
  * ctypedef public api class Intracomm(Comm) [             # <<<<<<<<<<<<<<
  *     type   PyMPIIntracomm_Type,
@@ -191,7 +200,7 @@ struct PyMPIIntracommObject {
 };
 typedef struct PyMPIIntracommObject PyMPIIntracommObject;
 
-/* "mpi4py/MPI.pxd":113
+/* "mpi4py/MPI.pxd":122
  *     pass
  * 
  * ctypedef public api class Topocomm(Intracomm) [             # <<<<<<<<<<<<<<
@@ -203,7 +212,7 @@ struct PyMPITopocommObject {
 };
 typedef struct PyMPITopocommObject PyMPITopocommObject;
 
-/* "mpi4py/MPI.pxd":119
+/* "mpi4py/MPI.pxd":128
  *     pass
  * 
  * ctypedef public api class Cartcomm(Topocomm) [             # <<<<<<<<<<<<<<
@@ -215,7 +224,7 @@ struct PyMPICartcommObject {
 };
 typedef struct PyMPICartcommObject PyMPICartcommObject;
 
-/* "mpi4py/MPI.pxd":125
+/* "mpi4py/MPI.pxd":134
  *     pass
  * 
  * ctypedef public api class Graphcomm(Topocomm) [             # <<<<<<<<<<<<<<
@@ -227,7 +236,7 @@ struct PyMPIGraphcommObject {
 };
 typedef struct PyMPIGraphcommObject PyMPIGraphcommObject;
 
-/* "mpi4py/MPI.pxd":131
+/* "mpi4py/MPI.pxd":140
  *     pass
  * 
  * ctypedef public api class Distgraphcomm(Topocomm) [             # <<<<<<<<<<<<<<
@@ -239,7 +248,7 @@ struct PyMPIDistgraphcommObject {
 };
 typedef struct PyMPIDistgraphcommObject PyMPIDistgraphcommObject;
 
-/* "mpi4py/MPI.pxd":137
+/* "mpi4py/MPI.pxd":146
  *     pass
  * 
  * ctypedef public api class Intercomm(Comm) [             # <<<<<<<<<<<<<<
@@ -251,7 +260,7 @@ struct PyMPIIntercommObject {
 };
 typedef struct PyMPIIntercommObject PyMPIIntercommObject;
 
-/* "mpi4py/MPI.pxd":143
+/* "mpi4py/MPI.pxd":152
  *     pass
  * 
  * ctypedef public api class Win [             # <<<<<<<<<<<<<<
@@ -262,11 +271,12 @@ struct PyMPIWinObject {
   PyObject_HEAD
   MPI_Win ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
   PyObject *ob_mem;
 };
 typedef struct PyMPIWinObject PyMPIWinObject;
 
-/* "mpi4py/MPI.pxd":151
+/* "mpi4py/MPI.pxd":161
  *     cdef object   ob_mem
  * 
  * ctypedef public api class File [             # <<<<<<<<<<<<<<
@@ -277,6 +287,7 @@ struct PyMPIFileObject {
   PyObject_HEAD
   MPI_File ob_mpi;
   unsigned int flags;
+  PyObject *__weakref__;
 };
 typedef struct PyMPIFileObject PyMPIFileObject;
 
@@ -294,8 +305,8 @@ typedef struct PyMPIFileObject PyMPIFileObject;
   #define DL_IMPORT(_T) _T
 #endif
 
-__PYX_EXTERN_C DL_IMPORT(PyTypeObject) PyMPIStatus_Type;
 __PYX_EXTERN_C DL_IMPORT(PyTypeObject) PyMPIDatatype_Type;
+__PYX_EXTERN_C DL_IMPORT(PyTypeObject) PyMPIStatus_Type;
 __PYX_EXTERN_C DL_IMPORT(PyTypeObject) PyMPIRequest_Type;
 __PYX_EXTERN_C DL_IMPORT(PyTypeObject) PyMPIPrequest_Type;
 __PYX_EXTERN_C DL_IMPORT(PyTypeObject) PyMPIGrequest_Type;

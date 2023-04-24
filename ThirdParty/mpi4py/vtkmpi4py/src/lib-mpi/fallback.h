@@ -118,10 +118,6 @@ static MPI_Status PyMPI_STATUS_IGNORE;
 
 #ifndef PyMPI_HAVE_MPI_STATUSES_IGNORE
 #ifndef PyMPI_MPI_STATUSES_IGNORE_SIZE
-#if defined(__GNUC__) || defined(__ICC) || defined(__INTEL_COMPILER)
-#warning MPI_STATUSES_IGNORE will use static storage of size 4096
-#warning Buffer overruns may occur. You were warned !!!
-#endif
 #define PyMPI_MPI_STATUSES_IGNORE_SIZE 4096
 #endif
 static MPI_Status PyMPI_STATUSES_IGNORE[PyMPI_MPI_STATUSES_IGNORE_SIZE];
@@ -176,7 +172,7 @@ static int PyMPI_Type_create_indexed_block(int count,
 {
   int i, *blocklengths = 0, ierr = MPI_SUCCESS;
   if (count > 0) {
-    blocklengths = (int *) PyMPI_MALLOC(count*sizeof(int));
+    blocklengths = (int *) PyMPI_MALLOC((size_t)count*sizeof(int));
     if (!blocklengths) return MPI_ERR_INTERN;
   }
   for (i=0; i<count; i++) blocklengths[i] = blocklength;
@@ -199,7 +195,7 @@ static int PyMPI_Type_create_hindexed_block(int count,
 {
   int i, *blocklengths = 0, ierr = MPI_SUCCESS;
   if (count > 0) {
-    blocklengths = (int *) PyMPI_MALLOC(count*sizeof(int));
+    blocklengths = (int *) PyMPI_MALLOC((size_t)count*sizeof(int));
     if (!blocklengths) return MPI_ERR_INTERN;
   }
   for (i=0; i<count; i++) blocklengths[i] = blocklength;
@@ -537,9 +533,9 @@ static int PyMPI_Type_create_darray(int size,
 
   /* calculate position in Cartesian grid
      as MPI would (row-major ordering) */
-  coords  = (int *) PyMPI_MALLOC(ndims*sizeof(int));
+  coords  = (int *) PyMPI_MALLOC((size_t)ndims*sizeof(int));
   if (!coords)  { ierr = MPI_ERR_INTERN; goto fn_exit; }
-  offsets = (MPI_Aint *) PyMPI_MALLOC(ndims*sizeof(MPI_Aint));
+  offsets = (MPI_Aint *) PyMPI_MALLOC((size_t)ndims*sizeof(MPI_Aint));
   if (!offsets) { ierr = MPI_ERR_INTERN; goto fn_exit; }
 
   procs = size;
@@ -804,7 +800,7 @@ static int PyMPI_Reduce_scatter_block(void *sendbuf, void *recvbuf,
   int n = 1, *recvcounts = 0;
   ierr = MPI_Comm_size(comm, &n);
   if (ierr != MPI_SUCCESS) return ierr;
-  recvcounts = (int *) PyMPI_MALLOC(n*sizeof(int));
+  recvcounts = (int *) PyMPI_MALLOC((size_t)n*sizeof(int));
   if (!recvcounts) return MPI_ERR_INTERN;
   while (n-- > 0) recvcounts[n] = recvcount;
   ierr = MPI_Reduce_scatter(sendbuf, recvbuf,
@@ -886,7 +882,7 @@ static int PyMPI_Alloc_mem(MPI_Aint size, MPI_Info info, void *baseptr)
   if (size < 0) return MPI_ERR_ARG;
   if (!baseptr) return MPI_ERR_ARG;
   if (size == 0) size = 1;
-  buf = (char *) PyMPI_MALLOC(size);
+  buf = (char *) PyMPI_MALLOC((size_t)size);
   if (!buf) return MPI_ERR_NO_MEM;
   basebuf = (char **) baseptr;
   *basebuf = buf;

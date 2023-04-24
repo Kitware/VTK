@@ -43,14 +43,17 @@ static int _Py2_IsBuffer(PyObject *obj)
 #endif
 }
 
-static int _Py2_AsBuffer(PyObject *obj, int readonly,
+static int _Py2_AsBuffer(PyObject *obj, int *readonly,
                          void **buf, Py_ssize_t *size)
 {
 #if defined(PYPY_VERSION) || PY_VERSION_HEX < 0x03000000
-  if (readonly)
-    return PyObject_AsReadBuffer(obj, (const void**)buf, size);
-  else
-    return PyObject_AsWriteBuffer(obj, buf, size);
+  const void **rbuf = (const void**)buf;
+  if (!PyObject_AsWriteBuffer(obj, buf, size)) {*readonly = 0; return 0;}
+  PyErr_Clear();
+  if (!PyObject_AsReadBuffer(obj, rbuf, size)) {*readonly = 1; return 0;}
+  PyErr_Clear();
+  PyErr_SetString(PyExc_TypeError, "expected a buffer object");
+  return -1;
 #else
   (void)obj; (void)readonly;
   (void)buf; (void)size;
@@ -82,16 +85,17 @@ PySlice_GetIndicesEx((PySliceObject *)(s), n, start, stop, step, length)
 
 /* ------------------------------------------------------------------------- */
 
-#if !defined(WITH_THREAD)
-#undef  PyGILState_Ensure
-#define PyGILState_Ensure() ((PyGILState_STATE)0)
-#undef  PyGILState_Release
-#define PyGILState_Release(state) (state)=((PyGILState_STATE)0)
-#undef  Py_BLOCK_THREADS
-#define Py_BLOCK_THREADS
-#undef  Py_UNBLOCK_THREADS
-#define Py_UNBLOCK_THREADS
+#ifdef PYPY_VERSION
+
+#ifndef Py_IgnoreEnvironmentFlag
+#define Py_IgnoreEnvironmentFlag 0
 #endif
+
+#ifndef Py_GETENV
+#define Py_GETENV(s) (Py_IgnoreEnvironmentFlag ? NULL : getenv(s))
+#endif
+
+#endif/*PYPY_VERSION*/
 
 /* ------------------------------------------------------------------------- */
 

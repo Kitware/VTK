@@ -7,6 +7,7 @@
 #include "mpi-22.h"
 #include "mpi-30.h"
 #include "mpi-31.h"
+#include "mpi-40.h"
 
 #ifndef OMPI_HAVE_FORTRAN_LOGICAL1
 #define OMPI_HAVE_FORTRAN_LOGICAL1 0
@@ -68,7 +69,7 @@
 
 #ifdef OMPI_PROVIDE_MPI_FILE_INTERFACE
 #if OMPI_PROVIDE_MPI_FILE_INTERFACE == 0
-#include "openmpi-io.h"
+#include "mpi-io.h"
 #endif
 #endif
 

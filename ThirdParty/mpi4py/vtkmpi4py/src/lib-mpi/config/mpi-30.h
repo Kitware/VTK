@@ -114,5 +114,15 @@
 #define PyMPI_HAVE_MPI_Get_library_version 1
 #define PyMPI_HAVE_MPI_INFO_ENV 1
 
+/*
+#define PyMPI_HAVE_MPI_F08_status 1
+#define PyMPI_HAVE_MPI_F08_STATUS_IGNORE 1
+#define PyMPI_HAVE_MPI_F08_STATUSES_IGNORE 1
+#define PyMPI_HAVE_MPI_Status_c2f08 1
+#define PyMPI_HAVE_MPI_Status_f082c 1
+#define PyMPI_HAVE_MPI_Status_f2f08 1
+#define PyMPI_HAVE_MPI_Status_f082f 1
+*/
+
 #endif
 #endif

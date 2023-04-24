@@ -8,10 +8,10 @@
 #include "Python.h"
 #include "mpi4py.MPI.h"
 
-static PyTypeObject *__pyx_ptype_6mpi4py_3MPI_Status = 0;
-#define PyMPIStatus_Type (*__pyx_ptype_6mpi4py_3MPI_Status)
 static PyTypeObject *__pyx_ptype_6mpi4py_3MPI_Datatype = 0;
 #define PyMPIDatatype_Type (*__pyx_ptype_6mpi4py_3MPI_Datatype)
+static PyTypeObject *__pyx_ptype_6mpi4py_3MPI_Status = 0;
+#define PyMPIStatus_Type (*__pyx_ptype_6mpi4py_3MPI_Status)
 static PyTypeObject *__pyx_ptype_6mpi4py_3MPI_Request = 0;
 #define PyMPIRequest_Type (*__pyx_ptype_6mpi4py_3MPI_Request)
 static PyTypeObject *__pyx_ptype_6mpi4py_3MPI_Prequest = 0;
@@ -67,14 +67,18 @@ static PyObject *(*__pyx_api_f_6mpi4py_3MPI_PyMPIOp_New)(MPI_Op) = 0;
 #define PyMPIOp_New __pyx_api_f_6mpi4py_3MPI_PyMPIOp_New
 static MPI_Op *(*__pyx_api_f_6mpi4py_3MPI_PyMPIOp_Get)(PyObject *) = 0;
 #define PyMPIOp_Get __pyx_api_f_6mpi4py_3MPI_PyMPIOp_Get
-static PyObject *(*__pyx_api_f_6mpi4py_3MPI_PyMPIInfo_New)(MPI_Info) = 0;
-#define PyMPIInfo_New __pyx_api_f_6mpi4py_3MPI_PyMPIInfo_New
-static MPI_Info *(*__pyx_api_f_6mpi4py_3MPI_PyMPIInfo_Get)(PyObject *) = 0;
-#define PyMPIInfo_Get __pyx_api_f_6mpi4py_3MPI_PyMPIInfo_Get
 static PyObject *(*__pyx_api_f_6mpi4py_3MPI_PyMPIGroup_New)(MPI_Group) = 0;
 #define PyMPIGroup_New __pyx_api_f_6mpi4py_3MPI_PyMPIGroup_New
 static MPI_Group *(*__pyx_api_f_6mpi4py_3MPI_PyMPIGroup_Get)(PyObject *) = 0;
 #define PyMPIGroup_Get __pyx_api_f_6mpi4py_3MPI_PyMPIGroup_Get
+static PyObject *(*__pyx_api_f_6mpi4py_3MPI_PyMPIInfo_New)(MPI_Info) = 0;
+#define PyMPIInfo_New __pyx_api_f_6mpi4py_3MPI_PyMPIInfo_New
+static MPI_Info *(*__pyx_api_f_6mpi4py_3MPI_PyMPIInfo_Get)(PyObject *) = 0;
+#define PyMPIInfo_Get __pyx_api_f_6mpi4py_3MPI_PyMPIInfo_Get
+static PyObject *(*__pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_New)(MPI_Errhandler) = 0;
+#define PyMPIErrhandler_New __pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_New
+static MPI_Errhandler *(*__pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_Get)(PyObject *) = 0;
+#define PyMPIErrhandler_Get __pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_Get
 static PyObject *(*__pyx_api_f_6mpi4py_3MPI_PyMPIComm_New)(MPI_Comm) = 0;
 #define PyMPIComm_New __pyx_api_f_6mpi4py_3MPI_PyMPIComm_New
 static MPI_Comm *(*__pyx_api_f_6mpi4py_3MPI_PyMPIComm_Get)(PyObject *) = 0;
@@ -87,10 +91,6 @@ static PyObject *(*__pyx_api_f_6mpi4py_3MPI_PyMPIFile_New)(MPI_File) = 0;
 #define PyMPIFile_New __pyx_api_f_6mpi4py_3MPI_PyMPIFile_New
 static MPI_File *(*__pyx_api_f_6mpi4py_3MPI_PyMPIFile_Get)(PyObject *) = 0;
 #define PyMPIFile_Get __pyx_api_f_6mpi4py_3MPI_PyMPIFile_Get
-static PyObject *(*__pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_New)(MPI_Errhandler) = 0;
-#define PyMPIErrhandler_New __pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_New
-static MPI_Errhandler *(*__pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_Get)(PyObject *) = 0;
-#define PyMPIErrhandler_Get __pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_Get
 #if !defined(__Pyx_PyIdentifier_FromString)
 #if PY_MAJOR_VERSION < 3
   #define __Pyx_PyIdentifier_FromString(s) PyString_FromString(s)
@@ -237,22 +237,22 @@ static int import_mpi4py__MPI(void) {
   if (__Pyx_ImportFunction(module, "PyMPIMessage_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIMessage_Get, "MPI_Message *(PyObject *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIOp_New", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIOp_New, "PyObject *(MPI_Op)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIOp_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIOp_Get, "MPI_Op *(PyObject *)") < 0) goto bad;
-  if (__Pyx_ImportFunction(module, "PyMPIInfo_New", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIInfo_New, "PyObject *(MPI_Info)") < 0) goto bad;
-  if (__Pyx_ImportFunction(module, "PyMPIInfo_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIInfo_Get, "MPI_Info *(PyObject *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIGroup_New", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIGroup_New, "PyObject *(MPI_Group)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIGroup_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIGroup_Get, "MPI_Group *(PyObject *)") < 0) goto bad;
+  if (__Pyx_ImportFunction(module, "PyMPIInfo_New", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIInfo_New, "PyObject *(MPI_Info)") < 0) goto bad;
+  if (__Pyx_ImportFunction(module, "PyMPIInfo_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIInfo_Get, "MPI_Info *(PyObject *)") < 0) goto bad;
+  if (__Pyx_ImportFunction(module, "PyMPIErrhandler_New", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_New, "PyObject *(MPI_Errhandler)") < 0) goto bad;
+  if (__Pyx_ImportFunction(module, "PyMPIErrhandler_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_Get, "MPI_Errhandler *(PyObject *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIComm_New", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIComm_New, "PyObject *(MPI_Comm)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIComm_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIComm_Get, "MPI_Comm *(PyObject *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIWin_New", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIWin_New, "PyObject *(MPI_Win)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIWin_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIWin_Get, "MPI_Win *(PyObject *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIFile_New", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIFile_New, "PyObject *(MPI_File)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "PyMPIFile_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIFile_Get, "MPI_File *(PyObject *)") < 0) goto bad;
-  if (__Pyx_ImportFunction(module, "PyMPIErrhandler_New", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_New, "PyObject *(MPI_Errhandler)") < 0) goto bad;
-  if (__Pyx_ImportFunction(module, "PyMPIErrhandler_Get", (void (**)(void))&__pyx_api_f_6mpi4py_3MPI_PyMPIErrhandler_Get, "MPI_Errhandler *(PyObject *)") < 0) goto bad;
-  __pyx_ptype_6mpi4py_3MPI_Status = __Pyx_ImportType(module, "mpi4py.MPI", "Status", sizeof(struct PyMPIStatusObject), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_6mpi4py_3MPI_Status) goto bad;
   __pyx_ptype_6mpi4py_3MPI_Datatype = __Pyx_ImportType(module, "mpi4py.MPI", "Datatype", sizeof(struct PyMPIDatatypeObject), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_6mpi4py_3MPI_Datatype) goto bad;
+  __pyx_ptype_6mpi4py_3MPI_Status = __Pyx_ImportType(module, "mpi4py.MPI", "Status", sizeof(struct PyMPIStatusObject), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6mpi4py_3MPI_Status) goto bad;
   __pyx_ptype_6mpi4py_3MPI_Request = __Pyx_ImportType(module, "mpi4py.MPI", "Request", sizeof(struct PyMPIRequestObject), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_6mpi4py_3MPI_Request) goto bad;
   __pyx_ptype_6mpi4py_3MPI_Prequest = __Pyx_ImportType(module, "mpi4py.MPI", "Prequest", sizeof(struct PyMPIPrequestObject), __Pyx_ImportType_CheckSize_Warn);
