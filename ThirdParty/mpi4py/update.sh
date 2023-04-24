@@ -15,7 +15,7 @@ readonly name="mpi4py"
 readonly ownership="mpi4py Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/mpi4py.git"
-readonly tag="for/vtk-20191127-3.0.3"
+readonly tag="for/vtk-20230424-3.1.4"
 readonly paths="
 .gitattributes
 CMakeLists.txt
