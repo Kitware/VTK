@@ -47,10 +47,18 @@ Finally, for wgsl, the spec does a good job https://www.w3.org/TR/WGSL/
 
 ## How to build VTK with Dawn (Highly experimental)
 
+Things you'll need:
+  1. git
+  2. [depot_tools](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up)
+  3. [SDL2](https://github.com/libsdl-org/SDL/releases/tag/release-2.26.5)
+
 This module uses Dawn-C++ WebGPU implementation when VTK is built outside emscripten. First grab [Dawn](https://dawn.googlesource.com/dawn/) and follow their
 build instructions using `gn`, not CMake.
 
 Dawn uses the Chromium build system and dependency management so you need to install [depot_tools](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up) and add it to the PATH.
+
+As of now, this module uses the SDL2 render window and interactor for desktop. SDL 2.0.18 or higher is recommended. Ubuntu 20.04
+ships with SDL 2.0.10. If you're on Ubuntu 20.04, please build SDL2 from source [SDL2 build on linux](https://wiki.libsdl.org/SDL2/Installation#linuxunix) or grab a release from [SDL/releases](https://github.com/libsdl-org/SDL/releases/tag/release-2.26.5)
 
 ```sh
 # Clone the repo as "dawn"

@@ -38,11 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 #endif
-#ifdef __EMSCRIPTEN__
 #include "SDL.h" // for ivar
-#else
-#include "SDL2/SDL.h" // for ivar
-#endif
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif

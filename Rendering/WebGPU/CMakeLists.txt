@@ -254,8 +254,8 @@ else()
     "${DAWN_GEN_SRC_DIR}/dawn/dawn_proc.c"
   )
   vtk_module_link(VTK::RenderingWebGPU
-    PUBLIC
-      SDL2
+    PRIVATE
+      SDL2::SDL2
       ${DAWN_LIBRARIES}
   )
   vtk_module_include(VTK::RenderingWebGPU
