@@ -3,7 +3,7 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[el7_mindeps_python_qt]"
+            "buildname": "[el7_mindeps_python_qt5]"
         },
         {
             "group": "master",

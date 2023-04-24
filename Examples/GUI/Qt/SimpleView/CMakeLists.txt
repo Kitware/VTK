@@ -13,9 +13,9 @@ if (NOT VTK_FOUND)
   return ()
 endif ()
 
-find_package(Qt5 COMPONENTS Widgets Gui)
-if (NOT TARGET Qt5::Widgets OR NOT TARGET Qt5::Gui)
-  message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
+find_package("Qt${VTK_QT_VERSION}" COMPONENTS Widgets Gui)
+if (NOT TARGET "Qt${VTK_QT_VERSION}::Widgets" OR NOT TARGET "Qt${VTK_QT_VERSION}::Gui")
+  message("Skipping example: ${Qt${VTK_QT_VERSION}_NOT_FOUND_MESSAGE}")
   return ()
 endif ()
 
@@ -47,5 +47,5 @@ add_executable(SimpleView MACOSX_BUNDLE
 target_link_libraries(SimpleView
   PRIVATE
     ${VTK_LIBRARIES}
-    Qt5::Gui
-    Qt5::Widgets)
+    "Qt${VTK_QT_VERSION}::Gui"
+    "Qt${VTK_QT_VERSION}::Widgets")

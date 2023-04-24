@@ -35,6 +35,20 @@
 #include <string>
 #include <vector>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#define vtk_qSqlFieldMetaType(sqlfield) sqlfield.type()
+#define vtk_qVariantType(variant) variant.type()
+#define vtk_qMetaType(name) QVariant::name
+#define vtk_qMetaType_Q(name) vtk_qMetaType(name)
+#define vtk_qMetaType_UnknownType vtk_qMetaType(Invalid)
+#else
+#define vtk_qSqlFieldMetaType(sqlfield) static_cast<QMetaType::Type>(sqlfield.metaType().id())
+#define vtk_qVariantType(variant) variant.typeId()
+#define vtk_qMetaType(name) QMetaType::name
+#define vtk_qMetaType_Q(name) vtk_qMetaType(Q##name)
+#define vtk_qMetaType_UnknownType vtk_qMetaType(UnknownType)
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkQtSQLQueryInternals
 {
@@ -116,44 +130,44 @@ const char* vtkQtSQLQuery::GetFieldName(int col)
   return this->Internals->FieldNames[col].c_str();
 }
 
-int QVariantTypeToVTKType(QVariant::Type t)
+int QVariantTypeToVTKType(vtk_qMetaType(Type) t)
 {
   int type = -1;
   switch (t)
   {
-    case QVariant::Bool:
+    case vtk_qMetaType(Bool):
       type = VTK_INT;
       break;
-    case QVariant::Char:
+    case vtk_qMetaType(Char):
       type = VTK_CHAR;
       break;
-    case QVariant::DateTime:
-    case QVariant::Date:
-    case QVariant::Time:
+    case vtk_qMetaType_Q(DateTime):
+    case vtk_qMetaType_Q(Date):
+    case vtk_qMetaType_Q(Time):
       type = VTK_TYPE_UINT64;
       break;
-    case QVariant::Double:
+    case vtk_qMetaType(Double):
       type = VTK_DOUBLE;
       break;
-    case QVariant::Int:
+    case vtk_qMetaType(Int):
       type = VTK_INT;
       break;
-    case QVariant::UInt:
+    case vtk_qMetaType(UInt):
       type = VTK_UNSIGNED_INT;
       break;
-    case QVariant::LongLong:
+    case vtk_qMetaType(LongLong):
       type = VTK_TYPE_INT64;
       break;
-    case QVariant::ULongLong:
+    case vtk_qMetaType(ULongLong):
       type = VTK_TYPE_UINT64;
       break;
-    case QVariant::String:
+    case vtk_qMetaType_Q(String):
       type = VTK_STRING;
       break;
-    case QVariant::ByteArray:
+    case vtk_qMetaType_Q(ByteArray):
       type = VTK_STRING;
       break;
-    case QVariant::Invalid:
+    case vtk_qMetaType_UnknownType:
     default:
       cerr << "Found unknown variant type: " << t << endl;
       type = -1;
@@ -163,7 +177,7 @@ int QVariantTypeToVTKType(QVariant::Type t)
 
 int vtkQtSQLQuery::GetFieldType(int col)
 {
-  return QVariantTypeToVTKType(this->Internals->QtQuery.record().field(col).type());
+  return QVariantTypeToVTKType(vtk_qSqlFieldMetaType(this->Internals->QtQuery.record().field(col)));
 }
 
 bool vtkQtSQLQuery::NextRow()
@@ -174,53 +188,53 @@ bool vtkQtSQLQuery::NextRow()
 vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
 {
   QVariant v = this->Internals->QtQuery.value(c);
-  switch (v.type())
+  switch (vtk_qVariantType(v))
   {
-    case QVariant::Bool:
+    case vtk_qMetaType(Bool):
       return vtkVariant(v.toInt());
-    case QVariant::Char:
+    case vtk_qMetaType(Char):
       return vtkVariant(v.toChar().toLatin1());
-    case QVariant::DateTime:
+    case vtk_qMetaType_Q(DateTime):
     {
       QDateTime dt = v.toDateTime();
       vtkTypeUInt64 timePoint = vtkQtTimePointUtility::QDateTimeToTimePoint(dt);
       return vtkVariant(timePoint);
     }
-    case QVariant::Date:
+    case vtk_qMetaType_Q(Date):
     {
       QDate date = v.toDate();
       vtkTypeUInt64 timePoint = vtkQtTimePointUtility::QDateToTimePoint(date);
       return vtkVariant(timePoint);
     }
-    case QVariant::Time:
+    case vtk_qMetaType_Q(Time):
     {
       QTime time = v.toTime();
       vtkTypeUInt64 timePoint = vtkQtTimePointUtility::QTimeToTimePoint(time);
       return vtkVariant(timePoint);
     }
-    case QVariant::Double:
+    case vtk_qMetaType(Double):
       return vtkVariant(v.toDouble());
-    case QVariant::Int:
+    case vtk_qMetaType(Int):
       return vtkVariant(v.toInt());
-    case QVariant::LongLong:
+    case vtk_qMetaType(LongLong):
       return vtkVariant(v.toLongLong());
-    case QVariant::String:
+    case vtk_qMetaType_Q(String):
       return vtkVariant(v.toString().toUtf8().data());
-    case QVariant::UInt:
+    case vtk_qMetaType(UInt):
       return vtkVariant(v.toUInt());
-    case QVariant::ULongLong:
+    case vtk_qMetaType(ULongLong):
       return vtkVariant(v.toULongLong());
-    case QVariant::ByteArray:
+    case vtk_qMetaType_Q(ByteArray):
     {
       // Carefully storing BLOBs as vtkStrings. This
       // avoids the normal termination problems with
       // zero's in the BLOBs...
       return vtkVariant(std::string(v.toByteArray().data(), v.toByteArray().length()));
     }
-    case QVariant::Invalid:
+    case vtk_qMetaType_UnknownType:
       return vtkVariant();
     default:
-      vtkErrorMacro(<< "Unhandled Qt variant type " << v.type()
+      vtkErrorMacro(<< "Unhandled Qt variant type " << vtk_qVariantType(v)
                     << " found; returning string variant.");
       return vtkVariant(v.toString().toUtf8().data());
   }

@@ -19,9 +19,13 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf install -y --setopt=install_weak_deps=False \
     openmpi-devel mpich-devel
 
-# Qt dependencies
+# Qt5 dependencies
 dnf install -y --setopt=install_weak_deps=False \
     qt5-qtbase-devel qt5-qttools-devel qt5-qtquickcontrols2-devel
+
+# Qt6 dependencies
+dnf install -y --setopt=install_weak_deps=False \
+    qt6-qtbase-devel qt6-qttools-devel qt6-qtquickcontrols2-devel
 
 # Mesa dependencies
 dnf install -y --setopt=install_weak_deps=False \

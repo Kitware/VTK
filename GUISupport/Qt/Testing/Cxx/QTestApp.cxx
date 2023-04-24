@@ -133,33 +133,33 @@ void QTestApp::keyClick(QWidget* w, Qt::Key key, Qt::KeyboardModifiers mod, int 
 }
 
 void QTestApp::mouseDown(
-  QWidget* w, QPoint pos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms)
+  QWidget* w, QPoint pos, QPoint screenpos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms)
 {
   delay(ms);
-  QMouseEvent e(QEvent::MouseButtonPress, pos, btn, btn, mod);
+  QMouseEvent e(QEvent::MouseButtonPress, pos, screenpos, btn, btn, mod);
   simulateEvent(w, &e);
 }
 
 void QTestApp::mouseUp(
-  QWidget* w, QPoint pos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms)
+  QWidget* w, QPoint pos, QPoint screenpos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms)
 {
   delay(ms);
-  QMouseEvent e(QEvent::MouseButtonRelease, pos, btn, btn, mod);
+  QMouseEvent e(QEvent::MouseButtonRelease, pos, screenpos, btn, btn, mod);
   simulateEvent(w, &e);
 }
 
 void QTestApp::mouseMove(
-  QWidget* w, QPoint pos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms)
+  QWidget* w, QPoint pos, QPoint screenpos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms)
 {
   delay(ms);
-  QMouseEvent e(QEvent::MouseMove, pos, btn, btn, mod);
+  QMouseEvent e(QEvent::MouseMove, pos, screenpos, btn, btn, mod);
   simulateEvent(w, &e);
 }
 
 void QTestApp::mouseClick(
-  QWidget* w, QPoint pos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms)
+  QWidget* w, QPoint pos, QPoint screenpos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms)
 {
   delay(ms);
-  mouseDown(w, pos, btn, mod, 0);
-  mouseUp(w, pos, btn, mod, 0);
+  mouseDown(w, pos, screenpos, btn, mod, 0);
+  mouseUp(w, pos, screenpos, btn, mod, 0);
 }

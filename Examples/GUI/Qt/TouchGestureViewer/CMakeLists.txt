@@ -16,9 +16,9 @@ if (NOT VTK_FOUND)
   return ()
 endif ()
 
-find_package(Qt5 COMPONENTS Widgets)
-if (NOT TARGET Qt5::Widgets)
-  message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
+find_package(Qt${VTK_QT_VERSION} COMPONENTS Widgets)
+if (NOT TARGET Qt${VTK_QT_VERSION}::Widgets)
+  message("Skipping example: ${Qt${VTK_QT_VERSION}_NOT_FOUND_MESSAGE}")
   return ()
 endif ()
 
@@ -42,14 +42,12 @@ include_directories(
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-# CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
-qt5_wrap_ui(UI_Srcs ${UIs})
 add_executable(QtVTKTouchscreenRenderWindows
-  ${Srcs} ${Hdrs} ${UI_Srcs})
+  ${Srcs} ${Hdrs} ${UIs})
 target_link_libraries(QtVTKTouchscreenRenderWindows
   PRIVATE
     ${VTK_LIBRARIES}
-    Qt5::Widgets)
+    "Qt${VTK_QT_VERSION}::Widgets")
 vtk_module_autoinit(
   TARGETS QtVTKTouchscreenRenderWindows
   MODULES ${VTK_LIBRARIES})
