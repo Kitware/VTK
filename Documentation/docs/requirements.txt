@@ -1,0 +1,4 @@
+furo
+myst-parser[linkify]
+pygments
+sphinx
