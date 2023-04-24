@@ -15,7 +15,7 @@ modules, porting involves a few changes to the way VTK is found and used.
 
 The old module system made variables available for using VTK.
 
-~~~{.cmake}
+```cmake
 find_package(VTK
   REQUIRED
   COMPONENTS
@@ -29,12 +29,12 @@ target_include_directories(usesvtk ${visibility} ${VTK_INCLUDE_DIRS})
 
 # Pass any VTK autoinit defines to the target.
 target_compile_definitions(usesvtk PRIVATE ${VTK_DEFINITIONS})
-~~~
+```
 
 This causes problems if VTK is found multiple times within a source tree with
 different components. The new pattern is:
 
-~~~{.cmake}
+```cmake
 find_package(VTK
   #9.0 # Compatibility support is not provided if 9.0 is requested.
   REQUIRED
@@ -61,7 +61,7 @@ vtk_module_autoinit(
   TARGETS usesvtk
   #MODULES ${VTK_LIBRARIES} # Again, works, but is not recommended.
   MODULES VTK::CommonCore VTK::RenderingOpenGL2)
-~~~
+```
 
 ## Module declaration
 
@@ -71,7 +71,7 @@ module dependencies to be hard to follow. The new module system now provides
 facilities for disabling modules in certain configurations (using `CONDITION`)
 and for optionally depending on modules (using `OPTIONAL_DEPENDS`).
 
-~~~{.cmake}
+```cmake
 if (NOT SOME_OPTION)
   set(depends)
   if (SOME_OTHER_OPTION)
@@ -102,13 +102,13 @@ if (NOT SOME_OPTION)
       # present for modules which cannot be wrapped
   )
 endif ()
-~~~
+```
 
 This is now replaced with a declarative file named `vtk.module`. This file is
 not CMake code and is instead parsed as an argument list in CMake (variable
 expansions are also not allowed). The above example would translate into:
 
-~~~{.cmake}
+```cmake
 MODULE
   vtkModuleName
 CONDITION
@@ -136,7 +136,7 @@ TEST_OPTIONAL_DEPENDS
   vtkSomeDep
 #EXCLUDE_WRAP
   # present for modules which cannot be wrapped
-~~~
+```
 
 Modules may also now be provided by the current project or by an external
 project found by `find_package` as well.
@@ -172,7 +172,7 @@ In this example, we have a module with the following sources:
 
 The old module's way of building these sources is:
 
-~~~{.cmake}
+```cmake
 set(Module_SRCS
   vtkPublicClass.cxx
   vtkPrivateClass.cxx
@@ -221,12 +221,12 @@ if (Module_vtkSomeDep)
 endif ()
 
 vtk_module_library(vtkModuleName ${Module_SRCS})
-~~~
+```
 
 While with the new system, source files are explicitly declared using argument
 parsing.
 
-~~~{.cmake}
+```cmake
 set(classes
   vtkPublicClass)
 set(private_classes
@@ -292,7 +292,7 @@ vtk_module_add_module(vtkModuleName
   # VTK's conventions), but are not for use outside the module.
   PRIVATE_TEMPLATES ${private_templates}
 )
-~~~
+```
 
 Note that the arguments with `CLASSES` in their name expand to pairs of files
 with the `.h` and either `.cxx` or `.txx` extension based on whether it is a
@@ -305,7 +305,7 @@ Previously, object factories were made using implicit variable declaration magic
 behind the scenes. This is no longer the case and proper CMake APIs for them are
 available.
 
-~~~{.cmake}
+```cmake
 set(sources
   vtkObjectFactoryImpl.cxx
   # This path is made by `vtk_object_factory_configure` later.
@@ -319,11 +319,11 @@ set(vtk_module_vtkObjectFactoryBase_override "vtkObjectFactoryImpl")
 vtk_object_factory_configure("${overrides}")
 
 vtk_module_library("${vtk-module}" "${sources}")
-~~~
+```
 
 This is now handled using proper APIs instead of variable lookups.
 
-~~~{.cmake}
+```cmake
 set(classes
   vtkObjectFactoryImpl)
 
@@ -345,7 +345,7 @@ vtk_module_add_module(vtkModuleName
   CLASSES ${classes}
   SOURCES "${factory_source}"
   PRIVATE_HEADERS "${factory_header}")
-~~~
+```
 
 ## Building a group of modules
 

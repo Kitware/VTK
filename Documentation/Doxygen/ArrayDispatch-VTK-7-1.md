@@ -45,7 +45,7 @@ actual ValueType. For instance, we can write a simple function that computes
 the magnitudes for a set of vectors in one array and store the results in
 another using nothing but the typeless `vtkDataArray` API:
 
-~~~{.cpp}
+```cpp
 // 3 component magnitude calculation using the vtkDataArray API.
 // Inefficient, but easy to write:
 void calcMagnitude(vtkDataArray *vectors, vtkDataArray *magnitude)
@@ -64,7 +64,7 @@ void calcMagnitude(vtkDataArray *vectors, vtkDataArray *magnitude)
                 vectors->GetComponent(tupleIdx, 2));
     }
 }
-~~~
+```
 
 ## The Costs of Flexiblity ## {#VTKAD-TheCostsOfFlexiblity}
 
@@ -108,22 +108,22 @@ etc, and stores the tuples in memory as a contiguous array-of-structs (AOS).
 For example, if we had an array that stored 3-component tuples as floating
 point numbers, we could define a tuple as:
 
-~~~{.cpp}
+```cpp
 struct Tuple { float x; float y; float z; };
-~~~
+```
 
 An array-of-structs, or AOS, memory buffer containing this data could be
 described as:
 
-~~~{.cpp}
+```cpp
 Tuple ArrayOfStructsBuffer[NumTuples];
-~~~
+```
 
 As a result, `ArrayOfStructsBuffer` will have the following memory layout:
 
-~~~{.cpp}
+```cpp
 { x1, y1, z1, x2, y2, z2, x3, y3, z3, ...}
-~~~
+```
 
 That is, the components of each tuple are stored in adjacent memory locations,
 one tuple after another. While this is not exactly how `vtkDataArrayTemplate`
@@ -142,7 +142,7 @@ tin: it returns the memory address for the array data's base location as a
 more pedantic among us, the following technique was safe and efficient when
 used correctly:
 
-~~~{.cpp}
+```cpp
 // 3-component magnitude calculation using GetVoidPointer.
 // Efficient and fast, but assumes AOS memory layout
 template <typename ValueType>
@@ -176,7 +176,7 @@ void calcMagnitude(vtkDataArray *vectors, vtkDataArray *magnitude)
       vectors->GetNumberOfTuples());
     }
 }
-~~~
+```
 
 The `vtkTemplateMacro`, as you may have guessed, expands into a series of case
 statements that determine an array's ValueType from the `int GetDataType()`
@@ -205,7 +205,7 @@ The best solution prior to VTK 7.1 was to use two worker functions. The first
 is templated on vector's ValueType, and the second is templated on both array
 ValueTypes:
 
-~~~{.cpp}
+```cpp
 // 3-component magnitude calculation using GetVoidPointer and a
 // double-dispatch to resolve ValueTypes of both arrays.
 // Efficient and fast, but assumes AOS memory layout, lots of boilerplate
@@ -251,7 +251,7 @@ void calcMagnitude(vtkDataArray *vectors, vtkDataArray *magnitude)
       magnitude, vectors->GetNumberOfTuples());
     }
 }
-~~~
+```
 
 This works well, but it's a bit ugly and has the same issue as before regarding
 memory layout. Double dispatches using this method will also see more problems
@@ -274,14 +274,14 @@ Struct-Of-Arrays (SOA) memory layout is now available through the
 `vtkSOADataArrayTemplate` class. The SOA layout assumes that the components of
 an array are stored separately, as in:
 
-~~~{.cpp}
+```cpp
 struct StructOfArraysBuffer
 {
   float *x; // Pointer to array containing x components
   float *y; // Same for y
   float *z; // Same for z
 };
-~~~
+```
 
 The new SOA arrays were added to improve interoperability between VTK and
 simulation packages for live visualization of in-situ results. Many simulations
@@ -324,7 +324,7 @@ provide optimization hints.
 These will be discussed more fully, but as a preview, here's our familiar
 `calcMagnitude` example implemented using these new tools:
 
-~~~{.cpp}
+```cpp
 // Modern implementation of calcMagnitude using new concepts in VTK 7.1:
 // A worker functor. The calculation is implemented in the function template
 // for operator().
@@ -383,7 +383,7 @@ void calcMagnitude(vtkDataArray *vectors, vtkDataArray *magnitude)
     worker(vectors, magnitude);
     }
 }
-~~~
+```
 
 # vtkGenericDataArray # {#VTKAD-vtkGenericDataArray}
 
@@ -411,7 +411,7 @@ instantiations by enforcing constraints on the arrays used to dispatch. For
 instance, if one wanted to only generate templated worker implementations for
 `vtkFloatArray` and `vtkIntArray`, a typelist is used to specify this:
 
-~~~{.cpp}
+```cpp
 // Create a typelist of 2 types, vtkFloatArray and vtkIntArray:
 typedef vtkTypeList::Create<vtkFloatArray, vtkIntArray> MyArrays;
 
@@ -420,7 +420,7 @@ vtkDataArray *someArray = ...;
 
 // Use vtkArrayDispatch to generate code paths for these arrays:
 vtkArrayDispatch::DispatchByArray<MyArrays>(someArray, someWorker);
-~~~
+```
 
 There's not much to know about type lists as a user, other than how to create
 them. As seen above, there is a set of macros named `vtkTypeList::Create<...>`,
@@ -465,7 +465,7 @@ return `NULL` if the object is not the requested type. Say we have a
 `vtkDataArray` and want to test if it is actually a `vtkFloatArray`. We can do
 this:
 
-~~~{.cpp}
+```cpp
 void DoSomeAction(vtkDataArray *dataArray)
 {
   vtkFloatArray *floatArray = vtkFloatArray::SafeDownCast(dataArray);
@@ -474,7 +474,7 @@ void DoSomeAction(vtkDataArray *dataArray)
     // ... (do work with float array)
     }
 }
-~~~
+```
 
 This works, but it can pose a serious problem if `DoSomeAction` is called
 repeatedly. `SafeDownCast` works by performing a series of virtual calls and
@@ -493,7 +493,7 @@ all array implementations support the `FastDownCast` method.
 
 This creates a headache for templated code. Take the following example:
 
-~~~{.cpp}
+```cpp
 template <typename ArrayType>
 void DoSomeAction(vtkAbstractArray *array)
 {
@@ -503,13 +503,13 @@ void DoSomeAction(vtkAbstractArray *array)
     // ... (do work with myArray)
     }
 }
-~~~
+```
 
 We cannot use `FastDownCast` here since not all possible ArrayTypes support it.
 But we really want that performance increase for the ones that do --
 `SafeDownCast`s are really slow! `vtkArrayDownCast` fixes this issue:
 
-~~~{.cpp}
+```cpp
 template <typename ArrayType>
 void DoSomeAction(vtkAbstractArray *array)
 {
@@ -519,7 +519,7 @@ void DoSomeAction(vtkAbstractArray *array)
     // ... (do work with myArray)
     }
 }
-~~~
+```
 
 `vtkArrayDownCast` automatically selects `FastDownCast` when it is defined for
 the ArrayType, and otherwise falls back to `SafeDownCast`. This is the
@@ -531,7 +531,7 @@ Array dispatching relies on having templated worker code carry out some
 operation. For instance, take this `vtkArrayDispatch` code that locates the
 maximum value in an array:
 
-~~~{.cpp}
+```cpp
 // Stores the tuple/component coordinates of the maximum value:
 struct FindMax
 {
@@ -573,7 +573,7 @@ void someFunction(vtkDataArray *array)
   vtkArrayDispatch::Dispatch::Execute(array, maxWorker);
   // Do work using maxWorker.Tuple and maxWorker.Component...
 }
-~~~
+```
 
 There's a problem, though. Recall that only the arrays in
 `vtkArrayDispatch::Arrays` are tested for dispatching. What happens if the
@@ -587,7 +587,7 @@ the `vtkDataArray` API and do things the slow way in that case. When a
 dispatcher is given an unsupported array, Execute() returns false, so let's
 just add a backup implementation:
 
-~~~{.cpp}
+```cpp
 // Stores the tuple/component coordinates of the maximum value:
 struct FindMax
 { /* As before... */ };
@@ -602,7 +602,7 @@ void someFunction(vtkDataArray *array)
     // "ValueType GetTypedComponent()" from vtkGenericDataArray.
     }
 }
-~~~
+```
 
 Ok, that works. But ugh...why write the same algorithm twice? That's extra
 debugging, extra testing, extra maintenance burden, and just plain not fun.
@@ -626,7 +626,7 @@ Using `vtkDataArrayAccessor`, we can write a single worker template that works
 for both `vtkDataArray` and `vtkGenericDataArray`, without a loss of
 performance in the latter case. That worker looks like this:
 
-~~~{.cpp}
+```cpp
 // Better, uses vtkDataArrayAccessor:
 struct FindMax
 {
@@ -668,7 +668,7 @@ struct FindMax
       }
   }
 };
-~~~
+```
 
 Now when we call `operator()` with say, `ArrayT=vtkFloatArray`, we'll get an
 optimized, efficient code path. But we can also call this same implementation
@@ -677,7 +677,7 @@ with `ArrayT=vtkDataArray` and still get a correct result (assuming that the
 
 Using the `vtkDataArray` fallback path is straightforward. At the call site:
 
-~~~{.cpp}
+```cpp
 void someFunction(vtkDataArray *array)
 {
   FindMax maxWorker;
@@ -688,7 +688,7 @@ void someFunction(vtkDataArray *array)
   // Do work using maxWorker.Tuple and maxWorker.Component -- now we know
   // for sure that they're initialized!
 }
-~~~
+```
 
 Using the above pattern for calling a worker and always going through
 `vtkDataArrayAccessor` to `Get`/`Set` array elements ensures that any worker
@@ -711,14 +711,14 @@ pointer implementation initially outperformed the dispatched array. To
 understand why, note that the AOS implementation of `GetTypedComponent` is along
 the lines of:
 
-~~~{.cpp}
+```cpp
 ValueType vtkAOSDataArrayTemplate::GetTypedComponent(vtkIdType tuple,
                                                      int comp) const
 {
   // AOSData is a ValueType* pointing at the base of the array data.
   return this->AOSData[tuple * this->NumberOfComponents + comp];
 }
-~~~
+```
 
 Because `NumberOfComponents` is unknown at compile time, the optimizer cannot
 assume anything about the stride of the components in the array. This leads to
@@ -739,9 +739,9 @@ But if we're writing a filter that only operates on 3D point sets, we know the
 number of components in the point array will always be 3. In this case we can
 write:
 
-~~~{.cpp}
+```cpp
 VTK_ASSUME(pointsArray->GetNumberOfComponents() == 3);
-~~~
+```
 
 in the worker function and this instructs the compiler that the array's
 internal `NumberOfComponents` variable will always be 3, and thus the stride of
@@ -786,7 +786,7 @@ callable. This should be a function template with a template parameter for each
 array it should handle. For a three array dispatch, it should look something
 like this:
 
-~~~{.cpp}
+```cpp
 struct ThreeArrayWorker
 {
   template <typename Array1T, typename Array2T, typename Array3T>
@@ -795,7 +795,7 @@ struct ThreeArrayWorker
   /* Do stuff... */
   }
 };
-~~~
+```
 
 At runtime, the dispatcher will call `ThreeWayWorker::operator()` with a set of
 `Array1T`, `Array2T`, and `Array3T` that satisfy any dispatch restrictions.
@@ -804,7 +804,7 @@ Workers can be stateful, too, as seen in the `FindMax` worker earlier where the
 worker simply identified the component and tuple id of the largest value in the
 array. The functor stored them for the caller to use in further analysis:
 
-~~~{.cpp}
+```cpp
 // Example of a stateful dispatch functor:
 struct FindMax
 {
@@ -822,7 +822,7 @@ struct FindMax
     /* Do stuff... */
   }
 };
-~~~
+```
 
 ### The Dispatcher ### {#VTKAD-TheDispatcher}
 
@@ -910,9 +910,9 @@ restrictions.
 
 __Example Usage__:
 
-~~~{.cpp}
+```cpp
 vtkArrayDispatch::Dispatch::Execute(array, worker);
-~~~
+```
 
 ---
 
@@ -945,7 +945,7 @@ of `vtkArrayDispatch::Arrays` for its type. However, we know the output array
 is either `vtkDoubleArray` or `vtkFloatArray`, so we'll want to be sure to
 apply that restriction:
 
-~~~{.cpp}
+```cpp
 // input has an unknown implementation, but an integral ValueType.
 vtkDataArray *input = ...;
 
@@ -973,7 +973,7 @@ typedef vtkArrayDispatch::Dispatch2ByArray
 
 // Execute the dispatch:
 MyDispatch::Execute(input, output, someWorker);
-~~~
+```
 
 ---
 
@@ -1004,7 +1004,7 @@ complete unknown. The second is known to hold `unsigned char`, but we don't
 know the implementation. The third holds either `double`s or `float`s, but its
 implementation is also unknown.
 
-~~~{.cpp}
+```cpp
 // Complete unknown:
 vtkDataArray *array1 = ...;
 // Some array holding unsigned chars:
@@ -1022,7 +1022,7 @@ typedef vtkArrayDispatch::Dispatch3ByValueType
 
 // Execute the dispatch:
 MyDispatch::Execute(array1, array2, array3, someWorker);
-~~~
+```
 
 ---
 
@@ -1053,7 +1053,7 @@ common array types (AOS `float`, `double`, `int`, and `vtkIdType` arrays), and
 the other is a complete unknown, although we know that it holds the same
 ValueType as `array1`.
 
-~~~{.cpp}
+```cpp
 // AOS float, double, int, or vtkIdType array:
 vtkDataArray *array1 = ...;
 // Unknown implementation, but the ValueType matches array1:
@@ -1079,7 +1079,7 @@ typedef vtkArrayDispatch::Dispatch2ByArrayWithSameValueType
 
 // Execute the dispatch:
 MyDispatch::Execute(array1, array2, someWorker);
-~~~
+```
 
 ---
 
@@ -1114,7 +1114,7 @@ Let's consider a double array dispatch, with `array1` known to be one of four
 common ValueTypes (`float`, `double`, `int`, and `vtkIdType` arrays), and
 `array2` known to have the same ValueType as `array1`.
 
-~~~{.cpp}
+```cpp
 // Some float, double, int, or vtkIdType array:
 vtkDataArray *array1 = ...;
 // Unknown, but the ValueType matches array1:
@@ -1131,7 +1131,7 @@ typedef vtkArrayDispatch::Dispatch2BySameValueType
 
 // Execute the dispatch:
 MyDispatch::Execute(array1, array2, someWorker);
-~~~
+```
 
 ---
 
@@ -1148,7 +1148,7 @@ implementations are used, but has optimized overloads for copying between
 arrays with the same ValueType and implementation. The worker for this dispatch
 is shown below as an example:
 
-~~~{.cpp}
+```cpp
 // Copy tuples from src to dest:
 struct DeepCopyWorker
 {
@@ -1197,7 +1197,7 @@ struct DeepCopyWorker
       }
   }
 };
-~~~
+```
 
 # Putting It All Together # {#VTKAD-PuttingItAllTogether}
 
@@ -1206,7 +1206,7 @@ efficient, implementation agnostic array access, let's take another look at the
 `calcMagnitude` example from before and identify the key features of the
 implementation:
 
-~~~{.cpp}
+```cpp
 // Modern implementation of calcMagnitude using new concepts in VTK 7.1:
 struct CalcMagnitudeWorker
 {
@@ -1243,7 +1243,7 @@ void calcMagnitude(vtkDataArray *vectors, vtkDataArray *magnitude)
     worker(vectors, magnitude); // vtkDataArray fallback
     }
 }
-~~~
+```
 
 This implementation:
 
