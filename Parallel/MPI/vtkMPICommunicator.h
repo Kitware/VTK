@@ -119,9 +119,21 @@ public:
     const unsigned char* data, int length, int remoteProcessId, int tag, Request& req);
   int NoBlockSend(const float* data, int length, int remoteProcessId, int tag, Request& req);
   int NoBlockSend(const double* data, int length, int remoteProcessId, int tag, Request& req);
-#ifdef VTK_USE_64BIT_IDS
-  int NoBlockSend(const vtkIdType* data, int length, int remoteProcessId, int tag, Request& req);
-#endif
+  int NoBlockSend(const vtkTypeInt64* data, int length, int remoteProcessId, int tag, Request& req);
+
+  int NoBlockSend(const int* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(
+    const unsigned long* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(
+    const char* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(
+    const unsigned char* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(
+    const float* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(
+    const double* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(
+    const vtkTypeInt64* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
   ///@}
 
   ///@{
@@ -138,9 +150,18 @@ public:
   int NoBlockReceive(unsigned char* data, int length, int remoteProcessId, int tag, Request& req);
   int NoBlockReceive(float* data, int length, int remoteProcessId, int tag, Request& req);
   int NoBlockReceive(double* data, int length, int remoteProcessId, int tag, Request& req);
-#ifdef VTK_USE_64BIT_IDS
-  int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId, int tag, Request& req);
-#endif
+  int NoBlockReceive(vtkTypeInt64* data, int length, int remoteProcessId, int tag, Request& req);
+
+  int NoBlockReceive(int* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(
+    unsigned long* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(char* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(
+    unsigned char* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(float* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(double* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(
+    vtkTypeInt64* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
   ///@}
 
   ///@{
@@ -189,6 +210,14 @@ public:
   int Iprobe(int source, int tag, int* flag, int* actualSource, const char* type, int* size);
   int Iprobe(int source, int tag, int* flag, int* actualSource, float* type, int* size);
   int Iprobe(int source, int tag, int* flag, int* actualSource, double* type, int* size);
+
+  int Iprobe(int source, int tag, int* flag, int* actualSource, int* type, vtkTypeInt64* size);
+  int Iprobe(
+    int source, int tag, int* flag, int* actualSource, unsigned long* type, vtkTypeInt64* size);
+  int Iprobe(
+    int source, int tag, int* flag, int* actualSource, const char* type, vtkTypeInt64* size);
+  int Iprobe(int source, int tag, int* flag, int* actualSource, float* type, vtkTypeInt64* size);
+  int Iprobe(int source, int tag, int* flag, int* actualSource, double* type, vtkTypeInt64* size);
   ///@}
 
   /**
@@ -299,11 +328,16 @@ protected:
    */
   void Duplicate(vtkMPICommunicator* source);
 
+  ///@{
   /**
    * Implementation for receive data.
    */
   virtual int ReceiveDataInternal(char* data, int length, int sizeoftype, int remoteProcessId,
     int tag, vtkMPICommunicatorReceiveDataInfo* info, int useCopy, int& senderId);
+  virtual int ReceiveDataInternal(char* data, vtkTypeInt64 length, int sizeoftype,
+    int remoteProcessId, int tag, vtkMPICommunicatorReceiveDataInfo* info, int useCopy,
+    int& senderId);
+  ///@}
 
   vtkMPICommunicatorOpaqueComm* MPIComm;
 
