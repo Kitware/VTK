@@ -25,19 +25,21 @@ cdef import from *:
     ctypedef MPI_Offset Offset "MPI_Offset"
     ctypedef MPI_Count  Count  "MPI_Count"
 
-ctypedef public api class Status [
-    type   PyMPIStatus_Type,
-    object PyMPIStatusObject,
-    ]:
-    cdef MPI_Status ob_mpi
-    cdef unsigned   flags
-
 ctypedef public api class Datatype [
     type   PyMPIDatatype_Type,
     object PyMPIDatatypeObject,
     ]:
     cdef MPI_Datatype ob_mpi
     cdef unsigned     flags
+    cdef object     __weakref__
+
+ctypedef public api class Status [
+    type   PyMPIStatus_Type,
+    object PyMPIStatusObject,
+    ]:
+    cdef MPI_Status ob_mpi
+    cdef unsigned   flags
+    cdef object   __weakref__
 
 ctypedef public api class Request [
     type   PyMPIRequest_Type,
@@ -45,6 +47,7 @@ ctypedef public api class Request [
     ]:
     cdef MPI_Request ob_mpi
     cdef unsigned    flags
+    cdef object    __weakref__
     cdef object      ob_buf
 
 ctypedef public api class Prequest(Request) [
@@ -65,6 +68,7 @@ ctypedef public api class Message [
     ]:
     cdef MPI_Message ob_mpi
     cdef unsigned    flags
+    cdef object    __weakref__
     cdef object      ob_buf
 
 ctypedef public api class Op [
@@ -73,6 +77,7 @@ ctypedef public api class Op [
     ]:
     cdef MPI_Op   ob_mpi
     cdef unsigned flags
+    cdef object __weakref__
     cdef object   (*ob_func)(object, object)
     cdef int      ob_usrid
 
@@ -82,6 +87,7 @@ ctypedef public api class Group [
     ]:
     cdef MPI_Group ob_mpi
     cdef unsigned  flags
+    cdef object  __weakref__
 
 ctypedef public api class Info [
     type   PyMPIInfo_Type,
@@ -89,6 +95,7 @@ ctypedef public api class Info [
     ]:
     cdef MPI_Info ob_mpi
     cdef unsigned flags
+    cdef object __weakref__
 
 ctypedef public api class Errhandler [
     type   PyMPIErrhandler_Type,
@@ -96,6 +103,7 @@ ctypedef public api class Errhandler [
     ]:
     cdef MPI_Errhandler ob_mpi
     cdef unsigned       flags
+    cdef object       __weakref__
 
 ctypedef public api class Comm [
     type   PyMPIComm_Type,
@@ -103,6 +111,7 @@ ctypedef public api class Comm [
     ]:
     cdef MPI_Comm ob_mpi
     cdef unsigned flags
+    cdef object __weakref__
 
 ctypedef public api class Intracomm(Comm) [
     type   PyMPIIntracomm_Type,
@@ -146,6 +155,7 @@ ctypedef public api class Win [
     ]:
     cdef MPI_Win  ob_mpi
     cdef unsigned flags
+    cdef object __weakref__
     cdef object   ob_mem
 
 ctypedef public api class File [
@@ -154,5 +164,6 @@ ctypedef public api class File [
     ]:
     cdef MPI_File ob_mpi
     cdef unsigned flags
+    cdef object __weakref__
 
 # --

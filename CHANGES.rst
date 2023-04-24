@@ -6,6 +6,103 @@ CHANGES: MPI for Python
 :Contact: dalcinl@gmail.com
 
 
+Release 3.1.4 [2022-11-02]
+==========================
+
+.. warning:: This is the last release supporting Python 2.
+
+* Rebuild C sources with Cython 0.29.32 to support Python 3.11.
+
+* Fix contiguity check for DLPack and CAI buffers.
+
+* Workaround build failures with setuptools v60.
+
+
+Release 3.1.3 [2021-11-25]
+==========================
+
+.. warning:: This is the last release supporting Python 2.
+
+* Add missing support for `MPI.BOTTOM` to generalized all-to-all collectives.
+
+
+Release 3.1.2 [2021-11-04]
+==========================
+
+.. warning:: This is the last release supporting Python 2.
+
+* `mpi4py.futures`: Add `_max_workers` property to `MPIPoolExecutor`.
+
+* `mpi4py.util.dtlib`: Fix computation of alignment for predefined datatypes.
+
+* `mpi4py.util.pkl5`: Fix deadlock when using ``ssend()`` + ``mprobe()``.
+
+* `mpi4py.util.pkl5`: Add environment variable `MPI4PY_PICKLE_THRESHOLD`.
+
+* `mpi4py.rc`: Interpret ``"y"`` and ``"n"`` strings as boolean values.
+
+* Fix/add typemap/typestr for `MPI.WCHAR`/`MPI.COUNT` datatypes.
+
+* Minor fixes and additions to documentation.
+
+* Minor fixes to typing support.
+
+* Support for local version identifier (PEP-440).
+
+
+Release 3.1.1 [2021-08-14]
+==========================
+
+.. warning:: This is the last release supporting Python 2.
+
+* Fix typo in Requires-Python package metadata.
+
+* Regenerate C sources with Cython 0.29.24.
+
+
+Release 3.1.0 [2021-08-12]
+==========================
+
+.. warning:: This is the last release supporting Python 2.
+
+* New features:
+
+  + `mpi4py.util`: New package collecting miscellaneous utilities.
+
+* Enhancements:
+
+  + Add pickle-based ``Request.waitsome()`` and ``Request.testsome()``.
+
+  + Add lowercase methods ``Request.get_status()`` and ``Request.cancel()``.
+
+  + Support for passing Python GPU arrays compliant with the `DLPack`_ data
+    interchange mechanism (`link <DIM_>`_) and the ``__cuda_array_interface__``
+    (CAI) standard (`link <CAI_>`_) to uppercase methods. This support requires
+    that mpi4py is built against `CUDA-aware MPI <CAM_>`_ implementations. This
+    feature is currently experimental and subject to future changes.
+
+  + `mpi4py.futures`: Add support for initializers and canceling futures at shutdown.
+    Environment variables names now follow the pattern ``MPI4PY_FUTURES_*``, the
+    previous ``MPI4PY_*`` names are deprecated.
+
+  + Add type annotations to Cython code. The first line of the docstring of functions
+    and methods displays a signature including type annotations.
+
+  + Add companion stub files to support type checkers.
+
+  + Support for weak references.
+
+* Miscellaneous:
+
+  + Add a new mpi4py publication (`link <DOI_>`_) to the citation listing.
+
+.. _DLPack: https://github.com/dmlc/dlpack
+.. _DIM: https://data-apis.org/array-api/latest/design_topics/data_interchange.html
+.. _CAI: https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html
+.. _CAM: https://developer.nvidia.com/blog/introduction-cuda-aware-mpi/
+.. _DOI: https://doi.org/10.1109/MCSE.2021.3083216
+
+
 Release 3.0.3 [2019-11-04]
 ==========================
 
