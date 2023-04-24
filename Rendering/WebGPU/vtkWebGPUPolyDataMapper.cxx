@@ -562,6 +562,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
     {
       this->GetInputAlgorithm()->Update();
     }
+    this->CachedInput = this->CurrentInput = this->GetInput();
     this->InvokeEvent(vtkCommand::EndEvent, nullptr);
   }
   else
