@@ -736,7 +736,7 @@ vtkDataArray* vtkHDFReader::Implementation::NewArray(
 vtkDataArray* vtkHDFReader::Implementation::NewArray(
   int attributeType, const char* name, hsize_t offset, hsize_t size)
 {
-  std::vector<hsize_t> fileExtent = { offset, offset + size - 1 };
+  std::vector<hsize_t> fileExtent = { offset, offset + size };
   return NewArrayForGroup(this->AttributeDataGroup[attributeType], name, fileExtent);
 }
 
@@ -833,7 +833,7 @@ vtkAbstractArray* vtkHDFReader::Implementation::NewFieldArray(
 vtkDataArray* vtkHDFReader::Implementation::NewMetadataArray(
   const char* name, hsize_t offset, hsize_t size)
 {
-  std::vector<hsize_t> fileExtent = { offset, offset + size - 1 };
+  std::vector<hsize_t> fileExtent = { offset, offset + size };
   return NewArrayForGroup(this->VTKGroup, name, fileExtent);
 }
 
@@ -842,7 +842,7 @@ std::vector<vtkIdType> vtkHDFReader::Implementation::GetMetadata(
   const char* name, hsize_t size, hsize_t offset)
 {
   std::vector<vtkIdType> v;
-  std::vector<hsize_t> fileExtent = { offset, offset + size - 1 };
+  std::vector<hsize_t> fileExtent = { offset, offset + size };
   auto a = vtk::TakeSmartPointer(NewArrayForGroup(this->VTKGroup, name, fileExtent));
   if (!a)
   {
@@ -882,7 +882,7 @@ vtkDataArray* vtkHDFReader::Implementation::NewArrayForGroup(hid_t dataset, cons
     if (extent.empty())
     {
       extent.resize(2, 0);
-      extent[1] = dims[0] - 1;
+      extent[1] = dims[0];
       if (dims.size() > 2)
       {
         throw std::runtime_error("Field arrays cannot have more than 2 dimensions.");
@@ -914,6 +914,7 @@ vtkDataArray* vtkHDFReader::Implementation::NewArrayForGroup(hid_t dataset, cons
       if (numberOfComponents == 1)
       {
         extent.resize(dims.size() * 2, 0);
+        extent[extent.size() - 1] = numberOfComponents;
       }
     }
     auto it = this->TypeReaderMap.find(this->GetTypeDescription(nativeType));
@@ -944,7 +945,7 @@ vtkDataArray* vtkHDFReader::Implementation::NewArray(
   for (size_t i = 0; i < ndims; ++i)
   {
     size_t j = i << 1;
-    numberOfTuples *= (fileExtent[j + 1] - fileExtent[j] + 1);
+    numberOfTuples *= (fileExtent[j + 1] - fileExtent[j]);
   }
   auto array = vtkAOSDataArrayTemplate<T>::SafeDownCast(NewVtkDataArray<T>());
   array->SetNumberOfComponents(numberOfComponents);
@@ -967,7 +968,7 @@ bool vtkHDFReader::Implementation::NewArray(
   std::vector<hsize_t> count(fileExtent.size() >> 1), start(fileExtent.size() >> 1);
   for (size_t i = 0; i < count.size(); ++i)
   {
-    count[i] = fileExtent[i * 2 + 1] - fileExtent[i * 2] + 1;
+    count[i] = fileExtent[i * 2 + 1] - fileExtent[i * 2];
     start[i] = fileExtent[i * 2];
   }
   if (numberOfComponents > 1)
@@ -1303,7 +1304,7 @@ bool vtkHDFReader::Implementation::ReadLevelData(unsigned int level,
             dataSize = dims[0] / numberOfDatasets;
         }
 
-        std::vector<hsize_t> fileExtent = { dataOffset, dataOffset + dataSize - 1 };
+        std::vector<hsize_t> fileExtent = { dataOffset, dataOffset + dataSize };
 
         vtkSmartPointer<vtkDataArray> array;
         if ((array = vtk::TakeSmartPointer(
