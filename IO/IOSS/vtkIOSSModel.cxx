@@ -378,7 +378,10 @@ protected:
       auto& ds = datasets[dsIndex];
       auto& lids = lIds[dsIndex];
       worker.SetSourceIds(&lids);
-      Dispatcher::Execute(ds->GetAttributes(association)->GetArray(name.c_str()), worker);
+      if (!Dispatcher::Execute(ds->GetAttributes(association)->GetArray(name.c_str()), worker))
+      {
+        vtkLogF(ERROR, "Failed to dispatch array %s", name.c_str());
+      }
     }
 
     for (int comp = 0; comp < numComponents; ++comp)
@@ -505,7 +508,10 @@ struct vtkNodeBlock : vtkGroupingEntity
       auto& ds = this->DataSets[dsIndex];
       auto& lids = this->IdsRaw[dsIndex];
       worker.SetSourceIds(&lids);
-      Dispatcher::Execute(ds->GetPoints()->GetData(), worker);
+      if (!Dispatcher::Execute(ds->GetPoints()->GetData(), worker))
+      {
+        vtkLog(ERROR, "Failed to dispatch points.");
+      }
     }
 
     // if displacement array is present, offset the mesh coordinates by the
@@ -522,7 +528,10 @@ struct vtkNodeBlock : vtkGroupingEntity
         auto& ds = this->DataSets[dsIndex];
         auto& lids = this->IdsRaw[dsIndex];
         dworker.SetSourceIds(&lids);
-        Dispatcher::Execute(ds->GetPointData()->GetArray(displName.c_str()), dworker);
+        if (!Dispatcher::Execute(ds->GetPointData()->GetArray(displName.c_str()), dworker))
+        {
+          vtkLog(ERROR, "Failed to dispatch displacements.");
+        }
       }
     }
 
