@@ -113,6 +113,7 @@ public:
     TANGENTS = 8,
     RATIONALWEIGHTS = 9,
     HIGHERORDERDEGREES = 10,
+    PROCESSIDS = 11,
     NUM_ATTRIBUTES
   };
 
@@ -244,6 +245,15 @@ public:
 
   ///@{
   /**
+   * Set/Get the process id data.
+   */
+  int SetProcessIds(vtkDataArray* da);
+  int SetActiveProcessIds(const char* name);
+  vtkDataArray* GetProcessIds();
+  ///@}
+
+  ///@{
+  /**
    * If the string is nullptr or empty, calls the alternate method
    * of the same name (that takes no parameters).
    * Otherwise, it will look for an array with the correct name.
@@ -259,6 +269,7 @@ public:
   vtkAbstractArray* GetPedigreeIds(const char* name);
   vtkDataArray* GetRationalWeights(const char* name);
   vtkDataArray* GetHigherOrderDegrees(const char* name);
+  vtkDataArray* GetProcessIds(const char* name);
   ///@}
 
   /**
@@ -273,6 +284,9 @@ public:
    * vtkDataSetAttributes::PEDIGREEIDS = 6
    * vtkDataSetAttributes::EDGEFLAG = 7
    * vtkDataSetAttributes::TANGENTS = 8
+   * vtkDataSetAttributes::RATIONALWEIGHTS = 9
+   * vtkDataSetAttributes::HIGHERORDERDEGREES = 10
+   * vtkDataSetAttributes::PROCESSIDS = 11
    * Returns the index of the array if successful, -1 if the array
    * is not in the list of arrays.
    */
@@ -447,6 +461,11 @@ public:
   void SetCopyHigherOrderDegrees(vtkTypeBool i, int ctype = ALLCOPY);
   vtkTypeBool GetCopyHigherOrderDegrees(int ctype = ALLCOPY);
   vtkBooleanMacro(CopyHigherOrderDegrees, vtkTypeBool);
+
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
+  void SetCopyProcessIds(vtkTypeBool i, int ctype = ALLCOPY);
+  vtkTypeBool GetCopyProcessIds(int ctype = ALLCOPY);
+  vtkBooleanMacro(CopyProcessIds, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void CopyAllOn(int ctype = ALLCOPY) override;
