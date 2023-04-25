@@ -119,29 +119,29 @@ public:
     {
       timeval ctv;
       gettimeofday(&ctv, nullptr);
-      std::vector<unsigned long> expired;
-      for (auto& timer : this->LocalToTimer)
+      std::vector<LocalToTimerType::value_type> timers(
+        this->LocalToTimer.begin(), this->LocalToTimer.end());
+      for (auto& timer : timers)
       {
         int64_t delta = (ctv.tv_sec - timer.second.lastFire.tv_sec) * 1000000 + ctv.tv_usec -
           timer.second.lastFire.tv_usec;
         if (delta / 1000 >= static_cast<int64_t>(timer.second.duration))
         {
           int timerId = rwi->GetVTKTimerId(timer.first);
-          rwi->InvokeEvent(vtkCommand::TimerEvent, &timerId);
-          if (rwi->IsOneShotTimer(timerId))
+          if (timerId != 0)
           {
-            expired.push_back(timer.first);
-          }
-          else
-          {
-            timer.second.lastFire.tv_sec = ctv.tv_sec;
-            timer.second.lastFire.tv_usec = ctv.tv_usec;
+            rwi->InvokeEvent(vtkCommand::TimerEvent, &timerId);
+            if (rwi->IsOneShotTimer(timerId))
+            {
+              this->DestroyLocalTimer(timer.first);
+            }
+            else
+            {
+              timer.second.lastFire.tv_sec = ctv.tv_sec;
+              timer.second.lastFire.tv_usec = ctv.tv_usec;
+            }
           }
         }
-      }
-      for (auto exp : expired)
-      {
-        this->DestroyLocalTimer(exp);
       }
     }
   }
@@ -164,7 +164,8 @@ public:
 
 private:
   int TimerIdCount;
-  std::map<int, vtkXRenderWindowInteractorTimer> LocalToTimer;
+  typedef std::map<int, vtkXRenderWindowInteractorTimer> LocalToTimerType;
+  LocalToTimerType LocalToTimer;
 };
 
 std::set<vtkXRenderWindowInteractor*> vtkXRenderWindowInteractorInternals::Instances;
