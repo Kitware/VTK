@@ -28,8 +28,8 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVectorText);
 
 VTK_ABI_NAMESPACE_END
-// NOLINTNEXTLINE(bugprone-suspicious-include)
-#include "vtkVectorTextData.cxx"
+
+#include "vtkVectorTextData.inl"
 
 // Construct object with no string set and backing enabled.
 VTK_ABI_NAMESPACE_BEGIN

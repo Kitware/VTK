@@ -52,8 +52,8 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 VTK_ABI_NAMESPACE_END
-// NOLINTNEXTLINE(bugprone-suspicious-include)
-#include "vtkEarthSourceData.cxx"
+
+#include "vtkEarthSourceData.inl"
 
 VTK_ABI_NAMESPACE_BEGIN
 int vtkEarthSource::RequestData(vtkInformation* vtkNotUsed(request),
