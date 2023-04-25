@@ -2618,7 +2618,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
   // initialize outputCellData
   auto outputCellData = vtkSmartPointer<vtkCellData>::New();
   ArrayList cellDataArrays;
-  outputCellData->InterpolateAllocate(input->GetCellData(), numberOfOutputCells);
+  outputCellData->CopyAllocate(input->GetCellData(), numberOfOutputCells);
   cellDataArrays.AddArrays(numberOfOutputCells, input->GetCellData(), outputCellData,
     /*nullValue*/ 0.0, /*promote*/ false);
 
