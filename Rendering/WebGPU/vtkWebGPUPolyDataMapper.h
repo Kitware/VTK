@@ -193,12 +193,12 @@ protected:
   // used by RenderPiece and functions it calls to reduce
   // calls to get the input and allow for rendering of
   // other polydata (not the input)
-  vtkPolyData* CurrentInput;
+  vtkPolyData* CurrentInput = nullptr;
   // vtkRenderer culls props to frustum. At that point, it requests
   // mappers for bounds of the geometry. We cache the vtkAlgorithm output
   // so that `UpdateMeshGeometryBuffers` can reuse it without climbing up
   // vtkAlgorithm pipeline.
-  vtkPolyData* CachedInput;
+  vtkPolyData* CachedInput = nullptr;
 
   // 1 bind group for this polydata mesh
   wgpu::BindGroup MeshAttributeBindGroup;

@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestCellScalarMappedColors.cxx,NO_DATA,NO_VALID
+  TestCompositePolyDataMapper.cxx,NO_DATA,NO_VALID
   TestConesBenchmark.cxx,NO_DATA,NO_VALID
   TestLineRendering.cxx,NO_DATA,NO_VALID
   TestPointScalarMappedColors.cxx,NO_DATA,NO_VALID
