@@ -89,13 +89,7 @@ void vtkHyperTreeGrid::SetFixedCoordinates(unsigned int axis, double value)
 void vtkHyperTreeGrid::SetMask(vtkBitArray* _arg)
 {
   vtkSetObjectBodyMacro(Mask, vtkBitArray, _arg);
-
-  this->InitPureMask = false;
-  if (this->PureMask)
-  {
-    this->PureMask->Delete();
-    this->PureMask = nullptr;
-  }
+  this->CleanPureMask();
 }
 
 // Helper macros to quickly fetch a HT at a given index or iterator
@@ -326,11 +320,7 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
     this->Mask = nullptr;
   }
 
-  if (this->PureMask)
-  {
-    this->PureMask->Delete();
-    this->PureMask = nullptr;
-  }
+  this->CleanPureMask();
 
   if (this->XCoordinates)
   {
@@ -1251,91 +1241,136 @@ void vtkHyperTreeGrid::DeepCopy(vtkDataObject* src)
 }
 
 //------------------------------------------------------------------------------
+void vtkHyperTreeGrid::CleanPureMask()
+{
+  this->InitPureMask = false;
+  if (this->PureMask)
+  {
+    this->PureMask->Delete();
+    this->PureMask = nullptr;
+  }
+}
+
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGrid::RecursivelyInitializePureMask(
-  vtkHyperTreeGridNonOrientedCursor* cursor, vtkDataArray* normale)
+  vtkHyperTreeGridNonOrientedCursor* cursor, vtkDataArray* intercepts)
 {
   // Retrieve mask value at cursor
   vtkIdType id = cursor->GetGlobalNodeIndex();
+
+  // 0 isn't masked : if not exist Mask or no masked
+  // 1 is masked : if exist Mask and masked
   bool mask = this->HasMask() && this->Mask->GetValue(id);
 
-  if (!mask && normale)
+  // Check masked
+  if (mask)
   {
-    double values[3];
-    normale->GetTuple(id, values);
-    // FR Retrieve cell interface value at cursor (is interface if one value is non null)
-    bool isInterface = (values[0] != 0 || values[1] != 0 || values[2] != 0);
-    // FR Cell with interface is considered as "not pure"
-    mask = isInterface;
+    // If the masked cell then the cell is no pure material cell,
+    // set PureMask to true
+    this->PureMask->SetTuple1(id, true);
+    return true;
   }
 
-  //  Dot recurse if node is masked or is a leaf
-  if (!mask && !cursor->IsLeaf())
+  // Check is leaf
+  if (cursor->IsLeaf())
   {
-    // Iterate over all children
-    unsigned int numChildren = this->GetNumberOfChildren();
-    bool pure = false;
-    for (unsigned int child = 0; child < numChildren; ++child)
+    // Check exist material interface intercepts
+    if (intercepts)
     {
-      cursor->ToChild(child);
-      // FR Obligatoire en profondeur afin d'associer une valeur a chaque maille
-      pure |= this->RecursivelyInitializePureMask(cursor, normale);
-      cursor->ToParent();
+      double values[3];
+      intercepts->GetTuple(id, values);
+      // If the type value is less than 2 then the cell has
+      // an or two interface, so it is no pure material cell
+      // (this cell is mixted), set PureMask to true ;
+      // else set PureMask to false
+      mask = (values[2] < 2);
     }
-    // Set and return pure material mask with recursively computed value
-    this->PureMask->SetTuple1(id, pure);
-    return pure;
+    this->PureMask->SetTuple1(id, mask);
+    return mask;
   }
 
+  // Check is coarse (not leaf)
+  // Iterate over all children
+  unsigned int numChildren = this->GetNumberOfChildren();
+  for (unsigned int child = 0; child < numChildren; ++child)
+  {
+    cursor->ToChild(child);
+    // Recursively initialize pure material mask
+    // The initialization of the PureMask for a coarse cell
+    // depends on the values associated with each of
+    // its children. As soon as one of her daughters is PureMask
+    // then she is too.
+    // WARNING Nevertheless, it is essential to continue the
+    // in-depth journey in order to update all the values of
+    // PureMask offering the possibility of optimization at
+    // a higher level.
+    mask |= this->RecursivelyInitializePureMask(cursor, intercepts);
+    cursor->ToParent();
+  }
   // Set and return pure material mask with recursively computed value
   this->PureMask->SetTuple1(id, mask);
   return mask;
 }
 
 //------------------------------------------------------------------------------
-vtkBitArray* vtkHyperTreeGrid::GetPureMask()
+vtkBitArray* vtkHyperTreeGrid::GetPureMask(bool forced)
 {
   // Check whether a pure material mask was initialized
-  if (!this->InitPureMask)
+  if (this->InitPureMask)
   {
-    if (!this->Mask || !this->Mask->GetNumberOfTuples())
-    {
-      // Keep track of the fact that a pure material mask now exists
-      this->InitPureMask = true;
-      return nullptr;
-    }
-    // If not, then create one
-    if (this->PureMask == nullptr)
-    {
-      this->PureMask = vtkBitArray::New();
-    }
-    this->PureMask->SetNumberOfTuples(this->Mask ? this->Mask->GetNumberOfTuples() : 0);
-
-    // Iterate over hyper tree grid
-    vtkIdType index;
-    vtkHyperTreeGridIterator it;
-    it.Initialize(this);
-
-    vtkDataArray* normale = nullptr;
-    if (this->HasInterface)
-    {
-      // Interface defined
-      normale = this->GetFieldData()->GetArray(this->InterfaceNormalsName);
-    }
-
-    vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
-    while (it.GetNextTree(index))
-    {
-      // Create cursor instance over current hyper tree
-      this->InitializeNonOrientedCursor(cursor, index);
-      // Recursively initialize pure material mask
-      this->RecursivelyInitializePureMask(cursor, normale);
-    }
-
-    // Keep track of the fact that a pure material mask now exists
-    this->InitPureMask = true;
+    // Return existing pure material mask
+    return this->PureMask;
   }
 
-  // Return existing or created pure material mask
+  // If not, then create one
+  if (this->PureMask == nullptr)
+  {
+    this->PureMask = vtkBitArray::New();
+  }
+  this->PureMask->SetNumberOfTuples(this->GetNumberOfCells());
+
+  // Check material interface intercepts
+  // The first two fields of Intercepts describe the first and the
+  // second distance interface to origin.
+  // The third field describes the type of interface. If the type
+  // value is greater than or equal to 2, the cell does not describe
+  // an interface. She is pure material.
+  // For more detail look at the vtkHyperTreeGridGeometry filter.
+  vtkDataArray* intercepts = nullptr;
+  if (this->HasInterface)
+  {
+    intercepts = this->GetCellData()->GetArray(this->InterfaceInterceptsName);
+    if (intercepts && intercepts->GetNumberOfComponents() != 3)
+    {
+      intercepts = nullptr;
+    }
+    if (intercepts)
+    {
+      vtkDataArray* normals = this->GetCellData()->GetArray(this->InterfaceNormalsName);
+      if (!normals || normals->GetNumberOfComponents() != 3)
+      {
+        intercepts = nullptr;
+      }
+    }
+  }
+
+  // Iterate over hyper tree grid
+  vtkIdType index;
+  vtkHyperTreeGridIterator it;
+  it.Initialize(this);
+  vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
+  while (it.GetNextTree(index))
+  {
+    // Create cursor instance over current hyper tree
+    this->InitializeNonOrientedCursor(cursor, index);
+    // Recursively initialize pure material mask
+    this->RecursivelyInitializePureMask(cursor, intercepts);
+  }
+
+  // Keep track of the fact that a pure material mask now exists
+  this->InitPureMask = true;
+
+  // Return created pure material mask
   return this->PureMask;
 }
 
