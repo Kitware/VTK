@@ -105,7 +105,7 @@ public:
 
   ///@{
   /**
-   * Set/Get wether to remove points that do not
+   * Set/Get whether to remove points that do not
    * have any cells associated with it.
    * Default is false
    */
@@ -113,6 +113,29 @@ public:
   vtkGetMacro(RemovePointsWithoutCells, bool);
   vtkBooleanMacro(RemovePointsWithoutCells, bool);
   ///@}
+
+  ///@{
+  /**
+   * Set/Get the strategy used to weigh point data on merging points
+   *
+   * Possibilities:
+   * - FIRST_POINT (int(0), default): the point with the lowest index imposes its data on to the
+   * merged point
+   * - AVERAGING (int(1)): a number average is performed on all the duplicate points
+   * - SPATIAL_DENSITY (int(2)): an average by attached cell volume (i.e. for every cell the point
+   * is connected to sum cell_volume/number_cell_points) is performed on the point data
+   */
+  vtkGetMacro(PointDataWeighingStrategy, int);
+  vtkSetClampMacro(PointDataWeighingStrategy, int, FIRST_POINT, NUMBER_OF_WEIGHING_TYPES - 1);
+  ///@}
+
+  enum DataWeighingType
+  {
+    FIRST_POINT = 0,
+    AVERAGING,
+    SPATIAL_DENSITY,
+    NUMBER_OF_WEIGHING_TYPES
+  };
 
 protected:
   vtkCleanUnstructuredGrid();
@@ -124,6 +147,7 @@ protected:
   bool RemovePointsWithoutCells = false;
   vtkSmartPointer<vtkIncrementalPointLocator> Locator;
   int OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
+  int PointDataWeighingStrategy = FIRST_POINT;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;

@@ -20,6 +20,7 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::FiltersGeometry
+  VTK::FiltersVerdict
   VTK::fmt
 TEST_DEPENDS
   VTK::FiltersExtraction
