@@ -32,11 +32,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 #endif
-#ifdef __EMSCRIPTEN__
 #include "SDL.h"
-#else
-#include "SDL2/SDL.h"
-#endif
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
