@@ -7,7 +7,6 @@ vtk_object_factory_declare(
 
 set(classes
   vtkAdaptiveResampleToImage
-  vtkDIYKdTreeUtilities
   vtkExtractSubsetWithSeed
   vtkGenerateGlobalIds
   vtkGhostCellsGenerator
@@ -16,6 +15,9 @@ set(classes
   vtkPResampleWithDataSet
   vtkProbeLineFilter
   vtkRedistributeDataSetFilter)
+
+set(nowrap_classes
+  vtkDIYKdTreeUtilities)
 
 if (TARGET VTK::ParallelMPI)
   # FIXME: vtkDIYAggregateDataSetFilter should not require MPI
@@ -34,6 +36,7 @@ vtk_object_factory_configure(
 
 vtk_module_add_module(VTK::FiltersParallelDIY2
   CLASSES ${classes}
+  NOWRAP_CLASSES ${nowrap_classes}
   SOURCES ${vtk_object_factory_source}
   PRIVATE_HEADERS ${vtk_object_factory_header})
 vtk_add_test_mangling(VTK::FiltersParallelDIY2)
