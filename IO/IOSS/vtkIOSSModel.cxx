@@ -204,38 +204,87 @@ Ioss::Field::BasicType GetFieldType(vtkDataArray* array)
 
 //=============================================================================
 std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(
-  int association, vtkCompositeDataSet* pdc, vtkMultiProcessController* vtkNotUsed(controller))
+  int association, vtkCompositeDataSet* cds, vtkMultiProcessController* controller)
 {
   std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> fields;
   vtkDataSetAttributesFieldList fieldList;
-  for (auto& ds : vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pdc))
+  for (auto& ds : vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(cds))
   {
     fieldList.IntersectFieldList(ds->GetAttributes(association));
   }
 
-  vtkNew<vtkPointData> tmp;
-  tmp->CopyAllocate(fieldList, 0);
-  for (int idx = 0, max = tmp->GetNumberOfArrays(); idx < max; ++idx)
+  vtkNew<vtkDataSetAttributes> tmpDA;
+  tmpDA->CopyAllocate(fieldList, 1);
+  tmpDA->SetNumberOfTuples(1);
+  if (tmpDA->GetGlobalIds())
   {
-    if (auto* array = tmp->GetArray(idx))
+    // we don't want to add global ids again.
+    tmpDA->RemoveArray(tmpDA->GetGlobalIds()->GetName());
+  }
+  if (tmpDA->HasArray("object_id"))
+  {
+    // skip "object_id". that's an array added by Ioss reader.
+    tmpDA->RemoveArray("object_id");
+  }
+  if (controller->GetNumberOfProcesses() == 1)
+  {
+    for (int idx = 0, max = tmpDA->GetNumberOfArrays(); idx < max; ++idx)
     {
-      if (array == tmp->GetGlobalIds())
+      if (auto array = tmpDA->GetArray(idx))
       {
-        // we don't want to add global ids again.
-        continue;
+        const auto type = ::GetFieldType(array);
+        fields.emplace_back(array->GetName(), type, array->GetNumberOfComponents());
       }
-      if (strcmp(array->GetName(), "object_id") == 0)
-      {
-        // skip "object_id". that's an array added by Ioss reader.
-        continue;
-      }
-      const auto type = ::GetFieldType(array);
-      fields.emplace_back(array->GetName(), type, array->GetNumberOfComponents());
     }
   }
-
-  // TODO: reduce in parallel; for non IOSS input, we'll need to explicitly
-  // ensure all blocks have same fields across all ranks.
+  else // controller->GetNumberOfProcesses() > 1
+  {
+    // gather the number of elements from all ranks.
+    vtkNew<vtkIdTypeArray> sendNumberOfElements;
+    sendNumberOfElements->InsertNextValue(cds->GetNumberOfElements(association));
+    vtkNew<vtkIdTypeArray> recvNumberOfElements;
+    controller->AllGather(sendNumberOfElements, recvNumberOfElements);
+    // create an unstructured grid to pack the tmpDA as field data.
+    auto send = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    send->GetFieldData()->ShallowCopy(tmpDA);
+    // now gather all field data from all ranks.
+    std::vector<vtkSmartPointer<vtkDataObject>> recv;
+    controller->AllGather(send, recv);
+    // now intersect all field data to get the common fields.
+    vtkDataSetAttributesFieldList coresFieldList;
+    for (size_t i = 0; i < recv.size(); ++i)
+    {
+      const auto ug = vtkUnstructuredGrid::SafeDownCast(recv[i]);
+      const auto numberOfElements = recvNumberOfElements->GetValue(i);
+      // skip empty datasets.
+      if (ug && numberOfElements > 0)
+      {
+        const auto fd = ug->GetFieldData();
+        // convert field data to dataset attributes
+        vtkNew<vtkDataSetAttributes> localDa;
+        for (int idx = 0, max = fd->GetNumberOfArrays(); idx < max; ++idx)
+        {
+          if (auto array = fd->GetArray(idx))
+          {
+            localDa->AddArray(array);
+          }
+        }
+        // intersect field data with current field list.
+        coresFieldList.IntersectFieldList(localDa);
+      }
+    }
+    // now we have the common fields. we need to create a new field data
+    vtkNew<vtkDataSetAttributes> coresTempDA;
+    coresTempDA->CopyAllocate(coresFieldList, 0);
+    for (int idx = 0, max = coresTempDA->GetNumberOfArrays(); idx < max; ++idx)
+    {
+      if (auto* array = coresTempDA->GetArray(idx))
+      {
+        const auto type = ::GetFieldType(array);
+        fields.emplace_back(array->GetName(), type, array->GetNumberOfComponents());
+      }
+    }
+  }
   return fields;
 }
 
