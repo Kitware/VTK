@@ -48,8 +48,8 @@
 // clang-format on
 
 #include <algorithm>
-#include <vector>
 #include <string>
+#include <vector>
 
 // clang-format off
 #include <vtk_fmt.h> // needed for `fmt`
@@ -64,6 +64,7 @@ class vtkIOSSWriter::vtkInternals
 public:
   std::unique_ptr<Ioss::Region> Region;
   std::vector<double> TimeSteps;
+  std::vector<double> TimeStepsToProcess;
   int CurrentTimeStep{ 0 };
   int RestartIndex{ 0 };
   std::string LastMD5;
@@ -82,7 +83,8 @@ vtkIOSSWriter::vtkIOSSWriter()
   , OffsetGlobalIds(false)
   , PreserveInputEntityGroups(false)
   , DisplacementMagnitude(1.0)
-  , MaximumTimeStepsPerFile(0)
+  , TimeStepRange{ 0, VTK_INT_MAX - 1 }
+  , TimeStepStride(1)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
@@ -131,10 +133,26 @@ int vtkIOSSWriter::RequestInformation(
     const auto* timesteps = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     internals.TimeSteps.resize(numTimesteps);
     std::copy(timesteps, timesteps + numTimesteps, internals.TimeSteps.begin());
+    if (this->TimeStepRange[0] >= this->TimeStepRange[1] || this->TimeStepStride < 1)
+    {
+      internals.TimeStepsToProcess = internals.TimeSteps;
+    }
+    else
+    {
+      const auto begin = std::max(this->TimeStepRange[0], 0);
+      const auto end = std::min(this->TimeStepRange[1] + 1, static_cast<int>(numTimesteps));
+      const auto stride = this->TimeStepStride;
+      internals.TimeStepsToProcess.clear();
+      for (int i = begin; i < end; i += stride)
+      {
+        internals.TimeStepsToProcess.push_back(internals.TimeSteps[i]);
+      }
+    }
   }
   else
   {
     internals.TimeSteps.clear();
+    internals.TimeStepsToProcess.clear();
   }
   internals.CurrentTimeStep = 0;
 
@@ -179,6 +197,29 @@ int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** i
     vtkErrorMacro("Cannot write without a valid filename!");
     return 0;
   }
+  auto& internals = (*this->Internals);
+  if (!internals.TimeSteps.empty())
+  {
+    const auto& currentTime = internals.TimeSteps[internals.CurrentTimeStep];
+    // check if timestep should be processed or skipped
+    const bool processTimeStep =
+      std::find(internals.TimeStepsToProcess.begin(), internals.TimeStepsToProcess.end(),
+        currentTime) != internals.TimeStepsToProcess.end();
+    if (!processTimeStep)
+    {
+      ++internals.CurrentTimeStep;
+      if (static_cast<size_t>(internals.CurrentTimeStep) < internals.TimeSteps.size())
+      {
+        request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+      }
+      else
+      {
+        internals.CurrentTimeStep = 0;
+        request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+      }
+      return 1;
+    }
+  }
 
   vtkSmartPointer<vtkDataObject> inputDO = vtkDataObject::GetData(inputVector[0], 0);
   if (vtkUnstructuredGrid::SafeDownCast(inputDO))
@@ -208,12 +249,19 @@ int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** i
   const auto md5 = model.MD5();
   vtkLogF(TRACE, "MD5: %s", md5.c_str());
 
-  auto& internals = (*this->Internals);
-  if (internals.CurrentTimeStep == 0 || internals.LastMD5 != md5 ||
-    (this->MaximumTimeStepsPerFile > 0 &&
-      internals.CurrentTimeStep % this->MaximumTimeStepsPerFile == 0))
+  int structureChanged = internals.LastMD5 != md5;
+  // ensure that all processes agree on whether the structure changed
+  if (controller && controller->GetNumberOfProcesses() > 1)
   {
-    internals.RestartIndex = internals.CurrentTimeStep == 0 ? 0 : (internals.RestartIndex + 1);
+    int globalStructureChanged;
+    controller->AllReduce(&structureChanged, &globalStructureChanged, 1, vtkCommunicator::MAX_OP);
+    structureChanged = globalStructureChanged;
+  }
+
+  if (internals.CurrentTimeStep == this->TimeStepRange[0] || structureChanged)
+  {
+    internals.RestartIndex =
+      internals.CurrentTimeStep == this->TimeStepRange[0] ? 0 : (internals.RestartIndex + 1);
 
     Ioss::PropertyManager properties;
     // if I use "8" here, then I get the following error:
@@ -279,6 +327,8 @@ void vtkIOSSWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OffsetGlobalIds: " << OffsetGlobalIds << endl;
   os << indent << "PreserveInputEntityGroups: " << this->PreserveInputEntityGroups << endl;
   os << indent << "DisplacementMagnitude: " << this->DisplacementMagnitude << endl;
-  os << indent << "MaximumTimeStepsPerFile: " << this->MaximumTimeStepsPerFile << endl;
+  os << indent << "TimeStepRange: " << this->TimeStepRange[0] << ", " << this->TimeStepRange[1]
+     << endl;
+  os << indent << "TimeStepStride: " << this->TimeStepStride << endl;
 }
 VTK_ABI_NAMESPACE_END

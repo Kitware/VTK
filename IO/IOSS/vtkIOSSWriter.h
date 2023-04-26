@@ -26,7 +26,8 @@
 #define vtkIOSSWriter_h
 
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkIOIOSSModule.h" // for export macros
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED
+#include "vtkIOIOSSModule.h" // For export macros
 
 #include <memory> // for std::unique_ptr
 
@@ -95,8 +96,29 @@ public:
    *
    * Defaults to 0 i.e. unlimited timesteps per file.
    */
-  vtkSetClampMacro(MaximumTimeStepsPerFile, int, 0, VTK_INT_MAX);
-  vtkGetMacro(MaximumTimeStepsPerFile, int);
+  VTK_DEPRECATED_IN_9_3_0("Use TimeStepRange/TimeStepStride instead.")
+  void SetMaximumTimeStepsPerFile(int val)
+  {
+    this->SetTimeStepStride(1);
+    this->SetTimeStepRange(0, val - 1);
+  }
+  VTK_DEPRECATED_IN_9_3_0("Use TimeStepRange/TimeStepStride instead.")
+  int GetMaximumTimeStepsPerFile() { return this->TimeStepRange[1] + 1; }
+  ///@}
+
+  ///@{
+  /**
+   * `TimeStepRange` and `TimeStepStride` can be used to limit which timesteps will be written.
+   *
+   * If the range is invalid, i.e. `TimeStepRange[0] >= TimeStepRange[1]`, it's assumed
+   * that no TimeStepRange overrides have been specified and both TimeStepRange and
+   * TimeStepStride will be ignored. When valid, only the chosen subset of files
+   * will be processed.
+   */
+  vtkSetVector2Macro(TimeStepRange, int);
+  vtkGetVector2Macro(TimeStepRange, int);
+  vtkSetClampMacro(TimeStepStride, int, 1, VTK_INT_MAX);
+  vtkGetMacro(TimeStepStride, int);
   ///@}
 
   ///@{
@@ -140,7 +162,8 @@ private:
   bool OffsetGlobalIds;
   bool PreserveInputEntityGroups;
   double DisplacementMagnitude;
-  int MaximumTimeStepsPerFile;
+  int TimeStepRange[2];
+  int TimeStepStride;
 };
 VTK_ABI_NAMESPACE_END
 
