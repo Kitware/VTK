@@ -25,20 +25,20 @@
 #ifndef vtkIOSSWriter_h
 #define vtkIOSSWriter_h
 
-#include "vtkDataObjectAlgorithm.h"
 #include "vtkDeprecation.h"  // For VTK_DEPRECATED
 #include "vtkIOIOSSModule.h" // For export macros
+#include "vtkWriter.h"
 
 #include <memory> // for std::unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
-class VTKIOIOSS_EXPORT vtkIOSSWriter : public vtkDataObjectAlgorithm
+class VTKIOIOSS_EXPORT vtkIOSSWriter : public vtkWriter
 {
 public:
   static vtkIOSSWriter* New();
-  vtkTypeMacro(vtkIOSSWriter, vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkIOSSWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -133,22 +133,21 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
-  /**
-   * Writes the input dataset.
-   */
-  bool Write();
-
 protected:
   vtkIOSSWriter();
   ~vtkIOSSWriter() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
+    vtkInformationVector* outputVector);
   int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
+    vtkInformationVector* outputVector);
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
+
+  void WriteData() override;
 
 private:
   vtkIOSSWriter(const vtkIOSSWriter&) = delete;

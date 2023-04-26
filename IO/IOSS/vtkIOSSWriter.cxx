@@ -106,24 +106,29 @@ int vtkIOSSWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation
 }
 
 //------------------------------------------------------------------------------
-bool vtkIOSSWriter::Write()
+vtkTypeBool vtkIOSSWriter::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // Make sure we have input.
-  if (this->GetNumberOfInputConnections(0) < 1)
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
-    vtkErrorMacro("No input provided!");
-    return false;
+    return this->RequestInformation(request, inputVector, outputVector);
+  }
+  else if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  {
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
+  }
+  // generate the data
+  else if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  {
+    return this->RequestData(request, inputVector, outputVector);
   }
 
-  // always write even if the data hasn't changed
-  this->Modified();
-  this->Update();
-  return true;
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSSWriter::RequestInformation(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+int vtkIOSSWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   auto& internals = (*this->Internals);
   auto* inInfo = inputVector[0]->GetInformationObject(0);
@@ -156,12 +161,12 @@ int vtkIOSSWriter::RequestInformation(
   }
   internals.CurrentTimeStep = 0;
 
-  return this->Superclass::RequestInformation(request, inputVector, outputVector);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSSWriter::RequestUpdateExtent(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+int vtkIOSSWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   auto* info = inputVector[0]->GetInformationObject(0);
   if (auto* controller = this->GetController())
@@ -185,12 +190,12 @@ int vtkIOSSWriter::RequestUpdateExtent(
     info->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
   }
 
-  return this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+int vtkIOSSWriter::RequestData(vtkInformation* request,
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   if (!this->FileName || !this->FileName[0])
   {
@@ -221,7 +226,26 @@ int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** i
     }
   }
 
-  vtkSmartPointer<vtkDataObject> inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  this->WriteData();
+
+  ++internals.CurrentTimeStep;
+  if (static_cast<size_t>(internals.CurrentTimeStep) < internals.TimeSteps.size())
+  {
+    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+  }
+  else
+  {
+    internals.CurrentTimeStep = 0;
+    request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSWriter::WriteData()
+{
+  auto& internals = (*this->Internals);
+  vtkSmartPointer<vtkDataObject> inputDO = this->GetInput();
   if (vtkUnstructuredGrid::SafeDownCast(inputDO))
   {
     vtkNew<vtkPartitionedDataSet> pd;
@@ -240,7 +264,7 @@ int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** i
   if (!inputPDC)
   {
     vtkErrorMacro("Incorrect input type!");
-    return 0;
+    return;
   }
 
   auto* controller = this->GetController();
@@ -283,7 +307,8 @@ int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** i
       "exodus", fname, Ioss::WRITE_RESTART, Ioss::ParallelUtils::comm_world(), properties);
     if (dbase == nullptr || !dbase->ok(true))
     {
-      return 0;
+      vtkErrorMacro("Could not open database '" << fname << "'");
+      return;
     }
 
     // note: region takes ownership of `dbase` pointer.
@@ -304,18 +329,6 @@ int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** i
     : 0.0;
 
   model.Transient(*internals.Region, /*time=*/time);
-
-  ++internals.CurrentTimeStep;
-  if (static_cast<size_t>(internals.CurrentTimeStep) < internals.TimeSteps.size())
-  {
-    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-  }
-  else
-  {
-    internals.CurrentTimeStep = 0;
-    request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-  }
-  return 1;
 }
 
 //----------------------------------------------------------------------------
