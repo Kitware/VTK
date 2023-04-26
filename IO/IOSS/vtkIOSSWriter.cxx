@@ -65,7 +65,7 @@ public:
   std::unique_ptr<Ioss::Region> Region;
   std::vector<double> TimeSteps;
   std::vector<double> TimeStepsToProcess;
-  int CurrentTimeStep{ 0 };
+  int CurrentTimeStepIndex{ 0 };
   int RestartIndex{ 0 };
   std::string LastMD5;
 
@@ -159,7 +159,7 @@ int vtkIOSSWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
     internals.TimeSteps.clear();
     internals.TimeStepsToProcess.clear();
   }
-  internals.CurrentTimeStep = 0;
+  internals.CurrentTimeStepIndex = 0;
 
   return 1;
 }
@@ -179,11 +179,11 @@ int vtkIOSSWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   }
 
   auto& internals = (*this->Internals);
-  if (internals.CurrentTimeStep >= 0 &&
-    internals.CurrentTimeStep < static_cast<int>(internals.TimeSteps.size()))
+  if (internals.CurrentTimeStepIndex >= 0 &&
+    internals.CurrentTimeStepIndex < static_cast<int>(internals.TimeSteps.size()))
   {
     info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-      internals.TimeSteps[internals.CurrentTimeStep]);
+      internals.TimeSteps[internals.CurrentTimeStepIndex]);
   }
   else
   {
@@ -205,21 +205,21 @@ int vtkIOSSWriter::RequestData(vtkInformation* request,
   auto& internals = (*this->Internals);
   if (!internals.TimeSteps.empty())
   {
-    const auto& currentTime = internals.TimeSteps[internals.CurrentTimeStep];
+    const auto& currentTime = internals.TimeSteps[internals.CurrentTimeStepIndex];
     // check if timestep should be processed or skipped
     const bool processTimeStep =
       std::find(internals.TimeStepsToProcess.begin(), internals.TimeStepsToProcess.end(),
         currentTime) != internals.TimeStepsToProcess.end();
     if (!processTimeStep)
     {
-      ++internals.CurrentTimeStep;
-      if (static_cast<size_t>(internals.CurrentTimeStep) < internals.TimeSteps.size())
+      ++internals.CurrentTimeStepIndex;
+      if (static_cast<size_t>(internals.CurrentTimeStepIndex) < internals.TimeSteps.size())
       {
         request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
       }
       else
       {
-        internals.CurrentTimeStep = 0;
+        internals.CurrentTimeStepIndex = 0;
         request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       }
       return 1;
@@ -228,14 +228,14 @@ int vtkIOSSWriter::RequestData(vtkInformation* request,
 
   this->WriteData();
 
-  ++internals.CurrentTimeStep;
-  if (static_cast<size_t>(internals.CurrentTimeStep) < internals.TimeSteps.size())
+  ++internals.CurrentTimeStepIndex;
+  if (static_cast<size_t>(internals.CurrentTimeStepIndex) < internals.TimeSteps.size())
   {
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
   }
   else
   {
-    internals.CurrentTimeStep = 0;
+    internals.CurrentTimeStepIndex = 0;
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
   }
   return 1;
@@ -282,10 +282,10 @@ void vtkIOSSWriter::WriteData()
     structureChanged = globalStructureChanged;
   }
 
-  if (internals.CurrentTimeStep == this->TimeStepRange[0] || structureChanged)
+  if (internals.CurrentTimeStepIndex == this->TimeStepRange[0] || structureChanged)
   {
     internals.RestartIndex =
-      internals.CurrentTimeStep == this->TimeStepRange[0] ? 0 : (internals.RestartIndex + 1);
+      internals.CurrentTimeStepIndex == this->TimeStepRange[0] ? 0 : (internals.RestartIndex + 1);
 
     Ioss::PropertyManager properties;
     // if I use "8" here, then I get the following error:
@@ -324,11 +324,11 @@ void vtkIOSSWriter::WriteData()
   }
 
   auto inputInfo = inputDO->GetInformation();
-  const double time = inputInfo->Has(vtkDataObject::DATA_TIME_STEP())
+  const double currentTimeStep = inputInfo->Has(vtkDataObject::DATA_TIME_STEP())
     ? inputInfo->Get(vtkDataObject::DATA_TIME_STEP())
     : 0.0;
 
-  model.Transient(*internals.Region, /*time=*/time);
+  model.Transient(*internals.Region, /*time=*/currentTimeStep);
 }
 
 //----------------------------------------------------------------------------
