@@ -7,7 +7,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-import util
+import vtk_documentation
 
 # We add the base directory of the repository to allow resolve relative
 # references between markdown files
@@ -30,11 +30,30 @@ author = "VTK Developers"
 extensions = [
     "myst_parser",
     "sphinx.ext.todo",
+    "sphinx_copybutton",  # add copy button to snippets
+    "sphinx_design",  # enables tabs, and other web components
+    "autodoc2",  # generate native python documentation for vtkmodules
+    "sphinxcontrib.moderncmakedomain",  # generate cmake documentation
 ]
+
+autodoc2_packages = [
+    "../../Wrapping/Python/vtkmodules/",
+]
+autodoc2_render_plugin = "myst"
+autodoc2_output_dir = "./api/python"
+autodoc2_index_template = None  # skip ./api/python/index.rst generation
+vtk_documentation.add_init_file("../../Wrapping/Python/vtkmodules/__init__.py")
+
 
 myst_enable_extensions = [
     "linkify",  # convert bare links to hyperlinks
+    "substitution",
+    "colon_fence",  # recommended to use with sphinx_design
 ]
+# create anchors up to 7 level deep
+myst_heading_anchors = 7
+
+# myst_all_links_external = True
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -56,13 +75,33 @@ todo_include_todos = True
 html_logo = "../../vtkLogo.ico"
 html_theme = "furo"
 
+copybutton_prompt_text = r"\$ | C\:\> |>>> "  # strip promt text on copy
+copybutton_prompt_is_regexp = True
+copybutton_only_copy_prompt_lines = False
 
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_static_path = ["_static"]
-
-util.gather_module_documentation(
-    "../../", "./developer_guide/modules", custom_paths=["../../Examples"]
+# -- Custom markdown generation ------------------------------------------------
+ignore_list = [
+    "Wrapping/Tools",  # we handle these separately
+    "Examples",  # we don't want these to appear
+    "ThirdParty",
+]
+module_list = vtk_documentation.gather_module_documentation(
+    "../../",
+    "./modules/vtk-modules",
+    custom_paths=[],
+    ignore_list=ignore_list,
 )
-util.create_contributing_file()
+
+
+# some files require more complex substitutions
+for entry in vtk_documentation.MANUAL_SUBSTITUTIONS:
+    vtk_documentation.copy_with_substitutions(**entry)
+
+myst_substitutions = {
+    "module_table": vtk_documentation.create_module_table(module_list),
+    "release_index": vtk_documentation.create_release_index("./release_details/"),
+    "supported_data_formats_list": vtk_documentation.create_supported_formats_list(
+        "./supported_data_formats.yaml"
+    ),
+}

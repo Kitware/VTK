@@ -1,5 +1,0 @@
-# ignore everything
-*
-# except from this
-!index.md
-!.gitignore

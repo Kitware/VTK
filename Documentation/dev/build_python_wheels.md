@@ -1,4 +1,4 @@
-# Building Python wheels
+# Building Python Wheels
 
 ```{tip}
 For complete build instructions see [here](build.md).

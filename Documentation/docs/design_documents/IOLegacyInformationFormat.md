@@ -1,0 +1,2 @@
+```{include} ../../Doxygen/IOLegacyInformationFormat.md
+```

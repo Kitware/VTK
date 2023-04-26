@@ -353,12 +353,7 @@ This was not well supported in the old module system. Basically, it involved
 setting up the source tree like VTK expects and then including the
 `vtkModuleTop` file. This is best just rewritten using the following CMake APIs:
 
-  - [vtk_module_find_modules]
-  - [vtk_module_find_kits]
-  - [vtk_module_scan]
-  - [vtk_module_build]
-
-[vtk_module_find_modules]: @ref vtk_module_find_modules
-[vtk_module_find_kits]: @ref vtk_module_find_kits
-[vtk_module_scan]: @ref vtk_module_scan
-[vtk_module_build]: @ref vtk_module_build
+  - {cmake:command}`vtk_module_find_modules`
+  - {cmake:command}`vtk_module_find_kits`
+  - {cmake:command}`vtk_module_scan`
+  - {cmake:command}`vtk_module_build`

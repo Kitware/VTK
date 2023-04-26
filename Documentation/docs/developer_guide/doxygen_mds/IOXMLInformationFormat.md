@@ -1,2 +1,0 @@
-```{include} ../../../Doxygen/IOXMLInformationFormat.md
-```

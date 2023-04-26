@@ -1,25 +1,35 @@
 # Welcome to VTK's documentation!
 
-VTK is an open-source software system for image processing, 3D
-graphics, volume rendering and visualization. VTK includes many
-advanced algorithms (e.g., surface reconstruction, implicit modeling,
-decimation) and rendering techniques (e.g., hardware-accelerated
-volume rendering, LOD control).
-VTK is used by academicians for teaching and research; by government
-research institutions such as Los Alamos National Lab in the US or
-CINECA in Italy; and by many commercial firms who use VTK to build or
-extend products.
-The origin of VTK is with the textbook "The Visualization Toolkit, an
-Object-Oriented Approach to 3D Graphics" originally published by
-Prentice Hall and now published by Kitware, Inc. (Third Edition ISBN
-1-930934-07-6). VTK has grown (since its initial release in 1994) to a
-world-wide user base in the commercial, academic, and research
-communities.
+VTK is an open-source software system for image processing, 3D graphics, volume
+rendering, and visualization. Our documentation is a comprehensive resource for
+both new and seasoned VTK users and includes tutorials, examples, and best
+practices to help you unlock the full power of VTK's advanced algorithms and
+rendering techniques.
+
+We invite you to join the VTK community and explore our documentation to find
+out how you can use VTK to bring your visions to life.
+
+
+
+![Latest Release](https://img.shields.io/gitlab/v/tag/vtk/vtk?gitlab_url=https%3A%2F%2Fgitlab.kitware.com)
+![PyPI](https://img.shields.io/pypi/v/vtk)
+![License](https://img.shields.io/pypi/l/vtk)
+![Commit Activity](https://img.shields.io/github/commit-activity/y/kitware/vtk)
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 1
 :caption: Contents
 about
-user_guide/index
-developer_guide/index
+getting_started/index
+learning
+supported_data_formats
+supported_hardware
+modules/index
+build_instructions/index.md
+api/index
+advanced/index
+design_documents/index
+developers_guide/index
+resources
+release_details/index
 ```

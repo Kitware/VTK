@@ -1,2 +1,0 @@
-```{include} ../../../Doxygen/SMPTools.md
-```

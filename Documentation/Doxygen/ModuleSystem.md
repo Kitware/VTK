@@ -71,10 +71,10 @@ should be followed as much as possible when developing extensions as well.
 
 Building modules involves two phases. The first phase is called "scanning" and
 involves collecting all the information necessary for the second phase,
-"building". Scanning uses the [vtk_module_scan][] function to search the
-[vtk.module][] files for metadata, gathers the set of modules to build and
+"building". Scanning uses the {cmake:command}`vtk_module_scan` function to search the
+{cmake:command}`vtk.module` files for metadata, gathers the set of modules to build and
 returns them to the caller. That list of modules is eventually passed to
-[vtk_module_build][] which sorts the modules for their build order and then
+{cmake:command}`vtk_module_build` which sorts the modules for their build order and then
 builds each module in turn. This separation allows for scanning and building
 modules in different groups. For example, the main set of modules may be scanned
 to determine which of some internal set of modules are required by those which
@@ -86,14 +86,12 @@ required higher up can be enabled gracefully. Builds should start at the lower
 level and move up the tree so that targets required by the higher groups exist
 when they are built.
 
-[vtk_module_scan]: @ref vtk_module_scan
-[vtk.module]: @ref module-parse-module
-[vtk_module_build]: @ref vtk_module_build
+[vtk_module_scan]: https://vtk.org/doc/nightly/html/group__module.html#ga35849d7807a98a60e99e0a1c8ff54181
 
 ## Modules
 
-Modules are described by [vtk.module][] files. These files are "scanned" using
-the [vtk_module_scan][] function. They provide all the information necessary for
+Modules are described by {cmake:command}`vtk.module` files. These files are "scanned" using
+the {cmake:command}`vtk_module_scan` function. They provide all the information necessary for
 the module system to:
 
   - provide cache variables for selecting the module (e.g.,
@@ -103,11 +101,11 @@ the module system to:
   - provide module-level metadata (such as exclusion from any wrapping and
     marking modules as third party)
 
-The [vtk.module][] files are read and "parsed", but not executed directly. This
+The {cmake:command}`vtk.module` files are read and "parsed", but not executed directly. This
 ensures that the module files do not contain any procedural CMake code. The
 files may contain comments starting with `#` like CMake code. They may either
-be passed manually to [vtk_module_scan][] or discovered by using the
-[vtk_module_find_modules][] convenience function.
+be passed manually to {cmake:command}`vtk_module_scan` or discovered by using the
+{cmake:command}`vtk_module_find_modules` convenience function.
 
 The most important (and only required) parameter is the `NAME` of a module.
 This is used as the target name in CMake and is how the module's target should
@@ -129,7 +127,6 @@ this field is added into a CMake `if` statement and checked for validity (all
 quoting is passed along verbatim). If the condition evaluates to `FALSE`, the
 module is treated as if it did not exist at all.
 
-[vtk_module_find_modules]: @ref vtk_module_find_modules
 [cmake-find_package]: https://cmake.org/cmake/help/latest/command/find_package.html
 
 ### Module metadata
@@ -156,7 +153,8 @@ for modules which have these properties.
 
 Modules are enabled in a number of ways. These ways allow for project control
 and user control of which modules should be built or not. There are 4 states for
-controlling a module's [enable status][enable-status] as well as a `DEFAULT`
+controlling a module's {ref}`enable status <module-enable-status>`
+as well as a `DEFAULT`
 setting which is used to allow for other mechanisms to select the enable status:
 
   - `YES`: The module must be built.
@@ -188,14 +186,12 @@ their setting, but a project may set the `_vtk_module_group_default_${group}`
 variable to change this default value.
 
 After all of the above logic, if a module is still marked as `DEFAULT`, the
-`WANT_BY_DEFAULT` argument to [vtk_module_scan][] is used to determine whether
+`WANT_BY_DEFAULT` argument to {cmake:command}`vtk_module_scan` is used to determine whether
 it is treated as a `WANT` or `DONT_WANT` request.
 
 Now that all modules have a non-`DEFAULT` enable setting, the set of modules and
 kits that are available may be determined by traversing the dependency tree of
 the modules.
-
-[enable-status]: @ref module-enable-status
 
 ### Dependencies
 
@@ -272,7 +268,7 @@ module's CMake code to make use of the value.
 
 The tests for a module are expected to live in a subdirectory of the module code
 itself. The name of this directory is given by the `TEST_DIRECTORY_NAME`
-argument to the [vtk_module_build][] function. If the directory is available and
+argument to the {cmake:command}`vtk_module_build` function. If the directory is available and
 the module's testing is enabled, the module system will
 [`add_subdirectory`][cmake-add_subdirectory] this directory at the appropriate
 time. This is decoupled so that testing code can depend on modules that depend
@@ -283,7 +279,7 @@ be used for optional module dependencies.
 
 ## Building modules
 
-After scanning is complete, [vtk_module_scan][] returns a list of modules and
+After scanning is complete, {cmake:command}`vtk_module_scan` returns a list of modules and
 kits to build in the variables given by the `PROVIDES_MODULES` and
 `PROVIDES_KITS` arguments to it. It also provides lists of modules that were
 found during scanning that were not scanned by that call. These are given back
@@ -304,13 +300,13 @@ modules which required them). These can be passed on to future
 `REQUIRES_MODULES` arguments in future scans or used to error out depending on
 the use case of the caller.
 
-When using [vtk_module_build][], the `PROVIDES_MODULES` and `PROVIDES_KITS` from
+When using {cmake:command}`vtk_module_build`, the `PROVIDES_MODULES` and `PROVIDES_KITS` from
 a single scan should be passed together. Multiple scans may be built together as
 well if they all use the same build parameters as each other.
 
 ### Build-time parameters
 
-The [vtk_module_build][] function is where the decision to build with or without
+The {cmake:command}`vtk_module_build` function is where the decision to build with or without
 kits is decided through the `BUILD_WITH_KITS` option. Only if this is set will
 kits be built for this set of modules.
 
@@ -328,7 +324,7 @@ variables for controlling these locations:
 The defaults for these place outputs into the binary directory where the targets
 were added. The module system will set these to be sensible for itself if they
 are not already set, but it is recommended to set these at the top-level so that
-targets not built under [vtk_module_build][] also end up at a sensible location.
+targets not built under {cmake:command}`vtk_module_build` also end up at a sensible location.
 
 [cmake-CMAKE_ARCHIVE_OUTPUT_DIRECTORY]: https://cmake.org/cmake/help/latest/variable/CMAKE_ARCHIVE_OUTPUT_DIRECTORY.html
 [cmake-CMAKE_LIBRARY_OUTPUT_DIRECTORY]: https://cmake.org/cmake/help/latest/variable/CMAKE_LIBRARY_OUTPUT_DIRECTORY.html
@@ -354,7 +350,7 @@ number. The variables that control this include:
 
 ### Installation support
 
-[vtk_module_build][] also offers arguments to aid in installing module
+{cmake:command}`vtk_module_build` also offers arguments to aid in installing module
 artifacts. These include destinations for pieces that are installed, CMake
 packaging controls, and components to use for the installations.
 
@@ -375,7 +371,7 @@ provided by the module system are all assumed to be installed to a single prefix
 ([`CMAKE_INSTALL_PREFIX`][cmake-CMAKE_INSTALL_PREFIX]) and placed underneath it.
 
 Suppression of header installation is provided via the `INSTALL_HEADERS`
-argument to [vtk_module_build][]. Setting this to `OFF` will suppress the
+argument to {cmake:command}`vtk_module_build`. Setting this to `OFF` will suppress the
 installation of:
 
   - headers
@@ -393,7 +389,7 @@ For CMake package installation, the `PACKAGE` and `INSTALL_EXPORT` arguments are
 available. The former controls the names used by the CMake files created by the
 module system while the former is the export set to use for the member modules
 when creating those CMake files. Non-module targets may also exist in this
-export set when [vtk_module_build][] is called, but the export set is considered
+export set when {cmake:command}`vtk_module_build` is called, but the export set is considered
 "closed" afterwards since it has already been exported (if `INSTALL_HEADERS` is
 true).
 
@@ -430,8 +426,8 @@ installation of the tools as well.
 
 There are two main functions provided for this:
 
-  - [vtk_module_add_module][]
-  - [vtk_module_add_executable][]
+  - {cmake:command}`vtk_module_add_module`
+  - {cmake:command}`vtk_module_add_executable`
 
 The former creates a library for the module being built while the latter can
 create an executable for the module itself or create utility executable
@@ -450,7 +446,7 @@ to be used by [`GenerateExportHeader`][GenerateExportHeader]. By default, the
 Some modules may need to add additional information to the library name that
 will be used that is not statically know and depends on other environmental
 settings. The `LIBRARY_NAME_SUFFIX` may be specified to add an additional suffix
-to the `LIBRARY_NAME` for the module. The [vtk_module_build][]
+to the `LIBRARY_NAME` for the module. The {cmake:command}`vtk_module_build`
 `LIBRARY_NAME_SUFFIX` argument value will be appended to this name as well.
 
 Normally, libraries are built according to the
@@ -462,43 +458,45 @@ reasons). It is not an escape hatch for general usage; it is there because use
 cases which only support static libraries (even in a shared build) exist.
 
 If a library module is part of a kit and it is being built via the
-[vtk_module_build][] `BUILD_WITH_KITS` argument, it will be built as an
-[`OBJECT`][cmake-OBJECT] library and the kit machinery in [vtk_module_build][]
+{cmake:command}`vtk_module_build` `BUILD_WITH_KITS` argument, it will be built as an
+[`OBJECT`][cmake-OBJECT] library and the kit machinery in {cmake:command}`vtk_module_build`
 will create the resulting kit library artifact.
 
 Header-only modules must pass `HEADER_ONLY` to create an `INTERFACE` library
 instead of expecting a linkable artifact.
 
-@note `HEADER_ONLY` modules which are part of kits is currently untested. This
+```{note}
+`HEADER_ONLY` modules which are part of kits is currently untested. This
 should be supported, but might not work at the moment.
+```
 
 [cmake-OBJECT]: https://cmake.org/cmake/help/latest/command/add_library.html
-[vtk_module_add_module]: @ref vtk_module_add_module
-[vtk_module_add_executable]: @ref vtk_module_add_executable
 [GenerateExportHeader]: https://cmake.org/cmake/help/latest/module/GenerateExportHeader.html
 
 #### Source listing
 
 Instead of using CMake's "all sources in a single list" pattern for
-`add_library`, [vtk_module_add_module][] classifies its source files explicitly:
+`add_library`, {cmake:command}`vtk_module_add_module` classifies its source files explicitly:
 
   - `SOURCES`
   - `HEADERS`
   - `TEMPLATES`
 
 The `HEADERS` and `TEMPLATES` are installed into the `HEADERS_DESTINATION`
-specified to [vtk_module_build][] and may be added to a subdirectory of this
+specified to {cmake:command}`vtk_module_build` and may be added to a subdirectory of this
 destination by using the `HEADERS_SUBDIR` argument. Note that the structure of
 the header paths passed is ignored. If more structure is required from the
-installed header layout, [vtk_module_install_headers][] should be used.
+installed header layout, {cmake:command}`vtk_module_install_headers` should be used.
 
 Files passed via `HEADERS` are treated as the API interface to the code of the
 module and are added to properties so that [language wrappers](#wrapping) can
 discover the API of the module.
 
-@note Only headers passed via `HEADERS` are eligible for wrapping; those
-installed via [vtk_module_install_headers][] are not. This is a known limitation
+```{note}
+Only headers passed via `HEADERS` are eligible for wrapping; those
+installed via {cmake:command}`vtk_module_install_headers` are not. This is a known limitation
 at the moment.
+```
 
 There are also private variations for `HEADERS` and `TEMPLATES` named
 `PRIVATE_HEADERS` and `PRIVATE_TEMPLATES` respectively. These are never
@@ -516,11 +514,9 @@ conventions to ease usage. These include:
   - `PRIVATE_TEMPLATE_CLASSES`: For each value `<class>`, adds `<class>.txx` to
     `PRIVATE_TEMPLATES` and `<class>.h` to `PRIVATE_HEADERS`.
 
-[vtk_module_install_headers]: @ref vtk_module_install_headers
-
 ### Executables
 
-Executables may be created using [vtk_module_add_executable][]. The first
+Executables may be created using {cmake:command}`vtk_module_add_executable`. The first
 argument is the name of the executable to build. Since the scanning phase does
 not know what kind of target will be created for each module (and it may change
 based on other configuration values), an executable module which claims it is
@@ -538,7 +534,7 @@ the executable's name.
 
 ### Module APIs
 
-All of CMake's `target_` function calls have [analogues][module-as-target] for
+All of CMake's `target_` function calls have {ref}`analogues <module-target-functions>` for
 modules. This is primarily due to the kits feature which causes the target name
 created by the module system that is required to use the `target_` functions
 dependent on whether the module is a member of a kit and kits are being built.
@@ -546,28 +542,27 @@ The CMake version of the function and the module API analogue (as well as
 differences, if any) is:
 
   - [set_target_properties][cmake-set_target_properties] becomes
-    [vtk_module_set_properties][]
+    {cmake:command}`vtk_module_set_properties`
   - [set_property(TARGET)][cmake-set_property] becomes
-    [vtk_module_set_property][]
+    {cmake:command}`vtk_module_set_property`
   - [get_property(TARGET)][cmake-get_property] becomes
-    [vtk_module_get_property][]
-  - [add_dependencies][cmake-add_dependencies] becomes [vtk_module_depend][]
+    {cmake:command}`vtk_module_get_property`
+  - [add_dependencies][cmake-add_dependencies] becomes {cmake:command}`vtk_module_depend`
   - [target_include_directories][cmake-target_include_directories] becomes
-    [vtk_module_include][]
+    {cmake:command}`vtk_module_include`
   - [target_compile_definitions][cmake-target_compile_definitions] becomes
-    [vtk_module_definitions][]
+    {cmake:command}`vtk_module_definitions`
   - [target_compile_options][cmake-target_compile_options] becomes
-    [vtk_module_compile_options][]
+    {cmake:command}`vtk_module_compile_options`
   - [target_compile_features][cmake-target_compile_features] becomes
-    [vtk_module_compile_features][]
+    {cmake:command}`vtk_module_compile_features`
   - [target_link_libraries][cmake-target_link_libraries] becomes
-    [vtk_module_link][]: When kits are enabled, any `PRIVATE` links are
+    {cmake:command}`vtk_module_link`: When kits are enabled, any `PRIVATE` links are
     forwarded to the kit itself. This necessitates making all of these targets
     globally scoped rather than locally scoped.
   - [target_link_options][cmake-target_link_options] becomes
-    [vtk_module_link_options][]
+    {cmake:command}`vtk_module_link_options`
 
-[module-as-target]: @ref module-target-functions
 [cmake-set_target_properties]: https://cmake.org/cmake/help/latest/command/set_target_properties.html
 [cmake-set_property]: https://cmake.org/cmake/help/latest/command/set_property.html
 [cmake-get_property]: https://cmake.org/cmake/help/latest/command/get_property.html
@@ -578,16 +573,6 @@ differences, if any) is:
 [cmake-target_compile_features]: https://cmake.org/cmake/help/latest/command/target_compile_features.html
 [cmake-target_link_libraries]: https://cmake.org/cmake/help/latest/command/target_link_libraries.html
 [cmake-target_link_options]: https://cmake.org/cmake/help/latest/command/target_link_options.html
-[vtk_module_set_properties]: @ref vtk_module_set_properties
-[vtk_module_set_property]: @ref vtk_module_set_property
-[vtk_module_get_property]: @ref vtk_module_get_property
-[vtk_module_depend]: @ref vtk_module_depend
-[vtk_module_include]: @ref vtk_module_include
-[vtk_module_definitions]: @ref vtk_module_definitions
-[vtk_module_compile_options]: @ref vtk_module_compile_options
-[vtk_module_compile_features]: @ref vtk_module_compile_features
-[vtk_module_link]: @ref vtk_module_link
-[vtk_module_link_options]: @ref vtk_module_link_options
 
 ## Packaging support
 
@@ -598,10 +583,10 @@ simplify the process can be made.
 
 ### Assumptions
 
-The main assumption is that all modules passed to a single [vtk_module_build][]
+The main assumption is that all modules passed to a single {cmake:command}`vtk_module_build`
 have the same CMake namespace (the part up to and including the `::`, if any,
 in a module name. For exporting dependencies, that namespace matches the
-`PACKAGE` argument for [vtk_module_build][]. These are done so that the
+`PACKAGE` argument for {cmake:command}`vtk_module_build`. These are done so that the
 generated code can use
 [`CMAKE_FIND_PACKAGE_NAME`][cmake-CMAKE_FIND_PACKAGE_NAME] variable can be
 used to discover information about the package that is being found.
@@ -626,7 +611,7 @@ project-specific and hard to generalize in a useful way. Instead, files are
 generated which should be included from the main file.
 
 Here, the list of files generated are based on the `PACKAGE` argument passed to
-[vtk_module_build][]:
+{cmake:command}`vtk_module_build`:
 
   - `<PACKAGE>-targets.cmake`: The CMake-generated export file for the targets
     in the `INSTALL_EXPORT`.
@@ -642,12 +627,12 @@ Since the module system is heavily skewed towards using imported targets, these
 targets show up by name in the [`find_package`][cmake-find_package] of the
 project as well. This means that these external projects need to be found to
 recreate their imported targets at that time. To this end, there is the
-[vtk_module_export_find_packages][] function. This function writes a file named
+{cmake:command}`vtk_module_export_find_packages` function. This function writes a file named
 according to its `FILE_NAME` argument and place it in the build and install
 trees according to its `CMAKE_DESTINATION` argument.
 
 This file will be populated with logic to determine whether third party packages
-found using [vtk_module_find_package][] are required during the
+found using {cmake:command}`vtk_module_find_package` are required during the
 [`find_package`][cmake-find_package] of the package or not. It will forward
 `REQUIRED` and `QUIET` parameters to other [`find_package`][cmake-find_package]
 calls as necessary based on the `REQUIRED` and `QUIET` flags for the package
@@ -656,16 +641,13 @@ component-less [`find_package`][cmake-find_package] call is assumed to mean
 "all components").
 
 This file should be included after the `<PACKAGE>-vtk-module-properties.cmake`
-file generated by the [vtk_module_build][] call so that it can use the module
+file generated by the {cmake:command}`vtk_module_build` call so that it can use the module
 dependency information set via that file.
 
 After this file is included, for each component that it checks, it will set
 `${CMAKE_FIND_PACKAGE_NAME}_<component>_FOUND` to 0 if it is not valid and
 append a reason to `${CMAKE_FIND_PACKAGE_NAME}_<component>_NOT_FOUND_MESSAGE`
 so that the package can collate the reason why things are not available.
-
-[vtk_module_export_find_packages]: @ref vtk_module_export_find_packages
-[vtk_module_find_package]: @ref vtk_module_find_package
 
 ### Setting the `_FOUND` variable
 
@@ -698,19 +680,16 @@ not normally required in a simple project.
 
 ### Kits
 
-Kits are described in [vtk.kit][] files which act much like [vtk.module][]
+Kits are described in {ref}`vtk.kit <module-parse-kit>` files which act much like {ref}`vtk.module <module-parse-module>`
 files. However, they only have `NAME`, `LIBRARY_NAME`, and `DESCRIPTION` fields.
 These all act just like they do in the `vtk.module` context. These files may
-either be passed manually to [vtk_module_scan][] or discovered by using the
-[vtk_module_find_kits][] convenience function.
+either be passed manually to {cmake:command}`vtk_module_scan` or discovered by using the
+{cmake:command}`vtk_module_find_kits` convenience function.
 
-Before a module may be a member of a kit, a [vtk.kit][] must declare it and be
+Before a module may be a member of a kit, a {ref}`vtk.kit <module-parse-kit>` must declare it and be
 scanned at the same time. This means that kits may only contain modules that are
 scanned with them and cannot be extended later nor may kits be made of modules
 that they do not know about.
-
-[vtk.kit]: @ref module-parse-kit
-[vtk_module_find_kits]: @ref vtk_module_find_kits
 
 #### Requirements
 
@@ -739,16 +718,13 @@ implementation to the factory code. There is no such support in CMake and due to
 the complexities and code generation involved with this support, it is unlikely
 to exist.
 
-Code which uses modules may call the [vtk_module_autoinit][] function to use
+Code which uses modules may call the {cmake:command}`vtk_module_autoinit` function to use
 this functionality. The list of modules passed to the function are used to
 compute the defines necessary to trigger the registration to factories when
 necessary.
 
 For details on the implementation of the autoinit system, please see
-[the relevant section][autoinit] in the API documentation.
-
-[vtk_module_autoinit]: @ref vtk_module_autoinit
-[autoinit]: @ref module-autoinit
+{ref}`the relevant section <module-autoinit>` in the API documentation.
 
 <a name="wrapping"></a>
 ### Wrapping
@@ -764,7 +740,7 @@ wrapping code if wanted.
 
 #### Python
 
-For Python, the [vtk_module_wrap_python][] function must be used. This function
+For Python, the {cmake:command}`vtk_module_wrap_python` function must be used. This function
 takes a list of modules in its `MODULES` argument and creates Python modules
 for use under the `PYTHON_PACKAGE` package. No `__init__.py` for this package
 is created automatically and must be provided in some other way.
@@ -780,19 +756,16 @@ always be called in static or shared builds.
 
 The modules will be installed under the `MODULE_DESTINATION` given to the
 function into the `PYTHON_PACKAGE` directory needed for it. The
-[vtk_module_python_default_destination][] function is used to determine a
+{cmake:command}`vtk_module_python_default_destination` function is used to determine a
 default if one is not passed.
 
 The Python wrappers define a `__VTK_WRAP_PYTHON__` preprocessor definition when
 reading code which may be used to hide methods or other details from the Python
 wrapping code.
 
-[vtk_module_wrap_python]: @ref vtk_module_wrap_python
-[vtk_module_python_default_destination]: @ref vtk_module_python_default_destination
-
 #### Java
 
-For Java, the [vtk_module_wrap_java][] function must be used. This function
+For Java, the {cmake:command}`vtk_module_wrap_java` function must be used. This function
 creates Java sources for classes in the modules passed in its `MODULES`
 argument. The sources are written to a `JAVA_OUTPUT` directory. These then can
 be compiled by CMake normally.
@@ -806,8 +779,6 @@ in an [`add_dependencies`][cmake-add_dependencies] call.
 The Java wrappers define a `__VTK_WRAP_JAVA__` preprocessor definition when
 reading code which may be used to hide methods or other details from the Java
 wrapping code.
-
-[vtk_module_wrap_java]: @ref vtk_module_wrap_java
 
 #### Hierarchy files
 
@@ -823,13 +794,13 @@ build. These may be built as part of the project or represented using other
 mechanisms (usually [`find_package`][cmake-find_package] and a set of imported
 targets from it).
 
-The primary API is [vtk_module_third_party][] which creates a
+The primary API is {cmake:command}`vtk_module_third_party` which creates a
 `VTK_MODULE_USE_EXTERNAL_Namespace_Target` option for the module to switch
 between an internal and external source for the third party code. This value
 defaults to the setting of the `USE_EXTERNAL` argument for the calling
-[vtk_module_build][] function. Arguments passed under the `INTERNAL` and
+{cmake:command}`vtk_module_build` function. Arguments passed under the `INTERNAL` and
 `EXTERNAL` arguments to this command are then passed on to
-[vtk_module_third_party_internal][] or [vtk_module_third_party_external][],
+{cmake:command}`vtk_module_third_party_internal` or {cmake:command}`vtk_module_third_party_external`,
 respectively, depending on the `VTK_MODULE_USE_EXTERNAL_Namespace_Target`
 option.
 
@@ -837,15 +808,11 @@ Note that third party modules (marked as such by adding the `THIRD_PARTY`
 keyword to a `vtk.module` file) may not be part of a kit, be wrapped, or
 participate in autoinit.
 
-[vtk_module_third_party]: @ref vtk_module_third_party
-[vtk_module_third_party_internal]: @ref vtk_module_third_party_internal
-[vtk_module_third_party_external]: @ref vtk_module_third_party_external
-
 #### External third party modules
 
 External modules are found using CMake's [`find_package`][cmake-find_package]
 mechanism. In addition to the arguments supported by
-[vtk_module_find_package][] (except `PRIVATE`), information about the found
+{cmake:command}`vtk_module_find_package` (except `PRIVATE`), information about the found
 package is used to construct a module target which represents the third party
 package. The preferred mechanism is to give a list of imported targets to the
 `LIBRARIES` argument. These will be added to the `INTERFACE` of the module and
@@ -953,4 +920,4 @@ Some mechanisms use global properties instead:
 
   - `_vtk_module_autoinit_include`: The file that needs to be included in order
     to make the `VTK_MODULE_AUTOINIT` symbol available for use in the
-    [autoinit][] support.
+    [autoinit](#autoinit) support.

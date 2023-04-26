@@ -1,0 +1,6 @@
+.. |module| replace:: :bdg-ref-light:`module <module-bullet>`
+.. |module-internal| replace:: :bdg-ref-light:`module-internal <module-internal-bullet>`
+.. |module-impl| replace:: :bdg-ref-light:`module-impl <module-impl-bullet>`
+.. |module-support| replace:: :bdg-ref-light:`module-support <module-support-bullet>`
+.. |module-wrapping-java| replace:: :bdg-ref-light:`module-wrapping-java <module-wrapping-java>`
+.. |module-wrapping-python| replace:: :bdg-ref-light:`module-wrapping-python <module-wrapping-python>`
