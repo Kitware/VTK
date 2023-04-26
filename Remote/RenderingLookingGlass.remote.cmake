@@ -5,5 +5,5 @@
 vtk_fetch_module(RenderingLookingGlass
         "Looking Glass Support for VTK"
         GIT_REPOSITORY https://github.com/Kitware/LookingGlassVTKModule
-        GIT_TAG 55dad9093d03b2b6443f772d1c3aad6bfd1b6f0c
+        GIT_TAG 9c12ff44b8ab88b4eb4ab3ec427becfc4518020e
         )
