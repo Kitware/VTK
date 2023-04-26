@@ -395,8 +395,11 @@ struct VTile
       numToDelete++;
       tPtr->Theta = VTK_FLOAT_MAX;
     }
-    this->Verts.emplace_back(VVertex(ptId, this->TileX, xR));
-    this->Verts.emplace_back(VVertex(tLeft->PointId, this->TileX, xL));
+
+    auto newVert1 = VVertex(ptId, this->TileX, xR);
+    auto newVert2 = VVertex(tLeft->PointId, this->TileX, xL);
+    this->Verts.emplace_back(newVert1);
+    this->Verts.emplace_back(newVert2);
     std::sort(this->Verts.begin(), this->Verts.end(), VVertexCompare);
     for (i = 0; i < numToDelete; ++i)
     {

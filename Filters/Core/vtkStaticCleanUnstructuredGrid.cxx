@@ -365,6 +365,8 @@ vtkStaticCleanUnstructuredGrid::vtkStaticCleanUnstructuredGrid()
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 
   this->Locator = vtkSmartPointer<vtkStaticPointLocator>::New();
+
+  this->PieceInvariant = true;
 }
 
 //------------------------------------------------------------------------------

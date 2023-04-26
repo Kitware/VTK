@@ -316,7 +316,6 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   double CosFeatureAngle; // Cosine of angle between adjacent polys
   double CosEdgeAngle;    // Cosine of angle between adjacent edges
   double closestPt[3], dist2;
-  std::vector<double> w;
   vtkIdType numSimple = 0, numBEdges = 0, numFixed = 0, numFEdges = 0;
   vtkPolyData* Mesh;
   vtkPoints* inPts;
@@ -666,13 +665,15 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   // If a Source is defined, we do constrained smoothing (that is, points are
   // constrained to the surface of the mesh object).
+  std::unique_ptr<double[]> w;
   vtkSmartPointer<vtkCellLocator> cellLocator;
   if (source)
   {
     this->SmoothPoints = std::unique_ptr<vtkSmoothPoints>(new vtkSmoothPoints);
     vtkSmoothPoint* sPtr;
     cellLocator.TakeReference(vtkCellLocator::New());
-    w.reserve(source->GetMaxCellSize());
+    auto maxCellSize = source->GetMaxCellSize();
+    w.reset(new double[maxCellSize]);
     cellLocator->SetDataSet(source);
     cellLocator->BuildLocator();
 
@@ -695,7 +696,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   if (newPts->GetDataType() == VTK_DOUBLE)
   {
     vtkSPDF_InternalParams<double> params = { this, this->NumberOfIterations, newPts,
-      this->RelaxationFactor, conv, numPts, Verts, source, this->SmoothPoints.get(), w.data(),
+      this->RelaxationFactor, conv, numPts, Verts, source, this->SmoothPoints.get(), w.get(),
       cellLocator };
 
     vtkSPDF_MovePoints(params);
@@ -704,7 +705,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkSPDF_InternalParams<float> params = { this, this->NumberOfIterations, newPts,
       static_cast<float>(this->RelaxationFactor), static_cast<float>(conv), numPts, Verts, source,
-      this->SmoothPoints.get(), w.data(), cellLocator };
+      this->SmoothPoints.get(), w.get(), cellLocator };
 
     vtkSPDF_MovePoints(params);
   }

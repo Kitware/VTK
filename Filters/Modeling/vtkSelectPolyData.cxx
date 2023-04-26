@@ -623,32 +623,44 @@ bool vtkSelectPolyData::IsBoundaryEdge(
     vtkIdType edgePointId = edgePointIds->GetId(edgePointIndex);
     if (edgePointId == pointId1)
     {
-      vtkIdType edgePointIdAfter = edgePointIds->GetId((edgePointIndex + 1) % numMeshLoopPts);
-      if (edgePointIdAfter == pointId2)
+      if (edgePointIndex < numMeshLoopPts - 1)
       {
-        // boundary edge
-        return true;
+        vtkIdType edgePointIdAfter = edgePointIds->GetId(edgePointIndex + 1);
+        if (edgePointIdAfter == pointId2)
+        {
+          // boundary edge
+          return true;
+        }
       }
-      vtkIdType edgePointIdBefore = edgePointIds->GetId((edgePointIndex - 1) % numMeshLoopPts);
-      if (edgePointIdBefore == pointId2)
+      if (edgePointIndex > 0)
       {
-        // boundary edge
-        return true;
+        vtkIdType edgePointIdBefore = edgePointIds->GetId(edgePointIndex - 1);
+        if (edgePointIdBefore == pointId2)
+        {
+          // boundary edge
+          return true;
+        }
       }
     }
     if (edgePointId == pointId2)
     {
-      vtkIdType edgePointIdAfter = edgePointIds->GetId((edgePointIndex + 1) % numMeshLoopPts);
-      if (edgePointIdAfter == pointId1)
+      if (edgePointIndex < numMeshLoopPts - 1)
       {
-        // boundary edge
-        return true;
+        vtkIdType edgePointIdAfter = edgePointIds->GetId(edgePointIndex + 1);
+        if (edgePointIdAfter == pointId1)
+        {
+          // boundary edge
+          return true;
+        }
       }
-      vtkIdType edgePointIdBefore = edgePointIds->GetId((edgePointIndex - 1) % numMeshLoopPts);
-      if (edgePointIdBefore == pointId1)
+      if (edgePointIndex > 0)
       {
-        // boundary edge
-        return true;
+        vtkIdType edgePointIdBefore = edgePointIds->GetId(edgePointIndex - 1);
+        if (edgePointIdBefore == pointId1)
+        {
+          // boundary edge
+          return true;
+        }
       }
     }
   }
