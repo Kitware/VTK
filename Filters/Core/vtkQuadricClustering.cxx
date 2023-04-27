@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkQuadricClustering.h"
 
+#include <cstdint>
+
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkExecutive.h"
@@ -553,9 +555,11 @@ void vtkQuadricClustering::AddTriangle(vtkIdType* binIds, double* pt0, double* p
             }
             break;
         }
-        // TODO: this arithmetic overflows with the TestQuadricLODActor test.
-        vtkIdType idx = binIds[minIdx] + this->NumberOfBins * binIds[midIdx] +
-          this->NumberOfBins * this->NumberOfBins * binIds[maxIdx];
+        int64_t upsizedBinMin = static_cast<int64_t>(binIds[minIdx]);
+        int64_t upsizedBinMid = static_cast<int64_t>(binIds[midIdx]);
+        int64_t upsizedBinMax = static_cast<int64_t>(binIds[maxIdx]);
+        int64_t idx = upsizedBinMin + this->NumberOfBins * upsizedBinMid +
+          this->NumberOfBins * this->NumberOfBins * upsizedBinMax;
         if (this->CellSet->find(idx) == this->CellSet->end())
         {
           this->CellSet->insert(idx);
