@@ -228,7 +228,6 @@ if (("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen" AND "$ENV{CMAKE_CONFIGURATI
     "^VTK::InteractionStylePython-TestStyleJoystickActor$"
     "^VTK::InteractionStylePython-TestStyleJoystickCamera$"
     "^VTK::InteractionStylePython-TestStyleRubberBandZoomPerspective$"
-    "^VTK::InteractionStylePython-TestStyleTrackballActor$"
     "^VTK::InteractionStylePython-TestStyleTrackballCamera$")
 endif ()
 
