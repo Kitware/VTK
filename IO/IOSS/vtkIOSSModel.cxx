@@ -166,23 +166,31 @@ std::map<unsigned char, int64_t> GetElementCounts(
   }
 
   // compute element counts
-  std::map<unsigned char, std::atomic<int64_t>> elementCounts;
-  for (auto& type : cellTypes)
-  {
-    elementCounts[type] = 0;
-  }
+  std::atomic<int64_t> elementCounts[VTK_NUMBER_OF_CELL_TYPES];
+  std::fill_n(elementCounts, VTK_NUMBER_OF_CELL_TYPES, 0);
 
   for (auto& ug : datasets)
   {
+    const unsigned char* cellTypesPtr = ug->GetCellTypesArray()->GetPointer(0);
     vtkSMPTools::For(0, ug->GetNumberOfCells(), [&](vtkIdType start, vtkIdType end) {
       for (vtkIdType cc = start; cc < end; ++cc)
       {
-        ++elementCounts[static_cast<unsigned char>(ug->GetCellType(cc))];
+        // memory_order_relaxed is safe here, since we're not using the atomics for synchronization.
+        elementCounts[cellTypesPtr[cc]].fetch_add(1, std::memory_order_relaxed);
       }
     });
   }
 
-  return { elementCounts.begin(), elementCounts.end() };
+  // convert element counts to a map
+  std::map<unsigned char, int64_t> elementCountsMap;
+  for (unsigned char i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
+  {
+    if (elementCounts[i] > 0)
+    {
+      elementCountsMap[i] = elementCounts[i];
+    }
+  }
+  return elementCountsMap;
 }
 
 //=============================================================================
