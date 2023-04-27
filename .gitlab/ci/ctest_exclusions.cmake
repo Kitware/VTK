@@ -85,9 +85,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # Syntax error in generated shader program.
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$")
 
-  if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
+  if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen" AND
+      NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "vtkmoverride")
     list(APPEND test_exclusions
-      # Passes on `offscreen`, fails elsewhere with MPI errors.
+      # Passes on `offscreen`, fails elsewhere with MPI errors. Works with
+      # `vtkmoverride` though?
       "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIOSS$"
       "^VTK::IOIOSSCxx-MPI-TestIOSSExodusParitionedFiles$"
       "^VTK::IOIOSSCxx-MPI-TestIOSSExodusRestarts$")
