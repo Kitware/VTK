@@ -183,9 +183,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$"
 
-    # Timeout; needs investigated
-    "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
-
     # Flaky on windows for some reasons:
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18640
     "^VTK::FiltersStatisticsCxx-TestMultiCorrelativeStatistics$"
