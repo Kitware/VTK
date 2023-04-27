@@ -231,14 +231,6 @@ if (("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen" AND "$ENV{CMAKE_CONFIGURATI
     "^VTK::InteractionStylePython-TestStyleTrackballCamera$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
-  list(APPEND test_exclusions
-    # Test fails sometimes with STDThread
-    # See #18555
-    "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
-    )
-endif ()
-
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vtkmoverride")
   list(APPEND test_exclusions
     # vtkmContour behaves differently than vtkContourFilter for these tests.
