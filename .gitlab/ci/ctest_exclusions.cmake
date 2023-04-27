@@ -237,16 +237,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
     # See #18555
     "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
     )
-
-  # Windows and stdthread related exclusions
-  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
-    list(APPEND test_exclusions
-      # See #18641
-      "^VTK::InteractionWidgetsCxx-TestImplicitPlaneWidget$"
-      "^VTK::InteractionWidgetsCxx-TestCompassWidget$"
-      "^VTK::InteractionWidgetsCxx-BoxWidget$"
-      )
-  endif ()
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vtkmoverride")
