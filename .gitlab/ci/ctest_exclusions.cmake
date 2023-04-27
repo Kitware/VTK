@@ -1,12 +1,15 @@
 set(test_exclusions
-  # Flaky; timesout sometimes on macOS and Linux
-  "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$"
-
   # Random Memory Leak #18599
   "^VTK::FiltersCorePython-probe$"
 
   # This test just seems to be incorrect.
   "^VTK::FiltersSelectionCxx-TestLinearSelector3D$")
+
+if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
+  list(APPEND test_exclusions
+    # Flaky; timesout sometimes on macOS and Linux
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$")
+endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
