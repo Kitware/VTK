@@ -625,6 +625,8 @@ public:
   vtkTypeBool ProcessRequest(
     vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
+  static vtkInformationIntegerKey* ENTITY_ID();
+
 protected:
   vtkIOSSReader();
   ~vtkIOSSReader() override;

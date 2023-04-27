@@ -76,7 +76,6 @@
 
 #include <array>
 #include <cassert>
-#include <functional>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -1291,8 +1290,10 @@ bool vtkIOSSReader::vtkInternals::GenerateOutput(
         vtkNew<vtkPartitionedDataSet> parts;
         output->SetPartitionedDataSet(pdsIdx, parts);
         output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
-        output->GetMetaData(pdsIdx)->Set(
-          vtkIOSSReader::ENTITY_TYPE(), etype); // save for vtkIOSSReader use.
+        // save for vtkIOSSReader use.
+        output->GetMetaData(pdsIdx)->Set(vtkIOSSReader::ENTITY_TYPE(), etype);
+        // save for vtkIOSSWriter use.
+        output->GetMetaData(pdsIdx)->Set(vtkIOSSReader::ENTITY_ID(), ename.first);
         auto node = assembly->AddNode(
           vtkDataAssembly::MakeValidNodeName(ename.second.c_str()).c_str(), entity_node);
         assembly->SetAttribute(node, "label", ename.second.c_str());
@@ -1307,8 +1308,10 @@ bool vtkIOSSReader::vtkInternals::GenerateOutput(
       vtkNew<vtkPartitionedDataSet> parts;
       output->SetPartitionedDataSet(pdsIdx, parts);
       output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), mergedEntityName);
-      output->GetMetaData(pdsIdx)->Set(
-        vtkIOSSReader::ENTITY_TYPE(), etype); // save for vtkIOSSReader use.
+      // save for vtkIOSSReader use.
+      output->GetMetaData(pdsIdx)->Set(vtkIOSSReader::ENTITY_TYPE(), etype);
+      // save for vtkIOSSWriter use.
+      output->GetMetaData(pdsIdx)->Set(vtkIOSSReader::ENTITY_ID(), etype);
       auto node = assembly->AddNode(
         vtkDataAssembly::MakeValidNodeName(mergedEntityName).c_str(), entity_node);
       assembly->SetAttribute(node, "label", mergedEntityName);
@@ -2682,6 +2685,7 @@ bool vtkIOSSReader::vtkInternals::GetGlobalFields(
 vtkStandardNewMacro(vtkIOSSReader);
 vtkCxxSetObjectMacro(vtkIOSSReader, Controller, vtkMultiProcessController);
 vtkInformationKeyMacro(vtkIOSSReader, ENTITY_TYPE, Integer);
+vtkInformationKeyMacro(vtkIOSSReader, ENTITY_ID, Integer);
 //----------------------------------------------------------------------------
 vtkIOSSReader::vtkIOSSReader()
   : Controller(nullptr)
