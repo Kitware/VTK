@@ -56,6 +56,12 @@ public:
    */
   std::string MD5() const;
 
+  /**
+   * Returns true if the global ids have been created for this model,
+   * because they were not present in the input data.
+   */
+  bool GlobalIdsCreated() const;
+
 private:
   vtkIOSSModel(const vtkIOSSModel&) = delete;
   void operator=(const vtkIOSSModel&) = delete;

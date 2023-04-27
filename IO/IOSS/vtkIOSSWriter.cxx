@@ -281,6 +281,10 @@ void vtkIOSSWriter::WriteData()
     controller->AllReduce(&structureChanged, &globalStructureChanged, 1, vtkCommunicator::MAX_OP);
     structureChanged = globalStructureChanged;
   }
+  if (model.GlobalIdsCreated() && internals.CurrentTimeStepIndex == this->TimeStepRange[0])
+  {
+    vtkWarningMacro("Global ids were not present. They were created assuming uniqueness.");
+  }
 
   if (internals.CurrentTimeStepIndex == this->TimeStepRange[0] || structureChanged)
   {

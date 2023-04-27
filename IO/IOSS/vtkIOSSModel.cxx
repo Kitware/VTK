@@ -63,8 +63,8 @@
 namespace
 {
 //=============================================================================
-void HandleGlobalIds(vtkIOSSWriter* writer, vtkPartitionedDataSetCollection* pdc, int association,
-  vtkMultiProcessController* controller)
+bool HandleGlobalIds(
+  vtkPartitionedDataSetCollection* pdc, int association, vtkMultiProcessController* controller)
 {
   const auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pdc);
   // check if global ids are present, otherwise create them.
@@ -86,9 +86,6 @@ void HandleGlobalIds(vtkIOSSWriter* writer, vtkPartitionedDataSetCollection* pdc
 
   if (!hasGlobalIds)
   {
-    const std::string assoc = association == vtkDataObject::POINT ? "point" : "cell";
-    vtkWarningWithObjectMacro(
-      writer, "Global " << assoc << " ids are not present. Creating them assuming uniqueness.");
     const auto numElements = std::accumulate(datasets.begin(), datasets.end(), 0,
       [&](int sum, vtkUnstructuredGrid* ds) { return sum + ds->GetNumberOfElements(association); });
 
@@ -121,6 +118,8 @@ void HandleGlobalIds(vtkIOSSWriter* writer, vtkPartitionedDataSetCollection* pdc
       startId += numberOfElements;
     }
   }
+  // returns if globals were created or not.
+  return !hasGlobalIds;
 }
 
 //=============================================================================
@@ -959,6 +958,7 @@ public:
   vtkSmartPointer<vtkMultiProcessController> Controller;
   vtkSmartPointer<vtkPartitionedDataSetCollection> DataSet;
   std::multimap<Ioss::EntityType, std::shared_ptr<vtkGroupingEntity>> EntityGroups;
+  bool GlobalIdsCreated;
 };
 
 //----------------------------------------------------------------------------
@@ -976,10 +976,11 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
   dataset = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
   dataset->CopyStructure(pdc);
   dataset->ShallowCopy(pdc);
+  internals.GlobalIdsCreated = false;
   // create global point ids if needed
-  ::HandleGlobalIds(writer, dataset, vtkDataObject::POINT, controller);
+  internals.GlobalIdsCreated |= ::HandleGlobalIds(dataset, vtkDataObject::POINT, controller);
   // create global cell ids if needed
-  ::HandleGlobalIds(writer, dataset, vtkDataObject::CELL, controller);
+  internals.GlobalIdsCreated |= ::HandleGlobalIds(dataset, vtkDataObject::CELL, controller);
 
   auto* assembly = dataset->GetDataAssembly();
   const bool isIOSS = writer->GetPreserveInputEntityGroups() &&
@@ -1169,5 +1170,11 @@ std::string vtkIOSSModel::MD5() const
   vtksysMD5_Delete(md5);
   md5Hash[32] = '\0';
   return std::string(md5Hash);
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSModel::GlobalIdsCreated() const
+{
+  return this->Internals->GlobalIdsCreated;
 }
 VTK_ABI_NAMESPACE_END
