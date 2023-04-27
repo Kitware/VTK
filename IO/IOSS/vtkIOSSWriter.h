@@ -92,6 +92,18 @@ public:
 
   ///@{
   /**
+   * If input is transformed, e.g. through clipping, new element blocks may be created.
+   * This flag can be used to indicate whether to preserve the original ids from blocks.
+   *
+   * The default is false.
+   */
+  vtkSetMacro(PreserveOriginalIds, bool);
+  vtkGetMacro(PreserveOriginalIds, bool);
+  vtkBooleanMacro(PreserveOriginalIds, bool);
+  ///@}
+
+  ///@{
+  /**
    * If input dataset has displacements pre-applied, setting the displacement
    * magnitude to non-zero ensures that the point coordinates in the dataset are
    * correctly transformed using the displacement field array, if present.
@@ -175,6 +187,7 @@ private:
   char* FileName;
   bool RemoveGhosts;
   bool OffsetGlobalIds;
+  bool PreserveOriginalIds;
   double DisplacementMagnitude;
   int TimeStepRange[2];
   int TimeStepStride;

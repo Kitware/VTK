@@ -2046,29 +2046,48 @@ bool vtkIOSSReader::vtkInternals::GenerateEntityIdArray(vtkCellData* cd, vtkIdTy
   auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
   auto region = this->GetRegion(handle);
   auto group_entity = region->get_entity(blockname, ioss_entity_type);
-  if (!group_entity || !group_entity->property_exists("id"))
-  {
-    return false;
-  }
+  const bool group_id_exists = group_entity && group_entity->property_exists("id");
 
   auto& cache = this->Cache;
-  const std::string cacheKey{ "__vtk_entity_id__" };
-
-  if (auto cachedArray = vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
+  if (group_id_exists)
   {
-    cd->AddArray(cachedArray);
+    const std::string cacheKey{ "__vtk_entity_id__" };
+    if (auto cachedArray = vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
+    {
+      cd->AddArray(cachedArray);
+    }
+    else
+    {
+      vtkNew<vtkIdTypeArray> objectId;
+      objectId->SetNumberOfTuples(numberOfCells);
+      objectId->FillValue(static_cast<vtkIdType>(group_entity->get_property("id").get_int()));
+      objectId->SetName("object_id");
+      cache.Insert(group_entity, cacheKey, objectId);
+      cd->AddArray(objectId);
+    }
   }
-  else
+  const bool group_original_id_exists =
+    group_entity && group_entity->property_exists("original_id");
+  if (group_original_id_exists)
   {
-    vtkNew<vtkIdTypeArray> objectId;
-    objectId->SetNumberOfTuples(numberOfCells);
-    objectId->FillValue(static_cast<vtkIdType>(group_entity->get_property("id").get_int()));
-    objectId->SetName("object_id");
-    cache.Insert(group_entity, cacheKey, objectId);
-    cd->AddArray(objectId);
+    const std::string cacheKey{ "__vtk_original_entity_id__" };
+    if (auto cachedArray = vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
+    {
+      cd->AddArray(cachedArray);
+    }
+    else
+    {
+      vtkNew<vtkIdTypeArray> originalObjectId;
+      originalObjectId->SetNumberOfTuples(numberOfCells);
+      originalObjectId->FillValue(
+        static_cast<vtkIdType>(group_entity->get_property("original_id").get_int()));
+      originalObjectId->SetName("original_object_id");
+      cache.Insert(group_entity, cacheKey, originalObjectId);
+      cd->AddArray(originalObjectId);
+    }
   }
 
-  return true;
+  return group_id_exists || group_original_id_exists;
 }
 
 //----------------------------------------------------------------------------

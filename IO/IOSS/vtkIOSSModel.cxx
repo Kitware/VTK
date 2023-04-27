@@ -233,6 +233,11 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(
     // skip "object_id". that's an array added by Ioss reader.
     tmpDA->RemoveArray("object_id");
   }
+  if (tmpDA->HasArray("original_object_id"))
+  {
+    // skip "original_object_id". that's an array added by Ioss reader.
+    tmpDA->RemoveArray("original_object_id");
+  }
   if (controller->GetNumberOfProcesses() == 1)
   {
     for (int idx = 0, max = tmpDA->GetNumberOfArrays(); idx < max; ++idx)
@@ -702,6 +707,11 @@ struct vtkElementBlock : public vtkGroupingEntity
       auto* elementBlock =
         new Ioss::ElementBlock(region.get_database(), blockInfo.second, elementType, elementCount);
       elementBlock->property_add(Ioss::Property("id", blockInfo.first));
+      if (this->Writer->GetPreserveOriginalIds())
+      {
+        elementBlock->property_add(
+          Ioss::Property("original_id", this->BlockId, Ioss::Property::ATTRIBUTE));
+      }
       region.add(elementBlock);
     }
   }
