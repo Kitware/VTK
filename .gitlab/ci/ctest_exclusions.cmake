@@ -233,9 +233,6 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
   list(APPEND test_exclusions
-    # See #18623
-    "^VTK::CommonDataModelCxx-TestPolyhedronCombinatorialContouring$"
-
     # Test fails sometimes with STDThread
     # See #18555
     "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
