@@ -395,7 +395,7 @@ void WeightAttributes(vtkPointData* inPD, vtkPointData* outPD, vtkDoubleArray* w
         vtkGenericWarningMacro("One of the arrays in the point data is nullptr.");
         continue;
       }
-      auto outAbsArr = outPD->GetAbstractArray(inArr->GetName());
+      auto outAbsArr = outPD->GetAbstractArray(inAbsArr->GetName());
       if (!outAbsArr)
       {
         vtkGenericWarningMacro("Output array " << inAbsArr->GetName() << " is nullptr.");
