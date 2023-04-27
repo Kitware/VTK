@@ -80,6 +80,7 @@ vtkIOSSWriter::vtkIOSSWriter()
   : Internals(new vtkIOSSWriter::vtkInternals)
   , Controller(nullptr)
   , FileName(nullptr)
+  , RemoveGhosts(true)
   , OffsetGlobalIds(false)
   , PreserveInputEntityGroups(false)
   , DisplacementMagnitude(1.0)
@@ -340,6 +341,7 @@ void vtkIOSSWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(nullptr)") << endl;
+  os << indent << "RemoveGhosts: " << (this->RemoveGhosts ? "On" : "Off") << endl;
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "OffsetGlobalIds: " << OffsetGlobalIds << endl;
   os << indent << "PreserveInputEntityGroups: " << this->PreserveInputEntityGroups << endl;

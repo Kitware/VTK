@@ -626,7 +626,7 @@ struct vtkNodeBlock : vtkGroupingEntity
  */
 struct vtkElementBlock : public vtkGroupingEntity
 {
-  vtkPartitionedDataSet* PartitionedDataSet;
+  const std::vector<vtkUnstructuredGrid*> DataSets;
   std::string RootName;
   int BlockId;
   int StartSplitElementBlockId;
@@ -636,13 +636,13 @@ struct vtkElementBlock : public vtkGroupingEntity
   vtkElementBlock(vtkPartitionedDataSet* pd, const std::string& name, const int blockId,
     int startSplitElementBlockId, vtkMultiProcessController* controller, vtkIOSSWriter* writer)
     : vtkGroupingEntity(writer)
-    , PartitionedDataSet(pd)
+    , DataSets{ vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pd) }
     , RootName{ name }
     , BlockId{ blockId }
     , StartSplitElementBlockId{ startSplitElementBlockId }
   {
     auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pd);
-    for (auto& ug : datasets)
+    for (auto& ug : this->DataSets)
     {
       auto* cd = ug->GetCellData();
       auto* gids = vtkIdTypeArray::SafeDownCast(cd->GetGlobalIds());
@@ -724,7 +724,6 @@ struct vtkElementBlock : public vtkGroupingEntity
 
   void Model(Ioss::Region& region) const override
   {
-    auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(this->PartitionedDataSet);
     for (const auto& element : this->ElementCounts)
     {
       const int64_t elementCount = element.second;
@@ -745,14 +744,17 @@ struct vtkElementBlock : public vtkGroupingEntity
       connectivity.reserve(elementCount * nodeCount);
 
       const int32_t gidOffset = this->Writer->GetOffsetGlobalIds() ? 1 : 0;
-      for (auto& ug : datasets)
+      const bool removeGhosts = this->Writer->GetRemoveGhosts();
+      for (auto& ug : this->DataSets)
       {
+        vtkUnsignedCharArray* ghost = ug->GetCellGhostArray();
         auto* gids = vtkIdTypeArray::SafeDownCast(ug->GetCellData()->GetGlobalIds());
         auto* pointGIDs = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetGlobalIds());
 
         for (vtkIdType cc = 0, max = ug->GetNumberOfCells(); cc < max; ++cc)
         {
-          if (ug->GetCellType(cc) == vtk_cell_type)
+          const bool process = !removeGhosts || !ghost || ghost->GetValue(cc) == 0;
+          if (process && ug->GetCellType(cc) == vtk_cell_type)
           {
             elementIds.push_back(gidOffset + gids->GetValue(cc));
 
@@ -776,7 +778,6 @@ struct vtkElementBlock : public vtkGroupingEntity
 
   void Transient(Ioss::Region& region) const override
   {
-    auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(this->PartitionedDataSet);
     for (const auto& element : this->ElementCounts)
     {
       const unsigned char vtk_cell_type = element.first;
@@ -789,13 +790,16 @@ struct vtkElementBlock : public vtkGroupingEntity
 
       // populate ids.
       std::vector<std::vector<vtkIdType>> lIds; // these are local ids.
-      for (auto& ug : datasets)
+      const bool removeGhosts = this->Writer->GetRemoveGhosts();
+      for (auto& ug : this->DataSets)
       {
+        vtkUnsignedCharArray* ghost = ug->GetCellGhostArray();
         lIds.emplace_back();
         lIds.back().reserve(ug->GetNumberOfCells());
         for (vtkIdType cc = 0, max = ug->GetNumberOfCells(); cc < max; ++cc)
         {
-          if (ug->GetCellType(cc) == vtk_cell_type)
+          const bool process = !removeGhosts || !ghost || ghost->GetValue(cc) == 0;
+          if (process && ug->GetCellType(cc) == vtk_cell_type)
           {
             lIds.back().push_back(cc);
           }
@@ -803,7 +807,7 @@ struct vtkElementBlock : public vtkGroupingEntity
       }
 
       // add fields.
-      this->PutFields(elementBlock, this->Fields, lIds, datasets, vtkDataObject::CELL);
+      this->PutFields(elementBlock, this->Fields, lIds, this->DataSets, vtkDataObject::CELL);
     }
   }
 };
@@ -931,15 +935,26 @@ struct vtkSideSet : public vtkGroupingEntity
     std::vector<int32_t> elementSide;
     elementSide.reserve(this->Count * 2);
 
+    const bool removeGhosts = this->Writer->GetRemoveGhosts();
     auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(this->PartitionedDataSet);
     for (auto& ug : datasets)
     {
-      for (auto&& tuple : vtk::DataArrayTupleRange(
-             vtkIntArray::SafeDownCast(ug->GetCellData()->GetArray("element_side"))))
+      auto elemSideArray = vtkIntArray::SafeDownCast(ug->GetCellData()->GetArray("element_side"));
+      if (!elemSideArray)
       {
-        for (const auto& comp : tuple)
+        throw std::runtime_error("missing 'element_side' cell array.");
+      }
+      vtkUnsignedCharArray* ghost = ug->GetCellGhostArray();
+      const auto elementSideRange = vtk::DataArrayTupleRange(elemSideArray);
+      for (vtkIdType cc = 0; cc < elementSideRange.size(); ++cc)
+      {
+        const bool process = !removeGhosts || !ghost || ghost->GetValue(cc) == 0;
+        if (process)
         {
-          elementSide.push_back(comp);
+          for (const auto& comp : elementSideRange[cc])
+          {
+            elementSide.push_back(comp);
+          }
         }
       }
     }
