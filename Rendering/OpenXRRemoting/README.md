@@ -1,11 +1,12 @@
-# VTK - OpenXR Holographic Remoting
+# VTK::RenderingOpenXRRemoting
+## VTK - OpenXR Holographic Remoting
 
 Holographic remoting consists in a player application running on the XR device, and a VTK-based remote application running on a standard Windows machine.<br/>
 The remote application receives camera information and rendering resources from the player. It renders the VTK scene before streaming back the resulting texture to the player application.<br/>
 This way we avoid the need to build VTK for Universal Windows Platform (UWP), and we can also keep using VTK's OpenGL-based rendering pipeline.<br/>
 Still, DirectX must be used to fill the texture to be streamed back to the Hololens. This is possible by creating a texture shared by both a DirectX and an OpenGL context, thanks to the NV_DX_interop extension available on almost every recent GPU.
 
-## Player application
+### Player application
 
 - Download the Microsoft MixedReality HolographicRemoting [samples](https://github.com/microsoft/MixedReality-HolographicRemoting-Samples) and follow the instruction to build the player application.<br/>
   ⚠️ The version number in the branch name **must** match the version of the `Microsoft.Holographic.Remoting.OpenXr` package used below by the remote application.
@@ -15,7 +16,7 @@ Still, DirectX must be used to fill the texture to be streamed back to the Holol
 
 - When the player is deployed, you should see the following message: `Waiting for connection on XX.XX.XX.XX` where *XX.XX.XX.XX* describes the IP address the remote application should connect to.
 
-## Remote application
+### Remote application
 
 - Enable the CMake option `VTK_MODULE_ENABLE_VTK_RenderingOpenXRRemoting` when building VTK.
 
@@ -32,7 +33,7 @@ Still, DirectX must be used to fill the texture to be streamed back to the Holol
   The address of the player application to connect to must be set using `vtkOpenXRRemotingRenderWindow::SetRemotingIPAddress("XX.XX.XX.XX")` before starting the interactor.<br/>
   See the TestOpenXRRemotingInitialization test for a complete example.
 
-## Troubleshooting:
+### Troubleshooting:
 
 > The OpenXR runtime fails to create and initialize the XrInstance.
 

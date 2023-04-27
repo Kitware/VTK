@@ -1,4 +1,6 @@
-# vtkOpenSlideReader
+# VTK::DomainsMicroscopy
+
+## vtkOpenSlideReader
 - A new image reader for vtk
 - Wraps open source [openslide library](https://github.com/openslide/openslide "openslide") which implements read support for many whole slide image formats
 - Mainly from microscopy domain
