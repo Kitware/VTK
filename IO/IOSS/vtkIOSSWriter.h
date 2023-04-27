@@ -80,9 +80,14 @@ public:
    * flag is used to indicate whether the input has valid element
    * classifications.
    */
-  vtkSetMacro(PreserveInputEntityGroups, bool);
-  vtkGetMacro(PreserveInputEntityGroups, bool);
-  vtkBooleanMacro(PreserveInputEntityGroups, bool);
+  VTK_DEPRECATED_IN_9_3_0("PreserveInputEntityGroups is no longer needed.")
+  void SetPreserveInputEntityGroups(bool) {}
+  VTK_DEPRECATED_IN_9_3_0("PreserveInputEntityGroups is no longer needed.")
+  bool GetPreserveInputEntityGroups() { return true; }
+  VTK_DEPRECATED_IN_9_3_0("PreserveInputEntityGroups is no longer needed.")
+  void PreserveInputEntityGroupsOn() {}
+  VTK_DEPRECATED_IN_9_3_0("PreserveInputEntityGroups is no longer needed.")
+  void PreserveInputEntityGroupsOff() {}
   ///@}
 
   ///@{
@@ -170,7 +175,6 @@ private:
   char* FileName;
   bool RemoveGhosts;
   bool OffsetGlobalIds;
-  bool PreserveInputEntityGroups;
   double DisplacementMagnitude;
   int TimeStepRange[2];
   int TimeStepStride;

@@ -998,7 +998,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
   internals.GlobalIdsCreated |= ::HandleGlobalIds(dataset, vtkDataObject::CELL, controller);
 
   auto* assembly = dataset->GetDataAssembly();
-  const bool isIOSS = writer->GetPreserveInputEntityGroups() &&
+  const bool isIOSS =
     (assembly && assembly->GetRootNodeName() && strcmp(assembly->GetRootNodeName(), "IOSS") == 0);
   const auto elementBlockIndices = ::GetDatasetIndices(assembly, "element_blocks");
   const auto nodeSetIndices = ::GetDatasetIndices(assembly, "node_sets");

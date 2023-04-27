@@ -82,7 +82,6 @@ vtkIOSSWriter::vtkIOSSWriter()
   , FileName(nullptr)
   , RemoveGhosts(true)
   , OffsetGlobalIds(false)
-  , PreserveInputEntityGroups(false)
   , DisplacementMagnitude(1.0)
   , TimeStepRange{ 0, VTK_INT_MAX - 1 }
   , TimeStepStride(1)
@@ -344,7 +343,6 @@ void vtkIOSSWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RemoveGhosts: " << (this->RemoveGhosts ? "On" : "Off") << endl;
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "OffsetGlobalIds: " << OffsetGlobalIds << endl;
-  os << indent << "PreserveInputEntityGroups: " << this->PreserveInputEntityGroups << endl;
   os << indent << "DisplacementMagnitude: " << this->DisplacementMagnitude << endl;
   os << indent << "TimeStepRange: " << this->TimeStepRange[0] << ", " << this->TimeStepRange[1]
      << endl;
