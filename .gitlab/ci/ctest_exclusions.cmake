@@ -231,18 +231,6 @@ if (("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen" AND "$ENV{CMAKE_CONFIGURATI
     "^VTK::InteractionStylePython-TestStyleTrackballCamera$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vtkmoverride")
-  list(APPEND test_exclusions
-    # vtkmContour behaves differently than vtkContourFilter for these tests.
-    # Further investigation is needed to determine how to best handle these cases.
-    "^VTK::FiltersModelingPython-TestBoxFunction$"
-    "^VTK::FiltersCorePython-TestContourCases$"
-
-    # this tests for the number of cells and points, which can fail as vtkmClip
-    # can produce different number of cells and points
-    "^VTK::FiltersGeneralPython-tableBasedClip$")
-endif ()
-
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
   list(APPEND test_exclusions
     # The wheels have a broken `proj.db`.
