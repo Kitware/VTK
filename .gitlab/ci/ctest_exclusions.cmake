@@ -233,9 +233,6 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
   list(APPEND test_exclusions
-    # Timeout; needs investigated
-    # See #18477
-    "^VTK::FiltersModelingPython-TestCookieCutter4$"
     # See #18623
     "^VTK::CommonDataModelCxx-TestPolyhedronCombinatorialContouring$"
 
