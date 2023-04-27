@@ -217,7 +217,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 endif ()
 
-
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
   list(APPEND test_exclusions
     # Crowded geometry?
