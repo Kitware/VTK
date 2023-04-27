@@ -194,10 +194,8 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
   list(APPEND test_exclusions
-    # Seems to always fail.
+    # Flaky tests. They sometimes pass.
     "^VTK::InteractionWidgetsPython-TestInteractorEventRecorder$"
-
-    # This is a flaky test. It sometimes passes.
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 endif ()
 
