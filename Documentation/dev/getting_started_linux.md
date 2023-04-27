@@ -15,7 +15,7 @@ These instructions will will lead you step by step through the process of settin
 
 The instructions are based on Debian versions of Linux implementations. However work-arounds for other implementations are easily achieved.
 
-After completing these instructions, you will have a basic VTK build with Python wrappings. From this base you can then add more options and build settings as outlined in the full documentation [Building VTK](<./build.md>).
+After completing these instructions, you will have a basic VTK build with Python wrappings. From this base you can then add more options and build settings as outlined in the full documentation [Building VTK](./build.md).
 
 We are assuming that you are working in your home folder and the directory structure in your home folder will be:
 

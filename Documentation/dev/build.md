@@ -40,7 +40,7 @@ machine on which VTK is being built (e.g., Python, Qt).
 
 For new users of VTK or those wanting a quick setup on linux, these instructions will be useful:
 
-* [Getting Started Using Linux](<./getting_started_linux.md>). This will will lead you step by step through the process of setting up VTK in your home folder.
+* [Getting Started Using Linux](getting_started_linux.md). This will will lead you step by step through the process of setting up VTK in your home folder.
 
 Once you get everything working, don't forget to come back and read the rest of this document.
 
