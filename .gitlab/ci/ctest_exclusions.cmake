@@ -8,13 +8,6 @@ set(test_exclusions
   # This test just seems to be incorrect.
   "^VTK::FiltersSelectionCxx-TestLinearSelector3D$")
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
-  list(APPEND test_exclusions
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/18603
-    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleToImageCompositeDataSet$"
-    )
-endif ()
-
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
   list(APPEND test_exclusions
