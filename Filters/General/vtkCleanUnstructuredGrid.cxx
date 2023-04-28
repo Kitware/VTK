@@ -244,22 +244,28 @@ struct SpatialDensityStrategy : public WeighingStrategy
       vtkNew<vtkIdList> buffer;
       ds->GetCellPoints(0, buffer);
     }
-    vtkSMPTools::For(0, ds->GetNumberOfCells(), distribute);
+    distribute(0, ds->GetNumberOfCells());
+    // Merits a dedicated struct with a reduce operation
+    // collisions occuring in the += operation
+    // vtkSMPTools::For(0, ds->GetNumberOfCells(), distribute);
     // Normalize spatial densities with respect to point map
     {
       std::vector<double> masses(*std::max_element(ptMap.begin(), ptMap.end()) + 1, 0);
-      vtkSMPTools::For(
-        0, ds->GetNumberOfPoints(), [&dRange, &masses, &ptMap](vtkIdType begin, vtkIdType end) {
-          for (vtkIdType iP = begin; iP < end; ++iP)
+      auto computeMasses = [&dRange, &masses, &ptMap](vtkIdType begin, vtkIdType end) {
+        for (vtkIdType iP = begin; iP < end; ++iP)
+        {
+          if (ptMap[iP] < 0)
           {
-            if (ptMap[iP] < 0)
-            {
-              dRange[iP] = 0.0;
-              continue;
-            }
-            masses[ptMap[iP]] += dRange[iP];
+            dRange[iP] = 0.0;
+            continue;
           }
-        });
+          masses[ptMap[iP]] += dRange[iP];
+        }
+      };
+      computeMasses(0, ds->GetNumberOfPoints());
+      // Merits a dedicated struct with a reduce operation
+      // collisions occuring in the += operation
+      // vtkSMPTools::For(0, ds->GetNumberOfPoints(), computeMasses);
       vtkSMPTools::For(
         0, ds->GetNumberOfPoints(), [&dRange, &masses, &ptMap](vtkIdType begin, vtkIdType end) {
           for (vtkIdType iP = begin; iP < end; ++iP)
@@ -321,7 +327,10 @@ struct WeighingWorklet
         }
       }
     };
-    vtkSMPTools::For(0, inArray->GetNumberOfTuples(), weighing);
+    weighing(0, inArray->GetNumberOfTuples());
+    // Merits a dedicated struct with a reduce operation
+    // collisions occuring in the += operation
+    // vtkSMPTools::For(0, inArray->GetNumberOfTuples(), weighing);
   }
 };
 
@@ -386,7 +395,7 @@ void WeightAttributes(vtkPointData* inPD, vtkPointData* outPD, vtkDoubleArray* w
         vtkGenericWarningMacro("One of the arrays in the point data is nullptr.");
         continue;
       }
-      auto outAbsArr = outPD->GetAbstractArray(inArr->GetName());
+      auto outAbsArr = outPD->GetAbstractArray(inAbsArr->GetName());
       if (!outAbsArr)
       {
         vtkGenericWarningMacro("Output array " << inAbsArr->GetName() << " is nullptr.");
