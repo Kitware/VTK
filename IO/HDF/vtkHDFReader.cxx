@@ -711,9 +711,11 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
       double requestedValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-      this->Step = std::distance(
-        values, std::upper_bound(values, values + this->NumberOfSteps, requestedValue));
-      this->Step = this->Step >= this->NumberOfSteps ? this->NumberOfSteps - 1 : this->Step;
+      this->Step = std::distance(values,
+                     std::upper_bound(values, values + this->NumberOfSteps, requestedValue)) -
+        1;
+      this->Step = this->Step >= this->NumberOfSteps ? this->NumberOfSteps - 1
+                                                     : (this->Step < 0 ? 0 : this->Step);
       output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
     }
     this->TimeValue = values[this->Step];
