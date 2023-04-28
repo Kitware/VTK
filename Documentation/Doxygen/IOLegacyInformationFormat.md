@@ -1,6 +1,3 @@
-@page IOLegacyInformationFormat VTK Legacy Reader/Writer Information Format
-@tableofcontents
-
 # VTK Legacy Reader/Writer Information Format
 
 ## Overview

@@ -1,17 +1,5 @@
 # Building VTK using emscripten for WebAssembly
 
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Prerequisites](#prerequisites)
-    1. [Get CMake](#get-cmake)
-    2. [Get Emscripten SDK](#get-emscripten-sdk)
-    3. [Get VTK source code](#get-vtk-source-code)
-3. [Build project](#build-project)
-4. [Install project](#install-project)
-5. [Test with an example](#test-with-an-example)
-6. [Guide created using](#guide-created-using)
-
 ## Introduction
 
 This page describes how to build and install VTK using [emscripten](https://emscripten.org) on any platform.

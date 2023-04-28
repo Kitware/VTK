@@ -1,6 +1,3 @@
-@page VTK-7-1-ArrayDispatch vtkArrayDispatch and Related Tools
-@tableofcontents
-
 # vtkArrayDispatch and Related Tools
 
 ## Background

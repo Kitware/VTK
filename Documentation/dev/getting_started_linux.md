@@ -1,14 +1,5 @@
 # Getting Started Using Linux
 
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Tools Needed](#tools-needed)
-3. [Build VTK](#build-vtk)
-    1. [Using the VTK master](#using-the-vtk-master)
-    2. [Using a VTK release](#using-a-vtk-release)
-4. [Verification](#verification)
-
 ## Introduction
 
 These instructions will will lead you step by step through the process of setting up VTK in your home folder.

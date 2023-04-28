@@ -1,21 +1,5 @@
 # Building VTK using Visual Studio on Windows
 
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Prerequisites](#prerequisites)
-    1. [Get CMake](#get-cmake)
-    2. [Get Visual Studio](#get-visual-studio)
-    3. [Get VTK Source-code](#get-vtk-source-code)
-3. [BUILD SOLUTION](#build-solution)
-    1. [Prepare folder structure](#prepare-folder-structure)
-    2. [Run CMake](#run-cmake)
-    3. [Build](#build)
-4. [INSTALL](#install)
-5. [TEST WITH AN EXAMPLE](#test-with-an-example)
-6. [Guide created using](#guide-created-using)
-
-
 ## Introduction
 
 This page describes how to build and install VTK using Visual Studio on Windows in recipe-style fashion. It is also possible to build VTK on Windows without using Visual Studio directly, this is covered in [Building VTK](build.md).

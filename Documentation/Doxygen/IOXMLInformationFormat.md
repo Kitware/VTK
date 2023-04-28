@@ -1,6 +1,3 @@
-@page IOXMLInformationFormat VTK XML Reader/Writer Information Format
-@tableofcontents
-
 # VTK XML Reader/Writer Information Format
 
 ## Overview
