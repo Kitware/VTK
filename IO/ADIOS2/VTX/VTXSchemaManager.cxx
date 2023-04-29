@@ -51,8 +51,13 @@ void VTXSchemaManager::Update(
 
     const std::string fileName = helper::GetFileName(this->StreamName);
     this->IO = this->ADIOS->DeclareIO(fileName);
-    this->IO.SetEngine(helper::GetEngineType(fileName));
+    this->IO.SetEngine("BPFile");
+#ifdef IOADIOS2_BP5_RANDOM_ACCESS
+    // ReadRandomAccess necessary for BP5 format, optional for BP3/4
+    this->Engine = this->IO.Open(fileName, adios2::Mode::ReadRandomAccess);
+#else
     this->Engine = this->IO.Open(fileName, adios2::Mode::Read);
+#endif
     InitReader();
   }
   else

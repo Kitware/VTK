@@ -66,4 +66,9 @@ vtk_module_link(VTK::IOADIOS2 PRIVATE adios2::adios2)
 if (ADIOS2_HAVE_MPI)
   vtk_module_definitions(VTK::IOADIOS2 PRIVATE IOADIOS2_HAVE_MPI)
 endif ()
+
+if (ADIOS2_VERSION VERSION_GREATER_EQUAL "2.8.0")
+  vtk_module_definitions(VTK::IOADIOS2 PRIVATE IOADIOS2_BP5_RANDOM_ACCESS)
+endif()
+
 vtk_add_test_mangling(VTK::IOADIOS2)
