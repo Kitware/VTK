@@ -82,6 +82,11 @@ vtkTypeBool vtkCellGridAlgorithm::ProcessRequest(
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
+  {
+    return this->RequestUpdateTime(request, inputVector, outputVector);
+  }
+
   // execute information
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
@@ -128,6 +133,13 @@ int vtkCellGridAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request
       inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
     }
   }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkCellGridAlgorithm::RequestUpdateTime(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+{
   return 1;
 }
 

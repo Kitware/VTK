@@ -46,6 +46,11 @@ vtkTypeBool vtkArrayDataAlgorithm::ProcessRequest(
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
+  {
+    return this->RequestUpdateTime(request, inputVector, outputVector);
+  }
+
   // execute information
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
@@ -104,6 +109,13 @@ int vtkArrayDataAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(reques
       inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
     }
   }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkArrayDataAlgorithm::RequestUpdateTime(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+{
   return 1;
 }
 
