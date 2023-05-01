@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkIOSSWriter.h"
 
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkIOSSModel.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -68,6 +69,9 @@ public:
   int CurrentTimeStepIndex{ 0 };
   int RestartIndex{ 0 };
   std::string LastMD5;
+  std::set<std::string> ElementBlockSelectors;
+  std::set<std::string> NodeSetSelectors;
+  std::set<std::string> SideSetSelectors;
 
   vtkInternals() = default;
   ~vtkInternals() = default;
@@ -80,6 +84,7 @@ vtkIOSSWriter::vtkIOSSWriter()
   : Internals(new vtkIOSSWriter::vtkInternals)
   , Controller(nullptr)
   , FileName(nullptr)
+  , AssemblyName(nullptr)
   , RemoveGhosts(true)
   , OffsetGlobalIds(false)
   , PreserveOriginalIds(false)
@@ -88,6 +93,7 @@ vtkIOSSWriter::vtkIOSSWriter()
   , TimeStepStride(1)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
+  this->SetAssemblyName(vtkDataAssemblyUtilities::HierarchyName());
 }
 
 //----------------------------------------------------------------------------
@@ -95,6 +101,197 @@ vtkIOSSWriter::~vtkIOSSWriter()
 {
   this->SetController(nullptr);
   this->SetFileName(nullptr);
+  this->SetAssemblyName(nullptr);
+}
+
+//------------------------------------------------------------------------------
+bool vtkIOSSWriter::AddElementBlockSelector(const char* selector)
+{
+  if (selector)
+  {
+    auto& internals = *this->Internals;
+    if (internals.ElementBlockSelectors.insert(selector).second)
+    {
+      this->Modified();
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkIOSSWriter::ClearElementBlockSelectors()
+{
+  auto& internals = *this->Internals;
+  if (!internals.ElementBlockSelectors.empty())
+  {
+    internals.ElementBlockSelectors.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkIOSSWriter::SetElementBlockSelector(const char* selector)
+{
+  if (selector)
+  {
+    auto& internals = *this->Internals;
+    if (internals.ElementBlockSelectors.size() == 1 &&
+      *internals.ElementBlockSelectors.begin() == selector)
+    {
+      return;
+    }
+    internals.ElementBlockSelectors.clear();
+    internals.ElementBlockSelectors.insert(selector);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkIOSSWriter::GetNumberOfElementBlockSelectors() const
+{
+  auto& internals = *this->Internals;
+  return static_cast<int>(internals.ElementBlockSelectors.size());
+}
+
+//------------------------------------------------------------------------------
+const char* vtkIOSSWriter::GetElementBlockSelector(int index) const
+{
+  const auto& internals = *this->Internals;
+  if (index >= 0 && index < static_cast<int>(internals.ElementBlockSelectors.size()))
+  {
+    auto iter = std::next(internals.ElementBlockSelectors.begin(), index);
+    return iter->c_str();
+  }
+
+  vtkErrorMacro("Invalid index '" << index << "'.");
+  return nullptr;
+}
+
+//------------------------------------------------------------------------------
+bool vtkIOSSWriter::AddNodeSetSelector(const char* selector)
+{
+  if (selector)
+  {
+    auto& internals = *this->Internals;
+    if (internals.NodeSetSelectors.insert(selector).second)
+    {
+      this->Modified();
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkIOSSWriter::ClearNodeSetSelectors()
+{
+  auto& internals = *this->Internals;
+  if (!internals.NodeSetSelectors.empty())
+  {
+    internals.NodeSetSelectors.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkIOSSWriter::SetNodeSetSelector(const char* selector)
+{
+  if (selector)
+  {
+    auto& internals = *this->Internals;
+    if (internals.NodeSetSelectors.size() == 1 && *internals.NodeSetSelectors.begin() == selector)
+    {
+      return;
+    }
+    internals.NodeSetSelectors.clear();
+    internals.NodeSetSelectors.insert(selector);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkIOSSWriter::GetNumberOfNodeSetSelectors() const
+{
+  auto& internals = *this->Internals;
+  return static_cast<int>(internals.NodeSetSelectors.size());
+}
+
+//------------------------------------------------------------------------------
+const char* vtkIOSSWriter::GetNodeSetSelector(int index) const
+{
+  const auto& internals = *this->Internals;
+  if (index >= 0 && index < static_cast<int>(internals.NodeSetSelectors.size()))
+  {
+    auto iter = std::next(internals.NodeSetSelectors.begin(), index);
+    return iter->c_str();
+  }
+
+  vtkErrorMacro("Invalid index '" << index << "'.");
+  return nullptr;
+}
+
+//------------------------------------------------------------------------------
+bool vtkIOSSWriter::AddSideSetSelector(const char* selector)
+{
+  if (selector)
+  {
+    auto& internals = *this->Internals;
+    if (internals.SideSetSelectors.insert(selector).second)
+    {
+      this->Modified();
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkIOSSWriter::ClearSideSetSelectors()
+{
+  auto& internals = *this->Internals;
+  if (!internals.SideSetSelectors.empty())
+  {
+    internals.SideSetSelectors.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkIOSSWriter::SetSideSetSelector(const char* selector)
+{
+  if (selector)
+  {
+    auto& internals = *this->Internals;
+    if (internals.SideSetSelectors.size() == 1 && *internals.SideSetSelectors.begin() == selector)
+    {
+      return;
+    }
+    internals.SideSetSelectors.clear();
+    internals.SideSetSelectors.insert(selector);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkIOSSWriter::GetNumberOfSideSetSelectors() const
+{
+  auto& internals = *this->Internals;
+  return static_cast<int>(internals.SideSetSelectors.size());
+}
+
+//------------------------------------------------------------------------------
+const char* vtkIOSSWriter::GetSideSetSelector(int index) const
+{
+  const auto& internals = *this->Internals;
+  if (index >= 0 && index < static_cast<int>(internals.SideSetSelectors.size()))
+  {
+    auto iter = std::next(internals.SideSetSelectors.begin(), index);
+    return iter->c_str();
+  }
+
+  vtkErrorMacro("Invalid index '" << index << "'.");
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -341,6 +538,25 @@ void vtkIOSSWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(nullptr)") << endl;
+  os << indent << "AssemblyName: " << (this->AssemblyName ? this->AssemblyName : "(nullptr)")
+     << endl;
+  os << indent << "ElementBlockSelectors: " << endl;
+  for (const auto& selector : this->Internals->ElementBlockSelectors)
+  {
+    os << indent << selector << "  ";
+  }
+  os << endl;
+  os << indent << "NodeSetSelectors: " << endl;
+  for (const auto& selector : this->Internals->NodeSetSelectors)
+  {
+    os << indent << selector << "  ";
+  }
+  os << endl;
+  os << indent << "SideSetSelectors: " << endl;
+  for (const auto& selector : this->Internals->SideSetSelectors)
+  {
+    os << indent << selector << "  ";
+  }
   os << indent << "RemoveGhosts: " << (this->RemoveGhosts ? "On" : "Off") << endl;
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "OffsetGlobalIds: " << OffsetGlobalIds << endl;

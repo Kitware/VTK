@@ -52,6 +52,116 @@ public:
 
   ///@{
   /**
+   * Get/Set the active assembly to use. The chosen assembly is used
+   * in combination with the selectors specified to determine which blocks
+   * are to be extracted.
+   *
+   * The default is set to vtkDataAssemblyUtilities::HierarchyName().
+   */
+  vtkSetStringMacro(AssemblyName);
+  vtkGetStringMacro(AssemblyName);
+  ///@}
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                         Element Block Selectors API                                 //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * API to set element block selectors. Multiple selectors can be added using
+   * `AddElementBlockSelector`. The order in which selectors are specified is not preserved
+   * and has no impact on the result.
+   *
+   * `AddElementBlockSelector` returns true if the selector was added, false if the selector
+   * was already specified and hence not added.
+   *
+   * @sa vtkDataAssembly::SelectNodes
+   */
+  bool AddElementBlockSelector(const char* selector);
+  void ClearElementBlockSelectors();
+  ///@}
+
+  /**
+   * Convenience method to set a single element block selector.
+   * This clears any other existing selectors.
+   */
+  void SetElementBlockSelector(const char* selector);
+
+  ///@{
+  /**
+   * API to access element block selectors.
+   */
+  int GetNumberOfElementBlockSelectors() const;
+  const char* GetElementBlockSelector(int index) const;
+  ///@}
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                         Node Set Selectors API                                      //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * API to set node set selectors. Multiple selectors can be added using
+   * `AddNodeSetSelector`. The order in which selectors are specified is not preserved
+   * and has no impact on the result.
+   *
+   * `AddNodeSetSelector` returns true if the selector was added, false if the selector
+   * was already specified and hence not added.
+   *
+   * @sa vtkDataAssembly::SelectNodes
+   */
+  bool AddNodeSetSelector(const char* selector);
+  void ClearNodeSetSelectors();
+  ///@}
+
+  /**
+   * Convenience method to set a single node set selector.
+   * This clears any other existing selectors.
+   */
+  void SetNodeSetSelector(const char* selector);
+
+  ///@{
+  /**
+   * API to access node set selectors.
+   */
+  int GetNumberOfNodeSetSelectors() const;
+  const char* GetNodeSetSelector(int index) const;
+  ///@}
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                         Side Set Selectors API                                      //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * API to set side set selectors. Multiple selectors can be added using
+   * `AddSideSetSelector`. The order in which selectors are specified is not preserved
+   * and has no impact on the result.
+   *
+   * `AddSideSetSelector` returns true if the selector was added, false if the selector
+   * was already specified and hence not added.
+   *
+   * @sa vtkDataAssembly::SelectNodes
+   *
+   * Default: /IOSS/side_sets
+   */
+  bool AddSideSetSelector(const char* selector);
+  void ClearSideSetSelectors();
+  ///@}
+
+  /**
+   * Convenience method to set a single side set selector.
+   * This clears any other existing selectors.
+   */
+  void SetSideSetSelector(const char* selector);
+
+  ///@{
+  /**
+   * API to access side set selectors.
+   */
+  int GetNumberOfSideSetSelectors() const;
+  const char* GetSideSetSelector(int index) const;
+  ///@}
+
+  ///@{
+  /**
    * Set/Get whether to write remove ghost cells from the input.
    *
    * The default is 1.
@@ -185,6 +295,7 @@ private:
 
   vtkMultiProcessController* Controller;
   char* FileName;
+  char* AssemblyName;
   bool RemoveGhosts;
   bool OffsetGlobalIds;
   bool PreserveOriginalIds;

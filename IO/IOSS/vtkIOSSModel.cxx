@@ -18,6 +18,7 @@
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataAssembly.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDummyController.h"
 #include "vtkIOSSUtilities.h"
 #include "vtkIOSSWriter.h"
@@ -123,16 +124,21 @@ bool HandleGlobalIds(
 }
 
 //=============================================================================
-std::set<unsigned int> GetDatasetIndices(vtkDataAssembly* assembly, const char* name)
+std::set<unsigned int> GetDatasetIndices(vtkDataAssembly* assembly, std::vector<std::string> paths)
 {
-  if (assembly && assembly->GetRootNodeName() && strcmp(assembly->GetRootNodeName(), "IOSS") == 0)
+  if (assembly && assembly->GetRootNodeName())
   {
-    const auto idx = assembly->FindFirstNodeWithName(name);
-    if (idx != -1)
+    std::vector<int> indices;
+    for (const auto& path : paths)
     {
-      const auto vector = assembly->GetDataSetIndices(assembly->FindFirstNodeWithName(name));
-      return std::set<unsigned int>{ vector.begin(), vector.end() };
+      const auto idx = assembly->GetFirstNodeByPath(path.c_str());
+      if (idx != -1)
+      {
+        indices.push_back(idx);
+      }
     }
+    const auto vector = assembly->GetDataSetIndices(indices);
+    return std::set<unsigned int>{ vector.begin(), vector.end() };
   }
   return {};
 }
@@ -1007,18 +1013,6 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
   // create global cell ids if needed
   internals.GlobalIdsCreated |= ::HandleGlobalIds(dataset, vtkDataObject::CELL, controller);
 
-  auto* assembly = dataset->GetDataAssembly();
-  const bool isIOSS =
-    (assembly && assembly->GetRootNodeName() && strcmp(assembly->GetRootNodeName(), "IOSS") == 0);
-  const auto elementBlockIndices = ::GetDatasetIndices(assembly, "element_blocks");
-  const auto nodeSetIndices = ::GetDatasetIndices(assembly, "node_sets");
-  const auto sideSetIndices = ::GetDatasetIndices(assembly, "side_sets");
-
-  // first things first, determine all information necessary about nodes.
-  // there's just 1 node block for exodus, build that.
-  entityGroups.emplace(Ioss::EntityType::NODEBLOCK,
-    std::make_shared<vtkNodeBlock>(dataset, "nodeblock_1", controller, writer));
-
   // extract the names and ids of the blocks.
   std::vector<std::string> blockNames(dataset->GetNumberOfPartitionedDataSets());
   std::vector<int> blockIds(dataset->GetNumberOfPartitionedDataSets());
@@ -1050,6 +1044,63 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
     startSplitElementBlockId = globalStartSplitElementBlockId;
   }
 
+  const auto assemblyName = writer->GetAssemblyName();
+  vtkSmartPointer<vtkDataAssembly> assembly;
+  if (assemblyName && strcmp(assemblyName, "Assembly") == 0)
+  {
+    assembly = dataset->GetDataAssembly();
+  }
+  else // if (strcmp(assemblyName, "vtkDataAssemblyUtilities::HierarchyName()") == 0)
+  {
+    assembly = vtkSmartPointer<vtkDataAssembly>::New();
+    if (!vtkDataAssemblyUtilities::GenerateHierarchy(dataset, assembly))
+    {
+      vtkErrorWithObjectMacro(writer, "Failed to generate hierarchy.");
+      return;
+    }
+  }
+  std::vector<std::string> elementBlockSelectors(writer->GetNumberOfElementBlockSelectors());
+  for (size_t idx = 0; idx < elementBlockSelectors.size(); ++idx)
+  {
+    elementBlockSelectors[idx] = writer->GetElementBlockSelector(idx);
+  }
+  std::vector<std::string> nodeSetSelectors(writer->GetNumberOfNodeSetSelectors());
+  for (size_t idx = 0; idx < nodeSetSelectors.size(); ++idx)
+  {
+    nodeSetSelectors[idx] = writer->GetNodeSetSelector(idx);
+  }
+  std::vector<std::string> sideSetSelectors(writer->GetNumberOfSideSetSelectors());
+  for (size_t idx = 0; idx < sideSetSelectors.size(); ++idx)
+  {
+    sideSetSelectors[idx] = writer->GetSideSetSelector(idx);
+  }
+  auto elementBlockIndices = ::GetDatasetIndices(assembly, elementBlockSelectors);
+  auto nodeSetIndices = ::GetDatasetIndices(assembly, nodeSetSelectors);
+  auto sideSetIndices = ::GetDatasetIndices(assembly, sideSetSelectors);
+  bool indicesEmpty =
+    elementBlockIndices.empty() && nodeSetIndices.empty() && sideSetIndices.empty();
+  if (indicesEmpty)
+  {
+    // if no indices are specified, then all blocks will be processed as element blocks
+    // but, if the dataset was read from vtkIOSSReader, then we can deduce the type of the block
+    const auto dataAssembly = dataset->GetDataAssembly();
+    const bool isIOSS = (dataAssembly && dataAssembly->GetRootNodeName() &&
+      strcmp(dataAssembly->GetRootNodeName(), "IOSS") == 0);
+    if (isIOSS)
+    {
+      elementBlockIndices = ::GetDatasetIndices(dataAssembly, { "/IOSS/element_blocks" });
+      nodeSetIndices = ::GetDatasetIndices(dataAssembly, { "/IOSS/node_sets" });
+      sideSetIndices = ::GetDatasetIndices(dataAssembly, { "/IOSS/side_sets" });
+      indicesEmpty =
+        elementBlockIndices.empty() && nodeSetIndices.empty() && sideSetIndices.empty();
+    }
+  }
+
+  // first things first, determine all information necessary about nodes.
+  // there's just 1 node block for exodus, build that.
+  entityGroups.emplace(Ioss::EntityType::NODEBLOCK,
+    std::make_shared<vtkNodeBlock>(dataset, "nodeblock_1", controller, writer));
+
   // process element blocks.
   // now, if input is not coming for IOSS reader, then all blocks are simply
   // treated as element blocks, there's no way for us to deduce otherwise.
@@ -1059,8 +1110,12 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
   {
     const std::string& blockName = blockNames[pidx];
     const int& blockId = blockIds[pidx];
+    const auto pds = dataset->GetPartitionedDataSet(pidx);
+
     // now create each type of GroupingEntity.
-    if (!isIOSS || elementBlockIndices.find(pidx) != elementBlockIndices.end())
+
+    // if indices are empty, all blocks will be processed as element blocks.
+    if (indicesEmpty || elementBlockIndices.find(pidx) != elementBlockIndices.end())
     {
       try
       {
@@ -1070,14 +1125,13 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
           startSplitElementBlockId += VTK_NUMBER_OF_CELL_TYPES;
         }
         entityGroups.emplace(Ioss::EntityType::ELEMENTBLOCK,
-          std::make_shared<vtkElementBlock>(dataset->GetPartitionedDataSet(pidx), blockName,
-            blockId, startSplitElementBlockId, controller, writer));
+          std::make_shared<vtkElementBlock>(
+            pds, blockName, blockId, startSplitElementBlockId, controller, writer));
         ++elementBlockCounter;
         continue;
       }
       catch (std::runtime_error&)
       {
-        // if isIOSS, raise error...perhaps?
         break;
       }
     }
@@ -1087,8 +1141,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       try
       {
         entityGroups.emplace(Ioss::EntityType::SIDESET,
-          std::make_shared<vtkSideSet>(
-            dataset->GetPartitionedDataSet(pidx), blockName, blockId, controller, writer));
+          std::make_shared<vtkSideSet>(pds, blockName, blockId, controller, writer));
         continue;
       }
       catch (std::runtime_error&)
@@ -1103,8 +1156,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       try
       {
         entityGroups.emplace(Ioss::EntityType::NODESET,
-          std::make_shared<vtkNodeSet>(
-            dataset->GetPartitionedDataSet(pidx), blockName, blockId, controller, writer));
+          std::make_shared<vtkNodeSet>(pds, blockName, blockId, controller, writer));
         continue;
       }
       catch (std::runtime_error&)
@@ -1112,8 +1164,6 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
         break;
       }
     }
-
-    vtkLogF(WARNING, "Skipping block '%s'. Unsure how classify it.", blockName.c_str());
   }
 }
 
