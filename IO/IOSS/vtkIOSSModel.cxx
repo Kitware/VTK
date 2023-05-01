@@ -390,6 +390,7 @@ struct vtkGroupingEntity
   {
   }
   virtual ~vtkGroupingEntity() = default;
+  virtual Ioss::EntityType GetEntityType() const = 0;
   virtual void Define(Ioss::Region& region) const = 0;
   virtual void Model(Ioss::Region& region) const = 0;
   virtual void DefineTransient(Ioss::Region& region) const = 0;
@@ -543,6 +544,8 @@ struct vtkNodeBlock : vtkGroupingEntity
     this->Fields = ::GetFields(vtkDataObject::POINT, pdc, controller);
   }
 
+  Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::NODEBLOCK; }
+
   void AppendMD5(vtksysMD5* md5) const override
   {
     vtksysMD5_Append(md5, reinterpret_cast<const unsigned char*>(this->Ids.data()),
@@ -666,6 +669,8 @@ struct vtkElementBlock : public vtkGroupingEntity
     this->ElementCounts = ::GetElementCounts(pd, controller);
     this->Fields = ::GetFields(vtkDataObject::CELL, pd, controller);
   }
+
+  Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::ELEMENTBLOCK; }
 
   void AppendMD5(vtksysMD5* md5) const override
   {
@@ -854,6 +859,8 @@ struct vtkNodeSet : public vtkGroupingEntity
     // TODO: identify nodeset-only fields.
   }
 
+  Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::NODESET; }
+
   void AppendMD5(vtksysMD5* md5) const override
   {
     vtksysMD5_Append(md5, reinterpret_cast<const unsigned char*>(this->Name.c_str()), -1);
@@ -919,6 +926,8 @@ struct vtkSideSet : public vtkGroupingEntity
       this->Count += ug->GetNumberOfCells();
     }
   }
+
+  Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::SIDESET; }
 
   void AppendMD5(vtksysMD5* md5) const override
   {
@@ -1098,8 +1107,8 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
 
   // first things first, determine all information necessary about nodes.
   // there's just 1 node block for exodus, build that.
-  entityGroups.emplace(Ioss::EntityType::NODEBLOCK,
-    std::make_shared<vtkNodeBlock>(dataset, "nodeblock_1", controller, writer));
+  auto nodeBlock = std::make_shared<vtkNodeBlock>(dataset, "nodeblock_1", controller, writer);
+  entityGroups.emplace(nodeBlock->GetEntityType(), nodeBlock);
 
   // process element blocks.
   // now, if input is not coming for IOSS reader, then all blocks are simply
@@ -1124,9 +1133,9 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
           // add the number of cell types to the block id to ensure uniqueness.
           startSplitElementBlockId += VTK_NUMBER_OF_CELL_TYPES;
         }
-        entityGroups.emplace(Ioss::EntityType::ELEMENTBLOCK,
-          std::make_shared<vtkElementBlock>(
-            pds, blockName, blockId, startSplitElementBlockId, controller, writer));
+        auto elementBlock = std::make_shared<vtkElementBlock>(
+          pds, blockName, blockId, startSplitElementBlockId, controller, writer);
+        entityGroups.emplace(elementBlock->GetEntityType(), elementBlock);
         ++elementBlockCounter;
         continue;
       }
@@ -1140,8 +1149,8 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
     {
       try
       {
-        entityGroups.emplace(Ioss::EntityType::SIDESET,
-          std::make_shared<vtkSideSet>(pds, blockName, blockId, controller, writer));
+        auto sideSet = std::make_shared<vtkSideSet>(pds, blockName, blockId, controller, writer);
+        entityGroups.emplace(sideSet->GetEntityType(), sideSet);
         continue;
       }
       catch (std::runtime_error&)
@@ -1155,8 +1164,8 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
     {
       try
       {
-        entityGroups.emplace(Ioss::EntityType::NODESET,
-          std::make_shared<vtkNodeSet>(pds, blockName, blockId, controller, writer));
+        auto nodeSet = std::make_shared<vtkNodeSet>(pds, blockName, blockId, controller, writer);
+        entityGroups.emplace(nodeSet->GetEntityType(), nodeSet);
         continue;
       }
       catch (std::runtime_error&)
