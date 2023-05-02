@@ -1,4 +1,4 @@
-# Module Migration
+# Module Migration ftom VTK 8.2 to 9+
 
 VTK 8.2 and older contained a module system which was based on variables and
 informed CMake's migration to target-based properties and interactions. This
