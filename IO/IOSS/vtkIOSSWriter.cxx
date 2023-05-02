@@ -88,6 +88,7 @@ vtkIOSSWriter::vtkIOSSWriter()
   , RemoveGhosts(true)
   , OffsetGlobalIds(false)
   , PreserveOriginalIds(false)
+  , WriteQAAndInformationRecords(true)
   , DisplacementMagnitude(1.0)
   , TimeStepRange{ 0, VTK_INT_MAX - 1 }
   , TimeStepStride(1)
@@ -501,6 +502,11 @@ void vtkIOSSWriter::WriteData()
       properties.add(Ioss::Property("my_processor", controller->GetLocalProcessId()));
       properties.add(Ioss::Property("processor_count", controller->GetNumberOfProcesses()));
     }
+    if (!this->GetWriteQAAndInformationRecords())
+    {
+      properties.add(Ioss::Property("OMIT_INFO_RECORDS", true));
+      properties.add(Ioss::Property("OMIT_QA_RECORDS", true));
+    }
     const auto fname = internals.RestartIndex > 0
       ? fmt::format("{}-s{:04}", this->FileName, internals.RestartIndex)
       : std::string(this->FileName);
@@ -515,9 +521,12 @@ void vtkIOSSWriter::WriteData()
 
     // note: region takes ownership of `dbase` pointer.
     internals.Region.reset(new Ioss::Region(dbase, "region_1"));
-    internals.Region->property_add(Ioss::Property("code_name", std::string("VTK")));
-    internals.Region->property_add(
-      Ioss::Property("code_version", std::string(vtkVersion::GetVTKVersion())));
+    // Ioss automatically adds the information records
+    if (this->GetWriteQAAndInformationRecords())
+    {
+      internals.Region->property_add(Ioss::Property("code_name", "VTK"));
+      internals.Region->property_add(Ioss::Property("code_version", vtkVersion::GetVTKVersion()));
+    }
 
     model.DefineModel(*internals.Region);
     model.DefineTransient(*internals.Region);
@@ -561,6 +570,9 @@ void vtkIOSSWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "OffsetGlobalIds: " << OffsetGlobalIds << endl;
   os << indent << "PreserveOriginalIds: " << (this->PreserveOriginalIds ? "On" : "Off") << endl;
+  os << indent
+     << "WriteQAAndInformationRecords: " << (this->WriteQAAndInformationRecords ? "On" : "Off")
+     << endl;
   os << indent << "DisplacementMagnitude: " << this->DisplacementMagnitude << endl;
   os << indent << "TimeStepRange: " << this->TimeStepRange[0] << ", " << this->TimeStepRange[1]
      << endl;
