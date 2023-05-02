@@ -391,7 +391,7 @@ struct vtkGroupingEntity
   }
   virtual ~vtkGroupingEntity() = default;
   virtual Ioss::EntityType GetEntityType() const = 0;
-  virtual void Define(Ioss::Region& region) const = 0;
+  virtual void DefineModel(Ioss::Region& region) const = 0;
   virtual void Model(Ioss::Region& region) const = 0;
   virtual void DefineTransient(Ioss::Region& region) const = 0;
   virtual void Transient(Ioss::Region& region) const = 0;
@@ -552,7 +552,7 @@ struct vtkNodeBlock : vtkGroupingEntity
       static_cast<int>(sizeof(int32_t) * this->Ids.size()));
   }
 
-  void Define(Ioss::Region& region) const override
+  void DefineModel(Ioss::Region& region) const override
   {
     auto* nodeBlock = new Ioss::NodeBlock(region.get_database(), this->Name, this->Ids.size(), 3);
     nodeBlock->property_add(Ioss::Property("id", 1)); // block id.
@@ -704,7 +704,7 @@ struct vtkElementBlock : public vtkGroupingEntity
     }
   }
 
-  void Define(Ioss::Region& region) const override
+  void DefineModel(Ioss::Region& region) const override
   {
     for (const auto& element : this->ElementCounts)
     {
@@ -868,7 +868,7 @@ struct vtkNodeSet : public vtkGroupingEntity
       static_cast<int>(sizeof(this->Count)));
   }
 
-  void Define(Ioss::Region& region) const override
+  void DefineModel(Ioss::Region& region) const override
   {
     auto* nodeset = new Ioss::NodeSet(region.get_database(), this->Name, this->Count);
     nodeset->property_add(Ioss::Property("id", this->BlockId));
@@ -936,7 +936,7 @@ struct vtkSideSet : public vtkGroupingEntity
       static_cast<int>(sizeof(this->Count)));
   }
 
-  void Define(Ioss::Region& region) const override
+  void DefineModel(Ioss::Region& region) const override
   {
     // for mixed topology blocks, IOSS uses "unknown"
     const auto* mixed_topo = Ioss::ElementTopology::factory("unknown");
@@ -1186,7 +1186,7 @@ void vtkIOSSModel::DefineModel(Ioss::Region& region) const
   region.begin_mode(Ioss::STATE_DEFINE_MODEL);
   for (auto& entity : internals.EntityGroups)
   {
-    entity.second->Define(region);
+    entity.second->DefineModel(region);
   }
   region.end_mode(Ioss::STATE_DEFINE_MODEL);
 }
