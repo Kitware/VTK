@@ -6985,8 +6985,11 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
     return false;
   }
 
-  // Set or check number of mesh faces
-  if (this->NumFaces == 0)
+  // Set or check number of mesh faces.
+  // NB: with foam-extend it is possible that "owner" is shorter than "faces"
+  // with additional faces being in a globalFaceZone.
+  // so update NumFaces to avoid inconsistencies
+  if ((this->NumFaces == 0) || (nFaces < this->NumFaces))
   {
     this->NumFaces = nFaces;
   }
