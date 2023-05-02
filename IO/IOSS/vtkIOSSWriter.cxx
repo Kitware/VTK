@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkIOSSWriter.h"
 
+#include "vtkCommand.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkIOSSModel.h"
 #include "vtkInformation.h"
@@ -95,6 +97,12 @@ vtkIOSSWriter::vtkIOSSWriter()
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->SetAssemblyName(vtkDataAssemblyUtilities::HierarchyName());
+  std::fill_n(this->ChooseEntityFieldsToWrite, EntityType::NUMBER_OF_ENTITY_TYPES, false);
+  for (int i = 0; i < EntityType::NUMBER_OF_ENTITY_TYPES; ++i)
+  {
+    this->EntityFieldSelection[i]->AddObserver(
+      vtkCommand::ModifiedEvent, this, &vtkIOSSWriter::Modified);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -103,6 +111,48 @@ vtkIOSSWriter::~vtkIOSSWriter()
   this->SetController(nullptr);
   this->SetFileName(nullptr);
   this->SetAssemblyName(nullptr);
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSWriter::SetChooseEntityFieldsToWrite(EntityType type, bool val)
+{
+  if (type < EntityType::NUMBER_OF_ENTITY_TYPES)
+  {
+    this->ChooseEntityFieldsToWrite[type] = val;
+    this->Modified();
+  }
+  else
+  {
+    vtkErrorMacro("Invalid entity type: " << type);
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSWriter::GetChooseEntityFieldsToWrite(vtkIOSSWriter::EntityType type) const
+{
+  if (type < EntityType::NUMBER_OF_ENTITY_TYPES)
+  {
+    return this->ChooseEntityFieldsToWrite[type];
+  }
+  else
+  {
+    vtkErrorMacro("Invalid entity type: " << type);
+    return false;
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkDataArraySelection* vtkIOSSWriter::GetEntityFieldSelection(vtkIOSSWriter::EntityType type)
+{
+  if (type < EntityType::NUMBER_OF_ENTITY_TYPES)
+  {
+    return this->EntityFieldSelection[type];
+  }
+  else
+  {
+    vtkErrorMacro("Invalid entity type: " << type);
+    return nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -549,23 +599,39 @@ void vtkIOSSWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(nullptr)") << endl;
   os << indent << "AssemblyName: " << (this->AssemblyName ? this->AssemblyName : "(nullptr)")
      << endl;
+  os << indent
+     << "ChooseNodeBlockFieldsToWrite: " << (this->GetChooseNodeBlockFieldsToWrite() ? "On" : "Off")
+     << endl;
+  this->GetNodeSetFieldSelection()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ElementBlockSelectors: " << endl;
   for (const auto& selector : this->Internals->ElementBlockSelectors)
   {
     os << indent << selector << "  ";
   }
   os << endl;
+  os << indent << "ChooseElementBlockFieldsToWrite: "
+     << (this->GetChooseElementBlockFieldsToWrite() ? "On" : "Off") << endl;
+  this->GetElementBlockFieldSelection()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "NodeSetSelectors: " << endl;
   for (const auto& selector : this->Internals->NodeSetSelectors)
   {
     os << indent << selector << "  ";
   }
   os << endl;
+  os << indent
+     << "ChooseNodeSetFieldsToWrite: " << (this->GetChooseNodeSetFieldsToWrite() ? "On" : "Off")
+     << endl;
+  this->GetNodeSetFieldSelection()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "SideSetSelectors: " << endl;
   for (const auto& selector : this->Internals->SideSetSelectors)
   {
     os << indent << selector << "  ";
   }
+  os << endl;
+  os << indent
+     << "ChooseSideSetFieldsToWrite: " << (this->GetChooseSideSetFieldsToWrite() ? "On" : "Off")
+     << endl;
+  this->GetSideSetFieldSelection()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "RemoveGhosts: " << (this->RemoveGhosts ? "On" : "Off") << endl;
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "OffsetGlobalIds: " << OffsetGlobalIds << endl;

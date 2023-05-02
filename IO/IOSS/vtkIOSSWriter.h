@@ -27,11 +27,14 @@
 
 #include "vtkDeprecation.h"  // For VTK_DEPRECATED
 #include "vtkIOIOSSModule.h" // For export macros
+#include "vtkIOSSReader.h"   // For vtkIOSSReader::EntityType
+#include "vtkNew.h"          // For vtkNew
 #include "vtkWriter.h"
 
 #include <memory> // for std::unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArraySelection;
 class vtkMultiProcessController;
 
 class VTKIOIOSS_EXPORT vtkIOSSWriter : public vtkWriter
@@ -62,8 +65,41 @@ public:
   vtkGetStringMacro(AssemblyName);
   ///@}
 
+  using EntityType = vtkIOSSReader::EntityType;
+
   /////////////////////////////////////////////////////////////////////////////////////////
-  //                         Element Block Selectors API                                 //
+  //                                   Node Block API                                    //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * Choose which node block fields to write. If this is true, then only the
+   * arrays selected will be written. If this is false, then all arrays will be
+   * written.
+   *
+   * The default is false.
+   */
+  void SetChooseNodeBlockFieldsToWrite(bool value)
+  {
+    this->SetChooseEntityFieldsToWrite(EntityType::NODEBLOCK, value);
+  }
+  bool GetChooseNodeBlockFieldsToWrite() const
+  {
+    return this->GetChooseEntityFieldsToWrite(EntityType::NODEBLOCK);
+  }
+  vtkBooleanMacro(ChooseNodeBlockFieldsToWrite, bool);
+  ///@}
+
+  /**
+   * Returns the field selection object for the element block arrays.
+   */
+  vtkDataArraySelection* GetNodeBlockFieldSelection()
+  {
+    return this->GetEntityFieldSelection(EntityType::NODEBLOCK);
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                                 Element Block API                                   //
   /////////////////////////////////////////////////////////////////////////////////////////
   ///@{
   /**
@@ -94,8 +130,36 @@ public:
   const char* GetElementBlockSelector(int index) const;
   ///@}
 
+  ///@{
+  /**
+   * Choose which element block fields to write. If this is true, then only the
+   * arrays selected will be written. If this is false, then all arrays will be
+   * written.
+   *
+   * The default is false.
+   */
+  void SetChooseElementBlockFieldsToWrite(bool value)
+  {
+    this->SetChooseEntityFieldsToWrite(EntityType::ELEMENTBLOCK, value);
+  }
+  bool GetChooseElementBlockFieldsToWrite() const
+  {
+    return this->GetChooseEntityFieldsToWrite(EntityType::ELEMENTBLOCK);
+  }
+  vtkBooleanMacro(ChooseElementBlockFieldsToWrite, bool);
+  ///@}
+
+  /**
+   * Returns the field selection object for the element block arrays.
+   */
+  vtkDataArraySelection* GetElementBlockFieldSelection()
+  {
+    return this->GetEntityFieldSelection(EntityType::ELEMENTBLOCK);
+  }
   /////////////////////////////////////////////////////////////////////////////////////////
-  //                         Node Set Selectors API                                      //
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                                 Node Set API                                        //
   /////////////////////////////////////////////////////////////////////////////////////////
   ///@{
   /**
@@ -126,8 +190,36 @@ public:
   const char* GetNodeSetSelector(int index) const;
   ///@}
 
+  ///@{
+  /**
+   * Choose which node set fields to write. If this is true, then only the
+   * arrays selected will be written. If this is false, then all arrays will be
+   * written.
+   *
+   * The default is false.
+   */
+  void SetChooseNodeSetFieldsToWrite(bool value)
+  {
+    this->SetChooseEntityFieldsToWrite(EntityType::NODESET, value);
+  }
+  bool GetChooseNodeSetFieldsToWrite() const
+  {
+    return this->GetChooseEntityFieldsToWrite(EntityType::NODESET);
+  }
+  vtkBooleanMacro(ChooseNodeSetFieldsToWrite, bool);
+  ///@}
+
+  /**
+   * Returns the field selection object for the node set arrays.
+   */
+  vtkDataArraySelection* GetNodeSetFieldSelection()
+  {
+    return this->GetEntityFieldSelection(EntityType::NODESET);
+  }
   /////////////////////////////////////////////////////////////////////////////////////////
-  //                         Side Set Selectors API                                      //
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                                 Side Set API                                        //
   /////////////////////////////////////////////////////////////////////////////////////////
   ///@{
   /**
@@ -159,6 +251,34 @@ public:
   int GetNumberOfSideSetSelectors() const;
   const char* GetSideSetSelector(int index) const;
   ///@}
+
+  ///@{
+  /**
+   * Choose which side set fields to write. If this is true, then only the
+   * arrays selected will be written. If this is false, then all arrays will be
+   * written.
+   *
+   * The default is false.
+   */
+  void SetChooseSideSetFieldsToWrite(bool value)
+  {
+    this->SetChooseEntityFieldsToWrite(EntityType::SIDESET, value);
+  }
+  bool GetChooseSideSetFieldsToWrite() const
+  {
+    return this->GetChooseEntityFieldsToWrite(EntityType::SIDESET);
+  }
+  vtkBooleanMacro(ChooseSideSetFieldsToWrite, bool);
+  ///@}
+
+  /**
+   * Returns the field selection object for the side set arrays.
+   */
+  vtkDataArraySelection* GetSideSetFieldSelection()
+  {
+    return this->GetEntityFieldSelection(EntityType::SIDESET);
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////
 
   ///@{
   /**
@@ -310,6 +430,11 @@ private:
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 
+  void SetChooseEntityFieldsToWrite(EntityType type, bool val);
+  bool GetChooseEntityFieldsToWrite(EntityType type) const;
+
+  vtkDataArraySelection* GetEntityFieldSelection(EntityType type);
+
   vtkMultiProcessController* Controller;
   char* FileName;
   char* AssemblyName;
@@ -320,6 +445,8 @@ private:
   double DisplacementMagnitude;
   int TimeStepRange[2];
   int TimeStepStride;
+  bool ChooseEntityFieldsToWrite[EntityType::NUMBER_OF_ENTITY_TYPES];
+  vtkNew<vtkDataArraySelection> EntityFieldSelection[EntityType::NUMBER_OF_ENTITY_TYPES];
 };
 VTK_ABI_NAMESPACE_END
 

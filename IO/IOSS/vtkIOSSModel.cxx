@@ -17,6 +17,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkDummyController.h"
@@ -216,8 +217,9 @@ Ioss::Field::BasicType GetFieldType(vtkDataArray* array)
 }
 
 //=============================================================================
-std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(
-  int association, vtkCompositeDataSet* cds, vtkMultiProcessController* controller)
+std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(int association,
+  bool chooseArraysToWrite, vtkDataArraySelection* arraySelection, vtkCompositeDataSet* cds,
+  vtkMultiProcessController* controller)
 {
   std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> fields;
   vtkDataSetAttributesFieldList fieldList;
@@ -234,6 +236,11 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(
     // we don't want to add global ids again.
     tmpDA->RemoveArray(tmpDA->GetGlobalIds()->GetName());
   }
+  if (tmpDA->HasArray("element_side"))
+  {
+    // we don't want to add element_side again.
+    tmpDA->RemoveArray("element_side");
+  }
   if (tmpDA->HasArray("object_id"))
   {
     // skip "object_id". that's an array added by Ioss reader.
@@ -248,7 +255,8 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(
   {
     for (int idx = 0, max = tmpDA->GetNumberOfArrays(); idx < max; ++idx)
     {
-      if (auto array = tmpDA->GetArray(idx))
+      auto array = tmpDA->GetArray(idx);
+      if (array && (!chooseArraysToWrite || arraySelection->ArrayIsEnabled(array->GetName())))
       {
         const auto type = ::GetFieldType(array);
         fields.emplace_back(array->GetName(), type, array->GetNumberOfComponents());
@@ -282,7 +290,8 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(
         vtkNew<vtkDataSetAttributes> localDa;
         for (int idx = 0, max = fd->GetNumberOfArrays(); idx < max; ++idx)
         {
-          if (auto array = fd->GetArray(idx))
+          auto array = fd->GetArray(idx);
+          if (array && (!chooseArraysToWrite || arraySelection->ArrayIsEnabled(array->GetName())))
           {
             localDa->AddArray(array);
           }
@@ -507,7 +516,7 @@ struct vtkNodeBlock : vtkGroupingEntity
   vtkNodeBlock(vtkPartitionedDataSetCollection* pdc, const std::string& name,
     vtkMultiProcessController* controller, vtkIOSSWriter* writer)
     : vtkGroupingEntity(writer)
-    , DataSets{ vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pdc) }
+    , DataSets(vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pdc))
     , Name(name)
   {
     this->IdsRaw.reserve(this->DataSets.size());
@@ -541,7 +550,8 @@ struct vtkNodeBlock : vtkGroupingEntity
     }
 
     assert(this->DataSets.size() == this->IdsRaw.size());
-    this->Fields = ::GetFields(vtkDataObject::POINT, pdc, controller);
+    this->Fields = ::GetFields(vtkDataObject::POINT, writer->GetNodeBlockFieldSelection(),
+      writer->GetNodeBlockFieldSelection(), pdc, controller);
   }
 
   Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::NODEBLOCK; }
@@ -561,14 +571,14 @@ struct vtkNodeBlock : vtkGroupingEntity
 
   void DefineTransient(Ioss::Region& region) const override
   {
-    auto* block = region.get_node_block(this->Name);
-    this->DefineFields(block, this->Fields, Ioss::Field::TRANSIENT, this->Ids.size());
+    auto* nodeBlock = region.get_node_block(this->Name);
+    this->DefineFields(nodeBlock, this->Fields, Ioss::Field::TRANSIENT, this->Ids.size());
   }
 
   void Model(Ioss::Region& region) const override
   {
-    auto* block = region.get_node_block(this->Name);
-    block->put_field_data("ids", this->Ids);
+    auto* nodeBlock = region.get_node_block(this->Name);
+    nodeBlock->put_field_data("ids", this->Ids);
 
     // add mesh coordinates
     using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
@@ -605,15 +615,15 @@ struct vtkNodeBlock : vtkGroupingEntity
       }
     }
 
-    block->put_field_data("mesh_model_coordinates_x", worker.Data[0]);
-    block->put_field_data("mesh_model_coordinates_y", worker.Data[1]);
-    block->put_field_data("mesh_model_coordinates_z", worker.Data[2]);
+    nodeBlock->put_field_data("mesh_model_coordinates_x", worker.Data[0]);
+    nodeBlock->put_field_data("mesh_model_coordinates_y", worker.Data[1]);
+    nodeBlock->put_field_data("mesh_model_coordinates_z", worker.Data[2]);
   }
 
   void Transient(Ioss::Region& region) const override
   {
-    auto* block = region.get_node_block(this->Name);
-    this->PutFields(block, this->Fields, this->IdsRaw, this->DataSets, vtkDataObject::POINT);
+    auto* nodeBlock = region.get_node_block(this->Name);
+    this->PutFields(nodeBlock, this->Fields, this->IdsRaw, this->DataSets, vtkDataObject::POINT);
   }
 };
 
@@ -644,18 +654,19 @@ struct vtkElementBlock : public vtkGroupingEntity
   std::string RootName;
   int BlockId;
   int StartSplitElementBlockId;
+
   std::map<unsigned char, int64_t> ElementCounts;
   std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> Fields;
 
-  vtkElementBlock(vtkPartitionedDataSet* pd, const std::string& name, const int blockId,
+  vtkElementBlock(vtkPartitionedDataSet* pds, const std::string& name, const int blockId,
     int startSplitElementBlockId, vtkMultiProcessController* controller, vtkIOSSWriter* writer)
     : vtkGroupingEntity(writer)
-    , DataSets{ vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pd) }
-    , RootName{ name }
-    , BlockId{ blockId }
-    , StartSplitElementBlockId{ startSplitElementBlockId }
+    , DataSets(vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pds))
+    , RootName(name)
+    , BlockId(blockId)
+    , StartSplitElementBlockId(startSplitElementBlockId)
   {
-    auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pd);
+    auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pds);
     for (auto& ug : this->DataSets)
     {
       auto* cd = ug->GetCellData();
@@ -666,8 +677,9 @@ struct vtkElementBlock : public vtkGroupingEntity
       }
     }
 
-    this->ElementCounts = ::GetElementCounts(pd, controller);
-    this->Fields = ::GetFields(vtkDataObject::CELL, pd, controller);
+    this->ElementCounts = ::GetElementCounts(pds, controller);
+    this->Fields = ::GetFields(vtkDataObject::CELL, writer->GetChooseElementBlockFieldsToWrite(),
+      writer->GetElementBlockFieldSelection(), pds, controller);
   }
 
   Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::ELEMENTBLOCK; }
@@ -835,28 +847,36 @@ struct vtkElementBlock : public vtkGroupingEntity
 
 struct vtkNodeSet : public vtkGroupingEntity
 {
-  vtkPartitionedDataSet* PartitionedDataSet;
+  const std::vector<vtkUnstructuredGrid*> DataSets;
   std::string Name;
   int BlockId;
-  int64_t Count{ 0 };
-  vtkNodeSet(vtkPartitionedDataSet* pd, const std::string& name, int blockId,
-    vtkMultiProcessController* vtkNotUsed(controller), vtkIOSSWriter* writer)
+  int64_t Count;
+
+  std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> Fields;
+
+  vtkNodeSet(vtkPartitionedDataSet* pds, const std::string& name, int blockId,
+    vtkMultiProcessController* controller, vtkIOSSWriter* writer)
     : vtkGroupingEntity(writer)
-    , PartitionedDataSet(pd)
+    , DataSets{ vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pds) }
     , Name(name)
     , BlockId(blockId)
+    , Count(0)
   {
-    auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pd);
-    for (auto& ug : datasets)
+    for (auto& ug : this->DataSets)
     {
       auto* gids = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetGlobalIds());
       if (!gids)
       {
         throw std::runtime_error("missing point global ids for nodesets.");
       }
-      this->Count += ug->GetNumberOfPoints();
+      const auto numPoints = ug->GetNumberOfPoints();
+      assert(gids->GetNumberOfTuples() == numPoints);
+      this->Count += numPoints;
     }
-    // TODO: identify nodeset-only fields.
+
+    // in a nodeSet, number of points == number of cells, because cells are vertices
+    this->Fields = ::GetFields(vtkDataObject::CELL, writer->GetChooseNodeSetFieldsToWrite(),
+      writer->GetNodeSetFieldSelection(), pds, controller);
   }
 
   Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::NODESET; }
@@ -870,47 +890,72 @@ struct vtkNodeSet : public vtkGroupingEntity
 
   void DefineModel(Ioss::Region& region) const override
   {
-    auto* nodeset = new Ioss::NodeSet(region.get_database(), this->Name, this->Count);
-    nodeset->property_add(Ioss::Property("id", this->BlockId));
-    region.add(nodeset);
+    auto* nodeSet = new Ioss::NodeSet(region.get_database(), this->Name, this->Count);
+    nodeSet->property_add(Ioss::Property("id", this->BlockId));
+    region.add(nodeSet);
   }
 
-  void DefineTransient(Ioss::Region& vtkNotUsed(region)) const override {}
+  void DefineTransient(Ioss::Region& region) const override
+  {
+    auto nodeSet = region.get_nodeset(this->Name);
+    this->DefineFields(nodeSet, this->Fields, Ioss::Field::TRANSIENT, this->Count);
+  }
 
   void Model(Ioss::Region& region) const override
   {
     auto* nodeSet = region.get_nodeset(this->Name);
+    // create global ids.
     std::vector<int32_t> ids;
-    ids.reserve(this->Count);
-    for (auto& ug : vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(this->PartitionedDataSet))
+    ids.reserve(static_cast<size_t>(this->Count));
+    for (const auto& ug : this->DataSets)
     {
-      auto* gids = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetGlobalIds());
-      std::copy(
-        gids->GetPointer(0), gids->GetPointer(gids->GetNumberOfTuples()), std::back_inserter(ids));
+      auto gids = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetGlobalIds());
+      const vtkIdType gidOffset = this->Writer->GetOffsetGlobalIds() ? 1 : 0;
+      for (vtkIdType ptId = 0, max = ug->GetNumberOfPoints(); ptId < max; ++ptId)
+      {
+        ids.push_back(gidOffset + gids->GetValue(ptId));
+      }
     }
     nodeSet->put_field_data("ids", ids);
   }
 
-  void Transient(Ioss::Region& vtkNotUsed(region)) const override {}
+  void Transient(Ioss::Region& region) const override
+  {
+    auto* nodeSet = region.get_nodeset(this->Name);
+    // create local ids.
+    std::vector<std::vector<vtkIdType>> idsRaw;
+    idsRaw.reserve(this->DataSets.size());
+    for (const auto& ug : this->DataSets)
+    {
+      idsRaw.emplace_back();
+      idsRaw.back().reserve(static_cast<size_t>(ug->GetNumberOfPoints()));
+      for (vtkIdType ptId = 0, max = ug->GetNumberOfPoints(); ptId < max; ++ptId)
+      {
+        idsRaw.back().push_back(ptId);
+      }
+    }
+    this->PutFields(nodeSet, this->Fields, idsRaw, this->DataSets, vtkDataObject::CELL);
+  }
 };
 
 struct vtkSideSet : public vtkGroupingEntity
 {
-  vtkPartitionedDataSet* PartitionedDataSet;
+  const std::vector<vtkUnstructuredGrid*> DataSets;
   std::string Name;
   int BlockId;
   int64_t Count;
 
-  vtkSideSet(vtkPartitionedDataSet* pd, const std::string& name, int blockId,
-    vtkMultiProcessController* vtkNotUsed(controller), vtkIOSSWriter* writer)
+  std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> Fields;
+
+  vtkSideSet(vtkPartitionedDataSet* pds, const std::string& name, int blockId,
+    vtkMultiProcessController* controller, vtkIOSSWriter* writer)
     : vtkGroupingEntity(writer)
-    , PartitionedDataSet(pd)
+    , DataSets(vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pds))
     , Name(name)
     , BlockId(blockId)
-    , Count{ 0 }
+    , Count(0)
   {
-    auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pd);
-    for (auto& ug : datasets)
+    for (auto& ug : this->DataSets)
     {
       auto* cd = ug->GetCellData();
       if (vtkIdTypeArray::SafeDownCast(cd->GetGlobalIds()) != nullptr)
@@ -925,6 +970,8 @@ struct vtkSideSet : public vtkGroupingEntity
 
       this->Count += ug->GetNumberOfCells();
     }
+    this->Fields = ::GetFields(vtkDataObject::CELL, writer->GetChooseSideSetFieldsToWrite(),
+      writer->GetSideSetFieldSelection(), pds, controller);
   }
 
   Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::SIDESET; }
@@ -950,7 +997,12 @@ struct vtkSideSet : public vtkGroupingEntity
     region.add(sideSet);
   }
 
-  void DefineTransient(Ioss::Region& vtkNotUsed(region)) const override {}
+  void DefineTransient(Ioss::Region& region) const override
+  {
+    auto* sideSet = region.get_sideset(this->Name);
+    auto* sideBlock = sideSet->get_side_block("sideblock_0");
+    this->DefineFields(sideBlock, this->Fields, Ioss::Field::TRANSIENT, this->Count);
+  }
 
   void Model(Ioss::Region& region) const override
   {
@@ -961,8 +1013,7 @@ struct vtkSideSet : public vtkGroupingEntity
     elementSide.reserve(this->Count * 2);
 
     const bool removeGhosts = this->Writer->GetRemoveGhosts();
-    auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(this->PartitionedDataSet);
-    for (auto& ug : datasets)
+    for (auto& ug : this->DataSets)
     {
       auto elemSideArray = vtkIntArray::SafeDownCast(ug->GetCellData()->GetArray("element_side"));
       if (!elemSideArray)
@@ -988,7 +1039,32 @@ struct vtkSideSet : public vtkGroupingEntity
     sideBlock->put_field_data("element_side", elementSide);
   }
 
-  void Transient(Ioss::Region& vtkNotUsed(region)) const override {}
+  void Transient(Ioss::Region& region) const override
+  {
+    auto* sideSet = region.get_sideset(this->Name);
+    auto* sideBlock = sideSet->get_side_block("sideblock_0");
+
+    // populate ids.
+    std::vector<std::vector<vtkIdType>> lIds; // these are local ids.
+    const bool removeGhosts = this->Writer->GetRemoveGhosts();
+    for (auto& ug : this->DataSets)
+    {
+      vtkUnsignedCharArray* ghost = ug->GetCellGhostArray();
+      lIds.emplace_back();
+      lIds.back().reserve(ug->GetNumberOfCells());
+      for (vtkIdType cc = 0, max = ug->GetNumberOfCells(); cc < max; ++cc)
+      {
+        const bool process = !removeGhosts || !ghost || ghost->GetValue(cc) == 0;
+        if (process)
+        {
+          lIds.back().push_back(cc);
+        }
+      }
+    }
+
+    // add fields.
+    this->PutFields(sideBlock, this->Fields, lIds, this->DataSets, vtkDataObject::CELL);
+  }
 };
 
 //=============================================================================
