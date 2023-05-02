@@ -51,6 +51,17 @@ public:
    */
   void Render(vtkRenderer* ren, vtkActor* act) override;
 
+  using MapperHashType = vtkTypeUInt64;
+  /**
+   * This hash integer is computed by concrete graphics implementation of this class.
+   * For two different polydata instances, concrete implementations MUST return identical value,
+   * if both the polydata can be batched together for device uploads.
+   *
+   * @note: For example, the OpenGL impl is capable of grouping polydata
+   * that are similar in terms of the availability of scalars, normals and tcoords.
+   */
+  virtual MapperHashType GenerateHash(vtkPolyData*) { return 0; };
+
   ///@{
   /**
    * Specify the input data to map.

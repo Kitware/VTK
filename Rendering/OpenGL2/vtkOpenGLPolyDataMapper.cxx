@@ -252,6 +252,20 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 }
 
 //------------------------------------------------------------------------------
+vtkPolyDataMapper::MapperHashType vtkOpenGLPolyDataMapper::GenerateHash(vtkPolyData* polydata)
+{
+  int cellFlag = 0;
+  bool hasScalars = this->ScalarVisibility &&
+    (vtkAbstractMapper::GetAbstractScalars(polydata, this->ScalarMode, this->ArrayAccessMode,
+       this->ArrayId, this->ArrayName, cellFlag) != nullptr);
+  bool hasNormals =
+    (polydata->GetPointData()->GetNormals() || polydata->GetCellData()->GetNormals());
+  bool hasTCoords = (polydata->GetPointData()->GetTCoords() != nullptr);
+
+  return (hasScalars << 0) + (hasNormals << 1) + (hasTCoords << 2);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildShaders(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
