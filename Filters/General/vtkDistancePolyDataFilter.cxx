@@ -21,12 +21,50 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangle.h"
 
 // The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
 // We support up to 6th order hexahedra.
 #define VTK_MAXIMUM_NUMBER_OF_POINTS 216
+
+namespace
+{
+class DistanceOp
+{
+private:
+  vtkDistancePolyDataFilter* Self;
+  vtkImplicitPolyDataDistance* Imp;
+  vtkPolyData* Src;
+  vtkDoubleArray* OutputScalar;
+
+public:
+  DistanceOp(vtkDistancePolyDataFilter* self, vtkImplicitPolyDataDistance* imp, vtkPolyData* src,
+    vtkDoubleArray* outputScalar)
+    : Self(self)
+    , Imp(imp)
+    , Src(src)
+    , OutputScalar(outputScalar)
+  {
+  }
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    vtkImplicitPolyDataDistance* imp = this->Imp;
+    vtkTypeBool signedDistance = Self->GetSignedDistance();
+    vtkTypeBool negateDistance = Self->GetNegateDistance();
+    for (vtkIdType ptId = begin; ptId < end; ptId++)
+    {
+      double pt[3];
+      Src->GetPoint(ptId, pt);
+
+      double val = imp->EvaluateFunction(pt);
+      double dist = signedDistance ? (negateDistance ? -val : val) : fabs(val);
+      OutputScalar->SetValue(ptId, dist);
+    }
+  }
+};
+}
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDistancePolyDataFilter);
@@ -100,14 +138,8 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
   pointArray->SetNumberOfComponents(1);
   pointArray->SetNumberOfTuples(numPts);
 
-  for (vtkIdType ptId = 0; ptId < numPts; ptId++)
-  {
-    double pt[3];
-    mesh->GetPoint(ptId, pt);
-    double val = imp->EvaluateFunction(pt);
-    double dist = SignedDistance ? (NegateDistance ? -val : val) : fabs(val);
-    pointArray->SetValue(ptId, dist);
-  }
+  DistanceOp functor(this, imp, mesh, pointArray);
+  vtkSMPTools::For(0, numPts, functor);
 
   mesh->GetPointData()->AddArray(pointArray);
   pointArray->Delete();
