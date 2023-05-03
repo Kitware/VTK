@@ -34,6 +34,8 @@
 
 #include "vtkSmartPointer.h"
 
+#include <cstdint> // for `std::uint*_t`
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStringManager;
 
