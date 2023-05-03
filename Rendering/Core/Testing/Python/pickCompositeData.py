@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# This script tests picking props, points and cells rendered with a vtkCompositePolyDataMapper2.
+# This script tests picking props, points and cells rendered with a vtkCompositePolyDataMapper.
 #
 from vtkmodules.vtkCommonCore import vtkPoints
 from vtkmodules.vtkCommonDataModel import (
@@ -12,12 +12,12 @@ from vtkmodules.vtkRenderingCore import (
     vtkActor,
     vtkCellPicker,
     vtkCompositeDataDisplayAttributes,
+    vtkCompositePolyDataMapper,
     vtkPicker,
     vtkPointPicker,
     vtkRenderWindow,
     vtkRenderer,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
 import math
@@ -26,7 +26,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create a vtkMultiBlockDataSet with 3
-# vtkPolyData blocks, rendered using a vtkCompositePolyDataMapper2
+# vtkPolyData blocks, rendered using a vtkCompositePolyDataMapper
 # and picked using vtkPicker, vtkPointPicker and vtkCellPicker.
 
 # points for two 'stacks' of 3 cells, each belonging to a different block
@@ -66,7 +66,7 @@ pickdata=[
 mbd=vtkMultiBlockDataSet()
 mbd.SetNumberOfBlocks(3)
 cda=vtkCompositeDataDisplayAttributes()
-m=vtkCompositePolyDataMapper2()
+m=vtkCompositePolyDataMapper()
 m.SetInputDataObject(mbd)
 m.SetCompositeDataDisplayAttributes(cda)
 
