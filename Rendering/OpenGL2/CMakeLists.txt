@@ -20,10 +20,12 @@ set(classes
   vtkLightsPass
   vtkOpaquePass
   vtkOpenGLActor
+  vtkOpenGLBatchedPolyDataMapper
   vtkOpenGLBillboardTextActor3D
   vtkOpenGLBufferObject
   vtkOpenGLCamera
   vtkOpenGLCellToVTKCellMap
+  vtkOpenGLCompositePolyDataMapperDelegator
   vtkOpenGLFXAAFilter
   vtkOpenGLFXAAPass
   vtkOpenGLFluidMapper
@@ -196,6 +198,7 @@ list(APPEND private_headers "${BlueNoiseTexture64x64_header}")
 # setup factory overrides
 set(opengl_overrides
   Actor
+  CompositePolyDataMapperDelegator
   BillboardTextActor3D
   Camera
   LabeledContourMapper
