@@ -158,26 +158,7 @@ public:
   /**\brief A convenience method for enabling/disabling
    *   the VBO's shift+scale transform.
    */
-  virtual void SetVBOShiftScaleMethod(int m);
-  virtual int GetVBOShiftScaleMethod() { return this->ShiftScaleMethod; }
-
-  /**\brief Pause per-render updates to VBO shift+scale parameters.
-   *
-   * For large datasets, re-uploading the VBO during user interaction
-   * can cause stutters in the framerate. Interactors can use this
-   * method to force UpdateCameraShiftScale to return immediately
-   * (without changes) while users are zooming/rotating/etc. and then
-   * re-enable shift-scale just before a still render.
-   *
-   * This setting has no effect unless the shift-scale method is set
-   * to NEAR_PLANE_SHIFT_SCALE or FOCAL_POINT_SHIFT_SCALE.
-   *
-   * Changing this setting does **not** mark the mapper as modified as
-   * that would force a VBO upload – defeating its own purpose.
-   */
-  virtual void SetPauseShiftScale(bool pauseShiftScale) { this->PauseShiftScale = pauseShiftScale; }
-  vtkGetMacro(PauseShiftScale, bool);
-  vtkBooleanMacro(PauseShiftScale, bool);
+  void SetVBOShiftScaleMethod(ShiftScaleMethodType method) override;
 
   /**
    * Allow the shader code to set the point size (with gl_PointSize variable)
@@ -467,8 +448,6 @@ protected:
   vtkMatrix3x3* TempMatrix3;
   vtkNew<vtkTransform> VBOInverseTransform;
   vtkNew<vtkMatrix4x4> VBOShiftScale;
-  int ShiftScaleMethod; // for points
-  bool PauseShiftScale;
   bool UseProgramPointSize;
 
   // if set to true, tcoords will be passed to the

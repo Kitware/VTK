@@ -89,21 +89,23 @@ void keypressFunc(vtkObject* caller, unsigned long vtkNotUsed(eventId), void* cl
   if (iren->GetKeyCode() == ' ')
   {
     auto currMethod = mapper->GetVBOShiftScaleMethod();
-    if (currMethod == vtkOpenGLVertexBufferObject::DISABLE_SHIFT_SCALE)
+    if (currMethod == vtkPolyDataMapper::ShiftScaleMethodType::DISABLE_SHIFT_SCALE)
     {
-      mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::ALWAYS_AUTO_SHIFT_SCALE);
+      mapper->SetVBOShiftScaleMethod(
+        vtkPolyDataMapper::ShiftScaleMethodType::ALWAYS_AUTO_SHIFT_SCALE);
     }
-    else if (currMethod == vtkOpenGLVertexBufferObject::ALWAYS_AUTO_SHIFT_SCALE)
+    else if (currMethod == vtkPolyDataMapper::ShiftScaleMethodType::ALWAYS_AUTO_SHIFT_SCALE)
     {
-      mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::AUTO_SHIFT);
+      mapper->SetVBOShiftScaleMethod(vtkPolyDataMapper::ShiftScaleMethodType::AUTO_SHIFT);
     }
-    else if (currMethod == vtkOpenGLVertexBufferObject::AUTO_SHIFT)
+    else if (currMethod == vtkPolyDataMapper::ShiftScaleMethodType::AUTO_SHIFT)
     {
-      mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE);
+      mapper->SetVBOShiftScaleMethod(
+        vtkPolyDataMapper::ShiftScaleMethodType::FOCAL_POINT_SHIFT_SCALE);
     }
-    else if (currMethod == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE)
+    else if (currMethod == vtkPolyDataMapper::ShiftScaleMethodType::FOCAL_POINT_SHIFT_SCALE)
     {
-      mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::DISABLE_SHIFT_SCALE);
+      mapper->SetVBOShiftScaleMethod(vtkPolyDataMapper::ShiftScaleMethodType::DISABLE_SHIFT_SCALE);
     }
 
     vtkMultiBlockDataSet* input =
@@ -133,7 +135,7 @@ int TestCompositePolyDataMapper2CameraShiftScale(int argc, char* argv[])
   createData(data);
   mapper->SetInputDataObject(data);
 
-  mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE);
+  mapper->SetVBOShiftScaleMethod(vtkPolyDataMapper::ShiftScaleMethodType::FOCAL_POINT_SHIFT_SCALE);
 
   actor->SetMapper(mapper);
   actor->GetProperty()->SetDiffuse(0.0);

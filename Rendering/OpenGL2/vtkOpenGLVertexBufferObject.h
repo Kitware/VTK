@@ -15,6 +15,7 @@
 #define vtkOpenGLVertexBufferObject_h
 
 #include "vtkOpenGLBufferObject.h"
+#include "vtkPolyDataMapper.h"         // for ShiftScaleMethodType
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkWeakPointer.h"            // For vtkWeakPointer
 
@@ -57,36 +58,7 @@ public:
   // Get the mtime when this VBO was loaded
   vtkGetMacro(UploadTime, vtkTimeStamp);
 
-  /**\brief Methods for VBO coordinate shift+scale-computation.
-   *
-   * By default, shift and scale vectors are enabled
-   * whenever CreateVBO is called with points whose
-   * bounds are many bbox-lengths away from the origin.
-   *
-   * Shifting and scaling may be completely disabled,
-   * or manually specified, or left at the default.
-   *
-   * Manual specification is for the case when you
-   * will be calling AppendVBO instead of just CreateVBO
-   * and know better bounds than the what CreateVBO
-   * might produce.
-   *
-   * The automatic method tells CreatVBO to compute shift and
-   * scale vectors that remap the points to the unit cube.
-   *
-   * The camera method will shift scale the VBO so that the visible
-   * part of the data has reasonable values.
-   */
-  enum ShiftScaleMethod
-  {
-    DISABLE_SHIFT_SCALE,     //!< Do not shift/scale point coordinates. Ever!
-    AUTO_SHIFT_SCALE,        //!< The default, automatic computation.
-    ALWAYS_AUTO_SHIFT_SCALE, //!< Always shift scale using auto computed values
-    MANUAL_SHIFT_SCALE,      //!< Manual shift/scale (for use with AppendVBO)
-    AUTO_SHIFT,              //!< Only Apply the shift
-    NEAR_PLANE_SHIFT_SCALE,  //!< Shift scale based on camera settings
-    FOCAL_POINT_SHIFT_SCALE  //!< Shift scale based on camera settings
-  };
+  using ShiftScaleMethod = vtkPolyDataMapper::ShiftScaleMethodType;
 
   // Description:
   // Get the shift and scale vectors computed by CreateVBO;

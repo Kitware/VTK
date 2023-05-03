@@ -166,6 +166,62 @@ public:
   vtkTypeBool ProcessRequest(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  /**\brief Methods for VBO coordinate shift+scale-computation.
+   *
+   * By default, shift and scale vectors are enabled
+   * whenever CreateVBO is called with points whose
+   * bounds are many bbox-lengths away from the origin.
+   *
+   * Shifting and scaling may be completely disabled,
+   * or manually specified, or left at the default.
+   *
+   * Manual specification is for the case when you
+   * will be calling AppendVBO instead of just CreateVBO
+   * and know better bounds than the what CreateVBO
+   * might produce.
+   *
+   * The automatic method tells CreatVBO to compute shift and
+   * scale vectors that remap the points to the unit cube.
+   *
+   * The camera method will shift scale the VBO so that the visible
+   * part of the data has reasonable values.
+   */
+  enum class ShiftScaleMethodType : int
+  {
+    DISABLE_SHIFT_SCALE,     //!< Do not shift/scale point coordinates. Ever!
+    AUTO_SHIFT_SCALE,        //!< The default, automatic computation.
+    ALWAYS_AUTO_SHIFT_SCALE, //!< Always shift scale using auto computed values
+    MANUAL_SHIFT_SCALE,      //!< Manual shift/scale (for use with AppendVBO)
+    AUTO_SHIFT,              //!< Only Apply the shift
+    NEAR_PLANE_SHIFT_SCALE,  //!< Shift scale based on camera settings
+    FOCAL_POINT_SHIFT_SCALE  //!< Shift scale based on camera settings
+  };
+
+  /**\brief A convenience method for enabling/disabling
+   *   the VBO's shift+scale transform.
+   */
+  virtual void SetVBOShiftScaleMethod(int);
+  virtual void SetVBOShiftScaleMethod(ShiftScaleMethodType) {}
+  virtual ShiftScaleMethodType GetVBOShiftScaleMethod() { return this->ShiftScaleMethod; }
+
+  /**\brief Pause per-render updates to VBO shift+scale parameters.
+   *
+   * For large datasets, re-uploading the VBO during user interaction
+   * can cause stutters in the framerate. Interactors can use this
+   * method to force UpdateCameraShiftScale to return immediately
+   * (without changes) while users are zooming/rotating/etc. and then
+   * re-enable shift-scale just before a still render.
+   *
+   * This setting has no effect unless the shift-scale method is set
+   * to NEAR_PLANE_SHIFT_SCALE or FOCAL_POINT_SHIFT_SCALE.
+   *
+   * Changing this setting does **not** mark the mapper as modified as
+   * that would force a VBO upload – defeating its own purpose.
+   */
+  virtual void SetPauseShiftScale(bool pauseShiftScale) { this->PauseShiftScale = pauseShiftScale; }
+  vtkGetMacro(PauseShiftScale, bool);
+  vtkBooleanMacro(PauseShiftScale, bool);
+
 protected:
   vtkPolyDataMapper();
   ~vtkPolyDataMapper() override = default;
@@ -182,6 +238,8 @@ protected:
   int NumberOfSubPieces;
   int GhostLevel;
   bool SeamlessU, SeamlessV;
+  ShiftScaleMethodType ShiftScaleMethod; // for points
+  bool PauseShiftScale;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
