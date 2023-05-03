@@ -27,6 +27,7 @@ set(classes
   vtkCompositeDataDisplayAttributes
   vtkCompositeDataDisplayAttributesLegacy
   vtkCompositePolyDataMapper
+  vtkCompositePolyDataMapperDelegator
   vtkCoordinate
   vtkCuller
   vtkCullerCollection
