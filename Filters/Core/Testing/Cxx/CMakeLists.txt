@@ -45,6 +45,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestExtractCells.cxx,NO_VALID
   TestExtractCellsAlongPolyLine.cxx,NO_VALID
   TestFeatureEdges.cxx,NO_VALID
+  TestFieldDataToDataSetAttribute.cxx,NO_VALID
   TestFlyingEdges.cxx
   TestGlyph3D.cxx
   TestGlyph3DFollowCamera.cxx,NO_VALID

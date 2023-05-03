@@ -49,6 +49,7 @@ set(classes
   vtkExtractEdges
   vtkFeatureEdges
   vtkFieldDataToAttributeDataFilter
+  vtkFieldDataToDataSetAttribute
   vtkFlyingEdges2D
   vtkFlyingEdges3D
   vtkFlyingEdgesPlaneCutter
