@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkActor.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkConeSource.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGlyph3D.h"
@@ -86,7 +86,7 @@ int X3DTest(int argc, char* argv[])
   mb->SetBlock(1, sphere->GetOutputDataObject(0));
   mb->GetMetaData(1u)->Set(vtkMultiBlockDataSet::NAME(), "Sphere");
 
-  vtkNew<vtkCompositePolyDataMapper2> mbMapper;
+  vtkNew<vtkCompositePolyDataMapper> mbMapper;
   mbMapper->SetInputDataObject(mb);
 
   vtkNew<vtkActor> mbActor;

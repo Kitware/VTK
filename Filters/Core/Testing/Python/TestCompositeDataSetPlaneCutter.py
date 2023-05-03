@@ -6,11 +6,11 @@ from vtkmodules.vtkFiltersCore import (
 from vtkmodules.vtkIOIOSS import vtkIOSSReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
+    vtkCompositePolyDataMapper,
     vtkRenderWindow,
     vtkRenderWindowInteractor,
     vtkRenderer,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
@@ -48,7 +48,7 @@ cut0.SetInputConnection(inputMBDConverter.GetOutputPort())
 cut0.SetPlane(plane)
 cut0.ComputeNormalsOff()
 
-sCutterMapper0 = vtkCompositePolyDataMapper2()
+sCutterMapper0 = vtkCompositePolyDataMapper()
 sCutterMapper0.SetInputConnection(cut0.GetOutputPort())
 sCutterMapper0.ScalarVisibilityOff()
 
@@ -62,7 +62,7 @@ cut1.SetInputConnection(inputPDCReader.GetOutputPort())
 cut1.SetPlane(plane)
 cut1.ComputeNormalsOff()
 
-sCutterMapper1 = vtkCompositePolyDataMapper2()
+sCutterMapper1 = vtkCompositePolyDataMapper()
 sCutterMapper1.SetInputConnection(cut1.GetOutputPort())
 sCutterMapper1.ScalarVisibilityOff()
 

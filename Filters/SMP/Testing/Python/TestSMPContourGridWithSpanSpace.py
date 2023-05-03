@@ -5,11 +5,11 @@ from vtkmodules.vtkFiltersSMP import vtkSMPContourGrid
 from vtkmodules.vtkIOExodus import vtkExodusIIReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
+    vtkCompositePolyDataMapper,
     vtkRenderWindow,
     vtkRenderWindowInteractor,
     vtkRenderer,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
@@ -37,7 +37,7 @@ contour.UseScalarTreeOn()
 contour.SetScalarTree(tree)
 contour.Update()
 
-mapper = vtkCompositePolyDataMapper2()
+mapper = vtkCompositePolyDataMapper()
 mapper.SetInputConnection(contour.GetOutputPort())
 mapper.ScalarVisibilityOff()
 

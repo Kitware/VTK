@@ -3,11 +3,11 @@ from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
 from vtkmodules.vtkIOGeometry import vtkFLUENTReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
+    vtkCompositePolyDataMapper,
     vtkRenderWindow,
     vtkRenderWindowInteractor,
     vtkRenderer,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
@@ -22,7 +22,7 @@ r.EnableAllCellArrays()
 g = vtkGeometryFilter()
 g.SetInputConnection(r.GetOutputPort())
 
-FluentMapper = vtkCompositePolyDataMapper2()
+FluentMapper = vtkCompositePolyDataMapper()
 FluentMapper.SetInputConnection(g.GetOutputPort())
 FluentMapper.SetScalarModeToUseCellFieldData()
 FluentMapper.SelectColorArray("PRESSURE")

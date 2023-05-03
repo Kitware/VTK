@@ -1,6 +1,6 @@
 #include "vtkActor.h"
 #include "vtkCellData.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkExpandMarkedElements.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -51,7 +51,7 @@ int TestExpandMarkedElements(int argc, char* argv[])
   filter->RemoveSeedOn();
   filter->SetNumberOfLayers(3);
 
-  vtkNew<vtkCompositePolyDataMapper2> mapper;
+  vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputConnection(filter->GetOutputPort());
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray("MarkedCells");

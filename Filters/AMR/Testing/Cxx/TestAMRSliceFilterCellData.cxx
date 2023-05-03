@@ -19,7 +19,7 @@
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkCompositeDataDisplayAttributes.h>
-#include <vtkCompositePolyDataMapper2.h>
+#include <vtkCompositePolyDataMapper.h>
 #include <vtkDataObjectTreeIterator.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkImageToAMR.h>
@@ -78,7 +78,7 @@ int TestAMRSliceFilterCellData(int argc, char* argv[])
   lut->Build();
 
   // Rendering
-  vtkNew<vtkCompositePolyDataMapper2> mapper;
+  vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputConnection(surface->GetOutputPort());
   mapper->SetLookupTable(lut);
   mapper->SetScalarRange(37.3531, 276.829);

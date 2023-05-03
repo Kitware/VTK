@@ -20,7 +20,7 @@
 #endif
 
 #include "vtkActor.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkExtractSubsetWithSeed.h"
 #include "vtkGeometryFilter.h"
 #include "vtkMultiBlockDataSet.h"
@@ -78,7 +78,7 @@ int TestExtractSubsetWithSeed(int argc, char* argv[])
   vtkNew<vtkGeometryFilter> geom1;
   geom1->SetInputConnection(extract1->GetOutputPort());
 
-  vtkNew<vtkCompositePolyDataMapper2> mapper1;
+  vtkNew<vtkCompositePolyDataMapper> mapper1;
   mapper1->SetInputConnection(geom1->GetOutputPort());
 
   vtkNew<vtkActor> actor1;
@@ -93,7 +93,7 @@ int TestExtractSubsetWithSeed(int argc, char* argv[])
   vtkNew<vtkGeometryFilter> geom2;
   geom2->SetInputConnection(extract2->GetOutputPort());
 
-  vtkNew<vtkCompositePolyDataMapper2> mapper2;
+  vtkNew<vtkCompositePolyDataMapper> mapper2;
   mapper2->SetInputConnection(geom2->GetOutputPort());
 
   vtkNew<vtkActor> actor2;
@@ -112,7 +112,7 @@ int TestExtractSubsetWithSeed(int argc, char* argv[])
   vtkNew<vtkStructuredGridOutlineFilter> outline;
   outline->SetInputDataObject(data);
 
-  vtkNew<vtkCompositePolyDataMapper2> mapperOutline;
+  vtkNew<vtkCompositePolyDataMapper> mapperOutline;
   mapperOutline->SetInputConnection(outline->GetOutputPort());
 
   vtkNew<vtkActor> actorOutline;

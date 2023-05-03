@@ -7,11 +7,11 @@ from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
 from vtkmodules.vtkIOAMR import vtkAMREnzoReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
+    vtkCompositePolyDataMapper,
     vtkRenderWindow,
     vtkRenderWindowInteractor,
     vtkRenderer,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
@@ -52,7 +52,7 @@ if NumCells(out) != 800:
 surface = vtkGeometryFilter()
 surface.SetInputData(out)
 
-mapper = vtkCompositePolyDataMapper2()
+mapper = vtkCompositePolyDataMapper()
 mapper.SetInputConnection(surface.GetOutputPort())
 mapper.SetScalarModeToUseCellFieldData()
 mapper.SelectColorArray(datafieldname)

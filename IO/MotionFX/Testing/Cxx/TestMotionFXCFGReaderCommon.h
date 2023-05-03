@@ -17,7 +17,7 @@
 
 #include <vtkActor.h>
 #include <vtkCallbackCommand.h>
-#include <vtkCompositePolyDataMapper2.h>
+#include <vtkCompositePolyDataMapper.h>
 #include <vtkInformation.h>
 #include <vtkMotionFXCFGReader.h>
 #include <vtkNew.h>
@@ -40,7 +40,7 @@ struct ClientData
 {
   vtkSmartPointer<vtkRenderWindow> Window;
   vtkSmartPointer<vtkMotionFXCFGReader> Reader;
-  vtkSmartPointer<vtkCompositePolyDataMapper2> Mapper;
+  vtkSmartPointer<vtkCompositePolyDataMapper> Mapper;
   std::vector<double> TimeSteps;
   int CurrentIndex;
 
@@ -134,7 +134,7 @@ int Test(int argc, char* argv[], const char* dfile, const InitializationCallback
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkCompositePolyDataMapper2> mapper;
+  vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkActor> actor;
