@@ -2,9 +2,9 @@
 
 set -e
 
-readonly version="1.16.8"
+readonly version="1.23.7"
 readonly tarball="v$version.tar.gz"
-readonly sha256sum="387c98c0540f66595c4594e5f3340a1095dd90e954ff14fd5d89cc849ba32d1b"
+readonly sha256sum="cbe2afbfc9ed9c6c5ed7df7929f9b1f5ecfd858b849b377005d4881b72b910b3"
 
 readonly openvr_root="$HOME/openvr"
 
