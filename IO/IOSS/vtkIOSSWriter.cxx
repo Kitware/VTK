@@ -17,6 +17,7 @@
 #include "vtkCommand.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssemblyUtilities.h"
+#include "vtkDataSet.h"
 #include "vtkIOSSModel.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -26,7 +27,6 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkVersion.h"
 
 // Ioss includes
@@ -350,7 +350,7 @@ int vtkIOSSWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
@@ -493,29 +493,29 @@ int vtkIOSSWriter::RequestData(vtkInformation* request,
 //----------------------------------------------------------------------------
 void vtkIOSSWriter::WriteData()
 {
-  auto& internals = (*this->Internals);
   vtkSmartPointer<vtkDataObject> inputDO = this->GetInput();
-  if (vtkUnstructuredGrid::SafeDownCast(inputDO))
+  if (vtkDataSet::SafeDownCast(inputDO))
   {
     vtkNew<vtkPartitionedDataSet> pd;
     pd->SetPartition(0, inputDO);
     inputDO = pd;
   }
 
-  if (auto* pd = vtkPartitionedDataSet::SafeDownCast(inputDO))
+  if (auto pd = vtkPartitionedDataSet::SafeDownCast(inputDO))
   {
     vtkNew<vtkPartitionedDataSetCollection> pdc;
     pdc->SetPartitionedDataSet(0, pd);
     inputDO = pdc;
   }
 
-  auto* inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO);
+  auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO);
   if (!inputPDC)
   {
     vtkErrorMacro("Incorrect input type!");
     return;
   }
 
+  auto& internals = (*this->Internals);
   auto* controller = this->GetController();
 
   const vtkIOSSModel model(inputPDC, this);
