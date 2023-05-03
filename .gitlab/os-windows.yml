@@ -13,7 +13,7 @@
     variables:
         VCVARSALL: "${VS170COMNTOOLS}\\..\\..\\VC\\Auxiliary\\Build\\vcvarsall.bat"
         VCVARSPLATFORM: "x64"
-        VCVARSVERSION: "14.34.31933"
+        VCVARSVERSION: "14.35.32215"
         VTK_INSTALL: 1
 
 .wheel_windows36_x86_64:
@@ -118,7 +118,7 @@
     variables:
         VCVARSALL: "${VS170COMNTOOLS}\\..\\..\\VC\\Auxiliary\\Build\\vcvarsall.bat"
         VCVARSPLATFORM: "x64"
-        VCVARSVERSION: "14.34.31933"
+        VCVARSVERSION: "14.35.32215"
 
 .windows_vs2022_kits_mpi_python_qt:
     extends:
@@ -164,7 +164,7 @@
 .windows_builder_tags:
     tags:
         - vtk # Since this is a bare runner, pin to a project.
-        - msvc-19.34
+        - msvc-19.35
         - nonconcurrent
         - shell
         - vs2022
@@ -173,7 +173,7 @@
 .windows_wheel_builder_tags:
     tags:
         - vtk # Since this is a bare runner, pin to a project.
-        - msvc-19.34
+        - msvc-19.35
         - concurrent
         - shell
         - vs2022
@@ -182,7 +182,7 @@
 .windows_tester_tags:
     tags:
         - vtk # Since this is a bare runner, pin to a project.
-        - msvc-19.34
+        - msvc-19.35
         - nonconcurrent
         - shell
         - vs2022
@@ -192,7 +192,7 @@
 .windows_ext_builder_tags:
     tags:
         - vtk # Since this is a bare runner, pin to a project.
-        - msvc-19.34
+        - msvc-19.35
         # - concurrent
         - nonconcurrent # FIXME: non-relocatability in VTK-m and `VTK_DLL_PATHS`
         - shell
