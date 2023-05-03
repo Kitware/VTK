@@ -65,20 +65,32 @@
 namespace
 {
 //=============================================================================
-bool HandleGlobalIds(
-  vtkPartitionedDataSetCollection* pdc, int association, vtkMultiProcessController* controller)
+bool HandleGlobalIds(vtkPartitionedDataSetCollection* pdc, int association,
+  std::set<unsigned int> indicesToIgnore, vtkMultiProcessController* controller)
 {
-  const auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pdc);
+  std::vector<std::vector<vtkUnstructuredGrid*>> datasets(pdc->GetNumberOfPartitionedDataSets());
+  for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+  {
+    datasets[i] =
+      vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(pdc->GetPartitionedDataSet(i));
+  }
   // check if global ids are present, otherwise create them.
   int hasGlobalIds = true;
-  for (auto& ds : datasets)
+  for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
   {
-    auto* pd = ds->GetAttributes(association);
-    auto* gids = vtkIdTypeArray::SafeDownCast(pd->GetGlobalIds());
-    if (!gids)
+    if (indicesToIgnore.find(i) != indicesToIgnore.end())
     {
-      hasGlobalIds = false;
-      break;
+      continue;
+    }
+    for (auto& ds : datasets[i])
+    {
+      auto* pd = ds->GetAttributes(association);
+      auto* gids = vtkIdTypeArray::SafeDownCast(pd->GetGlobalIds());
+      if (!gids)
+      {
+        hasGlobalIds = false;
+        break;
+      }
     }
   }
   if (controller->GetNumberOfProcesses() > 1)
@@ -88,8 +100,18 @@ bool HandleGlobalIds(
 
   if (!hasGlobalIds)
   {
-    const auto numElements = std::accumulate(datasets.begin(), datasets.end(), 0,
-      [&](int sum, vtkUnstructuredGrid* ds) { return sum + ds->GetNumberOfElements(association); });
+    vtkIdType numElements = 0;
+    for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+    {
+      if (indicesToIgnore.find(i) != indicesToIgnore.end())
+      {
+        continue;
+      }
+      for (auto& ds : datasets[i])
+      {
+        numElements += ds->GetNumberOfElements(association);
+      }
+    }
 
     vtkIdType startId = 1; // start with 1 since Exodus ids start with 1.
     if (controller->GetNumberOfProcesses() > 1)
@@ -102,22 +124,29 @@ bool HandleGlobalIds(
       startId = std::accumulate(resultNumberOfElementsPerCore->GetPointer(0),
         resultNumberOfElementsPerCore->GetPointer(controller->GetLocalProcessId()), startId);
     }
-    for (auto& ds : datasets)
+    for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
     {
-      const auto numberOfElements = ds->GetNumberOfElements(association);
-      vtkNew<vtkIdTypeArray> globalIds;
-      globalIds->SetName("ids");
-      globalIds->SetNumberOfComponents(1);
-      globalIds->SetNumberOfTuples(numberOfElements);
-      vtkSMPTools::For(0, numberOfElements, [&](vtkIdType begin, vtkIdType end) {
-        auto globalIdsPtr = globalIds->GetPointer(0);
-        for (vtkIdType i = begin; i < end; ++i)
-        {
-          globalIdsPtr[i] = startId + i;
-        }
-      });
-      ds->GetAttributes(association)->SetGlobalIds(globalIds);
-      startId += numberOfElements;
+      if (indicesToIgnore.find(i) != indicesToIgnore.end())
+      {
+        continue;
+      }
+      for (auto& ds : datasets[i])
+      {
+        const auto numberOfElements = ds->GetNumberOfElements(association);
+        vtkNew<vtkIdTypeArray> globalIds;
+        globalIds->SetName("ids");
+        globalIds->SetNumberOfComponents(1);
+        globalIds->SetNumberOfTuples(numberOfElements);
+        vtkSMPTools::For(0, numberOfElements, [&](vtkIdType begin, vtkIdType end) {
+          auto globalIdsPtr = globalIds->GetPointer(0);
+          for (vtkIdType i = begin; i < end; ++i)
+          {
+            globalIdsPtr[i] = startId + i;
+          }
+        });
+        ds->GetAttributes(association)->SetGlobalIds(globalIds);
+        startId += numberOfElements;
+      }
     }
   }
   // returns if globals were created or not.
@@ -1089,46 +1118,12 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
   const auto& controller = internals.Controller;
   auto& entityGroups = internals.EntityGroups;
 
+  // shallow copy the dataset. because we might need to add global ids to it.
   dataset = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
   dataset->CopyStructure(pdc);
   dataset->ShallowCopy(pdc);
-  internals.GlobalIdsCreated = false;
-  // create global point ids if needed
-  internals.GlobalIdsCreated |= ::HandleGlobalIds(dataset, vtkDataObject::POINT, controller);
-  // create global cell ids if needed
-  internals.GlobalIdsCreated |= ::HandleGlobalIds(dataset, vtkDataObject::CELL, controller);
 
-  // extract the names and ids of the blocks.
-  std::vector<std::string> blockNames(dataset->GetNumberOfPartitionedDataSets());
-  std::vector<int> blockIds(dataset->GetNumberOfPartitionedDataSets());
-  for (unsigned int pidx = 0; pidx < dataset->GetNumberOfPartitionedDataSets(); ++pidx)
-  {
-    blockIds[pidx] = pidx + 1;
-    blockNames[pidx] = "block_" + std::to_string(blockIds[pidx]);
-    if (auto info = dataset->GetMetaData(pidx))
-    {
-      if (info->Has(vtkCompositeDataSet::NAME()))
-      {
-        blockNames[pidx] = info->Get(vtkCompositeDataSet::NAME());
-      }
-      // this is true only if the dataset is coming from IOSS reader.
-      if (info->Has(vtkIOSSReader::ENTITY_ID()))
-      {
-        blockIds[pidx] = info->Get(vtkIOSSReader::ENTITY_ID());
-      }
-    }
-  }
-  // this will be used as a start id for split element blocks to ensure uniqueness.
-  int startSplitElementBlockId = *std::max_element(blockIds.begin(), blockIds.end()) + 1;
-  // ensure that all processes have the same startSplitElementBlockId.
-  if (controller && controller->GetNumberOfProcesses() > 1)
-  {
-    int globalStartSplitElementBlockId;
-    controller->AllReduce(
-      &startSplitElementBlockId, &globalStartSplitElementBlockId, 1, vtkCommunicator::MAX_OP);
-    startSplitElementBlockId = globalStartSplitElementBlockId;
-  }
-
+  // detect which vtkPartitionedDataSets are element blocks, node sets, and side sets.
   const auto assemblyName = writer->GetAssemblyName();
   vtkSmartPointer<vtkDataAssembly> assembly;
   if (assemblyName && strcmp(assemblyName, "Assembly") == 0)
@@ -1179,6 +1174,49 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       indicesEmpty =
         elementBlockIndices.empty() && nodeSetIndices.empty() && sideSetIndices.empty();
     }
+  }
+
+  // merge node sets and side sets indices into a single set of indices.
+  std::set<unsigned int> indicesToIgnore;
+  indicesToIgnore.insert(nodeSetIndices.begin(), nodeSetIndices.end());
+  indicesToIgnore.insert(sideSetIndices.begin(), sideSetIndices.end());
+
+  internals.GlobalIdsCreated = false;
+  // create global point ids if needed
+  internals.GlobalIdsCreated |= ::HandleGlobalIds(dataset, vtkDataObject::POINT, {}, controller);
+  // create global cell ids if needed (node sets and side sets should not have global cell ids)
+  internals.GlobalIdsCreated |=
+    ::HandleGlobalIds(dataset, vtkDataObject::CELL, indicesToIgnore, controller);
+
+  // extract the names and ids of the blocks.
+  std::vector<std::string> blockNames(dataset->GetNumberOfPartitionedDataSets());
+  std::vector<int> blockIds(dataset->GetNumberOfPartitionedDataSets());
+  for (unsigned int pidx = 0; pidx < dataset->GetNumberOfPartitionedDataSets(); ++pidx)
+  {
+    blockIds[pidx] = pidx + 1;
+    blockNames[pidx] = "block_" + std::to_string(blockIds[pidx]);
+    if (auto info = dataset->GetMetaData(pidx))
+    {
+      if (info->Has(vtkCompositeDataSet::NAME()))
+      {
+        blockNames[pidx] = info->Get(vtkCompositeDataSet::NAME());
+      }
+      // this is true only if the dataset is coming from IOSS reader.
+      if (info->Has(vtkIOSSReader::ENTITY_ID()))
+      {
+        blockIds[pidx] = info->Get(vtkIOSSReader::ENTITY_ID());
+      }
+    }
+  }
+  // this will be used as a start id for split element blocks to ensure uniqueness.
+  int startSplitElementBlockId = *std::max_element(blockIds.begin(), blockIds.end()) + 1;
+  // ensure that all processes have the same startSplitElementBlockId.
+  if (controller && controller->GetNumberOfProcesses() > 1)
+  {
+    int globalStartSplitElementBlockId;
+    controller->AllReduce(
+      &startSplitElementBlockId, &globalStartSplitElementBlockId, 1, vtkCommunicator::MAX_OP);
+    startSplitElementBlockId = globalStartSplitElementBlockId;
   }
 
   // first things first, determine all information necessary about nodes.
