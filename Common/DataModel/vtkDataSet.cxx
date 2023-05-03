@@ -41,6 +41,7 @@
 #include "vtkStructuredData.h"
 
 #include <cmath>
+#include <set>
 
 //------------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -453,19 +454,67 @@ int vtkDataSet::GetCellNumberOfFaces(
   }
 }
 
+namespace
+{
+class DistinctCellTypesWorker
+{
+public:
+  DistinctCellTypesWorker(vtkDataSet* ds)
+    : DS(ds)
+  {
+    if (ds && ds->GetNumberOfCells() > 0)
+    {
+      // initialize internal data structures
+      vtkNew<vtkGenericCell> cell;
+      ds->GetCell(0, cell);
+    }
+  }
+
+  vtkDataSet* DS;
+  std::set<unsigned char> DistinctCellTypes;
+
+  // Thread-local storage
+  vtkSMPThreadLocal<std::set<unsigned char>> LocalDistinctCellTypes;
+
+  void Initialize() {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    if (!this->DS)
+    {
+      return;
+    }
+
+    for (vtkIdType idx = begin; idx < end; ++idx)
+    {
+      unsigned char cellType = static_cast<unsigned char>(this->DS->GetCellType(idx));
+      this->LocalDistinctCellTypes.Local().insert(cellType);
+    }
+  }
+
+  void Reduce()
+  {
+    this->DistinctCellTypes.clear();
+    for (const auto& distinctCellTypes : this->LocalDistinctCellTypes)
+    {
+      this->DistinctCellTypes.insert(distinctCellTypes.begin(), distinctCellTypes.end());
+    }
+  }
+};
+}
+
 //------------------------------------------------------------------------------
 void vtkDataSet::GetCellTypes(vtkCellTypes* types)
 {
-  vtkIdType cellId, numCells = this->GetNumberOfCells();
-  unsigned char type;
-
-  types->Reset();
-  for (cellId = 0; cellId < numCells; cellId++)
+  DistinctCellTypesWorker worker(this);
+  vtkSMPTools::For(0, this->GetNumberOfCells(), worker);
+  if (types)
   {
-    type = this->GetCellType(cellId);
-    if (!types->IsType(type))
+    types->Reset();
+    types->Allocate(static_cast<vtkIdType>(worker.DistinctCellTypes.size()));
+    for (const auto& distinctCellType : worker.DistinctCellTypes)
     {
-      types->InsertNextType(type);
+      types->InsertNextType(distinctCellType);
     }
   }
 }
