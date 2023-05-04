@@ -21,18 +21,10 @@
 
 #include "vtkLargeInteger.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 const unsigned int BIT_INCREMENT = 32;
-
-static int maximum(int a, int b)
-{
-  return a > b ? a : b;
-}
-
-static int minimum(int a, int b)
-{
-  return a < b ? a : b;
-}
 
 void vtkLargeInteger::Contract()
 {
@@ -420,7 +412,7 @@ vtkLargeInteger& vtkLargeInteger::operator=(const vtkLargeInteger& n)
 
 void vtkLargeInteger::Plus(const vtkLargeInteger& n)
 {
-  int m = maximum(this->Sig + 1, n.Sig + 1);
+  int m = std::max(this->Sig + 1, n.Sig + 1);
   this->Expand(m); // allow for overflow
   unsigned int i = 0;
   int carry = 0;
@@ -441,7 +433,7 @@ void vtkLargeInteger::Plus(const vtkLargeInteger& n)
 
 void vtkLargeInteger::Minus(const vtkLargeInteger& n)
 {
-  int m = maximum(this->Sig, n.Sig);
+  int m = std::max(this->Sig, n.Sig);
   this->Expand(m);
   unsigned int i = 0;
   int carry = 0;
@@ -655,7 +647,7 @@ vtkLargeInteger& vtkLargeInteger::operator/=(const vtkLargeInteger& n)
 
   vtkLargeInteger c;
   vtkLargeInteger m = n;
-  m <<= maximum(this->Sig - n.Sig, 0); // vtkpower of two multiple of n
+  m <<= std::max<int>(this->Sig - n.Sig, 0); // vtkpower of two multiple of n
   vtkLargeInteger i = 1;
   i = i << (this->Sig - n.Sig);
   for (; i > 0; i = i >> 1)
@@ -688,7 +680,7 @@ vtkLargeInteger& vtkLargeInteger::operator%=(const vtkLargeInteger& n)
   }
 
   vtkLargeInteger m = n;
-  m <<= maximum(this->Sig - n.Sig, 0); // power of two multiple of n
+  m <<= std::max<int>(this->Sig - n.Sig, 0); // power of two multiple of n
   for (int i = this->Sig - n.Sig; i >= 0; i--)
   {
     if (!m.IsGreater(*this))
@@ -706,9 +698,9 @@ vtkLargeInteger& vtkLargeInteger::operator%=(const vtkLargeInteger& n)
 
 vtkLargeInteger& vtkLargeInteger::operator&=(const vtkLargeInteger& n)
 {
-  int m = maximum(this->Sig, n.Sig);
+  int m = std::max(this->Sig, n.Sig);
   this->Expand(m); // match sizes
-  for (int i = minimum(this->Sig, n.Sig); i >= 0; i--)
+  for (int i = std::min(this->Sig, n.Sig); i >= 0; i--)
   {
     this->Number[i] &= n.Number[i];
   }
@@ -718,9 +710,9 @@ vtkLargeInteger& vtkLargeInteger::operator&=(const vtkLargeInteger& n)
 
 vtkLargeInteger& vtkLargeInteger::operator|=(const vtkLargeInteger& n)
 {
-  int m = maximum(this->Sig, n.Sig);
+  int m = std::max(this->Sig, n.Sig);
   this->Expand(m); // match sizes
-  for (int i = minimum(this->Sig, n.Sig); i >= 0; i--)
+  for (int i = std::min(this->Sig, n.Sig); i >= 0; i--)
   {
     this->Number[i] |= n.Number[i];
   }
@@ -730,9 +722,9 @@ vtkLargeInteger& vtkLargeInteger::operator|=(const vtkLargeInteger& n)
 
 vtkLargeInteger& vtkLargeInteger::operator^=(const vtkLargeInteger& n)
 {
-  int m = maximum(this->Sig, n.Sig);
+  int m = std::max(this->Sig, n.Sig);
   this->Expand(m); // match sizes
-  for (int i = minimum(this->Sig, n.Sig); i >= 0; i--)
+  for (int i = std::min(this->Sig, n.Sig); i >= 0; i--)
   {
     this->Number[i] ^= n.Number[i];
   }
