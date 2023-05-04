@@ -12,13 +12,11 @@ such as Python, Qt, CGNS, HDF5, etc. Some of these are included in the VTK
 source itself (e.g., HDF5), while others are expected to be present on the
 machine on which VTK is being built (e.g., Python, Qt).
 
-## Linux Getting Started
+VTK supports all of the common generators supported by CMake. The Ninja,
+Makefiles, and Visual Studio generators are the most well-tested however.
 
-For new users of VTK or those wanting a quick setup on linux, these instructions will be useful:
-
-* [Getting Started Using Linux](getting_started_linux.md). This will will lead you step by step through the process of setting up VTK in your home folder.
-
-Once you get everything working, don't forget to come back and read the rest of this document.
+Note that VTK does not support in-source builds, so you must have a build tree
+that is not the source tree.
 
 ## Obtaining the source
 
@@ -29,15 +27,8 @@ To obtain VTK's sources locally, clone this repository using
 git clone --recursive https://gitlab.kitware.com/vtk/vtk.git
 ```
 
-## Building
 
-VTK supports all of the common generators supported by CMake. The Ninja,
-Makefiles, and Visual Studio generators are the most well-tested however.
-
-Note that VTK does not support in-source builds, so you must have a build tree
-that is not the source tree.
-
-### Prerequisites
+## Prerequisites
 
 VTK only requires a few packages in order to build in general, however
 specific features may require additional packages to be provided to VTK's
@@ -46,7 +37,15 @@ build configuration.
 Required:
 
   * [CMake][cmake]
-    - Version 3.12 or newer, however, the latest version is always recommended
+    - Version 3.12 or newer, however, the latest version is always recommended.
+    If the system package management utilities do not offer cmake or if the offered version is too old
+    Precompiled binaries available on [CMake's download page][cmake-download].
+
+    ```{tip}
+    If you are using cmake through the system's package management it is highly recommended install
+    `ccmake` (package `cmake-curses-gui` on Ubuntu/Debian) that allows to interactively set building options.
+    ```
+
   * Supported compiler
     - GCC 4.8 or newer
     - Clang 3.3 or newer
@@ -54,70 +53,62 @@ Required:
     - Microsoft Visual Studio 2015 or newer
     - Intel 14.0 or newer
 
-Optional dependencies:
-
-  * [Python][python]
-    - When using Python 3, at least 3.4 is required
-  * [Qt5][qt]
-    - Version 5.9 or newer
-
-#### Installing CMake
-
-CMake is a tool that makes cross-platform building simple. On several systems
-it will probably be already installed or available through system package
-management utilities. If it is not, there are precompiled binaries available on
-[CMake's download page][cmake-download].
-
-#### Installing Qt
-
-VTK uses Qt as its GUI library (if the relevant modules are enabled).
-Precompiled binaries are available on [Qt's website][qt-download].
-
-Note that on Windows, the compiler used for building VTK must match the
-compiler version used to build Qt.
 
 ### Optional Additions
 
-#### Download And Install ffmpeg movie libraries
+- **ffmpeg**
+  When the ability to write `.avi` files is desired, and writing these files is
+  not supported by the OS, VTK can use the ffmpeg library. This is generally
+  true for Unix-like operating systems. Source code for ffmpeg can be obtained
+  from [the website][ffmpeg].
 
-When the ability to write `.avi` files is desired, and writing these files is
-not supported by the OS, VTK can use the ffmpeg library. This is generally
-true for Unix-like operating systems. Source code for ffmpeg can be obtained
-from [the website][ffmpeg].
+- **MPI**
+  To run VTK in parallel, an [MPI][mpi] implementation is required. If an MPI
+  implementation that exploits special interconnect hardware is provided on your
+  system, we suggest using it for optimal performance. Otherwise, on Linux/Mac,
+  we suggest either [OpenMPI][openmpi] or [MPICH][mpich]. On Windows, [Microsoft
+  MPI][msmpi] is required.
 
-#### MPI
+- **Python**
+  In order to use scripting, [Python][python] is required. The minimum supported version is **3.4**.
+  The instructions are using the system Python. On Ubuntu/Debian the required package is
+  `python3-dev`. If you use a different Python
+  implementation or a virtual environment make sure the environment you use is
+  activated. On Ubuntu/Debian the required package for creating virtual environments is
+  `python3-venv`.
 
-To run VTK in parallel, an [MPI][mpi] implementation is required. If an MPI
-implementation that exploits special interconnect hardware is provided on your
-system, we suggest using it for optimal performance. Otherwise, on Linux/Mac,
-we suggest either [OpenMPI][openmpi] or [MPICH][mpich]. On Windows, [Microsoft
-MPI][msmpi] is required.
+- **Qt5**
+  VTK uses Qt as its GUI library (if the relevant modules are enabled).
+  Precompiled binaries are available on [Qt's website][qt-download].
+  Note that on Windows, the compiler used for building VTK must match the
+  compiler version used to build Qt. Version **5.9** or newer is required.
 
-#### Python
-
-In order to use scripting, [Python][python] is required.
-
-#### OSMesa
-
-Off-screen Mesa can be used as a software-renderer for running VTK on a server
-without hardware OpenGL acceleration. This is usually available in system
-packages on Linux. For example, the `libosmesa6-dev` package on Debian and
-Ubuntu. However, for older machines, building a newer version of Mesa is
-likely necessary for bug fixes and support. Its source and build instructions
-can be found on [its website][mesa].
+- **OSMesa**
+  Off-screen Mesa can be used as a software-renderer for running VTK on a server
+  without hardware OpenGL acceleration. This is usually available in system
+  packages on Linux. For example, the `libosmesa6-dev` package on Debian and
+  Ubuntu. However, for older machines, building a newer version of Mesa is
+  likely necessary for bug fixes and support. Its source and build instructions
+  can be found on [its website][mesa].
 
 ## Creating the Build Environment
 
 ### Linux (Ubuntu/Debian)
 
-  * `sudo apt install` the following packages:
-    - `build-essential`
-    - `cmake`
-    - `mesa-common-dev`
-    - `mesa-utils`
-    - `freeglut3-dev`
-    - `ninja-build`
-      - `ninja` is a speedy replacement for `make`, highly recommended.
+Install  the following packages:
+```bash
+$ sudo apt install \
+build-essential \
+cmake \
+mesa-common-dev \
+mesa-utils \
+freeglut3-dev \
+ninja-build
+```
+
+```{tip}
+`ninja` is a speedy replacement for `make`, highly recommended.
+```
 
 ### Windows
 
@@ -128,15 +119,8 @@ can be found on [its website][mesa].
     Visual Studio releases come with a version of `ninja` already and should
     already exist in `PATH` within the command prompt.
 
-### WebAssembly (Emscripten)
 
-  * [emsdk](https://github.com/emscripten-core/emsdk)
-    - Install latest toolchain with `./emsdk install latest`
-    - Activate the toolchain `./emsdk activate latest`
-    - Run `emsdk_env.bat` or `emsdk_env.ps1` (Windows) or `source ./emsdk_env.sh` (Linux and OS X) to set up the environment for the calling terminal.
-
-
-## Building
+## Configure and Building
 
 In order to build, CMake requires two steps, configure and build. VTK itself
 does not support what are known as in-source builds, so the first step is to
@@ -145,22 +129,32 @@ create a build directory.
 ```sh
 mkdir -p vtk/build
 cd vtk/build
-ccmake ../path/to/vtk/source # -GNinja may be added to use the Ninja generator
+ccmake -GNinja ../path/to/vtk/source # -GNinja may be skipped to use the default generator for each platform
 ```
 
 CMake's GUI has input entries for the build directory and the generator
 already. Note that on Windows, the GUI must be launched from a "Native Tools
 Command Prompt" available with Visual Studio in the start menu.
 
-### Missing dependencies
+```{admonition} **Missing dependencies**
+:class: warning
 
 CMake may not find all dependencies automatically in all cases. The steps
 needed to find any given package depends on the package itself. For general
 assistance, please see the documentation for
 [`find_package`'s search procedure][cmake-find_package-search] and
 [the relevant Find module][cmake-modules-find] (as available).
+```
 
-### Build Settings
+To build vtk run:
+
+```sh
+cmake --build .
+```
+
+
+
+## Build Settings
 
 VTK has a number of settings available for its build. The common variables
 to modify include:
@@ -392,8 +386,9 @@ The outlier in terms of dispatch support is the family of arrays derived from
 `vtkScaledSOADataArrayTemplate` which are automatically included in dispatch when built setting
 the `VTK_BUILD_SCALED_SOA_ARRAYS`.
 
-> **_WARNING:_**
-> Adding increasing numbers of arrays in the dispatch mechanism can greatly slow down compile times.
+```{warning}
+Adding increasing numbers of arrays in the dispatch mechanism can greatly slow down compile times.
+```
 
 The VTK module system provides a number of variables to control modules which
 are not otherwise controlled by the other options provided.
@@ -402,22 +397,22 @@ are not otherwise controlled by the other options provided.
     Use an external source for the named third-party module rather than the
     copy contained within the VTK source tree.
 
-    > **_WARNING:_**
-    >
-    > Activating this option within an interactive cmake configuration (i.e. ccmake, cmake-gui)
-    > could end up finding libraries in the standard locations rather than copies
-    > in non-standard locations.
-    >
-    > It is recommended to pass the variables necessary to find the intended external package to
-    > the first configure to avoid finding unintended copies of the external package.
-    > The variables which matter depend on the package being found, but those ending with
-    > `_LIBRARY` and `_INCLUDE_DIR` as well as the general CMake `find_package` variables ending
-    > with `_DIR` and `_ROOT` are likely candidates.
-    >
-    > ```
-    > Example:
-    > ccmake -D HDF5_ROOT:PATH=/home/user/myhdf5 ../vtk/sources
-    > ```
+     ````{warning}
+       Activating this option within an interactive cmake configuration (i.e. ccmake, cmake-gui)
+       could end up finding libraries in the standard locations rather than copies
+       in non-standard locations.
+
+       It is recommended to pass the variables necessary to find the intended external package to
+       the first configure to avoid finding unintended copies of the external package.
+       The variables which matter depend on the package being found, but those ending with
+       `_LIBRARY` and `_INCLUDE_DIR` as well as the general CMake `find_package` variables ending
+       with `_DIR` and `_ROOT` are likely candidates.
+
+       Example:
+       ```
+       ccmake -D HDF5_ROOT:PATH=/home/user/myhdf5 ../vtk/sources
+       ```
+     ````
 
   * `VTK_MODULE_ENABLE_<name>` (default `DEFAULT`): Change the build settings
     for the named module. Valid values are those for the module system's build
@@ -437,7 +432,8 @@ For variables which use the module system's build settings, the valid values are
 
 If any `YES` module requires a `NO` module, an error is raised.
 
-#### Mobile devices
+### Advanced Topics
+#### Cross-compiling for Mobile devices
 
 VTK supports mobile devices in its build. These are triggered by a top-level
 flag which then exposes some settings for a cross-compiled VTK that is
@@ -458,7 +454,7 @@ following settings affect the Android build:
   * `ANDROID_NATIVE_API_LEVEL`
   * `ANDROID_ARCH_ABI`
 
-#### Python wheels
+#### Building Python wheels
 
 VTK also supports creating a Python wheel containing its Python wrappers for
 Python3. This is supported by setting the `VTK_WHEEL_BUILD` flag. This changes
@@ -508,11 +504,12 @@ the package.
 set(VTK_VERSION_SUFFIX "dev0" CACHE STRING "")
 ```
 
-## Building documentation
+#### Building documentation
 
 The following targets are used to build documentation for VTK:
 
   * `DoxygenDoc` - build the doxygen documentation from VTK's C++ source files.
+  * `SphinxDoc` - build the sphinx documentation for VTK.
 
 [cmake]: https://cmake.org
 [cmake-download]: https://cmake.org/download
