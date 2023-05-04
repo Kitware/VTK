@@ -282,8 +282,6 @@ struct WriteBinaryDataBlockWorker
 
 }; // End WriteBinaryDataBlockWorker
 
-namespace
-{
 //------------------------------------------------------------------------------
 // Specialize for vtkDataArrays, which implicitly cast everything to double:
 template <class ValueType>
@@ -347,8 +345,6 @@ void WriteDataArrayFallback(ValueType*, vtkDataArray* array, WriteBinaryDataBloc
   }
 
   vtkXMLWriterHelper::SetProgressPartial(worker.Writer, 1);
-}
-
 }
 
 //------------------------------------------------------------------------------
