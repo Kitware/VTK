@@ -37,7 +37,7 @@ static inline void rtrim(std::string& s)
     s.end());
 }
 VTK_ABI_NAMESPACE_END
-};
+}
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
