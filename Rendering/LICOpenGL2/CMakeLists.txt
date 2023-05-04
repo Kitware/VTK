@@ -1,5 +1,7 @@
 set(classes
+  vtkBatchedSurfaceLICMapper
   vtkCompositeSurfaceLICMapper
+  vtkCompositeSurfaceLICMapperDelegator
   vtkImageDataLIC2D
   vtkLineIntegralConvolution2D
   vtkStructuredGridLIC2D
