@@ -15,7 +15,7 @@
 #include "vtkValuePass.h"
 
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkDataSet.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
@@ -413,7 +413,7 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState* s)
     this->ImplFloat->CellCellMap.clear();
     this->ImplFloat->CCMapTime = maptime;
 
-    vtkCompositePolyDataMapper2* cpdm = vtkCompositePolyDataMapper2::SafeDownCast(mapper);
+    vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(mapper);
     if (cpdm)
     {
       vtkIdType offset = 0;
@@ -1031,7 +1031,7 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper, Parameters* array
 vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(vtkMapper* mapper, Parameters* arrayPar)
 {
   vtkAbstractArray* abstractArray = nullptr;
-  vtkCompositePolyDataMapper2* cpdm = vtkCompositePolyDataMapper2::SafeDownCast(mapper);
+  vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(mapper);
   if (cpdm)
   {
     std::vector<vtkPolyData*> pdl = cpdm->GetRenderedList();
