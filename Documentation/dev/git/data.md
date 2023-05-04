@@ -240,7 +240,7 @@ discuss details of the workflow implementation.
 ### ExternalData ###
 
 While [CMake runs](#run-cmake) the [ExternalData][] module evaluates
-[DATA{} references](#add-test).  VTK [sets](/CMake/vtkExternalData.cmake)
+[DATA{} references](#add-test).  VTK sets in [vtkExternalData.cmake][]
 the `ExternalData_LINK_CONTENT` option to `SHA512` to enable automatic
 conversion of raw data files into content links.  When the module detects
 a real data file in the source tree it performs the following
@@ -258,6 +258,8 @@ For example:
     $ cat Some/Module/Testing/Data/Baseline/MyTest.png.sha512
     477e6028...
 
+[vtkExternalData.cmake]: /CMake/vtkExternalData.cmake
+
 #### Recover Data File ####
 
 To recover the original file after running CMake but before committing,
@@ -269,7 +271,7 @@ undo the operation:
 ### pre-commit ###
 
 While [committing](#commit) a new or modified content link the
-[pre-commit](/Utilities/Scripts/pre-commit) hook moves the real data
+[pre-commit][] hook moves the real data
 object from the `.ExternalData_SHA512_${hash}` file left by the
 [ExternalData][] module to a local object repository stored in a
 `.ExternalData` directory at the top of the source tree.
@@ -285,10 +287,12 @@ it to the project history.  For example:
     $ git cat-file blob refs/data/SHA512/477e6028... | sha512sum
     477e6028...  -
 
+[pre-commit]: /Utilities/Scripts/pre-commit
+
 ### git gitlab-push ###
 
 The `git gitlab-push` command is actually an alias for the
-[git-gitlab-push](/Utilities/GitSetup/git-gitlab-push) script.
+[git-gitlab-push][] script.
 In addition to pushing the topic branch to GitLab the script also detects
 content links added or modified by the commits in the topic.
 It reads the data object hashes from the content links and looks for
@@ -304,7 +308,7 @@ For example:
 A GitLab webhook that triggers whenever a topic branch is pushed checks
 for `refs/data/` in your VTK GitLab fork, fetches them, erases the refs
 from your fork, and uploads them to a location that we
-[tell ExternalData to search](/CMake/vtkExternalData.cmake) at build time.
+tell ExternalData to search in [vtkExternalData][] at build time.
 
 To verify that the data has been uploaded as expected, you may direct
 a web browser to the location where ExternalData has uploaded the files.
@@ -312,6 +316,8 @@ For VTK, that location is currently
 `http://www.vtk.org/files/ExternalData/SHA512/XXXX` where `XXXX` is the
 complete SHA512 hash stored in the content link file (e.g., the text in
 `MyTest.png.sha512`).
+
+[git-gitlab-push]: /Utilities/GitSetup/git-gitlab-push
 
 ### Publishing Data for an External Branch ###
 
