@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -31,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTrivialProducer.h"
 
-int TestCompositePolyDataMapperNaNPartial(int, char*[])
+int TestCompositePolyDataMapperNaNPartial(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;
 
@@ -101,7 +102,11 @@ int TestCompositePolyDataMapperNaNPartial(int, char*[])
   renderer->ResetCamera();
 
   renWin->Render();
-  iren->Start();
+  int retVal = vtkRegressionTestImageThreshold(renWin.GetPointer(), 15);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    iren->Start();
+  }
 
   return EXIT_SUCCESS;
 }
