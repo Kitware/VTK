@@ -17,9 +17,9 @@ Also note that several blog posts have been written about vtkSMPTools:
 ## Introduction
 The overarching objective of vtkSMPTools, the SMP (symmetric multiprocessing) framework, is to provide an infrastructure to simplify the development of shared memory parallel algorithms in VTK. In addition, vtkSMPTools defines a simple, abstract API that drives several threading backends such as std::thread, TBB (i.e., Intel's Threading Building Blocks template library); and OpenMP; as well as supporting a sequential backend for testing and debugging. To achieve these objectives, we have developed three simple constructs to support basic SMP functionality:
 
-• Parallel building blocks / functions
-• Thread local storage
-• Atomic integers and associated operations. (Note, since C++11 this has been superseded by `std::atomic<>`. Also, `std::mutex` and `vtkAtomicMutex` are options.)
+- Parallel building blocks / functions
+- Thread local storage
+- Atomic integers and associated operations. (Note, since C++11 this has been superseded by `std::atomic<>`. Also, `std::mutex` and `vtkAtomicMutex` are options.)
 
 vtkSMPTools is extremely easy to use, ensuring that the major challenge of creating parallel algorithms is not one of implementation, but rather the design of good, threaded algorithms.  In the next sections we describe the basic concepts used in vtkSMPTools, and then demonstrate these concepts through example code. Of course, there are hundreds of vtkSMPTools implementations found in VTK which provide an excellent source of more complex examples. In the final section of this document we provide tips on how to design and implement  vtkSMPTools-based algorithms.
 

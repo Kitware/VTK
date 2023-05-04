@@ -108,7 +108,7 @@ This is now replaced with a declarative file named `vtk.module`. This file is
 not CMake code and is instead parsed as an argument list in CMake (variable
 expansions are also not allowed). The above example would translate into:
 
-```cmake
+```
 MODULE
   vtkModuleName
 CONDITION

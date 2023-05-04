@@ -73,7 +73,7 @@ manipulation or using VTK filters to merge data. Keywords are case insensitive, 
 
 * Cell types and indices are of type _int_.
 
-* Binary data must be placed into the file immediately after the “newline” _(\n)_ character from the previous ASCII keyword and parameter sequence.
+* Binary data must be placed into the file immediately after the "newline" _(\n)_ character from the previous ASCII keyword and parameter sequence.
 
 * The geometry/topology description must occur prior to the data attribute description.
 
@@ -95,7 +95,7 @@ Another problem with binary files is that systems may use a different number of 
 ### Dataset Format.
 The *Visualization Toolkit* supports five different dataset formats: structured points, structured grid, rectilinear grid, unstructured grid, and polygonal data. Data with implicit topology (structured data such as vtkImageData and vtkStructuredGrid) are ordered with x increasing fastest, then y, then z. These formats are as follows.
 
-* **Structured Points**. The file format supports 1D, 2D, and 3D structured point datasets. The dimensions nx, ny, nz must be greater than or equal to 1. The data spacing sx, sy, sz must be greater than 0. (Note: in the version 1.0 data file, spacing was referred to as “aspect ratio”. ASPECT_RATIO can still be used in version 2.0 data files, but is discouraged.)
+* **Structured Points**. The file format supports 1D, 2D, and 3D structured point datasets. The dimensions nx, ny, nz must be greater than or equal to 1. The data spacing sx, sy, sz must be greater than 0. (Note: in the version 1.0 data file, spacing was referred to as "aspect ratio". ASPECT_RATIO can still be used in version 2.0 data files, but is discouraged.)
 <br><br>DATASET STRUCTURED_POINTS<br>
 DIMENSIONS <b><i>n<sub>x</sub> n<sub>y</sub> n<sub>z</sub></i></b><br>
 ORIGIN <b><i>x y z</i></b><br>
@@ -171,7 +171,7 @@ type<sub>2</sub><br>
 ...<br>
 type<sub>n-1</sub></i></b><br>
 
-* **Field**. Field data is a general format without topological and geometric structure, and without a particular dimensionality. Typically field data is associated with the points or cells of a dataset. However, if the FIELD type is specified as the dataset type (see [Figure 1](#Figure1)), then a general VTK data object is defined. Use the format described in the next section to define a field. Also see “Working With Field Data” on [page 249](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=263) and the fourth example in this chapter [Legacy File Examples](#legacy-file-examples).
+* **Field**. Field data is a general format without topological and geometric structure, and without a particular dimensionality. Typically field data is associated with the points or cells of a dataset. However, if the FIELD type is specified as the dataset type (see [Figure 1](#Figure1)), then a general VTK data object is defined. Use the format described in the next section to define a field. Also see "Working With Field Data" on [page 249](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=263) and the fourth example in this chapter [Legacy File Examples](#legacy-file-examples).
 
 ### Dataset Attribute Format.
 
@@ -179,7 +179,7 @@ The *Visualization Toolkit* supports the following dataset attributes: scalars (
 
 Each type of attribute data has a dataName associated with it. This is a character string (without embedded whitespace) used to identify a particular data. The dataName is used by the VTK readers to extract data. As a result, more than one attribute data of the same type can be included in a file. For example, two different scalar fields defined on the dataset points, pressure and temperature, can be contained in the same file. (If the appropriate dataName is not specified in the VTK reader, then the first data of that type is extracted from the file.)
 
-* **Scalars**. Scalar definition includes specification of a lookup table. The definition of a lookup table is optional. If not specified, the default VTK table will be used (and tableName should be “default”). Also note that the numComp variable is optional—by default the number of components is equal to one. (The parameter numComp must range between 1 and 4 inclusive; in versions of VTK prior to 2.3 this parameter was not supported.)
+* **Scalars**. Scalar definition includes specification of a lookup table. The definition of a lookup table is optional. If not specified, the default VTK table will be used (and tableName should be "default"). Also note that the numComp variable is optional—by default the number of components is equal to one. (The parameter numComp must range between 1 and 4 inclusive; in versions of VTK prior to 2.3 this parameter was not supported.)
 <br><br>SCALARS <b><i>dataName dataType numComp</i></b><br>
 LOOKUP_TABLE <b><i>tableName<br>
 s<sub>0</sub><br>
@@ -442,7 +442,7 @@ LOOKUP_TABLE CellColors 11
 
 ```
 
-The fourth and final example is data represented as a field. You may also wish to see “Working With Field Data” on [page 249](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=263) to see how to manipulate this data. The data file shown below can be found in its entirety [here](https://raw.githubusercontent.com/Kitware/vtk-examples/gh-pages/src/Testing/Data/financial.vtk).
+The fourth and final example is data represented as a field. You may also wish to see "Working With Field Data" on [page 249](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=263) to see how to manipulate this data. The data file shown below can be found in its entirety [here](https://raw.githubusercontent.com/Kitware/vtk-examples/gh-pages/src/Testing/Data/financial.vtk).
 The example [FinanceFieldData](https://kitware.github.io/vtk-examples/site/Cxx/Modelling/FinanceFieldData) generated Figure 5.
 <figure>
   <img src="https://github.com/Kitware/vtk-examples/blob/gh-pages/src/Testing/Baseline/Cxx/Modelling/TestFinanceFieldData.png?raw=true" width="640" alt="FinanceFieldData">
@@ -516,7 +516,7 @@ There is one case in which the file is not a valid XML document. When the Append
 The document-level element is _VTKFile_:
 
 ```xml
-<VTKFile type=”ImageData” version=”0.1” byte_order=”LittleEndian”>
+<VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
 ...
 </VTKFile>
 ```
@@ -525,9 +525,9 @@ The attributes of the element are:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _type_ — The type of the file (the bulleted items in the previous list)..
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _version_ — File version number in “major.minor” format.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _version_ — File version number in "major.minor" format.
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_byte_order_ — Machine byte order in which data are stored. This is either “BigEndian” or “LittleEndian”.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_byte_order_ — Machine byte order in which data are stored. This is either "BigEndian" or "LittleEndian".
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_compressor_ — Some data in the file may be compressed. This specifies the subclass of vtkDataCompressor that was used to compress the data.
 
@@ -544,11 +544,12 @@ The general structure for each serial dataset format is as follows:
 #### **ImageData**
 Each ImageData piece specifies its extent within the dataset’s whole extent. The points and cells are described implicitly by the extent, origin, and spacing. Note that the origin and spacing are constant across all pieces, so they are specified as attributes of the _ImageData_ XML element as follows.
 
-```xml
-<VTKFile type=”ImageData” ...>
-  <ImageData WholeExtent=”x1 x2 y1 y2 z1 z2”
-   Origin=”x0 y0 z0” Spacing=”dx dy dz”>
-   <Piece Extent=”x1 x2 y1 y2 z1 z2”>
+```{code-block} xml
+:force:
+<VTKFile type="ImageData" ...>
+  <ImageData WholeExtent="x1 x2 y1 y2 z1 z2"
+   Origin="x0 y0 z0" Spacing="dx dy dz">
+   <Piece Extent="x1 x2 y1 y2 z1 z2">
       <PointData>...</PointData>
       <CellData>...</CellData>
    </Piece>
@@ -559,10 +560,11 @@ Each ImageData piece specifies its extent within the dataset’s whole extent. T
 #### **RectilinearGrid**
 Each RectilinearGrid piece specifies its extent within the dataset’s whole extent. The points are described by the _Coordinates_ element. The cells are described implicitly by the extent.
 
-```xml
-<VTKFile type=”RectilinearGrid” ...>
-  <RectilinearGrid WholeExtent=”x1 x2 y1 y2 z1 z2”>
-    <Piece Extent=”x1 x2 y1 y2 z1 z2”>
+```{code-block} xml
+:force:
+<VTKFile type="RectilinearGrid" ...>
+  <RectilinearGrid WholeExtent="x1 x2 y1 y2 z1 z2">
+    <Piece Extent="x1 x2 y1 y2 z1 z2">
     <PointData>...</PointData>
     <CellData>...</CellData>
     <Coordinates>...</Coordinates>
@@ -574,10 +576,11 @@ Each RectilinearGrid piece specifies its extent within the dataset’s whole ext
 #### **StructuredGrid**
 Each StructuredGrid piece specifies its extent within the dataset’s whole extent. The points are described explicitly by the Points element. The cells are described implicitly by the extent.
 
-```xml
-<VTKFile type=”StructuredGrid” ...>
-  <StructuredGrid WholeExtent=”x1 x2 y1 y2 z1 z2”>
-    <Piece Extent=”x1 x2 y1 y2 z1 z2”>
+```{code-block} xml
+:force:
+<VTKFile type="StructuredGrid" ...>
+  <StructuredGrid WholeExtent="x1 x2 y1 y2 z1 z2">
+    <Piece Extent="x1 x2 y1 y2 z1 z2">
     <PointData>...</PointData>
     <CellData>...</CellData>
     <Points>...</Points>
@@ -589,11 +592,12 @@ Each StructuredGrid piece specifies its extent within the dataset’s whole exte
 #### **PolyData**
 Each PolyData piece specifies a set of points and cells independently from the other pieces. The points are described explicitly by the Points element. The cells are described explicitly by the Verts, Lines, Strips, and Polys elements.
 
-```xml
-<VTKFile type=”PolyData” ...>
+```{code-block} xml
+:force:
+<VTKFile type="PolyData" ...>
   <PolyData>
-    <Piece NumberOfPoints=”#” NumberOfVerts=”#” NumberOfLines=”#”
-      NumberOfStrips=”#” NumberOfPolys=”#”>
+    <Piece NumberOfPoints="#" NumberOfVerts="#" NumberOfLines="#"
+      NumberOfStrips="#" NumberOfPolys="#">
     <PointData>...</PointData>
     <CellData>...</CellData>
     <Points>...</Points>
@@ -609,10 +613,11 @@ Each PolyData piece specifies a set of points and cells independently from the o
 #### **UnstructuredGrid**
 Each UnstructuredGrid piece specifies a set of points and cells independently from the other pieces. The points are described explicitly by the Points element. The cells are described explicitly by the Cells element.
 
-```xml
-<VTKFile type=”UnstructuredGrid” ...>
+```{code-block} xml
+:force:
+<VTKFile type="UnstructuredGrid" ...>
   <UnstructuredGrid>
-    <Piece NumberOfPoints=”#” NumberOfCells=”#”>
+    <Piece NumberOfPoints="#" NumberOfCells="#">
     <PointData>...</PointData>
     <CellData>...</CellData>
     <Points>...</Points>
@@ -623,11 +628,12 @@ Each UnstructuredGrid piece specifies a set of points and cells independently fr
 ```
 
 Every dataset describes the data associated with its points and cells with PointData and CellData XML elements as follows:
-```xml
-  <PointData Scalars=”Temperature” Vectors=”Velocity”>
-    <DataArray Name=”Velocity” .../>
-    <DataArray Name=”Temperature” .../>
-    <DataArray Name=”Pressure” .../>
+```{code-block} xml
+:force:
+  <PointData Scalars="Temperature" Vectors="Velocity">
+    <DataArray Name="Velocity" .../>
+    <DataArray Name="Temperature" .../>
+    <DataArray Name="Pressure" .../>
   </PointData>
 ```
 
@@ -647,15 +653,17 @@ Some datasets describe their points and cells using different combinations of th
 
 * **Points** — The _Points_ element explicitly defines coordinates for each point individually. It contains one _DataArray_ element describing an array with three components per value, each specifying the coordinates of one point.
 
-```xml
+```{code-block} xml
+:force:
     <Points>
-      <DataArray NumberOfComponents=”3” .../>
+      <DataArray NumberOfComponents="3" .../>
     </Points>
 ```
 
 * **Coordinates** — The _Coordinates_ element defines point coordinates for an extent by specifying the ordinate along each axis for each integer value in the extent’s range. It contains three _DataArray_ elements describing the ordinates along the x-y-z axes, respectively.
 
-```xml
+```{code-block} xml
+:force:
     <Coordinates>
       <DataArray .../>
       <DataArray .../>
@@ -665,20 +673,22 @@ Some datasets describe their points and cells using different combinations of th
 
 * **Verts**, **Lines**, **Strips**, and **Polys** — The _Verts_, _Lines_, _Strips_, and _Polys_ elements define cells explicitly by specifying point connectivity. Cell types are implicitly known by the type of element in which they are specified. Each element contains two _DataArray_ elements. The first array specifies the point connectivity. All the cells’ point lists are concatenated together. The second array specifies the offset into the connectivity array for the end of each cell.
 
-```xml
+```{code-block} xml
+:force:
     <Verts>
-      <DataArray type=”Int32” Name=”connectivity” .../>
-      <DataArray type=”Int32” Name=”offsets” .../>
+      <DataArray type="Int32" Name="connectivity" .../>
+      <DataArray type="Int32" Name="offsets" .../>
     </Verts>
 ```
 
 * **Cells** — The _Cells_ element defines cells explicitly by specifying point connectivity and cell types. It contains three _DataArray_ elements. The first array specifies the point connectivity. All the cells’ point lists are concatenated together. The second array specifies the offset into the connectivity array for the end of each cell. The third array specifies the type of each cell. (Note: the cell types are defined in Figure 2 and Figure 3.)
 
-```xml
+```{code-block} xml
+:force:
     <Cells>
-      <DataArray type=”Int32” Name=”connectivity” .../>
-      <DataArray type=”Int32” Name=”offsets” .../>
-      <DataArray type=”UInt8” Name=”types” .../>
+      <DataArray type="Int32" Name="connectivity" .../>
+      <DataArray type="Int32" Name="offsets" .../>
+      <DataArray type="UInt8" Name="types" .../>
     </Cells>
 ```
 
@@ -686,40 +696,42 @@ All of the data and geometry specifications use _DataArray_ elements to describe
 
 * **DataArray** — The _DataArray_ element stores a sequence of values of one type. There may be one or more components per value.
 
-```xml
-    <DataArray type=”Float32” Name=”vectors” NumberOfComponents=”3”
-               format=”appended” offset=”0”/>
-    <DataArray type=”Float32” Name=”scalars” format=”binary”>
+```{code-block} xml
+:force:
+    <DataArray type="Float32" Name="vectors" NumberOfComponents="3"
+               format="appended" offset="0"/>
+    <DataArray type="Float32" Name="scalars" format="binary">
                bAAAAAAAAAAAAIA/AAAAQAAAQEAAAIBA... </DataArray>
-    <DataArray type=”Int32” Name=”offsets” format=”ascii”>
+    <DataArray type="Int32" Name="offsets" format="ascii">
                10 20 30 ... </DataArray>
 ```
 
 The attributes of the _DataArray_ elements are described as follows:
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type — The data type of a single component of the array. This is one of Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Float32, Float64. Note: the 64-bit integer types are only supported if VTK_USE_64BIT_IDS is on (a CMake variable—see “CMake” on [page 10](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=24)) or the platform is 64-bit.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type — The data type of a single component of the array. This is one of Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Float32, Float64. Note: the 64-bit integer types are only supported if VTK_USE_64BIT_IDS is on (a CMake variable—see "CMake" on [page 10](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=24)) or the platform is 64-bit.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name — The name of the array. This is usually a brief description of the data stored in the array.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NumberOfComponents — The number of components per value in the array.
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;format — The means by which the data values themselves are stored in the file. This is “ascii”, “binary”, or “appended”.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;format — The means by which the data values themselves are stored in the file. This is "ascii", "binary", or "appended".
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;offset — If the format attribute is “appended”, this specifies the offset from the beginning of the appended data section to the beginning of this array’s data.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;offset — If the format attribute is "appended", this specifies the offset from the beginning of the appended data section to the beginning of this array’s data.
 
 The _format_ attribute chooses among the three ways in which data values can be stored:
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_format=”ascii”_ — The data are listed in ASCII directly inside the _DataArray_ element. Whitespace is used for separation.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_format="ascii"_ — The data are listed in ASCII directly inside the _DataArray_ element. Whitespace is used for separation.
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_format=”binary”_ — The data are encoded in base64 and listed contiguously inside the _DataArray_ element. Data may also be compressed before encoding in base64. The byte-order of the data matches that specified by the byte_order attribute of the _VTKFile_ element.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_format="binary"_ — The data are encoded in base64 and listed contiguously inside the _DataArray_ element. Data may also be compressed before encoding in base64. The byte-order of the data matches that specified by the byte_order attribute of the _VTKFile_ element.
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;format=”appended” — The data are stored in the appended data section. Since many _DataArray_ elements may store their data in this section, the offset attribute is used to specify where each DataArray’s data begins. This format is the default used by VTK’s writers.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;format="appended" — The data are stored in the appended data section. Since many _DataArray_ elements may store their data in this section, the offset attribute is used to specify where each DataArray’s data begins. This format is the default used by VTK’s writers.
 
 The appended data section is stored in an _AppendedData_ element that is nested inside _VTKFile_ after the dataset element:
 
-```xml
+```{code-block} xml
+:force:
   <VTKFile ...>
     ...
-    <AppendedData encoding=”base64”>
+    <AppendedData encoding="base64">
                   _QMwEAAAAAAAAA...
     </AppendedData>
   </VTKFile>
@@ -730,7 +742,7 @@ The appended data section begins with the first character after the underscore i
 ### **Parallel File Formats.**
 The parallel file formats do not actually store any data in the file. Instead, the data are broken into pieces, each of which is stored in a serial file of the same dataset type.
 
-The _VTKFile_ element contains one element whose name corresponds to the type of dataset the file describes, but with a “P” prefix. We refer to this as the parallel dataset element, which is one of _PImageData_, _PRectilinearGrid_, _PStructuredGrid_, _PPolyData_, or _PUnstructuredGrid_.
+The _VTKFile_ element contains one element whose name corresponds to the type of dataset the file describes, but with a "P" prefix. We refer to this as the parallel dataset element, which is one of _PImageData_, _PRectilinearGrid_, _PStructuredGrid_, _PPolyData_, or _PUnstructuredGrid_.
 
 The parallel dataset element and those nested inside specify the types of the data arrays used to store points, pointn data, and cell data (the type of arrays used to store cells is fixed by VTK). The element does not actually contain any data, but instead includes a list of _Piece_ elements that specify the source from which to read each piece. Individual pieces are stored in the corresponding serial file format. The parallel file needs to specify the type and structural information so that readers can update pipeline information without actually reading the pieces’ files.
 
@@ -739,13 +751,14 @@ The general structure for each parallel dataset format is as follows:
 #### **PImageData**
 The _PImageData_ element specifies the whole extent of the dataset and the number of ghost-levels by which the extents in the individual pieces overlap. The Origin and Spacing attributes implicitly specify the point locations. Each _Piece_ element describes the extent of one piece and the file in which it is stored.
 
-```xml
-  <VTKFile type=”PImageData” ...>
-    <PImageData WholeExtent=”x1 x2 y1 y2 z1 z2”
-                GhostLevel=”#” Origin=”x0 y0 z0” Spacing=”dx dy dz”>
+```{code-block} xml
+:force: true
+  <VTKFile type="PImageData" ...>
+    <PImageData WholeExtent="x1 x2 y1 y2 z1 z2"
+                GhostLevel="#" Origin="x0 y0 z0" Spacing="dx dy dz">
       <PPointData>...</PPointData>
       <PCellData>...</PCellData>
-      <Piece Extent=”x1 x2 y1 y2 z1 z2” Source=”imageData0.vti”/>
+      <Piece Extent="x1 x2 y1 y2 z1 z2" Source="imageData0.vti"/>
       ...
    </PImageData>
   </VTKFile>
@@ -754,15 +767,16 @@ The _PImageData_ element specifies the whole extent of the dataset and the numbe
 #### **PRectilinearGrid**
 The _PRectilinearGrid_ element specifies the whole extent of the dataset and the number of ghost-levels by which the extents in the individual pieces overlap. The _PCoordinates_ element describes the type of arrays used to specify the point ordinates along each axis, but does not actually contain the data. Each _Piece_ element describes the extent of one piece and the file in which it is stored.
 
-```xml
-  <VTKFile type=”PRectilinearGrid” ...>
-    <PRectilinearGrid WholeExtent=”x1 x2 y1 y2 z1 z2”
-                      GhostLevel=”#”>
+```{code-block} xml
+:force: true
+  <VTKFile type="PRectilinearGrid" ...>
+    <PRectilinearGrid WholeExtent="x1 x2 y1 y2 z1 z2"
+                      GhostLevel="#">
       <PPointData>...</PPointData>
       <PCellData>...</PCellData>
       <PCoordinates>...</PCoordinates>
-      <Piece Extent=”x1 x2 y1 y2 z1 z2”
-             Source=”rectilinearGrid0.vtr”/>
+      <Piece Extent="x1 x2 y1 y2 z1 z2"
+             Source="rectilinearGrid0.vtr"/>
       ...
     </PRectilinearGrid>
   </VTKFile>
@@ -771,15 +785,16 @@ The _PRectilinearGrid_ element specifies the whole extent of the dataset and the
 #### **PStructuredGrid**
 The _PStructuredGrid_ element specifies the whole extent of the dataset and the number of ghost-levels by which the extents in the individual pieces overlap. The _PPoints_ element describes the type of array used to specify the point locations, but does not actually contain the data. Each _Piece_ element describes the extent of one piece and the file in which it is stored.
 
-```xml
-  <VTKFile type=”PStructuredGrid” ...>
-    <PStructuredGrid WholeExtent=”x1 x2 y1 y2 z1 z2”
-                     GhostLevel=”#”>
+```{code-block} xml
+:force: true
+  <VTKFile type="PStructuredGrid" ...>
+    <PStructuredGrid WholeExtent="x1 x2 y1 y2 z1 z2"
+                     GhostLevel="#">
       <PPointData>...</PPointData>
       <PCellData>...</PCellData>
       <PPoints>...</PPoints>
-      <Piece Extent=”x1 x2 y1 y2 z1 z2”
-             Source=”structuredGrid0.vts”/>
+      <Piece Extent="x1 x2 y1 y2 z1 z2"
+             Source="structuredGrid0.vts"/>
       ...
     </PStructuredGrid>
   </VTKFile>
@@ -788,13 +803,14 @@ The _PStructuredGrid_ element specifies the whole extent of the dataset and the 
 #### **PPolyData**
 The _PPolyData_ element specifies the number of ghost-levels by which the individual pieces overlap. The _PPoints_ element describes the type of array used to specify the point locations, but does not actually contain the data. Each _Piece_ element specifies the file in which the piece is stored.
 
-```xml
-  <VTKFile type=”PPolyData” ...>
-    <PPolyData GhostLevel=”#”>
+```{code-block} xml
+:force: true
+  <VTKFile type="PPolyData" ...>
+    <PPolyData GhostLevel="#">
       <PPointData>...</PPointData>
       <PCellData>...</PCellData>
       <PPoints>...</PPoints>
-      <Piece Source=”polyData0.vtp”/>
+      <Piece Source="polyData0.vtp"/>
       ...
     </PPolyData>
   </VTKFile>
@@ -803,13 +819,14 @@ The _PPolyData_ element specifies the number of ghost-levels by which the indivi
 #### **PUnstructuredGrid**
 The _PUnstructuredGrid_ element specifies the number of ghost-levels by which the individual pieces overlap. The _PPoints_ element describes the type of array used to specify the point locations, but does not actually contain the data. Each _Piece_ element specifies the file in which the piece is stored.
 
-```xml
-  <VTKFile type=”PUnstructuredGrid” ...>
-    <PUnstructuredGrid GhostLevel=”0”>
+```{code-block} xml
+:force: true
+  <VTKFile type="PUnstructuredGrid" ...>
+    <PUnstructuredGrid GhostLevel="0">
       <PPointData>...</PPointData>
       <PCellData>...</PCellData>
       <PPoints>...</PPoints>
-      <Piece Source=”unstructuredGrid0.vtu”/>
+      <Piece Source="unstructuredGrid0.vtu"/>
       ...
     </PUnstructuredGrid>
   </VTKFile>
@@ -819,11 +836,12 @@ Every dataset uses _PPointData_ and _PCellData_ elements to describe the types o
 
 * **PPointData** and **PCellData** — These elements simply mirror the _PointData_ and _CellData_ elements from the serial file formats. They contain _PDataArray_ elements describing the data arrays, but without any actual data.
 
-```xml
-    <PPointData Scalars=”Temperature” Vectors=”Velocity”>
-      <PDataArray Name=”Velocity” .../>
-      <PDataArray Name=”Temperature” .../>
-      <PDataArray Name=”Pressure” .../>
+```{code-block} xml
+:force: true
+    <PPointData Scalars="Temperature" Vectors="Velocity">
+      <PDataArray Name="Velocity" .../>
+      <PDataArray Name="Temperature" .../>
+      <PDataArray Name="Pressure" .../>
    </PPointData>
 ```
 
@@ -831,15 +849,17 @@ For datasets that need specification of points, the following elements mirror th
 
 * **PPoints** — The _PPoints_ element contains one _PDataArray_ element describing an array with three components. The data array does not actually contain any data.
 
-```xml
+```{code-block} xml
+:force: true
     <PPoints>
-      <PDataArray NumberOfComponents=”3” .../>
+      <PDataArray NumberOfComponents="3" .../>
     </PPoints>
 ```
 
 * **PCoordinates** — The _PCoordinates_ element contains three _PDataArray_ elements describing the arrays used to specify ordinates along each axis. The data arrays do not actually contain any data.
 
-```xml
+```{code-block} xml
+:force: true
     <PCoordinates>
       <PDataArray .../>
       <PDataArray .../>
@@ -852,11 +872,11 @@ All of the data and geometry specifications use _PDataArray_ elements to describ
 * **PDataArray** — The _PDataArray_ element specifies the type, Name, and optionally the NumberOfComponents attributes from the _DataArray_ element. It does not contain the actual data. This can be used by readers to create the data array in their output without needing to read any real data, which is necessary for efficient pipeline updates in some cases.
 
 ```xml
-    <PDataArray type=”Float32” Name=”vectors” NumberOfComponents=”3”/>
+    <PDataArray type="Float32" Name="vectors" NumberOfComponents="3"/>
 ```
 
 ### XML File Example.
-The following is a complete example specifying a vtkPolyData representing a cube with some scalar data on its points and faces. <sup>[1](#VTKUsersGuide)</sup>
+The following is a complete example specifying a vtkPolyData representing a cube with some scalar data on its points and faces. <sup>[1](https://kitware.com/products/books/VTKUsersGuide.pdf)</sup>
 
 ```xml
   <?xml version="1.0"?>

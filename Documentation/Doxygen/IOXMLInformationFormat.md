@@ -15,7 +15,8 @@ specify the name and location strings associated with the key -- for instance,
 the `vtkDataArray::UNITS_LABEL()` key has `name="UNITS_LABEL"` and
 `location="vtkDataArray"`. The `length` attribute is required for vector keys.
 
-```xml
+```{code-block} xml
+:force: true
 <DataArray [...]>
   <InformationKey name="KeyName" location="KeyLocation" [ length="N" ]>
     [...]
