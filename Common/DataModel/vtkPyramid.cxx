@@ -178,14 +178,14 @@ bool vtkPyramid::ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, d
   centroid[0] = centroid[1] = centroid[2] = 0.0;
   if (!pointIds)
   {
-    vtkPolygon::ComputeCentroid(points, numberOfPointsInFace[4], faces[4], centroid);
+    vtkPolygon::ComputeCentroid(points, numberOfPointsInFace[0], faces[0], centroid);
     points->GetPoint(4, p);
   }
   else
   {
-    vtkIdType facePointsIds[4] = { pointIds[faces[4][0]], pointIds[faces[4][1]],
-      pointIds[faces[4][2]], pointIds[faces[4][3]] };
-    vtkPolygon::ComputeCentroid(points, numberOfPointsInFace[4], facePointsIds, centroid);
+    vtkIdType facePointsIds[4] = { pointIds[faces[0][0]], pointIds[faces[0][1]],
+      pointIds[faces[0][2]], pointIds[faces[0][3]] };
+    vtkPolygon::ComputeCentroid(points, numberOfPointsInFace[0], facePointsIds, centroid);
     points->GetPoint(pointIds[4], p);
   }
   centroid[0] += 3 * p[0];
