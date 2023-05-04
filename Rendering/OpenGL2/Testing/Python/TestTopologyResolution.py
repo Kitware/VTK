@@ -14,7 +14,6 @@ from vtkmodules.vtkRenderingCore import (
     vtkRenderWindowInteractor,
     vtkRenderer,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
@@ -28,10 +27,8 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # (bottom row) lighting:
 # 1) left renderer shows a vtkPolyDataMapper which effectively is a
 #    vtkOpenGLPolyDataMapper
-# 2) middle renderer shows a vtkCompositePolyDataMapper which delegates
+# 2) right renderer shows a vtkCompositePolyDataMapper which delegates
 #    to a vtkOpenGLPolyDataMapper
-# 3) right renderer shows a vtkCompositePolyDataMapper2 which does the
-#    opengl rendering by itself
 
 # The cube
 cube = vtkCubeSource()
@@ -75,10 +72,6 @@ mappers.append(polyMapper)
 mbdMapper = vtkCompositePolyDataMapper()
 mbdMapper.SetInputConnection(source.GetOutputPort())
 mappers.append(mbdMapper)
-
-mbdMapper2 = vtkCompositePolyDataMapper2()
-mbdMapper2.SetInputConnection(source.GetOutputPort())
-mappers.append(mbdMapper2)
 
 x=0
 dx=float(1)/len(mappers)
