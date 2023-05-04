@@ -31,7 +31,7 @@
     {                                                                                              \
       /* Call every <mod>_AutoInit_Construct during initialization.  */                            \
       M##_AutoInit() { VTK_AUTOINIT_CONSTRUCT_##T }                                                \
-    } M##_AutoInit_Instance;                                                                       \
+    } M##_AutoInit_Instance; /* NOLINT(misc-definitions-in-headers) */                             \
   }
 
 #define VTK_AUTOINIT_DECLARE_0()
