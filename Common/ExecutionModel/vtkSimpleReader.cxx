@@ -52,7 +52,7 @@ void vtkSimpleReader::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkSimpleReader::AddFileName(const char* fname)
 {
-  if (fname == nullptr || strlen(fname) == 0)
+  if (fname == nullptr || *fname == '\0')
   {
     return;
   }
