@@ -32,6 +32,8 @@
 #include "vtkWriter.h"
 
 #include <memory> // for std::unique_ptr
+#include <set>    // for std::set
+#include <string> // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
@@ -67,34 +69,146 @@ public:
 
   using EntityType = vtkIOSSReader::EntityType;
 
-  /////////////////////////////////////////////////////////////////////////////////////////
-  //                                   Node Block API                                    //
-  /////////////////////////////////////////////////////////////////////////////////////////
   ///@{
   /**
-   * Choose which node block fields to write. If this is true, then only the
+   * Choose which fields to write. If this is true, then only the
    * arrays selected will be written. If this is false, then all arrays will be
    * written.
    *
    * The default is false.
    */
-  void SetChooseNodeBlockFieldsToWrite(bool value)
-  {
-    this->SetChooseEntityFieldsToWrite(EntityType::NODEBLOCK, value);
-  }
-  bool GetChooseNodeBlockFieldsToWrite() const
-  {
-    return this->GetChooseEntityFieldsToWrite(EntityType::NODEBLOCK);
-  }
-  vtkBooleanMacro(ChooseNodeBlockFieldsToWrite, bool);
+  vtkSetMacro(ChooseFieldsToWrite, bool);
+  vtkGetMacro(ChooseFieldsToWrite, bool);
+  vtkBooleanMacro(ChooseFieldsToWrite, bool);
   ///@}
 
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                                  Generic Entity API                                 //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * API to set entity selectors. Multiple selectors can be added using
+   * `AddSelector`. The order in which selectors are specified is not preserved
+   * and has no impact on the result.
+   *
+   * `AddSelector` returns true if the selector was added, false if the selector
+   * was already specified and hence not added.
+   *
+   * @sa vtkDataAssembly::SelectNodes
+   */
+  bool AddSelector(EntityType entity, const char* selector);
+  void ClearSelectors(EntityType entity);
+  ///@}
+
+  /**
+   * Convenience method to set a single entity selector.
+   * This clears any other existing selectors.
+   */
+  void SetSelector(EntityType entity, const char* selector);
+
+  ///@{
+  /**
+   * API to access entity selectors.
+   */
+  int GetNumberOfSelectors(EntityType entity) const;
+  const char* GetSelector(EntityType entity, int index) const;
+  std::set<std::string> GetSelectors(EntityType entity) const;
+  ///@}
+
+  /**
+   * Get the selection object for the given entity type. This can be used to
+   * select which fields to write.
+   */
+  vtkDataArraySelection* GetFieldSelection(EntityType type);
+  /////////////////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                                   Node Block API                                    //
+  /////////////////////////////////////////////////////////////////////////////////////////
   /**
    * Returns the field selection object for the element block arrays.
    */
   vtkDataArraySelection* GetNodeBlockFieldSelection()
   {
-    return this->GetEntityFieldSelection(EntityType::NODEBLOCK);
+    return this->GetFieldSelection(EntityType::NODEBLOCK);
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                                  Edge Block API                                     //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * Add/Clear/Set/Get edge block selectors
+   */
+  bool AddEdgeBlockSelector(const char* selector)
+  {
+    return this->AddSelector(EntityType::EDGEBLOCK, selector);
+  }
+  void ClearEdgeBlockSelectors() { this->ClearSelectors(EntityType::EDGEBLOCK); }
+  void SetEdgeBlockSelector(const char* selector)
+  {
+    this->SetSelector(EntityType::EDGEBLOCK, selector);
+  }
+  int GetNumberOfEdgeBlockSelectors() const
+  {
+    return this->GetNumberOfSelectors(EntityType::EDGEBLOCK);
+  }
+  const char* GetEdgeBlockSelector(int index) const
+  {
+    return this->GetSelector(EntityType::EDGEBLOCK, index);
+  }
+  std::set<std::string> GetEdgeBlockSelectors() const
+  {
+    return this->GetSelectors(EntityType::EDGEBLOCK);
+  }
+  ///@}
+
+  /**
+   * Returns the field selection object for the edge block arrays.
+   */
+  vtkDataArraySelection* GetEdgeBlockFieldSelection()
+  {
+    return this->GetFieldSelection(EntityType::EDGEBLOCK);
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                                  Face Block API                                     //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * Add/Clear/Set/Get face block selectors
+   */
+  bool AddFaceBlockSelector(const char* selector)
+  {
+    return this->AddSelector(EntityType::FACEBLOCK, selector);
+  }
+  void ClearFaceBlockSelectors() { this->ClearSelectors(EntityType::FACEBLOCK); }
+  void SetFaceBlockSelector(const char* selector)
+  {
+    this->SetSelector(EntityType::FACEBLOCK, selector);
+  }
+  int GetNumberOfFaceBlockSelectors() const
+  {
+    return this->GetNumberOfSelectors(EntityType::FACEBLOCK);
+  }
+  const char* GetFaceBlockSelector(int index) const
+  {
+    return this->GetSelector(EntityType::FACEBLOCK, index);
+  }
+  std::set<std::string> GetFaceBlockSelectors() const
+  {
+    return this->GetSelectors(EntityType::FACEBLOCK);
+  }
+  ///@}
+
+  /**
+   * Returns the field selection object for the face block arrays.
+   */
+  vtkDataArraySelection* GetFaceBlockFieldSelection()
+  {
+    return this->GetFieldSelection(EntityType::FACEBLOCK);
   }
   /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,50 +217,29 @@ public:
   /////////////////////////////////////////////////////////////////////////////////////////
   ///@{
   /**
-   * API to set element block selectors. Multiple selectors can be added using
-   * `AddElementBlockSelector`. The order in which selectors are specified is not preserved
-   * and has no impact on the result.
-   *
-   * `AddElementBlockSelector` returns true if the selector was added, false if the selector
-   * was already specified and hence not added.
-   *
-   * @sa vtkDataAssembly::SelectNodes
+   * Add/Clear/Set/Get element block selectors
    */
-  bool AddElementBlockSelector(const char* selector);
-  void ClearElementBlockSelectors();
-  ///@}
-
-  /**
-   * Convenience method to set a single element block selector.
-   * This clears any other existing selectors.
-   */
-  void SetElementBlockSelector(const char* selector);
-
-  ///@{
-  /**
-   * API to access element block selectors.
-   */
-  int GetNumberOfElementBlockSelectors() const;
-  const char* GetElementBlockSelector(int index) const;
-  ///@}
-
-  ///@{
-  /**
-   * Choose which element block fields to write. If this is true, then only the
-   * arrays selected will be written. If this is false, then all arrays will be
-   * written.
-   *
-   * The default is false.
-   */
-  void SetChooseElementBlockFieldsToWrite(bool value)
+  bool AddElementBlockSelector(const char* selector)
   {
-    this->SetChooseEntityFieldsToWrite(EntityType::ELEMENTBLOCK, value);
+    return this->AddSelector(EntityType::ELEMENTBLOCK, selector);
   }
-  bool GetChooseElementBlockFieldsToWrite() const
+  void ClearElementBlockSelectors() { this->ClearSelectors(EntityType::ELEMENTBLOCK); }
+  void SetElementBlockSelector(const char* selector)
   {
-    return this->GetChooseEntityFieldsToWrite(EntityType::ELEMENTBLOCK);
+    this->SetSelector(EntityType::ELEMENTBLOCK, selector);
   }
-  vtkBooleanMacro(ChooseElementBlockFieldsToWrite, bool);
+  int GetNumberOfElementBlockSelectors() const
+  {
+    return this->GetNumberOfSelectors(EntityType::ELEMENTBLOCK);
+  }
+  const char* GetElementBlockSelector(int index) const
+  {
+    return this->GetSelector(EntityType::ELEMENTBLOCK, index);
+  }
+  std::set<std::string> GetElementBlockSelectors() const
+  {
+    return this->GetSelectors(EntityType::ELEMENTBLOCK);
+  }
   ///@}
 
   /**
@@ -154,7 +247,7 @@ public:
    */
   vtkDataArraySelection* GetElementBlockFieldSelection()
   {
-    return this->GetEntityFieldSelection(EntityType::ELEMENTBLOCK);
+    return this->GetFieldSelection(EntityType::ELEMENTBLOCK);
   }
   /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -163,50 +256,29 @@ public:
   /////////////////////////////////////////////////////////////////////////////////////////
   ///@{
   /**
-   * API to set node set selectors. Multiple selectors can be added using
-   * `AddNodeSetSelector`. The order in which selectors are specified is not preserved
-   * and has no impact on the result.
-   *
-   * `AddNodeSetSelector` returns true if the selector was added, false if the selector
-   * was already specified and hence not added.
-   *
-   * @sa vtkDataAssembly::SelectNodes
+   * Add/Clear/Set/Get node set selectors
    */
-  bool AddNodeSetSelector(const char* selector);
-  void ClearNodeSetSelectors();
-  ///@}
-
-  /**
-   * Convenience method to set a single node set selector.
-   * This clears any other existing selectors.
-   */
-  void SetNodeSetSelector(const char* selector);
-
-  ///@{
-  /**
-   * API to access node set selectors.
-   */
-  int GetNumberOfNodeSetSelectors() const;
-  const char* GetNodeSetSelector(int index) const;
-  ///@}
-
-  ///@{
-  /**
-   * Choose which node set fields to write. If this is true, then only the
-   * arrays selected will be written. If this is false, then all arrays will be
-   * written.
-   *
-   * The default is false.
-   */
-  void SetChooseNodeSetFieldsToWrite(bool value)
+  bool AddNodeSetSelector(const char* selector)
   {
-    this->SetChooseEntityFieldsToWrite(EntityType::NODESET, value);
+    return this->AddSelector(EntityType::NODESET, selector);
   }
-  bool GetChooseNodeSetFieldsToWrite() const
+  void ClearNodeSetSelectors() { this->ClearSelectors(EntityType::NODESET); }
+  void SetNodeSetSelector(const char* selector)
   {
-    return this->GetChooseEntityFieldsToWrite(EntityType::NODESET);
+    this->SetSelector(EntityType::NODESET, selector);
   }
-  vtkBooleanMacro(ChooseNodeSetFieldsToWrite, bool);
+  int GetNumberOfNodeSetSelectors() const
+  {
+    return this->GetNumberOfSelectors(EntityType::NODESET);
+  }
+  const char* GetNodeSetSelector(int index) const
+  {
+    return this->GetSelector(EntityType::NODESET, index);
+  }
+  std::set<std::string> GetNodeSetSelectors() const
+  {
+    return this->GetSelectors(EntityType::NODESET);
+  }
   ///@}
 
   /**
@@ -214,7 +286,124 @@ public:
    */
   vtkDataArraySelection* GetNodeSetFieldSelection()
   {
-    return this->GetEntityFieldSelection(EntityType::NODESET);
+    return this->GetFieldSelection(EntityType::NODESET);
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                                 Edge Set API                                        //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * Add/Clear/Set/Get edge set selectors
+   */
+  bool AddEdgeSetSelector(const char* selector)
+  {
+    return this->AddSelector(EntityType::SIDESET, selector);
+  }
+  void ClearEdgeSetSelectors() { this->ClearSelectors(EntityType::SIDESET); }
+  void SetEdgeSetSelector(const char* selector)
+  {
+    this->SetSelector(EntityType::SIDESET, selector);
+  }
+  int GetNumberOfEdgeSetSelectors() const
+  {
+    return this->GetNumberOfSelectors(EntityType::SIDESET);
+  }
+  const char* GetEdgeSetSelector(int index) const
+  {
+    return this->GetSelector(EntityType::SIDESET, index);
+  }
+  std::set<std::string> GetEdgeSetSelectors() const
+  {
+    return this->GetSelectors(EntityType::SIDESET);
+  }
+  ///@}
+
+  /**
+   * Returns the field selection object for the edge set arrays.
+   */
+  vtkDataArraySelection* GetEdgeSetFieldSelection()
+  {
+    return this->GetFieldSelection(EntityType::SIDESET);
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                                 Face Set API                                        //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * Add/Clear/Set/Get edge set selectors
+   */
+  bool AddFaceSetSelector(const char* selector)
+  {
+    return this->AddSelector(EntityType::SIDESET, selector);
+  }
+  void ClearFaceSetSelectors() { this->ClearSelectors(EntityType::SIDESET); }
+  void SetFaceSetSelector(const char* selector)
+  {
+    this->SetSelector(EntityType::SIDESET, selector);
+  }
+  int GetNumberOfFaceSetSelectors() const
+  {
+    return this->GetNumberOfSelectors(EntityType::SIDESET);
+  }
+  const char* GetFaceSetSelector(int index) const
+  {
+    return this->GetSelector(EntityType::SIDESET, index);
+  }
+  std::set<std::string> GetFaceSetSelectors() const
+  {
+    return this->GetSelectors(EntityType::SIDESET);
+  }
+  ///@}
+
+  /**
+   * Returns the field selection object for the edge set arrays.
+   */
+  vtkDataArraySelection* GetFaceSetFieldSelection()
+  {
+    return this->GetFieldSelection(EntityType::SIDESET);
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////
+  //                               Element Set API                                       //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  ///@{
+  /**
+   * Add/Clear/Set/Get element set selectors
+   */
+  bool AddElementSetSelector(const char* selector)
+  {
+    return this->AddSelector(EntityType::SIDESET, selector);
+  }
+  void ClearElementSetSelectors() { this->ClearSelectors(EntityType::SIDESET); }
+  void SetElementSetSelector(const char* selector)
+  {
+    this->SetSelector(EntityType::SIDESET, selector);
+  }
+  int GetNumberOfElementSetSelectors() const
+  {
+    return this->GetNumberOfSelectors(EntityType::SIDESET);
+  }
+  const char* GetElementSetSelector(int index) const
+  {
+    return this->GetSelector(EntityType::SIDESET, index);
+  }
+  std::set<std::string> GetElementSetSelectors() const
+  {
+    return this->GetSelectors(EntityType::SIDESET);
+  }
+  ///@}
+
+  /**
+   * Returns the field selection object for the element set arrays.
+   */
+  vtkDataArraySelection* GetElementSetFieldSelection()
+  {
+    return this->GetFieldSelection(EntityType::SIDESET);
   }
   /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -223,52 +412,29 @@ public:
   /////////////////////////////////////////////////////////////////////////////////////////
   ///@{
   /**
-   * API to set side set selectors. Multiple selectors can be added using
-   * `AddSideSetSelector`. The order in which selectors are specified is not preserved
-   * and has no impact on the result.
-   *
-   * `AddSideSetSelector` returns true if the selector was added, false if the selector
-   * was already specified and hence not added.
-   *
-   * @sa vtkDataAssembly::SelectNodes
-   *
-   * Default: /IOSS/side_sets
+   * Add/Clear/Set/Get side set selectors
    */
-  bool AddSideSetSelector(const char* selector);
-  void ClearSideSetSelectors();
-  ///@}
-
-  /**
-   * Convenience method to set a single side set selector.
-   * This clears any other existing selectors.
-   */
-  void SetSideSetSelector(const char* selector);
-
-  ///@{
-  /**
-   * API to access side set selectors.
-   */
-  int GetNumberOfSideSetSelectors() const;
-  const char* GetSideSetSelector(int index) const;
-  ///@}
-
-  ///@{
-  /**
-   * Choose which side set fields to write. If this is true, then only the
-   * arrays selected will be written. If this is false, then all arrays will be
-   * written.
-   *
-   * The default is false.
-   */
-  void SetChooseSideSetFieldsToWrite(bool value)
+  bool AddSideSetSelector(const char* selector)
   {
-    this->SetChooseEntityFieldsToWrite(EntityType::SIDESET, value);
+    return this->AddSelector(EntityType::SIDESET, selector);
   }
-  bool GetChooseSideSetFieldsToWrite() const
+  void ClearSideSetSelectors() { this->ClearSelectors(EntityType::SIDESET); }
+  void SetSideSetSelector(const char* selector)
   {
-    return this->GetChooseEntityFieldsToWrite(EntityType::SIDESET);
+    this->SetSelector(EntityType::SIDESET, selector);
   }
-  vtkBooleanMacro(ChooseSideSetFieldsToWrite, bool);
+  int GetNumberOfSideSetSelectors() const
+  {
+    return this->GetNumberOfSelectors(EntityType::SIDESET);
+  }
+  const char* GetSideSetSelector(int index) const
+  {
+    return this->GetSelector(EntityType::SIDESET, index);
+  }
+  std::set<std::string> GetSideSetSelectors() const
+  {
+    return this->GetSelectors(EntityType::SIDESET);
+  }
   ///@}
 
   /**
@@ -276,7 +442,7 @@ public:
    */
   vtkDataArraySelection* GetSideSetFieldSelection()
   {
-    return this->GetEntityFieldSelection(EntityType::SIDESET);
+    return this->GetFieldSelection(EntityType::SIDESET);
   }
   /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -430,14 +596,10 @@ private:
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 
-  void SetChooseEntityFieldsToWrite(EntityType type, bool val);
-  bool GetChooseEntityFieldsToWrite(EntityType type) const;
-
-  vtkDataArraySelection* GetEntityFieldSelection(EntityType type);
-
   vtkMultiProcessController* Controller;
   char* FileName;
   char* AssemblyName;
+  bool ChooseFieldsToWrite;
   bool RemoveGhosts;
   bool OffsetGlobalIds;
   bool PreserveOriginalIds;
@@ -445,8 +607,9 @@ private:
   double DisplacementMagnitude;
   int TimeStepRange[2];
   int TimeStepStride;
-  bool ChooseEntityFieldsToWrite[EntityType::NUMBER_OF_ENTITY_TYPES];
-  vtkNew<vtkDataArraySelection> EntityFieldSelection[EntityType::NUMBER_OF_ENTITY_TYPES];
+
+  std::set<std::string> Selectors[EntityType::NUMBER_OF_ENTITY_TYPES];
+  vtkNew<vtkDataArraySelection> FieldSelection[EntityType::NUMBER_OF_ENTITY_TYPES];
 };
 VTK_ABI_NAMESPACE_END
 

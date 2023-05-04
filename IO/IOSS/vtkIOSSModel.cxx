@@ -153,7 +153,7 @@ bool HandleGlobalIds(vtkPartitionedDataSetCollection* pdc, int association,
 }
 
 //=============================================================================
-std::set<unsigned int> GetDatasetIndices(vtkDataAssembly* assembly, std::vector<std::string> paths)
+std::set<unsigned int> GetDatasetIndices(vtkDataAssembly* assembly, std::set<std::string> paths)
 {
   if (assembly && assembly->GetRootNodeName())
   {
@@ -246,7 +246,8 @@ std::map<unsigned char, int64_t> GetElementCounts(
     vtkSMPTools::For(0, ds->GetNumberOfCells(), [&](vtkIdType start, vtkIdType end) {
       for (vtkIdType cc = start; cc < end; ++cc)
       {
-        // memory_order_relaxed is safe here, since we're not using the atomics for synchronization.
+        // memory_order_relaxed is safe here, since we're not using the atomics for
+        // synchronization.
         elementCounts[ds->GetCellType(cc)].fetch_add(1, std::memory_order_relaxed);
       }
     });
@@ -411,7 +412,7 @@ struct PutFieldWorker
         array->GetTypedTuple((*this->SourceIds)[cc], tuple.data());
         for (size_t comp = 0; comp < this->Data.size(); ++comp)
         {
-          this->Data[comp][this->Offset + cc] = tuple[comp];
+          this->Data[comp][this->Offset + cc] = static_cast<T>(tuple[comp]);
         }
       }
     });
@@ -430,7 +431,7 @@ struct PutFieldWorker
         ds->GetPoint((*this->SourceIds)[cc], tuple.data());
         for (size_t comp = 0; comp < this->Data.size(); ++comp)
         {
-          this->Data[comp][this->Offset + cc] = tuple[comp];
+          this->Data[comp][this->Offset + cc] = static_cast<T>(tuple[comp]);
         }
       }
     });
@@ -482,7 +483,21 @@ struct vtkGroupingEntity
   {
   }
   virtual ~vtkGroupingEntity() = default;
-  virtual Ioss::EntityType GetEntityType() const = 0;
+  virtual Ioss::EntityType GetIOSSEntityType() const
+  {
+    try
+    {
+      return vtkIOSSUtilities::GetIOSSEntityType(this->GetEntityType());
+    }
+    catch (std::runtime_error&)
+    {
+      return Ioss::EntityType::INVALID_TYPE;
+    }
+  }
+  virtual vtkIOSSWriter::EntityType GetEntityType() const
+  {
+    return vtkIOSSWriter::EntityType::NUMBER_OF_ENTITY_TYPES;
+  }
   virtual void DefineModel(Ioss::Region& region) const = 0;
   virtual void Model(Ioss::Region& region) const = 0;
   virtual void DefineTransient(Ioss::Region& region) const = 0;
@@ -636,11 +651,14 @@ struct vtkNodeBlock : vtkGroupingEntity
     }
 
     assert(this->DataSets.size() == this->IdsRaw.size());
-    this->Fields = ::GetFields(vtkDataObject::POINT, writer->GetNodeBlockFieldSelection(),
+    this->Fields = ::GetFields(vtkDataObject::POINT, writer->GetChooseFieldsToWrite(),
       writer->GetNodeBlockFieldSelection(), pdc, controller);
   }
 
-  Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::NODEBLOCK; }
+  vtkIOSSWriter::EntityType GetEntityType() const override
+  {
+    return vtkIOSSWriter::EntityType::NODEBLOCK;
+  }
 
   void AppendMD5(vtksysMD5* md5) const override
   {
@@ -727,27 +745,27 @@ struct vtkNodeBlock : vtkGroupingEntity
 };
 
 /**
- * Builds a Ioss::ElementBlock from a vtkPartitionedDataSet. The differences
+ * Builds an Ioss::(*)Block from a vtkPartitionedDataSet. The differences
  * between the Ioss and VTK data model for the two are handled as follows:
  *
  * * We only support vtkPartitionedDataSet comprising of one or more vtkDataSets.
  *   All other dataset types are simply ignored.
  *
- * * An ElementBlock cannot have multiple "pieces" in the same file. So if a
+ * * A Block cannot have multiple "pieces" in the same file. So if a
  *   vtkPartitionedDataSet has multiple datasets, we need to "combine" them into
  *   one.
  *
- * * An ElementBlock cannot have elements of different types. However,
+ * * A Block cannot have elements of different types. However,
  *   vtkDataSet supports heterogeneous cells. So if all
  *   vtkDataSets in the vtkPartitionedDataSet have more than 1 cell type,
- *   we create multiple element blocks. Each ElementBlock is uniquely named by
+ *   we create multiple blocks. Each Block is uniquely named by
  *   using the given block name and the element type as a suffix.
  *
  *   In MPI world, the cell types are gathered across all ranks to ensure each
  *   ranks creates identical blocks / block names.
  *
  */
-struct vtkElementBlock : public vtkGroupingEntity
+struct vtkEntityBlock : public vtkGroupingEntity
 {
   const std::vector<vtkDataSet*> DataSets;
   std::string RootName;
@@ -757,8 +775,9 @@ struct vtkElementBlock : public vtkGroupingEntity
   std::map<unsigned char, int64_t> ElementCounts;
   std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> Fields;
 
-  vtkElementBlock(vtkPartitionedDataSet* pds, const std::string& name, const int blockId,
-    int startSplitElementBlockId, vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+  vtkEntityBlock(vtkPartitionedDataSet* pds, vtkIOSSWriter::EntityType entityType,
+    const std::string& name, const int blockId, int startSplitElementBlockId,
+    vtkMultiProcessController* controller, vtkIOSSWriter* writer)
     : vtkGroupingEntity(writer)
     , DataSets(vtkCompositeDataSet::GetDataSets<vtkDataSet>(pds))
     , RootName(name)
@@ -776,11 +795,9 @@ struct vtkElementBlock : public vtkGroupingEntity
     }
 
     this->ElementCounts = ::GetElementCounts(pds, controller);
-    this->Fields = ::GetFields(vtkDataObject::CELL, writer->GetChooseElementBlockFieldsToWrite(),
-      writer->GetElementBlockFieldSelection(), pds, controller);
+    this->Fields = ::GetFields(vtkDataObject::CELL, writer->GetChooseFieldsToWrite(),
+      writer->GetFieldSelection(entityType), pds, controller);
   }
-
-  Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::ELEMENTBLOCK; }
 
   void AppendMD5(vtksysMD5* md5) const override
   {
@@ -814,6 +831,14 @@ struct vtkElementBlock : public vtkGroupingEntity
     }
   }
 
+  virtual Ioss::EntityBlock* CreateEntity(Ioss::DatabaseIO* db, const std::string& blockName,
+    const std::string& elementType, int64_t elementCount) const = 0;
+
+  virtual void AddEntity(Ioss::Region& region, Ioss::EntityBlock* entityBlock) const = 0;
+
+  virtual Ioss::EntityBlock* GetEntity(
+    Ioss::Region& region, const std::string& blockName) const = 0;
+
   void DefineModel(Ioss::Region& region) const override
   {
     for (const auto& element : this->ElementCounts)
@@ -825,15 +850,15 @@ struct vtkElementBlock : public vtkGroupingEntity
       const auto& elementType = elementTopology->name();
       const auto blockInfo = this->GetSubElementBlockInfo(vtk_cell_type, elementType);
 
-      auto* elementBlock =
-        new Ioss::ElementBlock(region.get_database(), blockInfo.second, elementType, elementCount);
-      elementBlock->property_add(Ioss::Property("id", blockInfo.first));
+      auto entityBlock =
+        this->CreateEntity(region.get_database(), blockInfo.second, elementType, elementCount);
+      entityBlock->property_add(Ioss::Property("id", blockInfo.first));
       if (this->Writer->GetPreserveOriginalIds())
       {
-        elementBlock->property_add(
+        entityBlock->property_add(
           Ioss::Property("original_id", this->BlockId, Ioss::Property::ATTRIBUTE));
       }
-      region.add(elementBlock);
+      this->AddEntity(region, entityBlock);
     }
   }
 
@@ -848,8 +873,8 @@ struct vtkElementBlock : public vtkGroupingEntity
       const auto& elementType = elementTopology->name();
       const auto blockName = this->GetSubElementBlockInfo(vtk_cell_type, elementType).second;
 
-      auto* elementBlock = region.get_element_block(blockName);
-      this->DefineFields(elementBlock, this->Fields, Ioss::Field::TRANSIENT, elementCount);
+      auto* entityBlock = this->GetEntity(region, blockName);
+      this->DefineFields(entityBlock, this->Fields, Ioss::Field::TRANSIENT, elementCount);
     }
   }
 
@@ -865,7 +890,7 @@ struct vtkElementBlock : public vtkGroupingEntity
       const int nodeCount = elementTopology->number_nodes();
       const auto blockName = this->GetSubElementBlockInfo(vtk_cell_type, elementType).second;
 
-      auto* elementBlock = region.get_element_block(blockName);
+      auto* entityBlock = this->GetEntity(region, blockName);
 
       // populate ids.
       std::vector<int32_t> elementIds; // these are global ids.
@@ -903,8 +928,8 @@ struct vtkElementBlock : public vtkGroupingEntity
       }
       assert(elementIds.size() == static_cast<size_t>(elementCount));
       assert(connectivity.size() == static_cast<size_t>(elementCount * nodeCount));
-      elementBlock->put_field_data("ids", elementIds);
-      elementBlock->put_field_data("connectivity", connectivity);
+      entityBlock->put_field_data("ids", elementIds);
+      entityBlock->put_field_data("connectivity", connectivity);
     }
   }
 
@@ -918,7 +943,7 @@ struct vtkElementBlock : public vtkGroupingEntity
       const auto& elementType = elementTopology->name();
       const auto blockName = this->GetSubElementBlockInfo(vtk_cell_type, elementType).second;
 
-      auto* elementBlock = region.get_element_block(blockName);
+      auto* entityBlock = this->GetEntity(region, blockName);
 
       // populate ids.
       std::vector<std::vector<vtkIdType>> lIds; // these are local ids.
@@ -939,11 +964,108 @@ struct vtkElementBlock : public vtkGroupingEntity
       }
 
       // add fields.
-      this->PutFields(elementBlock, this->Fields, lIds, this->DataSets, vtkDataObject::CELL);
+      this->PutFields(entityBlock, this->Fields, lIds, this->DataSets, vtkDataObject::CELL);
     }
   }
 };
 
+//=============================================================================
+struct vtkEdgeBlock : public vtkEntityBlock
+{
+  vtkEdgeBlock(vtkPartitionedDataSet* pds, const std::string& name, const int blockId,
+    int startSplitElementBlockId, vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+    : vtkEntityBlock(
+        pds, this->GetEntityType(), name, blockId, startSplitElementBlockId, controller, writer)
+  {
+  }
+
+  vtkIOSSWriter::EntityType GetEntityType() const override
+  {
+    return vtkIOSSWriter::EntityType::EDGEBLOCK;
+  }
+
+  Ioss::EntityBlock* CreateEntity(Ioss::DatabaseIO* db, const std::string& blockName,
+    const std::string& elementType, const int64_t elementCount) const override
+  {
+    return new Ioss::EdgeBlock(db, blockName, elementType, elementCount);
+  }
+
+  void AddEntity(Ioss::Region& region, Ioss::EntityBlock* entityBlock) const override
+  {
+    region.add(dynamic_cast<Ioss::EdgeBlock*>(entityBlock));
+  }
+
+  Ioss::EntityBlock* GetEntity(Ioss::Region& region, const std::string& blockName) const override
+  {
+    return region.get_edge_block(blockName);
+  }
+};
+
+//=============================================================================
+struct vtkFaceBlock : public vtkEntityBlock
+{
+  vtkFaceBlock(vtkPartitionedDataSet* pds, const std::string& name, const int blockId,
+    int startSplitElementBlockId, vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+    : vtkEntityBlock(
+        pds, this->GetEntityType(), name, blockId, startSplitElementBlockId, controller, writer)
+  {
+  }
+
+  vtkIOSSWriter::EntityType GetEntityType() const override
+  {
+    return vtkIOSSWriter::EntityType::FACEBLOCK;
+  }
+
+  Ioss::EntityBlock* CreateEntity(Ioss::DatabaseIO* db, const std::string& blockName,
+    const std::string& elementType, const int64_t elementCount) const override
+  {
+    return new Ioss::FaceBlock(db, blockName, elementType, elementCount);
+  }
+
+  void AddEntity(Ioss::Region& region, Ioss::EntityBlock* entityBlock) const override
+  {
+    region.add(dynamic_cast<Ioss::FaceBlock*>(entityBlock));
+  }
+
+  Ioss::EntityBlock* GetEntity(Ioss::Region& region, const std::string& blockName) const override
+  {
+    return region.get_face_block(blockName);
+  }
+};
+
+//=============================================================================
+struct vtkElementBlock : public vtkEntityBlock
+{
+  vtkElementBlock(vtkPartitionedDataSet* pds, const std::string& name, const int blockId,
+    int startSplitElementBlockId, vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+    : vtkEntityBlock(
+        pds, this->GetEntityType(), name, blockId, startSplitElementBlockId, controller, writer)
+  {
+  }
+
+  vtkIOSSWriter::EntityType GetEntityType() const override
+  {
+    return vtkIOSSWriter::EntityType::ELEMENTBLOCK;
+  }
+
+  Ioss::EntityBlock* CreateEntity(Ioss::DatabaseIO* db, const std::string& blockName,
+    const std::string& elementType, const int64_t elementCount) const override
+  {
+    return new Ioss::ElementBlock(db, blockName, elementType, elementCount);
+  }
+
+  void AddEntity(Ioss::Region& region, Ioss::EntityBlock* entityBlock) const override
+  {
+    region.add(dynamic_cast<Ioss::ElementBlock*>(entityBlock));
+  }
+
+  Ioss::EntityBlock* GetEntity(Ioss::Region& region, const std::string& blockName) const override
+  {
+    return region.get_element_block(blockName);
+  }
+};
+
+//=============================================================================
 struct vtkNodeSet : public vtkGroupingEntity
 {
   const std::vector<vtkDataSet*> DataSets;
@@ -974,11 +1096,14 @@ struct vtkNodeSet : public vtkGroupingEntity
     }
 
     // in a nodeSet, number of points == number of cells, because cells are vertices
-    this->Fields = ::GetFields(vtkDataObject::CELL, writer->GetChooseNodeSetFieldsToWrite(),
+    this->Fields = ::GetFields(vtkDataObject::CELL, writer->GetChooseFieldsToWrite(),
       writer->GetNodeSetFieldSelection(), pds, controller);
   }
 
-  Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::NODESET; }
+  vtkIOSSWriter::EntityType GetEntityType() const override
+  {
+    return vtkIOSSWriter::EntityType::NODESET;
+  }
 
   void AppendMD5(vtksysMD5* md5) const override
   {
@@ -1037,7 +1162,8 @@ struct vtkNodeSet : public vtkGroupingEntity
   }
 };
 
-struct vtkSideSet : public vtkGroupingEntity
+//=============================================================================
+struct vtkEntitySet : public vtkGroupingEntity
 {
   const std::vector<vtkDataSet*> DataSets;
   std::string Name;
@@ -1046,8 +1172,9 @@ struct vtkSideSet : public vtkGroupingEntity
 
   std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> Fields;
 
-  vtkSideSet(vtkPartitionedDataSet* pds, const std::string& name, int blockId,
-    vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+  vtkEntitySet(vtkPartitionedDataSet* pds, vtkIOSSWriter::EntityType entityType,
+    const std::string& name, int blockId, vtkMultiProcessController* controller,
+    vtkIOSSWriter* writer)
     : vtkGroupingEntity(writer)
     , DataSets(vtkCompositeDataSet::GetDataSets<vtkDataSet>(pds))
     , Name(name)
@@ -1056,24 +1183,17 @@ struct vtkSideSet : public vtkGroupingEntity
   {
     for (auto& ds : this->DataSets)
     {
-      auto* cd = ds->GetCellData();
-      if (vtkIdTypeArray::SafeDownCast(cd->GetGlobalIds()) != nullptr)
-      {
-        throw std::runtime_error("cell global ids present, must not be a sideset.");
-      }
-
-      if (vtkIntArray::SafeDownCast(cd->GetArray("element_side")) == nullptr)
+      // no need to check for global ids
+      if (vtkIntArray::SafeDownCast(ds->GetCellData()->GetArray("element_side")) == nullptr)
       {
         throw std::runtime_error("missing 'element_side' cell array.");
       }
 
       this->Count += ds->GetNumberOfCells();
     }
-    this->Fields = ::GetFields(vtkDataObject::CELL, writer->GetChooseSideSetFieldsToWrite(),
-      writer->GetSideSetFieldSelection(), pds, controller);
+    this->Fields = ::GetFields(vtkDataObject::CELL, writer->GetChooseFieldsToWrite(),
+      writer->GetFieldSelection(entityType), pds, controller);
   }
-
-  Ioss::EntityType GetEntityType() const override { return Ioss::EntityType::SIDESET; }
 
   void AppendMD5(vtksysMD5* md5) const override
   {
@@ -1082,31 +1202,30 @@ struct vtkSideSet : public vtkGroupingEntity
       static_cast<int>(sizeof(this->Count)));
   }
 
+  virtual Ioss::GroupingEntity* CreateEntity(
+    Ioss::DatabaseIO* db, const std::string& blockName, int64_t elementCount) const = 0;
+
+  virtual void AddEntity(Ioss::Region& region, Ioss::GroupingEntity* entitySet) const = 0;
+
+  virtual Ioss::GroupingEntity* GetEntity(
+    Ioss::Region& region, const std::string& blockName) const = 0;
+
   void DefineModel(Ioss::Region& region) const override
   {
-    // for mixed topology blocks, IOSS uses "unknown"
-    const auto* mixed_topo = Ioss::ElementTopology::factory("unknown");
-    const auto& elementType = mixed_topo->name();
-    auto* sideBlock = new Ioss::SideBlock(
-      region.get_database(), "sideblock_0", elementType, elementType, this->Count);
-
-    auto* sideSet = new Ioss::SideSet(region.get_database(), this->Name);
-    sideSet->property_add(Ioss::Property("id", this->BlockId));
-    sideSet->add(sideBlock);
-    region.add(sideSet);
+    auto entitySet = this->CreateEntity(region.get_database(), this->Name, this->Count);
+    entitySet->property_add(Ioss::Property("id", this->BlockId));
+    this->AddEntity(region, entitySet);
   }
 
   void DefineTransient(Ioss::Region& region) const override
   {
-    auto* sideSet = region.get_sideset(this->Name);
-    auto* sideBlock = sideSet->get_side_block("sideblock_0");
-    this->DefineFields(sideBlock, this->Fields, Ioss::Field::TRANSIENT, this->Count);
+    auto entity = this->GetEntity(region, this->Name);
+    this->DefineFields(entity, this->Fields, Ioss::Field::TRANSIENT, this->Count);
   }
 
   void Model(Ioss::Region& region) const override
   {
-    auto* sideSet = region.get_sideset(this->Name);
-    auto* sideBlock = sideSet->get_side_block("sideblock_0");
+    auto entity = this->GetEntity(region, this->Name);
 
     std::vector<int32_t> elementSide;
     elementSide.reserve(this->Count * 2);
@@ -1135,13 +1254,12 @@ struct vtkSideSet : public vtkGroupingEntity
     }
 
     assert(elementSide.size() == static_cast<size_t>(this->Count * 2));
-    sideBlock->put_field_data("element_side", elementSide);
+    entity->put_field_data("element_side", elementSide);
   }
 
   void Transient(Ioss::Region& region) const override
   {
-    auto* sideSet = region.get_sideset(this->Name);
-    auto* sideBlock = sideSet->get_side_block("sideblock_0");
+    auto entity = this->GetEntity(region, this->Name);
 
     // populate ids.
     std::vector<std::vector<vtkIdType>> lIds; // these are local ids.
@@ -1162,7 +1280,138 @@ struct vtkSideSet : public vtkGroupingEntity
     }
 
     // add fields.
-    this->PutFields(sideBlock, this->Fields, lIds, this->DataSets, vtkDataObject::CELL);
+    this->PutFields(entity, this->Fields, lIds, this->DataSets, vtkDataObject::CELL);
+  }
+};
+
+//=============================================================================
+struct vtkEdgeSet : public vtkEntitySet
+{
+  vtkEdgeSet(vtkPartitionedDataSet* pds, const std::string& name, int blockId,
+    vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+    : vtkEntitySet(pds, this->GetEntityType(), name, blockId, controller, writer)
+  {
+  }
+
+  vtkIOSSWriter::EntityType GetEntityType() const override
+  {
+    return vtkIOSSWriter::EntityType::EDGESET;
+  }
+
+  Ioss::GroupingEntity* CreateEntity(
+    Ioss::DatabaseIO* db, const std::string& blockName, const int64_t elementCount) const override
+  {
+    return new Ioss::EdgeSet(db, blockName, elementCount);
+  }
+
+  void AddEntity(Ioss::Region& region, Ioss::GroupingEntity* entitySet) const override
+  {
+    region.add(dynamic_cast<Ioss::EdgeSet*>(entitySet));
+  }
+
+  Ioss::GroupingEntity* GetEntity(Ioss::Region& region, const std::string& blockName) const override
+  {
+    return region.get_edgeset(blockName);
+  }
+};
+
+//=============================================================================
+struct vtkFaceSet : public vtkEntitySet
+{
+  vtkFaceSet(vtkPartitionedDataSet* pds, const std::string& name, int blockId,
+    vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+    : vtkEntitySet(pds, this->GetEntityType(), name, blockId, controller, writer)
+  {
+  }
+
+  vtkIOSSWriter::EntityType GetEntityType() const override
+  {
+    return vtkIOSSWriter::EntityType::FACESET;
+  }
+
+  Ioss::GroupingEntity* CreateEntity(
+    Ioss::DatabaseIO* db, const std::string& blockName, const int64_t elementCount) const override
+  {
+    return new Ioss::FaceSet(db, blockName, elementCount);
+  }
+
+  void AddEntity(Ioss::Region& region, Ioss::GroupingEntity* entitySet) const override
+  {
+    region.add(dynamic_cast<Ioss::FaceSet*>(entitySet));
+  }
+
+  Ioss::GroupingEntity* GetEntity(Ioss::Region& region, const std::string& blockName) const override
+  {
+    return region.get_faceset(blockName);
+  }
+};
+
+//=============================================================================
+struct vtkElementSet : public vtkEntitySet
+{
+  vtkElementSet(vtkPartitionedDataSet* pds, const std::string& name, int blockId,
+    vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+    : vtkEntitySet(pds, this->GetEntityType(), name, blockId, controller, writer)
+  {
+  }
+
+  vtkIOSSWriter::EntityType GetEntityType() const override
+  {
+    return vtkIOSSWriter::EntityType::ELEMENTSET;
+  }
+
+  Ioss::GroupingEntity* CreateEntity(
+    Ioss::DatabaseIO* db, const std::string& blockName, const int64_t elementCount) const override
+  {
+    return new Ioss::ElementSet(db, blockName, elementCount);
+  }
+
+  void AddEntity(Ioss::Region& region, Ioss::GroupingEntity* entitySet) const override
+  {
+    region.add(dynamic_cast<Ioss::ElementSet*>(entitySet));
+  }
+
+  Ioss::GroupingEntity* GetEntity(Ioss::Region& region, const std::string& blockName) const override
+  {
+    return region.get_elementset(blockName);
+  }
+};
+
+//=============================================================================
+struct vtkSideSet : public vtkEntitySet
+{
+  vtkSideSet(vtkPartitionedDataSet* pds, const std::string& name, int blockId,
+    vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+    : vtkEntitySet(pds, this->GetEntityType(), name, blockId, controller, writer)
+  {
+  }
+
+  vtkIOSSWriter::EntityType GetEntityType() const override
+  {
+    return vtkIOSSWriter::EntityType::SIDESET;
+  }
+
+  Ioss::GroupingEntity* CreateEntity(
+    Ioss::DatabaseIO* db, const std::string& blockName, const int64_t elementCount) const override
+  {
+    // for mixed topology blocks, IOSS uses "unknown"
+    const auto* mixed_topo = Ioss::ElementTopology::factory("unknown");
+    const auto& elementType = mixed_topo->name();
+    auto* sideBlock =
+      new Ioss::SideBlock(db, "sideblock_0", elementType, elementType, elementCount);
+    auto* sideSet = new Ioss::SideSet(db, blockName);
+    sideSet->add(sideBlock);
+    return sideSet;
+  }
+
+  void AddEntity(Ioss::Region& region, Ioss::GroupingEntity* entitySet) const override
+  {
+    region.add(dynamic_cast<Ioss::SideSet*>(entitySet));
+  }
+
+  Ioss::GroupingEntity* GetEntity(Ioss::Region& region, const std::string& blockName) const override
+  {
+    return region.get_sideset(blockName)->get_side_block("sideblock_0");
   }
 };
 
@@ -1209,26 +1458,18 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       return;
     }
   }
-  std::vector<std::string> elementBlockSelectors(writer->GetNumberOfElementBlockSelectors());
-  for (size_t idx = 0; idx < elementBlockSelectors.size(); ++idx)
+  using EntityType = vtkIOSSWriter::EntityType;
+  std::map<EntityType, std::set<unsigned int>> entityIndices;
+  for (int i = EntityType::EDGEBLOCK; i < EntityType::NUMBER_OF_ENTITY_TYPES; ++i)
   {
-    elementBlockSelectors[idx] = writer->GetElementBlockSelector(idx);
+    const auto entityType = static_cast<EntityType>(i);
+    entityIndices[entityType] = ::GetDatasetIndices(assembly, writer->GetSelectors(entityType));
   }
-  std::vector<std::string> nodeSetSelectors(writer->GetNumberOfNodeSetSelectors());
-  for (size_t idx = 0; idx < nodeSetSelectors.size(); ++idx)
-  {
-    nodeSetSelectors[idx] = writer->GetNodeSetSelector(idx);
-  }
-  std::vector<std::string> sideSetSelectors(writer->GetNumberOfSideSetSelectors());
-  for (size_t idx = 0; idx < sideSetSelectors.size(); ++idx)
-  {
-    sideSetSelectors[idx] = writer->GetSideSetSelector(idx);
-  }
-  auto elementBlockIndices = ::GetDatasetIndices(assembly, elementBlockSelectors);
-  auto nodeSetIndices = ::GetDatasetIndices(assembly, nodeSetSelectors);
-  auto sideSetIndices = ::GetDatasetIndices(assembly, sideSetSelectors);
-  bool indicesEmpty =
-    elementBlockIndices.empty() && nodeSetIndices.empty() && sideSetIndices.empty();
+  // write the above for loop with one line
+  const bool indicesEmpty = std::all_of(entityIndices.begin(), entityIndices.end(),
+    [](const std::pair<EntityType, std::set<unsigned int>>& indices) {
+      return indices.second.empty();
+    });
   if (indicesEmpty)
   {
     // if no indices are specified, then all blocks will be processed as element blocks
@@ -1238,18 +1479,28 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       strcmp(dataAssembly->GetRootNodeName(), "IOSS") == 0);
     if (isIOSS)
     {
-      elementBlockIndices = ::GetDatasetIndices(dataAssembly, { "/IOSS/element_blocks" });
-      nodeSetIndices = ::GetDatasetIndices(dataAssembly, { "/IOSS/node_sets" });
-      sideSetIndices = ::GetDatasetIndices(dataAssembly, { "/IOSS/side_sets" });
-      indicesEmpty =
-        elementBlockIndices.empty() && nodeSetIndices.empty() && sideSetIndices.empty();
+      for (int i = EntityType::EDGEBLOCK; i < EntityType::NUMBER_OF_ENTITY_TYPES; ++i)
+      {
+        const auto entityType = static_cast<EntityType>(i);
+        const auto iossEntitySelector =
+          std::string("/IOSS/") + vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(i);
+        entityIndices[entityType] = ::GetDatasetIndices(dataAssembly, { iossEntitySelector });
+      }
+    }
+    else
+    {
+      // all blocks are element blocks
+      entityIndices[EntityType::ELEMENTBLOCK] = ::GetDatasetIndices(assembly, { "/" });
     }
   }
 
-  // merge node sets and side sets indices into a single set of indices.
+  // merge sets indices into a single set of indices.
   std::set<unsigned int> indicesToIgnore;
-  indicesToIgnore.insert(nodeSetIndices.begin(), nodeSetIndices.end());
-  indicesToIgnore.insert(sideSetIndices.begin(), sideSetIndices.end());
+  for (int i = EntityType::SET_START; i < EntityType::SET_END; ++i)
+  {
+    const auto entityType = static_cast<EntityType>(i);
+    indicesToIgnore.insert(entityIndices[entityType].begin(), entityIndices[entityType].end());
+  }
 
   internals.GlobalIdsCreated = false;
   // create global point ids if needed
@@ -1278,27 +1529,24 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
     }
   }
-  // this will be used as a start id for split element blocks to ensure uniqueness.
-  int startSplitElementBlockId = *std::max_element(blockIds.begin(), blockIds.end()) + 1;
-  // ensure that all processes have the same startSplitElementBlockId.
+  // this will be used as a start id for split blocks to ensure uniqueness.
+  int startSplitEBlockId = *std::max_element(blockIds.begin(), blockIds.end()) + 1;
+  // ensure that all processes have the same startSplitEBlockId.
   if (controller && controller->GetNumberOfProcesses() > 1)
   {
-    int globalStartSplitElementBlockId;
+    int globalStartSplitBlockId;
     controller->AllReduce(
-      &startSplitElementBlockId, &globalStartSplitElementBlockId, 1, vtkCommunicator::MAX_OP);
-    startSplitElementBlockId = globalStartSplitElementBlockId;
+      &startSplitEBlockId, &globalStartSplitBlockId, 1, vtkCommunicator::MAX_OP);
+    startSplitEBlockId = globalStartSplitBlockId;
   }
 
-  // first things first, determine all information necessary about nodes.
+  // first things first, determine all information necessary about node block.
   // there's just 1 node block for exodus, build that.
   auto nodeBlock = std::make_shared<vtkNodeBlock>(dataset, "nodeblock_1", controller, writer);
-  entityGroups.emplace(nodeBlock->GetEntityType(), nodeBlock);
+  entityGroups.emplace(nodeBlock->GetIOSSEntityType(), nodeBlock);
 
-  // process element blocks.
-  // now, if input is not coming for IOSS reader, then all blocks are simply
-  // treated as element blocks, there's no way for us to deduce otherwise.
-  // let's start by simply doing that.
-  int elementBlockCounter = 0;
+  // process group entities.
+  int blockCounter = 0;
   for (unsigned int pidx = 0; pidx < dataset->GetNumberOfPartitionedDataSets(); ++pidx)
   {
     const std::string& blockName = blockNames[pidx];
@@ -1307,20 +1555,21 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
 
     // now create each type of GroupingEntity.
 
-    // if indices are empty, all blocks will be processed as element blocks.
-    if (indicesEmpty || elementBlockIndices.find(pidx) != elementBlockIndices.end())
+    // edge block
+    const bool edgeBlockFound =
+      entityIndices[EntityType::EDGEBLOCK].find(pidx) != entityIndices[EntityType::EDGEBLOCK].end();
+    if (edgeBlockFound)
     {
       try
       {
-        if (elementBlockCounter != 0)
+        if (blockCounter++ != 0)
         {
           // add the number of cell types to the block id to ensure uniqueness.
-          startSplitElementBlockId += VTK_NUMBER_OF_CELL_TYPES;
+          startSplitEBlockId += VTK_NUMBER_OF_CELL_TYPES;
         }
-        auto elementBlock = std::make_shared<vtkElementBlock>(
-          pds, blockName, blockId, startSplitElementBlockId, controller, writer);
-        entityGroups.emplace(elementBlock->GetEntityType(), elementBlock);
-        ++elementBlockCounter;
+        auto edgeBlock = std::make_shared<vtkEdgeBlock>(
+          pds, blockName, blockId, startSplitEBlockId, controller, writer);
+        entityGroups.emplace(edgeBlock->GetIOSSEntityType(), edgeBlock);
         continue;
       }
       catch (std::runtime_error&)
@@ -1329,12 +1578,21 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
     }
 
-    if (sideSetIndices.find(pidx) != sideSetIndices.end())
+    // face block
+    const bool faceBlockFound =
+      entityIndices[EntityType::FACEBLOCK].find(pidx) != entityIndices[EntityType::FACEBLOCK].end();
+    if (faceBlockFound)
     {
       try
       {
-        auto sideSet = std::make_shared<vtkSideSet>(pds, blockName, blockId, controller, writer);
-        entityGroups.emplace(sideSet->GetEntityType(), sideSet);
+        if (blockCounter++ != 0)
+        {
+          // add the number of cell types to the block id to ensure uniqueness.
+          startSplitEBlockId += VTK_NUMBER_OF_CELL_TYPES;
+        }
+        auto faceBlock = std::make_shared<vtkFaceBlock>(
+          pds, blockName, blockId, startSplitEBlockId, controller, writer);
+        entityGroups.emplace(faceBlock->GetIOSSEntityType(), faceBlock);
         continue;
       }
       catch (std::runtime_error&)
@@ -1343,13 +1601,107 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
     }
 
-    // nodesets are the most forgiving kind, so let's do them last.
-    if (nodeSetIndices.find(pidx) != nodeSetIndices.end())
+    // element block
+    const bool elementBlockFound = entityIndices[EntityType::ELEMENTBLOCK].find(pidx) !=
+      entityIndices[EntityType::ELEMENTBLOCK].end();
+    if (elementBlockFound)
+    {
+      try
+      {
+        if (blockCounter++ != 0)
+        {
+          // add the number of cell types to the block id to ensure uniqueness.
+          startSplitEBlockId += VTK_NUMBER_OF_CELL_TYPES;
+        }
+        auto elementBlock = std::make_shared<vtkElementBlock>(
+          pds, blockName, blockId, startSplitEBlockId, controller, writer);
+        entityGroups.emplace(elementBlock->GetIOSSEntityType(), elementBlock);
+        continue;
+      }
+      catch (std::runtime_error&)
+      {
+        break;
+      }
+    }
+
+    // node set
+    const bool nodeSetFound =
+      entityIndices[EntityType::NODESET].find(pidx) != entityIndices[EntityType::NODESET].end();
+    if (nodeSetFound)
     {
       try
       {
         auto nodeSet = std::make_shared<vtkNodeSet>(pds, blockName, blockId, controller, writer);
-        entityGroups.emplace(nodeSet->GetEntityType(), nodeSet);
+        entityGroups.emplace(nodeSet->GetIOSSEntityType(), nodeSet);
+        continue;
+      }
+      catch (std::runtime_error&)
+      {
+        break;
+      }
+    }
+
+    // edge set
+    const bool edgeSetFound =
+      entityIndices[EntityType::EDGESET].find(pidx) != entityIndices[EntityType::EDGESET].end();
+    if (edgeSetFound)
+    {
+      try
+      {
+        auto edgeSet = std::make_shared<vtkEdgeSet>(pds, blockName, blockId, controller, writer);
+        entityGroups.emplace(edgeSet->GetIOSSEntityType(), edgeSet);
+        continue;
+      }
+      catch (std::runtime_error&)
+      {
+        break;
+      }
+    }
+
+    // face set
+    const bool faceSetFound =
+      entityIndices[EntityType::FACESET].find(pidx) != entityIndices[EntityType::FACESET].end();
+    if (faceSetFound)
+    {
+      try
+      {
+        auto faceSet = std::make_shared<vtkFaceSet>(pds, blockName, blockId, controller, writer);
+        entityGroups.emplace(faceSet->GetIOSSEntityType(), faceSet);
+        continue;
+      }
+      catch (std::runtime_error&)
+      {
+        break;
+      }
+    }
+
+    // element set
+    const bool elementSetFound = entityIndices[EntityType::ELEMENTSET].find(pidx) !=
+      entityIndices[EntityType::ELEMENTSET].end();
+    if (elementSetFound)
+    {
+      try
+      {
+        auto elementSet =
+          std::make_shared<vtkElementSet>(pds, blockName, blockId, controller, writer);
+        entityGroups.emplace(elementSet->GetIOSSEntityType(), elementSet);
+        continue;
+      }
+      catch (std::runtime_error&)
+      {
+        break;
+      }
+    }
+
+    // side set
+    const bool sideSetFound =
+      entityIndices[EntityType::SIDESET].find(pidx) != entityIndices[EntityType::SIDESET].end();
+    if (sideSetFound)
+    {
+      try
+      {
+        auto sideSet = std::make_shared<vtkSideSet>(pds, blockName, blockId, controller, writer);
+        entityGroups.emplace(sideSet->GetIOSSEntityType(), sideSet);
         continue;
       }
       catch (std::runtime_error&)

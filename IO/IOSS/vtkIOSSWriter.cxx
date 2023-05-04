@@ -71,9 +71,6 @@ public:
   int CurrentTimeStepIndex{ 0 };
   int RestartIndex{ 0 };
   std::string LastMD5;
-  std::set<std::string> ElementBlockSelectors;
-  std::set<std::string> NodeSetSelectors;
-  std::set<std::string> SideSetSelectors;
 
   vtkInternals() = default;
   ~vtkInternals() = default;
@@ -87,6 +84,7 @@ vtkIOSSWriter::vtkIOSSWriter()
   , Controller(nullptr)
   , FileName(nullptr)
   , AssemblyName(nullptr)
+  , ChooseFieldsToWrite(false)
   , RemoveGhosts(true)
   , OffsetGlobalIds(false)
   , PreserveOriginalIds(false)
@@ -97,11 +95,9 @@ vtkIOSSWriter::vtkIOSSWriter()
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->SetAssemblyName(vtkDataAssemblyUtilities::HierarchyName());
-  std::fill_n(this->ChooseEntityFieldsToWrite, EntityType::NUMBER_OF_ENTITY_TYPES, false);
   for (int i = 0; i < EntityType::NUMBER_OF_ENTITY_TYPES; ++i)
   {
-    this->EntityFieldSelection[i]->AddObserver(
-      vtkCommand::ModifiedEvent, this, &vtkIOSSWriter::Modified);
+    this->FieldSelection[i]->AddObserver(vtkCommand::ModifiedEvent, this, &vtkIOSSWriter::Modified);
   }
 }
 
@@ -114,39 +110,11 @@ vtkIOSSWriter::~vtkIOSSWriter()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSSWriter::SetChooseEntityFieldsToWrite(EntityType type, bool val)
+vtkDataArraySelection* vtkIOSSWriter::GetFieldSelection(EntityType type)
 {
   if (type < EntityType::NUMBER_OF_ENTITY_TYPES)
   {
-    this->ChooseEntityFieldsToWrite[type] = val;
-    this->Modified();
-  }
-  else
-  {
-    vtkErrorMacro("Invalid entity type: " << type);
-  }
-}
-
-//----------------------------------------------------------------------------
-bool vtkIOSSWriter::GetChooseEntityFieldsToWrite(vtkIOSSWriter::EntityType type) const
-{
-  if (type < EntityType::NUMBER_OF_ENTITY_TYPES)
-  {
-    return this->ChooseEntityFieldsToWrite[type];
-  }
-  else
-  {
-    vtkErrorMacro("Invalid entity type: " << type);
-    return false;
-  }
-}
-
-//----------------------------------------------------------------------------
-vtkDataArraySelection* vtkIOSSWriter::GetEntityFieldSelection(vtkIOSSWriter::EntityType type)
-{
-  if (type < EntityType::NUMBER_OF_ENTITY_TYPES)
-  {
-    return this->EntityFieldSelection[type];
+    return this->FieldSelection[type];
   }
   else
   {
@@ -156,12 +124,11 @@ vtkDataArraySelection* vtkIOSSWriter::GetEntityFieldSelection(vtkIOSSWriter::Ent
 }
 
 //------------------------------------------------------------------------------
-bool vtkIOSSWriter::AddElementBlockSelector(const char* selector)
+bool vtkIOSSWriter::AddSelector(vtkIOSSWriter::EntityType entityType, const char* selector)
 {
   if (selector)
   {
-    auto& internals = *this->Internals;
-    if (internals.ElementBlockSelectors.insert(selector).second)
+    if (this->Selectors[entityType].insert(selector).second)
     {
       this->Modified();
       return true;
@@ -171,178 +138,61 @@ bool vtkIOSSWriter::AddElementBlockSelector(const char* selector)
 }
 
 //------------------------------------------------------------------------------
-void vtkIOSSWriter::ClearElementBlockSelectors()
+void vtkIOSSWriter::ClearSelectors(vtkIOSSWriter::EntityType entityType)
 {
-  auto& internals = *this->Internals;
-  if (!internals.ElementBlockSelectors.empty())
+  if (!this->Selectors[entityType].empty())
   {
-    internals.ElementBlockSelectors.clear();
+    this->Selectors[entityType].clear();
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkIOSSWriter::SetElementBlockSelector(const char* selector)
+void vtkIOSSWriter::SetSelector(vtkIOSSWriter::EntityType entity, const char* selector)
 {
   if (selector)
   {
-    auto& internals = *this->Internals;
-    if (internals.ElementBlockSelectors.size() == 1 &&
-      *internals.ElementBlockSelectors.begin() == selector)
+    if (this->Selectors[entity].size() == 1 && *this->Selectors[entity].begin() == selector)
     {
       return;
     }
-    internals.ElementBlockSelectors.clear();
-    internals.ElementBlockSelectors.insert(selector);
+    this->Selectors[entity].clear();
+    this->Selectors[entity].insert(selector);
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-int vtkIOSSWriter::GetNumberOfElementBlockSelectors() const
+int vtkIOSSWriter::GetNumberOfSelectors(vtkIOSSWriter::EntityType entity) const
 {
-  auto& internals = *this->Internals;
-  return static_cast<int>(internals.ElementBlockSelectors.size());
+  if (entity < EntityType::NUMBER_OF_ENTITY_TYPES)
+  {
+    return static_cast<int>(this->Selectors[entity].size());
+  }
+  return 0;
 }
 
 //------------------------------------------------------------------------------
-const char* vtkIOSSWriter::GetElementBlockSelector(int index) const
+const char* vtkIOSSWriter::GetSelector(vtkIOSSWriter::EntityType entityType, int index) const
 {
-  const auto& internals = *this->Internals;
-  if (index >= 0 && index < static_cast<int>(internals.ElementBlockSelectors.size()))
+  if (index >= 0 && index < this->GetNumberOfSelectors(entityType))
   {
-    auto iter = std::next(internals.ElementBlockSelectors.begin(), index);
-    return iter->c_str();
+    auto& selectors = this->Selectors[entityType];
+    auto it = selectors.begin();
+    std::advance(it, index);
+    return it->c_str();
   }
-
-  vtkErrorMacro("Invalid index '" << index << "'.");
   return nullptr;
 }
 
 //------------------------------------------------------------------------------
-bool vtkIOSSWriter::AddNodeSetSelector(const char* selector)
+std::set<std::string> vtkIOSSWriter::GetSelectors(vtkIOSSWriter::EntityType entityType) const
 {
-  if (selector)
+  if (entityType < EntityType::NUMBER_OF_ENTITY_TYPES)
   {
-    auto& internals = *this->Internals;
-    if (internals.NodeSetSelectors.insert(selector).second)
-    {
-      this->Modified();
-      return true;
-    }
+    return this->Selectors[entityType];
   }
-  return false;
-}
-
-//------------------------------------------------------------------------------
-void vtkIOSSWriter::ClearNodeSetSelectors()
-{
-  auto& internals = *this->Internals;
-  if (!internals.NodeSetSelectors.empty())
-  {
-    internals.NodeSetSelectors.clear();
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkIOSSWriter::SetNodeSetSelector(const char* selector)
-{
-  if (selector)
-  {
-    auto& internals = *this->Internals;
-    if (internals.NodeSetSelectors.size() == 1 && *internals.NodeSetSelectors.begin() == selector)
-    {
-      return;
-    }
-    internals.NodeSetSelectors.clear();
-    internals.NodeSetSelectors.insert(selector);
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-int vtkIOSSWriter::GetNumberOfNodeSetSelectors() const
-{
-  auto& internals = *this->Internals;
-  return static_cast<int>(internals.NodeSetSelectors.size());
-}
-
-//------------------------------------------------------------------------------
-const char* vtkIOSSWriter::GetNodeSetSelector(int index) const
-{
-  const auto& internals = *this->Internals;
-  if (index >= 0 && index < static_cast<int>(internals.NodeSetSelectors.size()))
-  {
-    auto iter = std::next(internals.NodeSetSelectors.begin(), index);
-    return iter->c_str();
-  }
-
-  vtkErrorMacro("Invalid index '" << index << "'.");
-  return nullptr;
-}
-
-//------------------------------------------------------------------------------
-bool vtkIOSSWriter::AddSideSetSelector(const char* selector)
-{
-  if (selector)
-  {
-    auto& internals = *this->Internals;
-    if (internals.SideSetSelectors.insert(selector).second)
-    {
-      this->Modified();
-      return true;
-    }
-  }
-  return false;
-}
-
-//------------------------------------------------------------------------------
-void vtkIOSSWriter::ClearSideSetSelectors()
-{
-  auto& internals = *this->Internals;
-  if (!internals.SideSetSelectors.empty())
-  {
-    internals.SideSetSelectors.clear();
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkIOSSWriter::SetSideSetSelector(const char* selector)
-{
-  if (selector)
-  {
-    auto& internals = *this->Internals;
-    if (internals.SideSetSelectors.size() == 1 && *internals.SideSetSelectors.begin() == selector)
-    {
-      return;
-    }
-    internals.SideSetSelectors.clear();
-    internals.SideSetSelectors.insert(selector);
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-int vtkIOSSWriter::GetNumberOfSideSetSelectors() const
-{
-  auto& internals = *this->Internals;
-  return static_cast<int>(internals.SideSetSelectors.size());
-}
-
-//------------------------------------------------------------------------------
-const char* vtkIOSSWriter::GetSideSetSelector(int index) const
-{
-  const auto& internals = *this->Internals;
-  if (index >= 0 && index < static_cast<int>(internals.SideSetSelectors.size()))
-  {
-    auto iter = std::next(internals.SideSetSelectors.begin(), index);
-    return iter->c_str();
-  }
-
-  vtkErrorMacro("Invalid index '" << index << "'.");
-  return nullptr;
+  return std::set<std::string>();
 }
 
 //------------------------------------------------------------------------------
@@ -599,39 +449,29 @@ void vtkIOSSWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(nullptr)") << endl;
   os << indent << "AssemblyName: " << (this->AssemblyName ? this->AssemblyName : "(nullptr)")
      << endl;
-  os << indent
-     << "ChooseNodeBlockFieldsToWrite: " << (this->GetChooseNodeBlockFieldsToWrite() ? "On" : "Off")
-     << endl;
-  this->GetNodeSetFieldSelection()->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "ElementBlockSelectors: " << endl;
-  for (const auto& selector : this->Internals->ElementBlockSelectors)
+
+  os << indent << "ChooseFieldsToWrite: " << (this->ChooseFieldsToWrite ? "On" : "Off") << endl;
+  // Skip NodeBlock for selectors
+  for (int i = EntityType::EDGEBLOCK; i < EntityType::NUMBER_OF_ENTITY_TYPES; ++i)
   {
-    os << indent << selector << "  ";
+    os << indent << vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(i)
+       << " selectors: " << endl;
+    for (const auto& selector : this->Selectors[i])
+    {
+      os << indent << selector << "  ";
+    }
+    os << endl;
   }
-  os << endl;
-  os << indent << "ChooseElementBlockFieldsToWrite: "
-     << (this->GetChooseElementBlockFieldsToWrite() ? "On" : "Off") << endl;
-  this->GetElementBlockFieldSelection()->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "NodeSetSelectors: " << endl;
-  for (const auto& selector : this->Internals->NodeSetSelectors)
+  if (this->ChooseFieldsToWrite)
   {
-    os << indent << selector << "  ";
+    for (int i = EntityType::NODEBLOCK; i < EntityType::NUMBER_OF_ENTITY_TYPES; ++i)
+    {
+      os << indent << vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(i)
+         << " fields to write: " << endl;
+      this->FieldSelection[i]->PrintSelf(os, indent.GetNextIndent());
+      os << endl;
+    }
   }
-  os << endl;
-  os << indent
-     << "ChooseNodeSetFieldsToWrite: " << (this->GetChooseNodeSetFieldsToWrite() ? "On" : "Off")
-     << endl;
-  this->GetNodeSetFieldSelection()->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "SideSetSelectors: " << endl;
-  for (const auto& selector : this->Internals->SideSetSelectors)
-  {
-    os << indent << selector << "  ";
-  }
-  os << endl;
-  os << indent
-     << "ChooseSideSetFieldsToWrite: " << (this->GetChooseSideSetFieldsToWrite() ? "On" : "Off")
-     << endl;
-  this->GetSideSetFieldSelection()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "RemoveGhosts: " << (this->RemoveGhosts ? "On" : "Off") << endl;
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "OffsetGlobalIds: " << OffsetGlobalIds << endl;
