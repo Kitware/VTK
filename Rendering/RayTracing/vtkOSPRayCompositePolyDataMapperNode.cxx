@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOSPRayCompositePolyDataMapper2Node.cxx
+  Module:    vtkOSPRayCompositePolyDataMapperNode.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,14 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-// Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-#include "vtkOSPRayCompositePolyDataMapper2Node.h"
+#include "vtkOSPRayCompositePolyDataMapperNode.h"
 
 #include "vtkActor.h"
 #include "vtkCompositeDataDisplayAttributes.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkOSPRayActorNode.h"
@@ -31,22 +28,22 @@
 
 //============================================================================
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkOSPRayCompositePolyDataMapper2Node);
+vtkStandardNewMacro(vtkOSPRayCompositePolyDataMapperNode);
 
 //------------------------------------------------------------------------------
-vtkOSPRayCompositePolyDataMapper2Node::vtkOSPRayCompositePolyDataMapper2Node() = default;
+vtkOSPRayCompositePolyDataMapperNode::vtkOSPRayCompositePolyDataMapperNode() = default;
 
 //------------------------------------------------------------------------------
-vtkOSPRayCompositePolyDataMapper2Node::~vtkOSPRayCompositePolyDataMapper2Node() = default;
+vtkOSPRayCompositePolyDataMapperNode::~vtkOSPRayCompositePolyDataMapperNode() = default;
 
 //------------------------------------------------------------------------------
-void vtkOSPRayCompositePolyDataMapper2Node::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOSPRayCompositePolyDataMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-void vtkOSPRayCompositePolyDataMapper2Node::Invalidate(bool prepass)
+void vtkOSPRayCompositePolyDataMapperNode::Invalidate(bool prepass)
 {
   if (prepass)
   {
@@ -55,7 +52,7 @@ void vtkOSPRayCompositePolyDataMapper2Node::Invalidate(bool prepass)
 }
 
 //------------------------------------------------------------------------------
-void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
+void vtkOSPRayCompositePolyDataMapperNode::Render(bool prepass)
 {
   if (prepass)
   {
@@ -101,7 +98,7 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
 
     // render using the composite data attributes
     unsigned int flat_index = 0;
-    vtkCompositePolyDataMapper2* cpdm = vtkCompositePolyDataMapper2::SafeDownCast(act->GetMapper());
+    vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(act->GetMapper());
     vtkDataObject* dobj = nullptr;
     if (cpdm)
     {
@@ -124,8 +121,8 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
 }
 
 //------------------------------------------------------------------------------
-void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(vtkOSPRayRendererNode* orn,
-  vtkCompositePolyDataMapper2* cpdm, vtkActor* actor, vtkDataObject* dobj, unsigned int& flat_index)
+void vtkOSPRayCompositePolyDataMapperNode::RenderBlock(vtkOSPRayRendererNode* orn,
+  vtkCompositePolyDataMapper* cpdm, vtkActor* actor, vtkDataObject* dobj, unsigned int& flat_index)
 {
   vtkCompositeDataDisplayAttributes* cda = cpdm->GetCompositeDataDisplayAttributes();
 

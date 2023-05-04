@@ -23,7 +23,7 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkRenderWindow.h"
@@ -51,8 +51,8 @@ int TestOSPRayMultiBlock(int argc, char* argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
-  vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
-    vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+  vtkSmartPointer<vtkCompositePolyDataMapper> mapper =
+    vtkSmartPointer<vtkCompositePolyDataMapper>::New();
   mapper->SetInputConnection(reader->GetOutputPort());
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);

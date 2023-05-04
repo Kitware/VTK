@@ -2,6 +2,7 @@ set(classes
   vtkOSPRayActorNode
   vtkOSPRayAMRVolumeMapperNode
   vtkOSPRayCameraNode
+  vtkOSPRayCompositePolyDataMapperNode
   vtkOSPRayCompositePolyDataMapper2Node
   vtkOSPRayLightNode
   vtkOSPRayMaterialHelpers

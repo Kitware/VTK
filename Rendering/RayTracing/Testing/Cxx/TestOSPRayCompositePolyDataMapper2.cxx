@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCompositePolyDataMapper2.cxx
+  Module:    TestOSPRayCompositePolyDataMapper2.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,7 +17,7 @@
 #include "vtkCamera.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkCullerCollection.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
@@ -58,8 +58,8 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   win->AddRenderer(ren);
   win->SetInteractor(iren);
 
-  vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
-    vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+  vtkSmartPointer<vtkCompositePolyDataMapper> mapper =
+    vtkSmartPointer<vtkCompositePolyDataMapper>::New();
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
   mapper->SetCompositeDataDisplayAttributes(cdsa);
 

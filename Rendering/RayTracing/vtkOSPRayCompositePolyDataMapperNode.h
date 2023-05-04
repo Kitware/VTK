@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOSPRayCompositePolyDataMapper2Node.h
+  Module:    vtkOSPRayCompositePolyDataMapperNode.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,33 +13,31 @@
 
 =========================================================================*/
 /**
- * @class   vtkOSPRayCompositePolyDataMapper2Node
+ * @class   vtkOSPRayCompositePolyDataMapperNode
  * @brief   links vtkActor and vtkMapper to OSPRay
  *
  * Translates vtkActor/Mapper state into OSPRay rendering calls
  */
 
-#ifndef vtkOSPRayCompositePolyDataMapper2Node_h
-#define vtkOSPRayCompositePolyDataMapper2Node_h
+#ifndef vtkOSPRayCompositePolyDataMapperNode_h
+#define vtkOSPRayCompositePolyDataMapperNode_h
 
-#include "vtkColor.h"       // used for ivars
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
+#include "vtkColor.h" // used for ivars
 #include "vtkOSPRayPolyDataMapperNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 #include <stack>                          // used for ivars
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
-class vtkCompositePolyDataMapper2;
+class vtkCompositePolyDataMapper;
 class vtkOSPRayRendererNode;
 
-class VTK_DEPRECATED_IN_9_3_0("Use vtkOSPRayCompositePolyDataMapperNode instead")
-  VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCompositePolyDataMapper2Node
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCompositePolyDataMapperNode
   : public vtkOSPRayPolyDataMapperNode
 {
 public:
-  static vtkOSPRayCompositePolyDataMapper2Node* New();
-  vtkTypeMacro(vtkOSPRayCompositePolyDataMapper2Node, vtkOSPRayPolyDataMapperNode);
+  static vtkOSPRayCompositePolyDataMapperNode* New();
+  vtkTypeMacro(vtkOSPRayCompositePolyDataMapperNode, vtkOSPRayPolyDataMapperNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -53,8 +51,8 @@ public:
   void Invalidate(bool prepass) override;
 
 protected:
-  vtkOSPRayCompositePolyDataMapper2Node();
-  ~vtkOSPRayCompositePolyDataMapper2Node() override;
+  vtkOSPRayCompositePolyDataMapperNode();
+  ~vtkOSPRayCompositePolyDataMapperNode() override;
 
   class RenderBlockState
   {
@@ -68,12 +66,12 @@ protected:
   };
 
   RenderBlockState BlockState;
-  void RenderBlock(vtkOSPRayRendererNode* orn, vtkCompositePolyDataMapper2* cpdm, vtkActor* actor,
+  void RenderBlock(vtkOSPRayRendererNode* orn, vtkCompositePolyDataMapper* cpdm, vtkActor* actor,
     vtkDataObject* dobj, unsigned int& flat_index);
 
 private:
-  vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
-  void operator=(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
+  vtkOSPRayCompositePolyDataMapperNode(const vtkOSPRayCompositePolyDataMapperNode&) = delete;
+  void operator=(const vtkOSPRayCompositePolyDataMapperNode&) = delete;
 };
 VTK_ABI_NAMESPACE_END
 #endif
