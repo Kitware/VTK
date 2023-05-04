@@ -28,10 +28,6 @@
 
 #include "vtkVtkJSSceneGraphSerializer.h"
 
-#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-#include <vtkCompositePolyDataMapper2.h>
-#endif
-
 #include <type_traits>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -117,10 +113,6 @@ vtkVtkJSViewNodeFactory::vtkVtkJSViewNodeFactory()
   // performed when converting these renderables to vtk-js.
   this->RegisterOverride(
     "vtkCompositePolyDataMapper", vtkVtkJSViewNode<vtkMapperNode, vtkCompositePolyDataMapper>::New);
-#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-  this->RegisterOverride("vtkCompositePolyDataMapper2",
-    vtkVtkJSViewNode<vtkMapperNode, vtkCompositePolyDataMapper2>::New);
-#endif
   this->RegisterOverride(
     "vtkGlyph3DMapper", vtkVtkJSViewNode<vtkMapperNode, vtkGlyph3DMapper>::New);
 }

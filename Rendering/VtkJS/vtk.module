@@ -10,5 +10,3 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::RenderingCore
-OPTIONAL_DEPENDS
-  VTK::RenderingOpenGL2

@@ -49,7 +49,6 @@ class vtkActor;
 class vtkAlgorithm;
 class vtkCamera;
 class vtkCompositePolyDataMapper;
-class vtkCompositePolyDataMapper2;
 class vtkDataArray;
 class vtkDataObject;
 class vtkDataSet;
@@ -112,7 +111,6 @@ public:
    */
   virtual void Add(vtkViewNode*, vtkActor*);
   virtual void Add(vtkViewNode*, vtkCompositePolyDataMapper*);
-  virtual void Add(vtkViewNode*, vtkCompositePolyDataMapper2*);
   virtual void Add(vtkViewNode*, vtkGlyph3DMapper*);
   virtual void Add(vtkViewNode*, vtkMapper*);
   virtual void Add(vtkViewNode*, vtkRenderer*);
@@ -161,8 +159,7 @@ private:
 
   virtual void Add(Json::Value*, vtkAlgorithm*);
 
-  template <typename CompositeMapper>
-  void Add(vtkViewNode* node, vtkDataObject* dataObject, CompositeMapper* mapper);
+  void Add(vtkViewNode* node, vtkDataObject* dataObject, vtkCompositePolyDataMapper* mapper);
 
   void extractRequiredFields(Json::Value& extractedFields, vtkMapper* mapper, vtkDataSet* dataSet);
 };
