@@ -13,6 +13,7 @@ DEPENDS
   VTK::vtksys
 PRIVATE_DEPENDS
   VTK::utf8
+  VTK::fast_float
 OPTIONAL_DEPENDS
   VTK::loguru
 TEST_DEPENDS

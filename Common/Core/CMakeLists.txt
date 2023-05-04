@@ -299,6 +299,7 @@ set(nowrap_template_classes
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
+  vtkValueFromString.cxx
   ${instantiation_sources}
   ${vtk_smp_sources})
 
@@ -340,6 +341,7 @@ set(headers
   vtkType.h
   vtkTypeTraits.h
   vtkTypedDataArrayIterator.h
+  vtkValueFromString.h
   vtkVariantCast.h
   vtkVariantCreate.h
   vtkVariantExtract.h
