@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkCylinderSource.h"

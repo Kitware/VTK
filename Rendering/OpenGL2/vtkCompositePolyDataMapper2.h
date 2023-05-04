@@ -25,6 +25,7 @@
 #ifndef vtkCompositePolyDataMapper2_h
 #define vtkCompositePolyDataMapper2_h
 
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // for vtkSmartPointer
 #include "vtk_glew.h"                  // for OpenGL enums
@@ -49,7 +50,8 @@ class vtkCompositeDataDisplayAttributes;
 class vtkCompositeMapperHelper2;
 class vtkCompositeMapperHelperData;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkCompositePolyDataMapper2
+class VTK_DEPRECATED_IN_9_3_0("Please use vtkCompositePolyDataMapper instead")
+  VTKRENDERINGOPENGL2_EXPORT vtkCompositePolyDataMapper2
   : public vtkOpenGLPolyDataMapperImplementation
 {
 public:

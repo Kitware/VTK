@@ -16,6 +16,7 @@
 #define vtkCompositeMapperHelper2_h
 
 #include "vtkColor.h"                  // class uses vtkColor
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtk_glew.h"                  // for OpenGL enums
 // clang-format off
@@ -35,7 +36,9 @@ class vtkCompositePolyDataMapper2;
 
 // this class encapsulates values tied to a
 // polydata
-class vtkCompositeMapperHelperData
+
+class VTK_DEPRECATED_IN_9_3_0(
+  "Please use vtkCompositePolyDataMapper instead") vtkCompositeMapperHelperData
 {
 public:
   vtkPolyData* Data;
@@ -65,7 +68,8 @@ public:
 
 //===================================================================
 /// Helper class for vtkCompositePolyDataMapper2 that is a subclass of vtkOpenGLPolyDataMapper
-class VTKRENDERINGOPENGL2_EXPORT vtkCompositeMapperHelper2
+class VTK_DEPRECATED_IN_9_3_0("Please use vtkCompositePolyDataMapper instead")
+  VTKRENDERINGOPENGL2_EXPORT vtkCompositeMapperHelper2
   : public vtkOpenGLPolyDataMapperImplementation
 {
 public:
