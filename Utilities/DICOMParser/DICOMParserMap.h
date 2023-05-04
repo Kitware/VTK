@@ -101,10 +101,7 @@ typedef dicom_stl::pair<doublebyte, dicom_stl::vector<DICOMCallback*>*> DICOMMap
 class DICOMMapValue : public DICOMMapValueOverride
 {
 public:
-  DICOMMapValue()
-    : dicom_stl::pair<doublebyte, dicom_stl::vector<DICOMCallback*>*>()
-  {
-  }
+  DICOMMapValue() = default;
 
   DICOMMapValue(doublebyte v1, dicom_stl::vector<DICOMCallback*>* v2)
     : dicom_stl::pair<doublebyte, dicom_stl::vector<DICOMCallback*>*>(v1, v2)
