@@ -1272,6 +1272,98 @@ struct vtkEntityBlock : public vtkGroupingEntity
     }
   }
 
+  // IOSS cells and VTK cells need not have same point ordering. If that's the
+  // case, we need to transform them. vtkIOSSUtilities::GetConnectivity() shows how to transform
+  // point ordering from IOSS to VTK. Here, we are defining the transformation from VTK based
+  // ordering to IOSS based ordering. To do that, we assume the IOSS has the original ordering
+  // O = { o_i = i | i in [1, n] }. Then, vtkIOSSUtilities::GetConnectivity() defines the
+  // transformation T = { t_i | i in [1, n] }. So now the IOSS has been converted to VTK ordering.
+  // To convert VTK ordering to IOSS ordering, we find the transformation that converts T to O.
+  // The below function returns that transformation.
+  // ref: https://sandialabs.github.io/seacas-docs/html/md_include_exodus_element_types.html
+  static bool NeedsIdsTransformation(
+    const unsigned char vtkCellType, std::vector<int>& orderingTransformation)
+  {
+    switch (vtkCellType)
+    {
+      case VTK_WEDGE:
+      {
+        orderingTransformation = std::vector<int>{ 4, 5, 6, 1, 2, 3 };
+        break;
+      }
+      case VTK_QUADRATIC_WEDGE:
+      {
+        // clang-format off
+        orderingTransformation = std::vector<int>{
+          4, 5, 6, 1, 2, 3,
+          10, 11, 12,
+          13, 14, 15,
+          7, 8, 9,
+        };
+        // clang-format on
+        break;
+      }
+      case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+      {
+        // clang-format off
+        orderingTransformation = std::vector<int>{
+          4, 5, 6, 1, 2, 3,
+          10, 11, 12,
+          13, 14, 15,
+          7, 8, 9,
+          16, 17, 18
+        };
+        // clang-format on
+        break;
+      }
+      case VTK_QUADRATIC_HEXAHEDRON:
+      {
+        // clang-format off
+        orderingTransformation = std::vector<int>{
+          /* 8 corners */
+          1, 2, 3, 4,
+          5, 6, 7, 8,
+
+          /* 12 mid-edge nodes */
+          9, 10, 11, 12,
+          17, 18, 19, 20,
+          13, 14, 15, 16
+        };
+        // clang-format on
+        break;
+      }
+      case VTK_TRIQUADRATIC_HEXAHEDRON:
+      {
+        // clang-format off
+        orderingTransformation = std::vector<int>{
+          1, 2, 3, 4,
+          5, 6, 7, 8,
+          9, 10, 11, 12,
+          17, 18, 19, 20,
+          13, 14, 15, 16,
+          27, 25, 26, 21,
+          22, 23, 24
+        };
+        // clang-format on
+        break;
+      }
+      case VTK_LAGRANGE_WEDGE:
+        break;
+      default:
+        break;
+    }
+    const bool needsTransformation = !orderingTransformation.empty();
+    if (needsTransformation)
+    {
+      // offset by 1 to make 0-based.
+      for (auto& val : orderingTransformation)
+      {
+        val -= 1;
+      }
+    }
+    return needsTransformation;
+  }
+
   void Model(Ioss::Region& region) const override
   {
     for (const auto& element : this->ElementCounts)
@@ -1286,6 +1378,9 @@ struct vtkEntityBlock : public vtkGroupingEntity
 
       auto* entityBlock = this->GetEntity(region, blockName);
 
+      std::vector<int> orderingTransformation;
+      const bool needsIdsTransformation =
+        NeedsIdsTransformation(vtk_cell_type, orderingTransformation);
       // populate ids.
       std::vector<int32_t> elementIds; // these are global IDs.
       elementIds.reserve(elementCount);
@@ -1314,9 +1409,19 @@ struct vtkEntityBlock : public vtkGroupingEntity
             ds->GetCellPoints(cc, numPts, cellPoints, tempCellPointIds);
             assert(numPts == nodeCount);
 
-            // map cell's point to global IDs for those points.
-            std::transform(cellPoints, cellPoints + numPts, std::back_inserter(connectivity),
-              [&](vtkIdType ptid) { return gidOffset + pointGIDs->GetValue(ptid); });
+            if (!needsIdsTransformation)
+            {
+              // map cell's point to global IDs for those points.
+              std::transform(cellPoints, cellPoints + numPts, std::back_inserter(connectivity),
+                [&](vtkIdType ptid) { return gidOffset + pointGIDs->GetValue(ptid); });
+            }
+            else
+            {
+              assert(orderingTransformation.size() == static_cast<size_t>(numPts));
+              std::transform(orderingTransformation.begin(), orderingTransformation.end(),
+                std::back_inserter(connectivity),
+                [&](int localId) { return gidOffset + pointGIDs->GetValue(cellPoints[localId]); });
+            }
           }
         }
       }
