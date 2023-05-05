@@ -70,10 +70,26 @@ public:
   std::vector<double> TimeStepsToProcess;
   int CurrentTimeStepIndex{ 0 };
   int RestartIndex{ 0 };
+
   std::string LastMD5;
+  bool LastGlobalIdsCreated = false;
+  bool LastGlobalIdsModified = false;
+  bool LastElementSideCouldNotBeCreated = false;
+  bool LastElementSideCouldNotBeModified = false;
+  bool LastElementSideModified = false;
 
   vtkInternals() = default;
   ~vtkInternals() = default;
+
+  void Initialize()
+  {
+    this->CurrentTimeStepIndex = 0;
+    this->LastGlobalIdsCreated = false;
+    this->LastGlobalIdsModified = false;
+    this->LastElementSideCouldNotBeCreated = false;
+    this->LastElementSideCouldNotBeModified = false;
+    this->LastElementSideModified = false;
+  }
 };
 
 vtkStandardNewMacro(vtkIOSSWriter);
@@ -258,7 +274,7 @@ int vtkIOSSWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
     internals.TimeSteps.clear();
     internals.TimeStepsToProcess.clear();
   }
-  internals.CurrentTimeStepIndex = 0;
+  internals.Initialize();
 
   return 1;
 }
@@ -318,7 +334,7 @@ int vtkIOSSWriter::RequestData(vtkInformation* request,
       }
       else
       {
-        internals.CurrentTimeStepIndex = 0;
+        internals.Initialize();
         request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       }
       return 1;
@@ -334,7 +350,7 @@ int vtkIOSSWriter::RequestData(vtkInformation* request,
   }
   else
   {
-    internals.CurrentTimeStepIndex = 0;
+    internals.Initialize();
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
   }
   return 1;
@@ -380,9 +396,43 @@ void vtkIOSSWriter::WriteData()
     controller->AllReduce(&structureChanged, &globalStructureChanged, 1, vtkCommunicator::MAX_OP);
     structureChanged = globalStructureChanged;
   }
-  if (model.GlobalIdsCreated() && internals.CurrentTimeStepIndex == this->TimeStepRange[0])
+  // checks for global ids and element_side warnings
+  if (model.GlobalIdsCreated() && model.GlobalIdsCreated() != internals.LastGlobalIdsCreated)
   {
-    vtkWarningMacro("Global ids were not present. They were created assuming uniqueness.");
+    internals.LastGlobalIdsCreated = model.GlobalIdsCreated();
+    vtkWarningMacro("Point or Cell Global IDs were not present. They have been created "
+                    "assuming uniqueness.");
+  }
+  else if (model.GlobalIdsModified() &&
+    model.GlobalIdsModified() != internals.LastGlobalIdsModified)
+  {
+    internals.LastGlobalIdsModified = model.GlobalIdsModified();
+    vtkWarningMacro(
+      "Point or Cell Global IDs were invalid. They have been re-created assuming uniqueness.");
+  }
+  // checks for element_side
+  if (model.ElementSideCouldNotBeCreated() &&
+    model.ElementSideCouldNotBeCreated() != internals.LastElementSideCouldNotBeCreated)
+  {
+    internals.LastElementSideCouldNotBeCreated = model.ElementSideCouldNotBeCreated();
+    vtkWarningMacro(
+      "Sets' element_side was not present. Edge, Face Element, Side sets have been skipped.");
+  }
+  else if (model.ElementSideCouldNotBeModified() &&
+    model.ElementSideCouldNotBeModified() != internals.LastElementSideCouldNotBeModified)
+  {
+    internals.LastElementSideCouldNotBeModified = model.ElementSideCouldNotBeModified();
+    vtkWarningMacro(
+      "Sets' element_side was invalid and could not be re-created either because the "
+      "original Cell Global IDs were not present, or because there were sets that were pointing "
+      "to block cells that were not present. Edge, Face, Element, Side sets have been skipped.");
+  }
+  else if (model.ElementSideModified() &&
+    model.ElementSideModified() != internals.LastElementSideModified)
+  {
+    internals.LastElementSideModified = model.ElementSideModified();
+    vtkWarningMacro(
+      "Sets' element_side was invalid. It was re-created using the original Cell Global IDs.");
   }
 
   if (internals.CurrentTimeStepIndex == this->TimeStepRange[0] || structureChanged)

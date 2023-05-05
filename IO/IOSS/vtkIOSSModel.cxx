@@ -60,20 +60,68 @@
 
 #include <map>
 #include <numeric>
+#include <unordered_map>
 #include <set>
 
 namespace
 {
-//=============================================================================
-bool HandleGlobalIds(vtkPartitionedDataSetCollection* pdc, int association,
-  std::set<unsigned int> indicesToIgnore, vtkMultiProcessController* controller)
+constexpr char VTK_IOSS_MODEL_OLD_GLOBAL_IDS_ARRAY_NAME[] = "__vtk_old_global_ids__";
+constexpr char VTK_IOSS_MODEL_GLOBAL_IDS_ARRAY_NAME[] = "__vtk_global_ids__";
+constexpr char VTK_IOSS_MODEL_OLD_ELEMENT_SIDE_ARRAY_NAME[] = "__vtk_old_element_side__";
+
+/**
+ * Struct to store information to handle errors for global IDs and element_side.
+ */
+struct ErrorHandleInformation
 {
+  bool NeedToBeCreated;
+  bool Created;
+  bool NeedToBeModified;
+  bool Modified;
+
+  ErrorHandleInformation()
+    : NeedToBeCreated(false)
+    , Created(false)
+    , NeedToBeModified(false)
+    , Modified(false)
+  {
+  }
+
+  bool GetCreated() const { return this->Created; }
+
+  bool GetModified() const { return this->Modified; }
+
+  bool GetCouldNotBeCreated() const { return this->NeedToBeCreated != this->Created; }
+
+  bool GetCouldNotBeModified() const { return this->NeedToBeModified != this->Modified; }
+
+  bool GetHadIssues() const
+  {
+    return this->GetCouldNotBeCreated() || this->GetCouldNotBeModified();
+  }
+
+  void PrintSelf(ostream& os, vtkIndent indent)
+  {
+    os << indent << "NeedToBeCreated: " << this->NeedToBeCreated << std::endl;
+    os << indent << "Created: " << this->Created << std::endl;
+    os << indent << "NeedToBeModified: " << this->NeedToBeModified << std::endl;
+    os << indent << "Modified: " << this->Modified << std::endl;
+  }
+};
+
+//=============================================================================
+ErrorHandleInformation HandleGlobalIds(vtkPartitionedDataSetCollection* pdc, int association,
+  std::set<unsigned int> indicesToIgnore, vtkMultiProcessController* controller,
+  vtkIOSSWriter* writer)
+{
+  ErrorHandleInformation globalIdsInfo;
   std::vector<std::vector<vtkDataSet*>> datasets(pdc->GetNumberOfPartitionedDataSets());
   for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
   {
     datasets[i] = vtkCompositeDataSet::GetDataSets<vtkDataSet>(pdc->GetPartitionedDataSet(i));
   }
-  // check if global ids are present, otherwise create them.
+  // check if global IDs are present, if they are not present, create them, if they are present and
+  // valid, use them, if they are present and invalid, create them, and save the old ones.
   int hasGlobalIds = true;
   for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
   {
@@ -83,8 +131,11 @@ bool HandleGlobalIds(vtkPartitionedDataSetCollection* pdc, int association,
     }
     for (auto& ds : datasets[i])
     {
-      auto* pd = ds->GetAttributes(association);
-      auto* gids = vtkIdTypeArray::SafeDownCast(pd->GetGlobalIds());
+      if (ds->GetNumberOfElements(association) == 0)
+      {
+        continue;
+      }
+      auto* gids = vtkIdTypeArray::SafeDownCast(ds->GetAttributes(association)->GetGlobalIds());
       if (!gids)
       {
         hasGlobalIds = false;
@@ -94,11 +145,104 @@ bool HandleGlobalIds(vtkPartitionedDataSetCollection* pdc, int association,
   }
   if (controller->GetNumberOfProcesses() > 1)
   {
-    controller->AllReduce(&hasGlobalIds, &hasGlobalIds, 1, vtkCommunicator::MIN_OP);
+    int globalHasGlobalIds;
+    controller->AllReduce(&hasGlobalIds, &globalHasGlobalIds, 1, vtkCommunicator::MIN_OP);
+    hasGlobalIds = globalHasGlobalIds;
   }
+  globalIdsInfo.NeedToBeCreated = !hasGlobalIds;
 
-  if (!hasGlobalIds)
+  // check if global IDs are valid
+  bool hasValidGlobalIds = true;
+  if (hasGlobalIds)
   {
+    vtkIdType maxGlobalId = 0;
+    vtkIdType numElements = 0;
+    for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+    {
+      if (indicesToIgnore.find(i) != indicesToIgnore.end())
+      {
+        continue;
+      }
+      for (auto& ds : datasets[i])
+      {
+        if (ds->GetNumberOfElements(association) == 0)
+        {
+          continue;
+        }
+        auto gids = vtkIdTypeArray::SafeDownCast(ds->GetAttributes(association)->GetGlobalIds());
+        maxGlobalId = std::max(maxGlobalId, gids->GetValueRange()[1]);
+        numElements += ds->GetNumberOfElements(association);
+      }
+    }
+    if (controller->GetNumberOfProcesses() > 1)
+    {
+      // find max global id and sum of number of elements.
+      vtkIdType globalMaxGlobalId;
+      controller->AllReduce(&maxGlobalId, &globalMaxGlobalId, 1, vtkCommunicator::MAX_OP);
+      maxGlobalId = globalMaxGlobalId;
+      vtkIdType globalNumElements;
+      controller->AllReduce(&numElements, &globalNumElements, 1, vtkCommunicator::SUM_OP);
+      numElements = globalNumElements;
+    }
+    if (association == vtkDataObject::POINT)
+    {
+      // for points the max global id can be less than the numElement since the same points
+      // can be used by many blocks
+      if (numElements > 0 && maxGlobalId + writer->GetOffsetGlobalIds() > numElements)
+      {
+        // global IDs are not valid, so we need to recreate them.
+        hasValidGlobalIds = false;
+      }
+    }
+    else // if (association == vtkDataObject::Cell)
+    {
+      if (numElements > 0 && maxGlobalId + writer->GetOffsetGlobalIds() != numElements)
+      {
+        // global IDs are not valid, so we need to recreate them.
+        hasValidGlobalIds = false;
+      }
+    }
+    if (!hasValidGlobalIds)
+    {
+      // if they are invalid global IDs, we change the name of the existing
+      // global IDs to something else so that we can create new ones.
+      for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+      {
+        if (indicesToIgnore.find(i) != indicesToIgnore.end())
+        {
+          continue;
+        }
+        for (auto& ds : datasets[i])
+        {
+          if (ds->GetNumberOfElements(association) == 0)
+          {
+            continue;
+          }
+          // save the old global IDs in a new array.
+          vtkNew<vtkIdTypeArray> oldGids;
+          oldGids->ShallowCopy(
+            vtkIdTypeArray::SafeDownCast(ds->GetAttributes(association)->GetGlobalIds()));
+          oldGids->SetName(VTK_IOSS_MODEL_OLD_GLOBAL_IDS_ARRAY_NAME);
+          // remove the old global IDs.
+          ds->GetAttributes(association)->SetGlobalIds(nullptr);
+          // add the old global IDs back.
+          ds->GetAttributes(association)->AddArray(oldGids);
+        }
+      }
+    }
+  }
+  globalIdsInfo.NeedToBeModified = !hasValidGlobalIds;
+  // create global IDs assuming uniqueness if they are not present or if they are invalid
+  if (!hasGlobalIds || !hasValidGlobalIds)
+  {
+    if (!hasGlobalIds)
+    {
+      globalIdsInfo.Created = true;
+    }
+    else // if (!hasValidGlobalIds)
+    {
+      globalIdsInfo.Modified = true;
+    }
     vtkIdType numElements = 0;
     for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
     {
@@ -131,16 +275,20 @@ bool HandleGlobalIds(vtkPartitionedDataSetCollection* pdc, int association,
       }
       for (auto& ds : datasets[i])
       {
+        if (ds->GetNumberOfElements(association) == 0)
+        {
+          continue;
+        }
         const auto numberOfElements = ds->GetNumberOfElements(association);
         vtkNew<vtkIdTypeArray> globalIds;
-        globalIds->SetName("ids");
+        globalIds->SetName(VTK_IOSS_MODEL_GLOBAL_IDS_ARRAY_NAME);
         globalIds->SetNumberOfComponents(1);
         globalIds->SetNumberOfTuples(numberOfElements);
         vtkSMPTools::For(0, numberOfElements, [&](vtkIdType begin, vtkIdType end) {
           auto globalIdsPtr = globalIds->GetPointer(0);
-          for (vtkIdType i = begin; i < end; ++i)
+          for (vtkIdType j = begin; j < end; ++j)
           {
-            globalIdsPtr[i] = startId + i;
+            globalIdsPtr[j] = startId + j;
           }
         });
         ds->GetAttributes(association)->SetGlobalIds(globalIds);
@@ -148,8 +296,252 @@ bool HandleGlobalIds(vtkPartitionedDataSetCollection* pdc, int association,
       }
     }
   }
-  // returns if globals were created or not.
-  return !hasGlobalIds;
+
+  return globalIdsInfo;
+}
+
+//=============================================================================
+ErrorHandleInformation HandleElementSide(vtkPartitionedDataSetCollection* pdc,
+  ErrorHandleInformation globalIdsInfo, std::set<unsigned int> setIndicesWithElementSide,
+  std::set<unsigned int> blockIndices, vtkMultiProcessController* controller, vtkIOSSWriter* writer)
+{
+  ErrorHandleInformation elementSideInfo;
+  std::vector<std::vector<vtkDataSet*>> datasets(pdc->GetNumberOfPartitionedDataSets());
+  for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+  {
+    datasets[i] = vtkCompositeDataSet::GetDataSets<vtkDataSet>(pdc->GetPartitionedDataSet(i));
+  }
+  // check if element_side is present, if it is not present, stop, if it is present and
+  // global IDs have not been modified, use it, if it is present and global IDs have been
+  // modified, re-create it using the old global IDs, and save the old one.
+  int hasElementSide = true;
+  for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+  {
+    if (setIndicesWithElementSide.find(i) == setIndicesWithElementSide.end())
+    {
+      continue;
+    }
+    for (auto& ds : datasets[i])
+    {
+      if (ds->GetNumberOfCells() == 0)
+      {
+        continue;
+      }
+      auto* elementSide = vtkIntArray::SafeDownCast(ds->GetCellData()->GetArray("element_side"));
+      if (!elementSide)
+      {
+        hasElementSide = false;
+        break;
+      }
+    }
+  }
+  if (controller->GetNumberOfProcesses() > 1)
+  {
+    int globalHasElementSide;
+    controller->AllReduce(&hasElementSide, &globalHasElementSide, 1, vtkCommunicator::MIN_OP);
+    hasElementSide = globalHasElementSide;
+  }
+  elementSideInfo.NeedToBeCreated = !hasElementSide;
+
+  bool hasValidElementSide = true;
+  // if element_side is present but global IDs have been created and not modified, element_side
+  // must be invalid. It can be a left-over from a filter, e.g. clip.
+  if (hasElementSide && globalIdsInfo.GetCreated())
+  {
+    hasValidElementSide = false;
+  }
+  // if element_side is present, and global IDs have not been created, we need to try and check
+  // if the element_side is valid
+  else if (hasElementSide)
+  {
+    // we check if the maximum element_side id, and if it is greater than the maximum
+    // global id
+    int maxElementSideId = 0;
+    for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+    {
+      if (setIndicesWithElementSide.find(i) == setIndicesWithElementSide.end())
+      {
+        continue;
+      }
+      for (auto& ds : datasets[i])
+      {
+        if (ds->GetNumberOfCells() == 0)
+        {
+          continue;
+        }
+        auto elementSide = vtkIntArray::SafeDownCast(ds->GetCellData()->GetArray("element_side"));
+        maxElementSideId = std::max(maxElementSideId, elementSide->GetValueRange(0)[1]);
+      }
+    }
+    if (controller->GetNumberOfProcesses() > 1)
+    {
+      int globalMaxElementSideId;
+      controller->AllReduce(&maxElementSideId, &globalMaxElementSideId, 1, vtkCommunicator::MAX_OP);
+      maxElementSideId = globalMaxElementSideId;
+    }
+    vtkIdType maxGlobalId = 0;
+    for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+    {
+      if (blockIndices.find(i) == blockIndices.end())
+      {
+        continue;
+      }
+      for (auto& ds : datasets[i])
+      {
+        auto globalIds = vtkIdTypeArray::SafeDownCast(ds->GetCellData()->GetGlobalIds());
+        maxGlobalId = std::max(maxGlobalId, globalIds->GetValueRange(0)[1]);
+      }
+    }
+    if (controller->GetNumberOfProcesses() > 1)
+    {
+      vtkIdType globalMaxGlobalId;
+      controller->AllReduce(&maxGlobalId, &globalMaxGlobalId, 1, vtkCommunicator::MAX_OP);
+      maxGlobalId = globalMaxGlobalId;
+    }
+    // if the maximum element_side id is greater than the maximum global id, that's an issue
+    if (maxElementSideId > maxGlobalId)
+    {
+      hasValidElementSide = false;
+    }
+  }
+  elementSideInfo.NeedToBeModified = !hasValidElementSide;
+
+  // if element_side is present, and has invalid values, and global IDs have been modified
+  // which means that global IDs are guaranteed to be present, we need to re-create it.
+  // if possible. It's possible if all element_side ids point to present old global IDs.
+  if (hasElementSide && !hasValidElementSide && globalIdsInfo.GetModified())
+  {
+    // before we recreate the element_side, we change the name of the existing
+    // element_side to something else so that we can create new one.
+    for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+    {
+      if (setIndicesWithElementSide.find(i) == setIndicesWithElementSide.end())
+      {
+        continue;
+      }
+      for (auto& ds : datasets[i])
+      {
+        if (ds->GetNumberOfCells() == 0)
+        {
+          continue;
+        }
+        // rename the element_side to old element_side.
+        vtkIntArray::SafeDownCast(ds->GetCellData()->GetArray("element_side"))
+          ->SetName(VTK_IOSS_MODEL_OLD_ELEMENT_SIDE_ARRAY_NAME);
+      }
+    }
+    // we need to create a map from old global IDs to new global IDs.
+    std::unordered_map<vtkIdType, vtkIdType> oldToNewGlobalIds;
+    for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+    {
+      if (blockIndices.find(i) == blockIndices.end())
+      {
+        continue;
+      }
+      for (auto& ds : datasets[i])
+      {
+        if (ds->GetNumberOfCells() == 0)
+        {
+          continue;
+        }
+        auto* oldGlobalIds = vtkIdTypeArray::SafeDownCast(
+          ds->GetCellData()->GetArray(VTK_IOSS_MODEL_OLD_GLOBAL_IDS_ARRAY_NAME));
+        auto* globalIds = vtkIdTypeArray::SafeDownCast(ds->GetCellData()->GetGlobalIds());
+        for (vtkIdType j = 0; j < oldGlobalIds->GetNumberOfTuples(); ++j)
+        {
+          oldToNewGlobalIds[oldGlobalIds->GetValue(j)] = globalIds->GetValue(j);
+        }
+      }
+    }
+
+    // check if all old element_side ids point to present old global IDs.
+    int hasValidOldElementSide = true;
+    for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+    {
+      if (setIndicesWithElementSide.find(i) == setIndicesWithElementSide.end())
+      {
+        continue;
+      }
+      for (auto& ds : datasets[i])
+      {
+        if (ds->GetNumberOfCells() == 0)
+        {
+          continue;
+        }
+        auto* oldElementSide = vtkIntArray::SafeDownCast(
+          ds->GetCellData()->GetArray(VTK_IOSS_MODEL_OLD_ELEMENT_SIDE_ARRAY_NAME));
+        const auto numTuples = oldElementSide->GetNumberOfTuples();
+        std::atomic<int> localHasValidOldElementSide(true);
+        vtkSMPTools::For(0, numTuples, [&](vtkIdType begin, vtkIdType end) {
+          if (!localHasValidOldElementSide)
+          {
+            return;
+          }
+          for (vtkIdType j = begin; j < end; ++j)
+          {
+            if (oldToNewGlobalIds.find(oldElementSide->GetValue(2 * j)) == oldToNewGlobalIds.end())
+            {
+              localHasValidOldElementSide = false;
+              break;
+            }
+          }
+        });
+        if (!localHasValidOldElementSide)
+        {
+          hasValidOldElementSide &= localHasValidOldElementSide.load();
+        }
+      }
+    }
+    if (controller->GetNumberOfProcesses() > 1)
+    {
+      int globalHasValidOldElementSide;
+      controller->AllReduce(
+        &hasValidOldElementSide, &globalHasValidOldElementSide, 1, vtkCommunicator::MIN_OP);
+      hasValidOldElementSide = globalHasValidOldElementSide;
+    }
+    // if there are no invalid old element_side ids, we can create the new element_side.
+    if (hasValidOldElementSide)
+    {
+      elementSideInfo.Modified = true;
+
+      // then we create the new element_side.
+      for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+      {
+        if (setIndicesWithElementSide.find(i) == setIndicesWithElementSide.end())
+        {
+          continue;
+        }
+        for (auto& ds : datasets[i])
+        {
+          if (ds->GetNumberOfCells() == 0)
+          {
+            continue;
+          }
+          auto* oldElementSide = vtkIntArray::SafeDownCast(
+            ds->GetCellData()->GetArray(VTK_IOSS_MODEL_OLD_ELEMENT_SIDE_ARRAY_NAME));
+          vtkNew<vtkIntArray> elementSide;
+          elementSide->SetName("element_side");
+          elementSide->SetNumberOfComponents(oldElementSide->GetNumberOfComponents());
+          elementSide->SetNumberOfTuples(oldElementSide->GetNumberOfTuples());
+          const auto globalIdOffset = writer->GetOffsetGlobalIds();
+          const auto numTuples = oldElementSide->GetNumberOfTuples();
+          vtkSMPTools::For(0, numTuples, [&](vtkIdType begin, vtkIdType end) {
+            int oldElementSideTuple[2];
+            int elementSideTuple[2];
+            for (vtkIdType j = begin; j < end; ++j)
+            {
+              oldElementSide->GetTypedTuple(j, oldElementSideTuple);
+              elementSideTuple[0] = oldToNewGlobalIds[oldElementSideTuple[0]] + globalIdOffset;
+              elementSideTuple[1] = oldElementSideTuple[1];
+              elementSide->SetTypedTuple(j, elementSideTuple);
+            }
+          });
+          ds->GetCellData()->AddArray(elementSide);
+        }
+      }
+    }
+  }
+  return elementSideInfo;
 }
 
 //=============================================================================
@@ -291,6 +683,10 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(int 
   vtkDataSetAttributesFieldList fieldList;
   for (auto& ds : vtkCompositeDataSet::GetDataSets<vtkDataSet>(cds))
   {
+    if (ds->GetNumberOfElements(association) == 0)
+    {
+      continue;
+    }
     fieldList.IntersectFieldList(ds->GetAttributes(association));
   }
 
@@ -299,7 +695,7 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(int 
   tmpDA->SetNumberOfTuples(1);
   if (tmpDA->GetGlobalIds())
   {
-    // we don't want to add global ids again.
+    // we don't want to add global IDs again.
     tmpDA->RemoveArray(tmpDA->GetGlobalIds()->GetName());
   }
   if (tmpDA->HasArray("element_side"))
@@ -625,11 +1021,10 @@ struct vtkNodeBlock : vtkGroupingEntity
     std::set<int32_t> id_set;
     for (auto& ds : this->DataSets)
     {
-      auto* pd = ds->GetPointData();
-      auto* gids = vtkIdTypeArray::SafeDownCast(pd->GetGlobalIds());
-      if (!gids)
+      auto* gids = vtkIdTypeArray::SafeDownCast(ds->GetPointData()->GetGlobalIds());
+      if (!gids && ds->GetNumberOfPoints() != 0)
       {
-        throw std::runtime_error("point global ids missing.");
+        throw std::runtime_error("point global IDs missing.");
       }
 
       const auto numPoints = ds->GetNumberOfPoints();
@@ -786,11 +1181,10 @@ struct vtkEntityBlock : public vtkGroupingEntity
   {
     for (auto& ds : this->DataSets)
     {
-      auto* cd = ds->GetCellData();
-      auto* gids = vtkIdTypeArray::SafeDownCast(cd->GetGlobalIds());
-      if (!gids)
+      auto* gids = vtkIdTypeArray::SafeDownCast(ds->GetCellData()->GetGlobalIds());
+      if (!gids && ds->GetNumberOfCells() != 0)
       {
-        throw std::runtime_error("cell global ids missing!");
+        throw std::runtime_error("cell global IDs missing!");
       }
     }
 
@@ -893,7 +1287,7 @@ struct vtkEntityBlock : public vtkGroupingEntity
       auto* entityBlock = this->GetEntity(region, blockName);
 
       // populate ids.
-      std::vector<int32_t> elementIds; // these are global ids.
+      std::vector<int32_t> elementIds; // these are global IDs.
       elementIds.reserve(elementCount);
 
       std::vector<int32_t> connectivity;
@@ -920,7 +1314,7 @@ struct vtkEntityBlock : public vtkGroupingEntity
             ds->GetCellPoints(cc, numPts, cellPoints, tempCellPointIds);
             assert(numPts == nodeCount);
 
-            // map cell's point to global ids for those points.
+            // map cell's point to global IDs for those points.
             std::transform(cellPoints, cellPoints + numPts, std::back_inserter(connectivity),
               [&](vtkIdType ptid) { return gidOffset + pointGIDs->GetValue(ptid); });
           }
@@ -1086,9 +1480,9 @@ struct vtkNodeSet : public vtkGroupingEntity
     for (auto& ds : this->DataSets)
     {
       auto* gids = vtkIdTypeArray::SafeDownCast(ds->GetPointData()->GetGlobalIds());
-      if (!gids)
+      if (!gids && ds->GetNumberOfPoints() != 0)
       {
-        throw std::runtime_error("missing point global ids for nodesets.");
+        throw std::runtime_error("missing point global IDs for nodesets.");
       }
       const auto numPoints = ds->GetNumberOfPoints();
       assert(gids->GetNumberOfTuples() == numPoints);
@@ -1128,7 +1522,7 @@ struct vtkNodeSet : public vtkGroupingEntity
   void Model(Ioss::Region& region) const override
   {
     auto* nodeSet = region.get_nodeset(this->Name);
-    // create global ids.
+    // create global IDs.
     std::vector<int32_t> ids;
     ids.reserve(static_cast<size_t>(this->Count));
     for (const auto& ds : this->DataSets)
@@ -1183,8 +1577,9 @@ struct vtkEntitySet : public vtkGroupingEntity
   {
     for (auto& ds : this->DataSets)
     {
-      // no need to check for global ids
-      if (vtkIntArray::SafeDownCast(ds->GetCellData()->GetArray("element_side")) == nullptr)
+      // no need to check for global IDs
+      auto elementSide = vtkIntArray::SafeDownCast(ds->GetCellData()->GetArray("element_side"));
+      if (!elementSide && ds->GetNumberOfCells() != 0)
       {
         throw std::runtime_error("missing 'element_side' cell array.");
       }
@@ -1233,11 +1628,11 @@ struct vtkEntitySet : public vtkGroupingEntity
     const bool removeGhosts = this->Writer->GetRemoveGhosts();
     for (auto& ds : this->DataSets)
     {
-      auto elemSideArray = vtkIntArray::SafeDownCast(ds->GetCellData()->GetArray("element_side"));
-      if (!elemSideArray)
+      if (ds->GetNumberOfCells() == 0)
       {
-        throw std::runtime_error("missing 'element_side' cell array.");
+        continue;
       }
+      auto elemSideArray = vtkIntArray::SafeDownCast(ds->GetCellData()->GetArray("element_side"));
       vtkUnsignedCharArray* ghost = ds->GetCellGhostArray();
       const auto elementSideRange = vtk::DataArrayTupleRange(elemSideArray);
       for (vtkIdType cc = 0; cc < elementSideRange.size(); ++cc)
@@ -1422,7 +1817,9 @@ public:
   vtkSmartPointer<vtkMultiProcessController> Controller;
   vtkSmartPointer<vtkPartitionedDataSetCollection> DataSet;
   std::multimap<Ioss::EntityType, std::shared_ptr<vtkGroupingEntity>> EntityGroups;
-  bool GlobalIdsCreated;
+  ErrorHandleInformation PointInfo;
+  ErrorHandleInformation CellInfo;
+  ErrorHandleInformation ElementSideInfo;
 };
 
 //----------------------------------------------------------------------------
@@ -1437,7 +1834,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
   const auto& controller = internals.Controller;
   auto& entityGroups = internals.EntityGroups;
 
-  // shallow copy the dataset. because we might need to add global ids to it.
+  // shallow copy the dataset. because we might need to add global IDs to it.
   dataset = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
   dataset->CopyStructure(pdc);
   dataset->ShallowCopy(pdc);
@@ -1494,20 +1891,38 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
     }
   }
 
-  // merge sets indices into a single set of indices.
-  std::set<unsigned int> indicesToIgnore;
+  // create sets used for handling global IDs and element ids
+  std::set<unsigned int> setIndices;
   for (int i = EntityType::SET_START; i < EntityType::SET_END; ++i)
   {
     const auto entityType = static_cast<EntityType>(i);
-    indicesToIgnore.insert(entityIndices[entityType].begin(), entityIndices[entityType].end());
+    setIndices.insert(entityIndices[entityType].begin(), entityIndices[entityType].end());
+  }
+  std::set<unsigned int> setIndicesWithElementSide;
+  for (int i = EntityType::EDGESET; i < EntityType::SET_END; ++i)
+  {
+    const auto entityType = static_cast<EntityType>(i);
+    setIndicesWithElementSide.insert(
+      entityIndices[entityType].begin(), entityIndices[entityType].end());
+  }
+  std::set<unsigned int> blockIndices;
+  for (int i = EntityType::EDGEBLOCK; i < EntityType::BLOCK_END; ++i)
+  {
+    const auto entityType = static_cast<EntityType>(i);
+    blockIndices.insert(entityIndices[entityType].begin(), entityIndices[entityType].end());
   }
 
-  internals.GlobalIdsCreated = false;
   // create global point ids if needed
-  internals.GlobalIdsCreated |= ::HandleGlobalIds(dataset, vtkDataObject::POINT, {}, controller);
-  // create global cell ids if needed (node sets and side sets should not have global cell ids)
-  internals.GlobalIdsCreated |=
-    ::HandleGlobalIds(dataset, vtkDataObject::CELL, indicesToIgnore, controller);
+  internals.PointInfo = ::HandleGlobalIds(dataset, vtkDataObject::POINT, {}, controller, writer);
+  // create global cell ids if needed (sets should not have global cell ids)
+  internals.CellInfo =
+    ::HandleGlobalIds(dataset, vtkDataObject::CELL, setIndices, controller, writer);
+  // create element_side if needed and if it's possible
+  if (!setIndicesWithElementSide.empty())
+  {
+    internals.ElementSideInfo = ::HandleElementSide(
+      dataset, internals.CellInfo, setIndicesWithElementSide, blockIndices, controller, writer);
+  }
 
   // extract the names and ids of the blocks.
   std::vector<std::string> blockNames(dataset->GetNumberOfPartitionedDataSets());
@@ -1574,6 +1989,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
       catch (std::runtime_error&)
       {
+        // since global IDs are either present, created or modified, we should not get here.
         break;
       }
     }
@@ -1597,6 +2013,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
       catch (std::runtime_error&)
       {
+        // since global IDs are either present, created or modified, we should not get here.
         break;
       }
     }
@@ -1620,6 +2037,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
       catch (std::runtime_error&)
       {
+        // since global IDs are either present, created or modified, we should not get here.
         break;
       }
     }
@@ -1637,6 +2055,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
       catch (std::runtime_error&)
       {
+        // since global IDs are either present, created or modified, we should not get here.
         break;
       }
     }
@@ -1644,7 +2063,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
     // edge set
     const bool edgeSetFound =
       entityIndices[EntityType::EDGESET].find(pidx) != entityIndices[EntityType::EDGESET].end();
-    if (edgeSetFound)
+    if (edgeSetFound && !internals.ElementSideInfo.GetHadIssues())
     {
       try
       {
@@ -1654,6 +2073,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
       catch (std::runtime_error&)
       {
+        // since the existence of issues with element_side is checked, we should not get here.
         break;
       }
     }
@@ -1661,7 +2081,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
     // face set
     const bool faceSetFound =
       entityIndices[EntityType::FACESET].find(pidx) != entityIndices[EntityType::FACESET].end();
-    if (faceSetFound)
+    if (faceSetFound && !internals.ElementSideInfo.GetHadIssues())
     {
       try
       {
@@ -1671,6 +2091,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
       catch (std::runtime_error&)
       {
+        // since the existence of issues with element_side is checked, we should not get here.
         break;
       }
     }
@@ -1678,7 +2099,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
     // element set
     const bool elementSetFound = entityIndices[EntityType::ELEMENTSET].find(pidx) !=
       entityIndices[EntityType::ELEMENTSET].end();
-    if (elementSetFound)
+    if (elementSetFound && !internals.ElementSideInfo.GetHadIssues())
     {
       try
       {
@@ -1689,6 +2110,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
       catch (std::runtime_error&)
       {
+        // since the existence of issues with element_side is checked, we should not get here.
         break;
       }
     }
@@ -1696,7 +2118,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
     // side set
     const bool sideSetFound =
       entityIndices[EntityType::SIDESET].find(pidx) != entityIndices[EntityType::SIDESET].end();
-    if (sideSetFound)
+    if (sideSetFound && !internals.ElementSideInfo.GetHadIssues())
     {
       try
       {
@@ -1706,6 +2128,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       }
       catch (std::runtime_error&)
       {
+        // since the existence of issues with element_side is checked, we should not get here.
         break;
       }
     }
@@ -1795,6 +2218,30 @@ std::string vtkIOSSModel::MD5() const
 //----------------------------------------------------------------------------
 bool vtkIOSSModel::GlobalIdsCreated() const
 {
-  return this->Internals->GlobalIdsCreated;
+  return this->Internals->PointInfo.GetCreated() || this->Internals->CellInfo.GetCreated();
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSModel::GlobalIdsModified() const
+{
+  return this->Internals->PointInfo.GetModified() || this->Internals->CellInfo.GetModified();
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSModel::ElementSideCouldNotBeCreated() const
+{
+  return this->Internals->ElementSideInfo.GetCouldNotBeCreated();
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSModel::ElementSideCouldNotBeModified() const
+{
+  return this->Internals->ElementSideInfo.GetCouldNotBeModified();
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSModel::ElementSideModified() const
+{
+  return this->Internals->ElementSideInfo.GetModified();
 }
 VTK_ABI_NAMESPACE_END

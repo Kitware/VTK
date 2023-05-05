@@ -62,6 +62,29 @@ public:
    */
   bool GlobalIdsCreated() const;
 
+  /**
+   * Returns true if the global ids have been modified for this model,
+   * because they were invalid in the input data.
+   */
+  bool GlobalIdsModified() const;
+
+  /**
+   * Returns true if the element_side was not present for this model.
+   */
+  bool ElementSideCouldNotBeCreated() const;
+
+  /**
+   * Returns true if the element_side has been modified for this model,
+   * because it was invalid
+   */
+  bool ElementSideModified() const;
+
+  /**
+   * Returns true if the element_side was invalid, and therefore could
+   * not be modified for this model.
+   */
+  bool ElementSideCouldNotBeModified() const;
+
 private:
   vtkIOSSModel(const vtkIOSSModel&) = delete;
   void operator=(const vtkIOSSModel&) = delete;
