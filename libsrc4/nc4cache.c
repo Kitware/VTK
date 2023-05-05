@@ -13,12 +13,6 @@
 #include "config.h"
 #include "nc4internal.h"
 
-/* These are the default chunk cache sizes for HDF5 files created or
- * opened with netCDF-4. */
-extern size_t nc4_chunk_cache_size;
-extern size_t nc4_chunk_cache_nelems;
-extern float nc4_chunk_cache_preemption;
-
 /**
  * Set chunk cache size. Only affects netCDF-4/HDF5 files
  * opened/created *after* it is called.
@@ -71,11 +65,12 @@ extern float nc4_chunk_cache_preemption;
 int
 nc_set_chunk_cache(size_t size, size_t nelems, float preemption)
 {
+    NCglobalstate* gs = NC_getglobalstate();
     if (preemption < 0 || preemption > 1)
         return NC_EINVAL;
-    nc4_chunk_cache_size = size;
-    nc4_chunk_cache_nelems = nelems;
-    nc4_chunk_cache_preemption = preemption;
+    gs->chunkcache.size = size;
+    gs->chunkcache.nelems = nelems;
+    gs->chunkcache.preemption = preemption;
     return NC_NOERR;
 }
 
@@ -99,14 +94,15 @@ nc_set_chunk_cache(size_t size, size_t nelems, float preemption)
 int
 nc_get_chunk_cache(size_t *sizep, size_t *nelemsp, float *preemptionp)
 {
+    NCglobalstate* gs = NC_getglobalstate();
     if (sizep)
-        *sizep = nc4_chunk_cache_size;
+        *sizep = gs->chunkcache.size;
 
     if (nelemsp)
-        *nelemsp = nc4_chunk_cache_nelems;
+        *nelemsp = gs->chunkcache.nelems;
 
     if (preemptionp)
-        *preemptionp = nc4_chunk_cache_preemption;
+        *preemptionp = gs->chunkcache.preemption;
     return NC_NOERR;
 }
 
@@ -115,6 +111,8 @@ nc_get_chunk_cache(size_t *sizep, size_t *nelemsp, float *preemptionp)
  * but with integers instead of size_t, and with an integer preemption
  * (which is the float preemtion * 100). This was required for fortran
  * to avoid size_t issues.
+ * Note: if netcdf-4 is completely disabled, then the definitions in
+ * libdispatch/dfile.c take effect.
  *
  * @param size Cache size.
  * @param nelems Number of elements.
@@ -126,11 +124,12 @@ nc_get_chunk_cache(size_t *sizep, size_t *nelemsp, float *preemptionp)
 int
 nc_set_chunk_cache_ints(int size, int nelems, int preemption)
 {
+    NCglobalstate* gs = NC_getglobalstate();
     if (size <= 0 || nelems <= 0 || preemption < 0 || preemption > 100)
         return NC_EINVAL;
-    nc4_chunk_cache_size = size;
-    nc4_chunk_cache_nelems = nelems;
-    nc4_chunk_cache_preemption = (float)preemption / 100;
+    gs->chunkcache.size = size;
+    gs->chunkcache.nelems = nelems;
+    gs->chunkcache.preemption = (float)preemption / 100;
     return NC_NOERR;
 }
 
@@ -139,6 +138,8 @@ nc_set_chunk_cache_ints(int size, int nelems, int preemption)
  * nc_get_chunk_cache() but with integers instead of size_t, and with
  * an integer preemption (which is the float preemtion * 100). This
  * was required for fortran to avoid size_t issues.
+ * Note: if netcdf-4 is completely disabled, then the definitions in
+ * libdispatch/dfile.c take effect.
  *
  * @param sizep Pointer that gets cache size.
  * @param nelemsp Pointer that gets number of elements.
@@ -150,12 +151,35 @@ nc_set_chunk_cache_ints(int size, int nelems, int preemption)
 int
 nc_get_chunk_cache_ints(int *sizep, int *nelemsp, int *preemptionp)
 {
+    NCglobalstate* gs = NC_getglobalstate();
     if (sizep)
-        *sizep = (int)nc4_chunk_cache_size;
+        *sizep = (int)gs->chunkcache.size;
     if (nelemsp)
-        *nelemsp = (int)nc4_chunk_cache_nelems;
+        *nelemsp = (int)gs->chunkcache.nelems;
     if (preemptionp)
-        *preemptionp = (int)(nc4_chunk_cache_preemption * 100);
+        *preemptionp = (int)(gs->chunkcache.preemption * 100);
 
     return NC_NOERR;
 }
+
+#ifndef USE_HDF5
+/* See definitions in libhd5/hdf5var.c */
+/* Make sure they are always defined */
+/* Note: if netcdf-4 is completely disabled, then the definitions in
+ * libdispatch/dfile.c take effect.
+ */
+
+int
+nc_set_var_chunk_cache_ints(int ncid, int varid, int size, int nelems,
+                            int preemption)
+{
+    return NC_NOERR;
+}
+
+int
+nc_def_var_chunking_ints(int ncid, int varid, int storage, int *chunksizesp)
+{
+    return NC_NOERR;
+}
+
+#endif /*USE_HDF5*/

@@ -63,7 +63,7 @@ ncFile_create(const char *path, int ioflags, ncstdio** filepp)
     File* f;
     struct ncFileState* state;
 
-    f = fopen(path,"w+");
+    f = NCfopen(path,"w+");
     if(f == NULL)
 	return errno;
     filep = (ncstdio*)calloc(sizeof(ncstdio),1);

@@ -24,13 +24,14 @@ typedef struct NClist {
 EXTERNL NClist* nclistnew(void);
 EXTERNL int nclistfree(NClist*);
 EXTERNL int nclistfreeall(NClist*);
+EXTERNL int nclistclearall(NClist*);
 EXTERNL int nclistsetalloc(NClist*,size_t);
 EXTERNL int nclistsetlength(NClist*,size_t);
 
 /* Set the ith element; will overwrite previous contents; expand if needed */
 EXTERNL int nclistset(NClist*,size_t,void*);
 /* Get value at position i */
-EXTERNL void* nclistget(NClist*,size_t);/* Return the ith element of l */
+EXTERNL void* nclistget(const NClist*,size_t);/* Return the ith element of l */
 /* Insert at position i; will push up elements i..|seq|. */
 EXTERNL int nclistinsert(NClist*,size_t,void*);
 /* Remove element at position i; will move higher elements down */
@@ -54,7 +55,7 @@ EXTERNL int nclistelemremove(NClist* l, void* elem);
 EXTERNL int nclistunique(NClist*);
 
 /* Create a clone of a list; if deep, then assume it is a list of strings */
-EXTERNL NClist* nclistclone(NClist*, int deep);
+EXTERNL NClist* nclistclone(const NClist*, int deep);
 
 EXTERNL void* nclistextract(NClist*);
 

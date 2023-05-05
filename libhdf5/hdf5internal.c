@@ -39,12 +39,6 @@ h5catch(void* ignored)
 }
 #endif
 
-/* These are the default chunk cache sizes for HDF5 files created or
- * opened with netCDF-4. */
-extern size_t nc4_chunk_cache_size;
-extern size_t nc4_chunk_cache_nelems;
-extern float nc4_chunk_cache_preemption;
-
 #ifdef LOGGING
 /* This is the severity level of messages which will be logged. Use
    severity 0 for errors, 1 for important log messages, 2 for less
@@ -82,6 +76,7 @@ nc4_hdf5_initialize(void)
     if (set_auto(NULL, NULL) < 0)
         LOG((0, "Couldn't turn off HDF5 error messages!"));
     LOG((1, "HDF5 error messages have been turned off."));
+    NC4_hdf5_filter_initialize();
     nc4_hdf5_initialized = 1;
 }
 
@@ -94,6 +89,7 @@ nc4_hdf5_finalize(void)
 {
     /* Reclaim global resources */
     NC4_provenance_finalize();
+    NC4_hdf5_filter_finalize();
     nc4_hdf5_initialized = 0;
 }
 
@@ -120,6 +116,8 @@ find_var_dim_max_length(NC_GRP_INFO_T *grp, int varid, int dimid,
     int retval = NC_NOERR;
 
     *maxlen = 0;
+
+    LOG((3, "find_var_dim_max_length varid %d dimid %d", varid, dimid));    
 
     /* Find this var. */
     var = (NC_VAR_INFO_T*)ncindexith(grp->vars,varid);
@@ -161,11 +159,27 @@ find_var_dim_max_length(NC_GRP_INFO_T *grp, int varid, int dimid,
                 BAIL(NC_EHDFERR);
             LOG((5, "find_var_dim_max_length: varid %d len %d max: %d",
                  varid, (int)h5dimlen[0], (int)h5dimlenmax[0]));
-            for (d=0; d<dataset_ndims; d++) {
-                if (var->dimids[d] == dimid) {
+            for (d=0; d<dataset_ndims; d++)
+                if (var->dimids[d] == dimid)
                     *maxlen = *maxlen > h5dimlen[d] ? *maxlen : h5dimlen[d];
-                }
-            }
+
+#ifdef USE_PARALLEL
+	    /* If we are doing parallel I/O in collective mode (with
+	     * either pnetcdf or HDF5), then communicate with all
+	     * other tasks in the collective and find out which has
+	     * the max value for the dimension size. */
+	    assert(grp->nc4_info);
+	    LOG((3, "before Allreduce *maxlen %ld grp->nc4_info->parallel %d var->parallel_access %d",
+		 *maxlen, grp->nc4_info->parallel, var->parallel_access));
+	    if (grp->nc4_info->parallel && var->parallel_access == NC_COLLECTIVE)
+	    {
+		if ((MPI_SUCCESS != MPI_Allreduce(MPI_IN_PLACE, maxlen, 1,
+						  MPI_UNSIGNED_LONG_LONG, MPI_MAX,
+						  grp->nc4_info->comm)))
+		    BAIL(NC_EMPI);
+		LOG((3, "after Allreduce *maxlen %ld", *maxlen));
+	    }
+#endif /* USE_PARALLEL */
         }
     }
 
@@ -562,7 +576,7 @@ nc4_HDF5_close_att(NC_ATT_INFO_T *att)
 
 	nullfree(hdf5_att);
 	att->format_att_info = NULL;	
-    return NC_NOERR;
+	return NC_NOERR;
 }
 
 /**
@@ -599,11 +613,19 @@ close_vars(NC_GRP_INFO_T *grp)
             {
                 if (var->type_info)
                 {
-                    if (var->type_info->nc_type_class == NC_VLEN)
+#ifdef SEPDATA
+		    if (var->type_info->nc_type_class == NC_VLEN)
                         nc_free_vlen((nc_vlen_t *)var->fill_value);
                     else if (var->type_info->nc_type_class == NC_STRING && *(char **)var->fill_value)
                         free(*(char **)var->fill_value);
+#else
+		    int stat = NC_NOERR;
+		    if((stat = nc_reclaim_data(grp->nc4_info->controller->ext_ncid,var->type_info->hdr.id,var->fill_value,1)))
+		        return stat;
+		    nullfree(var->fill_value);
                 }
+#endif
+		var->fill_value = NULL;
             }
         }
 
@@ -926,7 +948,10 @@ nc4_hdf5_find_grp_var_att(int ncid, int varid, const char *name, int attnum,
 
     /* Give the people what they want. */
     if (norm_name)
+    {
         strncpy(norm_name, my_norm_name, NC_MAX_NAME);
+        norm_name[NC_MAX_NAME] = 0;
+    }
     if (h5)
         *h5 = my_h5;
     if (grp)

@@ -43,11 +43,11 @@
 #define NC_HAS_NC4       @NC_HAS_NC4@ /*!< API version 4 support. */
 #define NC_HAS_HDF4      @NC_HAS_HDF4@ /*!< HDF4 support. */
 #define NC_HAS_HDF5      @NC_HAS_HDF5@ /*!< HDF5 support. */
-#define NC_HAS_SZIP      @NC_HAS_SZIP@ /*!< szip support (HDF5 only) */
-#define NC_HAS_SZIP_WRITE @NC_HAS_SZIP@ /*!< szip write support (HDF5 only) */
+#define NC_HAS_SZIP      @NC_HAS_SZIP@ /*!< szip support */
+#define NC_HAS_SZIP_WRITE @NC_HAS_SZIP@ /*!< szip write support */
 #define NC_HAS_DAP2      @NC_HAS_DAP2@ /*!< DAP2 support. */
 #define NC_HAS_DAP4      @NC_HAS_DAP4@ /*!< DAP4 support. */
-#define NC_HAS_BYTERANGE @HAS_BYTERANGE@
+#define NC_HAS_BYTERANGE @NC_HAS_BYTERANGE@ /*!< Byterange support. */
 #define NC_HAS_DISKLESS  @NC_HAS_DISKLESS@ /*!< diskless support. */
 #define NC_HAS_MMAP      @NC_HAS_MMAP@ /*!< mmap support. */
 #define NC_HAS_JNA       @NC_HAS_JNA@ /*!< jna support. */
@@ -55,12 +55,19 @@
 #define NC_HAS_PARALLEL4 @NC_HAS_PARALLEL4@ /*!< parallel IO support via HDF5 */
 #define NC_HAS_PARALLEL  @NC_HAS_PARALLEL@ /*!< parallel IO support via HDF5 and/or PnetCDF. */
 
-#define NC_HAS_CDF5      @NC_HAS_CDF5@  /*!< CDF5 support. */
-#define NC_HAS_ERANGE_FILL @NC_HAS_ERANGE_FILL@ /*!< ERANGE_FILL Support */
-#define NC_RELAX_COORD_BOUND 1 /*!< RELAX_COORD_BOUND */
-#define NC_DISPATCH_VERSION @NC_DISPATCH_VERSION@ /*!< Dispatch table version */
-#define NC_HAS_PAR_FILTERS @NC_HAS_PAR_FILTERS@ /* Parallel I/O with filter support. */
-#define NC_HAS_NCZARR      @NC_HAS_NCZARR@
-#define NC_HAS_MULTIFILTERS   @NC_HAS_MULTIFILTERS@
+#define NC_HAS_CDF5          @NC_HAS_CDF5@ /*!< CDF5 support. */
+#define NC_HAS_ERANGE_FILL   @NC_HAS_ERANGE_FILL@ /*!< ERANGE_FILL Support. */
+#define NC_RELAX_COORD_BOUND 1 /*!< Always allow 0 counts in parallel I/O. */
+#define NC_DISPATCH_VERSION  @NC_DISPATCH_VERSION@ /*!< Dispatch table version. */
+#define NC_HAS_PAR_FILTERS   @NC_HAS_PAR_FILTERS@ /* Parallel I/O with filter support. */
+#define NC_HAS_NCZARR        @NC_HAS_NCZARR@ /*!< Parallel I/O with filter support. */
+#define NC_HAS_MULTIFILTERS  @NC_HAS_MULTIFILTERS@ /*!< Nczarr support. */
+#define NC_HAS_LOGGING       @NC_HAS_LOGGING@ /*!< Logging support. */
+#define NC_HAS_QUANTIZE      @NC_HAS_QUANTIZE@ /*!< Quantization support. */
+#define NC_HAS_ZSTD          @NC_HAS_ZSTD@ /*!< Zstd support. */
+#define NC_HAS_BENCHMARKS    @NC_HAS_BENCHMARKS@ /*!< Benchmarks. */
+#define NC_HAS_S3            @NC_HAS_S3@ /*!< Amazon S3 Support. */
+#define NC_HAS_BLOSC         @NC_HAS_BLOSC@ /*!< Blosc Support. */
+#define NC_HAS_BZ2           @NC_HAS_BZ2@ /*!< bzip2 support */
 
 #endif

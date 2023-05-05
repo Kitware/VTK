@@ -34,7 +34,12 @@
 #endif
 
 #include "XGetopt.h"
+#include "nclist.h"
+#include "ncbytes.h"
 
+#ifdef _MSC_VER
+static void XCommandLineToArgvA(int* argcp, char*** argvp);
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -159,6 +164,14 @@ int getopt(int argc, TCHAR *argv[], TCHAR *optstring)
 	TCHAR c;
 	TCHAR *cp = malloc(sizeof(TCHAR)*1024);
 
+#ifdef _MSC_VER
+	{
+	    int xargc = -1;
+	    char** xargv = NULL;
+	    XCommandLineToArgvA(&xargc, &xargv);
+	}
+#endif
+
 	if (optind == 0)
 		next = NULL;
 
@@ -217,4 +230,55 @@ int getopt(int argc, TCHAR *argv[], TCHAR *optstring)
 	}
 
 	return c;
+}
+
+/**************************************************/
+#define ESCAPE '\\'
+#define SQUOTE '\''
+#define DQUOTE '"'
+
+/* Convert a UTF8 command line into a series of words for use by XGetOpt */
+/* Note only checks for ASCII '\' '\'' '"' */
+static void
+XCommandLineToArgvA(int* argcp, char*** argvp)
+{
+    const char* line = NULL;
+    size_t len;
+    int whitespace;
+    int quote = 0;
+    enum State state;
+    NClist* argv = NULL;
+    NCbytes* word = NULL;
+    char** p;
+
+    line = GetCommandLineA();
+    len = strlen(line);
+    argv = nclistnew();
+    word = ncbytesnew();
+    whitespace = 1; /* start in whitespace mode */
+    for(p=line;*p;p++) {
+	int c = *p;
+        if(whitespace && c <= ' ' || c == 127) continue; /* more whitespace */
+        if(!whitespace && c <= ' ' || c == 127) {
+	    whitespace = 1; /* end of word */
+	    ncbytesnull(word);
+	    nclistpush(argv,ncbytesextract(word)); /* capture the word */
+	    continue;
+	}
+	whitespace = 0; /* end whitespace */
+	if(c == ESCAPE) {
+	    c = *(++p); /* move to next char */
+	} else if(c == SQUOTE || c == DQUOTE) {
+	    if(!quote) {quote = c; continue;} /* Start quoted text */
+	    if(quote == c) {quote = 0; continue;} /* end quoted text */
+	}
+	/* Just collect the character as part of the current word */
+        ncbytesappend(word,c);
+    }	
+    /* Return parsed words */
+    if(argcp) *argcp = nclistlength(argv);
+    nclistpush(argv,NULL); /* Just to be sure */
+    if(argvp) *argvp = (char**)nclistextract(argv);
+    nclistfree(argv);
+    ncbytesfree(word);
 }

@@ -201,7 +201,7 @@ local void make_crc_table()
     {
         FILE *out;
 
-        out = fopen("dcrc32.h", "w");
+        out = NCfopen("dcrc32.h", "w");
         if (out == NULL) return;
         fprintf(out, "/* dcrc32.h -- tables for rapid CRC calculation\n");
         fprintf(out, " * Generated automatically by dcrc32.c\n */\n\n");

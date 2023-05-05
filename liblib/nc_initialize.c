@@ -46,6 +46,11 @@ extern int NC_HDF4_initialize(void);
 extern int NC_HDF4_finalize(void);
 #endif
 
+#ifdef ENABLE_S3_SDK
+EXTERNL int NC_s3sdkinitialize(void);
+EXTERNL int NC_s3sdkfinalize(void);
+#endif
+
 #ifdef _MSC_VER
 #include <io.h>
 #include <fcntl.h>
@@ -53,6 +58,15 @@ extern int NC_HDF4_finalize(void);
 
 int NC_initialized = 0;
 int NC_finalized = 1;
+
+#ifdef ENABLE_ATEXIT_FINALIZE
+/* Provide the void function to give to atexit() */
+static void
+finalize_atexit(void)
+{
+    (void)nc_finalize();
+}
+#endif
 
 /**
 This procedure invokes all defined
@@ -95,8 +109,17 @@ nc_initialize()
 #ifdef USE_HDF4
     if((stat = NC_HDF4_initialize())) goto done;
 #endif
+#ifdef ENABLE_S3_SDK
+    if((stat = NC_s3sdkinitialize())) goto done;
+#endif
 #ifdef ENABLE_NCZARR
     if((stat = NCZ_initialize())) goto done;
+#endif
+
+#ifdef ENABLE_ATEXIT_FINALIZE
+    /* Use atexit() to invoke nc_finalize */
+    if(atexit(finalize_atexit))
+	fprintf(stderr,"atexit failed\n");
 #endif
 
 done:
@@ -116,44 +139,51 @@ int
 nc_finalize(void)
 {
     int stat = NC_NOERR;
+    int failed = stat;
 
-    if(NC_finalized) return NC_NOERR;
+    if(NC_finalized) goto done;
     NC_initialized = 0;
     NC_finalized = 1;
 
     /* Finalize each active protocol */
 
 #ifdef ENABLE_DAP2
-    if((stat = NCD2_finalize())) return stat;
+    if((stat = NCD2_finalize())) failed = stat;
 #endif
 #ifdef ENABLE_DAP4
-    if((stat = NCD4_finalize())) return stat;
+    if((stat = NCD4_finalize())) failed = stat;
 #endif
 
 #ifdef USE_PNETCDF
-    if((stat = NCP_finalize())) return stat;
+    if((stat = NCP_finalize())) failed = stat;
 #endif
 
 #ifdef USE_HDF4
-    if((stat = NC_HDF4_finalize())) return stat;
+    if((stat = NC_HDF4_finalize())) failed = stat;
 #endif /* USE_HDF4 */
 
 #ifdef USE_NETCDF4
-    if((stat = NC4_finalize())) return stat;
+    if((stat = NC4_finalize())) failed = stat;
 #endif /* USE_NETCDF4 */
 
 #ifdef USE_HDF5
-    if((stat = NC_HDF5_finalize())) return stat;
+    if((stat = NC_HDF5_finalize())) failed = stat;
 #endif
 
 #ifdef ENABLE_NCZARR
-    if((stat = NCZ_finalize())) return stat;
+    if((stat = NCZ_finalize())) failed = stat;
 #endif
 
-    if((stat = NC3_finalize())) return stat;
+#ifdef ENABLE_S3_SDK
+    if((stat = NC_s3sdkfinalize())) failed = stat;
+#endif
+
+    if((stat = NC3_finalize())) failed = stat;
 
     /* Do general finalization */
-    if((stat = NCDISPATCH_finalize())) return stat;
+    if((stat = NCDISPATCH_finalize())) failed = stat;
 
-    return NC_NOERR;
+done:
+    if(failed) fprintf(stderr,"nc_finalize failed: %d\n",failed);
+    return failed;
 }

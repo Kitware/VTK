@@ -22,27 +22,28 @@
 #include "nclog.h"
 #include "ncbytes.h"
 #include "nclist.h"
+#include "ncuri.h"
 #include "nchttp.h"
+#include "ncauth.h"
 
-#undef VERBOSE
 #undef TRACE
 
 #define CURLERR(e) reporterror(state,(e))
 
-/* Mnemonics */
-#define GETCMD 0
-#define HEADCMD 1
-
+#if 0
 static const char* LENGTH_ACCEPT[] = {"content-length","accept-ranges",NULL};
+#endif
 static const char* CONTENTLENGTH[] = {"content-length",NULL};
 
 /* Forward */
-static int setupconn(NC_HTTP_STATE* state, const char* objecturl, NCbytes* buf);
-static int execute(NC_HTTP_STATE* state, int headcmd);
+static int setupconn(NC_HTTP_STATE* state, const char* objecturl);
+static int execute(NC_HTTP_STATE* state);
 static int headerson(NC_HTTP_STATE* state, const char** which);
 static void headersoff(NC_HTTP_STATE* state);
 static void showerrors(NC_HTTP_STATE* state);
 static int reporterror(NC_HTTP_STATE* state, CURLcode cstat);
+static int lookupheader(NC_HTTP_STATE* state, const char* key, const char** valuep);
+static int my_trace(CURL *handle, curl_infotype type, char *data, size_t size,void *userp);
 
 #ifdef TRACE
 static void
@@ -65,16 +66,19 @@ Trace(const char* fcn)
 /**************************************************/
 
 /**
-@param objecturl url we propose to access
 @param curlp curl handle stored here if non-NULL
-@param filelenp store length of the file here if non-NULL
 */
 
 int
-nc_http_open(const char* objecturl, NC_HTTP_STATE** statep, long long* filelenp)
+nc_http_init(NC_HTTP_STATE** statep)
+{
+    return nc_http_init_verbose(statep,0);
+}
+
+int
+nc_http_init_verbose(NC_HTTP_STATE** statep, int verbose)
 {
     int stat = NC_NOERR;
-    int i;
     NC_HTTP_STATE* state = NULL;
 
     Trace("open");
@@ -85,40 +89,19 @@ nc_http_open(const char* objecturl, NC_HTTP_STATE** statep, long long* filelenp)
     state->curl = curl_easy_init();
     if (state->curl == NULL) {stat = NC_ECURL; goto done;}
     showerrors(state);
-#ifdef VERBOSE
-    {long onoff = 1;
-    CURLcode cstat = CURLE_OK;
-    cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_VERBOSE, onoff));
-    if(cstat != CURLE_OK)
-        {stat = NC_ECURL; goto done;}
+    if(verbose) {
+        long onoff = 1;
+        CURLcode cstat = CURLE_OK;
+        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_VERBOSE, onoff));
+        if(cstat != CURLE_OK) {stat = NC_ECURL; goto done;}
+	cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_DEBUGFUNCTION, my_trace));
+        if(cstat != CURLE_OK) {stat = NC_ECURL; goto done;}
     }
-#endif
-    if(filelenp) {
-	*filelenp = -1;
-        /* Attempt to get the file length using HEAD */
-	if((stat = setupconn(state,objecturl,NULL))) goto done;
-	if((stat = headerson(state,LENGTH_ACCEPT))) goto done;
-	if((stat = execute(state,HEADCMD))) goto done;
-	for(i=0;i<nclistlength(state->headers);i+=2) {
-	    char* s = nclistget(state->headers,i);
-	    if(strcasecmp(s,"content-length")==0) {
-	        s = nclistget(state->headers,i+1);
-		sscanf(s,"%lld",filelenp);
-		break;
-	    }
-	    /* Also check for the Accept-Ranges header */ 
-	    if(strcasecmp(s,"accept-ranges")==0) {
-	        s = nclistget(state->headers,i+1);
-		if(strcasecmp(s,"bytes")!=0) /* oops! */
-		    {stat = NC_EURL; goto done;}
-	    }
-	}
-	headersoff(state);
-    }  
+    stat = nc_http_reset(state);
     if(statep) {*statep = state; state = NULL;}
 
 done:
-    nc_http_close(state);
+    if(state) nc_http_close(state);
 dbgflush();
     return stat;
 }
@@ -133,17 +116,94 @@ nc_http_close(NC_HTTP_STATE* state)
     if(state == NULL) return stat;
     if(state->curl != NULL)
 	(void)curl_easy_cleanup(state->curl);
-    nclistfreeall(state->headers); state->headers = NULL;
-    if(state->buf !=  NULL)
-        abort();
+    nclistfreeall(state->response.headset); state->response.headset = NULL;
+    nclistfreeall(state->response.headers); state->response.headers = NULL;
+    ncbytesfree(state->response.buf);
+    nclistfreeall(state->request.headers); state->request.headers = NULL;
     nullfree(state);
 dbgflush();
     return stat;
 }
 
+/* Reset after a request */
+int
+nc_http_reset(NC_HTTP_STATE* state)
+{
+    int stat = NC_NOERR;
+    CURLcode cstat = CURLE_OK;
+    cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_HTTPGET, 1L));
+    if(cstat != CURLE_OK) {stat = NC_ECURL; goto done;}
+    cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_NOBODY, 0L));
+    if(cstat != CURLE_OK) {stat = NC_ECURL; goto done;}
+    cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_UPLOAD, 0L));
+    if(cstat != CURLE_OK) {stat = NC_ECURL; goto done;}
+    cstat = curl_easy_setopt(state->curl, CURLOPT_CUSTOMREQUEST, NULL);
+    if(cstat != CURLE_OK) {stat = NC_ECURL; goto done;}
+    cstat = curl_easy_setopt(state->curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)-1);
+    if(cstat != CURLE_OK) {stat = NC_ECURL; goto done;}
+    state->request.method = HTTPGET;
+    (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_WRITEFUNCTION, NULL));
+    (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_WRITEDATA, NULL));
+    (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_READFUNCTION, NULL));
+    (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_READDATA, NULL));
+    headersoff(state);
+done:
+    return stat;
+}
+
+/**************************************************/
+/* Set misc parameters */
+
+int
+nc_http_set_method(NC_HTTP_STATE* state, HTTPMETHOD method)
+{
+    int stat = NC_NOERR;
+    CURLcode cstat = CURLE_OK;
+    switch (method) {
+    case HTTPGET:
+        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_HTTPGET, 1L));
+	break;
+    case HTTPHEAD:
+        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_HTTPGET, 1L));
+        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_NOBODY, 1L));
+        break;
+    case HTTPPUT:
+        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_UPLOAD, 1L));
+	break;
+    case HTTPDELETE:
+	cstat = curl_easy_setopt(state->curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_NOBODY, 1L));
+	break;
+    default: stat = NC_EINVAL; break;
+    }
+    if(cstat != CURLE_OK) {stat = NC_ECURL; goto done;}
+    state->request.method = method;
+done:
+    return stat;
+}
+
+int
+nc_http_set_payload(NC_HTTP_STATE* state, size_t size, void* payload)
+{
+    int stat = NC_NOERR;
+    state->request.payloadsize = size;
+    state->request.payload = payload;
+    state->request.payloadpos = 0;
+    return stat;
+}
+
+int
+nc_http_set_response(NC_HTTP_STATE* state, NCbytes* buf)
+{
+    int stat = NC_NOERR;
+    state->response.buf = buf;
+    return stat;
+}
+
+/**************************************************/
 /**
-Assume URL etc has already been set.
-@param curl curl handle
+@param state state handle
+@param objecturl to read
 @param start starting offset
 @param count number of bytes to read
 @param buf store read data here -- caller must allocate and free
@@ -161,7 +221,8 @@ nc_http_read(NC_HTTP_STATE* state, const char* objecturl, size64_t start, size64
     if(count == 0)
 	goto done; /* do not attempt to read */
 
-    if((stat = setupconn(state,objecturl,buf)))
+    if((stat = nc_http_set_response(state,buf))) goto fail;
+    if((stat = setupconn(state,objecturl)))
 	goto fail;
 
     /* Set to read byte range */
@@ -170,11 +231,39 @@ nc_http_read(NC_HTTP_STATE* state, const char* objecturl, size64_t start, size64
     if(cstat != CURLE_OK)
         {stat = NC_ECURL; goto done;}
 
-    if((stat = execute(state,GETCMD)))
+    if((stat = execute(state)))
 	goto done;
 done:
-    state->buf = NULL;
+    nc_http_reset(state);
+    state->response.buf = NULL;
 dbgflush();
+    return stat;
+
+fail:
+    stat = NC_ECURL;
+    goto done;
+}
+
+/**
+@param state state handle
+@param objecturl to write
+@param payload send as body of a PUT
+*/
+
+int
+nc_http_write(NC_HTTP_STATE* state, const char* objecturl, NCbytes* payload)
+{
+    int stat = NC_NOERR;
+
+    Trace("write");
+
+    if((stat = nc_http_set_payload(state,ncbyteslength(payload),ncbytescontents(payload)))) goto fail;
+    if((stat = nc_http_set_method(state,HTTPPUT))) goto fail;
+    if((stat = setupconn(state,objecturl))) goto fail;
+    if((stat = execute(state)))
+	goto done;
+done:
+    nc_http_reset(state);
     return stat;
 
 fail:
@@ -191,48 +280,90 @@ Assume URL etc has already been set.
 int
 nc_http_size(NC_HTTP_STATE* state, const char* objecturl, long long* sizep)
 {
-    int i,stat = NC_NOERR;
+    int stat = NC_NOERR;
+    const char* hdr = NULL;
 
     Trace("size");
     if(sizep == NULL)
 	goto done; /* do not attempt to read */
 
-    if((stat = setupconn(state,objecturl,NULL)))
+    if((stat = nc_http_set_method(state,HTTPHEAD))) goto done;
+    if((stat = setupconn(state,objecturl)))
 	goto done;
     /* Make sure we get headers */
     if((stat = headerson(state,CONTENTLENGTH))) goto done;
 
     state->httpcode = 200;
-    if((stat = execute(state,HEADCMD)))
+    if((stat = execute(state)))
 	goto done;
 
-    if(nclistlength(state->headers) == 0)
+    if(nclistlength(state->response.headers) == 0)
 	{stat = NC_EURL; goto done;}
 
     /* Get the content length header */
-    for(i=0;i<nclistlength(state->headers);i+=2) {
-	char* s = nclistget(state->headers,i);
-	if(strcasecmp(s,"content-length")==0) {
-	    s = nclistget(state->headers,i+1);
-	    sscanf(s,"%llu",sizep);
-    	    break;
-	}
+    if((stat = lookupheader(state,"content-length",&hdr))==NC_NOERR) {
+	    sscanf(hdr,"%llu",sizep);
     }
 
 done:
+    nc_http_reset(state);
     headersoff(state);
 dbgflush();
     return stat;
 }
 
 int
-nc_http_headers(NC_HTTP_STATE* state, const NClist** headersp)
+nc_http_response_headset(NC_HTTP_STATE* state, const NClist* keys)
 {
-    if(headersp) *headersp = state->headers;
+    int i;
+    if(keys == NULL) return NC_NOERR;
+    if(state->response.headset == NULL)
+        state->response.headset = nclistnew();
+    for(i=0;i<nclistlength(keys);i++) {
+	const char* key = (const char*)nclistget(keys,i);
+	if(!nclistmatch(state->response.headset,key,0)) /* remove duplicates */
+	    nclistpush(state->response.headset,strdup(key));
+    }
     return NC_NOERR;
 }
 
+int
+nc_http_response_headers(NC_HTTP_STATE* state, NClist** headersp)
+{
+    NClist* headers = NULL;
+    if(headersp != NULL) {
+        headers = nclistclone(state->response.headers,1);
+        *headersp = headers; headers = NULL;
+    }
+    return NC_NOERR;
+}
+
+int
+nc_http_request_setheaders(NC_HTTP_STATE* state, const NClist* headers)
+{
+    nclistfreeall(state->request.headers);
+    state->request.headers = nclistclone(headers,1);
+    return NC_NOERR;    
+}
+
 /**************************************************/
+
+static size_t
+ReadMemoryCallback(char* buffer, size_t size, size_t nmemb, void *data)
+{
+    NC_HTTP_STATE* state = data;
+    size_t transfersize = size * nmemb;
+    size_t avail = (state->request.payloadsize - state->request.payloadpos);
+
+    Trace("ReadMemoryCallback");
+    if(transfersize == 0)
+        nclog(NCLOGWARN,"ReadMemoryCallback: zero sized buffer");
+    if(transfersize > avail) transfersize = avail;
+    memcpy(buffer,((char*)state->request.payload)+state->request.payloadpos,transfersize);
+    state->request.payloadpos += transfersize;
+    return transfersize;
+}
+
 static size_t
 WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
@@ -242,7 +373,7 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
     Trace("WriteMemoryCallback");
     if(realsize == 0)
         nclog(NCLOGWARN,"WriteMemoryCallback: zero sized chunk");
-    ncbytesappendn(state->buf, ptr, realsize);
+    ncbytesappendn(state->response.buf, ptr, realsize);
     return realsize;
 }
 
@@ -286,7 +417,7 @@ HeaderCallback(char *buffer, size_t size, size_t nitems, void *data)
     int havecolon;
     NC_HTTP_STATE* state = data;
     int match;
-    const char** hdr;
+    const char* hdr;
 
     Trace("HeaderCallback");
     if(realsize == 0)
@@ -300,9 +431,10 @@ HeaderCallback(char *buffer, size_t size, size_t nitems, void *data)
     name = malloc(i+1);
     memcpy(name,buffer,i);
     name[i] = '\0';
-    if(state->headset != NULL) {
-        for(match=0,hdr=state->headset;*hdr;hdr++) {
-	    if(strcasecmp(*hdr,name)==0) {match = 1; break;}        
+    if(state->response.headset != NULL) {
+        for(match=0,i=0;i<nclistlength(state->response.headset);i++) {
+	    hdr = (const char*)nclistget(state->response.headset,i);
+	    if(strcasecmp(hdr,name)==0) {match = 1; break;}        
         }
         if(!match) goto done;
     }
@@ -316,12 +448,12 @@ HeaderCallback(char *buffer, size_t size, size_t nitems, void *data)
         value[vlen] = '\0';
         trim(value);
     }
-    if(state->headers == NULL)
-        state->headers = nclistnew();
-    nclistpush(state->headers,name);
+    if(state->response.headers == NULL)
+        state->response.headers = nclistnew();
+    nclistpush(state->response.headers,name);
     name = NULL;
     if(value == NULL) value = strdup("");
-    nclistpush(state->headers,value);
+    nclistpush(state->response.headers,value);
     value = NULL;
 done:
     nullfree(name);
@@ -329,7 +461,7 @@ done:
 }
 
 static int
-setupconn(NC_HTTP_STATE* state, const char* objecturl, NCbytes* buf)
+setupconn(NC_HTTP_STATE* state, const char* objecturl)
 {
     int stat = NC_NOERR;
     CURLcode cstat = CURLE_OK;
@@ -352,8 +484,29 @@ setupconn(NC_HTTP_STATE* state, const char* objecturl, NCbytes* buf)
     cstat = curl_easy_setopt(state->curl, CURLOPT_FOLLOWLOCATION, 1); 
     if (cstat != CURLE_OK) goto fail;
 
-    state->buf = buf;
-    if(buf != NULL) {
+    /* Pull some values from .rc tables */
+    {
+	NCURI* uri = NULL;
+	char* hostport = NULL;
+	char* value = NULL;
+	ncuriparse(objecturl,&uri);
+	if(uri == NULL) goto fail;
+	hostport = NC_combinehostport(uri);
+	ncurifree(uri); uri = NULL;
+	value = NC_rclookup("HTTP.SSL.CAINFO",hostport,NULL);
+	nullfree(hostport); hostport = NULL;	
+	if(value == NULL)
+	    value = NC_rclookup("HTTP.SSL.CAINFO",NULL,NULL);
+	if(value != NULL) {
+	    cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_CAINFO, value));
+	    if (cstat != CURLE_OK) goto fail;
+	}
+    }
+
+    /* Set the method */
+    if((stat = nc_http_set_method(state,state->request.method))) goto done;
+
+    if(state->response.buf) {
 	/* send all data to this function  */
         cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback));
         if (cstat != CURLE_OK) goto fail;
@@ -364,7 +517,28 @@ setupconn(NC_HTTP_STATE* state, const char* objecturl, NCbytes* buf)
         (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_WRITEFUNCTION, NULL));
         (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_WRITEDATA, NULL));
     }
+    if(state->request.payloadsize > 0) {
+	state->request.payloadpos = 0; /* track reading */
+	/* send all data to this function  */
+        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_READFUNCTION, ReadMemoryCallback));
+        if (cstat != CURLE_OK) goto fail;
+        /* Set argument for ReadMemoryCallback */
+        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_READDATA, (void*)state));
+        if (cstat != CURLE_OK) goto fail;
+    } else {/* turn off data capture */
+        (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_READFUNCTION, NULL));
+        (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_READDATA, NULL));
+    }
 
+    /* Do method specific actions */
+    switch(state->request.method) {
+    case HTTPPUT:
+	if(state->request.payloadsize > 0)
+            cstat = curl_easy_setopt(state->curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)state->request.payloadsize);
+	break;
+    default: break;
+    }
+    
 done:
     return stat;
 fail:
@@ -375,26 +549,16 @@ fail:
 }
 
 static int
-execute(NC_HTTP_STATE* state, int headcmd)
+execute(NC_HTTP_STATE* state)
 {
     int stat = NC_NOERR;
     CURLcode cstat = CURLE_OK;
-
-    if(headcmd) {
-        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_NOBODY, 1L));
-        if(cstat != CURLE_OK) goto fail;
-    }
 
     cstat = CURLERR(curl_easy_perform(state->curl));
     if(cstat != CURLE_OK) goto fail;
 
     cstat = CURLERR(curl_easy_getinfo(state->curl,CURLINFO_RESPONSE_CODE,&state->httpcode));
     if(cstat != CURLE_OK) state->httpcode = 0;
-
-    if(headcmd) {
-        cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_HTTPGET, 1L));
-        if(cstat != CURLE_OK) goto fail;
-    }
 
 done:
     return stat;
@@ -408,11 +572,16 @@ headerson(NC_HTTP_STATE* state, const char** headset)
 {
     int stat = NC_NOERR;
     CURLcode cstat = CURLE_OK;
+    const char** p;
 
-    if(state->headers != NULL)
-	nclistfreeall(state->headers);
-    state->headers = nclistnew();
-    state->headset = headset;
+    if(state->response.headers != NULL)
+	nclistfreeall(state->response.headers);
+    state->response.headers = nclistnew();
+    if(state->response.headset != NULL)
+	nclistfreeall(state->response.headset);
+    state->response.headset = nclistnew();
+    for(p=headset;*p;p++)
+	nclistpush(state->response.headset,strdup(*p));
 
     cstat = CURLERR(curl_easy_setopt(state->curl, CURLOPT_HEADERFUNCTION, HeaderCallback));
     if(cstat != CURLE_OK) goto fail;
@@ -429,10 +598,29 @@ fail:
 static void
 headersoff(NC_HTTP_STATE* state)
 {
-    nclistfreeall(state->headers);
-    state->headers = NULL;
+    nclistfreeall(state->response.headers);
+    state->response.headers = NULL;
     (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_HEADERFUNCTION, NULL));
     (void)CURLERR(curl_easy_setopt(state->curl, CURLOPT_HEADERDATA, NULL));
+}
+
+static int
+lookupheader(NC_HTTP_STATE* state, const char* key, const char** valuep)
+{
+    int i;
+    const char* value = NULL;
+    /* Get the content length header */
+    for(i=0;i<nclistlength(state->response.headers);i+=2) {
+	char* s = nclistget(state->response.headers,i);
+	if(strcasecmp(s,key)==0) {
+	    value = nclistget(state->response.headers,i+1);
+    	    break;
+	}
+    }
+    if(value == NULL) return NC_ENOOBJECT;
+    if(valuep)
+	*valuep = value;
+    return NC_NOERR;
 }
 
 static void
@@ -448,4 +636,72 @@ reporterror(NC_HTTP_STATE* state, CURLcode cstat)
         fprintf(stderr,"curlcode: (%d)%s : %s\n",
 		cstat,curl_easy_strerror(cstat),state->errbuf);
     return cstat;
+}
+
+static
+void dump(const char *text, FILE *stream, unsigned char *ptr, size_t size)
+{
+  size_t i;
+  size_t c;
+  unsigned int width=0x10;
+ 
+  fprintf(stream, "%s, %10.10ld bytes (0x%8.8lx)\n",
+          text, (long)size, (long)size);
+ 
+  for(i=0; i<size; i+= width) {
+    fprintf(stream, "%4.4lx: ", (long)i);
+ 
+    /* show hex to the left */
+    for(c = 0; c < width; c++) {
+      if(i+c < size)
+        fprintf(stream, "%02x ", ptr[i+c]);
+      else
+        fputs("   ", stream);
+    }
+ 
+    /* show data on the right */
+    for(c = 0; (c < width) && (i+c < size); c++) {
+      char x = (ptr[i+c] >= 0x20 && ptr[i+c] < 0x80) ? ptr[i+c] : '.';
+      fputc(x, stream);
+    }
+ 
+    fputc('\n', stream); /* newline */
+  }
+}
+ 
+static int
+my_trace(CURL *handle, curl_infotype type, char *data, size_t size,void *userp)
+{
+  const char *text;
+  (void)handle; /* prevent compiler warning */
+  (void)userp;
+ 
+  switch (type) {
+  case CURLINFO_TEXT:
+    fprintf(stderr, "== Info: %s", data);
+  default: /* in case a new one is introduced to shock us */
+    return 0;
+ 
+  case CURLINFO_HEADER_OUT:
+    text = "=> Send header";
+    break;
+  case CURLINFO_DATA_OUT:
+    text = "=> Send data";
+    break;
+  case CURLINFO_SSL_DATA_OUT:
+    text = "=> Send SSL data";
+    break;
+  case CURLINFO_HEADER_IN:
+    text = "<= Recv header";
+    break;
+  case CURLINFO_DATA_IN:
+    text = "<= Recv data";
+    break;
+  case CURLINFO_SSL_DATA_IN:
+    text = "<= Recv SSL data";
+    break;
+  }
+ 
+  dump(text, stderr, (unsigned char *)data, size);
+  return 0;
 }

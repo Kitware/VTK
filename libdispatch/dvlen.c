@@ -25,13 +25,15 @@ because it can free an array of VLEN objects.
 
 WARNING: this code is incorrect because it will only
 work if the basetype of the vlen is
-- atomic
+- atomic (excluding string basetype)
 - + enum
 - + opaque
-- excluding string basetype,
 
 The reason is that to operate properly, it needs to recurse when
 the basetype is a complex object such as another vlen or compound.
+
+This function is deprecated in favor of the function "nc_reclaim_data".
+See include/netcdf.h.
 
 \param vl pointer to the vlen object.
 
@@ -62,6 +64,9 @@ work if the basetype of the vlen is
 
 The reason is that to operate properly, it needs to recurse when
 the basetype is a complex object such as another vlen or compound.
+
+This function is deprecated in favor of the function "nc_reclaim_data".
+See include/netcdf.h.
 
 \param len number of elements in the array.
 \param vlens pointer to the vlen object.

@@ -32,7 +32,7 @@
 #define MAXTAGS 256
 #define NCTAGDFALT "Log";
 
-#define NC_MAX_FRAMES 256
+#define NC_MAX_FRAMES 1024
 
 static int nclogginginitialized = 0;
 
@@ -279,6 +279,13 @@ done:
         return ncbreakpoint(err);
     else
 	return err;
+}
+
+int
+ncthrow(int err,const char* file,int line)
+{
+    if(err == 0) return err;
+    return ncbreakpoint(err);
 }
 
 int

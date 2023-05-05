@@ -16,7 +16,7 @@
 #include "ncrc.h"
 #include "ncauth.h"
 
-extern int NC4_extract_file_image(NC_FILE_INFO_T* h5); /* In nc4memcb.c */
+extern int NC4_extract_file_image(NC_FILE_INFO_T* h5, int abort); /* In nc4memcb.c */
 
 static void dumpopenobjects(NC_FILE_INFO_T* h5);
 
@@ -128,13 +128,10 @@ sync_netcdf4_file(NC_FILE_INFO_T *h5)
     assert(h5 && h5->format_file_info);
     LOG((3, "%s", __func__));
 
-    /* If we're in define mode, that's an error, for strict nc3 rules,
-     * otherwise, end define mode. */
+    /* End depend mode if needed. (Error checking for classic mode has
+     * already happened). */
     if (h5->flags & NC_INDEF)
     {
-        if (h5->cmode & NC_CLASSIC_MODEL)
-            return NC_EINDEFINE;
-
         /* Turn define mode off. */
         h5->flags ^= NC_INDEF;
 
@@ -223,10 +220,12 @@ nc4_close_netcdf4_file(NC_FILE_INFO_T *h5, int abort, NC_memio *memio)
      * hidden attribute. */
     NC4_clear_provenance(&h5->provenance);
 
-#if defined(ENABLE_BYTERANGE) || defined(ENABLE_HDF5_ROS3) || defined(ENABLE_S3_SDK)
+#if defined(ENABLE_BYTERANGE)
+    ncurifree(hdf5_info->uri);
+#if defined(ENABLE_HDF5_ROS3) || defined(ENABLE_S3_SDK)
     /* Free the http info */
-    ncurifree(hdf5_info->http.uri);
-    NC_authfree(hdf5_info->http.auth);
+    NC_authfree(hdf5_info->auth);
+#endif
 #endif
 
     /* Close hdf file. It may not be open, since this function is also
@@ -242,7 +241,7 @@ nc4_close_netcdf4_file(NC_FILE_INFO_T *h5, int abort, NC_memio *memio)
     if (h5->mem.inmemory)
     {
         /* Pull out the final memory */
-        (void)NC4_extract_file_image(h5);
+        (void)NC4_extract_file_image(h5, abort);
         if (!abort && memio != NULL)
         {
             *memio = h5->mem.memio; /* capture it */
@@ -487,9 +486,9 @@ NC4_enddef(int ncid)
 {
     NC_FILE_INFO_T *nc4_info;
     NC_GRP_INFO_T *grp;
-    NC_VAR_INFO_T *var;
-    int i;
     int retval;
+    int i;
+    NC_VAR_INFO_T* var = NULL;
 
     LOG((1, "%s: ncid 0x%x", __func__, ncid));
 
@@ -497,6 +496,8 @@ NC4_enddef(int ncid)
     if ((retval = nc4_find_grp_h5(ncid, &grp, &nc4_info)))
         return retval;
 
+    /* Why is this here? Especially since it is not recursive so it
+       only applies to the this grp */
     /* When exiting define mode, mark all variable written. */
     for (i = 0; i < ncindexsize(grp->vars); i++)
     {
@@ -736,5 +737,6 @@ nc4_enddef_netcdf4_file(NC_FILE_INFO_T *h5)
     /* Redef mode needs to be tracked separately for nc_abort. */
     h5->redef = NC_FALSE;
 
+    /* Sync all metadata and data to storage. */
     return sync_netcdf4_file(h5);
 }
