@@ -12,14 +12,85 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
+
 /**
  * @class vtkIOSSWriter
- * @brief writer using IOSS
+ * @brief Writer for IOSS (Sierra IO System)
  *
- * vtkIOSSWriter is a writer to write datasets using IOSS library. Currently
- * this writer supports writing Exodus files. This writer is a work in progress
- * and currently only supports targeted use-cases. The writer will be
- * iteratively cleaned up and fixed to support all types of incoming datasets.
+ * vtkIOSSWriter is a writer that uses the IOSS (Sierra IO System) library to write files.
+ * Currently this writer supports the Exodus file format. IOSS imposes certain restrictions
+ * on the aforementioned file format and hence it may not be possible to write every dataset
+ * as an Exodus file using this writer. This is rare for the Exodus.
+ *
+ * This writer generates files using the same naming conventions that vtkIOSSReader understands.
+ *
+ * @section SelectingBlocksSetsToWrite Selecting blocks and sets to write
+ *
+ * An IOSS file comprises of blocks and sets of various types. These are
+ * described by the enum `vtkIOSSReader::EntityType`. If the input of the writer
+ * was initially read by the vtkIOSSReader, then the entity types can be automatically
+ * deduced. If it was not initially read by vtkIOSSReader (or even if it was), the assembly
+ * name and selectors can be utilized to define which blocks are e.g. element blocks, or side sets.
+ * `vtkIOSSWriter::SetAssemblyName(...)` can be used to set the assembly, and
+ * `vtkIOSSWriter::AddSelector(...)` (or one of its convenience variants) can be used to add
+ * selectors. If no selectors have been defined all partitions will be treated as element blocks.
+ *
+ * Typical usage is as follows:
+ *
+ * @code{.cpp}
+ * vtkNew<vtkIOSSWriter> writer;
+ * writer->SetInputData(...)
+ * writer->SetFileName(...);
+ * writer->SetAssemblyName("Assembly");
+ * writer->AddElementBlockSelector("/IOSS/element_blocks");
+ * writer->Write();
+ * @endcode
+ *
+ * @section SelectingArraysToWrite Selecting arrays to write
+ *
+ * Similar arrays (or fields as IOSS refers to them) to read from each of the blocks or sets
+ * can be specified using the `vtkDataArraySelection` instance returned using
+ * `vtkIOSSWriter::GetFieldSelection` (or one of its convenience variants).
+ *
+ * By default all arrays are enabled. To write specific arrays, f
+ * ChooseFieldsToWrite has to be true, which can change using
+ * `vtkIOSSWriter::SetChooseFieldsToWrite(true)`.
+ *
+ * Typical usage is as follows:
+ *
+ * @code{.cpp}
+ * vtkNew<vtkIOSSWriter> writer;
+ * writer->SetInputData(...)
+ * writer->SetFileName(...);
+ * writer->SetAssemblyName("Assembly");
+ * writer->AddElementBlockSelector("/IOSS/element_blocks");
+ * writer->SetChooseFieldsToWrite(true);
+ * writer->GetElementBlockFieldSelection()->EnableArray("EQPS");
+ * writer->Write();
+ * @endcode
+ *
+ * @section SelectionTimeSteps Selection TimeSteps
+ *
+ * `vtkIOSSWriter::SetTimeStepRange(...)` and `vtkIOSSWriter::SetTimeStepStride(...)`
+ * can be used to write a subset of time steps using a range and a stride.
+ *
+ * @section UpcomingFeatures Upcoming features
+ *
+ * The following features are planned to be implemented in the future:
+ * \li Support CGNS file format.
+ * \li Support writing global data
+ * \li Support writing pedigree IDs
+ *
+ * @section Apendix Apendix
+ * * [Sierra IO System](https://sandialabs.github.io/seacas-docs)
+ * * [Exodus file format](https://sandialabs.github.io/seacas-docs/ExodusII-Addendum.pdf)
+ *
+ * @sa
+ * vtkIOSSReader, vtkExodusIIWriter
  */
 
 #ifndef vtkIOSSWriter_h
