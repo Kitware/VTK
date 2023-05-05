@@ -124,7 +124,9 @@ int vtkFidesReader::CanReadFile(const std::string& name)
   {
     return 0;
   }
-  if (vtksys::SystemTools::StringEndsWith(name, ".bp"))
+  if (vtksys::SystemTools::StringEndsWith(name, ".bp") ||
+    vtksys::SystemTools::StringEndsWith(name, ".bp4") ||
+    vtksys::SystemTools::StringEndsWith(name, ".bp5"))
   {
     if (fides::io::DataSetReader::CheckForDataModelAttribute(name))
     {
@@ -142,7 +144,9 @@ int vtkFidesReader::CanReadFile(const std::string& name)
 void vtkFidesReader::SetFileName(const std::string& fname)
 {
   this->FileName = fname;
-  if (vtksys::SystemTools::StringEndsWith(fname, ".bp"))
+  if (vtksys::SystemTools::StringEndsWith(fname, ".bp") ||
+    vtksys::SystemTools::StringEndsWith(fname, ".bp4") ||
+    vtksys::SystemTools::StringEndsWith(fname, ".bp5"))
   {
     if (fides::io::DataSetReader::CheckForDataModelAttribute(fname))
     {
