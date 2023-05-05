@@ -142,6 +142,7 @@ int TestCameraShiftScale(int argc, char* argv[])
 
   renderer->ResetCameraClippingRange();
   renderWindow->Render();
+  vtkRegressionTestPassForMesaLessThan(renderWindow, 21, 2, 0);
   renderWindow->Render();
 
   vtkNew<vtkCallbackCommand> keypressCallback;

@@ -33,10 +33,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "^VTK::FiltersSourcesPython-TestStaticCellLocatorLineIntersection$"
     "^VTK::InteractionWidgetsCxx-TestPickingManagerWidgets$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
-    "^VTK::RenderingCoreCxx-TestCompositePolyDataMapperCameraShiftScale$" # needs mesa >= 21.2.0
-    "^VTK::RenderingOpenGL2Cxx-TestCameraShiftScale$" # needs mesa >= 21.2.0
     "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
-    "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CameraShiftScale$" # needs mesa >= 21.2.0
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
 
