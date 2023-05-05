@@ -138,8 +138,17 @@ void DataSource::OpenSource(const std::string& fname, bool useMPI /* = true */)
     this->AdiosIO = this->Adios->DeclareIO("adios-io-read");
     this->SetupEngine();
   }
+  auto mode = adios2::Mode::Read;
+  if (!this->StreamingMode)
+  {
+#ifdef FIDES_ADIOS_HAS_RANDOM_ACCESS
+    mode = adios2::Mode::ReadRandomAccess;
+#else
+    mode = adios2::Mode::Read;
+#endif
+  }
 
-  this->Reader = this->AdiosIO.Open(fname, adios2::Mode::Read);
+  this->Reader = this->AdiosIO.Open(fname, mode);
   this->Refresh();
 }
 
@@ -601,14 +610,14 @@ std::vector<vtkm::cont::UnknownArrayHandle> GetTimeArrayInternal(
       }                                          \
       else if (type == "int64_t")                \
       {                                          \
-        using fides_TT = vtkm::Id;               \
+        using fides_TT = int64_t;                \
         return call;                             \
       }                                          \
       break;                                     \
     case 'l':                                    \
       if (type == "long long int")               \
       {                                          \
-        using fides_TT = vtkm::Id;               \
+        using fides_TT = long long int;          \
         return call;                             \
       }                                          \
       else if (type == "long int")               \
@@ -620,7 +629,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> GetTimeArrayInternal(
     case 's':                                    \
       if (type == "short")                       \
       {                                          \
-        using fides_TT = long int;               \
+        using fides_TT = short;                  \
         return call;                             \
       }                                          \
       else if (type == "signed char")            \
@@ -667,7 +676,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> GetTimeArrayInternal(
       }                                          \
       else if (type == "uint64_t")               \
       {                                          \
-        using fides_TT = unsigned long;          \
+        using fides_TT = uint64_t;               \
         return call;                             \
       }                                          \
       break;                                     \

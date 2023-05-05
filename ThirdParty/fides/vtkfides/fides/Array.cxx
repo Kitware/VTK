@@ -13,6 +13,7 @@
 #include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
 #include <vtkm/cont/ArrayHandleXGCCoordinates.h>
 
+#include <vtkm/Version.h>
 #include <vtkm/cont/Invoker.h>
 #include <vtkm/worklet/WorkletMapField.h>
 
@@ -157,6 +158,10 @@ void Array::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
   else if (arrayType == "cartesian_product")
   {
     this->ArrayImpl.reset(new ArrayCartesianProduct());
+  }
+  else if (arrayType == "composite")
+  {
+    this->ArrayImpl.reset(new ArrayComposite());
   }
   else if (arrayType == "gtc_coordinates")
   {
@@ -386,7 +391,9 @@ void ArrayUniformPointCoordinates::PostRead(
     size_t nDims = this->DimensionArrays.size();
     for (std::size_t i = 0; i < nDims; i++)
     {
-      auto d = this->DimensionArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<std::size_t>>();
+      vtkm::cont::UnknownArrayHandle dimUnknown = vtkm::cont::ArrayHandle<std::size_t>{};
+      dimUnknown.CopyShallowIfPossible(this->DimensionArrays[i]);
+      auto d = dimUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<std::size_t>>();
       auto o = this->OriginArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
       auto s = this->SpacingArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
       auto dPortal = d.ReadPortal();
@@ -489,6 +496,51 @@ size_t ArrayCartesianProduct::GetNumberOfBlocks(
   DataSourcesType& sources)
 {
   return this->XArray->GetNumberOfBlocks(paths, sources);
+}
+
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayComposite::Read(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources,
+  const fides::metadata::MetaData& selections)
+{
+  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
+  std::vector<vtkm::cont::UnknownArrayHandle> xarrays =
+    this->XArray->Read(paths, sources, selections);
+  std::vector<vtkm::cont::UnknownArrayHandle> yarrays =
+    this->YArray->Read(paths, sources, selections);
+  std::vector<vtkm::cont::UnknownArrayHandle> zarrays =
+    this->ZArray->Read(paths, sources, selections);
+  size_t nArrays = xarrays.size();
+  for (size_t i = 0; i < nArrays; i++)
+  {
+    auto& xarray = xarrays[i];
+    auto& yarray = yarrays[i];
+    auto& zarray = zarrays[i];
+    using floatType = vtkm::cont::ArrayHandle<float>;
+    using doubleType = vtkm::cont::ArrayHandle<double>;
+    if (xarray.IsType<floatType>() && yarray.IsType<floatType>() && zarray.IsType<floatType>())
+    {
+      auto xarrayF = xarray.AsArrayHandle<floatType>();
+      auto yarrayF = yarray.AsArrayHandle<floatType>();
+      auto zarrayF = zarray.AsArrayHandle<floatType>();
+      retVal.push_back(
+        vtkm::cont::make_ArrayHandleSOA<vtkm::Vec3f_32>({ xarrayF, yarrayF, zarrayF }));
+    }
+    else if (xarray.IsType<doubleType>() && yarray.IsType<doubleType>() &&
+             zarray.IsType<doubleType>())
+    {
+      auto xarrayD = xarray.AsArrayHandle<doubleType>();
+      auto yarrayD = yarray.AsArrayHandle<doubleType>();
+      auto zarrayD = zarray.AsArrayHandle<doubleType>();
+      retVal.push_back(
+        vtkm::cont::make_ArrayHandleSOA<vtkm::Vec3f_64>({ xarrayD, yarrayD, zarrayD }));
+    }
+    else
+    {
+      throw std::runtime_error("Only float and double arrays are supported in cartesian products.");
+    }
+  }
+  return retVal;
 }
 
 ArrayXGC::ArrayXGC()
@@ -859,6 +911,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCCoordinates::Read(
     auto newSelections = selections;
     fides::metadata::Bool flag(true);
     newSelections.Set(fides::keys::READ_AS_MULTIBLOCK(), flag);
+    // Removing because for XGC Fides blocks are not the same as ADIOS blocks
+    newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
     //Add some checks.
     auto xarrays = this->XArray->Read(paths, sources, newSelections);
@@ -1005,7 +1059,11 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
   }
 
   auto& dataSet = dataSets[0];
+#if VTKM_VERSION_MAJOR < 2
+  auto& cs = dataSet.GetCoordinateSystem();
+#else
   auto& cs = dataSet.GetField(dataSet.GetCoordinateSystemName());
+#endif
 
   size_t numInsertPlanes = 0;
   if (metaData.Has(fides::keys::fusion::PLANE_INSERTION()))
@@ -1079,6 +1137,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCField::Read(
   auto newSelections = selections;
   fides::metadata::Bool flag(true);
   newSelections.Set(fides::keys::READ_AS_MULTIBLOCK(), flag);
+  // Removing because for XGC Fides blocks are not the same as ADIOS blocks
+  newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
   return this->ReadSelf(paths, sources, newSelections);
 }
