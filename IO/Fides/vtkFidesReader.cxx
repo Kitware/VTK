@@ -196,8 +196,13 @@ void vtkFidesReader::ParseDataModel()
     this->Impl->Reader.reset(new fides::io::DataSetReader(
       this->FileName, inputType, this->StreamSteps, this->Impl->AllParams));
   }
-  catch (...)
+  catch (std::exception& e)
   {
+    // In some cases it's expected that reading will fail (e.g., not all properties have been set
+    // yet), so we don't always want to output the exception. We'll just put it in vtkDebugMacro,
+    // so we can just turn it on when we're experiencing some issue.
+    vtkDebugMacro(<< "Exception encountered when trying to set up Fides DataSetReader: "
+                  << e.what());
     this->Impl->HasParsedDataModel = false;
     return;
   }
