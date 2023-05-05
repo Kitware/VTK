@@ -1208,7 +1208,7 @@ void PIOAdaptor::create_amr_UG(vtkMultiBlockDataSet* grid)
   // On other processors the correct size for the piece is allocated
   std::valarray<int> level;
   std::valarray<std::valarray<double>> center;
-  int numberOfCells;
+  int numberOfCells = 0;
   int64_t* cell_daughter;
   int* cell_level;
   double* cell_center[3];
@@ -1293,6 +1293,9 @@ void PIOAdaptor::create_amr_UG(vtkMultiBlockDataSet* grid)
   }
   else
   {
+    // TODO: check `Receive` for errors. It's the only thing that sets
+    // `numberOfCells` to anything sensible
+    // (`clang-analyzer-core.uninitialized.NewArraySize`).
     this->Controller->Receive(&numberOfCells, 1, 0, this->Impl->mpiTag);
 
     // Allocate space for holding geometry information
