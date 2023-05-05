@@ -57,6 +57,7 @@ misc-*,\
 -misc-unused-using-decls,\
 modernize-*,\
 -modernize-avoid-c-arrays,\
+-modernize-concat-nested-namespaces,\
 -modernize-deprecated-headers,\
 -modernize-loop-convert,\
 -modernize-macro-to-enum,\
