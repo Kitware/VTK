@@ -18,6 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <bitset>
 #include <climits>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <sstream>

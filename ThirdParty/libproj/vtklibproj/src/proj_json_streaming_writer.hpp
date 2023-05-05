@@ -33,6 +33,7 @@
 
 #include <vector>
 #include <string>
+#include <cstdint>
 
 #define CPL_DLL
 
