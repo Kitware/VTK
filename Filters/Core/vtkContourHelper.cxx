@@ -36,12 +36,13 @@ vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator* locator, vtkCellA
   , InCd(inCd)
   , OutPd(outPd)
   , OutCd(outCd)
-  , GenerateTriangles(outputTriangles)
+  , OutputTriangles(outputTriangles)
 {
   this->Tris = vtkCellArray::New();
   this->TriOutCd = vtkCellData::New();
-  if (this->GenerateTriangles)
+  if (!this->OutputTriangles)
   {
+    // Allocate memory for storing temporary triangles before merging them
     this->Tris->AllocateEstimate(estimatedSize, 3);
     this->TriOutCd->Initialize();
   }
@@ -60,7 +61,7 @@ vtkContourHelper::~vtkContourHelper()
 void vtkContourHelper::Contour(
   vtkCell* cell, double value, vtkDataArray* cellScalars, vtkIdType cellId)
 {
-  bool mergeTriangles = (!this->GenerateTriangles) && cell->GetCellDimension() == 3;
+  bool mergeTriangles = (!this->OutputTriangles) && cell->GetCellDimension() == 3;
   vtkCellData* outCD = nullptr;
   vtkCellArray* outPoly = nullptr;
   if (mergeTriangles)

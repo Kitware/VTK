@@ -66,7 +66,7 @@ private:
   vtkCellArray* Tris;
   vtkPolygonBuilder PolyBuilder;
   vtkIdListCollection* PolyCollection;
-  bool GenerateTriangles;
+  bool OutputTriangles = false;
 };
 
 VTK_ABI_NAMESPACE_END
