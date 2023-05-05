@@ -84,6 +84,8 @@ struct DataSource
     }
   }
 
+  bool StreamingMode = true;
+
   /// Set parameters needed by ADIOS. The \c params argument is a map of
   /// ADIOS engine parameters to be used. Currently, only the inline
   /// engine requires this to be called, which must happen before attempting

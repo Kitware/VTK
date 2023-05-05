@@ -210,8 +210,11 @@ void CellSetSingleType::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   for (size_t i = 0; i < nParts; i++)
   {
     auto& pds = partitions[i];
-    vtkm::cont::ArrayHandle<vtkm::Id> connCasted =
-      this->ConnectivityArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
+    // if the array isn't stored as a signed int, we'll have to do a deep copy
+    // into another UnknownArrayHandle
+    vtkm::cont::UnknownArrayHandle connUnknown = vtkm::cont::ArrayHandle<vtkm::Id>{};
+    connUnknown.CopyShallowIfPossible(this->ConnectivityArrays[i]);
+    auto connCasted = connUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
 
     vtkm::cont::CellSetSingleType<> cellSet;
     if (pds.GetCellSet().IsValid())
@@ -303,10 +306,16 @@ void CellSetExplicit::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
       vtkm::cont::make_ArrayHandleCast<vtkm::Id, vtkm::cont::ArrayHandle<vtkm::IdComponent>>(
         nVertsCasted),
       offsets);
+
+    vtkm::cont::UnknownArrayHandle connUnknown = vtkm::cont::ArrayHandle<vtkm::Id>{};
+    connUnknown.CopyShallowIfPossible(this->ConnectivityArrays[i]);
     vtkm::cont::ArrayHandle<vtkm::Id> connCasted =
-      this->ConnectivityArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
+      connUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
+
+    vtkm::cont::UnknownArrayHandle typesUnknown = vtkm::cont::ArrayHandle<vtkm::UInt8>{};
+    typesUnknown.CopyShallowIfPossible(this->CellTypesArrays[i]);
     vtkm::cont::ArrayHandle<vtkm::UInt8> typesCasted =
-      this->CellTypesArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
+      typesUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
 
     vtkm::cont::CellSetExplicit<> cellSet;
     if (pds.GetCellSet().IsValid())
@@ -363,8 +372,9 @@ void CellSetStructured::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
     {
       cellSet = ds.GetCellSet().AsCellSet<vtkm::cont::CellSetStructured<3>>();
     }
-    const auto& dimArray =
-      this->DimensionArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<std::size_t>>();
+    vtkm::cont::UnknownArrayHandle dimUnknown = vtkm::cont::ArrayHandle<std::size_t>{};
+    dimUnknown.CopyShallowIfPossible(this->DimensionArrays[i]);
+    const auto& dimArray = dimUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<std::size_t>>();
     auto dimPortal = dimArray.ReadPortal();
 
     vtkm::Id3 dims(static_cast<vtkm::Id>(dimPortal.Get(0)),

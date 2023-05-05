@@ -62,8 +62,13 @@ endif ()
 fides_generate_export_header(fides)
 
 if (FALSE) # XXX(kitware): use vtk_module system
-target_compile_definitions(fides PRIVATE ${MPI_DEFS})
-target_link_libraries(fides PUBLIC vtkm::cont adios2::adios2 PRIVATE
+target_compile_definitions(fides PRIVATE ${MPI_DEFS} ${ADIOS_DEFS})
+if (VTKm_VERSION VERSION_EQUAL "1.9")
+  set(VTKM_LIBS vtkm_cont)
+elseif(VTKm_VERSION VERSION_GREATER_EQUAL "2.0")
+  set(VTKM_LIBS vtkm::cont)
+endif()
+target_link_libraries(fides PUBLIC ${VTKM_LIBS} adios2::adios2 PRIVATE
   fides_rapidjson)
 
 target_include_directories(fides PUBLIC
@@ -74,6 +79,9 @@ target_include_directories(fides PUBLIC
 else()
 if (${MPI_DEFS})
 vtk_module_definitions(VTK::fides PRIVATE ${MPI_DEFS})
+endif()
+if (ADIOS_DEFS)
+vtk_module_definitions(VTK::fides PRIVATE ${ADIOS_DEFS})
 endif()
 vtk_module_link(VTK::fides
   PRIVATE

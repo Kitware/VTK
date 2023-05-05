@@ -147,17 +147,6 @@ std::pair<bool, std::string> GetOptionalVariableName(std::shared_ptr<InternalMet
   return std::make_pair(true, vec[0]);
 }
 
-std::string GetRequiredVariableName(std::shared_ptr<InternalMetadataSource> source,
-                                    const std::string& attrName)
-{
-  auto dimVarName = source->GetAttribute<std::string>(attrName);
-  if (dimVarName.empty())
-  {
-    throw std::runtime_error(attrName + " must be set for this data model");
-  }
-  return dimVarName[0];
-}
-
 const std::string DataModelAttrName = "Fides_Data_Model";
 const std::string TimeVariableAttrName = "Fides_Time_Variable";
 const std::string OriginAttrName = "Fides_Origin";

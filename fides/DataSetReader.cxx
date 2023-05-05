@@ -46,8 +46,12 @@ using DataSourcesType = std::unordered_map<std::string, std::shared_ptr<DataSour
 class DataSetReader::DataSetReaderImpl
 {
 public:
-  DataSetReaderImpl(const std::string dataModel, DataModelInput inputType, const Params& params)
+  DataSetReaderImpl(const std::string& dataModel,
+                    DataModelInput inputType,
+                    bool streamSteps,
+                    const Params& params)
   {
+    this->StreamingMode = streamSteps;
     this->Cleanup();
     if (inputType == DataModelInput::BPFile)
     {
@@ -113,7 +117,7 @@ public:
     }
   }
 
-  void SetDataSourceParameters(const std::string source, const DataSourceParams& params)
+  void SetDataSourceParameters(const std::string& source, const DataSourceParams& params)
   {
     auto it = this->DataSources.find(source);
     if (it == this->DataSources.end())
@@ -124,7 +128,7 @@ public:
     ds.SetDataSourceParameters(params);
   }
 
-  void SetDataSourceIO(const std::string source, void* io)
+  void SetDataSourceIO(const std::string& source, void* io)
   {
     auto it = this->DataSources.find(source);
     if (it == this->DataSources.end())
@@ -135,7 +139,7 @@ public:
     ds.SetDataSourceIO(io);
   }
 
-  void SetDataSourceIO(const std::string source, const std::string& io)
+  void SetDataSourceIO(const std::string& source, const std::string& io)
   {
     auto it = this->DataSources.find(source);
     if (it == this->DataSources.end())
@@ -272,7 +276,7 @@ public:
   }
 
   template <typename ValueType>
-  const rapidjson::Value& FindAndReturnObject(ValueType& root, const std::string name)
+  const rapidjson::Value& FindAndReturnObject(ValueType& root, const std::string& name)
   {
     if (!root.HasMember(name.c_str()))
     {
@@ -461,6 +465,15 @@ public:
 
   fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths)
   {
+    if (!this->StreamingMode)
+    {
+      // for bp5, if we're reading random access, we have to specify it now
+      // otherwise we won't be able to read any variables or attributes
+      for (const auto& source : this->DataSources)
+      {
+        source.second->StreamingMode = false;
+      }
+    }
     if (!this->CoordinateSystem)
     {
       throw std::runtime_error("Cannot read missing coordinate system.");
@@ -482,13 +495,6 @@ public:
         fields.Data.push_back(afield);
       }
       metaData.Set(fides::keys::FIELDS(), fields);
-    }
-
-    size_t nSteps = this->GetNumberOfSteps();
-    if (nSteps > 0)
-    {
-      fides::metadata::Size nStepsM(nSteps);
-      metaData.Set(fides::keys::NUMBER_OF_STEPS(), nStepsM);
     }
 
     auto it = this->DataSources.find(this->StepSource);
@@ -529,12 +535,10 @@ public:
         if (!timeVec.empty())
         {
           auto& timeAH = timeVec[0];
-          if (!timeAH.CanConvert<vtkm::cont::ArrayHandle<vtkm::Float64>>())
-          {
-            std::runtime_error("can't convert time array to double");
-          }
-          vtkm::cont::ArrayHandle<vtkm::Float64> timeCasted =
-            timeAH.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float64>>();
+          vtkm::cont::UnknownArrayHandle tUAH = timeAH.NewInstanceFloatBasic();
+          tUAH.CopyShallowIfPossible(timeAH);
+          vtkm::cont::ArrayHandle<vtkm::FloatDefault> timeCasted =
+            tUAH.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::FloatDefault>>();
 
           auto timePortal = timeCasted.ReadPortal();
           fides::metadata::Vector<double> time;
@@ -544,6 +548,13 @@ public:
           metaData.Set(fides::keys::TIME_ARRAY(), time);
         }
       }
+    }
+
+    size_t nSteps = this->GetNumberOfSteps();
+    if (nSteps > 0)
+    {
+      fides::metadata::Size nStepsM(nSteps);
+      metaData.Set(fides::keys::NUMBER_OF_STEPS(), nStepsM);
     }
 
     return metaData;
@@ -637,6 +648,7 @@ bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
   // MPI mode. vtkFidesReader::CanReadFile uses this function to see if it can read
   // a given ADIOS file. When running in parallel, only rank 0 will execute this, so we need
   // to make sure that we don't do collective calls.
+  source->StreamingMode = false;
   source->OpenSource(filename, false);
   if (source->GetAttributeType(attrName) == "string")
   {
@@ -658,14 +670,22 @@ bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
   return found;
 }
 
-DataSetReader::DataSetReader(const std::string dataModel,
+DataSetReader::DataSetReader(const std::string& dataModel,
                              DataModelInput inputType /*=DataModelInput::JSONFile*/,
+                             const Params& params)
+  : DataSetReader(dataModel, inputType, false, params)
+{
+}
+
+DataSetReader::DataSetReader(const std::string& dataModel,
+                             DataModelInput inputType,
+                             bool streamSteps,
                              const Params& params)
   : Impl(nullptr)
 {
   if (inputType != DataModelInput::BPFile)
   {
-    this->Impl.reset(new DataSetReaderImpl(dataModel, inputType, params));
+    this->Impl.reset(new DataSetReaderImpl(dataModel, inputType, streamSteps, params));
     return;
   }
 
@@ -675,6 +695,9 @@ DataSetReader::DataSetReader(const std::string dataModel,
   auto source = std::make_shared<DataSourceType>();
   source->Mode = fides::io::FileNameMode::Relative;
   source->FileName = dataModel; // in this case dataModel should be bp filename
+  // streaming mode should always be false in this case because
+  // we're simply reading an attribute
+  source->StreamingMode = false;
   source->OpenSource(dataModel);
   if (source->GetAttributeType(fidesAttr) == "string")
   {
@@ -683,7 +706,7 @@ DataSetReader::DataSetReader(const std::string dataModel,
     {
       if (predefined::DataModelSupported(result[0]))
       {
-        this->Impl.reset(new DataSetReaderImpl(dataModel, inputType, params));
+        this->Impl.reset(new DataSetReaderImpl(dataModel, inputType, streamSteps, params));
         return;
       }
     }
@@ -696,7 +719,8 @@ DataSetReader::DataSetReader(const std::string dataModel,
     auto schema = source->ReadAttribute<std::string>(schemaAttr);
     if (!schema.empty())
     {
-      this->Impl.reset(new DataSetReaderImpl(schema[0], DataModelInput::JSONString, params));
+      this->Impl.reset(
+        new DataSetReaderImpl(schema[0], DataModelInput::JSONString, streamSteps, params));
       return;
     }
   }
@@ -818,18 +842,18 @@ std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
   return dataSets;
 }
 
-void DataSetReader::SetDataSourceParameters(const std::string source,
+void DataSetReader::SetDataSourceParameters(const std::string& source,
                                             const DataSourceParams& params)
 {
   this->Impl->SetDataSourceParameters(source, params);
 }
 
-void DataSetReader::SetDataSourceIO(const std::string source, void* io)
+void DataSetReader::SetDataSourceIO(const std::string& source, void* io)
 {
   this->Impl->SetDataSourceIO(source, io);
 }
 
-void DataSetReader::SetDataSourceIO(const std::string source, const std::string& io)
+void DataSetReader::SetDataSourceIO(const std::string& source, const std::string& io)
 {
   this->Impl->SetDataSourceIO(source, io);
 }
