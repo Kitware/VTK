@@ -33,12 +33,11 @@ vtkStandardNewMacro(vtkQuadricClustering);
 
 //------------------------------------------------------------------------------
 // PIMPLd STL set for keeping track of inserted cells
-struct vtkQuadricClusteringIdTypeHash
+struct vtkQuadricClusteringIdxHash
 {
-  size_t operator()(vtkIdType val) const { return static_cast<size_t>(val); }
+  size_t operator()(int64_t val) const { return static_cast<size_t>(val); }
 };
-class vtkQuadricClusteringCellSet
-  : public std::unordered_set<vtkIdType, vtkQuadricClusteringIdTypeHash>
+class vtkQuadricClusteringCellSet : public std::unordered_set<int64_t, vtkQuadricClusteringIdxHash>
 {
 };
 typedef vtkQuadricClusteringCellSet::iterator vtkQuadricClusteringCellSetIterator;
@@ -158,7 +157,7 @@ int vtkQuadricClustering::RequestData(vtkInformation* vtkNotUsed(request),
   // (To minimize chance of overflow, force math in vtkIdType type,
   // which is sometimes bigger than int, and never smaller.)
   vtkIdType target = input->GetNumberOfPoints();
-  vtkIdType numDiv = static_cast<vtkIdType>(this->NumberOfXDivisions) * this->NumberOfYDivisions *
+  int64_t numDiv = static_cast<int64_t>(this->NumberOfXDivisions) * this->NumberOfYDivisions *
     this->NumberOfZDivisions / 2;
   if (this->AutoAdjustNumberOfDivisions && numDiv > target)
   {
