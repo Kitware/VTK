@@ -20,11 +20,8 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPyramid.h"
-#include "vtkSmartPointer.h"
 
 #include <array>
-#include <cassert>
-#include <limits>
 
 //-----------------------------------------------------------------------------
 #define VTK_REQUIRE(cond, msg)                                                                     \
