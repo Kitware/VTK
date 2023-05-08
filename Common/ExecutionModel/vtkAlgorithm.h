@@ -726,6 +726,25 @@ public:
   vtkGetObjectMacro(ProgressObserver, vtkProgressObserver);
   ///@}
 
+  ///@{
+  /**
+   * Set to all output ports of this algorithm the information key
+   * `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()`. This should
+   * be set on sources of pipelines for which all timesteps are not necessarily
+   * all available at once. This is typically the case for visualization in situ.
+   *
+   * @note Default value in `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS_CONTINUE`.
+   */
+  void SetIncompleteTimeStepsInformationKey(int key);
+  void SetIncompleteTimeStepsInformationKey();
+  ///@}
+
+  /**
+   * Removes any information key `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()`
+   * to all output ports of this `vtkAlgorithm`.
+   */
+  void RemoveIncompleteTimeStepsInformationKey();
+
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm() override;

@@ -250,6 +250,48 @@ bool vtkAlgorithm::CheckUpstreamAbort()
 }
 
 //------------------------------------------------------------------------------
+void vtkAlgorithm::SetIncompleteTimeStepsInformationKey()
+{
+  this->SetIncompleteTimeStepsInformationKey(
+    vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS_CONTINUE);
+}
+
+//------------------------------------------------------------------------------
+void vtkAlgorithm::SetIncompleteTimeStepsInformationKey(int key)
+{
+  using vtkSDDP = vtkStreamingDemandDrivenPipeline;
+
+  if (key != vtkSDDP::INCOMPLETE_TIME_STEPS_CONTINUE && key != vtkSDDP::INCOMPLETE_TIME_STEPS_RESET)
+  {
+    vtkWarningMacro("Setting vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS() with"
+                    " unsupported value, setting it to"
+                    " vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS_CONTINUE by default");
+    key = vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS_CONTINUE;
+  }
+
+  for (int port = 0; port < this->GetNumberOfOutputPorts(); ++port)
+  {
+    if (vtkInformation* outputInfo = this->GetOutputInformation(port))
+    {
+      outputInfo->Set(vtkSDDP::INCOMPLETE_TIME_STEPS(), key);
+    }
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkAlgorithm::RemoveIncompleteTimeStepsInformationKey()
+{
+  for (int port = 0; this->GetNumberOfOutputPorts(); ++port)
+  {
+    if (vtkInformation* outputInfo = this->GetOutputInformation(port))
+    {
+      outputInfo->Remove(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS());
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkInformation* vtkAlgorithm ::GetInputArrayFieldInformation(
   int idx, vtkInformationVector** inputVector)
 {
