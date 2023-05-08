@@ -73,6 +73,10 @@ struct UnstructuredDataCD2PD
         auto cells = this->Links->GetCells(pointId);
         this->Arrays.Average(ncells, cells, pointId);
       }
+      else
+      {
+        this->Arrays.AssignNullValue(pointId);
+      }
     }
   }
 };
