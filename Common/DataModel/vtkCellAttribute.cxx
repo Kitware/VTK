@@ -68,8 +68,8 @@ bool vtkCellAttribute::Initialize(
 vtkStringToken::Hash vtkCellAttribute::GetHash() const
 {
   std::ostringstream str;
-  str << this->GetNumberOfComponents() << "–" << this->GetName().Data() << "–"
-      << this->GetAttributeType().Data() << "–" << this->GetSpace().Data();
+  str << this->GetNumberOfComponents() << "-" << this->GetName().Data() << "-"
+      << this->GetAttributeType().Data() << "-" << this->GetSpace().Data();
   vtkStringToken result(str.str());
   return result.GetId();
 }
