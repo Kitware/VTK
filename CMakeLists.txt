@@ -656,9 +656,14 @@ if (VTK_BUILD_TESTING)
 endif ()
 
 # The doxygen documentation needs to be aware of all modules.
-option(VTK_BUILD_DOCUMENTATION "Build the VTK documentation" OFF)
+option(VTK_BUILD_DOCUMENTATION "Build the Doxygen VTK documentation" OFF)
 if (VTK_BUILD_DOCUMENTATION)
   add_subdirectory(Utilities/Doxygen)
+endif ()
+
+option(VTK_BUILD_SPHINX_DOCUMENTATION "Build the Sphinx documentation for VTK" OFF)
+if (VTK_BUILD_SPHINX_DOCUMENTATION)
+  add_subdirectory(Utilities/Sphinx)
 endif ()
 
 if (NOT TARGET uninstall)
