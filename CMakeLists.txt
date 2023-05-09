@@ -17,3 +17,7 @@ generate_export_header(loguru
 
 vtk_module_find_package(PACKAGE Threads)
 vtk_module_link(VTK::loguru PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
+
+set_source_files_properties(loguru.cpp
+    PROPERTIES
+    COMPILE_DEFINITIONS "LOGURU_SCOPE_TIME_PRECISION=${VTK_LOGGING_TIME_PRECISION}")
