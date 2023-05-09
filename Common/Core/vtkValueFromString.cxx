@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 namespace Impl
 {
 // clang-format off
-static constexpr std::array<unsigned char, 256> DigitsLUT = 
+static const std::array<unsigned char, 256> DigitsLUT = 
 {{
   255, 255, 255, 255, 255, 255, 255, 255,
   255, 255, 255, 255, 255, 255, 255, 255,
@@ -69,7 +69,7 @@ static constexpr std::array<unsigned char, 256> DigitsLUT =
 }};
 // clang-format on
 
-static constexpr unsigned char CharToInt(char ch) noexcept
+static unsigned char CharToInt(char ch) noexcept
 {
   return DigitsLUT[static_cast<unsigned char>(ch)];
 }
