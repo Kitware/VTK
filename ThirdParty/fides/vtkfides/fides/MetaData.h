@@ -40,7 +40,7 @@ protected:
   virtual MetaDataItem* CloneImpl() const = 0;
 
 public:
-  virtual ~MetaDataItem() {}
+  virtual ~MetaDataItem() = default;
   std::unique_ptr<MetaDataItem> Clone() const { return std::unique_ptr<MetaDataItem>(CloneImpl()); }
 };
 
@@ -57,7 +57,7 @@ struct FIDES_EXPORT Size : public MetaDataItem
   size_t NumberOfItems;
 
 protected:
-  virtual Size* CloneImpl() const override { return new Size(*this); }
+  Size* CloneImpl() const override { return new Size(*this); }
 };
 
 /// \brief Meta-data item to store a flag.
@@ -73,7 +73,7 @@ struct FIDES_EXPORT Bool : public MetaDataItem
   bool Value;
 
 protected:
-  virtual Bool* CloneImpl() const override { return new Bool(*this); }
+  Bool* CloneImpl() const override { return new Bool(*this); }
 };
 
 /// \brief Meta-data item to store an index to a container.
@@ -86,7 +86,7 @@ struct FIDES_EXPORT Index : public MetaDataItem
   size_t Data;
 
 protected:
-  virtual Index* CloneImpl() const override { return new Index(*this); }
+  Index* CloneImpl() const override { return new Index(*this); }
 };
 
 /// \brief Meta-data item to store a double time value.
@@ -99,7 +99,7 @@ struct FIDES_EXPORT Time : public MetaDataItem
   double Data;
 
 protected:
-  virtual Time* CloneImpl() const override { return new Time(*this); }
+  Time* CloneImpl() const override { return new Time(*this); }
 };
 
 /// \brief Simple struct representing field information.
@@ -136,11 +136,11 @@ struct FIDES_EXPORT Vector : public MetaDataItem
     : Data(vec)
   {
   }
-  Vector() {}
+  Vector() = default;
   std::vector<T> Data;
 
 protected:
-  virtual Vector* CloneImpl() const override { return new Vector(*this); }
+  Vector* CloneImpl() const override { return new Vector(*this); }
 };
 
 /// \brief Meta-data item to store a set.
@@ -151,11 +151,11 @@ struct FIDES_EXPORT Set : public MetaDataItem
     : Data(data)
   {
   }
-  Set() {}
+  Set() = default;
   std::set<T> Data;
 
 protected:
-  virtual Set* CloneImpl() const override { return new Set(*this); }
+  Set* CloneImpl() const override { return new Set(*this); }
 };
 
 /// \brief Container of meta-data items.

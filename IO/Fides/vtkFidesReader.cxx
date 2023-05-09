@@ -54,6 +54,7 @@ struct vtkFidesReader::vtkFidesReaderImpl
   bool SkipNextPrepareCall{ false };
   int NumberOfDataSources{ 0 };
   bool UseInlineEngine{ false };
+  fides::Params AllParams;
   vtkNew<vtkStringArray> SourceNames;
 
   // first -> source name, second -> address of IO object
@@ -104,6 +105,7 @@ vtkFidesReader::vtkFidesReader()
   this->SetNumberOfOutputPorts(1);
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
+  this->FieldDataArraySelection = vtkDataArraySelection::New();
   this->ConvertToVTK = false;
   this->StreamSteps = false;
   this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
@@ -113,6 +115,7 @@ vtkFidesReader::~vtkFidesReader()
 {
   this->PointDataArraySelection->Delete();
   this->CellDataArraySelection->Delete();
+  this->FieldDataArraySelection->Delete();
 }
 
 int vtkFidesReader::CanReadFile(const std::string& name)
@@ -121,7 +124,9 @@ int vtkFidesReader::CanReadFile(const std::string& name)
   {
     return 0;
   }
-  if (vtksys::SystemTools::StringEndsWith(name, ".bp"))
+  if (vtksys::SystemTools::StringEndsWith(name, ".bp") ||
+    vtksys::SystemTools::StringEndsWith(name, ".bp4") ||
+    vtksys::SystemTools::StringEndsWith(name, ".bp5"))
   {
     if (fides::io::DataSetReader::CheckForDataModelAttribute(name))
     {
@@ -139,7 +144,9 @@ int vtkFidesReader::CanReadFile(const std::string& name)
 void vtkFidesReader::SetFileName(const std::string& fname)
 {
   this->FileName = fname;
-  if (vtksys::SystemTools::StringEndsWith(fname, ".bp"))
+  if (vtksys::SystemTools::StringEndsWith(fname, ".bp") ||
+    vtksys::SystemTools::StringEndsWith(fname, ".bp4") ||
+    vtksys::SystemTools::StringEndsWith(fname, ".bp5"))
   {
     if (fides::io::DataSetReader::CheckForDataModelAttribute(fname))
     {
@@ -186,10 +193,16 @@ void vtkFidesReader::ParseDataModel()
   }
   try
   {
-    this->Impl->Reader.reset(new fides::io::DataSetReader(this->FileName, inputType));
+    this->Impl->Reader.reset(new fides::io::DataSetReader(
+      this->FileName, inputType, this->StreamSteps, this->Impl->AllParams));
   }
-  catch (...)
+  catch (std::exception& e)
   {
+    // In some cases it's expected that reading will fail (e.g., not all properties have been set
+    // yet), so we don't always want to output the exception. We'll just put it in vtkDebugMacro,
+    // so we can just turn it on when we're experiencing some issue.
+    vtkDebugMacro(<< "Exception encountered when trying to set up Fides DataSetReader: "
+                  << e.what());
     this->Impl->HasParsedDataModel = false;
     return;
   }
@@ -212,6 +225,19 @@ void vtkFidesReader::SetDataSourcePath(const std::string& name, const std::strin
     vtkDebugMacro(<< "All data sources have now been set");
     this->Impl->AllDataSourcesSet = true;
   }
+}
+
+void vtkFidesReader::SetDataSourceEngine(const std::string& name, const std::string& engine)
+{
+  if (name.empty() || engine.empty())
+  {
+    return;
+  }
+  fides::DataSourceParams params;
+  params["engine_type"] = engine;
+  vtkDebugMacro(<< "for data source " << name << ", setting ADIOS engine to " << engine);
+  this->Impl->AllParams.insert(std::make_pair(name, params));
+  this->Modified();
 }
 
 void vtkFidesReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -268,6 +294,14 @@ int vtkFidesReader::RequestDataObject(
 int vtkFidesReader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
+  if (this->StreamSteps && this->NextStepStatus != StepStatus::NotReady)
+  {
+    // if we're in StreamSteps mode, updating the step status could cause
+    // RequestInformation to be called again. In this case, we'll assume
+    // that if NextStepStatus is good, that we'll just return here instead
+    // of resetting the DataSetReader
+    return 1;
+  }
   if (this->Impl->UseInlineEngine && this->Impl->HasParsedDataModel)
   {
     // If we're using the Inline engine, we may get unnecessary
@@ -379,6 +413,10 @@ int vtkFidesReader::RequestInformation(
       {
         this->CellDataArraySelection->AddArray(field.Name.c_str());
       }
+      else if (field.Association == vtkm::cont::Field::Association::WholeDataSet)
+      {
+        this->FieldDataArraySelection->AddArray(field.Name.c_str());
+      }
     }
   }
 
@@ -404,6 +442,7 @@ int vtkFidesReader::RequestInformation(
     double timeRange[2];
     timeRange[0] = times[0];
     timeRange[1] = times[nSteps - 1];
+    vtkDebugMacro(<< "time min: " << timeRange[0] << ", time max: " << timeRange[1]);
 
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), times.data(), nSteps);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
@@ -628,7 +667,7 @@ int vtkFidesReader::RequestData(
       index = static_cast<int>(0);
     }
     vtkDebugMacro(<< "RequestData() Not streaming and we have update time step request for step "
-                  << step);
+                  << step << " with index " << index);
     fides::metadata::Index idx(index);
     selections.Set(fides::keys::STEP_SELECTION(), idx);
   }
@@ -651,6 +690,15 @@ int vtkFidesReader::RequestData(
     if (this->CellDataArraySelection->ArrayIsEnabled(aname))
     {
       arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::Cells);
+    }
+  }
+  int nFArrays = this->FieldDataArraySelection->GetNumberOfArrays();
+  for (int i = 0; i < nFArrays; i++)
+  {
+    const char* aname = this->FieldDataArraySelection->GetArrayName(i);
+    if (this->FieldDataArraySelection->ArrayIsEnabled(aname))
+    {
+      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::WholeDataSet);
     }
   }
   selections.Set(fides::keys::FIELDS(), arraySelection);

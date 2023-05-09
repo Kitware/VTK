@@ -59,8 +59,13 @@ public:
   /// \param params a map of ADIOS engine parameters to be
   /// used for each data source. Optional
   /// \sa DataModelInput
-  DataSetReader(const std::string dataModel,
+  DataSetReader(const std::string& dataModel,
                 DataModelInput inputType = DataModelInput::JSONFile,
+                const Params& params = Params());
+
+  DataSetReader(const std::string& dataModel,
+                DataModelInput inputType,
+                bool streamSteps,
                 const Params& params = Params());
 
   ~DataSetReader();
@@ -81,21 +86,21 @@ public:
   /// \param source name of the \c DataSource, which should match a data_sources
   /// name given in the data model JSON.
   /// \param params a map of parameters and their values
-  void SetDataSourceParameters(const std::string source, const DataSourceParams& params);
+  void SetDataSourceParameters(const std::string& source, const DataSourceParams& params);
 
   /// Set the IO for a given \c source. This call should only be used when
   /// using the inline engine and must be called before attempting to read data or metadata.
   /// \param source name of the \c DataSource, which should match a data_sources
   /// name given in the data model JSON.
   /// \param io pointer to the ADIOS IO object
-  void SetDataSourceIO(const std::string source, void* io);
+  void SetDataSourceIO(const std::string& source, void* io);
 
   /// Set the IO for a given \c source. This call should only be used when
   /// using the inline engine and must be called before attempting to read data or metadata.
   /// \param source name of the \c DataSource, which should match a data_sources
   /// name given in the data model JSON.
   /// \param io the address to an ADIOS IO object, stored in a string
-  void SetDataSourceIO(const std::string source, const std::string& io);
+  void SetDataSourceIO(const std::string& source, const std::string& io);
 
   /// Read and return meta-data. This includes information such as the
   /// number of blocks, available fields etc.

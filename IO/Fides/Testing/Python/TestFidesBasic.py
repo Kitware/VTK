@@ -77,9 +77,10 @@ class TestFidesBasic(Testing.vtkTest):
 
     def testThird(self):
         r = vtkIOFides.vtkFidesReader()
-        r.ParseDataModel(VTK_DATA_ROOT + "/Data/vtk-uns-grid-2.json")
+        r.SetFileName(VTK_DATA_ROOT + "/Data/vtk-uns-grid-2.json")
         r.SetDataSourcePath("source",
             VTK_DATA_ROOT + "/Data/tris-blocks-time.bp")
+        r.UpdateInformation()
         r.PrepareNextStep()
         r.Update()
         r.PrepareNextStep()

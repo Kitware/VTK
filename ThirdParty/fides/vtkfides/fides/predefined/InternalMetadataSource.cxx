@@ -41,6 +41,7 @@ InternalMetadataSource::InternalMetadataSource(const std::string& filename)
   this->Source.reset(new fides::io::DataSource());
   this->Source->Mode = fides::io::FileNameMode::Relative;
   this->Source->FileName = filename;
+  this->Source->StreamingMode = false;
   this->Source->OpenSource(filename);
 }
 

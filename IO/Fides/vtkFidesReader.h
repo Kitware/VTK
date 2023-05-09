@@ -94,6 +94,11 @@ public:
   void SetDataSourcePath(const std::string& name, VTK_FILEPATH const std::string& path);
 
   /**
+   * Set the engine for a Fides data source. Defaults to BP engine.
+   */
+  void SetDataSourceEngine(const std::string& name, const std::string& engine);
+
+  /**
    * Set the ADIOS2::IO object to be used for setting up the Inline engine reader.
    * This should not be used for any other engine type.
    * ioAddress is a string containing the address of the IO object, which Fides
@@ -141,6 +146,15 @@ public:
   vtkGetMacro(ConvertToVTK, bool);
   ///@}
 
+  ///@{
+  /**
+   * Methods to determine whether streaming mode is used. False by default.
+   */
+  vtkBooleanMacro(StreamSteps, bool);
+  vtkSetMacro(StreamSteps, bool);
+  vtkGetMacro(StreamSteps, bool);
+  ///@}
+
   /**
    * Object to perform point array selection before update.
    */
@@ -174,6 +188,7 @@ protected:
 
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
+  vtkDataArraySelection* FieldDataArraySelection;
 
   static vtkInformationIntegerKey* NUMBER_OF_BLOCKS();
 

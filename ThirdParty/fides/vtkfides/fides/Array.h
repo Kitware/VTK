@@ -213,10 +213,21 @@ struct ArrayCartesianProduct : public ArrayBase
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
                            DataSourcesType& sources) override;
 
-private:
+protected:
   std::unique_ptr<Array> XArray = nullptr;
   std::unique_ptr<Array> YArray = nullptr;
   std::unique_ptr<Array> ZArray = nullptr;
+};
+
+struct ArrayComposite : public ArrayCartesianProduct
+{
+  /// Reads and returns array handles. This class depends on
+  /// three separate (basic) array  objects that form the
+  /// cartesian product.
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources,
+    const fides::metadata::MetaData& selections) override;
 };
 
 /// \brief Class for handling XGC data and contains common functionality
