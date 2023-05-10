@@ -2030,14 +2030,20 @@ void vtkPolyhedron::Contour(double value, vtkDataArray* pointScalars,
           triPts[j] = polygon->PointIds->GetId(ptIds->GetId(3 * i + j));
         }
         vtkIdType newCellId = offset + polys->InsertNextCell(3, triPts);
-        outCd->CopyData(inCd, cellId, newCellId);
+        if (outCd)
+        {
+          outCd->CopyData(inCd, cellId, newCellId);
+        }
       } // for each simplex
     }   // triangulate polygon
     else
     {
       vtkIdType newCellId =
         offset + polys->InsertNextCell(poly->GetNumberOfIds(), poly->GetPointer(0));
-      outCd->CopyData(inCd, cellId, newCellId);
+      if (outCd)
+      {
+        outCd->CopyData(inCd, cellId, newCellId);
+      }
     }
   };
 

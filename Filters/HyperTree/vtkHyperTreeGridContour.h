@@ -37,9 +37,12 @@
 #ifndef vtkHyperTreeGridContour_h
 #define vtkHyperTreeGridContour_h
 
+#include "vtkCellArray.h"              // For vtkCellArray
 #include "vtkContourValues.h"          // Needed for inline methods
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkNew.h"       // For vtkNew
+#include "vtkPointData.h" // For vtkPointData
 
 #include <vector> // For STL
 
@@ -99,6 +102,22 @@ public:
   void GenerateValues(int, double, double);
   ///@}
 
+  enum CellStrategy3D
+  {
+    USE_VOXELS,
+    USE_DECOMPOSED_POLYHEDRA
+  };
+  /**
+   * Set the contour strategy to apply.
+   * By default, strategy is USE_VOXELS.
+   * This method is time-efficient but can lead to bad results in the 3D case, where generated dual
+   * cells can be concave.
+   * USE_DECOMPOSED_POLYHEDRA allow better results in such cases (3D HTGs only).
+   * It takes advantage of the vtkPolyhedronUtilities::Decompose method to generate better contours.
+   * The dowside is this method is much slower than USE_VOXELS.
+   */
+  vtkSetClampMacro(Strategy3D, int, USE_VOXELS, USE_DECOMPOSED_POLYHEDRA);
+
 protected:
   vtkHyperTreeGridContour();
   ~vtkHyperTreeGridContour() override;
@@ -119,9 +138,12 @@ protected:
   bool RecursivelyPreProcessTree(vtkHyperTreeGridNonOrientedCursor*);
 
   /**
-   * Recursively descend into tree down to leaves
+   * Recursively descend into the tree down to the leaves to construct the contour (verts, lines,
+   * polys). dualPointData represents the point data of the dual mesh, i.e. HTG cell data used for
+   * contouring.
    */
-  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedMooreSuperCursor*);
+  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedMooreSuperCursor*, vtkCellArray* verts,
+    vtkCellArray* lines, vtkCellArray* polys, vtkPointData* dualPointData);
 
   /**
    * Storage for contour values.
@@ -173,9 +195,15 @@ protected:
   vtkBitArray* InMask;
   vtkUnsignedCharArray* InGhostArray;
 
+  // Strategy used to represent dual cells in 3D
+  int Strategy3D = USE_VOXELS;
+
 private:
   vtkHyperTreeGridContour(const vtkHyperTreeGridContour&) = delete;
   void operator=(const vtkHyperTreeGridContour&) = delete;
+
+  struct vtkInternals;
+  std::unique_ptr<vtkInternals> Internals;
 };
 
 /**
