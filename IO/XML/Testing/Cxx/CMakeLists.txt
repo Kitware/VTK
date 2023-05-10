@@ -11,6 +11,7 @@ set(all_tests
   TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
   TestXMLHyperTreeGridIO.cxx,NO_VALID
   TestXMLHyperTreeGridIO2.cxx,NO_VALID
+  TestXMLHyperTreeGridIOInterface.cxx
   TestXMLHyperTreeGridIOReduction.cxx,NO_VALID
   TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
   TestXMLPieceDistribution.cxx

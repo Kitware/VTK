@@ -358,7 +358,6 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
   int branchFactor;
   int transposedRootIndexing;
   int dimensions[3];
-  const char* name;
 
   // Read the attributes of the hyper tree grid
   // Whether or not there is a file description in the XML file,
@@ -377,13 +376,19 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
     dimensions[1] = 1;
     dimensions[2] = 1;
   }
-  if ((name = ePrimary->GetAttribute("InterfaceNormalsName")))
+  const char* normalsName = ePrimary->GetAttribute("InterfaceNormalsName");
+  if (normalsName)
   {
-    output->SetInterfaceNormalsName(name);
+    output->SetInterfaceNormalsName(normalsName);
   }
-  if ((name = ePrimary->GetAttribute("InterfaceInterceptsName")))
+  const char* interceptsName = ePrimary->GetAttribute("InterfaceInterceptsName");
+  if (interceptsName)
   {
-    output->SetInterfaceInterceptsName(name);
+    output->SetInterfaceInterceptsName(interceptsName);
+  }
+  if (normalsName && interceptsName)
+  {
+    output->SetHasInterface(true);
   }
   if (!ePrimary->GetScalarAttribute("NumberOfVertices", this->NumberOfPoints))
   {
