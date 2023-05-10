@@ -66,7 +66,7 @@ thumb to follow is: `General domain: reason for change`, General domain being a 
 git commit -m "General domain: Short yet informative reason for the change"
 ```
 
-Build VTK following the [guide](Documentation/dev/build.md#) and fix any build warnings or issues that arise and seems related to your changes.
+Build VTK following the [guide](/Documentation/dev/build.md#) and fix any build warnings or issues that arise and seems related to your changes.
 
 Add/Improve tests in order to ensure your changes are tested. Take a look in the `Testing` directory
 of the module you are making changes in to see how the tests are currently built and try to follow the same paradigms.
