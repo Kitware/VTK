@@ -382,6 +382,91 @@ bool CheckLocationSelection(vtkHyperTreeGrid* htg)
   return true;
 }
 
+vtkSmartPointer<vtkDataObject> ExtractUG(vtkHyperTreeGrid* htg, vtkSelection* selection)
+{
+  vtkNew<vtkExtractSelection> extractor;
+  extractor->SetHyperTreeGridToUnstructuredGrid(true);
+  extractor->SetInputDataObject(0, htg);
+  extractor->SetInputDataObject(1, selection);
+  extractor->Update();
+  return extractor->GetOutputDataObject(0);
+}
+
+constexpr unsigned int EXPECTED_NB_UG_CELLS = 196;
+
+bool CheckUGConvertedSelection(vtkHyperTreeGrid* htg)
+{
+  std::cout << "*******************************************************************\n"
+            << "                     Checking UG Conversion                        \n"
+            << "*******************************************************************" << std::endl;
+
+  vtkNew<vtkDoubleArray> frustumCorners;
+  frustumCorners->SetNumberOfComponents(4);
+  frustumCorners->SetNumberOfTuples(8);
+  // looking in the z direction
+  frustumCorners->SetTuple4(0, 0.2, 0.2, 0.8, 0.0); // near lower left
+  frustumCorners->SetTuple4(1, 0.2, 0.2, 0.2, 0.0); // far lower left
+  frustumCorners->SetTuple4(2, 0.2, 0.8, 0.8, 0.0); // near upper left
+  frustumCorners->SetTuple4(3, 0.2, 0.8, 0.2, 0.0); // far upper left
+  frustumCorners->SetTuple4(4, 0.8, 0.2, 0.8, 0.0); // near lower right
+  frustumCorners->SetTuple4(5, 0.8, 0.2, 0.2, 0.0); // far lower right
+  frustumCorners->SetTuple4(6, 0.8, 0.8, 0.8, 0.0); // near upper right
+  frustumCorners->SetTuple4(7, 0.8, 0.8, 0.2, 0.0); // far upper right
+  // as per documented in vtkFrustumSelector
+  vtkNew<vtkSelectionNode> selNode;
+  selNode->SetContentType(vtkSelectionNode::FRUSTUM);
+  selNode->SetFieldType(vtkSelectionNode::CELL);
+  selNode->SetSelectionList(frustumCorners);
+  vtkNew<vtkSelection> selection;
+  selection->AddNode(selNode);
+
+  auto extracted = ExtractUG(htg, selection);
+  if (!extracted)
+  {
+    std::cout << "Extraction is nullptr" << std::endl;
+    return false;
+  }
+
+  auto ug = vtkUnstructuredGrid::SafeDownCast(extracted);
+  if (!ug)
+  {
+    std::cout << "Extraction is not an unstructured grid" << std::endl;
+    return false;
+  }
+
+  if (ug->GetNumberOfCells() != EXPECTED_NB_UG_CELLS)
+  {
+    std::cout << "Extraction failed to generate correct number of cells (" << EXPECTED_NB_UG_CELLS
+              << " != " << ug->GetNumberOfCells() << ")" << std::endl;
+    return false;
+  }
+
+  if (ug->GetNumberOfPoints() != EXPECTED_NB_UG_CELLS * 8)
+  {
+    std::cout << "Extraction failed to generate correct number of points ("
+              << EXPECTED_NB_UG_CELLS * 8 << " != " << ug->GetNumberOfPoints() << ")" << std::endl;
+    return false;
+  }
+
+  std::array<double, 6> ugBounds = { 0 };
+  ug->GetBounds(ugBounds.data());
+  for (std::size_t iDim = 0; iDim < 3; ++iDim)
+  {
+    // we account for some overflow from the frustum since hitting a cell includes it in the
+    // extraction
+    if (ugBounds[2 * iDim] < 0.1 || ugBounds[2 * iDim + 1] > 1.0)
+    {
+      std::cout << "Extraction failed in bounds test on dimension " << iDim << ": "
+                << ugBounds[2 * iDim] << " < 0.1 or " << ugBounds[2 * iDim + 1] << " > 1.0"
+                << std::endl;
+      return false;
+    }
+  }
+
+  std::cout << "                       All good                                    \n" << std::endl;
+  return true;
+}
+
 }
 
 int TestHyperTreeGridSelection(int, char*[])
@@ -401,6 +486,8 @@ int TestHyperTreeGridSelection(int, char*[])
   res &= ::CheckFrustumSelection(input);
   res &= ::CheckValueSelection(input);
   res &= ::CheckLocationSelection(input);
+
+  res &= ::CheckUGConvertedSelection(input);
 
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
