@@ -511,7 +511,7 @@ void vtkImageData::AddPointsToCellTemplate(vtkCell* cell, int ijkMin[3], int ijk
   vtkIdType d01 = dims[0] * dims[1];
 
   // Extract point coordinates and point ids
-  // Ids are relative to extent min.
+  // Ids are relative to extent min.
   npts = 0;
   for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
   {
