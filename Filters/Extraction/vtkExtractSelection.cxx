@@ -27,6 +27,7 @@
 #include "vtkFrustumSelector.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
+#include "vtkHyperTreeGridToUnstructuredGrid.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -134,7 +135,8 @@ int vtkExtractSelection::RequestDataObject(
     // For other composite datasets, we create a vtkMultiBlockDataSet as output;
     outputType = VTK_MULTIBLOCK_DATA_SET;
   }
-  else if (vtkDataSet::SafeDownCast(inputDO))
+  else if (vtkDataSet::SafeDownCast(inputDO) ||
+    (this->HyperTreeGridToUnstructuredGrid && vtkHyperTreeGrid::SafeDownCast(inputDO)))
   {
     // vtkDataSet becomes a vtkUnstructuredGrid.
     outputType = VTK_UNSTRUCTURED_GRID;
@@ -794,6 +796,13 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(vtkDataObjec
       vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
       cursor->Initialize(outHTG, iTree);
       ::SanitizeHTGMask(cursor);
+    }
+    if (this->HyperTreeGridToUnstructuredGrid)
+    {
+      vtkNew<vtkHyperTreeGridToUnstructuredGrid> htg2ug;
+      htg2ug->SetInputDataObject(outHTG);
+      htg2ug->Update();
+      result = htg2ug->GetOutput();
     }
     return result;
   }

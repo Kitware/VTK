@@ -15,6 +15,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::FiltersCore
+  VTK::FiltersHyperTree
   VTK::FiltersStatistics
   VTK::ParallelDIY
 OPTIONAL_DEPENDS

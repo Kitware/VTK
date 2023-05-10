@@ -77,6 +77,18 @@ public:
   vtkBooleanMacro(PreserveTopology, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get a flag controlling whether to output an Unstructured Grid (true) or an HyperTreeGrid
+   * (false) when input is a HyperTreeGrid
+   *
+   * Default is set to false
+   */
+  vtkGetMacro(HyperTreeGridToUnstructuredGrid, bool);
+  vtkSetMacro(HyperTreeGridToUnstructuredGrid, bool);
+  vtkBooleanMacro(HyperTreeGridToUnstructuredGrid, bool);
+  ///@}
+
 protected:
   vtkExtractSelection();
   ~vtkExtractSelection() override;
@@ -175,6 +187,9 @@ protected:
 private:
   vtkExtractSelection(const vtkExtractSelection&) = delete;
   void operator=(const vtkExtractSelection&) = delete;
+
+  /// Boolean controling whether to extract HTG input as a UG (true) or a masked HTG (false)
+  bool HyperTreeGridToUnstructuredGrid = false;
 };
 
 VTK_ABI_NAMESPACE_END
