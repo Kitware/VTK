@@ -135,6 +135,12 @@ if(MSVC)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /bigobj")
 endif()
 
+# Use /utf-8 so that MSVC uses utf-8 in source files and object files
+if(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /utf-8")
+endif()
+
 #-----------------------------------------------------------------------------
 # Add compiler flags VTK needs to work on this platform.  This must be
 # done after the call to CMAKE_EXPORT_BUILD_SETTINGS, but before any
