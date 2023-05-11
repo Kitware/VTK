@@ -29,6 +29,7 @@
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkType.h"
+#include "vtkValueFromString.h"
 #include "vtkVariantArray.h"
 
 #include "vtksys/SystemTools.hxx"
@@ -783,71 +784,77 @@ vtkAbstractArray* vtkVariant::ToArray() const
   return nullptr;
 }
 
-// Used internally by vtkVariantStringToNumeric to find non-finite numbers.
-// Most numerics do not support non-finite numbers, hence the default simply
-// fails.  Overload for doubles and floats detect non-finite numbers they
-// support
 template <typename T>
-T vtkVariantStringToNonFiniteNumeric(vtkStdString vtkNotUsed(str), bool* valid)
+struct isChar : std::false_type
 {
-  if (valid)
-    *valid = false;
+};
+template <>
+struct isChar<char> : std::true_type
+{
+};
+template <>
+struct isChar<unsigned char> : std::true_type
+{
+};
+template <>
+struct isChar<signed char> : std::true_type
+{
+};
+
+template <typename T, typename std::enable_if<!isChar<T>::value>::type* = nullptr>
+std::size_t vtkVariantStringToNumericInternal(const char* it, const char* end, T& output)
+{
+  return vtkValueFromString(it, end, output);
+}
+
+template <typename T, typename std::enable_if<isChar<T>::value>::type* = nullptr>
+std::size_t vtkVariantStringToNumericInternal(const char* it, const char* end, T& output)
+{
+  if (it != end)
+  {
+    output = static_cast<T>(*it);
+    return 1;
+  }
+
   return 0;
 }
 
-template <>
-double vtkVariantStringToNonFiniteNumeric<double>(vtkStdString str, bool* valid)
-{
-  if (vtksys::SystemTools::Strucmp(str.c_str(), "nan") == 0)
-  {
-    if (valid)
-      *valid = true;
-    return vtkMath::Nan();
-  }
-  if ((vtksys::SystemTools::Strucmp(str.c_str(), "infinity") == 0) ||
-    (vtksys::SystemTools::Strucmp(str.c_str(), "inf") == 0))
-  {
-    if (valid)
-      *valid = true;
-    return vtkMath::Inf();
-  }
-  if ((vtksys::SystemTools::Strucmp(str.c_str(), "-infinity") == 0) ||
-    (vtksys::SystemTools::Strucmp(str.c_str(), "-inf") == 0))
-  {
-    if (valid)
-      *valid = true;
-    return vtkMath::NegInf();
-  }
-  if (valid)
-    *valid = false;
-  return vtkMath::Nan();
-}
-
-template <>
-float vtkVariantStringToNonFiniteNumeric<float>(vtkStdString str, bool* valid)
-{
-  return static_cast<float>(vtkVariantStringToNonFiniteNumeric<double>(str, valid));
-}
-
 template <typename T>
-T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored) = nullptr)
+T vtkVariantStringToNumeric(const vtkStdString& str, bool* valid, T* vtkNotUsed(ignored) = nullptr)
 {
-  std::istringstream vstr(str);
-  T data = 0;
-  vstr >> data;
-  if (!vstr.eof())
+  auto it = str.data();
+  const auto end = str.data() + str.size();
+
+  const auto consumeWhitespaces = [&it, end]() {
+    it = std::find_if(it, end, [](char c) { return !std::isspace(static_cast<unsigned char>(c)); });
+  };
+
+  // discard leading whitespace (as if done by std::istream::operator>>)
+  consumeWhitespaces();
+
+  // Convert value
+  T output{};
+  const auto consumed = vtkVariantStringToNumericInternal(it, end, output);
+  if (consumed == 0) // failed to parse any value
   {
-    // take in white space so that it can reach eof.
-    vstr >> std::ws;
+    if (valid)
+    {
+      *valid = false;
+    }
+
+    return output;
   }
-  bool v = (!vstr.fail() && vstr.eof());
+  it += consumed;
+
+  // check that we consumed all non-whitespace input
+  consumeWhitespaces();
+
   if (valid)
-    *valid = v;
-  if (!v)
   {
-    data = vtkVariantStringToNonFiniteNumeric<T>(str, valid);
+    *valid = (it == end);
   }
-  return data;
+
+  return output;
 }
 
 //------------------------------------------------------------------------------

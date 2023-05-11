@@ -195,10 +195,8 @@ bool CheckTrimming()
   Check(
     43.01 > floating_value && floating_value > 42.29 && valid, "Trimming not performed for floats");
 
-  // This test does not pass, but it probably should, this will be fixed with the new backend.
-  // vtkVariant nan = "\r\t\n\f\v nan\r\t\n\f\v ";
-  // Check(std::isnan(nan.ToFloat(&valid)) && valid, "Trimming not performed for non-finite
-  // floats");
+  vtkVariant nan = "\r\t\n\f\v nan\r\t\n\f\v ";
+  Check(std::isnan(nan.ToFloat(&valid)) && valid, "Trimming not performed for non-finite floats");
 
   vtkVariant cMultiple = "\r\t\n\f\v V\r\t\n\f\v tk \r\t\n\f\v";
   cMultiple.ToChar(&valid);
