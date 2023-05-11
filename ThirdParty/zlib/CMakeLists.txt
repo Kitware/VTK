@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkzlib/zlib.h"
-    VERSION       "1.2.12"
+    LICENSE_FILES "vtkzlib/LICENSE"
+    VERSION       "1.2.13"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE ZLIB
