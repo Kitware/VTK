@@ -70,7 +70,7 @@ bool vtkCompositeDataDisplayAttributes::HasBlockVisibilities() const
 //----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockVisibility(vtkDataObject* data_object) const
 {
-  return this->BlockVisibilities.count(data_object) == size_t(1);
+  return this->BlockVisibilities.count(data_object) == std::size_t(1);
 }
 
 //----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ bool vtkCompositeDataDisplayAttributes::HasBlockPickabilities() const
 //----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockPickability(vtkDataObject* data_object) const
 {
-  return this->BlockPickabilities.count(data_object) == size_t(1);
+  return this->BlockPickabilities.count(data_object) == std::size_t(1);
 }
 
 //----------------------------------------------------------------------------
@@ -192,7 +192,7 @@ bool vtkCompositeDataDisplayAttributes::HasBlockColors() const
 //----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockColor(vtkDataObject* data_object) const
 {
-  return this->BlockColors.count(data_object) == size_t(1);
+  return this->BlockColors.count(data_object) == std::size_t(1);
 }
 
 //----------------------------------------------------------------------------
@@ -352,8 +352,7 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
   bool blockVisible =
     (cda && cda->HasBlockVisibility(dobj)) ? cda->GetBlockVisibility(dobj) : parentVisible;
 
-  vtkDataObjectTree* dObjTree = vtkDataObjectTree::SafeDownCast(dobj);
-  if (dObjTree)
+  if (auto dObjTree = vtkDataObjectTree::SafeDownCast(dobj))
   {
     using Opts = vtk::DataObjectTreeOptions;
     for (vtkDataObject* child : vtk::Range(dObjTree, Opts::SkipEmptyNodes))
@@ -362,18 +361,17 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
         cda, child, bbox, blockVisible);
     }
   }
-  else if (dobj && blockVisible)
+  else if (blockVisible)
   {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
-    vtkPolyData* pd = vtkPolyData::SafeDownCast(ds);
-    double bounds[6];
-    if (pd)
+    vtkDataSet* dataset = vtkDataSet::SafeDownCast(dobj);
+    double bounds[6] = {};
+    if (auto polydata = vtkPolyData::SafeDownCast(dataset))
     {
-      pd->GetCellsBounds(bounds);
+      polydata->GetCellsBounds(bounds);
     }
-    else if (ds)
+    else if (dataset != nullptr)
     {
-      ds->GetBounds(bounds);
+      dataset->GetBounds(bounds);
     }
     bbox->AddBounds(bounds);
   }
@@ -390,14 +388,13 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
 
   // for leaf types quick continue, otherwise it recurses which
   // calls two more SafeDownCast which are expensive
-  int dotype = parent_obj->GetDataObjectType();
+  const int dotype = parent_obj->GetDataObjectType();
   if (dotype < VTK_COMPOSITE_DATA_SET) // see vtkType.h
   {
     return nullptr;
   }
 
-  vtkDataObjectTree* dObjTree = vtkDataObjectTree::SafeDownCast(parent_obj);
-  if (dObjTree)
+  if (auto dObjTree = vtkDataObjectTree::SafeDownCast(parent_obj))
   {
     using Opts = vtk::DataObjectTreeOptions;
     for (vtkDataObject* child : vtk::Range(dObjTree, Opts::TraverseSubTree))
