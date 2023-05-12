@@ -29,6 +29,7 @@
 #define vtkProcessIdScalars_h
 
 #include "vtkDataSetAlgorithm.h"
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersParallelModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -39,6 +40,7 @@ class vtkMultiProcessController;
 class VTKFILTERSPARALLEL_EXPORT vtkProcessIdScalars : public vtkDataSetAlgorithm
 {
 public:
+  VTK_DEPRECATED_IN_9_3_0("Use `vtkGenerateProcessIds` instead")
   static vtkProcessIdScalars* New();
 
   vtkTypeMacro(vtkProcessIdScalars, vtkDataSetAlgorithm);

@@ -22,6 +22,7 @@
 #endif
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkAppendFilter.h"
 #include "vtkCellArray.h"
 #include "vtkCellCenters.h"
 #include "vtkCellData.h"
@@ -30,6 +31,7 @@
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenerateGlobalIds.h"
+#include "vtkGenerateProcessIds.h"
 #include "vtkGhostCellsGenerator.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
@@ -45,14 +47,12 @@
 #include "vtkPointDataToCellData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkProcessIdScalars.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRemoveGhosts.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
-#include "vtkThreshold.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -415,9 +415,9 @@ bool AllRanksShareSamePointData(vtkMultiProcessController* controller, vtkDataSe
 
   controller->AllReduce(gidRange + 1, &maxGid, 1, vtkCommunicator::MAX_OP);
 
-  vtkIntArray* pidArray = vtkArrayDownCast<vtkIntArray>(pd->GetAbstractArray("ProcessId"));
+  vtkIdTypeArray* pidArray = vtkArrayDownCast<vtkIdTypeArray>(pd->GetProcessIds());
 
-  vtkNew<vtkIntArray> processId;
+  vtkNew<vtkIdTypeArray> processId;
   processId->SetNumberOfValues(maxGid + 1);
   processId->Fill(-1);
 
@@ -428,7 +428,7 @@ bool AllRanksShareSamePointData(vtkMultiProcessController* controller, vtkDataSe
 
   if (controller->GetLocalProcessId() == 0)
   {
-    vtkNew<vtkIntArray> receivedProcessId;
+    vtkNew<vtkIdTypeArray> receivedProcessId;
     receivedProcessId->SetNumberOfValues(maxGid + 1);
 
     controller->Receive(receivedProcessId->GetPointer(0), maxGid + 1, 1, TAG);
@@ -559,7 +559,7 @@ bool TestInterfacePointsSharing(vtkMultiProcessController* controller, int myran
   vtkNew<vtkGenerateGlobalIds> GIDGenerator;
   GIDGenerator->SetInputData(image);
 
-  vtkNew<vtkProcessIdScalars> PIDGenerator;
+  vtkNew<vtkGenerateProcessIds> PIDGenerator;
   PIDGenerator->SetInputConnection(GIDGenerator->GetOutputPort());
 
   vtkNew<vtkGhostCellsGenerator> generator;
@@ -582,7 +582,7 @@ bool TestInterfacePointsSharing(vtkMultiProcessController* controller, int myran
   }
 
   // Testing point tagging at the interfaces on UG
-  vtkNew<vtkThreshold> UGConverter;
+  vtkNew<vtkAppendFilter> UGConverter;
   UGConverter->SetInputConnection(PIDGenerator->GetOutputPort());
 
   vtkNew<vtkGhostCellsGenerator> UGGenerator;

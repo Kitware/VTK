@@ -13,6 +13,7 @@ set(classes
   vtkExtractPolyDataPiece
   vtkExtractUnstructuredGridPiece
   vtkExtractUserDefinedPiece
+  vtkGenerateProcessIds
   vtkHyperTreeGridGhostCellsGenerator
   vtkPHyperTreeGridProbeFilter
   vtkIntegrateAttributes
