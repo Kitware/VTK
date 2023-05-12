@@ -452,6 +452,11 @@ void vtkIOSSWriter::WriteData()
       properties.add(Ioss::Property("my_processor", controller->GetLocalProcessId()));
       properties.add(Ioss::Property("processor_count", controller->GetNumberOfProcesses()));
     }
+    // tell the writer to writer all blocks, even if empty
+    properties.add(Ioss::Property("RETAIN_EMPTY_BLOCKS", "on"));
+    // Do not convert variable names to lower case. The default is on.
+    // For ex: this resolves a misunderstanding b/w T (temperature) vs t (time)
+    properties.add(Ioss::Property("LOWER_CASE_VARIABLE_NAMES", "off"));
     if (!this->GetWriteQAAndInformationRecords())
     {
       properties.add(Ioss::Property("OMIT_INFO_RECORDS", true));
