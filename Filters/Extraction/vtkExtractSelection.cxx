@@ -786,6 +786,20 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(vtkDataObjec
     masking(0, mask->GetNumberOfTuples());
     // vtkSMPTools::For(0, mask->GetNumberOfTuples(), masking);
     //---------------------------------------------------------------------
+    if (htg->HasMask())
+    {
+      auto originalMask = htg->GetMask();
+      auto maskOring = [&mask, &originalMask](vtkIdType begin, vtkIdType end) {
+        for (vtkIdType iMask = begin; iMask < end; ++iMask)
+        {
+          if (originalMask->GetValue(iMask))
+          {
+            mask->SetValue(iMask, 1);
+          }
+        }
+      };
+      maskOring(0, mask->GetNumberOfTuples());
+    }
     result.TakeReference(htg->NewInstance());
     vtkHyperTreeGrid* outHTG = vtkHyperTreeGrid::SafeDownCast(result);
     outHTG->ShallowCopy(htg);
