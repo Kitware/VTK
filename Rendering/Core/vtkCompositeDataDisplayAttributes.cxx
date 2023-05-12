@@ -25,12 +25,17 @@
 #include "vtkPolyData.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCompositeDataDisplayAttributes);
 
+//----------------------------------------------------------------------------
 vtkCompositeDataDisplayAttributes::vtkCompositeDataDisplayAttributes() = default;
 
+//----------------------------------------------------------------------------
 vtkCompositeDataDisplayAttributes::~vtkCompositeDataDisplayAttributes() = default;
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::SetBlockVisibility(vtkDataObject* data_object, bool visible)
 {
   if (this->HasBlockVisibility(data_object) && this->GetBlockVisibility(data_object) == visible)
@@ -41,6 +46,7 @@ void vtkCompositeDataDisplayAttributes::SetBlockVisibility(vtkDataObject* data_o
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::GetBlockVisibility(vtkDataObject* data_object) const
 {
   BoolMap::const_iterator iter = this->BlockVisibilities.find(data_object);
@@ -55,21 +61,25 @@ bool vtkCompositeDataDisplayAttributes::GetBlockVisibility(vtkDataObject* data_o
   }
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockVisibilities() const
 {
   return !this->BlockVisibilities.empty();
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockVisibility(vtkDataObject* data_object) const
 {
   return this->BlockVisibilities.count(data_object) == size_t(1);
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockVisibility(vtkDataObject* data_object)
 {
   this->BlockVisibilities.erase(data_object);
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilities()
 {
   if (this->HasBlockVisibilities())
@@ -79,6 +89,7 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilities()
   this->BlockVisibilities.clear();
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::SetBlockPickability(
   vtkDataObject* data_object, bool visible)
 {
@@ -90,6 +101,7 @@ void vtkCompositeDataDisplayAttributes::SetBlockPickability(
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::GetBlockPickability(vtkDataObject* data_object) const
 {
   BoolMap::const_iterator iter = this->BlockPickabilities.find(data_object);
@@ -104,21 +116,25 @@ bool vtkCompositeDataDisplayAttributes::GetBlockPickability(vtkDataObject* data_
   }
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockPickabilities() const
 {
   return !this->BlockPickabilities.empty();
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockPickability(vtkDataObject* data_object) const
 {
   return this->BlockPickabilities.count(data_object) == size_t(1);
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockPickability(vtkDataObject* data_object)
 {
   this->BlockPickabilities.erase(data_object);
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockPickabilities()
 {
   if (this->HasBlockPickabilities())
@@ -128,6 +144,7 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockPickabilities()
   this->BlockPickabilities.clear();
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::SetBlockColor(
   vtkDataObject* data_object, const double color[3])
 {
@@ -144,6 +161,7 @@ void vtkCompositeDataDisplayAttributes::SetBlockColor(
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::GetBlockColor(
   vtkDataObject* data_object, double color[3]) const
 {
@@ -154,6 +172,7 @@ void vtkCompositeDataDisplayAttributes::GetBlockColor(
   }
 }
 
+//----------------------------------------------------------------------------
 vtkColor3d vtkCompositeDataDisplayAttributes::GetBlockColor(vtkDataObject* data_object) const
 {
   ColorMap::const_iterator iter = this->BlockColors.find(data_object);
@@ -164,21 +183,25 @@ vtkColor3d vtkCompositeDataDisplayAttributes::GetBlockColor(vtkDataObject* data_
   return vtkColor3d();
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockColors() const
 {
   return !this->BlockColors.empty();
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockColor(vtkDataObject* data_object) const
 {
   return this->BlockColors.count(data_object) == size_t(1);
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockColor(vtkDataObject* data_object)
 {
   this->BlockColors.erase(data_object);
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockColors()
 {
   if (this->HasBlockColors())
@@ -188,11 +211,13 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockColors()
   this->BlockColors.clear();
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::SetBlockOpacity(vtkDataObject* data_object, double opacity)
 {
   if (this->HasBlockOpacity(data_object) && this->GetBlockOpacity(data_object) == opacity)
@@ -203,6 +228,7 @@ void vtkCompositeDataDisplayAttributes::SetBlockOpacity(vtkDataObject* data_obje
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 double vtkCompositeDataDisplayAttributes::GetBlockOpacity(vtkDataObject* data_object) const
 {
   DoubleMap::const_iterator iter = this->BlockOpacities.find(data_object);
@@ -215,21 +241,25 @@ double vtkCompositeDataDisplayAttributes::GetBlockOpacity(vtkDataObject* data_ob
   return 0;
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockOpacities() const
 {
   return !this->BlockOpacities.empty();
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockOpacity(vtkDataObject* data_object) const
 {
   return this->BlockOpacities.find(data_object) != this->BlockOpacities.end();
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockOpacity(vtkDataObject* data_object)
 {
   this->BlockOpacities.erase(data_object);
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockOpacities()
 {
   if (this->HasBlockOpacities())
@@ -239,6 +269,7 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockOpacities()
   this->BlockOpacities.clear();
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::SetBlockMaterial(
   vtkDataObject* data_object, const std::string& material)
 {
@@ -250,6 +281,7 @@ void vtkCompositeDataDisplayAttributes::SetBlockMaterial(
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 const std::string& vtkCompositeDataDisplayAttributes::GetBlockMaterial(
   vtkDataObject* data_object) const
 {
@@ -264,21 +296,25 @@ const std::string& vtkCompositeDataDisplayAttributes::GetBlockMaterial(
   return nomat;
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockMaterials() const
 {
   return !this->BlockMaterials.empty();
 }
 
+//----------------------------------------------------------------------------
 bool vtkCompositeDataDisplayAttributes::HasBlockMaterial(vtkDataObject* data_object) const
 {
   return this->BlockMaterials.find(data_object) != this->BlockMaterials.end();
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockMaterial(vtkDataObject* data_object)
 {
   this->BlockMaterials.erase(data_object);
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockMaterials()
 {
   if (this->HasBlockMaterials())
@@ -288,6 +324,7 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockMaterials()
   this->BlockMaterials.clear();
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
   vtkCompositeDataDisplayAttributes* cda, vtkDataObject* dobj, double bounds[6])
 {
@@ -301,6 +338,7 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
   }
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
   vtkCompositeDataDisplayAttributes* cda, vtkDataObject* dobj, vtkBoundingBox* bbox,
   bool parentVisible)
@@ -341,6 +379,7 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
   }
 }
 
+//----------------------------------------------------------------------------
 vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
   unsigned int flat_index, vtkDataObject* parent_obj, unsigned int current_flat_index)
 {
