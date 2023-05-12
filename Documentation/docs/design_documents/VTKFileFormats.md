@@ -737,7 +737,7 @@ The appended data section is stored in an _AppendedData_ element that is nested 
   </VTKFile>
 ```
 
-The appended data section begins with the first character after the underscore inside the _AppendedData_ element. The underscore is not part of the data, but is always present. Data in this section is always in binary form, but can be compressed and/or base64 encoded. The byte-order of the data matches that specified by the byte_order attribute of the _VTKFile_ element. Each _DataArray_’s data are stored contiguously and appended immediately after the previous _DataArray_’s data without a seperator. The _DataArray_’s _offset_ attribute indicates the file position offset from the first character after the underscore to the beginning its data.
+The appended data section begins with the first character after the underscore inside the _AppendedData_ element. The underscore is not part of the data, but is always present. Data in this section is always in binary form, but can be compressed and/or base64 encoded. The byte-order of the data matches that specified by the byte_order attribute of the _VTKFile_ element. Each _DataArray_’s data are stored contiguously and appended immediately after the previous _DataArray_’s data without a separator. The _DataArray_’s _offset_ attribute indicates the file position offset from the first character after the underscore to the beginning its data.
 
 ### **Parallel File Formats.**
 The parallel file formats do not actually store any data in the file. Instead, the data are broken into pieces, each of which is stored in a serial file of the same dataset type.
@@ -1328,7 +1328,7 @@ GROUP "/" {
 
 The Overlapping AMR data file is an AMR Guaussian Pulse source with two levels
 (0 and 1), describing one Point Data, several Cell Data and a Field Data. Actual
-`Data` are not displayed for readibility.
+`Data` are not displayed for readability.
 
 ```
 GROUP "/" {

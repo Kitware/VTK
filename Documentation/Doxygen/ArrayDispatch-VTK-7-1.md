@@ -65,7 +65,7 @@ void calcMagnitude(vtkDataArray *vectors, vtkDataArray *magnitude)
 }
 ```
 
-### The Costs of Flexiblity
+### The Costs of Flexibility
 
 However, this flexibility comes at a cost. Passing data through a generic API
 has a number of issues:

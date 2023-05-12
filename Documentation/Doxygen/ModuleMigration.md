@@ -1,4 +1,4 @@
-# Module Migration ftom VTK 8.2 to 9+
+# Module Migration from VTK 8.2 to 9+
 
 VTK 8.2 and older contained a module system which was based on variables and
 informed CMake's migration to target-based properties and interactions. This
@@ -151,7 +151,7 @@ In this example, we have a module with the following sources:
 
   - `vtkPublicClass.cxx` and `vtkPublicClass.h`: Public VTK class meant to be
     wrapped and its header installed.
-  - `vtkPrivateClass.cxx` and `vtkPrivateClass.h`: Priavte VTK class not meant
+  - `vtkPrivateClass.cxx` and `vtkPrivateClass.h`: Private VTK class not meant
     for use outside of the module.
   - `helper.cpp` and `helper.h`: Private API, but not following VTK's naming
     conventions.

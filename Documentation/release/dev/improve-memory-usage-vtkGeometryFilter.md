@@ -5,4 +5,4 @@ Additionally, `vtkGeometryFilter` has better performance when dealing with 32-bi
 Initialize functions when dealing with Triangle and Quad Faces. Moreover, `vtkDataSet` now has a function to get the
 number of faces of a cell. Lastly, the performance of `vtkUnstructuredGrid`'s IsCellBoundary/GetCellNeighbors
 has been improved by reverting to an older better version, and accessing the cell array efficiently using the
-Visit design patter to avoid unnecessary copies.
+Visit design pattern to avoid unnecessary copies.

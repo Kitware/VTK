@@ -8,4 +8,4 @@
 
 **Build-time**
 
-Check the build [prerequisites](../building/build.md#prerequisites).
+Check the build [prerequisites](../build_instructions/index.md#prerequisites).

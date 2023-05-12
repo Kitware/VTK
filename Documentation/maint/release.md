@@ -20,7 +20,7 @@ step.
 Create the relevant milestones in GitLab (one for the actual release and
 another for rc1). Plausible deadlines should be used; they can be edited later.
 
-### Annoucements
+### Announcements
 
 Announcements should be posted on the [VTK Discourse][] forum and Linux distribution
 maintainers.

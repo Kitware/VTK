@@ -12,8 +12,8 @@ python/vtkmodules/vtkmodules
 
 ## Doxygen-style documentation
 VTK is implemented in C++ and it is made available in Python via its Python Wrappers.
-Although, the VTK doxygen [documentation](http://vtk.org/doc/nightly/html) is derived from the C++ API, the corresponsing Python API uses the same classes and methods.
-There are however some convetions in place for how wrapping is constructed. To quickly inspect the available methods of a class you can use the `help` method:
+Although, the VTK doxygen [documentation](http://vtk.org/doc/nightly/html) is derived from the C++ API, the corresponding Python API uses the same classes and methods.
+There are however some conventions in place for how wrapping is constructed. To quickly inspect the available methods of a class you can use the `help` method:
 ```python
 >> import vtk
 help(vtk.vtkSphereSource)

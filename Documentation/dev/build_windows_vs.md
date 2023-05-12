@@ -62,7 +62,7 @@ c:\data\cpp\vtk\src\....
 
 Use CMake to generate a visual studio solution.
 
-1. Open CMake-GUI, either by typing cmake-gui on the command propmpt or from the start-menu.
+1. Open CMake-GUI, either by typing cmake-gui on the command prompt or from the start-menu.
 2. Enter the source and build directories
 
    ![cmake1](images/cmake1.png)
@@ -81,12 +81,12 @@ Use CMake to generate a visual studio solution.
 ### Build
 
 Use Visual Studio to build the .dll files.
-The last step of CMAke will launch Visual Studio and will open the generated solution.
+The last step of CMake will launch Visual Studio and will open the generated solution.
 
 1. Set the configuration to "Release"
 2. Build the "ALL_BUILD" project.
 
-Again, this will take a while [About ten mintues on a 2-core i7].
+Again, this will take a while [About ten minutes on a 2-core i7].
 
 After this there should be a folder /build/bin/Release containing the created .dll libraries.
 
@@ -151,7 +151,7 @@ From [vtk-examples](https://kitware.github.io/vtk-examples/site/Cxx/) pick a sim
 
 7. Click [Open Project]
 
-   In visual sudio:
+   In visual studio:
 
    1. Select the example (HighlightPickedActor) as start-up project. (right click -> set as start-up project)
    2. Run!
