@@ -18,11 +18,13 @@
 #include "config.h"
 #include "netcdf.h"
 #include "netcdf_filter.h"
+#include "netcdf_meta.h"
 #include "nc4internal.h"
 #include "nc.h" /* from libsrc */
 #include "ncdispatch.h" /* from libdispatch */
 #include "ncutf8.h"
-#include "netcdf_aux.h"
+#include <stdarg.h>
+#include "ncrc.h"
 
 /** @internal Number of reserved attributes. These attributes are
  * hidden from the netcdf user, but exist in the implementation
@@ -33,37 +35,100 @@
 */
 
 /** @internal List of reserved attributes.
-    WARNING: This list must be in sorted order for binary search. */
+    WARNING: This list must be in (strcmp) sorted order for binary search. */
 static const NC_reservedatt NC_reserved[] = {
     {NC_ATT_CLASS, READONLYFLAG|HIDDENATTRFLAG},			/*CLASS*/
     {NC_ATT_DIMENSION_LIST, READONLYFLAG|HIDDENATTRFLAG},		/*DIMENSION_LIST*/
     {NC_ATT_NAME, READONLYFLAG|HIDDENATTRFLAG},				/*NAME*/
     {NC_ATT_REFERENCE_LIST, READONLYFLAG|HIDDENATTRFLAG},		/*REFERENCE_LIST*/
-    {NC_XARRAY_DIMS, READONLYFLAG|HIDDENATTRFLAG},			/*_ARRAY_DIMENSIONS*/
+    {NC_XARRAY_DIMS, READONLYFLAG|NAMEONLYFLAG|HIDDENATTRFLAG},		/*_ARRAY_DIMENSIONS*/
+    {NC_ATT_CODECS, VARFLAG|READONLYFLAG|NAMEONLYFLAG},			/*_Codecs*/
     {NC_ATT_FORMAT, READONLYFLAG},					/*_Format*/
     {ISNETCDF4ATT, READONLYFLAG|NAMEONLYFLAG},				/*_IsNetcdf4*/
-    {NCPROPS, READONLYFLAG|NAMEONLYFLAG|MATERIALIZEDFLAG},		/*_NCProperties*/
-    {NC_NCZARR_ATTR, READONLYFLAG|HIDDENATTRFLAG},			/*_NCZARR_ATTR*/
-    {NC_ATT_COORDINATES, READONLYFLAG|HIDDENATTRFLAG|MATERIALIZEDFLAG},	/*_Netcdf4Coordinates*/
-    {NC_ATT_DIMID_NAME, READONLYFLAG|HIDDENATTRFLAG|MATERIALIZEDFLAG},	/*_Netcdf4Dimid*/
+    {NCPROPS,READONLYFLAG|NAMEONLYFLAG|HIDDENATTRFLAG},			/*_NCProperties*/
+    {NC_NCZARR_ATTR_UC, READONLYFLAG|HIDDENATTRFLAG},			/*_NCZARR_ATTR */
+    {NC_ATT_COORDINATES, READONLYFLAG|HIDDENATTRFLAG},			/*_Netcdf4Coordinates*/
+    {NC_ATT_DIMID_NAME, READONLYFLAG|HIDDENATTRFLAG},			/*_Netcdf4Dimid*/
     {SUPERBLOCKATT, READONLYFLAG|NAMEONLYFLAG},				/*_SuperblockVersion*/
-    {NC_ATT_NC3_STRICT_NAME, READONLYFLAG|MATERIALIZEDFLAG},		/*_nc3_strict*/
+    {NC_ATT_NC3_STRICT_NAME, READONLYFLAG},				/*_nc3_strict*/
+    {NC_ATT_NC3_STRICT_NAME, READONLYFLAG},				/*_nc3_strict*/
+    {NC_NCZARR_ATTR, READONLYFLAG|HIDDENATTRFLAG},			/*_nczarr_attr */
 };
 #define NRESERVED (sizeof(NC_reserved) / sizeof(NC_reservedatt))  /*|NC_reservedatt|*/
 
-/* These hold the file caching settings for the library. */
-size_t nc4_chunk_cache_size = CHUNK_CACHE_SIZE;            /**< Default chunk cache size. */
-size_t nc4_chunk_cache_nelems = CHUNK_CACHE_NELEMS;        /**< Default chunk cache number of elements. */
-float nc4_chunk_cache_preemption = CHUNK_CACHE_PREEMPTION; /**< Default chunk cache preemption. */
-
 static int NC4_move_in_NCList(NC* nc, int new_id);
 
-#ifdef LOGGING
+#if NC_HAS_LOGGING
 /* This is the severity level of messages which will be logged. Use
    severity 0 for errors, 1 for important log messages, 2 for less
    important, etc. */
 int nc_log_level = NC_TURN_OFF_LOGGING;
-#endif /* LOGGING */
+#if NC_HAS_PARALLEL4
+/* File pointer for the parallel I/O log file. */
+FILE *LOG_FILE = NULL;
+#endif /* NC_HAS_PARALLEL4 */
+
+/* This function prints out a message, if the severity of
+ * the message is lower than the global nc_log_level. To use it, do
+ * something like this:
+ *
+ * nc_log(0, "this computer will explode in %d seconds", i);
+ *
+ * After the first arg (the severity), use the rest like a normal
+ * printf statement. Output will appear on stderr for sequential
+ * builds, and in a file nc4_log_R.log for each process for a parallel
+ * build, where R is the rank of the process.
+ *
+ * Ed Hartnett
+ */
+void
+nc_log(int severity, const char *fmt, ...)
+{
+    va_list argp;
+    int t;
+    FILE *f = stderr;
+
+    /* If the severity is greater than the log level, we don't print
+     * this message. */
+    if (severity > nc_log_level)
+        return;
+
+#if NC_HAS_PARALLEL4
+    /* For parallel I/O build, if MPI has been initialized, instead of
+     * printing logging output to stderr, it goes to a file for each
+     * process. */
+    {
+        int mpi_initialized;
+        int mpierr;
+
+        /* Check to see if MPI has been initialized. */
+        if ((mpierr = MPI_Initialized(&mpi_initialized)))
+            return;
+
+        /* If MPI has been initialized use a log file. */
+        assert(LOG_FILE);
+        if (mpi_initialized)
+            f = LOG_FILE;
+    }
+#endif /* NC_HAS_PARALLEL4 */
+
+    /* If the severity is zero, this is an error. Otherwise insert that
+       many tabs before the message. */
+    if (!severity)
+        fprintf(f, "ERROR: ");
+    for (t = 0; t < severity; t++)
+        fprintf(f, "\t");
+
+    /* Print out the variable list of args with vprintf. */
+    va_start(argp, fmt);
+    vfprintf(f, fmt, argp);
+    va_end(argp);
+
+    /* Put on a final linefeed. */
+    fprintf(f, "\n");
+    fflush(f);
+}
+#endif /* NC_HAS_LOGGING */
 
 /**
  * @internal Check and normalize and name.
@@ -352,6 +417,7 @@ nc4_find_nc_grp_h5(int ncid, NC **nc, NC_GRP_INFO_T **grp, NC_FILE_INFO_T **h5)
     NC_FILE_INFO_T *my_h5 = NULL;
     NC *my_nc;
     int retval;
+    size_t index;
 
     /* Look up file metadata. */
     if ((retval = NC_check_id(ncid, &my_nc)))
@@ -360,7 +426,8 @@ nc4_find_nc_grp_h5(int ncid, NC **nc, NC_GRP_INFO_T **grp, NC_FILE_INFO_T **h5)
     assert(my_h5 && my_h5->root_grp);
 
     /* If we can't find it, the grp id part of ncid is bad. */
-    if (!(my_grp = nclistget(my_h5->allgroups, (ncid & GRP_ID_MASK))))
+    index =  (ncid & GRP_ID_MASK);
+    if (!(my_grp = nclistget(my_h5->allgroups,index)))
         return NC_EBADID;
 
     /* Return pointers to caller, if desired. */
@@ -668,6 +735,7 @@ int
 nc4_var_list_add2(NC_GRP_INFO_T *grp, const char *name, NC_VAR_INFO_T **var)
 {
     NC_VAR_INFO_T *new_var = NULL;
+    NCglobalstate* gs = NC_getglobalstate();
 
     /* Allocate storage for new variable. */
     if (!(new_var = calloc(1, sizeof(NC_VAR_INFO_T))))
@@ -676,9 +744,9 @@ nc4_var_list_add2(NC_GRP_INFO_T *grp, const char *name, NC_VAR_INFO_T **var)
     new_var->container = grp;
 
     /* These are the HDF5-1.8.4 defaults. */
-    new_var->chunk_cache_size = nc4_chunk_cache_size;
-    new_var->chunk_cache_nelems = nc4_chunk_cache_nelems;
-    new_var->chunk_cache_preemption = nc4_chunk_cache_preemption;
+    new_var->chunkcache.size = gs->chunkcache.size;
+    new_var->chunkcache.nelems = gs->chunkcache.nelems;
+    new_var->chunkcache.preemption = gs->chunkcache.preemption;
 
     /* Now fill in the values in the var info structure. */
     new_var->hdr.id = ncindexsize(grp->vars);
@@ -1257,20 +1325,22 @@ nc4_type_free(NC_TYPE_INFO_T *type)
 int
 nc4_att_free(NC_ATT_INFO_T *att)
 {
-    int i;
+    int stat = NC_NOERR;
 
     assert(att);
     LOG((3, "%s: name %s ", __func__, att->hdr.name));
-
-    /* Free memory that was malloced to hold data for this
-     * attribute. */
-    if (att->data)
-        free(att->data);
 
     /* Free the name. */
     if (att->hdr.name)
         free(att->hdr.name);
 
+#ifdef SEPDATA
+    /* Free memory that was malloced to hold data for this
+     * attribute. */
+    if (att->data) {
+        free(att->data);
+    }
+    
     /* If this is a string array attribute, delete all members of the
      * string array, then delete the array of pointers to strings. (The
      * array was filled with pointers by HDF5 when the att was read,
@@ -1279,6 +1349,7 @@ nc4_att_free(NC_ATT_INFO_T *att)
      * allocate the memory that is being freed.) */
     if (att->stdata)
     {
+	int i;
         for (i = 0; i < att->len; i++)
             if(att->stdata[i])
                 free(att->stdata[i]);
@@ -1288,13 +1359,31 @@ nc4_att_free(NC_ATT_INFO_T *att)
     /* If this att has vlen data, release it. */
     if (att->vldata)
     {
+	int i;
         for (i = 0; i < att->len; i++)
             nc_free_vlen(&att->vldata[i]);
         free(att->vldata);
     }
+#else
+    if (att->data) {
+	NC_OBJ* parent;
+	NC_FILE_INFO_T* h5 = NULL;
 
+	/* Locate relevant objects */
+	parent = att->container;
+	if(parent->sort == NCVAR) parent = (NC_OBJ*)(((NC_VAR_INFO_T*)parent)->container);
+	assert(parent->sort == NCGRP);
+	h5 = ((NC_GRP_INFO_T*)parent)->nc4_info;
+	/* Reclaim the attribute data */
+	if((stat = nc_reclaim_data(h5->controller->ext_ncid,att->nc_typeid,att->data,att->len))) goto done;
+	free(att->data); /* reclaim top level */
+	att->data = NULL;
+    }
+#endif
+
+done:
     free(att);
-    return NC_NOERR;
+    return stat;
 }
 
 /**
@@ -1335,8 +1424,12 @@ var_free(NC_VAR_INFO_T *var)
         free(var->dim);
 
     /* Delete any fill value allocation. */
-    if (var->fill_value)
-        free(var->fill_value);
+    if (var->fill_value) {
+	int ncid = var->container->nc4_info->controller->ext_ncid;
+	int tid = var->type_info->hdr.id;
+        if((retval = nc_reclaim_data_all(ncid, tid, var->fill_value, 1))) return retval;
+	var->fill_value = NULL;
+    }
 
     /* Release type information */
     if (var->type_info)
@@ -1483,6 +1576,57 @@ nc4_rec_grp_del(NC_GRP_INFO_T *grp)
 }
 
 /**
+ * @internal Recursively delete the data for a group (and everything
+ * it contains) in our internal metadata store.
+ *
+ * @param grp Pointer to group info struct.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Ed Hartnett, Dennis Heimbigner
+ */
+int
+nc4_rec_grp_del_att_data(NC_GRP_INFO_T *grp)
+{
+    int i;
+    int retval;
+
+    assert(grp);
+    LOG((3, "%s: grp->name %s", __func__, grp->hdr.name));
+
+    /* Recursively call this function for each child, if any, stopping
+     * if there is an error. */
+    for (i = 0; i < ncindexsize(grp->children); i++)
+        if ((retval = nc4_rec_grp_del_att_data((NC_GRP_INFO_T *)ncindexith(grp->children, i))))
+            return retval;
+
+    /* Free attribute data in this group */
+    for (i = 0; i < ncindexsize(grp->att); i++) {
+	NC_ATT_INFO_T * att = (NC_ATT_INFO_T*)ncindexith(grp->att, i);
+	if((retval = nc_reclaim_data_all(grp->nc4_info->controller->ext_ncid,att->nc_typeid,att->data,att->len)))
+	    return retval;
+	att->data = NULL;
+	att->len = 0;
+	att->dirty = 0;
+    }
+
+    /* Delete att data from all contained vars in this group */
+    for (i = 0; i < ncindexsize(grp->vars); i++) {
+	int j;
+	NC_VAR_INFO_T* v = (NC_VAR_INFO_T *)ncindexith(grp->vars, i);
+	for(j=0;j<ncindexsize(v->att);j++) {
+	    NC_ATT_INFO_T* att = (NC_ATT_INFO_T*)ncindexith(v->att, j);
+   	    if((retval = nc_reclaim_data_all(grp->nc4_info->controller->ext_ncid,att->nc_typeid,att->data,att->len)))
+	        return retval;
+	    att->data = NULL;
+	    att->len = 0;
+	    att->dirty = 0;
+	}
+    }
+
+    return NC_NOERR;
+}
+
+/**
  * @internal Remove a NC_ATT_INFO_T from an index.
  * This will nc_free the memory too.
  *
@@ -1547,6 +1691,15 @@ nc4_nc4f_list_del(NC_FILE_INFO_T *h5)
 
     assert(h5);
 
+    /* Order is important here. We must delete the attribute contents
+       before deleteing any metadata because nc_reclaim_data depends
+       on the existence of the type info.
+    */
+
+    /* Delete all the attribute data contents in each group and variable. */
+    if ((retval = nc4_rec_grp_del_att_data(h5->root_grp)))
+        return retval;
+
     /* Delete all the list contents for vars, dims, and atts, in each
      * group. */
     if ((retval = nc4_rec_grp_del(h5->root_grp)))
@@ -1597,13 +1750,74 @@ nc4_normalize_name(const char *name, char *norm_name)
 #ifdef ENABLE_SET_LOG_LEVEL
 
 /**
- * @internal Use this to set the global log level. Set it to
- * NC_TURN_OFF_LOGGING (-1) to turn off all logging. Set it to 0 to
- * show only errors, and to higher numbers to show more and more
- * logging details. If logging is not enabled with --enable-logging at
- * configure when building netCDF, this function will do nothing.
- * Note that it is possible to set the log level using the environment
- * variable named _NETCDF_LOG_LEVEL_ (e.g. _export NETCDF_LOG_LEVEL=4_).
+ * Initialize parallel I/O logging. For parallel I/O builds, open log
+ * file, if not opened yet, or increment ref count if already open.
+ *
+ * @author Ed Hartnett
+ */
+int
+nc4_init_logging(void)
+{
+    int ret = NC_NOERR;
+
+#if NC_HAS_LOGGING
+#if NC_HAS_PARALLEL4
+    if (!LOG_FILE && nc_log_level >= 0)
+    {
+        char log_filename[NC_MAX_NAME];
+        int my_rank = 0;
+        int mpierr;
+        int mpi_initialized;
+
+        /* If MPI has been initialized find the rank. */
+        if ((mpierr = MPI_Initialized(&mpi_initialized)))
+            return NC_EMPI;
+        if (mpi_initialized)
+        {
+            if ((mpierr = MPI_Comm_rank(MPI_COMM_WORLD, &my_rank)))
+                return NC_EMPI;
+        }
+
+        /* Create a filename with the rank in it. */
+        sprintf(log_filename, "nc4_log_%d.log", my_rank);
+
+        /* Open a file for this rank to log messages. */
+        if (!(LOG_FILE = fopen(log_filename, "w")))
+            return NC_EINTERNAL;
+    }
+#endif /* NC_HAS_PARALLEL4 */
+#endif /* NC_HAS_LOGGING */
+
+    return ret;
+}
+
+/**
+ * Finalize logging - close parallel I/O log files, if open. This does
+ * nothing if logging is not enabled.
+ *
+ * @author Ed Hartnett
+ */
+void
+nc4_finalize_logging(void)
+{
+#if NC_HAS_LOGGING
+#if NC_HAS_PARALLEL4
+    if (LOG_FILE)
+    {
+        fclose(LOG_FILE);
+        LOG_FILE = NULL;
+    }
+#endif /* NC_HAS_PARALLEL4 */
+#endif /* NC_HAS_LOGGING */
+}
+
+/**
+ * Use this to set the global log level. 
+ * 
+ * Set it to NC_TURN_OFF_LOGGING (-1) to turn off all logging. Set it
+ * to 0 to show only errors, and to higher numbers to show more and
+ * more logging details. If logging is not enabled when building
+ * netCDF, this function will do nothing.
  *
  * @param new_level The new logging level.
  *
@@ -1613,16 +1827,30 @@ nc4_normalize_name(const char *name, char *norm_name)
 int
 nc_set_log_level(int new_level)
 {
-#ifdef LOGGING
+#if NC_HAS_LOGGING
     /* Remember the new level. */
     nc_log_level = new_level;
-    LOG((4, "log_level changed to %d", nc_log_level));
-#endif /*LOGGING */
-    return 0;
+
+#if NC_HAS_PARALLEL4
+    /* For parallel I/O builds, call the log init/finalize functions
+     * as needed, to open and close the log files. */
+    if (new_level >= 0)
+    {
+        if (!LOG_FILE)
+            nc4_init_logging();
+    }
+    else
+        nc4_finalize_logging();
+#endif /* NC_HAS_PARALLEL4 */
+    
+    LOG((1, "log_level changed to %d", nc_log_level));
+#endif /*NC_HAS_LOGGING */
+    
+    return NC_NOERR;
 }
 #endif /* ENABLE_SET_LOG_LEVEL */
 
-#ifdef LOGGING
+#if NC_HAS_LOGGING
 #define MAX_NESTS 10
 /**
  * @internal Recursively print the metadata of a group.
@@ -1791,7 +2019,7 @@ log_metadata_nc(NC_FILE_INFO_T *h5)
     return NC_NOERR;
 }
 
-#endif /*LOGGING */
+#endif /*NC_HAS_LOGGING */
 
 /**
  * @internal Show the in-memory metadata for a netcdf file. This
@@ -1808,7 +2036,7 @@ int
 NC4_show_metadata(int ncid)
 {
     int retval = NC_NOERR;
-#ifdef LOGGING
+#if NC_HAS_LOGGING
     NC_FILE_INFO_T *h5;
     int old_log_level = nc_log_level;
 
@@ -1820,7 +2048,7 @@ NC4_show_metadata(int ncid)
     nc_log_level = 2;
     retval = log_metadata_nc(h5);
     nc_log_level = old_log_level;
-#endif /*LOGGING*/
+#endif /*NC_HAS_LOGGING*/
     return retval;
 }
 
@@ -1837,12 +2065,13 @@ NC_findreserved(const char* name)
     int n = NRESERVED;
     int L = 0;
     int R = (n - 1);
+
     for(;;) {
         if(L > R) break;
         int m = (L + R) / 2;
         const NC_reservedatt* p = &NC_reserved[m];
         int cmp = strcmp(p->name,name);
-        if(cmp == 0) return p;
+	if(cmp == 0) return p;
         if(cmp < 0)
             L = (m + 1);
         else /*cmp > 0*/
@@ -1861,4 +2090,148 @@ NC4_move_in_NCList(NC* nc, int new_id)
 	    ((NC_OBJ*)nc->dispatchdata)->id = nc->ext_ncid;
     }
     return stat;
+}
+
+/**************************************************/
+/* NCglobal state management */
+
+static NCglobalstate* nc_globalstate = NULL;
+
+static int
+NC_createglobalstate(void)
+{
+    int stat = NC_NOERR;
+    const char* tmp = NULL;
+    
+    if(nc_globalstate == NULL) {
+        nc_globalstate = calloc(1,sizeof(NCglobalstate));
+    }
+    /* Initialize struct pointers */
+    if((nc_globalstate->rcinfo = calloc(1,sizeof(struct NCRCinfo)))==NULL)
+            {stat = NC_ENOMEM; goto done;}
+    if((nc_globalstate->rcinfo->entries = nclistnew())==NULL)
+            {stat = NC_ENOMEM; goto done;}
+    if((nc_globalstate->rcinfo->s3profiles = nclistnew())==NULL)
+            {stat = NC_ENOMEM; goto done;}
+
+    /* Get environment variables */
+    if(getenv(NCRCENVIGNORE) != NULL)
+        nc_globalstate->rcinfo->ignore = 1;
+    tmp = getenv(NCRCENVRC);
+    if(tmp != NULL && strlen(tmp) > 0)
+        nc_globalstate->rcinfo->rcfile = strdup(tmp);
+    /* Initialize chunk cache defaults */
+    nc_globalstate->chunkcache.size = CHUNK_CACHE_SIZE;            /**< Default chunk cache size. */
+    nc_globalstate->chunkcache.nelems = CHUNK_CACHE_NELEMS;        /**< Default chunk cache number of elements. */
+    nc_globalstate->chunkcache.preemption = CHUNK_CACHE_PREEMPTION; /**< Default chunk cache preemption. */
+    
+done:
+    return stat;
+}
+
+/* Get global state */
+NCglobalstate*
+NC_getglobalstate(void)
+{
+    if(nc_globalstate == NULL)
+        NC_createglobalstate();
+    return nc_globalstate;
+}
+
+void
+NC_freeglobalstate(void)
+{
+    if(nc_globalstate != NULL) {
+        nullfree(nc_globalstate->tempdir);
+        nullfree(nc_globalstate->home);
+        nullfree(nc_globalstate->cwd);
+        NC_rcclear(nc_globalstate->rcinfo);
+	free(nc_globalstate->rcinfo);
+	free(nc_globalstate);
+	nc_globalstate = NULL;
+    }
+}
+/**************************************************/
+/* Specific property functions */
+
+/**
+Provide a function to store global data alignment
+information.
+Repeated calls to nc_set_alignment will overwrite any existing values.
+
+If defined, then for every file created or opened after the call to
+nc_set_alignment, and for every new variable added to the file, the
+most recently set threshold and alignment values will be applied
+to that variable.
+
+The nc_set_alignment function causes new data written to a
+netCDF-4 file to be aligned on disk to a specified block
+size. To be effective, alignment should be the system disk block
+size, or a multiple of it. This setting is effective with MPI
+I/O and other parallel systems.
+
+This is a trade-off of write speed versus file size. Alignment
+leaves holes between file objects. The default of no alignment
+writes file objects contiguously, without holes. Alignment has
+no impact on file readability.
+
+Alignment settings apply only indirectly, through the file open
+functions. Call nc_set_alignment first, then nc_create or
+nc_open for one or more files. Current alignment settings are
+locked in when each file is opened, then forgotten when the same
+file is closed. For illustration, it is possible to write
+different files at the same time with different alignments, by
+interleaving nc_set_alignment and nc_open calls.
+
+Alignment applies to all newly written low-level file objects at
+or above the threshold size, including chunks of variables,
+attributes, and internal infrastructure. Alignment is not locked
+in to a data variable. It can change between data chunks of the
+same variable, based on a file's history.
+
+Refer to H5Pset_alignment in HDF5 documentation for more
+specific details, interactions, and additional rules.
+
+@param threshold The minimum size to which alignment is applied.
+@param alignment The alignment value.
+
+@return ::NC_NOERR No error.
+@return ::NC_EINVAL Invalid input.
+@author Dennis Heimbigner
+@ingroup datasets
+*/
+int
+nc_set_alignment(int threshold, int alignment)
+{
+    NCglobalstate* gs = NC_getglobalstate();
+    gs->alignment.threshold = threshold;
+    gs->alignment.alignment = alignment;
+    gs->alignment.defined = 1;
+    return NC_NOERR;
+}
+
+/**
+Provide get function to retrieve global data alignment
+information.
+
+The nc_get_alignment function return the last values set by
+nc_set_alignment.  If nc_set_alignment has not been called, then
+it returns the value 0 for both threshold and alignment.
+
+@param thresholdp Return the current minimum size to which alignment is applied or zero.
+@param alignmentp Return the current alignment value or zero.
+
+@return ::NC_NOERR No error.
+@return ::NC_EINVAL Invalid input.
+@author Dennis Heimbigner
+@ingroup datasets
+*/
+
+int
+nc_get_alignment(int* thresholdp, int* alignmentp)
+{
+    NCglobalstate* gs = NC_getglobalstate();
+    if(thresholdp) *thresholdp = gs->alignment.threshold;
+    if(alignmentp) *alignmentp = gs->alignment.alignment;
+    return NC_NOERR;
 }

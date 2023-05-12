@@ -413,7 +413,7 @@ write_numrecs(NC3_INFO *ncp)
 	(void) ncio_rel(ncp->nciop, NC_NUMRECS_OFFSET, RGN_MODIFIED);
 
 	if(status == NC_NOERR)
-		fClr(ncp->flags, NC_NDIRTY);
+		fClr(ncp->state, NC_NDIRTY);
 
 	return status;
 }
@@ -435,7 +435,7 @@ read_NC(NC3_INFO *ncp)
 	status = nc_get_NC(ncp);
 
 	if(status == NC_NOERR)
-		fClr(ncp->flags, NC_NDIRTY | NC_HDIRTY);
+		fClr(ncp->state, NC_NDIRTY | NC_HDIRTY);
 
 	return status;
 }
@@ -454,7 +454,7 @@ write_NC(NC3_INFO *ncp)
 	status = ncx_put_NC(ncp, NULL, 0, 0);
 
 	if(status == NC_NOERR)
-		fClr(ncp->flags, NC_NDIRTY | NC_HDIRTY);
+		fClr(ncp->state, NC_NDIRTY | NC_HDIRTY);
 
 	return status;
 }
@@ -727,6 +727,7 @@ NC_check_vlens(NC3_INFO *ncp)
     rec_vars_count = 0;
     vpp = ncp->vars.value;
     for (ii = 0; ii < ncp->vars.nelems; ii++, vpp++) {
+	assert(vpp != NULL && *vpp != NULL);
 	if( !IS_RECVAR(*vpp) ) {
 	    last = 0;
 	    if( NC_check_vlen(*vpp, vlen_max) == 0 ) {
@@ -863,7 +864,7 @@ NC_endef(NC3_INFO *ncp,
 	{
 		/* a plain redef, not a create */
 		assert(!NC_IsNew(ncp));
-		assert(fIsSet(ncp->flags, NC_INDEF));
+		assert(fIsSet(ncp->state, NC_INDEF));
 		assert(ncp->begin_rec >= ncp->old->begin_rec);
 		assert(ncp->begin_var >= ncp->old->begin_var);
 
@@ -936,7 +937,7 @@ NC_endef(NC3_INFO *ncp,
 		ncp->old = NULL;
 	}
 
-	fClr(ncp->flags, NC_CREAT | NC_INDEF);
+	fClr(ncp->state, NC_CREAT | NC_INDEF);
 
 	return ncio_sync(ncp->nciop);
 }
@@ -1070,7 +1071,7 @@ NC3_create(const char *path, int ioflags, size_t initialsz, int basepe,
 		goto unwind_alloc;
 	}
 
-	fSet(nc3->flags, NC_CREAT);
+	fSet(nc3->state, NC_CREAT);
 
 	if(fIsSet(nc3->nciop->ioflags, NC_SHARE))
 	{
@@ -1081,7 +1082,7 @@ NC3_create(const char *path, int ioflags, size_t initialsz, int basepe,
 		 * automatically.  Some sort of IPC (external to this package)
 		 * would be used to trigger a call to nc_sync().
 		 */
-		fSet(nc3->flags, NC_NSYNC);
+		fSet(nc3->state, NC_NSYNC);
 	}
 
 	status = ncx_put_NC(nc3, &xp, sizeof_off_t, nc3->xsz);
@@ -1172,20 +1173,12 @@ NC3_open(const char *path, int ioflags, int basepe, size_t *chunksizehintp,
             goto unwind_alloc;
         }
 
-#ifdef ENABLE_BYTERANGE
-    /* If the model specified the use of byte-ranges, then signal by
-       a temporary hack using one of the flags in the ioflags.
-    */
-    if(NC_testmode(path,"bytes"))
-        ioflags |= NC_HTTP;
-#endif /*ENABLE_BYTERANGE*/
-
         status = ncio_open(path, ioflags, 0, 0, &nc3->chunk, parameters,
 			       &nc3->nciop, NULL);
 	if(status)
 		goto unwind_alloc;
 
-	assert(nc3->flags == 0);
+	assert(nc3->state == 0);
 
 	if(fIsSet(nc3->nciop->ioflags, NC_SHARE))
 	{
@@ -1196,7 +1189,7 @@ NC3_open(const char *path, int ioflags, int basepe, size_t *chunksizehintp,
 		 * automatically.  Some sort of IPC (external to this package)
 		 * would be used to trigger a call to nc_sync().
 		 */
-		fSet(nc3->flags, NC_NSYNC);
+		fSet(nc3->state, NC_NSYNC);
 	}
 
 	status = nc_get_NC(nc3);
@@ -1269,10 +1262,10 @@ NC3_abort(int ncid)
 	{
 		/* a plain redef, not a create */
 		assert(!NC_IsNew(nc3));
-		assert(fIsSet(nc3->flags, NC_INDEF));
+		assert(fIsSet(nc3->state, NC_INDEF));
 		free_NC3INFO(nc3->old);
 		nc3->old = NULL;
-		fClr(nc3->flags, NC_INDEF);
+		fClr(nc3->state, NC_INDEF);
 	}
 	else if(!NC_readonly(nc3))
 	{
@@ -1387,7 +1380,7 @@ NC3_redef(int ncid)
 	if(nc3->old == NULL)
 		return NC_ENOMEM;
 
-	fSet(nc3->flags, NC_INDEF);
+	fSet(nc3->state, NC_INDEF);
 
 	return NC_NOERR;
 }
@@ -1499,15 +1492,15 @@ NC3_set_fill(int ncid,
 	if(NC_readonly(nc3))
 		return NC_EPERM;
 
-	oldmode = fIsSet(nc3->flags, NC_NOFILL) ? NC_NOFILL : NC_FILL;
+	oldmode = fIsSet(nc3->state, NC_NOFILL) ? NC_NOFILL : NC_FILL;
 
 	if(fillmode == NC_NOFILL)
 	{
-		fSet(nc3->flags, NC_NOFILL);
+		fSet(nc3->state, NC_NOFILL);
 	}
 	else if(fillmode == NC_FILL)
 	{
-		if(fIsSet(nc3->flags, NC_NOFILL))
+		if(fIsSet(nc3->state, NC_NOFILL))
 		{
 			/*
 			 * We are changing back to fill mode
@@ -1517,7 +1510,7 @@ NC3_set_fill(int ncid,
 			if(status != NC_NOERR)
 				return status;
 		}
-		fClr(nc3->flags, NC_NOFILL);
+		fClr(nc3->state, NC_NOFILL);
 	}
 	else
 	{

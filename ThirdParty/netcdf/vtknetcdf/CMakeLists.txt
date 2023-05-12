@@ -1,6 +1,6 @@
 set(NC_VERSION_MAJOR 4)
-set(NC_VERSION_MINOR 8)
-set(NC_VERSION_PATCH 1)
+set(NC_VERSION_MINOR 9)
+set(NC_VERSION_PATCH 2)
 set(NC_VERSION_NOTE "")
 set(netCDF_VERSION ${NC_VERSION_MAJOR}.${NC_VERSION_MINOR}.${NC_VERSION_PATCH}${NC_VERSION_NOTE})
 set(VERSION ${netCDF_VERSION})
@@ -26,6 +26,7 @@ set(sources
   libdispatch/dfilter.c
   libdispatch/dgroup.c
   libdispatch/dinfermodel.c
+  libdispatch/dinstance.c
   libdispatch/dinternal.c
   libdispatch/dnotnc3.c
   libdispatch/dnotnc4.c
@@ -35,6 +36,7 @@ set(sources
   libdispatch/dpathmgr.c
   libdispatch/drc.c
   libdispatch/dreadonly.c
+  libdispatch/ds3util.c
   libdispatch/dstring.c
   libdispatch/dtype.c
   libdispatch/dutf8.c
@@ -73,7 +75,6 @@ set(sources
   libsrc/v1hpg.c
   libsrc/var.c
 
-  libsrc4/error4.c
   libsrc4/nc4attr.c
   libsrc4/nc4cache.c
   libsrc4/nc4dim.c
@@ -101,6 +102,7 @@ set(sources
   libhdf5/nc4mem.c
   libhdf5/nc4memcb.c
   libhdf5/hdf5dispatch.c
+  libhdf5/hdf5set_format_compatibility.c
   )
 
 set(CHUNK_CACHE_NELEMS 1009)
@@ -111,6 +113,7 @@ set(DEFAULT_CHUNK_SIZE 4194304)
 set(MAX_DEFAULT_CACHE_SIZE 67108864)
 set(NCIO_MINBLOCKSIZE 256)
 
+set(REGEDIT ${WIN32})
 set(JNA 1)
 set(NO_NETCDF_2 1)
 set(RELAX_COORD_BOUND 0)
@@ -129,8 +132,12 @@ set(USE_PARALLEL4 0)
 set(USE_PARALLEL_MPIO 0)
 set(USE_PARALLEL_POSIX 0)
 set(USE_PNETCDF 0)
-set(USE_SZIP 0)
 set(USE_ZLIB 0)
+
+if (REGEDIT)
+  list(APPEND sources
+    libdispatch/dreg.c)
+endif ()
 
 function(is_enabled feature ret_val)
   if(${feature})
@@ -144,7 +151,6 @@ is_enabled(ENABLE_V2_API HAS_NC2)
 is_enabled(ENABLE_NETCDF_4 HAS_NC4)
 is_enabled(ENABLE_HDF4 HAS_HDF4)
 is_enabled(ENABLE_NETCDF_4 HAS_HDF5)
-is_enabled(USE_SZIP HAS_SZIP)
 is_enabled(STATUS_PNETCDF HAS_PNETCDF)
 is_enabled(STATUS_PARALLEL HAS_PARALLEL)
 is_enabled(ENABLE_PARALLEL4 HAS_PARALLEL4)
@@ -158,6 +164,7 @@ is_enabled(STATUS_RELAX_COORD_BOUND RELAX_COORD_BOUND)
 is_enabled(USE_CDF5 HAS_CDF5)
 
 set(USE_STDIO 0)
+set(NC_HAS_LOGGING 0)
 
 include(CheckSymbolExists)
 check_symbol_exists("_filelengthi64" "io.h" HAVE_FILE_LENGTH_I64)
@@ -170,6 +177,7 @@ check_symbol_exists("mktemp" "stdlib.h" HAVE_MKTEMP)
 check_symbol_exists("getpagesize" "unistd.h" HAVE_GETPAGESIZE)
 check_symbol_exists("getrlimit" "sys/time.h;sys/resource.h" HAVE_GETRLIMIT)
 check_symbol_exists("memmove" "string.h" HAVE_MEMMOVE)
+check_symbol_exists("mkstemp" "stdlib.h" HAVE_MKSTEMP)
 check_symbol_exists("random" "stdlib.h" HAVE_RANDOM)
 check_symbol_exists("snprintf" "stdio.h" HAVE_SNPRINTF)
 check_symbol_exists("strdup" "string.h" HAVE_STRDUP)
@@ -238,6 +246,7 @@ check_type_size("unsigned int" SIZEOF_UNSIGNED_INT)
 check_type_size("unsigned long long" SIZEOF_UNSIGNED_LONG_LONG)
 check_type_size("unsigned short int" SIZEOF_UNSIGNED_SHORT_INT)
 check_type_size("uint64_t" HAVE_UINT64_T)
+check_type_size("ptrdiff_t" HAVE_PTRDIFF_T)
 
 set(SIZEOF_UCHAR ${HAVE_UCHAR})
 set(SIZEOF_UINT ${HAVE_UINT})
@@ -248,7 +257,7 @@ set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
 include(TestBigEndian)
 test_big_endian(WORDS_BIGENDIAN)
 
-set(PACKAGE_VERSION "4.5.0")
+set(PACKAGE_VERSION "${NC_VERSION_MAJOR}.${NC_VERSION_MINOR}.${NC_VERSION_PATCH}")
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/include/netcdf_meta.h.in"

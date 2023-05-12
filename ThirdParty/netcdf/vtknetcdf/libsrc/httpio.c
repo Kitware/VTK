@@ -44,7 +44,7 @@
 
 typedef struct NCHTTP {
     NC_HTTP_STATE* state;
-    long long size; /* of the S3 object */
+    long long size; /* of the object */
     NCbytes* region;
 } NCHTTP;
 
@@ -167,7 +167,8 @@ httpio_open(const char* path,
     /* Create private data */
     if((status = httpio_new(path, ioflags, &nciop, &http))) goto done;
     /* Open the path and get curl handle and object size */
-    if((status = nc_http_open(path,&http->state,&http->size))) goto done;
+    if((status = nc_http_init(&http->state))) goto done;
+    if((status = nc_http_size(http->state,path,&http->size))) goto done;
 
     sizehint = pagesize;
 

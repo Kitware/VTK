@@ -19,8 +19,13 @@
 #include "netcdf.h"
 #include "netcdf_filter.h"
 
+#ifdef ENABLE_BLOSC
+#include <blosc.h>
+#endif
+
 #undef TFILTERS
 
+/* Forward */
 static int NC4_hdf5_filter_free(struct NC_HDF5_Filter* spec);
 
 /**************************************************/
@@ -282,7 +287,18 @@ NC4_hdf5_addfilter(NC_VAR_INFO_T* var, unsigned int id, size_t nparams, const un
     }
     fi->flags = flags;
     if(!olddef) {
-        nclistpush(flist,fi);
+	size_t pos = nclistlength(flist);
+        /* Need to be careful about where we insert fletcher32 and shuffle */
+	if(nclistlength(flist) > 0) {
+	    if(id == H5Z_FILTER_FLETCHER32)
+		pos = 0; /* alway first filter */
+	    else if(id == H5Z_FILTER_SHUFFLE) {
+		/* See if first filter is fletcher32 */
+	        struct NC_HDF5_Filter* f0 = (struct NC_HDF5_Filter*)nclistget(flist,0);
+		if(f0->filterid == H5Z_FILTER_FLETCHER32) pos = 1; else pos = 0;
+	    }
+	}
+        nclistinsert(flist,pos,fi);
 PRINTFILTERLIST(var,"add");
     }
     fi = NULL; /* either way,its in the var->filters list */
@@ -349,10 +365,8 @@ NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
     struct NC_HDF5_Filter* oldspec = NULL;
     int flags = 0;
     htri_t avail = -1;
-#ifdef HAVE_H5Z_SZIP
     int havedeflate = 0;
     int haveszip = 0;
-#endif
 
     LOG((2, "%s: ncid 0x%x varid %d", __func__, ncid, varid));
 
@@ -381,13 +395,20 @@ NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
 #endif /* HDF5_SUPPORTS_PAR_FILTERS */
 #endif /* USE_PARALLEL */
 
-	/* Lookup incoming id to see if already defined */
+	/* See if this filter is missing or not */
+	if((avail = H5Zfilter_avail(id)) < 0)
+ 	    {stat = NC_EHDFERR; goto done;} /* Something in HDF5 went wrong */
+	if(avail == 0)
+	    {stat = NC_ENOFILTER; goto done;} /* filter not available */
+
+	/* Lookup incoming id to see if already defined for this variable*/
         switch((stat=NC4_hdf5_filter_lookup(var,id,&oldspec))) {
 	case NC_NOERR: break; /* already defined */
         case NC_ENOFILTER: break; /*not defined*/
         default: goto done;
 	}
-#ifdef HAVE_H5Z_SZIP
+	stat = NC_NOERR; /* reset */
+
 	/* See if deflate &/or szip is defined */
 	switch ((stat = NC4_hdf5_filter_lookup(var,H5Z_FILTER_DEFLATE,NULL))) {
 	case NC_NOERR: havedeflate = 1; break;
@@ -399,11 +420,8 @@ NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
 	case NC_ENOFILTER: haveszip = 0; break;	
 	default: goto done;
 	}
-#endif /* HAVE_H5Z_SZIP */
+	stat = NC_NOERR; /* reset */
 
-	/* See if this filter is missing or not */
-	if((avail = H5Zfilter_avail(id)) < 0)
- 	    {stat = NC_EHDFERR; goto done;} /* Something in HDF5 went wrong */
 	if(!avail) {
             NC_HDF5_VAR_INFO_T* hdf5_var = (NC_HDF5_VAR_INFO_T *)var->format_var_info;
 	    flags |= NC_HDF5_FILTER_MISSING;
@@ -420,25 +438,18 @@ NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
    	        level = (int)params[0];
                 if (level < NC_MIN_DEFLATE_LEVEL || level > NC_MAX_DEFLATE_LEVEL)
                     {stat = THROW(NC_EINVAL); goto done;}
-#ifdef HAVE_H5Z_SZIP
                 /* If szip compression is already applied, return error. */
 	        if(haveszip) {stat = THROW(NC_EINVAL); goto done;}
-#endif
             }
-#ifdef HAVE_H5Z_SZIP
             if(id == H5Z_FILTER_SZIP) { /* Do error checking */
                 if(nparams != 2)
                     {stat = THROW(NC_EFILTER); goto done;}/* incorrect no. of parameters */
-                /* Pixels per block must be an even number, < 32. */
+                /* Pixels per block must be an even number, <= 32. */
                 if (params[1] % 2 || params[1] > NC_MAX_PIXELS_PER_BLOCK)
                     {stat = THROW(NC_EINVAL); goto done;}
                 /* If zlib compression is already applied, return error. */
 	        if(havedeflate) {stat = THROW(NC_EINVAL); goto done;}
             }
-#else /*!HAVE_H5Z_SZIP*/
-            if(id == H5Z_FILTER_SZIP)
-                {stat = THROW(NC_EFILTER); goto done;} /* Not allowed */
-#endif
             /* Filter => chunking */
 	    var->storage = NC_CHUNKED;
             /* Determine default chunksizes for this variable unless already specified */
@@ -451,7 +462,6 @@ NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
                     goto done;
             }
 	}
-#ifdef HAVE_H5Z_SZIP
 	/* More error checking */
         if(id == H5Z_FILTER_SZIP) { /* szip X chunking error checking */
 	    /* For szip, the pixels_per_block parameter must not be greater
@@ -465,7 +475,6 @@ NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
             if (params[1] > num_elem)
                 {stat = THROW(NC_EINVAL); goto done;}
         }
-#endif
 	/* addfilter can handle case where filter is already defined, and will just replace parameters */
         if((stat = NC4_hdf5_addfilter(var,id,nparams,params,flags)))
                 goto done;
@@ -569,5 +578,32 @@ NC4_hdf5_find_missing_filter(NC_VAR_INFO_T* var, unsigned int* idp)
 	if(spec->flags & NC_HDF5_FILTER_MISSING) {id = spec->filterid; break;}
     }
     if(idp) *idp = id;
+    return stat;
+}
+
+int
+NC4_hdf5_filter_initialize(void)
+{
+    return NC_NOERR;
+}
+
+int
+NC4_hdf5_filter_finalize(void)
+{
+    return NC_NOERR;
+}
+
+/* Test if filter available */
+int
+NC4_hdf5_inq_filter_avail(int ncid, unsigned id)
+{
+    int stat = NC_NOERR;
+    htri_t avail = -1;
+    NC_UNUSED(ncid);
+    /* See if this filter is available or not */
+    if((avail = H5Zfilter_avail(id)) < 0)
+ 	{stat = NC_EHDFERR; goto done;} /* Something in HDF5 went wrong */
+    if(avail == 0) stat = NC_ENOFILTER;
+done:
     return stat;
 }

@@ -20,6 +20,8 @@
 #include "netcdf.h"
 #include "netcdf_filter.h"
 #include "nc_logging.h"
+#include "ncpathmgr.h"
+#include "ncrc.h"
 #ifdef USE_PARALLEL
 #include "netcdf_par.h"
 #endif
@@ -44,6 +46,7 @@
 #define BAD_NAME "dd//d/  "
 #define NUM_CLASSIC_TYPES 6
 #define NUM_NETCDF_TYPES 12
+#define NC_MAX_FILENAME 4096
 /** \} */
 
 #ifdef USE_PNETCDF

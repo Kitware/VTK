@@ -1,7 +1,6 @@
 # Unidata NetCDF
 
-[![Build Status](https://travis-ci.org/Unidata/netcdf-c.svg?branch=master)](https://travis-ci.org/Unidata/netcdf-c)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/157/badge.svg)](https://scan.coverity.com/projects/157)
+[![latest packaged version(s)](https://repology.org/badge/latest-versions/netcdf.svg)](https://repology.org/project/netcdf/badges)
 
 ### About
 The Unidata network Common Data Form (**netCDF**) is an interface for
@@ -34,12 +33,12 @@ formats.  For information about a variety of analysis and display
 packages that have been developed to analyze and display data in
 netCDF form, see
 
-* [Software for Manipulating or Displaying NetCDF Data](http://www.unidata.ucar.edu/netcdf/software.html)
+* [Software for Manipulating or Displaying NetCDF Data](https://www.unidata.ucar.edu/netcdf/software.html)
 
 ##### More information
 For more information about netCDF, see
 
-* [Unidata Network Common Data Form (NetCDF)](http://www.unidata.ucar.edu/netcdf/)
+* [Unidata Network Common Data Form (NetCDF)](https://www.unidata.ucar.edu/netcdf/)
 
 ### Latest releases
 You can obtain a copy of the latest released version of netCDF
@@ -47,35 +46,35 @@ software for various languages:
 
 * [C library and utilities](http://github.com/Unidata/netcdf-c)
 * [Fortran](http://github.com/Unidata/netcdf-fortran)
-* [Java](https://www.unidata.ucar.edu/downloads/netcdf-java/
+* [Java](https://downloads.unidata.ucar.edu/netcdf-java/)
 * [Python](http://github.com/Unidata/netcdf4-python)
 * [C++](http://github.com/Unidata/netcdf-cxx4)
 
 ### Copyright
-Copyright and licensing information can be found [here](http://www.unidata.ucar.edu/software/netcdf/copyright.html), as well as in the COPYRIGHT file accompanying the software
+Copyright and licensing information can be found [here](https://www.unidata.ucar.edu/software/netcdf/copyright.html), as well as in the COPYRIGHT file accompanying the software
 
 ### Installation
 To install the netCDF-C software, please see the file INSTALL in the
 netCDF-C distribution, or the (usually more up-to-date) document:
 
-* [Building NetCDF](https://www.unidata.ucar.edu/software/netcdf/docs/winbin.html)
+* [Building NetCDF](https://docs.unidata.ucar.edu/netcdf-c/current/winbin.html)
 
 ### Documentation
 A language-independent User's Guide for netCDF, and some other
 language-specific user-level documents are available from:
 
-* [Language-independent User's Guide](https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/index.html#user_guide)
-* [NetCDF-C Tutorial](http://www.unidata.ucar.edu/software/netcdf/docs/tutorial_8dox.html)
-* [Fortran-90 User's Guide](http://www.unidata.ucar.edu/software/netcdf/documentation/historic/netcdf-f90/index.html#Top)
-* [Fortran-77 User's Guide](http://www.unidata.ucar.edu/software/netcdf/documentation/historic/netcdf-f77/index.html#Top)
-* [netCDF-Java/Common Data Model library](https://docs.unidata.ucar.edu/netcdf-java/current/userguide/index.html)
+* [Language-independent User's Guide](https://docs.unidata.ucar.edu/nug/current/index.html#user_guide)
+* [NetCDF-C Tutorial](https://docs.unidata.ucar.edu/netcdf-c/current/tutorial_8dox.html)
+* [Fortran-90 User's Guide](https://docs.unidata.ucar.edu/netcdf-fortran/current/f90_The-NetCDF-Fortran-90-Interface-Guide.html)
+* [Fortran-77 User's Guide](https://docs.unidata.ucar.edu/netcdf-fortran/current/nc_f77_interface_guide.html)
+* [netCDF-Java/Common Data Model library](https://docs.unidata.ucar.edu/netcdf-java/current/userguide/)
 * [netCDF4-python](http://unidata.github.io/netcdf4-python/)
 
 A mailing list, netcdfgroup@unidata.ucar.edu, exists for discussion of
 the netCDF interface and announcements about netCDF bugs, fixes, and
 enhancements.  For information about how to subscribe, see the URL
 
-* [Unidata netCDF Mailing-Lists](http://www.unidata.ucar.edu/netcdf/mailing-lists.html)
+* [Unidata netCDF Mailing-Lists](https://www.unidata.ucar.edu/netcdf/mailing-lists.html)
 
 ### Feedback
 We appreciate feedback from users of this package.  Please send comments, suggestions, and bug reports to <support-netcdf@unidata.ucar.edu>.  

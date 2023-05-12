@@ -269,7 +269,9 @@ inline static void
 swap4b(void *dst, const void *src)
 {
     /* copy over, make the below swap in-place */
-    uint32_t tmp = *(uint32_t*)src;
+    uint32_t tmp;
+    /* use memcpy to avoid type punning */
+    memcpy(&tmp, src, sizeof(tmp));
     tmp = SWAP4(tmp);
     memcpy(dst, &tmp, 4);
 
@@ -385,7 +387,9 @@ swap8b(void *dst, const void *src)
     op = (uint32_t*)((char*)dst+4);
     *op = SWAP4(*op);
 #else
-    uint64_t tmp = *(uint64_t*)src;
+    uint64_t tmp;
+    /* use memcpy to avoid type punning */
+    memcpy(&tmp, src, sizeof(tmp));
     tmp = SWAP8(tmp);
     memcpy(dst, &tmp, 8);
 

@@ -24,6 +24,41 @@
  *
  * @param ncid Ignored.
  * @param varid Ignored.
+ * @param quantize_mode Ignored.
+ * @param nsd Ignored.
+ *
+ * @return ::NC_ENOTNC4 Not implemented for a dispatch table
+ * @author Ed Hartnett
+ */
+int
+NC_NOTNC4_def_var_quantize(int ncid, int varid,  int quantize_mode, int nsd)
+{
+    return NC_ENOTNC4;
+}
+
+/**
+ * @internal Not implemented in some dispatch tables
+ *
+ * @param ncid Ignored.
+ * @param varid Ignored.
+ * @param quantize_modep Ignored.
+ * @param nsdp Ignored.
+ *
+ * @return ::NC_ENOTNC4 Not implemented for a dispatch table
+ * @author Ed Hartnett
+ */
+int
+NC_NOTNC4_inq_var_quantize(int ncid, int varid,  int *quantize_modep,
+			   int *nsdp)
+{
+    return NC_ENOTNC4;
+}
+
+/**
+ * @internal Not implemented in some dispatch tables
+ *
+ * @param ncid Ignored.
+ * @param varid Ignored.
  * @param id Ignored.
  * @param nparams Ignored.
  * @param parms Ignored.
@@ -59,6 +94,13 @@ NC_NOOP_inq_var_filter_ids(int ncid, int varid, size_t* nfilters, unsigned int* 
 int
 NC_NOOP_inq_var_filter_info(int ncid, int varid, unsigned int id, size_t* nparams, unsigned int* params)
 {
+    return NC_ENOFILTER;
+}
+
+int
+NC_NOOP_inq_filter_avail(int ncid, unsigned id)
+{
+    NC_UNUSED(ncid);
     return NC_ENOFILTER;
 }
 

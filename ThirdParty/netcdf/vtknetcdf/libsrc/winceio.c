@@ -508,11 +508,7 @@ ncio_create(const char *path, int ioflags,
 	if(fIsSet(ioflags, NC_NOCLOBBER)) {
 	    /* Since we do not have use of the O_EXCL flag,
                we need to fake it */
-#ifdef WINCE
-	    f = NCfopen(path,"rb");
-#else
 	    f = NCfopen(path,"r");
-#endif
 	    if(f != NULL) { /* do not overwrite */
 		(void)fclose(f);
 		return EEXIST;
@@ -586,12 +582,7 @@ ncio_open(const char *path,
 	ncio **nciopp, void **const igetvpp)
 {
 	ncio *nciop;
-	char* oflags = fIsSet(ioflags, NC_WRITE) ? "r+"
-#ifdef WINCE
-						 : "rb";
-#else
-						 : "r";
-#endif
+	char* oflags = fIsSet(ioflags, NC_WRITE) ? "r+" : "r";
 	FILE* f;
 	int i,fd;
 	int status = NC_NOERR;

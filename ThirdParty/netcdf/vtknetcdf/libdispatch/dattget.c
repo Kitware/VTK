@@ -30,6 +30,43 @@
  * allocate enough space to hold them. If you don't know how much
  * space to reserve, call nc_inq_attlen() first to find out the length
  * of the attribute.
+ *
+ * <h1>Example</h1>
+ *
+ * Here is an example using nc_get_att_double() to determine the
+ * values of a variable attribute named valid_range for a netCDF
+ * variable named rh from a netCDF dataset named foo.nc.
+ *
+ * In this example, it is assumed that we don't know how many values
+ * will be returned, but that we do know the types of the
+ * attributes. Hence, to allocate enough space to store them, we must
+ * first inquire about the length of the attributes.
+
+@code
+     #include <netcdf.h>
+        ...
+     int  status;
+     int  ncid;
+     int  rh_id;
+     int  vr_len;
+     double *vr_val;
+
+        ...
+     status = nc_open("foo.nc", NC_NOWRITE, &ncid);
+     if (status != NC_NOERR) handle_error(status);
+        ...
+     status = nc_inq_varid (ncid, "rh", &rh_id);
+     if (status != NC_NOERR) handle_error(status);
+        ...
+     status = nc_inq_attlen (ncid, rh_id, "valid_range", &vr_len);
+     if (status != NC_NOERR) handle_error(status);
+
+     vr_val = (double *) malloc(vr_len * sizeof(double));
+
+     status = nc_get_att_double(ncid, rh_id, "valid_range", vr_val);
+     if (status != NC_NOERR) handle_error(status);
+        ...
+@endcode
  */
 /**@{*/  /* Start doxygen member group. */
 
@@ -223,73 +260,6 @@ nc_get_att_schar(int ncid, int varid, const char *name, signed char *value)
    TRACE(nc_get_att_schar);
    return ncp->dispatch->get_att(ncid, varid, name, (void *)value, NC_BYTE);
 }
-
-/**
- * @ingroup attributes
- * Get an attribute of an atomic type.
- *
- * Also see @ref getting_attributes "Getting Attributes"
- *
- * This function gets an attribute of an atomic type from the netCDF
- * file.
- *
- * @param ncid NetCDF or group ID, from a previous call to nc_open(),
- * nc_create(), nc_def_grp(), or associated inquiry functions such as
- * nc_inq_ncid().
- * @param varid Variable ID of the attribute's variable, or
- * ::NC_GLOBAL for a global attribute.
- * @param name Attribute name.
- * @param value Pointer that will get array of attribute value(s). Use
- * nc_inq_attlen() to learn length.
- *
- * <h1>Example</h1>
- *
- * Here is an example using nc_get_att_double() to determine the
- * values of a variable attribute named valid_range for a netCDF
- * variable named rh from a netCDF dataset named foo.nc.
- *
- * In this example, it is assumed that we don't know how many values
- * will be returned, but that we do know the types of the
- * attributes. Hence, to allocate enough space to store them, we must
- * first inquire about the length of the attributes.
-
-@code
-     #include <netcdf.h>
-        ...
-     int  status;
-     int  ncid;
-     int  rh_id;
-     int  vr_len;
-     double *vr_val;
-
-        ...
-     status = nc_open("foo.nc", NC_NOWRITE, &ncid);
-     if (status != NC_NOERR) handle_error(status);
-        ...
-     status = nc_inq_varid (ncid, "rh", &rh_id);
-     if (status != NC_NOERR) handle_error(status);
-        ...
-     status = nc_inq_attlen (ncid, rh_id, "valid_range", &vr_len);
-     if (status != NC_NOERR) handle_error(status);
-
-     vr_val = (double *) malloc(vr_len * sizeof(double));
-
-     status = nc_get_att_double(ncid, rh_id, "valid_range", vr_val);
-     if (status != NC_NOERR) handle_error(status);
-        ...
-@endcode
-
- * @return ::NC_NOERR for success.
- * @return ::NC_EBADID Bad ncid.
- * @return ::NC_ENOTVAR Bad varid.
- * @return ::NC_EBADNAME Bad name. See \ref object_name.
- * @return ::NC_EINVAL Invalid parameters.
- * @return ::NC_ENOTATT Can't find attribute.
- * @return ::NC_ECHAR Can't convert to or from NC_CHAR.
- * @return ::NC_ENOMEM Out of memory.
- * @return ::NC_ERANGE Data conversion went out of range.
- * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
-*/
 
 /**
  * @ingroup attributes

@@ -76,7 +76,7 @@ static unsigned int findPrimeGreaterThan(size_t val);
 extern void printhashmapstats(NC_hashmap* hm);
 extern void printhashmap(NC_hashmap* hm);
 
-static void
+static int
 rehash(NC_hashmap* hm)
 {
     size_t alloc = hm->alloc;
@@ -88,6 +88,7 @@ rehash(NC_hashmap* hm)
     Trace("rehash");
 
     hm->alloc = findPrimeGreaterThan(alloc<<1);
+    if(hm->alloc == 0) return 0;
     hm->table = (NC_hentry*)calloc(sizeof(NC_hentry), hm->alloc);
     hm->active = 0;
 
@@ -100,6 +101,7 @@ rehash(NC_hashmap* hm)
     }
     free(oldtable);
     ASSERT(active == hm->active);
+    return 1;
 }
 
 /* Locate where given object is or should be placed in indexp.
@@ -118,6 +120,7 @@ locate(NC_hashmap* hash, nchashkey_t hashkey, const char* key, size_t keysize, s
     NC_hentry* entry;
     Trace("locate");
     /* Compute starting point */
+    assert(hash->alloc > 0);
     index = (size_t)(hashkey % hash->alloc);
 
     /* Search table using linear probing */
@@ -142,6 +145,7 @@ locate(NC_hashmap* hash, nchashkey_t hashkey, const char* key, size_t keysize, s
 	    return 1;
 	}
         /* linear probe */
+	assert(hash->alloc > 0);
 	index = (index + step) % hash->alloc;
     }
     if(deletedok && deletefound) {
@@ -174,6 +178,7 @@ NC_hashmapnew(size_t startsize)
 	startsize *= 4;
 	startsize /= 3;
 	startsize = findPrimeGreaterThan(startsize);
+	if(startsize == 0) {nullfree(hm); return 0;}
     }
     hm->table = (NC_hentry*)calloc(sizeof(NC_hentry), (size_t)startsize);
     hm->alloc = startsize;
@@ -193,15 +198,15 @@ NC_hashmapadd(NC_hashmap* hash, uintptr_t data, const char* key, size_t keysize)
       return 0;
     hashkey = NC_hashmapkey(key,keysize);
 
-    if(hash->alloc*3/4 <= hash->active)
-	rehash(hash);
+    if((hash->alloc*3)/4 <= hash->active)
+	{if(!rehash(hash)) return 0;}
     for(;;) {
 	size_t index;
 	if(!locate(hash,hashkey,key,keysize,&index,1)) {
-	    rehash(hash);
+	    if(!rehash(hash)) return 0;
 	    continue; /* try on larger table */
 	}
-    entry = &hash->table[index];
+        entry = &hash->table[index];
 	if(entry->flags & ACTIVE) {
 	    /* key already exists in table => overwrite data */
 	    entry->data = data;
@@ -372,6 +377,48 @@ NC_hashmapdeactivate(NC_hashmap* map, uintptr_t data)
 /**************************************************/
 /* Prime table */
 
+/* Function that returns true if n is prime else returns false */
+/* This will currently fail if `n > 180503 * 180503` */
+static int isPrime(size_t n)
+{
+    size_t i;
+    
+    if (n <= 1)  return 0;
+    if (n <= 3)  return 1;
+    
+    for (i=1; i < NC_nprimes - 1; i++) {
+      size_t prime = NC_primes[i];
+      if (n % prime == 0) {
+	return 0;
+      }
+      if (prime * prime > n) {
+	break;
+      }
+    }
+    return 1;
+}
+
+/* Function to return the smallest prime number greater than N */
+static int nextPrime(size_t val)
+{
+    if (val <= 1)
+        return 2;
+
+    size_t prime = val;
+    if (prime % 2 == 0) { /* Make sure `prime` is odd */
+      prime--;
+    }
+
+    /* Loop continuously until isPrime returns */
+    /* true for a number greater than n */
+    for (;;) {
+        prime += 2;
+        if (isPrime(prime))
+	  break;
+    }
+    return prime;
+}
+
 /*
 Binary search prime table for first prime just greater than or
 equal to val
@@ -389,6 +436,15 @@ findPrimeGreaterThan(size_t val)
       if(val >= 0xFFFFFFFF)
         return 0; /* Too big */
       v = (unsigned int)val;
+
+      if (v > NC_primes[n - 2]) {
+        /*
+         If we have a value greater than the largest value in the 
+         NC_primes table, then search for a prime instead of just
+         doing a simple lookup.
+        */
+	return nextPrime(val);
+      }
 
       for(;;) {
         if(L >= R) break;

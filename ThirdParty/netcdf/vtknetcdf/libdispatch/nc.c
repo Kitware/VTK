@@ -1,5 +1,5 @@
 /*
- *      Copyright 2018, University Corporation for Atmospheric Research
+ *      Copyright 2022, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 /**
@@ -20,6 +20,10 @@
 #include <unistd.h>
 #endif
 #include "ncdispatch.h"
+
+#ifndef nulldup
+ #define nulldup(x) ((x)?strdup(x):(x))
+#endif
 
 /** This is the default create format for nc_create and nc__create. */
 static int default_create_format = NC_FORMAT_CLASSIC;

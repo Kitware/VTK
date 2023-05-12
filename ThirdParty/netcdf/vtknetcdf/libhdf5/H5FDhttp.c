@@ -5,7 +5,6 @@
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -49,6 +48,7 @@
 /*
 Define a simple #ifdef test for the version of H5FD_class_t we are using 
 */
+
 #if H5_VERS_MAJOR == 1
 #if H5_VERS_MINOR < 10
 #define H5FDCLASS1 1
@@ -104,7 +104,7 @@ typedef struct H5FD_http_t {
     haddr_t     eof;            /* end of file; current file size   */
     haddr_t     pos;            /* current file I/O position        */
     unsigned    write_access;   /* Flag to indicate the file was opened with write access */
-    H5FD_http_file_op op;		/* last operation */
+    H5FD_http_file_op op;	/* last operation */
     NC_HTTP_STATE*  state;       /* Curl handle + extra */
     char*           url;        /* The URL (minus any fragment) for the dataset */ 
 } H5FD_http_t;
@@ -162,40 +162,54 @@ static herr_t H5FD_http_unlock(H5FD_t *_file);
 
 /* Beware, not same as H5FD_HTTP_g */
 static const H5FD_class_t H5FD_http_g = {
-    "http",                     /* name         */
-    MAXADDR,                    /* maxaddr      */
-    H5F_CLOSE_WEAK,             /* fc_degree    */
-#ifndef H5FDCLASS1
-    H5FD_http_term,             /* terminate    */
+#if H5_VERSION_GE(1,13,2)
+    H5FD_CLASS_VERSION,		/* struct version  */
+    H5_VFD_HTTP,		/* value           */
 #endif
-    NULL,                       /* sb_size      */
-    NULL,                       /* sb_encode    */
-    NULL,                       /* sb_decode    */
-    0,                          /* fapl_size    */
-    NULL,                       /* fapl_get     */
-    NULL,                       /* fapl_copy    */
-    NULL,                       /* fapl_free    */
-    0,                          /* dxpl_size    */
-    NULL,                       /* dxpl_copy    */
-    NULL,                       /* dxpl_free    */
-    H5FD_http_open,            /* open         */
-    H5FD_http_close,           /* close        */
-    H5FD_http_cmp,             /* cmp          */
-    H5FD_http_query,           /* query        */
-    NULL,                       /* get_type_map */
-    H5FD_http_alloc,           /* alloc        */
-    NULL,                       /* free         */
-    H5FD_http_get_eoa,         /* get_eoa      */
-    H5FD_http_set_eoa,         /* set_eoa      */
-    H5FD_http_get_eof,         /* get_eof      */
-    H5FD_http_get_handle,      /* get_handle   */
-    H5FD_http_read,            /* read         */
-    H5FD_http_write,           /* write        */
-    H5FD_http_flush,           /* flush        */
-    NULL, 		       /* truncate     */
-    H5FD_http_lock,            /* lock         */
-    H5FD_http_unlock,          /* unlock       */
-    H5FD_FLMAP_DICHOTOMY       /* fl_map       */
+    "http",			/* name         */
+    MAXADDR,			/* maxaddr      */
+    H5F_CLOSE_WEAK,		/* fc_degree    */
+#ifndef H5FDCLASS1
+    H5FD_http_term,		/* terminate    */
+#endif
+    NULL,			/* sb_size      */
+    NULL,			/* sb_encode    */
+    NULL,			/* sb_decode    */
+    0,				/* fapl_size    */
+    NULL,			/* fapl_get     */
+    NULL,			/* fapl_copy    */
+    NULL,			/* fapl_free    */
+    0,				/* dxpl_size    */
+    NULL,			/* dxpl_copy    */
+    NULL,			/* dxpl_free    */
+    H5FD_http_open,		/* open         */
+    H5FD_http_close,		/* close        */
+    H5FD_http_cmp,		/* cmp          */
+    H5FD_http_query,		/* query        */
+    NULL,			/* get_type_map */
+    H5FD_http_alloc,		/* alloc        */
+    NULL,			/* free         */
+    H5FD_http_get_eoa,		/* get_eoa      */
+    H5FD_http_set_eoa,		/* set_eoa      */
+    H5FD_http_get_eof,		/* get_eof      */
+    H5FD_http_get_handle,	/* get_handle   */
+    H5FD_http_read,		/* read         */
+    H5FD_http_write,		/* write        */
+#if H5_VERSION_GE(1,13,2)
+    NULL,			/* read_vector     */
+    NULL,			/* write_vector    */
+    NULL,			/* read_selection  */
+    NULL,			/* write_selection */
+#endif
+    H5FD_http_flush,		/* flush        */
+    NULL,			/* truncate     */
+    H5FD_http_lock,		/* lock         */
+    H5FD_http_unlock,		/* unlock       */
+#if H5_VERSION_GE(1,13,2)
+    NULL,			/* del          */
+    NULL,			/* ctl	        */
+#endif
+    H5FD_FLMAP_DICHOTOMY	/* fl_map       */
 };
 
 
@@ -332,8 +346,11 @@ H5FD_http_open( const char *name, unsigned flags, hid_t /*UNUSED*/ fapl_id,
     /* Always read-only */
     write_access = 0;
 
-    /* Open file in read-only mode, to check for existence  and get length */
-    if((ncstat = nc_http_open(name,&state,&len))) {
+   /* Open file in read-only mode, to check for existence  and get length */
+    if((ncstat = nc_http_init(&state))) {
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_CANTOPENFILE, "cannot access object", NULL);
+    }
+    if((ncstat = nc_http_size(state,name,&len))) {
         H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_CANTOPENFILE, "cannot access object", NULL);
     }
 
@@ -349,7 +366,7 @@ H5FD_http_open( const char *name, unsigned flags, hid_t /*UNUSED*/ fapl_id,
     file->write_access = write_access;    /* Note the write_access for later */
     file->eof = (haddr_t)len;
     file->state = state; state = NULL;
-    file->url = H5allocate_memory(strlen(name+1),0);
+    file->url = H5allocate_memory(strlen(name)+1,0);
     if(file->url == NULL) {
 	nc_http_close(state);
         H5Epush_ret(func, H5E_ERR_CLS, H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed", NULL);
