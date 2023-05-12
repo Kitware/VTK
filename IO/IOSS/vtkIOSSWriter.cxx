@@ -466,8 +466,19 @@ void vtkIOSSWriter::WriteData()
       ? fmt::format("{}-s{:04}", this->FileName, internals.RestartIndex)
       : std::string(this->FileName);
 
-    Ioss::DatabaseIO* dbase = Ioss::IOFactory::create(
-      "exodus", fname, Ioss::WRITE_RESTART, Ioss::ParallelUtils::comm_world(), properties);
+#ifdef SEACAS_HAVE_MPI
+    // As of now netcdf mpi support is not working for IOSSWriter,
+    // because mpi calls are called inside the writer instead of the ioss library
+    // so we are using comm_null(), instead of comm_world().
+    // In the future, when comm_world() is used and SEACAS_HAVE_MPI is on
+    // my_processor and processor_count properties should be removed for exodus.
+    // For more info. see Ioex::DatabaseIO::DatabaseIO in the ioss library.
+    auto parallelUtilsComm = Ioss::ParallelUtils::comm_null();
+#else
+    auto parallelUtilsComm = Ioss::ParallelUtils::comm_world();
+#endif
+    Ioss::DatabaseIO* dbase =
+      Ioss::IOFactory::create("exodus", fname, Ioss::WRITE_RESTART, parallelUtilsComm, properties);
     if (dbase == nullptr || !dbase->ok(true))
     {
       vtkErrorMacro("Could not open database '" << fname << "'");

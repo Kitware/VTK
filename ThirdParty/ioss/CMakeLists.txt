@@ -11,7 +11,7 @@ vtk_module_third_party(
 
 if (VTK_MODULE_USE_EXTERNAL_vtkioss)
   # The usage requirements for Ioss' exported targets is not useful for us.
-  # https://github.com/gsjaardema/seacas/issues/239
+  # https://github.com/sandialabs/seacas/issues/239
   vtk_module_include(VTK::ioss
     INTERFACE
       "${SEACASIoss_INCLUDE_DIRS}")

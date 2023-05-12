@@ -1378,7 +1378,7 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
 
     // strip trailing underscores in CGNS files to turn separate fields into
     // vectors with components.
-    // see https://github.com/gsjaardema/seacas/issues/265
+    // see https://github.com/sandialabs/seacas/issues/265
     properties.add(Ioss::Property("FIELD_STRIP_TRAILING_UNDERSCORE", "on"));
 
     // Do not convert variable names to lower case. The default is on.
@@ -1445,10 +1445,21 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
       }
     }
 
+#ifdef SEACAS_HAVE_MPI
+    // As of now netcdf mpi support is not working for IOSSReader
+    // because mpi calls are called inside the reader instead of the ioss library
+    // so we are using comm_null(), instead of comm_world().
+    // In the future, when comm_world() is used and SEACAS_HAVE_MPI is on
+    // my_processor and processor_count properties should be removed for exodus.
+    // For more info. see Ioex::DatabaseIO::DatabaseIO in the ioss library.
+    auto parallelUtilsComm = Ioss::ParallelUtils::comm_null();
+#else
+    auto parallelUtilsComm = Ioss::ParallelUtils::comm_world();
+#endif
     auto dbase = std::unique_ptr<Ioss::DatabaseIO>(Ioss::IOFactory::create(
       this->IOSSReader->DatabaseTypeOverride ? std::string(this->IOSSReader->DatabaseTypeOverride)
                                              : dtype,
-      dbasename, Ioss::READ_RESTART, Ioss::ParallelUtils::comm_world(), properties));
+      dbasename, Ioss::READ_RESTART, parallelUtilsComm, properties));
     if (dbase == nullptr || !dbase->ok(/*write_message=*/true))
     {
       throw std::runtime_error(
