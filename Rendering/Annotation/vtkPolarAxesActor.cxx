@@ -633,14 +633,16 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
     return false;
   }
 
-  if (this->DeltaRangeMajor <= 0.0 || this->DeltaRangeMajor > fabs(this->Range[1] - this->Range[0]))
+  if (!this->AxisTickMatchesPolarAxes &&
+    (this->DeltaRangeMajor <= 0.0 || this->DeltaRangeMajor > fabs(this->Range[1] - this->Range[0])))
   {
     vtkWarningMacro(<< "Axis Major Step invalid or range length invalid: "
                     << "DeltaRangeMajor: " << this->DeltaRangeMajor
                     << "_ Range length: " << fabs(this->Range[1] - this->Range[0]));
     return false;
   }
-  if (this->DeltaRangeMinor <= 0.0 || this->DeltaRangeMinor > fabs(this->Range[1] - this->Range[0]))
+  if (!this->AxisTickMatchesPolarAxes &&
+    (this->DeltaRangeMinor <= 0.0 || this->DeltaRangeMinor > fabs(this->Range[1] - this->Range[0])))
   {
     vtkWarningMacro(<< "Axis Minor Step or range length invalid: "
                     << "DeltaRangeMinor: " << this->DeltaRangeMinor
@@ -657,8 +659,9 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
   }
 
   // Angle Step
-  if (this->DeltaAngleMajor <= 0.0 || this->DeltaAngleMajor >= 360.0 ||
-    this->DeltaAngleMinor <= 0.0 || this->DeltaAngleMinor >= 360.0)
+  if (!this->ArcTickMatchesRadialAxes &&
+    (this->DeltaAngleMajor <= 0.0 || this->DeltaAngleMajor >= 360.0 ||
+      this->DeltaAngleMinor <= 0.0 || this->DeltaAngleMinor >= 360.0))
   {
     vtkWarningMacro(<< "Arc Delta Angle: "
                     << "DeltaAngleMajor: " << this->DeltaAngleMajor << " _ DeltaAngleMinor: "
