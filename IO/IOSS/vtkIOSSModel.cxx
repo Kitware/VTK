@@ -32,6 +32,7 @@
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
+#include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -690,7 +691,7 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(int 
     fieldList.IntersectFieldList(ds->GetAttributes(association));
   }
 
-  vtkNew<vtkDataSetAttributes> tmpDA;
+  auto tmpDA = vtkSmartPointer<vtkDataSetAttributes>::New();
   tmpDA->CopyAllocate(fieldList, 1);
   tmpDA->SetNumberOfTuples(1);
   if (tmpDA->GetGlobalIds())
@@ -713,65 +714,44 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(int 
     // skip "original_object_id". that's an array added by Ioss reader.
     tmpDA->RemoveArray("original_object_id");
   }
-  if (controller->GetNumberOfProcesses() == 1)
-  {
-    for (int idx = 0, max = tmpDA->GetNumberOfArrays(); idx < max; ++idx)
-    {
-      auto array = tmpDA->GetArray(idx);
-      if (array && (!chooseArraysToWrite || arraySelection->ArrayIsEnabled(array->GetName())))
-      {
-        const auto type = ::GetFieldType(array);
-        fields.emplace_back(array->GetName(), type, array->GetNumberOfComponents());
-      }
-    }
-  }
-  else // controller->GetNumberOfProcesses() > 1
+  if (controller->GetNumberOfProcesses() > 1)
   {
     // gather the number of elements from all ranks.
     vtkNew<vtkIdTypeArray> sendNumberOfElements;
     sendNumberOfElements->InsertNextValue(cds->GetNumberOfElements(association));
     vtkNew<vtkIdTypeArray> recvNumberOfElements;
     controller->AllGather(sendNumberOfElements, recvNumberOfElements);
-    // create an unstructured grid to pack the tmpDA as field data.
-    auto send = vtkSmartPointer<vtkUnstructuredGrid>::New();
-    send->GetFieldData()->ShallowCopy(tmpDA);
+    // create a table to pack the tmpDA
+    auto send = vtkSmartPointer<vtkTable>::New();
+    send->GetRowData()->ShallowCopy(tmpDA);
     // now gather all field data from all ranks.
-    std::vector<vtkSmartPointer<vtkDataObject>> recv;
-    controller->AllGather(send, recv);
-    // now intersect all field data to get the common fields.
-    vtkDataSetAttributesFieldList coresFieldList;
-    for (size_t i = 0; i < recv.size(); ++i)
+    std::vector<vtkSmartPointer<vtkDataObject>> globalRecv;
+    controller->AllGather(send, globalRecv);
+    // now intersect all row data to get the common fields.
+    vtkDataSetAttributesFieldList globalFieldList;
+    for (size_t i = 0; i < globalRecv.size(); ++i)
     {
-      const auto ug = vtkUnstructuredGrid::SafeDownCast(recv[i]);
+      const auto table = vtkTable::SafeDownCast(globalRecv[i]);
       const auto numberOfElements = recvNumberOfElements->GetValue(i);
       // skip empty datasets.
-      if (ug && numberOfElements > 0)
+      if (table && numberOfElements > 0)
       {
-        const auto fd = ug->GetFieldData();
-        // convert field data to dataset attributes
-        vtkNew<vtkDataSetAttributes> localDa;
-        for (int idx = 0, max = fd->GetNumberOfArrays(); idx < max; ++idx)
-        {
-          auto array = fd->GetArray(idx);
-          if (array && (!chooseArraysToWrite || arraySelection->ArrayIsEnabled(array->GetName())))
-          {
-            localDa->AddArray(array);
-          }
-        }
-        // intersect field data with current field list.
-        coresFieldList.IntersectFieldList(localDa);
+        // intersect row data with current field list.
+        globalFieldList.IntersectFieldList(table->GetRowData());
       }
     }
-    // now we have the common fields. we need to create a new field data
-    vtkNew<vtkDataSetAttributes> coresTempDA;
-    coresTempDA->CopyAllocate(coresFieldList, 0);
-    for (int idx = 0, max = coresTempDA->GetNumberOfArrays(); idx < max; ++idx)
+    auto globalTmpDA = vtkSmartPointer<vtkDataSetAttributes>::New();
+    globalTmpDA->CopyAllocate(globalFieldList, 1);
+    // re-write localDA with globalDA
+    tmpDA = globalTmpDA;
+  }
+  for (int idx = 0, max = tmpDA->GetNumberOfArrays(); idx < max; ++idx)
+  {
+    auto array = tmpDA->GetArray(idx);
+    if (array && (!chooseArraysToWrite || arraySelection->ArrayIsEnabled(array->GetName())))
     {
-      if (auto* array = coresTempDA->GetArray(idx))
-      {
-        const auto type = ::GetFieldType(array);
-        fields.emplace_back(array->GetName(), type, array->GetNumberOfComponents());
-      }
+      const auto type = ::GetFieldType(array);
+      fields.emplace_back(array->GetName(), type, array->GetNumberOfComponents());
     }
   }
   return fields;
