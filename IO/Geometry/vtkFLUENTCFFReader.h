@@ -41,11 +41,12 @@
 #ifndef vtkFLUENTCFFReader_h
 #define vtkFLUENTCFFReader_h
 
+#include <memory> // std::unique_ptr
+
 #include "vtkIOGeometryModule.h" // For export macro
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
-#include "vtkNew.h"   // For vtkNew
-#include "vtk_hdf5.h" // For hdf5 library (hid_t type)
+#include "vtkNew.h" // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
@@ -56,7 +57,6 @@ class vtkQuad;
 class vtkHexahedron;
 class vtkPyramid;
 class vtkWedge;
-class vtkConvexPointSet;
 
 class VTKIOGEOMETRY_EXPORT vtkFLUENTCFFReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -148,9 +148,8 @@ public:
   {
     std::string variableName;
     vtkIdType zoneId;
-    std::vector<double> iComponentData;
-    std::vector<double> jComponentData;
-    std::vector<double> kComponentData;
+    size_t dim;
+    std::vector<double> vectorData;
   };
   //@}
 
@@ -160,12 +159,23 @@ protected:
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  /**
+   * Enumerate
+   */
+  enum DataState
+  {
+    NOT_LOADED = 0,
+    AVAILABLE = 1,
+    LOADED = 2,
+    ERROR = 3
+  };
+
   //@{
   /**
    * Open the HDF5 file structure
    */
   virtual bool OpenCaseFile(const std::string& filename);
-  virtual bool OpenDataFile(const std::string& filename);
+  virtual DataState OpenDataFile(const std::string& filename);
   //@}
 
   /**
@@ -176,7 +186,7 @@ protected:
   /**
    * Reads necessary information from the .cas file
    */
-  virtual void ParseCaseFile();
+  virtual int ParseCaseFile();
 
   /**
    * Get the dimension of the file (2D/3D)
@@ -270,7 +280,12 @@ protected:
   /**
    * Read and reconstruct data from .dat.h5 file
    */
-  virtual void GetData();
+  virtual int GetData();
+
+  /**
+   * Pre-read variable name data available for selection
+   */
+  virtual int GetMetaData();
 
   //
   //  Variables
@@ -280,9 +295,8 @@ protected:
   vtkIdType NumberOfCells = 0;
   int NumberOfCellArrays = 0;
 
-  hid_t FluentCaseFile = -1;
-  hid_t FluentDataFile = -1;
-  herr_t Status = -1;
+  struct vtkInternals;
+  std::unique_ptr<vtkInternals> HDFImpl;
 
   vtkNew<vtkPoints> Points;
   vtkNew<vtkTriangle> Triangle;
@@ -291,17 +305,18 @@ protected:
   vtkNew<vtkHexahedron> Hexahedron;
   vtkNew<vtkPyramid> Pyramid;
   vtkNew<vtkWedge> Wedge;
-  vtkNew<vtkConvexPointSet> ConvexPointSet;
 
   std::vector<Cell> Cells;
   std::vector<Face> Faces;
   std::vector<int> CellZones;
   std::vector<ScalarDataChunk> ScalarDataChunks;
   std::vector<VectorDataChunk> VectorDataChunks;
+  std::vector<std::string> PreReadScalarData;
+  std::vector<std::string> PreReadVectorData;
 
   vtkTypeBool SwapBytes = 0;
   int GridDimension = 0;
-  int DataPass = 0;
+  DataState FileState = DataState::NOT_LOADED;
   int NumberOfScalars = 0;
   int NumberOfVectors = 0;
 
