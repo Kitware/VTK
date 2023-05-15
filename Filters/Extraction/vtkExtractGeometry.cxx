@@ -3,6 +3,7 @@
 #include "vtkExtractGeometry.h"
 
 #include "vtk3DLinearGridCrinkleExtractor.h"
+#include "vtkArrayDispatch.h"
 #include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExtractCells.h"
@@ -61,6 +62,137 @@ vtkMTimeType vtkExtractGeometry::GetMTime()
 namespace
 {
 //------------------------------------------------------------------------------
+template <typename TPointsArray>
+struct EvaluatePointsInsidenessFunctor
+{
+  vtkExtractGeometry* Self;
+  TPointsArray* PointsArray;
+  vtkImplicitFunction* ImplicitFunction;
+  const double Multiplier;
+  vtkUnsignedCharArray* InsidenessArray;
+
+  EvaluatePointsInsidenessFunctor(vtkExtractGeometry* self, TPointsArray* pointsArray,
+    vtkImplicitFunction* implicitFunction, double multiplier, vtkUnsignedCharArray* insidenessArray)
+    : Self(self)
+    , PointsArray(pointsArray)
+    , ImplicitFunction(implicitFunction)
+    , Multiplier(multiplier)
+    , InsidenessArray(insidenessArray)
+  {
+    this->InsidenessArray->SetNumberOfValues(pointsArray->GetNumberOfTuples());
+  }
+
+  void operator()(vtkIdType beginPointId, vtkIdType endPointId)
+  {
+    const auto& points = vtk::DataArrayTupleRange<3>(this->PointsArray);
+    auto insideness = vtk::DataArrayValueRange<1>(this->InsidenessArray);
+
+    double point[3];
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    const auto checkAbortInterval = std::min((endPointId - beginPointId) / 10 + 1, (vtkIdType)1000);
+    for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
+    {
+      if (pointId % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->Self->CheckAbort();
+        }
+        if (this->Self->GetAbortOutput())
+        {
+          break;
+        }
+      }
+      // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+      // we do that since the input points can be implicit points, and GetTypedTuple is faster
+      // than accessing the component of the TupleReference using GetTypedComponent internally.
+      points.GetTuple(pointId, point);
+
+      const auto scalar = this->ImplicitFunction->FunctionValue(point) * this->Multiplier;
+      insideness[pointId] = static_cast<unsigned char>(scalar < 0.0);
+    }
+  }
+};
+
+//-----------------------------------------------------------------------------
+struct EvaluatePointsInsidenessWorker
+{
+  template <typename TPointsArray>
+  void operator()(TPointsArray* pointsArray, vtkExtractGeometry* self,
+    vtkImplicitFunction* implicitFunction, double multiplier, vtkUnsignedCharArray* insidenessArray)
+  {
+    EvaluatePointsInsidenessFunctor<TPointsArray> functor(
+      self, pointsArray, implicitFunction, multiplier, insidenessArray);
+    vtkSMPTools::For(0, pointsArray->GetNumberOfTuples(), functor);
+  }
+};
+
+//-----------------------------------------------------------------------------
+template <typename TPointsArray>
+struct EvaluatePointsScalarsFunctor
+{
+  vtkExtractGeometry* Self;
+  TPointsArray* PointsArray;
+  vtkImplicitFunction* ImplicitFunction;
+  const double Multiplier;
+  vtkDoubleArray* ScalarsArray;
+
+  EvaluatePointsScalarsFunctor(vtkExtractGeometry* self, TPointsArray* pointsArray,
+    vtkImplicitFunction* implicitFunction, double multiplier, vtkDoubleArray* scalarsArray)
+    : Self(self)
+    , PointsArray(pointsArray)
+    , ImplicitFunction(implicitFunction)
+    , Multiplier(multiplier)
+    , ScalarsArray(scalarsArray)
+  {
+    this->ScalarsArray->SetNumberOfValues(pointsArray->GetNumberOfTuples());
+  }
+
+  void operator()(vtkIdType beginPointId, vtkIdType endPointId)
+  {
+    const auto& points = vtk::DataArrayTupleRange<3>(this->PointsArray);
+    auto scalars = vtk::DataArrayValueRange<1>(this->ScalarsArray);
+
+    double point[3];
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    const auto checkAbortInterval = std::min((endPointId - beginPointId) / 10 + 1, (vtkIdType)1000);
+    for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
+    {
+      if (pointId % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->Self->CheckAbort();
+        }
+        if (this->Self->GetAbortOutput())
+        {
+          break;
+        }
+      }
+      // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+      // we do that since the input points can be implicit points, and GetTypedTuple is faster
+      // than accessing the component of the TupleReference using GetTypedComponent internally.
+      points.GetTuple(pointId, point);
+
+      scalars[pointId] = this->ImplicitFunction->FunctionValue(point) * this->Multiplier;
+    }
+  }
+};
+
+//-----------------------------------------------------------------------------
+struct EvaluatePointsScalarsWorker
+{
+  template <typename TPointsArray>
+  void operator()(TPointsArray* pointsArray, vtkExtractGeometry* self,
+    vtkImplicitFunction* implicitFunction, double multiplier, vtkDoubleArray* scalarsArray)
+  {
+    EvaluatePointsScalarsFunctor<TPointsArray> functor(
+      self, pointsArray, implicitFunction, multiplier, scalarsArray);
+    vtkSMPTools::For(0, pointsArray->GetNumberOfTuples(), functor);
+  }
+};
+
+//------------------------------------------------------------------------------
 struct EvaluateCells
 {
   vtkExtractGeometry* Self;
@@ -104,7 +236,7 @@ struct EvaluateCells
     auto cellIds = this->TLCellIds.Local();
     vtkIdType numCellPts;
     const vtkIdType* cellPts;
-    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
+    const vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
       if (cellId % checkAbortInterval == 0)
@@ -184,6 +316,14 @@ int vtkExtractGeometry::RequestData(
 {
   // get the input
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0]->GetInformationObject(0));
+  if (!input)
+  {
+    return 0;
+  }
+  if (input->GetNumberOfPoints() < 1)
+  {
+    return 1;
+  }
 
   if (!this->GetExtractInside() && this->GetExtractOnlyBoundaryCells() &&
     this->GetExtractBoundaryCells() &&
@@ -215,32 +355,29 @@ int vtkExtractGeometry::RequestData(
   vtkNew<vtkDoubleArray> scalarArray;
   // call that to guarantee thread safety
   this->ImplicitFunction->EvaluateFunction(0, 0, 0);
+  using PointsDispatcher =
+    vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+      vtkArrayDispatch::Reals>;
+  auto points = input->GetPoints()->GetData();
   if (!this->ExtractBoundaryCells)
   {
-    insidenessArray->SetNumberOfValues(input->GetNumberOfPoints());
-    vtkSMPTools::For(0, input->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-      double x[3];
-      for (vtkIdType ptId = begin; ptId < end; ++ptId)
-      {
-        input->GetPoint(ptId, x);
-        insidenessArray->SetValue(ptId,
-          static_cast<unsigned char>(this->ImplicitFunction->FunctionValue(x) * multiplier < 0.0));
-      }
-    });
+    EvaluatePointsInsidenessWorker worker;
+    if (!PointsDispatcher::Execute(
+          points, worker, this, this->ImplicitFunction, multiplier, insidenessArray.Get()))
+    {
+      worker(points, this, this->ImplicitFunction, multiplier, insidenessArray.Get());
+    }
   }
   else
   {
-    scalarArray->SetNumberOfValues(input->GetNumberOfPoints());
-    vtkSMPTools::For(0, input->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-      double x[3];
-      for (vtkIdType ptId = begin; ptId < end; ++ptId)
-      {
-        input->GetPoint(ptId, x);
-        scalarArray->SetValue(ptId, this->ImplicitFunction->FunctionValue(x) * multiplier);
-      }
-    });
+    EvaluatePointsScalarsWorker worker;
+    if (!PointsDispatcher::Execute(
+          points, worker, this, this->ImplicitFunction, multiplier, scalarArray.Get()))
+    {
+      worker(points, this, this->ImplicitFunction, multiplier, scalarArray.Get());
+    }
   }
-  this->UpdateProgress(0.5);
+  this->UpdateProgress(0.25);
 
   vtkNew<vtkIdList> keptCellsList;
   EvaluateCells evaluateCells(this, input, insidenessArray, scalarArray, keptCellsList);
@@ -249,6 +386,7 @@ int vtkExtractGeometry::RequestData(
   {
     return 1;
   }
+  this->UpdateProgress(0.5);
 
   // call vtkExtractCells
   vtkNew<vtkExtractCells> extractCells;

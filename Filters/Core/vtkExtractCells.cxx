@@ -83,19 +83,22 @@ struct SubsetPointsWork
 template <typename PointWorkT>
 struct ExtractPointsWorker
 {
-  template <typename PointsArrayT>
-  void operator()(PointsArrayT* pointsArray, const PointWorkT& pointWork, vtkDataSet* input)
+  template <typename TInputPoints, typename TOutputPoints>
+  void operator()(
+    TInputPoints* inputPoints, TOutputPoints* outputPoints, const PointWorkT& pointWork)
   {
     vtkSMPTools::For(0, pointWork.GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
+      const auto inPts = vtk::DataArrayTupleRange<3>(inputPoints);
+      auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
       double point[3];
-      auto points = vtk::DataArrayTupleRange<3>(pointsArray);
       for (vtkIdType ptId = begin; ptId < end; ++ptId)
       {
         const vtkIdType origPtId = pointWork.GetPointId(ptId);
-        input->GetPoint(origPtId, point);
-        points[ptId][0] = point[0];
-        points[ptId][1] = point[1];
-        points[ptId][2] = point[2];
+        // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+        // we do that since the input points can be implicit points, and GetTypedTuple is faster
+        // than accessing the component of the TupleReference using GetTypedComponent internally.
+        inPts.GetTuple(origPtId, point);
+        outPts.SetTuple(ptId, point);
       }
     });
   }
@@ -134,12 +137,16 @@ vtkSmartPointer<vtkPoints> ExtractPoints(
     pts->SetDataType(VTK_DOUBLE);
   }
   pts->SetNumberOfPoints(work.GetNumberOfPoints());
-  auto array = pts->GetData();
+  auto inputPoints = input->GetPoints()->GetData();
+  auto outputPoints = pts->GetData();
 
   ExtractPointsWorker<PointWorkT> worker;
-  if (!vtkArrayDispatch::Dispatch::Execute(array, worker, work, input))
+  using PointsDispatcher =
+    vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+      vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  if (!PointsDispatcher::Execute(inputPoints, outputPoints, worker, work))
   {
-    worker(array, work, input);
+    worker(inputPoints, outputPoints, work);
   }
   return pts;
 }
