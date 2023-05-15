@@ -26,7 +26,6 @@ class PointSource(VTKPythonAlgorithmBase):
         pts.SetPoint(0, 0, 0, 0)
         output.SetPoints(pts)
         a = vtk.vtkFloatArray()
-        print("Modified ", self.GetMTime())
         a.SetName("scalar")
         a.SetNumberOfTuples(1)
         a.SetValue(0, t)

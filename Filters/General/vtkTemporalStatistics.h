@@ -40,6 +40,11 @@
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkTemporalAlgorithm.h" // For temporal algorithm
+
+#ifndef __VTK_WRAP__
+#define vtkPassInputTypeAlgorithm vtkTemporalAlgorithm<vtkPassInputTypeAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
@@ -56,9 +61,16 @@ public:
    * Standard methods for instantiation, type information, and printing.
    */
   vtkTypeMacro(vtkTemporalStatistics, vtkPassInputTypeAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkPassInputTypeAlgorithm
+#endif
   static vtkTemporalStatistics* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
+
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML)
+  vtkCreateWrappedTemporalAlgorithmInterface();
+#endif
 
   ///@{
   /**
@@ -110,30 +122,24 @@ protected:
   vtkTypeBool ComputeMinimum;
   vtkTypeBool ComputeStandardDeviation;
 
-  // Used when iterating the pipeline to keep track of which timestep we are on.
-  int CurrentTimeIndex;
-
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
-  int RequestUpdateTime(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
-  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+
+  int Initialize(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int Execute(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
-  int ExecuteStreaming(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) override;
+  int Finalize(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  virtual void InitializeStatistics(vtkDataObject* input, vtkDataObject* output);
-  virtual void InitializeStatistics(vtkDataSet* input, vtkDataSet* output);
-  virtual void InitializeStatistics(vtkGraph* input, vtkGraph* output);
-  virtual void InitializeStatistics(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
+  virtual void InitializeStatistics(
+    vtkDataObject* input, vtkDataObject* output, vtkDataObject* cache);
+  virtual void InitializeStatistics(vtkDataSet* input, vtkDataSet* output, vtkDataSet* cache);
+  virtual void InitializeStatistics(vtkGraph* input, vtkGraph* output, vtkGraph* cache);
+  virtual void InitializeStatistics(
+    vtkCompositeDataSet* input, vtkCompositeDataSet* output, vtkCompositeDataSet* cache);
   virtual void InitializeArrays(vtkFieldData* inFd, vtkFieldData* outFd);
   virtual void InitializeArray(vtkDataArray* array, vtkFieldData* outFd);
 
