@@ -136,6 +136,56 @@ public:
 
   ///@{
   /**
+   * @see vtkMapper::SetArrayAccessMode
+   */
+  void SetBlockArrayAccessMode(unsigned int index, int value);
+  int GetBlockArrayAccessMode(unsigned int index);
+  void RemoveBlockArrayAccessMode(unsigned int index);
+  void RemoveBlockArrayAccessModes();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetArrayComponent
+   */
+  void SetBlockArrayComponent(unsigned int index, int value);
+  int GetBlockArrayComponent(unsigned int index);
+  void RemoveBlockArrayComponent(unsigned int index);
+  void RemoveBlockArrayComponents();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetArrayId
+   */
+  void SetBlockArrayId(unsigned int index, int value);
+  int GetBlockArrayId(unsigned int index);
+  void RemoveBlockArrayId(unsigned int index);
+  void RemoveBlockArrayIds();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetArrayName
+   */
+  void SetBlockArrayName(unsigned int index, const std::string& value);
+  std::string GetBlockArrayName(unsigned int index);
+  void RemoveBlockArrayName(unsigned int index);
+  void RemoveBlockArrayNames();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetFieldDataTupleId
+   */
+  void SetBlockFieldDataTupleId(unsigned int index, vtkIdType value);
+  vtkIdType GetBlockFieldDataTupleId(unsigned int index);
+  void RemoveBlockFieldDataTupleId(unsigned int index);
+  void RemoveBlockFieldDataTupleIds();
+  ///@}
+
+  ///@{
+  /**
    * If the current 'color by' array is missing on some datasets, color these
    * dataset by the LookupTable's NaN color, if the lookup table supports it.
    * Default is false.

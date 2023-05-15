@@ -881,6 +881,301 @@ void vtkCompositePolyDataMapper::RemoveBlockOpacities()
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::SetBlockArrayAccessMode(unsigned int index, int value)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->SetBlockArrayAccessMode(dataObj, value);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositePolyDataMapper::GetBlockArrayAccessMode(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return VTK_GET_ARRAY_BY_ID;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    return this->CompositeAttributes->GetBlockArrayAccessMode(dataObj);
+  }
+  return VTK_GET_ARRAY_BY_ID;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockArrayAccessMode(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->RemoveBlockArrayAccessMode(dataObj);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockArrayAccessModes()
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  this->CompositeAttributes->RemoveBlockArrayAccessModes();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::SetBlockArrayComponent(unsigned int index, int value)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->SetBlockArrayComponent(dataObj, value);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositePolyDataMapper::GetBlockArrayComponent(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return 0;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    return this->CompositeAttributes->GetBlockArrayComponent(dataObj);
+  }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockArrayComponent(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->RemoveBlockArrayComponent(dataObj);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockArrayComponents()
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  this->CompositeAttributes->RemoveBlockArrayComponents();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::SetBlockArrayId(unsigned int index, int value)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->SetBlockArrayId(dataObj, value);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositePolyDataMapper::GetBlockArrayId(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return -1;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    return this->CompositeAttributes->GetBlockArrayId(dataObj);
+  }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockArrayId(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->RemoveBlockArrayId(dataObj);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockArrayIds()
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  this->CompositeAttributes->RemoveBlockArrayIds();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::SetBlockArrayName(unsigned int index, const std::string& value)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->SetBlockArrayName(dataObj, value);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+std::string vtkCompositePolyDataMapper::GetBlockArrayName(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return "";
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    return this->CompositeAttributes->GetBlockArrayName(dataObj);
+  }
+  return "";
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockArrayName(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->RemoveBlockArrayName(dataObj);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockArrayNames()
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  this->CompositeAttributes->RemoveBlockArrayNames();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::SetBlockFieldDataTupleId(unsigned int index, vtkIdType value)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->SetBlockFieldDataTupleId(dataObj, value);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkCompositePolyDataMapper::GetBlockFieldDataTupleId(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return -1;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    return this->CompositeAttributes->GetBlockFieldDataTupleId(dataObj);
+  }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockFieldDataTupleId(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->RemoveBlockFieldDataTupleId(dataObj);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockFieldDataTupleIds()
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  this->CompositeAttributes->RemoveBlockFieldDataTupleIds();
+  this->Modified();
+}
+
 //------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper::SetInputArrayToProcess(int idx, vtkInformation* inInfo)
 {

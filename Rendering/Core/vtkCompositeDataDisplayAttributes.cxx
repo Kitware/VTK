@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkAbstractMapper.h"
 #include "vtkBoundingBox.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeRange.h"
@@ -322,6 +323,272 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockMaterials()
     this->Modified();
   }
   this->BlockMaterials.clear();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockArrayAccessMode(
+  vtkDataObject* data_object, int value)
+{
+  const auto result = this->BlockArrayAccessModes.emplace(data_object, value);
+  const auto& iter = result.first;
+  const auto& inserted = result.second;
+  if (inserted || iter->second != value)
+  {
+    iter->second = value;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataDisplayAttributes::GetBlockArrayAccessMode(vtkDataObject* data_object) const
+{
+  const auto iter = this->BlockArrayAccessModes.find(data_object);
+  if (iter != this->BlockArrayAccessModes.end())
+  {
+    return iter->second;
+  }
+  return VTK_GET_ARRAY_BY_ID;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockArrayAccessMode(vtkDataObject* data_object) const
+{
+  return this->BlockArrayAccessModes.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockArrayAccessModes() const
+{
+  return !this->BlockArrayAccessModes.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockArrayAccessMode(vtkDataObject* data_object)
+{
+  this->BlockArrayAccessModes.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockArrayAccessModes()
+{
+  if (this->HasBlockArrayAccessModes())
+  {
+    this->Modified();
+  }
+  this->BlockArrayAccessModes.clear();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockArrayComponent(
+  vtkDataObject* data_object, int value)
+{
+  const auto result = this->BlockArrayComponents.emplace(data_object, value);
+  const auto& iter = result.first;
+  const auto& inserted = result.second;
+  if (inserted || iter->second != value)
+  {
+    iter->second = value;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataDisplayAttributes::GetBlockArrayComponent(vtkDataObject* data_object) const
+{
+  const auto iter = this->BlockArrayComponents.find(data_object);
+  if (iter != this->BlockArrayComponents.end())
+  {
+    return iter->second;
+  }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockArrayComponent(vtkDataObject* data_object) const
+{
+
+  return this->BlockArrayComponents.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockArrayComponents() const
+{
+  return !this->BlockArrayComponents.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockArrayComponent(vtkDataObject* data_object)
+{
+  this->BlockArrayComponents.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockArrayComponents()
+{
+  if (this->HasBlockArrayComponents())
+  {
+    this->Modified();
+  }
+  this->BlockArrayComponents.clear();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockArrayId(vtkDataObject* data_object, int value)
+{
+  const auto result = this->BlockArrayIds.emplace(data_object, value);
+  const auto& iter = result.first;
+  const auto& inserted = result.second;
+  if (inserted || iter->second != value)
+  {
+    iter->second = value;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataDisplayAttributes::GetBlockArrayId(vtkDataObject* data_object) const
+{
+  const auto iter = this->BlockArrayIds.find(data_object);
+  if (iter != this->BlockArrayIds.end())
+  {
+    return iter->second;
+  }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockArrayId(vtkDataObject* data_object) const
+{
+  return this->BlockArrayIds.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockArrayIds() const
+{
+  return !this->BlockArrayIds.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockArrayId(vtkDataObject* data_object)
+{
+  this->BlockArrayIds.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockArrayIds()
+{
+  if (this->HasBlockArrayIds())
+  {
+    this->Modified();
+  }
+  this->BlockArrayIds.clear();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockArrayName(
+  vtkDataObject* data_object, const std::string& value)
+{
+  const auto result = this->BlockArrayNames.emplace(data_object, value);
+  const auto& iter = result.first;
+  const auto& inserted = result.second;
+  if (inserted || iter->second != value)
+  {
+    iter->second = value;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+std::string vtkCompositeDataDisplayAttributes::GetBlockArrayName(vtkDataObject* data_object) const
+{
+  const auto iter = this->BlockArrayNames.find(data_object);
+  if (iter != this->BlockArrayNames.end())
+  {
+    return iter->second;
+  }
+  return "";
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockArrayName(vtkDataObject* data_object) const
+{
+  return this->BlockArrayNames.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockArrayNames() const
+{
+  return !this->BlockArrayNames.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockArrayName(vtkDataObject* data_object)
+{
+  this->BlockArrayNames.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockArrayNames()
+{
+  if (this->HasBlockArrayNames())
+  {
+    this->Modified();
+  }
+  this->BlockArrayNames.clear();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockFieldDataTupleId(
+  vtkDataObject* data_object, vtkIdType value)
+{
+  const auto result = this->BlockFieldDataTupleIds.emplace(data_object, value);
+  const auto& iter = result.first;
+  const auto& inserted = result.second;
+  if (inserted || iter->second != value)
+  {
+    iter->second = value;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkCompositeDataDisplayAttributes::GetBlockFieldDataTupleId(
+  vtkDataObject* data_object) const
+{
+  const auto iter = this->BlockFieldDataTupleIds.find(data_object);
+  if (iter != this->BlockFieldDataTupleIds.end())
+  {
+    return iter->second;
+  }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockFieldDataTupleId(vtkDataObject* data_object) const
+{
+  return this->BlockFieldDataTupleIds.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockFieldDataTupleIds() const
+{
+  return !this->BlockFieldDataTupleIds.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockFieldDataTupleId(vtkDataObject* data_object)
+{
+  this->BlockFieldDataTupleIds.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockFieldDataTupleIds()
+{
+  if (this->HasBlockFieldDataTupleIds())
+  {
+    this->Modified();
+  }
+  this->BlockFieldDataTupleIds.clear();
 }
 
 //----------------------------------------------------------------------------
