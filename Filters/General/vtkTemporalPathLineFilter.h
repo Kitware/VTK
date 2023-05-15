@@ -24,8 +24,14 @@
 #ifndef vtkTemporalPathLineFilter_h
 #define vtkTemporalPathLineFilter_h
 
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkTemporalAlgorithm.h" // For temporal algorithm
+
+#ifndef __VTK_WRAP__
+#define vtkPolyDataAlgorithm vtkTemporalAlgorithm<vtkPolyDataAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
@@ -48,10 +54,17 @@ public:
   /**
    * Standard Type-Macro
    */
-  static vtkTemporalPathLineFilter* New();
   vtkTypeMacro(vtkTemporalPathLineFilter, vtkPolyDataAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkPassInputTypeAlgorithm
+#endif
+  static vtkTemporalPathLineFilter* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
+
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML)
+  vtkCreateWrappedTemporalAlgorithmInterface();
+#endif
 
   ///@{
   /**
@@ -122,7 +135,9 @@ public:
    * from the previous call. Time going backward means that the current time
    * step is smaller than the previous one.
    */
+  VTK_DEPRECATED_IN_9_3_0("Running backward will not be supported anymore.")
   virtual void SetBackwardTime(bool backward);
+  VTK_DEPRECATED_IN_9_3_0("Running backward will not be supported anymore.")
   vtkGetMacro(BackwardTime, bool);
   ///@}
 
@@ -156,24 +171,15 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  ///@{
-  /**
-   * The necessary parts of the standard pipeline update mechanism
-   */
-  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  //
-  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+  int Initialize(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int ExecuteStreaming(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
   int Execute(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
-  ///@}
+    vtkInformationVector* outputVector) override;
+  int Finalize(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  void IncrementTrail(TrailPointer trail, vtkDataSet* input, vtkIdType i);
 
   TrailPointer GetTrail(vtkIdType i);
-  void IncrementTrail(TrailPointer trail, vtkDataSet* input, vtkIdType i);
 
   // void Initialize(vtkDataSet* input, vtkDataSet* selection,
   //  vtkPolyData* pathLines, vtkPolyData* particles);

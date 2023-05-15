@@ -159,6 +159,7 @@ void vtkTemporalPathLineFilter::SetBackwardTime(bool backward)
   {
     this->LatestTime = backward ? 0 : LATEST_TIME_MAX;
     this->BackwardTime = backward;
+    this->RunBackward = backward;
     this->Modified();
   }
 }
@@ -172,25 +173,6 @@ void vtkTemporalPathLineFilter::SetSelectionConnection(vtkAlgorithmOutput* algOu
 void vtkTemporalPathLineFilter::SetSelectionData(vtkDataSet* input)
 {
   this->SetInputData(1, input);
-}
-//------------------------------------------------------------------------------
-int vtkTemporalPathLineFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (inInfo->Get(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()))
-  {
-    return 1;
-  }
-
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
-  // The output data of this filter has no time associated with it.  It is the
-  // result of computations that happen over all time.
-  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
-
-  return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -323,73 +305,61 @@ void vtkTemporalPathLineFilter::IncrementTrail(TrailPointer trail, vtkDataSet* i
 }
 
 //------------------------------------------------------------------------------
-int vtkTemporalPathLineFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (inInfo->Get(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()))
-  {
-    return 1;
-  }
-
-  // The RequestData method will tell the pipeline executive to iterate the
-  // upstream pipeline to get each time step in order.  The executive in turn
-  // will call this method to get the extent request for each iteration (in this
-  // case the time step).
-  double* inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  if (inTimes)
-  {
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), inTimes[this->CurrentTimeIndex]);
-  }
-
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkTemporalPathLineFilter::RequestUpdateTime(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (inInfo->Get(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()))
-  {
-    return 1;
-  }
-
-  // The RequestData method will tell the pipeline executive to iterate the
-  // upstream pipeline to get each time step in order.  The executive in turn
-  // will call this method to get the extent request for each iteration (in this
-  // case the time step).
-  double* inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  if (inTimes)
-  {
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), inTimes[this->CurrentTimeIndex]);
-  }
-
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkTemporalPathLineFilter::RequestData(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+int vtkTemporalPathLineFilter::Initialize(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->MaskPoints = std::max(this->MaskPoints, 1);
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (!inInfo->Has(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()))
-  {
-    return this->ExecuteStreaming(request, inputVector, outputVector);
-  }
-  return this->Execute(request, inputVector, outputVector);
+  vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
+
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* pathLines = vtkPolyData::SafeDownCast(outInfo0->Get(vtkDataObject::DATA_OBJECT()));
+
+  this->Flush();
+  this->InitializeExecute(input, pathLines);
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkTemporalPathLineFilter::Execute(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* selection =
+    selInfo ? vtkDataSet::SafeDownCast(selInfo->Get(vtkDataObject::DATA_OBJECT())) : nullptr;
+
+  this->AccumulateTrails(input, selection);
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkTemporalPathLineFilter::Finalize(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
+
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* pathLines = vtkPolyData::SafeDownCast(outInfo0->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* particles = vtkPolyData::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
+
+  this->PostExecute(input, pathLines, particles);
+
+  return 1;
 }
 
 //------------------------------------------------------------------------------
 void vtkTemporalPathLineFilter::InitializeExecute(vtkDataSet* input, vtkPolyData* pathLines)
 {
   vtkPointData* outPD = pathLines->GetPointData();
-  outPD->CopyAllocate(
-    input->GetPointData(), input->GetNumberOfPoints() * this->MaxTrackLength / this->MaskPoints);
+  outPD->CopyAllocate(input->GetPointData());
   this->Internals->TrailFieldNames.resize(outPD->GetNumberOfArrays());
   for (int i = 0; i < outPD->GetNumberOfArrays(); i++)
   {
@@ -517,6 +487,8 @@ void vtkTemporalPathLineFilter::PostExecute(
   vtkIdType VertexId = 0;
 
   vtkPointData* outPD = pathLines->GetPointData();
+  outPD->CopyAllocate(
+    input->GetPointData(), input->GetNumberOfPoints() * this->MaxTrackLength / this->MaskPoints);
   std::vector<vtkAbstractArray*> outputFieldArrays;
   outputFieldArrays.resize(this->Internals->TrailFieldNames.size());
   for (size_t i = 0; i < this->Internals->TrailFieldNames.size(); i++)
@@ -578,99 +550,6 @@ void vtkTemporalPathLineFilter::PostExecute(
   particles->SetVerts(this->Vertices);
 }
 
-//------------------------------------------------------------------------------
-int vtkTemporalPathLineFilter::Execute(
-  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
-{
-  using vtkSDDP = vtkStreamingDemandDrivenPipeline;
-
-  // get the info objects
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
-  vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
-  //
-  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet* selection =
-    selInfo ? vtkDataSet::SafeDownCast(selInfo->Get(vtkDataObject::DATA_OBJECT())) : nullptr;
-  vtkPolyData* pathLines = vtkPolyData::SafeDownCast(outInfo0->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData* particles = vtkPolyData::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
-
-  if (outInfo0->Get(vtkSDDP::INCOMPLETE_TIME_STEPS()) == vtkSDDP::INCOMPLETE_TIME_STEPS_RESET)
-  {
-    this->Flush();
-  }
-
-  if (this->Internals->TimeSteps.empty())
-  {
-    this->InitializeExecute(input, pathLines);
-  }
-
-  if (outInfo0->Has(vtkSDDP::UPDATE_TIME_STEP()))
-  {
-    this->AccumulateTrails(input, selection);
-
-    this->Internals->TimeSteps.push_back(
-      outInfo0->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
-  }
-  pathLines->Initialize();
-  particles->Initialize();
-  this->PostExecute(input, pathLines, particles);
-  if (!this->Internals->TimeSteps.empty())
-  {
-    vtkNew<vtkDoubleArray> tsteps;
-    tsteps->SetName("time_steps");
-    tsteps->SetNumberOfTuples(this->Internals->TimeSteps.size());
-    double* tsteps_ptr = tsteps->GetPointer(0);
-    std::copy(this->Internals->TimeSteps.begin(), this->Internals->TimeSteps.end(), tsteps_ptr);
-    pathLines->GetFieldData()->AddArray(tsteps.GetPointer());
-  }
-
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkTemporalPathLineFilter::ExecuteStreaming(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
-{
-  // get the info objects
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
-  vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
-  //
-  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet* selection =
-    selInfo ? vtkDataSet::SafeDownCast(selInfo->Get(vtkDataObject::DATA_OBJECT())) : nullptr;
-  vtkPolyData* pathLines = vtkPolyData::SafeDownCast(outInfo0->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData* particles = vtkPolyData::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
-
-  if (this->CurrentTimeIndex == 0)
-  {
-    this->Flush();
-    this->InitializeExecute(input, pathLines);
-  }
-
-  this->AccumulateTrails(input, selection);
-
-  this->CurrentTimeIndex++;
-
-  if (this->CurrentTimeIndex < inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) &&
-    !this->CheckAbort())
-  {
-    // There is still more to do.
-    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-  }
-  else
-  {
-    // We are done.  Finish up.
-    this->PostExecute(input, pathLines, particles);
-    request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-    this->CurrentTimeIndex = 0;
-  }
-
-  return 1;
-}
 //------------------------------------------------------------------------------
 void vtkTemporalPathLineFilter::Flush()
 {
