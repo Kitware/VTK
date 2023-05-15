@@ -724,7 +724,7 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
   // case, we need to transform them.
   // Here, using the indexes specified in Ioss docs (which are 1-based), just
   // add them so that the cell is ordered correctly in VTK.
-  // ref: https://gsjaardema.github.io/seacas-docs/html/element_types.html
+  // ref: https://sandialabs.github.io/seacas-docs/html/md_include_exodus_element_types.html
   std::vector<int> ordering_transform;
   switch (vtk_topology_type)
   {

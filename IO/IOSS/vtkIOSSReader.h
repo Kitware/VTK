@@ -165,7 +165,10 @@
  * `{NP}` is the number of spatial partitions and `{RANK}` is the spatial partition number.
  *
  * @section References References
- * * [Sierra IO System](http://gsjaardema.github.io/seacas/)
+ * * [Sierra IO System](https://sandialabs.github.io/seacas-docs)
+ *
+ * @sa
+ * vtkIOSSWriter, vtkExodusIIReader, vtkCGNSReader
  */
 
 #ifndef vtkIOSSReader_h
@@ -624,6 +627,8 @@ public:
    */
   vtkTypeBool ProcessRequest(
     vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
+
+  static vtkInformationIntegerKey* ENTITY_ID();
 
 protected:
   vtkIOSSReader();

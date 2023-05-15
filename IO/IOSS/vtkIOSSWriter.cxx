@@ -14,6 +14,10 @@
 =========================================================================*/
 #include "vtkIOSSWriter.h"
 
+#include "vtkCommand.h"
+#include "vtkDataArraySelection.h"
+#include "vtkDataAssemblyUtilities.h"
+#include "vtkDataSet.h"
 #include "vtkIOSSModel.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -23,7 +27,6 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkVersion.h"
 
 // Ioss includes
@@ -48,8 +51,8 @@
 // clang-format on
 
 #include <algorithm>
-#include <vector>
 #include <string>
+#include <vector>
 
 // clang-format off
 #include <vtk_fmt.h> // needed for `fmt`
@@ -64,12 +67,29 @@ class vtkIOSSWriter::vtkInternals
 public:
   std::unique_ptr<Ioss::Region> Region;
   std::vector<double> TimeSteps;
-  int CurrentTimeStep{ 0 };
+  std::vector<double> TimeStepsToProcess;
+  int CurrentTimeStepIndex{ 0 };
   int RestartIndex{ 0 };
+
   std::string LastMD5;
+  bool LastGlobalIdsCreated = false;
+  bool LastGlobalIdsModified = false;
+  bool LastElementSideCouldNotBeCreated = false;
+  bool LastElementSideCouldNotBeModified = false;
+  bool LastElementSideModified = false;
 
   vtkInternals() = default;
   ~vtkInternals() = default;
+
+  void Initialize()
+  {
+    this->CurrentTimeStepIndex = 0;
+    this->LastGlobalIdsCreated = false;
+    this->LastGlobalIdsModified = false;
+    this->LastElementSideCouldNotBeCreated = false;
+    this->LastElementSideCouldNotBeModified = false;
+    this->LastElementSideModified = false;
+  }
 };
 
 vtkStandardNewMacro(vtkIOSSWriter);
@@ -79,12 +99,22 @@ vtkIOSSWriter::vtkIOSSWriter()
   : Internals(new vtkIOSSWriter::vtkInternals)
   , Controller(nullptr)
   , FileName(nullptr)
+  , AssemblyName(nullptr)
+  , ChooseFieldsToWrite(false)
+  , RemoveGhosts(true)
   , OffsetGlobalIds(false)
-  , PreserveInputEntityGroups(false)
+  , PreserveOriginalIds(false)
+  , WriteQAAndInformationRecords(true)
   , DisplacementMagnitude(1.0)
-  , MaximumTimeStepsPerFile(0)
+  , TimeStepRange{ 0, VTK_INT_MAX - 1 }
+  , TimeStepStride(1)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
+  this->SetAssemblyName(vtkDataAssemblyUtilities::HierarchyName());
+  for (int i = 0; i < EntityType::NUMBER_OF_ENTITY_TYPES; ++i)
+  {
+    this->FieldSelection[i]->AddObserver(vtkCommand::ModifiedEvent, this, &vtkIOSSWriter::Modified);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -92,6 +122,93 @@ vtkIOSSWriter::~vtkIOSSWriter()
 {
   this->SetController(nullptr);
   this->SetFileName(nullptr);
+  this->SetAssemblyName(nullptr);
+}
+
+//----------------------------------------------------------------------------
+vtkDataArraySelection* vtkIOSSWriter::GetFieldSelection(EntityType type)
+{
+  if (type < EntityType::NUMBER_OF_ENTITY_TYPES)
+  {
+    return this->FieldSelection[type];
+  }
+  else
+  {
+    vtkErrorMacro("Invalid entity type: " << type);
+    return nullptr;
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkIOSSWriter::AddSelector(vtkIOSSWriter::EntityType entityType, const char* selector)
+{
+  if (selector)
+  {
+    if (this->Selectors[entityType].insert(selector).second)
+    {
+      this->Modified();
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkIOSSWriter::ClearSelectors(vtkIOSSWriter::EntityType entityType)
+{
+  if (!this->Selectors[entityType].empty())
+  {
+    this->Selectors[entityType].clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkIOSSWriter::SetSelector(vtkIOSSWriter::EntityType entity, const char* selector)
+{
+  if (selector)
+  {
+    if (this->Selectors[entity].size() == 1 && *this->Selectors[entity].begin() == selector)
+    {
+      return;
+    }
+    this->Selectors[entity].clear();
+    this->Selectors[entity].insert(selector);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkIOSSWriter::GetNumberOfSelectors(vtkIOSSWriter::EntityType entity) const
+{
+  if (entity < EntityType::NUMBER_OF_ENTITY_TYPES)
+  {
+    return static_cast<int>(this->Selectors[entity].size());
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+const char* vtkIOSSWriter::GetSelector(vtkIOSSWriter::EntityType entityType, int index) const
+{
+  if (index >= 0 && index < this->GetNumberOfSelectors(entityType))
+  {
+    auto& selectors = this->Selectors[entityType];
+    auto it = selectors.begin();
+    std::advance(it, index);
+    return it->c_str();
+  }
+  return nullptr;
+}
+
+//------------------------------------------------------------------------------
+std::set<std::string> vtkIOSSWriter::GetSelectors(vtkIOSSWriter::EntityType entityType) const
+{
+  if (entityType < EntityType::NUMBER_OF_ENTITY_TYPES)
+  {
+    return this->Selectors[entityType];
+  }
+  return std::set<std::string>();
 }
 
 //------------------------------------------------------------------------------
@@ -99,29 +216,34 @@ int vtkIOSSWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-bool vtkIOSSWriter::Write()
+vtkTypeBool vtkIOSSWriter::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // Make sure we have input.
-  if (this->GetNumberOfInputConnections(0) < 1)
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
-    vtkErrorMacro("No input provided!");
-    return false;
+    return this->RequestInformation(request, inputVector, outputVector);
+  }
+  else if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  {
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
+  }
+  // generate the data
+  else if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  {
+    return this->RequestData(request, inputVector, outputVector);
   }
 
-  // always write even if the data hasn't changed
-  this->Modified();
-  this->Update();
-  return true;
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSSWriter::RequestInformation(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+int vtkIOSSWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   auto& internals = (*this->Internals);
   auto* inInfo = inputVector[0]->GetInformationObject(0);
@@ -131,19 +253,35 @@ int vtkIOSSWriter::RequestInformation(
     const auto* timesteps = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     internals.TimeSteps.resize(numTimesteps);
     std::copy(timesteps, timesteps + numTimesteps, internals.TimeSteps.begin());
+    if (this->TimeStepRange[0] >= this->TimeStepRange[1] || this->TimeStepStride < 1)
+    {
+      internals.TimeStepsToProcess = internals.TimeSteps;
+    }
+    else
+    {
+      const auto begin = std::max(this->TimeStepRange[0], 0);
+      const auto end = std::min(this->TimeStepRange[1] + 1, static_cast<int>(numTimesteps));
+      const auto stride = this->TimeStepStride;
+      internals.TimeStepsToProcess.clear();
+      for (int i = begin; i < end; i += stride)
+      {
+        internals.TimeStepsToProcess.push_back(internals.TimeSteps[i]);
+      }
+    }
   }
   else
   {
     internals.TimeSteps.clear();
+    internals.TimeStepsToProcess.clear();
   }
-  internals.CurrentTimeStep = 0;
+  internals.Initialize();
 
-  return this->Superclass::RequestInformation(request, inputVector, outputVector);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSSWriter::RequestUpdateExtent(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+int vtkIOSSWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   auto* info = inputVector[0]->GetInformationObject(0);
   if (auto* controller = this->GetController())
@@ -156,64 +294,151 @@ int vtkIOSSWriter::RequestUpdateExtent(
   }
 
   auto& internals = (*this->Internals);
-  if (internals.CurrentTimeStep >= 0 &&
-    internals.CurrentTimeStep < static_cast<int>(internals.TimeSteps.size()))
+  if (internals.CurrentTimeStepIndex >= 0 &&
+    internals.CurrentTimeStepIndex < static_cast<int>(internals.TimeSteps.size()))
   {
     info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-      internals.TimeSteps[internals.CurrentTimeStep]);
+      internals.TimeSteps[internals.CurrentTimeStepIndex]);
   }
   else
   {
     info->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
   }
 
-  return this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+int vtkIOSSWriter::RequestData(vtkInformation* request,
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   if (!this->FileName || !this->FileName[0])
   {
     vtkErrorMacro("Cannot write without a valid filename!");
     return 0;
   }
+  auto& internals = (*this->Internals);
+  if (!internals.TimeSteps.empty())
+  {
+    const auto& currentTime = internals.TimeSteps[internals.CurrentTimeStepIndex];
+    // check if timestep should be processed or skipped
+    const bool processTimeStep =
+      std::find(internals.TimeStepsToProcess.begin(), internals.TimeStepsToProcess.end(),
+        currentTime) != internals.TimeStepsToProcess.end();
+    if (!processTimeStep)
+    {
+      ++internals.CurrentTimeStepIndex;
+      if (static_cast<size_t>(internals.CurrentTimeStepIndex) < internals.TimeSteps.size())
+      {
+        request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+      }
+      else
+      {
+        internals.Initialize();
+        request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+      }
+      return 1;
+    }
+  }
 
-  vtkSmartPointer<vtkDataObject> inputDO = vtkDataObject::GetData(inputVector[0], 0);
-  if (vtkUnstructuredGrid::SafeDownCast(inputDO))
+  this->WriteData();
+
+  ++internals.CurrentTimeStepIndex;
+  if (static_cast<size_t>(internals.CurrentTimeStepIndex) < internals.TimeSteps.size())
+  {
+    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+  }
+  else
+  {
+    internals.Initialize();
+    request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSWriter::WriteData()
+{
+  vtkSmartPointer<vtkDataObject> inputDO = this->GetInput();
+  if (vtkDataSet::SafeDownCast(inputDO))
   {
     vtkNew<vtkPartitionedDataSet> pd;
     pd->SetPartition(0, inputDO);
     inputDO = pd;
   }
 
-  if (auto* pd = vtkPartitionedDataSet::SafeDownCast(inputDO))
+  if (auto pd = vtkPartitionedDataSet::SafeDownCast(inputDO))
   {
     vtkNew<vtkPartitionedDataSetCollection> pdc;
     pdc->SetPartitionedDataSet(0, pd);
     inputDO = pdc;
   }
 
-  auto* inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO);
+  auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO);
   if (!inputPDC)
   {
     vtkErrorMacro("Incorrect input type!");
-    return 0;
+    return;
   }
 
+  auto& internals = (*this->Internals);
   auto* controller = this->GetController();
 
   const vtkIOSSModel model(inputPDC, this);
   const auto md5 = model.MD5();
   vtkLogF(TRACE, "MD5: %s", md5.c_str());
 
-  auto& internals = (*this->Internals);
-  if (internals.CurrentTimeStep == 0 || internals.LastMD5 != md5 ||
-    (this->MaximumTimeStepsPerFile > 0 &&
-      internals.CurrentTimeStep % this->MaximumTimeStepsPerFile == 0))
+  int structureChanged = internals.LastMD5 != md5;
+  // ensure that all processes agree on whether the structure changed
+  if (controller && controller->GetNumberOfProcesses() > 1)
   {
-    internals.RestartIndex = internals.CurrentTimeStep == 0 ? 0 : (internals.RestartIndex + 1);
+    int globalStructureChanged;
+    controller->AllReduce(&structureChanged, &globalStructureChanged, 1, vtkCommunicator::MAX_OP);
+    structureChanged = globalStructureChanged;
+  }
+  // checks for global ids and element_side warnings
+  if (model.GlobalIdsCreated() && model.GlobalIdsCreated() != internals.LastGlobalIdsCreated)
+  {
+    internals.LastGlobalIdsCreated = model.GlobalIdsCreated();
+    vtkWarningMacro("Point or Cell Global IDs were not present. They have been created "
+                    "assuming uniqueness.");
+  }
+  else if (model.GlobalIdsModified() &&
+    model.GlobalIdsModified() != internals.LastGlobalIdsModified)
+  {
+    internals.LastGlobalIdsModified = model.GlobalIdsModified();
+    vtkWarningMacro(
+      "Point or Cell Global IDs were invalid. They have been re-created assuming uniqueness.");
+  }
+  // checks for element_side
+  if (model.ElementSideCouldNotBeCreated() &&
+    model.ElementSideCouldNotBeCreated() != internals.LastElementSideCouldNotBeCreated)
+  {
+    internals.LastElementSideCouldNotBeCreated = model.ElementSideCouldNotBeCreated();
+    vtkWarningMacro(
+      "Sets' element_side was not present. Edge, Face Element, Side sets have been skipped.");
+  }
+  else if (model.ElementSideCouldNotBeModified() &&
+    model.ElementSideCouldNotBeModified() != internals.LastElementSideCouldNotBeModified)
+  {
+    internals.LastElementSideCouldNotBeModified = model.ElementSideCouldNotBeModified();
+    vtkWarningMacro(
+      "Sets' element_side was invalid and could not be re-created either because the "
+      "original Cell Global IDs were not present, or because there were sets that were pointing "
+      "to block cells that were not present. Edge, Face, Element, Side sets have been skipped.");
+  }
+  else if (model.ElementSideModified() &&
+    model.ElementSideModified() != internals.LastElementSideModified)
+  {
+    internals.LastElementSideModified = model.ElementSideModified();
+    vtkWarningMacro(
+      "Sets' element_side was invalid. It was re-created using the original Cell Global IDs.");
+  }
+
+  if (internals.CurrentTimeStepIndex == this->TimeStepRange[0] || structureChanged)
+  {
+    internals.RestartIndex =
+      internals.CurrentTimeStepIndex == this->TimeStepRange[0] ? 0 : (internals.RestartIndex + 1);
 
     Ioss::PropertyManager properties;
     // if I use "8" here, then I get the following error:
@@ -227,22 +452,47 @@ int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** i
       properties.add(Ioss::Property("my_processor", controller->GetLocalProcessId()));
       properties.add(Ioss::Property("processor_count", controller->GetNumberOfProcesses()));
     }
+    // tell the writer to writer all blocks, even if empty
+    properties.add(Ioss::Property("RETAIN_EMPTY_BLOCKS", "on"));
+    // Do not convert variable names to lower case. The default is on.
+    // For ex: this resolves a misunderstanding b/w T (temperature) vs t (time)
+    properties.add(Ioss::Property("LOWER_CASE_VARIABLE_NAMES", "off"));
+    if (!this->GetWriteQAAndInformationRecords())
+    {
+      properties.add(Ioss::Property("OMIT_INFO_RECORDS", true));
+      properties.add(Ioss::Property("OMIT_QA_RECORDS", true));
+    }
     const auto fname = internals.RestartIndex > 0
       ? fmt::format("{}-s{:04}", this->FileName, internals.RestartIndex)
       : std::string(this->FileName);
 
-    Ioss::DatabaseIO* dbase = Ioss::IOFactory::create(
-      "exodus", fname, Ioss::WRITE_RESTART, Ioss::ParallelUtils::comm_world(), properties);
+#ifdef SEACAS_HAVE_MPI
+    // As of now netcdf mpi support is not working for IOSSWriter,
+    // because mpi calls are called inside the writer instead of the ioss library
+    // so we are using comm_null(), instead of comm_world().
+    // In the future, when comm_world() is used and SEACAS_HAVE_MPI is on
+    // my_processor and processor_count properties should be removed for exodus.
+    // For more info. see Ioex::DatabaseIO::DatabaseIO in the ioss library.
+    auto parallelUtilsComm = Ioss::ParallelUtils::comm_null();
+#else
+    auto parallelUtilsComm = Ioss::ParallelUtils::comm_world();
+#endif
+    Ioss::DatabaseIO* dbase =
+      Ioss::IOFactory::create("exodus", fname, Ioss::WRITE_RESTART, parallelUtilsComm, properties);
     if (dbase == nullptr || !dbase->ok(true))
     {
-      return 0;
+      vtkErrorMacro("Could not open database '" << fname << "'");
+      return;
     }
 
     // note: region takes ownership of `dbase` pointer.
     internals.Region.reset(new Ioss::Region(dbase, "region_1"));
-    internals.Region->property_add(Ioss::Property("code_name", std::string("VTK")));
-    internals.Region->property_add(
-      Ioss::Property("code_version", std::string(vtkVersion::GetVTKVersion())));
+    // Ioss automatically adds the information records
+    if (this->GetWriteQAAndInformationRecords())
+    {
+      internals.Region->property_add(Ioss::Property("code_name", "VTK"));
+      internals.Region->property_add(Ioss::Property("code_version", vtkVersion::GetVTKVersion()));
+    }
 
     model.DefineModel(*internals.Region);
     model.DefineTransient(*internals.Region);
@@ -251,23 +501,11 @@ int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** i
   }
 
   auto inputInfo = inputDO->GetInformation();
-  const double time = inputInfo->Has(vtkDataObject::DATA_TIME_STEP())
+  const double currentTimeStep = inputInfo->Has(vtkDataObject::DATA_TIME_STEP())
     ? inputInfo->Get(vtkDataObject::DATA_TIME_STEP())
     : 0.0;
 
-  model.Transient(*internals.Region, /*time=*/time);
-
-  ++internals.CurrentTimeStep;
-  if (static_cast<size_t>(internals.CurrentTimeStep) < internals.TimeSteps.size())
-  {
-    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-  }
-  else
-  {
-    internals.CurrentTimeStep = 0;
-    request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-  }
-  return 1;
+  model.Transient(*internals.Region, /*time=*/currentTimeStep);
 }
 
 //----------------------------------------------------------------------------
@@ -275,10 +513,41 @@ void vtkIOSSWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(nullptr)") << endl;
+  os << indent << "AssemblyName: " << (this->AssemblyName ? this->AssemblyName : "(nullptr)")
+     << endl;
+
+  os << indent << "ChooseFieldsToWrite: " << (this->ChooseFieldsToWrite ? "On" : "Off") << endl;
+  // Skip NodeBlock for selectors
+  for (int i = EntityType::EDGEBLOCK; i < EntityType::NUMBER_OF_ENTITY_TYPES; ++i)
+  {
+    os << indent << vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(i)
+       << " selectors: " << endl;
+    for (const auto& selector : this->Selectors[i])
+    {
+      os << indent << selector << "  ";
+    }
+    os << endl;
+  }
+  if (this->ChooseFieldsToWrite)
+  {
+    for (int i = EntityType::NODEBLOCK; i < EntityType::NUMBER_OF_ENTITY_TYPES; ++i)
+    {
+      os << indent << vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(i)
+         << " fields to write: " << endl;
+      this->FieldSelection[i]->PrintSelf(os, indent.GetNextIndent());
+      os << endl;
+    }
+  }
+  os << indent << "RemoveGhosts: " << (this->RemoveGhosts ? "On" : "Off") << endl;
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "OffsetGlobalIds: " << OffsetGlobalIds << endl;
-  os << indent << "PreserveInputEntityGroups: " << this->PreserveInputEntityGroups << endl;
+  os << indent << "PreserveOriginalIds: " << (this->PreserveOriginalIds ? "On" : "Off") << endl;
+  os << indent
+     << "WriteQAAndInformationRecords: " << (this->WriteQAAndInformationRecords ? "On" : "Off")
+     << endl;
   os << indent << "DisplacementMagnitude: " << this->DisplacementMagnitude << endl;
-  os << indent << "MaximumTimeStepsPerFile: " << this->MaximumTimeStepsPerFile << endl;
+  os << indent << "TimeStepRange: " << this->TimeStepRange[0] << ", " << this->TimeStepRange[1]
+     << endl;
+  os << indent << "TimeStepStride: " << this->TimeStepStride << endl;
 }
 VTK_ABI_NAMESPACE_END

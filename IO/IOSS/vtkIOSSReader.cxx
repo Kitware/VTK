@@ -76,7 +76,6 @@
 
 #include <array>
 #include <cassert>
-#include <functional>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -1291,8 +1290,10 @@ bool vtkIOSSReader::vtkInternals::GenerateOutput(
         vtkNew<vtkPartitionedDataSet> parts;
         output->SetPartitionedDataSet(pdsIdx, parts);
         output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
-        output->GetMetaData(pdsIdx)->Set(
-          vtkIOSSReader::ENTITY_TYPE(), etype); // save for vtkIOSSReader use.
+        // save for vtkIOSSReader use.
+        output->GetMetaData(pdsIdx)->Set(vtkIOSSReader::ENTITY_TYPE(), etype);
+        // save for vtkIOSSWriter use.
+        output->GetMetaData(pdsIdx)->Set(vtkIOSSReader::ENTITY_ID(), ename.first);
         auto node = assembly->AddNode(
           vtkDataAssembly::MakeValidNodeName(ename.second.c_str()).c_str(), entity_node);
         assembly->SetAttribute(node, "label", ename.second.c_str());
@@ -1307,8 +1308,10 @@ bool vtkIOSSReader::vtkInternals::GenerateOutput(
       vtkNew<vtkPartitionedDataSet> parts;
       output->SetPartitionedDataSet(pdsIdx, parts);
       output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), mergedEntityName);
-      output->GetMetaData(pdsIdx)->Set(
-        vtkIOSSReader::ENTITY_TYPE(), etype); // save for vtkIOSSReader use.
+      // save for vtkIOSSReader use.
+      output->GetMetaData(pdsIdx)->Set(vtkIOSSReader::ENTITY_TYPE(), etype);
+      // save for vtkIOSSWriter use.
+      output->GetMetaData(pdsIdx)->Set(vtkIOSSReader::ENTITY_ID(), etype);
       auto node = assembly->AddNode(
         vtkDataAssembly::MakeValidNodeName(mergedEntityName).c_str(), entity_node);
       assembly->SetAttribute(node, "label", mergedEntityName);
@@ -1375,7 +1378,7 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
 
     // strip trailing underscores in CGNS files to turn separate fields into
     // vectors with components.
-    // see https://github.com/gsjaardema/seacas/issues/265
+    // see https://github.com/sandialabs/seacas/issues/265
     properties.add(Ioss::Property("FIELD_STRIP_TRAILING_UNDERSCORE", "on"));
 
     // Do not convert variable names to lower case. The default is on.
@@ -1442,10 +1445,21 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
       }
     }
 
+#ifdef SEACAS_HAVE_MPI
+    // As of now netcdf mpi support is not working for IOSSReader
+    // because mpi calls are called inside the reader instead of the ioss library
+    // so we are using comm_null(), instead of comm_world().
+    // In the future, when comm_world() is used and SEACAS_HAVE_MPI is on
+    // my_processor and processor_count properties should be removed for exodus.
+    // For more info. see Ioex::DatabaseIO::DatabaseIO in the ioss library.
+    auto parallelUtilsComm = Ioss::ParallelUtils::comm_null();
+#else
+    auto parallelUtilsComm = Ioss::ParallelUtils::comm_world();
+#endif
     auto dbase = std::unique_ptr<Ioss::DatabaseIO>(Ioss::IOFactory::create(
       this->IOSSReader->DatabaseTypeOverride ? std::string(this->IOSSReader->DatabaseTypeOverride)
                                              : dtype,
-      dbasename, Ioss::READ_RESTART, Ioss::ParallelUtils::comm_world(), properties));
+      dbasename, Ioss::READ_RESTART, parallelUtilsComm, properties));
     if (dbase == nullptr || !dbase->ok(/*write_message=*/true))
     {
       throw std::runtime_error(
@@ -2043,29 +2057,48 @@ bool vtkIOSSReader::vtkInternals::GenerateEntityIdArray(vtkCellData* cd, vtkIdTy
   auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
   auto region = this->GetRegion(handle);
   auto group_entity = region->get_entity(blockname, ioss_entity_type);
-  if (!group_entity || !group_entity->property_exists("id"))
-  {
-    return false;
-  }
+  const bool group_id_exists = group_entity && group_entity->property_exists("id");
 
   auto& cache = this->Cache;
-  const std::string cacheKey{ "__vtk_entity_id__" };
-
-  if (auto cachedArray = vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
+  if (group_id_exists)
   {
-    cd->AddArray(cachedArray);
+    const std::string cacheKey{ "__vtk_entity_id__" };
+    if (auto cachedArray = vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
+    {
+      cd->AddArray(cachedArray);
+    }
+    else
+    {
+      vtkNew<vtkIdTypeArray> objectId;
+      objectId->SetNumberOfTuples(numberOfCells);
+      objectId->FillValue(static_cast<vtkIdType>(group_entity->get_property("id").get_int()));
+      objectId->SetName("object_id");
+      cache.Insert(group_entity, cacheKey, objectId);
+      cd->AddArray(objectId);
+    }
   }
-  else
+  const bool group_original_id_exists =
+    group_entity && group_entity->property_exists("original_id");
+  if (group_original_id_exists)
   {
-    vtkNew<vtkIdTypeArray> objectId;
-    objectId->SetNumberOfTuples(numberOfCells);
-    objectId->FillValue(static_cast<vtkIdType>(group_entity->get_property("id").get_int()));
-    objectId->SetName("object_id");
-    cache.Insert(group_entity, cacheKey, objectId);
-    cd->AddArray(objectId);
+    const std::string cacheKey{ "__vtk_original_entity_id__" };
+    if (auto cachedArray = vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
+    {
+      cd->AddArray(cachedArray);
+    }
+    else
+    {
+      vtkNew<vtkIdTypeArray> originalObjectId;
+      originalObjectId->SetNumberOfTuples(numberOfCells);
+      originalObjectId->FillValue(
+        static_cast<vtkIdType>(group_entity->get_property("original_id").get_int()));
+      originalObjectId->SetName("original_object_id");
+      cache.Insert(group_entity, cacheKey, originalObjectId);
+      cd->AddArray(originalObjectId);
+    }
   }
 
-  return true;
+  return group_id_exists || group_original_id_exists;
 }
 
 //----------------------------------------------------------------------------
@@ -2682,6 +2715,7 @@ bool vtkIOSSReader::vtkInternals::GetGlobalFields(
 vtkStandardNewMacro(vtkIOSSReader);
 vtkCxxSetObjectMacro(vtkIOSSReader, Controller, vtkMultiProcessController);
 vtkInformationKeyMacro(vtkIOSSReader, ENTITY_TYPE, Integer);
+vtkInformationKeyMacro(vtkIOSSReader, ENTITY_ID, Integer);
 //----------------------------------------------------------------------------
 vtkIOSSReader::vtkIOSSReader()
   : Controller(nullptr)

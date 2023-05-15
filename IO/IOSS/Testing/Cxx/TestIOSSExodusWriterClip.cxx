@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIOSSExodusWriter.cxx
+  Module:    TestIOSSExodusWriterClip.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/**
+ * This test tests that vtkIOSSWriter can detect and create restarts when input
+ * mesh changes and cell types are not preserved.
+ */
 #include <vtkCamera.h>
 #include <vtkCompositePolyDataMapper.h>
 #include <vtkDataArraySelection.h>
@@ -20,10 +24,12 @@
 #include <vtkIOSSWriter.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
+#include <vtkPlane.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkTableBasedClipDataSet.h>
 #include <vtkTestUtilities.h>
 #include <vtkTesting.h>
 
@@ -52,9 +58,9 @@ std::string GetOutputFileName(int argc, char* argv[], const std::string& suffix)
 }
 }
 
-int TestIOSSExodusWriter(int argc, char* argv[])
+int TestIOSSExodusWriterClip(int argc, char* argv[])
 {
-  auto ofname = GetOutputFileName(argc, argv, "test_ioss_exodus_writer.ex2");
+  auto ofname = GetOutputFileName(argc, argv, "test_ioss_exodus_writer_clip.ex2");
   if (ofname.empty())
   {
     return EXIT_FAILURE;
@@ -64,22 +70,47 @@ int TestIOSSExodusWriter(int argc, char* argv[])
   vtkNew<vtkIOSSReader> reader0;
   auto fname = GetFileName(argc, argv, std::string("Data/Exodus/can.e.4/can.e.4.0"));
   reader0->SetFileName(fname.c_str());
+  reader0->SetGroupNumericVectorFieldComponents(true);
   reader0->UpdateInformation();
   reader0->GetElementBlockSelection()->EnableAllArrays();
   reader0->GetNodeSetSelection()->EnableAllArrays();
   reader0->GetSideSetSelection()->EnableAllArrays();
 
+  vtkNew<vtkPlane> plane;
+  plane->SetNormal(1, 0, 0);
+  plane->SetOrigin(0.21706008911132812, 4, -5.110947132110596);
+
+  vtkNew<vtkTableBasedClipDataSet> clipper;
+  clipper->SetClipFunction(plane);
+  clipper->SetInputConnection(reader0->GetOutputPort());
+
   vtkNew<vtkIOSSWriter> writer;
   writer->SetFileName(ofname.c_str());
-  writer->SetInputConnection(reader0->GetOutputPort());
+  writer->SetInputConnection(clipper->GetOutputPort());
   writer->Write();
 
   // Open the saved file and render it.
   vtkNew<vtkIOSSReader> reader;
   reader->SetFileName(ofname.c_str());
+  reader->SetGroupNumericVectorFieldComponents(true);
   reader->GetElementBlockSelection()->EnableAllArrays();
   reader->GetNodeSetSelection()->EnableAllArrays();
   reader->GetSideSetSelection()->EnableAllArrays();
+  reader->UpdateInformation();
+  reader->UpdateTimeStep(0.00100001);
+
+  const std::vector<std::string> elementBlocks{ "block_1", "block_2", "block_1_tetra4",
+    "block_1_hex8", "block_1_wedge6", "block_1_pyramid5", "block_2_tetra4", "block_2_hex8",
+    "block_2_wedge6", "block_2_pyramid5" };
+  const auto elementBlockSelection = reader->GetElementBlockSelection();
+  for (int i = 0; i < elementBlockSelection->GetNumberOfArrays(); ++i)
+  {
+    if (elementBlockSelection->GetArrayName(i) != elementBlocks[i])
+    {
+      vtkLogF(ERROR, "Element block %d is not %s", i, elementBlocks[i].c_str());
+      return EXIT_FAILURE;
+    }
+  }
 
   vtkNew<vtkDataSetSurfaceFilter> surface;
   vtkNew<vtkCompositePolyDataMapper> mapper;
@@ -88,7 +119,7 @@ int TestIOSSExodusWriter(int argc, char* argv[])
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindowInteractor> iren;
 
-  surface->SetInputConnection(reader->GetOutputPort());
+  surface->SetInputDataObject(reader->GetOutputDataObject(0));
   mapper->SetInputConnection(surface->GetOutputPort());
   actor->SetMapper(mapper);
   renWin->AddRenderer(ren);
