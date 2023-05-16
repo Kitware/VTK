@@ -6,8 +6,7 @@ Please select a task for further instructions:
 
 Main Tasks
 ----------
-
-* [Install Git](http://public.kitware.com/Wiki/Git/Download) -
+* [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
   Git 1.7.2 or greater is preferred (required for development)
 
 * [Download VTK](download.md) - Users start here
