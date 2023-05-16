@@ -17,6 +17,7 @@ bugprone-*,\
 -bugprone-not-null-terminated-result,\
 -bugprone-reserved-identifier,\
 -bugprone-signed-char-misuse,\
+-bugprone-suspicious-realloc-usage,\
 -bugprone-unhandled-self-assignment,\
 clang-analyzer-*,\
 -clang-analyzer-core.CallAndMessage,\

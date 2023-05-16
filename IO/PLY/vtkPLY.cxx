@@ -61,6 +61,10 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include <limits>
 #include <sstream>
 
+// This entire structure should be converted over to C++-isms instead of using
+// C APIs.
+// NOLINTBEGIN(bugprone-suspicious-realloc-usage)
+
 /* memory allocation */
 #define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
 
@@ -2779,3 +2783,5 @@ void* vtkPLY::my_alloc(size_t size, int lnum, const char* fname)
   return (ptr);
 }
 VTK_ABI_NAMESPACE_END
+
+// NOLINTEND(bugprone-suspicious-realloc-usage)
