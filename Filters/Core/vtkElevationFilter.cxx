@@ -26,6 +26,7 @@ namespace
 template <class PointArrayT>
 struct vtkElevationAlgorithm
 {
+  using PointType = vtk::GetAPIType<PointArrayT>;
   vtkIdType NumPts;
   double LowPoint[3];
   double HighPoint[3];
@@ -59,18 +60,16 @@ struct vtkElevationAlgorithm
     const double l2 = this->L2;
     const double* lp = this->LowPoint;
 
-    // output scalars:
-    float* s = this->Scalars + begin;
-
     // input points:
-    const auto pointRange = vtk::DataArrayTupleRange<3>(this->PointArray, begin, end);
+    const auto points = vtk::DataArrayTupleRange<3>(this->PointArray);
+    PointType point[3];
+    double vec[3];
 
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
-
-    for (const auto point : pointRange)
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+    const vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
+    for (vtkIdType pointId = begin; pointId < end; ++pointId)
     {
-      if (begin % checkAbortInterval == 0)
+      if (pointId % checkAbortInterval == 0)
       {
         if (isFirst)
         {
@@ -81,9 +80,10 @@ struct vtkElevationAlgorithm
           break;
         }
       }
-      begin++;
-
-      double vec[3];
+      // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+      // we do that since the input points can be implicit points, and GetTypedTuple is faster
+      // than accessing the component of the TupleReference using GetTypedComponent internally.
+      points.GetTuple(pointId, point);
       vec[0] = point[0] - lp[0];
       vec[1] = point[1] - lp[1];
       vec[2] = point[2] - lp[2];
@@ -91,8 +91,7 @@ struct vtkElevationAlgorithm
       const double ns = vtkMath::ClampValue(vtkMath::Dot(vec, v) / l2, 0., 1.);
 
       // Store the resulting scalar value.
-      *s = static_cast<float>(range[0] + ns * diffScalar);
-      ++s;
+      this->Scalars[pointId] = static_cast<float>(range[0] + ns * diffScalar);
     }
   }
 };
@@ -179,56 +178,17 @@ int vtkElevationFilter::RequestData(
 
   vtkDebugMacro("Generating elevation scalars!");
 
-  // Create a fast path for point set input
-  //
-  vtkPointSet* ps = vtkPointSet::SafeDownCast(input);
-  if (ps)
-  {
-    float* scalars = newScalars->GetPointer(0);
-    vtkPoints* points = ps->GetPoints();
-    vtkDataArray* pointsArray = points->GetData();
+  float* scalars = newScalars->GetPointer(0);
+  vtkDataArray* pointsArray = input->GetPoints()->GetData();
 
-    Elevate worker; // Entry point to vtkElevationAlgorithm
+  Elevate worker; // Entry point to vtkElevationAlgorithm
 
-    // Generate an optimized fast-path for float/double
-    using FastValueTypes = vtkArrayDispatch::Reals;
-    using Dispatcher = vtkArrayDispatch::DispatchByValueType<FastValueTypes>;
-    if (!Dispatcher::Execute(pointsArray, worker, this, diffVector, length2, scalars))
-    { // fallback for unknown arrays and integral value types:
-      worker(pointsArray, this, diffVector, length2, scalars);
-    }
-  } // fast path
-
-  else
-  {
-    // Too bad, got to take the scenic route.
-    // Support progress and abort.
-    vtkIdType tenth = (numPts >= 10 ? numPts / 10 : 1);
-    double numPtsInv = 1.0 / numPts;
-    int abort = 0;
-
-    // Compute parametric coordinate and map into scalar range.
-    double diffScalar = this->ScalarRange[1] - this->ScalarRange[0];
-    for (vtkIdType i = 0; i < numPts && !abort; ++i)
-    {
-      // Periodically update progress and check for an abort request.
-      if (i % tenth == 0)
-      {
-        this->UpdateProgress((i + 1) * numPtsInv);
-        abort = this->CheckAbort();
-      }
-
-      // Project this input point into the 1D system.
-      double x[3];
-      input->GetPoint(i, x);
-      double v[3] = { x[0] - this->LowPoint[0], x[1] - this->LowPoint[1],
-        x[2] - this->LowPoint[2] };
-      double s = vtkMath::Dot(v, diffVector) / length2;
-      s = (s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s);
-
-      // Store the resulting scalar value.
-      newScalars->SetValue(i, this->ScalarRange[0] + s * diffScalar);
-    }
+  // Generate an optimized fast-path for float/double
+  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Reals>;
+  if (!Dispatcher::Execute(pointsArray, worker, this, diffVector, length2, scalars))
+  { // fallback for unknown arrays and integral value types:
+    worker(pointsArray, this, diffVector, length2, scalars);
   }
 
   // Copy all the input geometry and data to the output.
