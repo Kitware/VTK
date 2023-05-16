@@ -30,8 +30,9 @@ Research/Unidata. See \ref copyright file for more info.  */
  * @param name Pointer to the location for the returned attribute \ref
  * object_name. \ref ignored_if_null.
  *
- * @param xtypep Pointer to location for returned attribute \ref
- * data_type. \ref ignored_if_null.
+ * @param xtypep Pointer to location for returned attribute [data
+ * type](https://docs.unidata.ucar.edu/nug/current/md_types.html#data_type). \ref
+ * ignored_if_null.
  *
  * @param lenp Pointer to location for returned number of values
  * currently stored in the attribute. For attributes of type
@@ -318,8 +319,8 @@ nc_inq_natts(int ncid, int *nattsp)
  *
  * @param name Attribute \ref object_name.
  *
- * @param xtypep Pointer to location for returned attribute \ref
- * data_type.
+ * @param xtypep Pointer to location for returned attribute [data
+ * type](https://docs.unidata.ucar.edu/nug/current/md_types.html#data_type).
  *
  * @section nc_inq_atttype_example Example
  *

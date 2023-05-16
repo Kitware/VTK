@@ -261,7 +261,7 @@ const char *nc_strerror(int ncerr1)
       case NC_EFILTER:
 	 return "NetCDF: Filter error: bad id or parameters or duplicate filter";
       case NC_ENOFILTER:
-	 return "NetCDF: Filter error: unimplemented filter encountered";
+	 return "NetCDF: Filter error: undefined filter encountered";
       case NC_ECANTEXTEND:
 	return "NetCDF: Attempt to extend dataset during NC_INDEPENDENT I/O operation. Use nc_var_par_access to set mode NC_COLLECTIVE before extending variable.";
       case NC_EMPI: return "NetCDF: MPI operation failed.";

@@ -12,6 +12,8 @@
 #include "netcdf.h"
 #include "ncio.h"
 #include "fbits.h"
+#include "ncuri.h"
+#include "ncrc.h"
 
 /* With the advent of diskless io, we need to provide
    for multiple ncio packages at the same time,
@@ -39,8 +41,17 @@ extern int ffio_open(const char*,int,off_t,size_t,size_t*,void*,ncio**,void** co
     extern int httpio_open(const char*,int,off_t,size_t,size_t*,void*,ncio**,void** const);
 #endif
 
+#ifdef ENABLE_S3_SDK
+    extern int s3io_open(const char*,int,off_t,size_t,size_t*,void*,ncio**,void** const);
+#endif
+
      extern int memio_create(const char*,int,size_t,off_t,size_t,size_t*,void*,ncio**,void** const);
      extern int memio_open(const char*,int,off_t,size_t,size_t*,void*,ncio**,void** const);
+
+/* Forward */
+#ifdef ENABLE_BYTERANGE
+static int urlmodetest(const char* path);
+#endif
 
 int
 ncio_create(const char *path, int ioflags, size_t initialsz,
@@ -74,6 +85,10 @@ ncio_open(const char *path, int ioflags,
 		     void* parameters,
                      ncio** iopp, void** const mempp)
 {
+#ifdef ENABLE_BYTERANGE
+    int modetest = urlmodetest(path);
+#endif
+
     /* Diskless open has the following constraints:
        1. file must be classic version 1 or 2 or 5
      */
@@ -89,10 +104,14 @@ ncio_open(const char *path, int ioflags,
     }
 #  endif /*USE_MMAP*/
 #  ifdef ENABLE_BYTERANGE
-   /* The NC_HTTP flag is a big hack until we can reorganize the ncio interface */
-   if(fIsSet(ioflags,NC_HTTP)) {
+   if(modetest == NC_HTTP) {
         return httpio_open(path,ioflags,igeto,igetsz,sizehintp,parameters,iopp,mempp);
    }
+#  ifdef ENABLE_S3_SDK
+   if(modetest == NC_S3SDK) {
+       return s3io_open(path,ioflags,igeto,igetsz,sizehintp,parameters,iopp,mempp);
+   }
+#  endif
 #  endif /*ENABLE_BYTERANGE*/
 
 #ifdef USE_STDIO
@@ -153,3 +172,30 @@ ncio_close(ncio* const nciop, int doUnlink)
     int status = nciop->close(nciop,doUnlink);
     return status;
 }
+
+/* URL utilities */
+
+/*
+Check mode flags and return:
+NC_HTTP => byterange
+NC_S3SDK => s3
+0 => Not URL
+*/
+#ifdef ENABLE_BYTERANGE
+static int
+urlmodetest(const char* path)
+{
+    int kind = 0;
+    NCURI* uri = NULL;
+    
+    ncuriparse(path,&uri);
+    if(uri == NULL) return 0; /* Not URL */
+    if(NC_testmode(uri, "bytes")) {
+        /* NC_S3SDK takes priority over NC_HTTP */
+        if(NC_testmode(uri, "s3")) kind = NC_S3SDK; else kind = NC_HTTP;
+    } else
+        kind = 0;
+    ncurifree(uri);
+    return kind;
+}
+#endif

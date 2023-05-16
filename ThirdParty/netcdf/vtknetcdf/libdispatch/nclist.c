@@ -6,7 +6,7 @@
 
 #include "nclist.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
 #define strcasecmp _stricmp
 #endif
 
@@ -57,17 +57,25 @@ Free a list and its contents
 int
 nclistfreeall(NClist* l)
 {
+    nclistclearall(l);
+    return nclistfree(l);
+}
+
+/*
+Free the contents of a list
+*/
+int
+nclistclearall(NClist* l)
+{
   size_t i,len;
-  void** content = NULL;
   if(l == NULL) return TRUE;
   len = l->length;
-  content = nclistextract(l);
   for(i=0;i<len;i++) {
-      void* value = content[i];
+      void* value = l->content[i];
       if(value != NULL) free(value);
   }
-  if(content != NULL) free(content);
-  return nclistfree(l);
+  nclistsetlength(l,0);
+  return TRUE;
 }
 
 int
@@ -101,7 +109,7 @@ nclistsetlength(NClist* l, size_t newlen)
 }
 
 void*
-nclistget(NClist* l, size_t index)
+nclistget(const NClist* l, size_t index)
 {
   if(l == NULL || l->length == 0) return NULL;
   if(index >= l->length) return NULL;
@@ -175,6 +183,7 @@ nclistremove(NClist* l, size_t i)
   return elem;
 }
 
+/* Match on == */
 int
 nclistcontains(NClist* l, void* elem)
 {
@@ -185,7 +194,7 @@ nclistcontains(NClist* l, void* elem)
     return 0;
 }
 
-/* Return 1/0 */
+/* Match on str(case)cmp */
 int
 nclistmatch(NClist* l, const char* elem, int casesensitive)
 {
@@ -222,7 +231,6 @@ nclistelemremove(NClist* l, void* elem)
   return found;
 }
 
-
 /* Extends nclist to include a unique operator
    which remove duplicate values; NULL values removed
    return value is always 1.
@@ -252,7 +260,7 @@ nclistunique(NClist* l)
 /* Duplicate a list and if deep is true, assume the contents
    are char** and duplicate those also */
 NClist*
-nclistclone(NClist* l, int deep)
+nclistclone(const NClist* l, int deep)
 {
     NClist* clone = NULL;
     if(l == NULL) goto done;

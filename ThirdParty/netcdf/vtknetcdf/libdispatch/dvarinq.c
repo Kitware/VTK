@@ -527,6 +527,36 @@ nc_inq_var_fill(int ncid, int varid, int *no_fill, void *fill_valuep)
       );
 }
 
+/** @ingroup variables
+ * Learn whether quantization is on for a variable, and, if so,
+ * the NSD setting.
+ *
+ * @param ncid File ID.
+ * @param varid Variable ID. Must not be NC_GLOBAL.
+ * @param quantize_modep Pointer that gets a 0 if quantization is not in
+ * use for this var, and a 1 if it is. Ignored if NULL.
+ * @param nsdp Pointer that gets the NSD setting (from 1 to 15), if
+ * quantization is in use. Ignored if NULL.
+ *
+ * @return 0 for success, error code otherwise.
+ * @author Charlie Zender, Ed Hartnett
+*/
+int
+nc_inq_var_quantize(int ncid, int varid, int *quantize_modep, int *nsdp)
+{
+   NC* ncp;
+   int stat = NC_check_id(ncid,&ncp);
+
+   if(stat != NC_NOERR) return stat;
+   TRACE(nc_inq_var_quantize);
+   
+   /* Using NC_GLOBAL is illegal. */
+   if (varid == NC_GLOBAL) return NC_EGLOBAL;
+
+   return ncp->dispatch->inq_var_quantize(ncid, varid,
+					  quantize_modep, nsdp);
+}
+
 /** \ingroup variables
 Find the endianness of a variable.
 
@@ -713,8 +743,10 @@ nc_inq_var_szip(int ncid, int varid, int *options_maskp, int *pixels_per_blockp)
    stat = nc_inq_var_filter_info(ncid,varid,H5Z_FILTER_SZIP,&nparams,params);
    switch (stat) {
    case NC_NOERR:
-        if(nparams != 2)
+        if(nparams < 2)
 	    return NC_EFILTER; /* bad # params */
+	if(nparams > 2)
+	    nparams = 2; /* for compatibility, only return 2 params */
 	break;
    case NC_ENOFILTER:
    case NC_ENOTNC4:

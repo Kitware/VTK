@@ -22,11 +22,71 @@
 #endif
 #include "ncexternl.h"
 
+/*
+The path management code attempts to take an arbitrary path and convert
+it to a form acceptable to the current platform.
+Assumptions about Input path:
+1. It is not a URL
+2. It conforms to the format expected by one of the following:
+       Linux (/x/y/...),
+       Cygwin (/cygdrive/D/...),
+       Windows|MINGW (D:\...),
+       Windows network path (\\mathworks\...)
+       MSYS (/D/...),
+4. It is encoded in the local platform character set.  Note that
+   for most systems, this is utf-8. But for Windows, the
+   encoding is most likely some form of ANSI code page, probably
+   the windows 1252 encoding.  Note that in any case, the path
+   must be representable in the local Code Page.
+
+Note that all input paths first have all back slashes (\)
+converted to forward (/), so following rules are in terms of /.
+
+Parsing Rules:
+1. A relative path is left as is with no drive letter.
+2. A leading '/cygdrive/D' will be converted to
+   drive letter D if D is alpha-char.
+3. A leading D:/... is treated as a windows drive letter
+4. A leading /d/... is treated as a windows drive letter
+   if the platform is MSYS2.
+5. A leading // is a windows network path and is converted
+   to a drive letter using the fake drive letter "/".
+   So '//svc/x/y' translates to '/:/svc/x/y'.
+6. All other cases are assumed to be Unix variants with no drive letter. 
+
+After parsing, the following pieces of information are kept in a struct.
+a. kind: The inferred path type (e.g. cygwin, unix, etc)
+b. drive: The drive letter if any
+c. path: The path is everything after the drive letter
+
+For output, NCpathcvt produces a re-written path that is acceptable
+to the current platform (the one on which the code is running).
+
+Additional root mount point information is obtained for Cygwin and MSYS.
+The root mount point is found as follows (in order of precedence):
+1. Registry: get the value of the key named "HKEY_LOCAL_MACHINE/SOFTWARE/Cygwin/setup".
+2. Environment: get the value of MSYS2_PREFIX
+
+The re-write rules (unparsing) are given the above three pieces
+of info + the current platform + the root mount point (if any).
+The conversion rules are as follows.
+
+  Platform  | No Input Driv       | Input Drive
+----------------------------------------------------
+NCPD_NIX    | <path>              | /<drive>/path
+NCPD_CYGWIN | /<path>             | /cygdrive/<drive>/<path>
+NCPD_WIN    | <mountpoint>/<path> | <drive>:<path>
+NCPD_MSYS   | <mountpoint>/<path> | <drive>:<path>
+
+Notes:
+1. MINGW without MSYS is treated like WIN.
+2. The reason msys and win prefix the mount point is because
+   the IO functions are handled directly by Windows, hence
+   the conversion must look like a true windows path with a drive.
+*/
+
 #ifndef WINPATH
-#ifdef _WIN32
-#define WINPATH 1
-#endif
-#ifdef __MINGW32__
+#if defined _WIN32 || defined __MINGW32__
 #define WINPATH 1
 #endif
 #endif
@@ -64,40 +124,13 @@
 #endif
 #endif /*_WIN32*/
 
+
 /*
 WARNING: you should never need to explictly call this function;
 rather it is invoked as part of the wrappers for e.g. NCfopen, etc.
-
-This function attempts to take an arbitrary path and convert
-it to a canonical form.
-Assumptions about Input path:
-1. It is a relative or absolute path
-2. It is not a URL
-3. It conforms to the format expected by one of the following:
-       Linux (/x/y/...),
-       Cygwin (/cygdrive/D/...),
-       Windows (D:\...),
-       Windows network path (\\mathworks\...)
-       MSYS (/D/...),
-       or relative (x/y...)
-4. It is encoded in the local platform character set.
-   Note that for most systems, this is utf-8. But for Windows,
-   the encoding is most likely some form of ANSI code page, probably
-   the windows 1252 encoding.
-   Note that in any case, the path must be representable in the
-   local Code Page.
-
-On output it produces a re-written path that has the following
-properties:
-1. The path is normalized to match the platform on which the code
-   is running (e.g. cygwin, windows, msys, linux). So for example
-   using a cygwin path under visual studio will convert e.g.
-   /cygdrive/d/x/y to d:\x\y. See ../unit_test/test_pathcvt.c
-   for example conversions.
-It returns the converted path.
-
-Note that this function is intended to be Idempotent: f(f(x) == f(x).
+This function is intended to be Idempotent: f(f(x) == f(x).
 This means it is ok to call it repeatedly with no harm.
+Unless, of course, an error occurs.
 */
 EXTERNL char* NCpathcvt(const char* path);
 
@@ -109,7 +142,7 @@ that has some desirable properties:
    with a '/' separator. The exception being if the base part
    may be absolute, in which case, suffixing only is allowed;
    the user is responsible for getting this right.
-To this end we choose the linux/cygwin format as our standard canonical form.
+To this end we choose the cygwin format as our standard canonical form.
 If the path has a windows drive letter, then it is represented
 in the cygwin "/cygdrive/<drive-letter>" form.
 If it is a windows network path, then it starts with "//".
@@ -150,7 +183,7 @@ EXTERNL char* NCgetcwd(char* cwdbuf, size_t len);
 EXTERNL int NCmkstemp(char* buf);
 
 #ifdef HAVE_SYS_STAT_H
-EXTERNL int NCstat(char* path, struct stat* buf);
+EXTERNL int NCstat(const char* path, struct stat* buf);
 #endif
 #ifdef HAVE_DIRENT_H
 EXTERNL DIR* NCopendir(const char* path);
@@ -167,6 +200,7 @@ EXTERNL int NCclosedir(DIR* ent);
 #define NCmkstemp(buf) mkstemp(buf);
 #define NCcwd(buf, len) getcwd(buf,len)
 #define NCrmdir(path) rmdir(path)
+#define NCunlink(path) unlink(path)
 #ifdef HAVE_SYS_STAT_H
 #define NCstat(path,buf) stat(path,buf)
 #endif
@@ -189,11 +223,15 @@ EXTERNL int NCclosedir(DIR* ent);
 #define NCPD_MSYS 2
 #define NCPD_CYGWIN 3
 #define NCPD_WIN 4
-#define NCPD_REL 5 /* actual kind is unknown */
+/* #define NCPD_MINGW NCPD_WIN *alias*/
+#define NCPD_REL 6 /* actual kind is unknown */
 
 EXTERNL char* NCpathcvt_test(const char* path, int ukind, int udrive);
-
+EXTERNL int NCgetlocalpathkind(void);
+EXTERNL int NCgetinputpathkind(const char* inpath);
+EXTERNL const char* NCgetkindname(int kind);
 EXTERNL void printutf8hex(const char* s, char* sx);
+EXTERNL int getmountpoint(char*, size_t);
 
 /**************************************************/
 /* From dutil.c */

@@ -251,6 +251,12 @@ extern "C" {
     EXTERNL int
     NC4_inq_var_filter_info(int ncid, int varid, unsigned int id, size_t* nparams, unsigned int* params);
 
+    EXTERNL int
+    NC4_def_var_quantize(int ncid, int varid, int quantize_mode, int nsd);
+
+    EXTERNL int
+    NC4_inq_var_quantize(int ncid, int varid, int *quantize_modep, int *nsdp);
+    
 #if defined(__cplusplus)
 }
 #endif

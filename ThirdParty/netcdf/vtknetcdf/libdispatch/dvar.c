@@ -148,7 +148,9 @@
    nc_create(), nc_def_grp(), or associated inquiry functions such as
    nc_inq_ncid().
    @param name Variable @ref object_name.
-   @param xtype @ref data_type of the variable.
+   @param xtype (Data
+   type)[https://docs.unidata.ucar.edu/nug/current/md_types.html#data_type]
+   of the variable.
    @param ndims Number of dimensions for the variable. For example, 2
    specifies a matrix, 1 specifies a vector, and 0 means the variable is
    a scalar with no dimensions. Must not be negative or greater than the
@@ -259,6 +261,9 @@ nc_def_var(int ncid, const char *name, nc_type xtype,
    @return ::NC_ELATEDEF (NetCDF-4 only). Returned when user attempts
    to set fill value after data are written.
    @return ::NC_EGLOBAL Attempt to set fill value on NC_GLOBAL.
+
+   Warning: Using a vlen type as the fill value may lead to a memory
+   leak.
 
    @section nc_def_var_fill_example Example
 
@@ -462,6 +467,108 @@ nc_def_var_deflate(int ncid, int varid, int shuffle, int deflate, int deflate_le
 }
 
 /**
+   Turn on quantization for a variable.
+  
+   The data are quantized by setting unneeded bits to zeros or ones
+   so that they may compress well. BitGroom sets bits alternately to 1/0, 
+   while BitRound and Granular BitRound (GBR) round (more) bits to zeros
+   Quantization is lossy (data are irretrievably altered), and it 
+   improves the compression ratio provided by a subsequent lossless 
+   compression filter. Quantization alone will not reduce the data size.
+   Lossless compression like zlib must also be used (see nc_def_var_deflate()).
+
+   Producers of large datasets may find that using quantize with
+   compression will result in significant improvent in the final data
+   size.
+
+   A notable feature of all the quantization algorithms is data remain 
+   in IEEE754 format afterwards. Therefore quantization algorithms do
+   nothing when data are read.
+  
+   Quantization is only available for variables of type NC_FLOAT or
+   NC_DOUBLE. Attempts to set quantization for other variable
+   types return an error (NC_EINVAL). 
+
+   Variables that use quantize will have added an attribute with name
+   NC_QUANTIZE_[ALGORITHM_NAME]_ATT_NAME, which will contain the 
+   number of significant digits. Users should not delete or change this
+   attribute. This is the only record that quantize has been applied
+   to the data.
+
+   Quantization is not applied to values equal to the value of the
+   _FillValue attribute, if any. If the _FillValue attribute is not
+   set, then quantization is not applied to values matching the
+   default fill value.
+
+   Quantization may be applied to scalar variables.
+
+   When type conversion takes place during a write, then it occurs
+   before quantization is applied. For example, if nc_put_var_double()
+   is called on a variable of type NC_FLOAT, which has quantize
+   turned on, then the data are first converted from double to float,
+   then quantization is applied to the float values.
+
+   As with the deflate settings, quantize settings may only be
+   modified before the first call to nc_enddef(). Once nc_enddef() is
+   called for the file, quantize settings for any variable in the file
+   may not be changed.
+ 
+   Use of quantization is fully backwards compatible with existing
+   versions and packages that can read compressed netCDF data. A
+   variable which has been quantized is readable to older versions of
+   the netCDF libraries, and to netCDF-Java.
+ 
+   For more information about quantization and the BitGroom filter,
+   see @ref quantize.
+
+   @note Users new to quantization should start with Granular Bit
+   Round, which results in the best compression. The Bit Groom
+   algorithm is not as effective when compressing, but is faster than
+   Granular Bit Round. The Bit Round algorithm accepts a number of
+   bits to maintain, rather than a number of decimal digits, and is
+   provided for users who are already performing some bit-based
+   quantization, and wish to turn this task over to the netCDF
+   library.
+
+   @param ncid File ID.
+   @param varid Variable ID. ::NC_GLOBAL may not be used.
+   @param quantize_mode Quantization mode. May be ::NC_NOQUANTIZE or
+   ::NC_QUANTIZE_BITGROOM or ::NC_QUANTIZE_GRANULARBR or
+   ::NC_QUANTIZE_BITROUND.
+   @param nsd Number of significant digits (either decimal or binary). 
+   May be any integer from 1 to ::NC_QUANTIZE_MAX_FLOAT_NSD (for variables 
+   of type ::NC_FLOAT) or ::NC_QUANTIZE_MAX_DOUBLE_NSD (for variables 
+   of type ::NC_DOUBLE) for mode ::NC_QUANTIZE_BITGROOM and mode
+   ::NC_QUANTIZE_GRANULARBR. May be any integer from 1 to 
+   ::NC_QUANTIZE_MAX_FLOAT_NSB (for variables of type ::NC_FLOAT) or 
+   ::NC_QUANTIZE_MAX_DOUBLE_NSB (for variables of type ::NC_DOUBLE) 
+   for mode ::NC_QUANTIZE_BITROUND. Ignored if quantize_mode = NC_NOQUANTIZE.
+   
+   @return ::NC_NOERR No error.
+   @return ::NC_EGLOBAL Can't use ::NC_GLOBAL with this function.
+   @return ::NC_EBADID Bad ncid.
+   @return ::NC_ENOTVAR Invalid variable ID.
+   @return ::NC_ENOTNC4 Attempting netcdf-4 operation on file that is
+   not netCDF-4/HDF5.
+   @return ::NC_ESTRICTNC3 Attempting netcdf-4 operation on strict nc3
+   netcdf-4 file.
+   @return ::NC_ELATEDEF Too late to change settings for this variable.
+   @return ::NC_EINVAL Invalid input.
+   @author Charlie Zender, Ed Hartnett
+ */
+int
+nc_def_var_quantize(int ncid, int varid, int quantize_mode, int nsd)
+{
+    NC* ncp;
+    int stat = NC_check_id(ncid,&ncp);
+    if(stat != NC_NOERR) return stat;
+
+    /* Using NC_GLOBAL is illegal. */
+    if (varid == NC_GLOBAL) return NC_EGLOBAL;
+    return ncp->dispatch->def_var_quantize(ncid,varid,quantize_mode,nsd);
+}
+
+/**
    Set checksum for a var.
 
    This function must be called after nc_def_var and before nc_enddef
@@ -538,7 +645,7 @@ nc_def_var_fletcher32(int ncid, int varid, int fletcher32)
 
    @note Scalar variables may have a storage of NC_CONTIGUOUS or
    NC_COMPACT. Attempts to set chunking on a scalare variable will
-   cause ::NC_EINVEL to be returned. Only non-scalar variables can
+   cause ::NC_EINVAL to be returned. Only non-scalar variables can
    have chunking.
 
    @param ncid NetCDF ID, from a previous call to nc_open() or
@@ -719,8 +826,8 @@ nc_def_var_endian(int ncid, int varid, int endian)
  *
  * To learn the szip settings for a variable, use nc_inq_var_szip().
  *
- * @note The options_mask parameter may be either NC_SZIP_EC (entropy
- * coding) or NC_SZIP_NN (nearest neighbor):
+ * @note The options_mask parameter may be either ::NC_SZIP_EC (entropy
+ * coding) or ::NC_SZIP_NN (nearest neighbor):
  * * The entropy coding method is best suited for data that has been
  * processed. The EC method works best for small numbers.
  * * The nearest neighbor coding method preprocesses the data then the
@@ -733,8 +840,8 @@ nc_def_var_endian(int ncid, int varid, int endian)
  *
  * @param ncid File ID.
  * @param varid Variable ID.
- * @param options_mask The options mask. Can be NC_SZIP_EC or
- * NC_SZIP_NN.
+ * @param options_mask The options mask. Can be ::NC_SZIP_EC or
+ * ::NC_SZIP_NN.
  * @param pixels_per_block Pixels per block. Must be even and not
  * greater than 32, with typical values being 8, 10, 16, or 32. This
  * parameter affects compression ratio; the more pixel values vary,
@@ -1196,6 +1303,9 @@ NC_check_nulls(int ncid, int varid, const size_t *start, size_t **count,
    pointer back to this function, when you're done with the data, and
    it will free the string memory.
 
+   WARNING: This does not free the data vector itself, only
+   the strings to which it points.
+
    @param len The number of character arrays in the array.
    @param data The pointer to the data array.
 
@@ -1331,5 +1441,37 @@ nc_get_var_chunk_cache(int ncid, int varid, size_t *sizep, size_t *nelemsp,
     return ncp->dispatch->get_var_chunk_cache(ncid, varid, sizep,
                                               nelemsp, preemptionp);
 }
+
+#ifndef USE_NETCDF4
+/* Make sure the fortran API is defined, even if it only returns errors */
+
+int
+nc_set_chunk_cache_ints(int size, int nelems, int preemption)
+{
+    return NC_ENOTBUILT;
+}
+
+int
+nc_get_chunk_cache_ints(int *sizep, int *nelemsp, int *preemptionp)
+{
+    return NC_ENOTBUILT;
+}
+
+int
+nc_set_var_chunk_cache_ints(int ncid, int varid, int size, int nelems,
+			    int preemption)
+{
+    return NC_ENOTBUILT;
+}
+
+int
+nc_get_var_chunk_cache_ints(int ncid, int varid, int *sizep,
+			    int *nelemsp, int *preemptionp)
+{
+    return NC_ENOTBUILT;
+}
+
+#endif /*USE_NETCDF4*/
+
 /** @} */
 /** @} */

@@ -161,20 +161,17 @@ HDF5_inq_dim(int ncid, int dimid, char *name, size_t *lenp)
     {
         if (dim->unlimited)
         {
+            *lenp = 0;
+
             /* Since this is an unlimited dimension, go to the file
                and see how many records there are. Take the max number
                of records from all the vars that share this
                dimension. */
-            *lenp = 0;
-            if (dim->len == 0) {
+            if (*lenp == 0)
+	    {
               if ((ret = nc4_find_dim_len(dim_grp, dimid, &lenp)))
                  return ret;
-              if (h5->no_write == NC_TRUE) {
                 dim->len = *lenp;
-              }
-            }
-            else {
-              *lenp = dim->len;
             }
         }
         else

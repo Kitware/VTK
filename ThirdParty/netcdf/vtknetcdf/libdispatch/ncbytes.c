@@ -122,9 +122,7 @@ ncbytesappend(NCbytes* bb, char elem)
 int
 ncbytescat(NCbytes* bb, const char* s)
 {
-  if(s == NULL) {
-    return 1;
-  }
+  if(s == NULL) return 1;
   ncbytesappendn(bb,(void*)s,strlen(s)+1); /* include trailing null*/
   /* back up over the trailing null*/
   if(bb->length == 0) return ncbytesfail();
@@ -177,13 +175,13 @@ ncbytesextract(NCbytes* bb)
 }
 
 int
-ncbytessetcontents(NCbytes* bb, char* contents, unsigned long alloc)
+ncbytessetcontents(NCbytes* bb, void* contents, unsigned long alloc)
 {
     if(bb == NULL) return ncbytesfail();
     ncbytesclear(bb);
     if(!bb->nonextendible && bb->content != NULL) free(bb->content);
-    bb->content = contents;
-    bb->length = 0;
+    bb->content = (char*)contents;
+    bb->length = alloc;
     bb->alloc = alloc;
     bb->nonextendible = 1;
     return 1;

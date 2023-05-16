@@ -20,12 +20,7 @@
 /* default nczarr chunk cache size. */
 #undef CHUNK_CACHE_SIZE_NCZARR
 
-/* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
-   systems. This function is required for `alloca.c' support on those systems.
-   */
-#cmakedefine CRAY_STACKSEG_END
-
-/* Define to 1 if using `alloca.c'. */
+/* Define to 1 if using 'alloca.c'. */
 #cmakedefine C_ALLOCA
 
 /* num chunks in default per-var chunk cache. */
@@ -33,6 +28,9 @@
 
 /* default chunk size in bytes */
 #cmakedefine DEFAULT_CHUNK_SIZE @DEFAULT_CHUNK_SIZE@
+
+/* If true, enable nc_finalize via atexit() */
+#undef ENABLE_ATEXIT_FINALIZE
 
 /* if true, support byte-range read of remote datasets. */
 #cmakedefine ENABLE_BYTERANGE
@@ -49,20 +47,32 @@
 /* if true, do remote tests */
 #cmakedefine ENABLE_DAP_REMOTE_TESTS
 
+/* if true, do remote external tests */
+#undef ENABLE_EXTERNAL_SERVER_TESTS
+
 /* if true, support byte-range using hdf5 virtual file driver. */
 #undef ENABLE_HDF5_ROS3
 
 /* if true, build NCZarr Client */
 #undef ENABLE_NCZARR
 
-/* if true, build libnczarr with S3 support enabled */
-#undef ENABLE_NCZARR_S3
+/* if true, enable NCZarr filters */
+#undef ENABLE_NCZARR_FILTERS
 
 /* if true, build libnczarr with S3 tests enabled */
 #undef ENABLE_NCZARR_S3_TESTS
 
 /* If true, then libzip found */
 #undef ENABLE_NCZARR_ZIP
+
+/* if true, support dynamically loaded plugins */
+#undef ENABLE_PLUGINS
+
+/* if true, enable quantize support */
+#undef ENABLE_QUANTIZE
+
+/* if true, build netcdf-c with S3 support enabled */
+#undef ENABLE_S3
 
 /* If true, then S3 sdk was found */
 #undef ENABLE_S3_SDK
@@ -79,15 +89,26 @@
 /* if true, multi-filter support enabled */
 #undef HAS_MULTIFILTERS
 
-/* Define to 1 if you have `alloca', as a function or macro. */
+/* Define to 1 if you have 'alloca', as a function or macro. */
 #cmakedefine HAVE_ALLOCA
 
-/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
-   */
+/* Define to 1 if <alloca.h> works. */
 #cmakedefine HAVE_ALLOCA_H
+
+/* Define to 1 if you have the `atexit' function. */
+#undef HAVE_ATEXIT
+
+/* if true, blosc library is available */
+#undef HAVE_BLOSC
+
+/* if true, bz2 library is installed */
+#undef HAVE_BZ2
 
 /* Define to 1 if you have the `clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
+
+/* Define to 1 if you have the <ctype.h> header file. */
+#undef HAVE_CTYPE_H
 
 /* Is CURLINFO_RESPONSE_CODE defined */
 #cmakedefine HAVE_CURLINFO_RESPONSE_CODE
@@ -155,12 +176,6 @@
 /* Define to 1 if you have the `gettimeofday' function. */
 #cmakedefine HAVE_GETTIMEOFDAY
 
-/* Define to 1 if you have the `H5allocate_memory' function. */
-#cmakedefine HAVE_H5ALLOCATE_MEMORY
-
-/* Define to 1 if you have the `H5free_memory' function. */
-#undef HAVE_H5FREE_MEMORY
-
 /* Define to 1 if you have the `H5Literate' function. */
 #undef HAVE_H5LITERATE
 
@@ -173,10 +188,7 @@
 /* Define to 1 if you have the `H5Pset_deflate' function. */
 #undef HAVE_H5PSET_DEFLATE
 
-/* Define to 1 if you have the `H5resize_memory' function. */
-#undef HAVE_H5RESIZE_MEMORY
-
-/* Define to 1 if you have the `H5Z_SZIP' function. */
+/* if true, compile in szip compression in netCDF-4 variables */
 #undef HAVE_H5Z_SZIP
 
 /* Define to 1 if you have the <hdf5.h> header file. */
@@ -209,13 +221,16 @@
 /* Define to 1 if you have the `pnetcdf' library (-lpnetcdf). */
 #cmakedefine HAVE_LIBPNETCDF
 
+/* if true, use libxml2 */
+#undef HAVE_LIBXML2
+
 /* Define to 1 if you have the <locale.h> header file. */
 #cmakedefine HAVE_LOCALE_H
 
 /* Define to 1 if the system has the type `longlong'. */
 #cmakedefine HAVE_LONGLONG
 
-/* Define to 1 if the system has the type 'long long int'. */
+/* Define to 1 if the system has the type `long long int'. */
 #cmakedefine HAVE_LONG_LONG_INT
 
 /* Define to 1 if you have the <malloc.h> header file. */
@@ -223,9 +238,6 @@
 
 /* Define to 1 if you have the `memmove' function. */
 #cmakedefine HAVE_MEMMOVE
-
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
 
 /* Define to 1 if you have the <mfhdf.h> header file. */
 #undef HAVE_MFHDF_H
@@ -247,6 +259,9 @@
 
 /* Define to 1 if you have the `mremap' function. */
 #cmakedefine HAVE_MREMAP
+
+/* Define to 1 if the system has the type `ptrdiff_t'. */
+#cmakedefine HAVE_PTRDIFF_T
 
 /* Define to 1 if you have the `random' function. */
 #cmakedefine HAVE_RANDOM
@@ -336,6 +351,9 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #cmakedefine HAVE_SYS_TYPES_H
 
+/* if true, libsz (==szip) is available */
+#undef HAVE_SZ
+
 /* Define to 1 if you have the <time.h> header file. */
 #undef HAVE_TIME_H
 
@@ -357,11 +375,17 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H
 
-/* Define to 1 if the system has the type 'unsigned long long int'. */
+/* Define to 1 if the system has the type `unsigned long long int'. */
 #undef HAVE_UNSIGNED_LONG_LONG_INT
 
 /* Define to 1 if the system has the type `ushort'. */
 #cmakedefine HAVE_USHORT
+
+/* if true, zstd library is available */
+#undef HAVE_ZSTD
+
+/* Define to 1 if you have the <zstd.h> header file. */
+#undef HAVE_ZSTD_H
 
 /* Define to 1 if the system has the type `_off64_t'. */
 #undef HAVE__OFF64_T
@@ -433,6 +457,9 @@
 /* if true, NC_EINVALCOORDS check is more relaxed */
 #cmakedefine RELAX_COORD_BOUND
 
+/* dreg.c usable */
+#cmakedefine REGEDIT
+
 /* the testservers for remote tests. */
 #cmakedefine REMOTETESTSERVERS
 
@@ -495,7 +522,9 @@
 	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
 /* Place to put very large netCDF test files. */
@@ -559,9 +588,6 @@
 /* if true, enable strict null byte header padding */
 #undef USE_STRICT_NULL_BYTE_HEADER_PADDING
 
-/* if true, compile in szip compression in netCDF-4 variables */
-#cmakedefine USE_SZIP
-
 /* if true, use user-defined format 0 in utilities */
 #cmakedefine USE_UDF0
 
@@ -570,6 +596,12 @@
 
 /* Version number of package */
 #cmakedefine VERSION
+
+/* windows version build */
+#undef WINVERBUILD
+
+/* windows version major */
+#undef WINVERMAJOR
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
@@ -583,18 +615,14 @@
 # endif
 #endif
 
-/* Enable large inode numbers on Mac OS X 10.5.  */
-#ifndef _DARWIN_USE_64_BIT_INODE
-# define _DARWIN_USE_64_BIT_INODE 1
-#endif
-
 /* Number of bits in a file offset, on hosts where this is settable. */
 #cmakedefine _FILE_OFFSET_BITS
 
 /* Define for large files, on AIX-style hosts. */
 #cmakedefine _LARGE_FILES
 
-/* Define to 1 if type `char' is unsigned and you are not using gcc.  */
+/* Define to 1 if type `char' is unsigned and your compiler does not
+   predefine this macro.  */
 #ifndef __CHAR_UNSIGNED__
 # undef __CHAR_UNSIGNED__
 #endif
@@ -611,14 +639,5 @@
 /* Define to the type of an unsigned integer type wide enough to hold a
    pointer, if such a type exists, and if the system does not define it. */
 #cmakedefine uintptr_t
-
-/* Define strcasecmp, strncasecmp, snprintf on Win32 systems. */
-#ifdef _WIN32
-	#define strcasecmp _stricmp
-	#define strncasecmp _strnicmp
-#ifndef HAVE_SNPRINTF
-	#define snprintf _snprintf
-#endif
-#endif
 
 #include "ncconfigure.h"

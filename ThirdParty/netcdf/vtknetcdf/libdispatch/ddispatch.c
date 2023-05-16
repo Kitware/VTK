@@ -11,6 +11,8 @@ See LICENSE.txt for license information.
 #include "ncrc.h"
 #include "ncoffsets.h"
 #include "ncpathmgr.h"
+#include "ncxml.h"
+#include "nc4internal.h"
 
 /* Required for getcwd, other functions. */
 #ifdef HAVE_UNISTD_H
@@ -25,6 +27,14 @@ See LICENSE.txt for license information.
 #if defined(ENABLE_BYTERANGE) || defined(ENABLE_DAP) || defined(ENABLE_DAP4)
 #include <curl/curl.h>
 #endif
+
+#ifdef ENABLE_S3_SDK
+#include "ncs3sdk.h"
+#endif
+
+#define MAXPATH 1024
+
+
 
 /* Define vectors of zeros and ones for use with various nc_get_varX functions */
 /* Note, this form of initialization fails under Cygwin */
@@ -43,7 +53,7 @@ NCDISPATCH_initialize(void)
 {
     int status = NC_NOERR;
     int i;
-    NCRCglobalstate* globalstate = NULL;
+    NCglobalstate* globalstate = NULL;
 
     for(i=0;i<NC_MAX_VAR_DIMS;i++) {
         NC_coord_zero[i] = 0;
@@ -51,7 +61,7 @@ NCDISPATCH_initialize(void)
         NC_stride_one[i] = 1;
     }
 
-    globalstate = ncrc_getglobalstate(); /* will allocate and clear */
+    globalstate = NC_getglobalstate(); /* will allocate and clear */
 
     /* Capture temp dir*/
     {
@@ -70,15 +80,22 @@ NCDISPATCH_initialize(void)
 
     /* Capture $HOME */
     {
+#if defined(_WIN32) && !defined(__MINGW32__)
+        char* home = getenv("USERPROFILE");
+#else
         char* home = getenv("HOME");
-
+#endif
         if(home == NULL) {
-	    /* use tempdir */
-	    home = globalstate->tempdir;
-	}
-        globalstate->home = strdup(home);
+	    /* use cwd */
+	    home = malloc(MAXPATH+1);
+	    NCgetcwd(home,MAXPATH);
+        } else
+	    home = strdup(home); /* make it always free'able */
+	assert(home != NULL);
+        NCpathcanonical(home,&globalstate->home);
+	nullfree(home);
     }
-
+ 
     /* Capture $CWD */
     {
         char cwdbuf[4096];
@@ -93,21 +110,23 @@ NCDISPATCH_initialize(void)
         globalstate->cwd = strdup(cwdbuf);
     }
 
-    /* Now load RC File */
-    status = NC_rcload();
     ncloginit();
+
+    /* Now load RC Files */
+    ncrc_initialize();
 
     /* Compute type alignments */
     NC_compute_alignments();
 
-    /* Initialize curl if it is being used */
 #if defined(ENABLE_BYTERANGE) || defined(ENABLE_DAP) || defined(ENABLE_DAP4)
+    /* Initialize curl if it is being used */
     {
         CURLcode cstat = curl_global_init(CURL_GLOBAL_ALL);
 	if(cstat != CURLE_OK)
 	    status = NC_ECURL;
     }
 #endif
+
     return status;
 }
 
@@ -115,9 +134,12 @@ int
 NCDISPATCH_finalize(void)
 {
     int status = NC_NOERR;
-    ncrc_freeglobalstate();
+    NC_freeglobalstate();
 #if defined(ENABLE_BYTERANGE) || defined(ENABLE_DAP) || defined(ENABLE_DAP4)
     curl_global_cleanup();
+#endif
+#if defined(ENABLE_DAP4)
+   ncxml_finalize();
 #endif
     return status;
 }

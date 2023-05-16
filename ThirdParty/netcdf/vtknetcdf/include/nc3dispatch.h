@@ -174,8 +174,8 @@ extern "C" {
 
 /* End _var */
 
-    extern int NC3_initialize();
-    extern int NC3_finalize();
+    extern int NC3_initialize(void);
+    extern int NC3_finalize(void);
 
 #if defined(__cplusplus)
 }
