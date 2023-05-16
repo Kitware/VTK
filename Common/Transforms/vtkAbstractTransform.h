@@ -42,8 +42,6 @@
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkObject.h"
 
-#include <mutex> // for std::mutex
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkMatrix4x4;
