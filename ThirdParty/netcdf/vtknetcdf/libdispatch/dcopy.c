@@ -520,6 +520,7 @@ NC_copy_att(int ncid_in, int varid_in, const char *name,
    if ((res = nc_inq_att(ncid_in, varid_in, name, &xtype, &len)))
       return res;
 
+#ifdef SEPDATA
    if (xtype < NC_STRING)
    {
       /* Handle non-string atomic types. */
@@ -600,6 +601,36 @@ NC_copy_att(int ncid_in, int varid_in, const char *name,
       }
    }
 #endif /*!USE_NETCDF4*/
+#else /*!SEPDATA*/
+   {
+	/* Copy arbitrary attributes. */
+        int class;
+        size_t size;
+        nc_type xtype_out = NC_NAT;
+
+        if(xtype <= NC_MAX_ATOMIC_TYPE) {
+	    xtype_out = xtype;
+	    if((res = nc_inq_type(ncid_out,xtype_out,NULL,&size))) return res;
+	} else { /* User defined type */
+            /* Find out if there is an equal type in the output file. */
+            /* Note: original code used a libsrc4 specific internal function
+   	       which we had to "duplicate" here */
+            if ((res = NC_find_equal_type(ncid_in, xtype, ncid_out, &xtype_out)))
+  	        return res;
+            if (xtype_out) {
+		/* We found an equal type! */
+		if ((res = nc_inq_user_type(ncid_in, xtype, NULL, &size, NULL, NULL, &class)))
+		    return res;
+	    }
+	}
+        if((data = malloc(size * len))==NULL) {return NC_ENOMEM;}
+        res = nc_get_att(ncid_in, varid_in, name, data);
+	if(!res)
+	    res = nc_put_att(ncid_out, varid_out, name, xtype_out, len, data);
+	(void)nc_reclaim_data_all(ncid_out,xtype_out,data,len);
+      }
+#endif /*SEPDATA*/
+
    return res;
 }
 

@@ -224,15 +224,18 @@ NC_lookupvar(NC3_INFO* ncp, int varid, NC_var **varp);
 struct NC3_INFO {
     /* contains the previous NC during redef. */
     NC3_INFO *old;
-    /* flags */
-#define NC_CREAT 2      /* in create phase, cleared by ncendef */
-#define NC_INDEF 8      /* in define mode, cleared by ncendef */
-#define NC_NSYNC 0x10   /* synchronise numrecs on change */
-#define NC_HSYNC 0x20   /* synchronise whole header on change */
-#define NC_NDIRTY 0x40  /* numrecs has changed */
-#define NC_HDIRTY 0x80  /* header info has changed */
-/*      NC_NOFILL in netcdf.h, historical interface */
-    int flags;
+    int flags; /* mode flags */
+    int state; /* state transitions flags */
+#	define NC_CREAT 0x1      /* in create phase, cleared by ncendef */
+#	define NC_INDEF 0x2      /* in define mode, cleared by ncendef */
+#	define NC_NSYNC 0x4      /* synchronise numrecs on change */
+#	define NC_HSYNC 0x8      /* synchronise whole header on change */
+#	define NC_NDIRTY 0x10  /* numrecs has changed */
+#	define NC_HDIRTY 0x20  /* header info has changed */
+/* NC_NOFILL defined in netcdf.h, historical interface */
+#if 0
+#	define NC_NOFILL 0x100   /**< Argument to nc_set_fill() to turn off filling of data. */
+#endif
     struct ncio* nciop;
     size_t chunk;   /* largest extent this layer will request from ncio->get() */
     size_t xsz;     /* external size of this header, == var[0].begin */
@@ -258,31 +261,31 @@ struct NC3_INFO {
     fClr((ncp)->flags, NC_WRITE)
 
 #define NC_IsNew(ncp)                           \
-    fIsSet((ncp)->flags, NC_CREAT)
+    fIsSet((ncp)->state, NC_CREAT)
 
 #define NC_indef(ncp)                                   \
-    (NC_IsNew(ncp) || fIsSet((ncp)->flags, NC_INDEF))
+    (NC_IsNew(ncp) || fIsSet((ncp)->state, NC_INDEF))
 
 #define set_NC_ndirty(ncp)                      \
-    fSet((ncp)->flags, NC_NDIRTY)
+    fSet((ncp)->state, NC_NDIRTY)
 
 #define NC_ndirty(ncp)                          \
-    fIsSet((ncp)->flags, NC_NDIRTY)
+    fIsSet((ncp)->state, NC_NDIRTY)
 
 #define set_NC_hdirty(ncp)                      \
-    fSet((ncp)->flags, NC_HDIRTY)
+    fSet((ncp)->state, NC_HDIRTY)
 
 #define NC_hdirty(ncp)                          \
-    fIsSet((ncp)->flags, NC_HDIRTY)
+    fIsSet((ncp)->state, NC_HDIRTY)
 
 #define NC_dofill(ncp)                          \
-    (!fIsSet((ncp)->flags, NC_NOFILL))
+    (!fIsSet((ncp)->state, NC_NOFILL))
 
 #define NC_doHsync(ncp)                         \
-    fIsSet((ncp)->flags, NC_HSYNC)
+    fIsSet((ncp)->state, NC_HSYNC)
 
 #define NC_doNsync(ncp)                         \
-    fIsSet((ncp)->flags, NC_NSYNC)
+    fIsSet((ncp)->state, NC_NSYNC)
 
 #  define NC_get_numrecs(nc3i)                  \
     ((nc3i)->numrecs)

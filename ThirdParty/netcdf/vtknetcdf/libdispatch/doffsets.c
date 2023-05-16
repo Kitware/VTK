@@ -108,9 +108,10 @@ static NCtypealignset set;
 static int NC_alignments_computed = 0;
 
 /* Argument is a netcdf type class, except compound|ENUM  */
-size_t
-NC_class_alignment(int ncclass)
+int
+NC_class_alignment(int ncclass, size_t* alignp)
 {
+    int stat = NC_NOERR;
     NCalignment* align = NULL;
     int index = 0;
     if(!NC_alignments_computed)
@@ -135,10 +136,12 @@ NC_class_alignment(int ncclass)
       case NC_COMPOUND: /* fall thru */
       default:
 	nclog(NCLOGERR,"nc_class_alignment: class code %d cannot be aligned",ncclass);
-	return 0;
+	goto done;
     }
     align = &vec[index];
-    return align->alignment;
+    if(alignp) *alignp = align->alignment;
+done:
+    return stat;
 }
 
 void

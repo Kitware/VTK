@@ -39,6 +39,7 @@
 #define HDF5_dispatch_table vtknetcdf_HDF5_dispatch_table
 #define HDF5_inq_dim vtknetcdf_HDF5_inq_dim
 #define HDF5_rename_dim vtknetcdf_HDF5_rename_dim
+#define hdf5set_format_compatibility vtknetcdf_hdf5set_format_compatibility
 #define int_cmp vtknetcdf_int_cmp
 #define iterate_NCList vtknetcdf_iterate_NCList
 #define memio_create vtknetcdf_memio_create
@@ -92,9 +93,6 @@
 #define nc4_check_chunksizes vtknetcdf_nc4_check_chunksizes
 #define nc4_check_dup_name vtknetcdf_nc4_check_dup_name
 #define nc4_check_name vtknetcdf_nc4_check_name
-#define nc4_chunk_cache_nelems vtknetcdf_nc4_chunk_cache_nelems
-#define nc4_chunk_cache_preemption vtknetcdf_nc4_chunk_cache_preemption
-#define nc4_chunk_cache_size vtknetcdf_nc4_chunk_cache_size
 #define NC4_clear_provenance vtknetcdf_NC4_clear_provenance
 #define NC4_close vtknetcdf_NC4_close
 #define nc4_close_hdf5_file vtknetcdf_nc4_close_hdf5_file
@@ -113,6 +111,7 @@
 #define NC4_def_var_endian vtknetcdf_NC4_def_var_endian
 #define NC4_def_var_fill vtknetcdf_NC4_def_var_fill
 #define NC4_def_var_fletcher32 vtknetcdf_NC4_def_var_fletcher32
+#define NC4_def_var_quantize vtknetcdf_NC4_def_var_quantize
 #define NC4_def_vlen vtknetcdf_NC4_def_vlen
 #define nc4_dim_list_add vtknetcdf_nc4_dim_list_add
 #define nc4_dim_list_del vtknetcdf_nc4_dim_list_del
@@ -141,6 +140,7 @@
 #define NC4_get_att vtknetcdf_NC4_get_att
 #define nc4_get_att_ptrs vtknetcdf_nc4_get_att_ptrs
 #define nc4_get_att_special vtknetcdf_nc4_get_att_special
+#define nc4_get_default_atomic_fill_value vtknetcdf_nc4_get_default_atomic_fill_value
 #define nc4_get_default_fill_value vtknetcdf_nc4_get_default_fill_value
 #define nc4_get_fill_value vtknetcdf_nc4_get_fill_value
 #define nc4_get_hdf_typeid vtknetcdf_nc4_get_hdf_typeid
@@ -159,7 +159,9 @@
 #define nc4_HDF5_close_type vtknetcdf_nc4_HDF5_close_type
 #define NC4_hdf5_def_var_filter vtknetcdf_NC4_hdf5_def_var_filter
 #define NC4_HDF5_del_att vtknetcdf_NC4_HDF5_del_att
+#define NC4_hdf5_filter_finalize vtknetcdf_NC4_hdf5_filter_finalize
 #define NC4_hdf5_filter_freelist vtknetcdf_NC4_hdf5_filter_freelist
+#define NC4_hdf5_filter_initialize vtknetcdf_NC4_hdf5_filter_initialize
 #define NC4_hdf5_filter_lookup vtknetcdf_NC4_hdf5_filter_lookup
 #define NC4_hdf5_filter_remove vtknetcdf_NC4_hdf5_filter_remove
 #define nc4_hdf5_finalize vtknetcdf_nc4_hdf5_finalize
@@ -175,6 +177,7 @@
 #define NC4_HDF5_inq_att vtknetcdf_NC4_HDF5_inq_att
 #define NC4_HDF5_inq_attid vtknetcdf_NC4_HDF5_inq_attid
 #define NC4_HDF5_inq_attname vtknetcdf_NC4_HDF5_inq_attname
+#define NC4_hdf5_inq_filter_avail vtknetcdf_NC4_hdf5_inq_filter_avail
 #define NC4_HDF5_inq_var_all vtknetcdf_NC4_HDF5_inq_var_all
 #define NC4_hdf5_inq_var_filter_ids vtknetcdf_NC4_hdf5_inq_var_filter_ids
 #define NC4_hdf5_inq_var_filter_info vtknetcdf_NC4_hdf5_inq_var_filter_info
@@ -205,6 +208,7 @@
 #define NC4_inq_ncid vtknetcdf_NC4_inq_ncid
 #define NC4_inq_type vtknetcdf_NC4_inq_type
 #define NC4_inq_type_equal vtknetcdf_NC4_inq_type_equal
+#define NC4_inq_type_fixed_size vtknetcdf_NC4_inq_type_fixed_size
 #define NC4_inq_typeid vtknetcdf_NC4_inq_typeid
 #define NC4_inq_typeids vtknetcdf_NC4_inq_typeids
 #define NC4_inq_unlimdim vtknetcdf_NC4_inq_unlimdim
@@ -213,6 +217,7 @@
 #define NC4_inq_var_all vtknetcdf_NC4_inq_var_all
 #define NC4_inq_varid vtknetcdf_NC4_inq_varid
 #define NC4_inq_varids vtknetcdf_NC4_inq_varids
+#define NC4_inq_var_quantize vtknetcdf_NC4_inq_var_quantize
 #define NC4_insert_array_compound vtknetcdf_NC4_insert_array_compound
 #define NC4_insert_compound vtknetcdf_NC4_insert_compound
 #define NC4_insert_enum vtknetcdf_NC4_insert_enum
@@ -236,6 +241,7 @@
 #define nc4_rec_find_hdf_type vtknetcdf_nc4_rec_find_hdf_type
 #define nc4_rec_find_named_type vtknetcdf_nc4_rec_find_named_type
 #define nc4_rec_grp_del vtknetcdf_nc4_rec_grp_del
+#define nc4_rec_grp_del_att_data vtknetcdf_nc4_rec_grp_del_att_data
 #define nc4_rec_grp_HDF5_del vtknetcdf_nc4_rec_grp_HDF5_del
 #define nc4_rec_match_dimscales vtknetcdf_nc4_rec_match_dimscales
 #define nc4_rec_write_groups_types vtknetcdf_nc4_rec_write_groups_types
@@ -261,6 +267,7 @@
 #define NC_atomictypelen vtknetcdf_NC_atomictypelen
 #define NC_atomictypename vtknetcdf_NC_atomictypename
 #define NC_authfree vtknetcdf_NC_authfree
+#define NC_authgets3profile vtknetcdf_NC_authgets3profile
 #define NC_authsetup vtknetcdf_NC_authsetup
 #define ncaux_abort_compound vtknetcdf_ncaux_abort_compound
 #define ncaux_add_field vtknetcdf_ncaux_add_field
@@ -271,8 +278,10 @@
 #define ncaux_h5filterspec_free vtknetcdf_ncaux_h5filterspec_free
 #define ncaux_h5filterspec_parse vtknetcdf_ncaux_h5filterspec_parse
 #define ncaux_h5filterspec_parselist vtknetcdf_ncaux_h5filterspec_parselist
+#define ncaux_h5filterspec_parse_parameter vtknetcdf_ncaux_h5filterspec_parse_parameter
 #define ncaux_readfile vtknetcdf_ncaux_readfile
 #define ncaux_reclaim_data vtknetcdf_ncaux_reclaim_data
+#define ncaux_reclaim_data_all vtknetcdf_ncaux_reclaim_data_all
 #define ncaux_type_alignment vtknetcdf_ncaux_type_alignment
 #define ncaux_writefile vtknetcdf_ncaux_writefile
 #define NC_backslashEscape vtknetcdf_NC_backslashEscape
@@ -309,6 +318,8 @@
 #define NC_coord_one vtknetcdf_NC_coord_one
 #define NC_coord_zero vtknetcdf_NC_coord_zero
 #define nc_copy_att vtknetcdf_nc_copy_att
+#define nc_copy_data vtknetcdf_nc_copy_data
+#define nc_copy_data_all vtknetcdf_nc_copy_data_all
 #define nc_copy_var vtknetcdf_nc_copy_var
 #define NC_crc32 vtknetcdf_NC_crc32
 #define NC_crc64 vtknetcdf_NC_crc64
@@ -330,6 +341,8 @@
 #define nc_def_opaque vtknetcdf_nc_def_opaque
 #define nc_def_user_format vtknetcdf_nc_def_user_format
 #define nc_def_var vtknetcdf_nc_def_var
+#define nc_def_var_blosc vtknetcdf_nc_def_var_blosc
+#define nc_def_var_bzip2 vtknetcdf_nc_def_var_bzip2
 #define nc_def_var_chunking vtknetcdf_nc_def_var_chunking
 #define nc_def_var_chunking_ints vtknetcdf_nc_def_var_chunking_ints
 #define nc_def_var_deflate vtknetcdf_nc_def_var_deflate
@@ -337,7 +350,9 @@
 #define nc_def_var_fill vtknetcdf_nc_def_var_fill
 #define nc_def_var_filter vtknetcdf_nc_def_var_filter
 #define nc_def_var_fletcher32 vtknetcdf_nc_def_var_fletcher32
+#define nc_def_var_quantize vtknetcdf_nc_def_var_quantize
 #define nc_def_var_szip vtknetcdf_nc_def_var_szip
+#define nc_def_var_zstandard vtknetcdf_nc_def_var_zstandard
 #define nc_def_vlen vtknetcdf_nc_def_vlen
 #define nc_del_att vtknetcdf_nc_del_att
 #define nc_delete vtknetcdf_nc_delete
@@ -346,6 +361,7 @@
 #define NCDISPATCH_get_att vtknetcdf_NCDISPATCH_get_att
 #define NCDISPATCH_initialize vtknetcdf_NCDISPATCH_initialize
 #define NCDISPATCH_inq_var_all vtknetcdf_NCDISPATCH_inq_var_all
+#define nc_dump_data vtknetcdf_nc_dump_data
 #define nc__enddef vtknetcdf_nc__enddef
 #define nc_enddef vtknetcdf_nc_enddef
 #define NC_entityescape vtknetcdf_NC_entityescape
@@ -370,9 +386,12 @@
 #define NC_findattr vtknetcdf_NC_findattr
 #define NC_findreserved vtknetcdf_NC_findreserved
 #define NC_findvar vtknetcdf_NC_findvar
+#define NC_freeglobalstate vtknetcdf_NC_freeglobalstate
 #define nc_free_string vtknetcdf_nc_free_string
 #define nc_free_vlen vtknetcdf_nc_free_vlen
 #define nc_free_vlens vtknetcdf_nc_free_vlens
+#define NC_getactives3profile vtknetcdf_NC_getactives3profile
+#define nc_get_alignment vtknetcdf_nc_get_alignment
 #define nc_get_att vtknetcdf_nc_get_att
 #define nc_get_att_double vtknetcdf_nc_get_att_double
 #define nc_get_att_float vtknetcdf_nc_get_att_float
@@ -391,6 +410,11 @@
 #define nc_get_chunk_cache vtknetcdf_nc_get_chunk_cache
 #define nc_get_chunk_cache_ints vtknetcdf_nc_get_chunk_cache_ints
 #define nc_get_default_format vtknetcdf_nc_get_default_format
+#define NC_getdefaults3region vtknetcdf_NC_getdefaults3region
+#define NC_getglobalstate vtknetcdf_NC_getglobalstate
+#define NCgetinputpathkind vtknetcdf_NCgetinputpathkind
+#define NCgetkindname vtknetcdf_NCgetkindname
+#define NCgetlocalpathkind vtknetcdf_NCgetlocalpathkind
 #define NC_getmodelist vtknetcdf_NC_getmodelist
 #define nc_get_NC vtknetcdf_nc_get_NC
 #define NC_getshape vtknetcdf_NC_getshape
@@ -527,6 +551,7 @@
 #define nc_inq_enum vtknetcdf_nc_inq_enum
 #define nc_inq_enum_ident vtknetcdf_nc_inq_enum_ident
 #define nc_inq_enum_member vtknetcdf_nc_inq_enum_member
+#define nc_inq_filter_avail vtknetcdf_nc_inq_filter_avail
 #define nc_inq_format vtknetcdf_nc_inq_format
 #define nc_inq_format_extended vtknetcdf_nc_inq_format_extended
 #define nc_inq_grp_full_ncid vtknetcdf_nc_inq_grp_full_ncid
@@ -553,6 +578,8 @@
 #define nc_inq_user_format vtknetcdf_nc_inq_user_format
 #define nc_inq_user_type vtknetcdf_nc_inq_user_type
 #define nc_inq_var vtknetcdf_nc_inq_var
+#define nc_inq_var_blosc vtknetcdf_nc_inq_var_blosc
+#define nc_inq_var_bzip2 vtknetcdf_nc_inq_var_bzip2
 #define nc_inq_var_chunking vtknetcdf_nc_inq_var_chunking
 #define nc_inq_var_chunking_ints vtknetcdf_nc_inq_var_chunking_ints
 #define nc_inq_var_deflate vtknetcdf_nc_inq_var_deflate
@@ -568,8 +595,10 @@
 #define nc_inq_varname vtknetcdf_nc_inq_varname
 #define nc_inq_varnatts vtknetcdf_nc_inq_varnatts
 #define nc_inq_varndims vtknetcdf_nc_inq_varndims
+#define nc_inq_var_quantize vtknetcdf_nc_inq_var_quantize
 #define nc_inq_var_szip vtknetcdf_nc_inq_var_szip
 #define nc_inq_vartype vtknetcdf_nc_inq_vartype
+#define nc_inq_var_zstandard vtknetcdf_nc_inq_var_zstandard
 #define nc_inq_vlen vtknetcdf_nc_inq_vlen
 #define nc_insert_array_compound vtknetcdf_nc_insert_array_compound
 #define nc_insert_compound vtknetcdf_nc_insert_compound
@@ -586,6 +615,7 @@
 #define NC_isLittleEndian vtknetcdf_NC_isLittleEndian
 #define NCisnetworkpath vtknetcdf_NCisnetworkpath
 #define NC_is_recvar vtknetcdf_NC_is_recvar
+#define NC_iss3 vtknetcdf_NC_iss3
 #define NCJaddstring vtknetcdf_NCJaddstring
 #define NCJappend vtknetcdf_NCJappend
 #define NCJclone vtknetcdf_NCJclone
@@ -596,9 +626,13 @@
 #define NCJnew vtknetcdf_NCJnew
 #define NCJnewstring vtknetcdf_NCJnewstring
 #define NCJnewstringn vtknetcdf_NCJnewstringn
+#define NC_join vtknetcdf_NC_join
 #define NCJparse vtknetcdf_NCJparse
+#define NCJparsen vtknetcdf_NCJparsen
 #define NCJreclaim vtknetcdf_NCJreclaim
+#define NCJtotext vtknetcdf_NCJtotext
 #define NCJunparse vtknetcdf_NCJunparse
+#define nclistclearall vtknetcdf_nclistclearall
 #define nclistclone vtknetcdf_nclistclone
 #define nclistcontains vtknetcdf_nclistcontains
 #define nclistelemremove vtknetcdf_nclistelemremove
@@ -625,6 +659,7 @@
 #define nclogtextn vtknetcdf_nclogtextn
 #define NC_lookupvar vtknetcdf_NC_lookupvar
 #define NC_mktmp vtknetcdf_NC_mktmp
+#define NC_NOOP_inq_filter_avail vtknetcdf_NC_NOOP_inq_filter_avail
 #define NC_NOOP_inq_var_filter_ids vtknetcdf_NC_NOOP_inq_var_filter_ids
 #define NC_NOOP_inq_var_filter_info vtknetcdf_NC_NOOP_inq_var_filter_info
 #define NC_NOTNC3_get_varm vtknetcdf_NC_NOTNC3_get_varm
@@ -638,6 +673,7 @@
 #define NC_NOTNC4_def_var_endian vtknetcdf_NC_NOTNC4_def_var_endian
 #define NC_NOTNC4_def_var_filter vtknetcdf_NC_NOTNC4_def_var_filter
 #define NC_NOTNC4_def_var_fletcher32 vtknetcdf_NC_NOTNC4_def_var_fletcher32
+#define NC_NOTNC4_def_var_quantize vtknetcdf_NC_NOTNC4_def_var_quantize
 #define NC_NOTNC4_def_vlen vtknetcdf_NC_NOTNC4_def_vlen
 #define NC_NOTNC4_get_var_chunk_cache vtknetcdf_NC_NOTNC4_get_var_chunk_cache
 #define NC_NOTNC4_get_vlen_element vtknetcdf_NC_NOTNC4_get_vlen_element
@@ -658,6 +694,7 @@
 #define NC_NOTNC4_inq_var_filter_ids vtknetcdf_NC_NOTNC4_inq_var_filter_ids
 #define NC_NOTNC4_inq_var_filter_info vtknetcdf_NC_NOTNC4_inq_var_filter_info
 #define NC_NOTNC4_inq_varids vtknetcdf_NC_NOTNC4_inq_varids
+#define NC_NOTNC4_inq_var_quantize vtknetcdf_NC_NOTNC4_inq_var_quantize
 #define NC_NOTNC4_insert_array_compound vtknetcdf_NC_NOTNC4_insert_array_compound
 #define NC_NOTNC4_insert_compound vtknetcdf_NC_NOTNC4_insert_compound
 #define NC_NOTNC4_insert_enum vtknetcdf_NC_NOTNC4_insert_enum
@@ -680,6 +717,7 @@
 #define NCpathcanonical vtknetcdf_NCpathcanonical
 #define NCpathcvt vtknetcdf_NCpathcvt
 #define NCpathcvt_test vtknetcdf_NCpathcvt_test
+#define nc_print_data vtknetcdf_nc_print_data
 #define ncprintprovenance vtknetcdf_ncprintprovenance
 #define nc__pseudofd vtknetcdf_nc__pseudofd
 #define nc_put_att vtknetcdf_nc_put_att
@@ -777,12 +815,16 @@
 #define NC_rcfile_insert vtknetcdf_NC_rcfile_insert
 #define NC_rcfile_ith vtknetcdf_NC_rcfile_ith
 #define NC_rcfile_length vtknetcdf_NC_rcfile_length
-#define ncrc_freeglobalstate vtknetcdf_ncrc_freeglobalstate
-#define ncrc_getglobalstate vtknetcdf_ncrc_getglobalstate
+#define nc_rc_get vtknetcdf_nc_rc_get
 #define ncrc_initialize vtknetcdf_ncrc_initialize
-#define NC_rcload vtknetcdf_NC_rcload
 #define NC_rclookup vtknetcdf_NC_rclookup
+#define NC_rclookupx vtknetcdf_NC_rclookupx
+#define nc_rc_set vtknetcdf_nc_rc_set
 #define NC_readfile vtknetcdf_NC_readfile
+#define NC_readfileF vtknetcdf_NC_readfileF
+#define NC_readfilen vtknetcdf_NC_readfilen
+#define nc_reclaim_data vtknetcdf_nc_reclaim_data
+#define nc_reclaim_data_all vtknetcdf_nc_reclaim_data_all
 #define nc_redef vtknetcdf_nc_redef
 #define nc_rename_att vtknetcdf_nc_rename_att
 #define nc_rename_dim vtknetcdf_nc_rename_dim
@@ -802,6 +844,11 @@
 #define NC_RO_rename_var vtknetcdf_NC_RO_rename_var
 #define NC_RO_set_fill vtknetcdf_NC_RO_set_fill
 #define NC_RO_sync vtknetcdf_NC_RO_sync
+#define NC_s3clear vtknetcdf_NC_s3clear
+#define NC_s3profilelookup vtknetcdf_NC_s3profilelookup
+#define NC_s3urlprocess vtknetcdf_NC_s3urlprocess
+#define NC_s3urlrebuild vtknetcdf_NC_s3urlrebuild
+#define nc_set_alignment vtknetcdf_nc_set_alignment
 #define nc_set_base_pe vtknetcdf_nc_set_base_pe
 #define nc_set_chunk_cache vtknetcdf_nc_set_chunk_cache
 #define nc_set_chunk_cache_ints vtknetcdf_nc_set_chunk_cache_ints
@@ -812,20 +859,25 @@
 #define nc_set_var_chunk_cache_ints vtknetcdf_nc_set_var_chunk_cache_ints
 #define NC_shellUnescape vtknetcdf_NC_shellUnescape
 #define nc_show_metadata vtknetcdf_nc_show_metadata
+#define NC_split_delim vtknetcdf_NC_split_delim
 #define nc_strerror vtknetcdf_nc_strerror
 #define NC_stride_one vtknetcdf_NC_stride_one
 #define nc_sync vtknetcdf_nc_sync
 #define NC_sync vtknetcdf_NC_sync
 #define NC_testmode vtknetcdf_NC_testmode
+#define NC_testpathmode vtknetcdf_NC_testpathmode
 #define nc__testurl vtknetcdf_nc__testurl
 #define NC__testurl vtknetcdf_NC__testurl
+#define ncthrow vtknetcdf_ncthrow
 #define nctrace vtknetcdf_nctrace
 #define nctracelevel vtknetcdf_nctracelevel
 #define nctracemore vtknetcdf_nctracemore
+#define NC_type_alignment vtknetcdf_NC_type_alignment
 #define nctypelen vtknetcdf_nctypelen
 #define ncuntrace vtknetcdf_ncuntrace
 #define ncuriappendfragmentkey vtknetcdf_ncuriappendfragmentkey
 #define ncuribuild vtknetcdf_ncuribuild
+#define ncuriclone vtknetcdf_ncuriclone
 #define ncuridecode vtknetcdf_ncuridecode
 #define ncuridecodepartial vtknetcdf_ncuridecodepartial
 #define ncuriencodeonly vtknetcdf_ncuriencodeonly
@@ -836,8 +888,10 @@
 #define ncuriparse vtknetcdf_ncuriparse
 #define ncuriquerylookup vtknetcdf_ncuriquerylookup
 #define ncuriqueryparams vtknetcdf_ncuriqueryparams
+#define ncurirebuild vtknetcdf_ncurirebuild
 #define ncurisetfragmentkey vtknetcdf_ncurisetfragmentkey
 #define ncurisetfragments vtknetcdf_ncurisetfragments
+#define ncurisethost vtknetcdf_ncurisethost
 #define ncurisetpath vtknetcdf_ncurisetpath
 #define ncurisetprotocol vtknetcdf_ncurisetprotocol
 #define ncurisetquery vtknetcdf_ncurisetquery
@@ -1244,10 +1298,5 @@
 #define UDF1_dispatch_table vtknetcdf_UDF1_dispatch_table
 #define UDF1_magic_number vtknetcdf_UDF1_magic_number
 #define write_numrecs vtknetcdf_write_numrecs
-
-/* Only define strlcat conditionally, as it's provided by system headers on the BSDs. */
-#if !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) && !defined(_BSD_SOURCE)
-#define strlcat vtknetcdf_strlcat
-#endif
 
 #endif

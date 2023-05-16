@@ -169,6 +169,8 @@ ncuriparse(const char* uri0, NCURI** durip)
     uri = (char*)malloc(len0+1+1); /* +2 for nul term and for host section terminator */
     if(uri == NULL)
 	{THROW(NC_ENOMEM);}
+    /* Safe because we allocated enough space right above (and */
+    /* `strdup` isn't usable because we need "one more char"). */
     strcpy(uri,uri0);
 
     /* Walk the uri and do the following:
@@ -485,6 +487,15 @@ ncurisetprotocol(NCURI* duri,const char* protocol)
     return (NC_NOERR);
 }
 
+/* Replace the host */
+int
+ncurisethost(NCURI* duri,const char* host)
+{
+    nullfree(duri->host);
+    duri->host = strdup(host);
+    return (NC_NOERR);
+}
+
 /* Replace the path */
 int
 ncurisetpath(NCURI* duri,const char* newpath)
@@ -530,6 +541,16 @@ ncurisetfragments(NCURI* duri,const char* fragments)
 	duri->fragment = strdup(fragments);
     }
     return ret;
+}
+
+/* Replace the path */
+int
+ncurirebuild(NCURI* duri)
+{
+    char* surl = ncuribuild(duri,NULL,NULL,NCURIALL);
+    nullfree(duri->uri);
+    duri->uri = surl;
+    return (NC_NOERR);
 }
 
 /* Replace a specific fragment key*/
@@ -987,6 +1008,38 @@ ncuridecodepartial(const char* s, const char* decodeset)
     }
     *outptr = EOFCHAR;
     return decoded;
+}
+
+/* Deep clone a uri */
+NCURI*
+ncuriclone(NCURI* uri)
+{
+    int stat = NC_NOERR;
+    NCURI* newuri = NULL;
+
+    /* make sure fragments and query are up to date */
+    if((stat=ensurefraglist(uri))) goto done;
+    if((stat=ensurequerylist(uri))) goto done;
+    
+    if((newuri = (NCURI*)calloc(1,sizeof(NCURI)))==NULL)
+        {stat = NC_ENOMEM; goto done;}
+    *newuri = *uri; /* copy */
+    /* deep clone fields */
+    
+    newuri->uri = nulldup(uri->uri);
+    newuri->protocol = nulldup(uri->protocol);
+    newuri->user = nulldup(uri->user);
+    newuri->password = nulldup(uri->password);
+    newuri->host = nulldup(uri->host);
+    newuri->port = nulldup(uri->port);
+    newuri->path = nulldup(uri->path);
+    newuri->query = nulldup(uri->query);
+    newuri->fragment = nulldup(uri->fragment);
+    /* make these be rebuilt */
+    newuri->fraglist = NULL;
+    newuri->querylist = NULL;
+done:
+    return newuri;
 }
 
 static int

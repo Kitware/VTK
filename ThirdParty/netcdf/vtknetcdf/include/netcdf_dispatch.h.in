@@ -147,6 +147,11 @@ struct NC_Dispatch
     /* Version 3 Replace filteractions with more specific functions */
     int (*inq_var_filter_ids)(int ncid, int varid, size_t* nfilters, unsigned int* filterids);
     int (*inq_var_filter_info)(int ncid, int varid, unsigned int id, size_t* nparams, unsigned int* params);
+    /* Version 4 Add quantization. */
+    int (*def_var_quantize)(int ncid, int varid, int quantize_mode, int nsd);
+    int (*inq_var_quantize)(int ncid, int varid, int *quantize_modep, int *nsdp);
+    /* Version 5 adds filter availability */
+    int (*inq_filter_avail)(int ncid, unsigned id);
 };
 
 #if defined(__cplusplus)
@@ -186,6 +191,7 @@ extern "C" {
     EXTERNL int NC_NOTNC4_inq_var_filter_info(int ncid, int varid, unsigned int id, size_t* nparams, unsigned int* params);
     EXTERNL int NC_NOOP_inq_var_filter_ids(int ncid, int varid, size_t* nfilters, unsigned int* filterids);
     EXTERNL int NC_NOOP_inq_var_filter_info(int ncid, int varid, unsigned int id, size_t* nparams, unsigned int* params);
+    EXTERNL int NC_NOOP_inq_filter_avail(int ncid, unsigned id);
 
     EXTERNL int NC_NOTNC4_def_grp(int, const char *, int *);
     EXTERNL int NC_NOTNC4_rename_grp(int, const char *);
@@ -223,7 +229,9 @@ extern "C" {
     EXTERNL int NC_NOTNC4_inq_typeids(int, int *, int *);
     EXTERNL int NC_NOTNC4_inq_user_type(int, nc_type, char *, size_t *,
                                         nc_type *, size_t *, int *);
-
+    EXTERNL int NC_NOTNC4_def_var_quantize(int, int,  int, int);
+    EXTERNL int NC_NOTNC4_inq_var_quantize(int, int,  int *, int *);
+    
     /* These functions are for dispatch layers that don't implement
      * the enhanced model, but want to succeed anyway.
      * They return NC_NOERR plus properly set the out parameters.

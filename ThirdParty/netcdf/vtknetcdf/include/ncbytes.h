@@ -50,7 +50,7 @@ EXTERNL int ncbytesremove(NCbytes*,unsigned long);
 EXTERNL int ncbytescat(NCbytes*,const char*);
 
 /* Set the contents of the buffer; mark the buffer as non-extendible */
-EXTERNL int ncbytessetcontents(NCbytes*, char*, unsigned long);
+EXTERNL int ncbytessetcontents(NCbytes*, void*, unsigned long);
 
 /* Following are always "in-lined"*/
 #define ncbyteslength(bb) ((bb)!=NULL?(bb)->length:0)

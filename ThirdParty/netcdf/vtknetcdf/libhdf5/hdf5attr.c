@@ -314,6 +314,12 @@ NC4_HDF5_del_att(int ncid, int varid, const char *name)
     if (!(att = (NC_ATT_INFO_T*)ncindexlookup(attlist, name)))
         return NC_ENOTATT;
 
+    /* Reclaim the content of the attribute */
+    if(att->data) 
+	if((retval = nc_reclaim_data_all(ncid,att->nc_typeid,att->data,att->len))) return retval;
+    att->data = NULL;
+    att->len = 0;
+
     /* Delete it from the HDF5 file, if it's been created. */
     if (att->created)
     {
@@ -324,8 +330,10 @@ NC4_HDF5_del_att(int ncid, int varid, const char *name)
 
     deletedid = att->hdr.id;
 
-    /* Remove this attribute in this list */
+    /* reclaim associated HDF5 info */
     if((retval=nc4_HDF5_close_att(att))) return retval;
+
+    /* Remove this attribute in this list */
     if ((retval = nc4_att_list_del(attlist, att)))
         return retval;
 
@@ -413,9 +421,16 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
     nc_bool_t new_att = NC_FALSE;
     int retval = NC_NOERR, range_error = 0;
     size_t type_size;
-    int i;
     int ret;
     int ncid;
+    void* copy = NULL;
+    /* Save the old att data and length and old fillvalue in case we need to rollback on error */
+    struct Save {
+	size_t len;
+	void* data;
+        nc_type type; /* In case we change the type of the attribute */
+    } attsave = {0,NULL,-1};
+    struct Save fillsave = {0,NULL,-1};
 
     h5 = grp->nc4_info;
     nc = h5->controller;
@@ -460,7 +475,7 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
             && (ra->flags & READONLYFLAG))
             return NC_ENAMEINUSE;
         /* case 2: grp=NA, varid!=NC_GLOBAL, flags & HIDDENATTRFLAG */
-        if (varid != NC_GLOBAL && (ra->flags & HIDDENATTRFLAG))
+        if (varid != NC_GLOBAL && (ra->flags & (HIDDENATTRFLAG|READONLYFLAG)))
             return NC_ENAMEINUSE;
     }
 
@@ -497,10 +512,6 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
     if (file_type == NC_NAT || mem_type == NC_NAT)
         return NC_EBADTYPE;
 
-    /* Get information about this type. */
-    if ((retval = nc4_get_typelen_mem(h5, file_type, &type_size)))
-        return retval;
-
     /* No character conversions are allowed. */
     if (file_type != mem_type &&
         (file_type == NC_CHAR || mem_type == NC_CHAR ||
@@ -523,14 +534,29 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
         /* Allocate storage for the HDF5 specific att info. */
         if (!(att->format_att_info = calloc(1, sizeof(NC_HDF5_ATT_INFO_T))))
             BAIL(NC_ENOMEM);
+
+	if(varid == NC_GLOBAL)
+	    att->container = (NC_OBJ*)grp;
+	else
+	    att->container = (NC_OBJ*)var;
     }
+
     /* Now fill in the metadata. */
     att->dirty = NC_TRUE;
+
+    /* When we reclaim existing data, make sure to use the right type */ 
+    if(new_att) attsave.type = file_type; else attsave.type = att->nc_typeid;
     att->nc_typeid = file_type;
 
+    /* Get information about this (possibly new) type. */
+    if ((retval = nc4_get_typelen_mem(h5, file_type, &type_size)))
+        return retval;
+
+#ifdef SEPDATA
     /* If this att has vlen or string data, release it before we lose the length value. */
     if (att->stdata)
     {
+        int i;
         for (i = 0; i < att->len; i++)
             if(att->stdata[i])
                 free(att->stdata[i]);
@@ -539,41 +565,53 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
     }
     if (att->vldata)
     {
-        for (i = 0; i < att->len; i++)
+        int i;
+        for (i = 0; i < att->len; i++) {
             nc_free_vlen(&att->vldata[i]); /* FIX: see warning of nc_free_vlen */
         free(att->vldata);
         att->vldata = NULL;
     }
-
-    att->len = len;
+#else
+    if (att->data)
+    {
+	assert(attsave.data == NULL);
+	attsave.data = att->data;
+	attsave.len = att->len;
+        att->data = NULL;
+    }
+#endif
 
     /* If this is the _FillValue attribute, then we will also have to
      * copy the value to the fill_vlue pointer of the NC_VAR_INFO_T
      * struct for this var. (But ignore a global _FillValue
-     * attribute). */
+     * attribute).
+     * Since fill mismatch is no longer required, we need to convert the
+     * att's type to the vars's type as part of storing.
+     */
     if (!strcmp(att->hdr.name, _FillValue) && varid != NC_GLOBAL)
     {
-        int size;
-
-        /* Fill value must be same type and have exactly one value */
-        if (att->nc_typeid != var->type_info->hdr.id)
-            return NC_EBADTYPE;
-        if (att->len != 1)
+        /* Fill value must have exactly one value */
+        if (len != 1)
             BAIL(NC_EINVAL);
 
         /* If we already wrote to the dataset, then return an error. */
         if (var->written_to)
            BAIL(NC_ELATEFILL);
 
-        /* Get the length of the veriable data type. */
+        /* Get the length of the variable's data type. */
         if ((retval = nc4_get_typelen_mem(grp->nc4_info, var->type_info->hdr.id,
                                           &type_size)))
             BAIL(retval);
+
+        /* Fill value must be same type and have exactly one value */
+        if (att->nc_typeid != var->type_info->hdr.id)
+            return NC_EBADTYPE;
 
         /* Already set a fill value? Now I'll have to free the old
          * one. Make up your damn mind, would you? */
         if (var->fill_value)
         {
+#ifdef SEPDATA
             if (var->type_info->nc_type_class == NC_VLEN)
             {
                 if ((retval = nc_free_vlen(var->fill_value)))
@@ -585,16 +623,26 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
                     free(*(char **)var->fill_value);
             }
             free(var->fill_value);
+#else
+	    /* reclaim later */
+	    fillsave.data = var->fill_value;
+	    fillsave.type = var->type_info->hdr.id;
+	    fillsave.len = 1;
+#endif
+	    var->fill_value = NULL;
         }
 
         /* Determine the size of the fill value in bytes. */
+#ifdef SEPDATA
         if (var->type_info->nc_type_class == NC_VLEN)
             size = sizeof(hvl_t);
         else if (var->type_info->nc_type_class == NC_STRING)
             size = sizeof(char *);
         else
             size = type_size;
+#endif
 
+#ifdef SEPDATA
         /* Allocate space for the fill value. */
         if (!(var->fill_value = calloc(1, size)))
             BAIL(NC_ENOMEM);
@@ -630,16 +678,41 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
         }
         else
             memcpy(var->fill_value, data, type_size);
-
+#else
+	{
+	    nc_type var_type = var->type_info->hdr.id;
+   	    size_t var_type_size = var->type_info->size;
+	    /* The old code used the var's type as opposed to the att's type; normally same,
+	       but not required. Now we need to convert from the att's type to the var's type.
+	       Note that we use mem_type rather than file_type because our data is in the form
+	       of the memory data. When we later capture the memory data for the actual
+	       attribute, we will use file_type as the target of the conversion. */
+	    if(mem_type != var_type && mem_type < NC_STRING && var_type < NC_STRING) {
+		/* Need to convert from memory data into copy buffer */
+		if((copy = malloc(len*var_type_size))==NULL) BAIL(NC_ENOMEM);
+                if ((retval = nc4_convert_type(data, copy, mem_type, var_type,
+                                               len, &range_error, NULL,
+                                               (h5->cmode & NC_CLASSIC_MODEL),
+					       NC_NOQUANTIZE, 0)))
+                    BAIL(retval);
+	    } else { /* no conversion */
+		/* Still need a copy of the input data */
+		copy = NULL;
+	        if((retval = nc_copy_data_all(h5->controller->ext_ncid, mem_type, data, 1, &copy)))
+		    BAIL(retval);
+	    }
+	    var->fill_value = copy;
+	    copy = NULL;
+	}
+#endif
         /* Indicate that the fill value was changed, if the variable has already
          * been created in the file, so the dataset gets deleted and re-created. */
         if (var->created)
             var->fill_val_changed = NC_TRUE;
     }
 
-    /* Copy the attribute data, if there is any. VLENs and string
-     * arrays have to be handled specially. */
-    if (att->len)
+    /* Copy the attribute data, if there is any. */
+    if (len)
     {
         nc_type type_class;    /* Class of attribute's type */
 
@@ -648,6 +721,7 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
             BAIL(retval);
 
         assert(data);
+#ifdef SEPDATA
         if (type_class == NC_VLEN)
         {
             const hvl_t *vldata1;
@@ -685,6 +759,7 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
                specifically an NC_CHAR, we need to clean up
                the pre-existing att->data. */
             if (!new_att && att->data) {
+		
                 free(att->data);
                 att->data = NULL;
             }
@@ -716,25 +791,76 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
                 /* Data types are like religions, in that one can convert.  */
                 if ((retval = nc4_convert_type(data, att->data, mem_type, file_type,
                                                len, &range_error, NULL,
-                                               (h5->cmode & NC_CLASSIC_MODEL))))
+                                               (h5->cmode & NC_CLASSIC_MODEL),
+					       NC_NOQUANTIZE, 0)))
                     BAIL(retval);
             }
         }
+#else
+        {
+	    /* Allocate top level of the copy */
+	    if (!(copy = malloc(len * type_size)))
+                BAIL(NC_ENOMEM);
+	    /* Special case conversion from memory to file type */
+	    if(mem_type != file_type && mem_type < NC_STRING && file_type < NC_STRING) {
+                if ((retval = nc4_convert_type(data, copy, mem_type, file_type,
+                                               len, &range_error, NULL,
+                                               (h5->cmode & NC_CLASSIC_MODEL),
+					       NC_NOQUANTIZE, 0)))
+                    BAIL(retval);
+	    } else if(mem_type == file_type) { /* General case: no conversion */
+	        if((retval = nc_copy_data(h5->controller->ext_ncid,file_type,data,len,copy)))
+		    BAIL(retval);
+	    } else
+	    	BAIL(NC_EURL);
+	    /* Store it */
+	    att->data = copy; copy = NULL;
+	}
+#endif
     }
     att->dirty = NC_TRUE;
     att->created = NC_FALSE;
+    att->len = len;
 
     /* Mark attributes on variable dirty, so they get written */
     if(var)
         var->attr_dirty = NC_TRUE;
+    /* Reclaim saved data */
+    if(attsave.data != NULL) {
+        assert(attsave.len > 0);
+        (void)nc_reclaim_data_all(h5->controller->ext_ncid,attsave.type,attsave.data,attsave.len);
+	attsave.len = 0; attsave.data = NULL;
+    }
+    if(fillsave.data != NULL) {
+        assert(fillsave.len > 0);
+        (void)nc_reclaim_data_all(h5->controller->ext_ncid,fillsave.type,fillsave.data,fillsave.len);
+	fillsave.len = 0; fillsave.data = NULL;
+    }
 
 exit:
+    if(copy)
+        (void)nc_reclaim_data_all(h5->controller->ext_ncid,file_type,copy,len);
+    if(retval) {
+	/* Rollback */
+        if(attsave.data != NULL) {
+            assert(attsave.len > 0);
+	    if(att->data)
+                (void)nc_reclaim_data_all(h5->controller->ext_ncid,attsave.type,att->data,att->len);
+	    att->len = attsave.len; att->data = attsave.data;
+        }
+        if(fillsave.data != NULL) {
+            assert(fillsave.len > 0);
+	    if(att->data)
+                (void)nc_reclaim_data_all(h5->controller->ext_ncid,fillsave.type,var->fill_value,1);
+	    var->fill_value = fillsave.data;
+        }
+    }    
     /* If there was an error return it, otherwise return any potential
        range error value. If none, return NC_NOERR as usual.*/
-    if (retval)
-        return retval;
     if (range_error)
         return NC_ERANGE;
+    if (retval)
+        return retval;
     return NC_NOERR;
 }
 

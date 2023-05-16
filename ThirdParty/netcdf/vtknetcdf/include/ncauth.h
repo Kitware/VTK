@@ -18,8 +18,8 @@ Every curl connection will need a copy of this.
 typedef struct NCauth {
     struct curlflags {
         int proto_https; /* is https: supported? */
-	int compress; /*CURLOPT_ENCODING*/
-	int verbose; /*CURLOPT_ENCODING*/
+	int encode; /*turn on CURLOPT_ACCEPT_ENCODING*/
+	int verbose; /*CURLOPT_VERBOSE*/
 	int timeout; /*CURLOPT_TIMEOUT*/
 	int connecttimeout; /*CURLOPT_CONNECTTIMEOUT*/
 	int maxredirs; /*CURLOPT_MAXREDIRS*/
@@ -49,15 +49,22 @@ typedef struct NCauth {
 	char *user; /*CURLOPT_USERNAME*/
 	char *pwd; /*CURLOPT_PASSWORD*/
     } creds;
-    struct s3credentials {
-	char *accessid;
-	char *secretkey;
-    } s3creds;
+    char* s3profile;
 } NCauth;
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 extern int NC_authsetup(NCauth**, NCURI*);
 extern void NC_authfree(NCauth*);
 extern char* NC_combinehostport(NCURI*);
 extern int NC_parsecredentials(const char* userpwd, char** userp, char** pwdp);
+
+extern int NC_authgets3creds(NCauth* auth, const char* profile, const char** accessidp, const char** secretkeyp);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /*NCAUTH_H*/

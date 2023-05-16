@@ -761,10 +761,10 @@ ncexhashprint(NCexhashmap* hm)
 	    fprintf(stderr,"%s(%s/",(index==0?":":" "),s);
 	    bits = MSB(hkey,leaf->depth);
 	    s = ncexbinstr(bits,leaf->depth);
-	    fprintf(stderr,"%s|0x%llx,%lu)",
+	    fprintf(stderr,"%s|0x%llx,%llu)",
 		    s,
 	  	    (unsigned long long)hkey,
-		    (uintptr_t)leaf->entries[index].data);
+		    (unsigned long long)leaf->entries[index].data);
 	}
 	fprintf(stderr,"]\n");
     }
@@ -801,8 +801,8 @@ ncexhashprintleaf(NCexhashmap* map, NCexleaf* leaf)
         fprintf(stderr,"%s(%s/",(index==0?":":" "),s);
 	bits = MSB(hkey,leaf->depth);
 	s = ncexbinstr(bits,leaf->depth);
-	fprintf(stderr,"%s|0x%llx,%lu)",
-        s, (unsigned long long)hkey, (uintptr_t)leaf->entries[index].data);
+	fprintf(stderr,"%s|0x%llx,%llu)",
+        s, (unsigned long long)hkey, (unsigned long long)leaf->entries[index].data);
     }
     fprintf(stderr,"]\n");
 }
@@ -811,7 +811,7 @@ void
 ncexhashprintentry(NCexhashmap* map, NCexentry* entry)
 {
 
-    fprintf(stderr,"{0x%llx,%lu)",(unsigned long long)entry->hashkey,(uintptr_t)entry->data);
+    fprintf(stderr,"{0x%llx,%llu)",(unsigned long long)entry->hashkey,(unsigned long long)entry->data);
 }
 
 char*

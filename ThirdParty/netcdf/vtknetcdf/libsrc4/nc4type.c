@@ -14,6 +14,10 @@
 #include "nc4internal.h"
 #include "nc4dispatch.h"
 
+#ifdef ENABLE_DAP4
+EXTERNL int NCD4_get_substrate(int ncid);
+#endif
+
 /* The sizes of types may vary from platform to platform, but within
  * netCDF files, type sizes are fixed. */
 #define NC_CHAR_LEN sizeof(char)      /**< @internal Size of char. */
@@ -393,8 +397,9 @@ NC4_inq_compound_fieldindex(int ncid, nc_type typeid1, const char *name, int *fi
 }
 
 /**
- * @internal Get enum name from enum value. Name size will be <=
- * NC_MAX_NAME.
+ * @internal Get enum name from enum value. Name size will be <= NC_MAX_NAME.
+ * If the value is not a legitimate enum identifier and the value is zero
+ * (the default HDF5 enum fill value), then return the identifier "_UNDEFINED".
  *
  * @param ncid File and group ID.
  * @param xtype Type ID.
@@ -404,7 +409,7 @@ NC4_inq_compound_fieldindex(int ncid, nc_type typeid1, const char *name, int *fi
  * @return ::NC_NOERR No error.
  * @return ::NC_EBADID Bad ncid.
  * @return ::NC_EBADTYPE Type not found.
- * @return ::NC_EINVAL Invalid type data.
+ * @return ::NC_EINVAL Invalid type data or no matching enum value is found
  * @author Ed Hartnett
  */
 int
@@ -475,9 +480,13 @@ NC4_inq_enum_ident(int ncid, nc_type xtype, long long value, char *identifier)
     }
 
     /* If we didn't find it, life sucks for us. :-( */
-    if (!found)
-        return NC_EINVAL;
-
+    if(!found) {
+        if(value == 0) /* Special case for HDF5 default Fill Value*/
+	    strcpy(identifier, NC_UNDEFINED_ENUM_IDENT);
+        else
+            return NC_EINVAL;
+    }
+    
     return NC_NOERR;
 }
 
@@ -701,4 +710,56 @@ nc4_get_typeclass(const NC_FILE_INFO_T *h5, nc_type xtype, int *type_class)
 
 exit:
     return retval;
+}
+
+/**
+ * @internal return 1 if type is fixed size; 0 otherwise.
+ *
+ * @param ncid file id
+ * @param xtype type id
+ * @param fixedsizep pointer into which 1/0 is stored
+ *
+ * @return ::NC_NOERR
+ * @return ::NC_EBADTYPE if bad type
+ * @author Dennis Heimbigner
+ */
+int
+NC4_inq_type_fixed_size(int ncid, nc_type xtype, int* fixedsizep)
+{
+    int stat = NC_NOERR;   
+    int f = 0;
+    int xclass;
+
+    if(xtype < NC_STRING) {f = 1; goto done;}
+    if(xtype == NC_STRING) {f = 0; goto done;}
+
+#ifdef USE_NETCDF4
+    /* Must be user type */
+    if((stat = nc_inq_user_type(ncid,xtype,NULL,NULL,NULL,NULL,&xclass))) goto done;
+    switch (xclass) {
+    case NC_ENUM: case NC_OPAQUE: f = 1; break;
+    case NC_VLEN: f = 0; break;
+    case NC_COMPOUND: {
+	NC_FILE_INFO_T* h5 = NULL;
+	NC_TYPE_INFO_T* typ = NULL;
+#ifdef ENABLE_DAP4
+        NC* nc = NULL;
+	int xformat;
+        if ((stat = NC_check_id(ncid, &nc))) goto done;
+        xformat = nc->dispatch->model;
+	if(xformat == NC_FORMATX_DAP4) {
+	    ncid = NCD4_get_substrate(ncid);
+	} /* Fall thru */
+#endif
+        if ((stat = nc4_find_grp_h5(ncid, NULL, &h5)))
+	    goto done;
+        if((stat = nc4_find_type(h5,xtype,&typ))) goto done;
+	f = !typ->u.c.varsized;
+	} break;
+    default: stat = NC_EBADTYPE; goto done;
+    }    
+#endif
+done:
+    if(fixedsizep) *fixedsizep = f;
+    return stat;
 }

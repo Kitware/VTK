@@ -10,6 +10,10 @@
 #include <stdarg.h>
 #include "ncexternl.h"
 
+#ifndef NCCATCH
+#undef NCCATCH
+#endif
+
 #define NCENVLOGGING "NCLOGGING"
 #define NCENVTRACING "NCTRACING"
 
@@ -39,7 +43,15 @@ EXTERNL void nctrace(int level, const char* fcn, const char* fmt, ...);
 EXTERNL void nctracemore(int level, const char* fmt, ...);
 EXTERNL void ncvtrace(int level, const char* fcn, const char* fmt, va_list ap);
 EXTERNL int ncuntrace(const char* fcn, int err,const char* fmt,...);
+EXTERNL int ncthrow(int err,const char* file,int line);
 EXTERNL int ncbreakpoint(int err);
+
+/* Debug support */
+#if defined(NCCATCH)
+#define NCTHROW(e) ((e) == NC_NOERR ? (e) : ncthrow(e,__FILE__,__LINE__))
+#else
+#define NCTHROW(e) (e)
+#endif
 
 #ifdef HAVE_EXECINFO_H
 EXTERNL void ncbacktrace(void);

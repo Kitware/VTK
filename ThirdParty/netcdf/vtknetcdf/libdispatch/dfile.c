@@ -40,6 +40,11 @@
 
 #undef DEBUG
 
+#ifndef nulldup
+ #define nulldup(s) ((s)?strdup(s):NULL)
+#endif
+
+
 extern int NC_initialized; /**< True when dispatch table is initialized. */
 
 /* User-defined formats. */
@@ -120,8 +125,6 @@ int
 nc_def_user_format(int mode_flag, NC_Dispatch *dispatch_table, char *magic_number)
 {
     /* Check inputs. */
-    if (mode_flag != NC_UDF0 && mode_flag != NC_UDF1)
-        return NC_EINVAL;
     if (!dispatch_table)
         return NC_EINVAL;
     if (magic_number && strlen(magic_number) > NC_MAX_MAGIC_NUMBER_LEN)
@@ -130,21 +133,29 @@ nc_def_user_format(int mode_flag, NC_Dispatch *dispatch_table, char *magic_numbe
     /* Check the version of the dispatch table provided. */
     if (dispatch_table->dispatch_version != NC_DISPATCH_VERSION)
         return NC_EINVAL;
-
+    /* user defined magic numbers not allowed with netcdf3 modes */ 
+    if (magic_number && (fIsSet(mode_flag, NC_64BIT_OFFSET) ||
+                         fIsSet(mode_flag, NC_64BIT_DATA) ||
+                        (fIsSet(mode_flag, NC_CLASSIC_MODEL) &&
+                        !fIsSet(mode_flag, NC_NETCDF4))))
+        return NC_EINVAL;
     /* Retain a pointer to the dispatch_table and a copy of the magic
      * number, if one was provided. */
-    switch(mode_flag)
+    if (fIsSet(mode_flag,NC_UDF0))
     {
-    case NC_UDF0:
         UDF0_dispatch_table = dispatch_table;
         if (magic_number)
             strncpy(UDF0_magic_number, magic_number, NC_MAX_MAGIC_NUMBER_LEN);
-        break;
-    case NC_UDF1:
+    }
+    else if(fIsSet(mode_flag, NC_UDF1))
+    {
         UDF1_dispatch_table = dispatch_table;
         if (magic_number)
             strncpy(UDF1_magic_number, magic_number, NC_MAX_MAGIC_NUMBER_LEN);
-        break;
+    }
+    else
+    {
+        return NC_EINVAL;
     }
 
     return NC_NOERR;
@@ -170,23 +181,23 @@ int
 nc_inq_user_format(int mode_flag, NC_Dispatch **dispatch_table, char *magic_number)
 {
     /* Check inputs. */
-    if (mode_flag != NC_UDF0 && mode_flag != NC_UDF1)
-        return NC_EINVAL;
-
-    switch(mode_flag)
+    if (fIsSet(mode_flag,NC_UDF0))
     {
-    case NC_UDF0:
         if (dispatch_table)
             *dispatch_table = UDF0_dispatch_table;
         if (magic_number)
             strncpy(magic_number, UDF0_magic_number, NC_MAX_MAGIC_NUMBER_LEN);
-        break;
-    case NC_UDF1:
+    }
+    else if(fIsSet(mode_flag,NC_UDF1))
+    {
         if (dispatch_table)
             *dispatch_table = UDF1_dispatch_table;
         if (magic_number)
             strncpy(magic_number, UDF1_magic_number, NC_MAX_MAGIC_NUMBER_LEN);
-        break;
+    }
+    else
+    {
+        return NC_EINVAL;
     }
 
     return NC_NOERR;
@@ -1834,19 +1845,16 @@ NC_create(const char *path0, int cmode, size_t initialsz,
 
     TRACE(nc_create);
     if(path0 == NULL)
-        return NC_EINVAL;
+        {stat = NC_EINVAL; goto done;}
 
     /* Check mode flag for sanity. */
-    if ((stat = check_create_mode(cmode)))
-        return stat;
+    if ((stat = check_create_mode(cmode))) goto done;
 
     /* Initialize the library. The available dispatch tables
      * will depend on how netCDF was built
      * (with/without netCDF-4, DAP, CDMREMOTE). */
-    if(!NC_initialized)
-    {
-        if ((stat = nc_initialize()))
-            return stat;
+    if(!NC_initialized) {
+        if ((stat = nc_initialize())) goto done;
     }
 
     {
@@ -1858,10 +1866,7 @@ NC_create(const char *path0, int cmode, size_t initialsz,
 
     memset(&model,0,sizeof(model));
     newpath = NULL;
-    if((stat = NC_infermodel(path,&cmode,1,useparallel,NULL,&model,&newpath))) {
-	nullfree(newpath);
-        goto done;
-    }
+    if((stat = NC_infermodel(path,&cmode,1,useparallel,NULL,&model,&newpath))) goto done;
     if(newpath) {
         nullfree(path);
         path = newpath;
@@ -1913,7 +1918,7 @@ NC_create(const char *path0, int cmode, size_t initialsz,
         dispatcher = NC3_dispatch_table;
         break;
     default:
-        return NC_ENOTNC;
+        {stat = NC_ENOTNC; goto done;}
     }
 
     /* Create the NC* instance and insert its dispatcher and model */
@@ -1932,6 +1937,7 @@ NC_create(const char *path0, int cmode, size_t initialsz,
     }
 done:
     nullfree(path);
+    nullfree(newpath);
     return stat;
 }
 
@@ -1975,12 +1981,12 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
     TRACE(nc_open);
     if(!NC_initialized) {
         stat = nc_initialize();
-        if(stat) return stat;
+        if(stat) goto done;
     }
 
     /* Check inputs. */
     if (!path0)
-        return NC_EINVAL;
+        {stat = NC_EINVAL; goto done;}
 
     /* Capture the inmemory related flags */
     mmap = ((omode & NC_MMAP) == NC_MMAP);
@@ -2026,6 +2032,7 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
     }
 
     /* Suppress unsupported formats */
+#if 0
     /* (should be more compact, table-driven, way to do this) */
     {
 	int hdf5built = 0;
@@ -2036,9 +2043,9 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
 	int nczarrbuilt = 0;
 #ifdef USE_NETCDF4
         hdf5built = 1;
+#endif
 #ifdef USE_HDF4
         hdf4built = 1;
-#endif
 #endif
 #ifdef ENABLE_CDF5
         cdf5built = 1;
@@ -2064,6 +2071,43 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
         if(!udf1built && model.impl == NC_FORMATX_UDF1)
         {stat = NC_ENOTBUILT; goto done;}
     }
+#else
+    {
+	unsigned built = 0 /* leave off the trailing semicolon so we can build constant */
+		| (1<<NC_FORMATX_NC3) /* NC3 always supported */
+#ifdef USE_HDF5
+		| (1<<NC_FORMATX_NC_HDF5)
+#endif
+#ifdef USE_HDF4
+		| (1<<NC_FORMATX_NC_HDF4)
+#endif
+#ifdef ENABLE_NCZARR
+		| (1<<NC_FORMATX_NCZARR)
+#endif
+#ifdef ENABLE_DAP
+		| (1<<NC_FORMATX_DAP2)
+#endif
+#ifdef ENABLE_DAP4
+		| (1<<NC_FORMATX_DAP4)
+#endif
+#ifdef USE_PNETCDF
+		| (1<<NC_FORMATX_PNETCDF)
+#endif
+		; /* end of the built flags */
+        if(UDF0_dispatch_table != NULL)
+	    built |= (1<<NC_FORMATX_UDF0);
+        if(UDF1_dispatch_table != NULL)
+	    built |= (1<<NC_FORMATX_UDF1);
+	/* Verify */
+	if((built & (1 << model.impl)) == 0)
+            {stat = NC_ENOTBUILT; goto done;}
+#ifndef ENABLE_CDF5
+	/* Special case because there is no separate CDF5 dispatcher */
+        if(model.impl == NC_FORMATX_NC3 && (omode & NC_64BIT_DATA))
+            {stat = NC_ENOTBUILT; goto done;}
+#endif
+    }
+#endif
     /* Figure out what dispatcher to use */
     if (!dispatcher) {
         switch (model.impl) {
@@ -2158,8 +2202,8 @@ int
 nc__pseudofd(void)
 {
     if(pseudofd == 0)  {
-        int maxfd = 32767; /* default */
 #ifdef HAVE_GETRLIMIT
+        int maxfd = 32767; /* default */
         struct rlimit rl;
         if(getrlimit(RLIMIT_NOFILE,&rl) == 0) {
             if(rl.rlim_max != RLIM_INFINITY)

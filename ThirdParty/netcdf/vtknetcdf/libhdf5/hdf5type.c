@@ -146,12 +146,18 @@ add_user_type(int ncid, size_t size, const char *name, nc_type base_typeid,
         if ((retval = NC4_redef(ncid)))
             return retval;
 
-    /* No size is provided for vlens or enums, get it from the base type. */
-    if (type_class == NC_VLEN || type_class == NC_ENUM)
+    /* No size is provided for vlens; use the size of nc_vlen_t */
+    if (type_class == NC_VLEN)
+	size = sizeof(nc_vlen_t);
+
+    /* No size is provided for enums, get it from the base type. */
+    else if(type_class == NC_ENUM)
     {
         if ((retval = nc4_get_typelen_mem(grp->nc4_info, base_typeid, &size)))
             return retval;
     }
+
+    /* Else better be defined */
     else if (size <= 0)
         return NC_EINVAL;
 
@@ -257,6 +263,7 @@ NC4_insert_array_compound(int ncid, int typeid1, const char *name,
     NC_TYPE_INFO_T *type;
     char norm_name[NC_MAX_NAME + 1];
     int retval;
+    int fixedsize = 0;
 
     LOG((2, "nc_insert_array_compound: ncid 0x%x, typeid %d name %s "
          "offset %d field_typeid %d ndims %d", ncid, typeid1,
@@ -287,6 +294,12 @@ NC4_insert_array_compound(int ncid, int typeid1, const char *name,
     if ((retval = nc4_field_list_add(type, norm_name, offset, field_typeid,
                                      ndims, dim_sizesp)))
         return retval;
+
+    /* See if this changes from fixed size to variable size */
+    if((retval = NC4_inq_type_fixed_size(ncid,field_typeid,&fixedsize)))
+        return retval;
+    if(!fixedsize)
+        type->u.c.varsized = 1;
 
     return NC_NOERR;
 }
