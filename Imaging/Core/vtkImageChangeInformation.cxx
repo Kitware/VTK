@@ -17,6 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -37,6 +38,10 @@ vtkImageChangeInformation::vtkImageChangeInformation()
 
     this->OutputSpacing[i] = VTK_DOUBLE_MAX;
     this->SpacingScale[i] = 1.0;
+
+    this->OutputDirection[3 * i] = VTK_DOUBLE_MAX;
+    this->OutputDirection[3 * i + 1] = VTK_DOUBLE_MAX;
+    this->OutputDirection[3 * i + 2] = VTK_DOUBLE_MAX;
 
     this->OutputOrigin[i] = VTK_DOUBLE_MAX;
     this->OriginScale[i] = 1.0;
@@ -85,6 +90,13 @@ void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SpacingScale: (" << this->SpacingScale[0] << "," << this->SpacingScale[1] << ","
      << this->SpacingScale[2] << ")" << endl;
 
+  os << indent << "OutputDirection: (" << this->OutputDirection[0];
+  for (int idx = 1; idx < 9; ++idx)
+  {
+    os << ", " << this->OutputDirection[idx];
+  }
+  os << ")\n";
+
   os << indent << "OutputOrigin: (" << this->OutputOrigin[0] << "," << this->OutputOrigin[1] << ","
      << this->OutputOrigin[2] << ")" << endl;
 
@@ -106,7 +118,7 @@ int vtkImageChangeInformation::RequestInformation(vtkInformation* vtkNotUsed(req
 
   int i;
   int extent[6], inExtent[6];
-  double spacing[3], origin[3];
+  double spacing[3], direction[9], origin[3];
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExtent);
 
@@ -117,6 +129,7 @@ int vtkImageChangeInformation::RequestInformation(vtkInformation* vtkNotUsed(req
     vtkInformation* in2Info = inputVector[1]->GetInformationObject(0);
     infoInput->GetOrigin(origin);
     infoInput->GetSpacing(spacing);
+    vtkMatrix3x3::DeepCopy(direction, infoInput->GetDirectionMatrix());
     in2Info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
     for (i = 0; i < 3; i++)
     {
@@ -128,6 +141,28 @@ int vtkImageChangeInformation::RequestInformation(vtkInformation* vtkNotUsed(req
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
     inInfo->Get(vtkDataObject::ORIGIN(), origin);
     inInfo->Get(vtkDataObject::SPACING(), spacing);
+    if (inInfo->Has(vtkDataObject::DIRECTION()))
+    {
+      inInfo->Get(vtkDataObject::DIRECTION(), direction);
+    }
+    else
+    {
+      vtkMatrix3x3::Identity(direction);
+    }
+  }
+
+  bool setDirection = true;
+  for (i = 0; i < 9; i++)
+  {
+    if (this->OutputDirection[i] == VTK_DOUBLE_MAX)
+    {
+      setDirection = false;
+      break;
+    }
+  }
+  if (setDirection)
+  {
+    vtkMatrix3x3::DeepCopy(direction, this->OutputDirection);
   }
 
   for (i = 0; i < 3; i++)
@@ -155,6 +190,7 @@ int vtkImageChangeInformation::RequestInformation(vtkInformation* vtkNotUsed(req
     {
       origin[i] = -(extent[2 * i] + extent[2 * i + 1]) * spacing[i] / 2;
     }
+    vtkMatrix3x3::MultiplyPoint(direction, origin, origin);
   }
 
   for (i = 0; i < 3; i++)
@@ -168,6 +204,7 @@ int vtkImageChangeInformation::RequestInformation(vtkInformation* vtkNotUsed(req
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
+  outInfo->Set(vtkDataObject::DIRECTION(), direction, 9);
   outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
 
   return 1;

@@ -70,6 +70,16 @@ public:
 
   ///@{
   /**
+   * Specify a new direction matrix explicitly.  The default is to
+   * use the direction of the Input, or of the InformationInput
+   * if InformationInput is set.
+   */
+  vtkSetVectorMacro(OutputDirection, double, 9);
+  vtkGetVectorMacro(OutputDirection, double, 9);
+  ///@}
+
+  ///@{
+  /**
    * Specify a new data origin explicitly.  The default is to
    * use the origin of the Input, or of the InformationInput
    * if InformationInput is set.
@@ -135,6 +145,8 @@ protected:
 
   double OutputSpacing[3];
   double SpacingScale[3];
+
+  double OutputDirection[9];
 
   double OutputOrigin[3];
   double OriginScale[3];
