@@ -10,7 +10,7 @@ Setup
 -----
 
 The workflow below depends on local hooks to function properly.
-Follow the main [developer setup instructions](develop.md#initial-setup)
+Follow the main [developer setup instructions](develop_quickstart.md#initial-setup)
 before proceeding.  In particular, run [SetupForDevelopment.sh][]:
 
     $ ./Utilities/SetupForDevelopment.sh
