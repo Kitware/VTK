@@ -19,7 +19,7 @@
 #include "vtkCesium3DTilesWriter.h"
 #include "vtkCityGMLReader.h"
 #include "vtkCompositeDataIterator.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkDataObject.h"
 #include "vtkDirectory.h"
 #include "vtkDoubleArray.h"

@@ -22,6 +22,8 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
   TestBackfaceTexture.cxx
+  TestBlockOpacity.cxx
+  TestBlockVisibility.cxx
   TestColorByCellDataStringArray.cxx
   TestColorByPointDataStringArray.cxx
   TestColorByStringArrayDefaultLookupTable.cxx
@@ -29,6 +31,20 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestColorTransferFunction.cxx,NO_VALID
   TestColorTransferFunctionStringArray.cxx,NO_VALID
   TestCompositeDataDisplayAttributes.cxx,NO_VALID
+  TestCompositePolyDataMapper.cxx,NO_DATA
+  TestCompositePolyDataMapperCameraShiftScale.cxx,NO_DATA
+  TestCompositePolyDataMapperCellScalars.cxx,NO_DATA
+  TestCompositePolyDataMapperCustomShader.cxx,NO_DATA
+  TestCompositePolyDataMapperMixedGeometryCellScalars.cxx,NO_DATA
+  TestCompositePolyDataMapperMixedGeometryEdges.cxx,NO_DATA
+  TestCompositePolyDataMapperNaNPartial.cxx,NO_DATA
+  TestCompositePolyDataMapperPickability.cxx,NO_DATA
+  TestCompositePolyDataMapperPicking.cxx,NO_DATA
+  TestCompositePolyDataMapperScalars.cxx,NO_DATA
+  TestCompositePolyDataMapperScalarsSurfaceOpacity.cxx,NO_DATA
+  TestCompositePolyDataMapperSharedArray.cxx,NO_DATA
+  TestCompositePolyDataMapperSpheres.cxx,NO_DATA
+  TestCompositePolyDataMapperVertices.cxx,NO_DATA
   TestDirectScalarsToColors.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
   TestDiscretizableColorTransferFunctionOpacity.cxx,NO_VALID
@@ -56,6 +72,8 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestManyActors.cxx,NO_VALID
   TestMapVectorsAsRGBColors.cxx
   TestMapVectorsToColors.cxx
+  TestMultiBlockPartialArrayFieldData.cxx
+  TestMultiBlockPartialArrayPointData.cxx
   TestOffAxisStereo.cxx
   TestOnAndOffScreenConeCxx.cxx
   TestOpacity.cxx

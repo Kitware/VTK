@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkOpenGLHyperTreeGridMapper.h"
 
-#include "vtkCompositePolyDataMapper2.h" // For Mapper3D
-#include "vtkObjectFactory.h"            // For the macro
-#include "vtkOpenGLPolyDataMapper.h"     // For PDMapper
+#include "vtkCompositePolyDataMapper.h" // For Mapper3D
+#include "vtkObjectFactory.h"           // For the macro
+#include "vtkOpenGLPolyDataMapper.h"    // For PDMapper
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkOpenGLHyperTreeGridMapper);
@@ -24,7 +24,7 @@ vtkObjectFactoryNewMacro(vtkOpenGLHyperTreeGridMapper);
 //------------------------------------------------------------------------------
 vtkOpenGLHyperTreeGridMapper::vtkOpenGLHyperTreeGridMapper()
 {
-  this->Mapper = vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+  this->Mapper = vtkSmartPointer<vtkCompositePolyDataMapper>::New();
 }
 
 //------------------------------------------------------------------------------

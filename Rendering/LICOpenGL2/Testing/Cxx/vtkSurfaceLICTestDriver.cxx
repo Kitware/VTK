@@ -19,7 +19,6 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositePolyDataMapper2.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"

@@ -40,6 +40,20 @@ private:
 
 #define vtkRegressionTestImageThreshold(rw, t) vtkTesting::Test(argc, argv, rw, t)
 
+#define vtkRegressionTestPassForMesaLessThan(rw, major, minor, patch)                              \
+  do                                                                                               \
+  {                                                                                                \
+    int mesaVersion[3] = {};                                                                       \
+    if (vtkTesting::GetMesaVersion(rw, mesaVersion))                                               \
+    {                                                                                              \
+      if (mesaVersion[0] < major || (mesaVersion[0] == major && mesaVersion[1] < minor) ||         \
+        (mesaVersion[0] == major && mesaVersion[1] == minor && mesaVersion[2] < patch))            \
+      {                                                                                            \
+        return EXIT_SUCCESS;                                                                       \
+      }                                                                                            \
+    }                                                                                              \
+  } while (false)
+
 VTK_ABI_NAMESPACE_END
 #endif // vtkRegressionTestImage_h
 // VTK-HeaderTest-Exclude: vtkRegressionTestImage.h

@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkCompositePolyDataMapper2.h"
 
 #include "vtk_glew.h"
@@ -357,8 +360,8 @@ void vtkCompositeMapperHelper2::UpdateCameraShiftScale(vtkRenderer* ren, vtkActo
   }
 
   // handle camera shift scale
-  if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::NEAR_PLANE_SHIFT_SCALE ||
-    this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE)
+  if (this->ShiftScaleMethod == ShiftScaleMethodType::NEAR_PLANE_SHIFT_SCALE ||
+    this->ShiftScaleMethod == ShiftScaleMethodType::FOCAL_POINT_SHIFT_SCALE)
   {
     // get ideal shift scale from camera
     auto posVBO = this->VBOs->GetVBO("vertexMC");
@@ -695,9 +698,9 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
   vtkOpenGLVertexBufferObject* posVBO = this->VBOs->GetVBO("vertexMC");
   if (posVBO)
   {
-    if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
+    if (this->ShiftScaleMethod == ShiftScaleMethodType::AUTO_SHIFT_SCALE)
     {
-      posVBO->SetCoordShiftAndScaleMethod(vtkOpenGLVertexBufferObject::MANUAL_SHIFT_SCALE);
+      posVBO->SetCoordShiftAndScaleMethod(ShiftScaleMethodType::MANUAL_SHIFT_SCALE);
       bbox.GetBounds(bounds);
       std::vector<double> shift;
       std::vector<double> scale;
@@ -894,9 +897,9 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
       vtkOpenGLVertexBufferObject* posVBO = vbos->GetVBO(name);
       if (posVBO)
       {
-        if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
+        if (this->ShiftScaleMethod == ShiftScaleMethodType::AUTO_SHIFT_SCALE)
         {
-          posVBO->SetCoordShiftAndScaleMethod(vtkOpenGLVertexBufferObject::MANUAL_SHIFT_SCALE);
+          posVBO->SetCoordShiftAndScaleMethod(ShiftScaleMethodType::MANUAL_SHIFT_SCALE);
           bbox.GetBounds(bounds);
           std::vector<double> shift;
           std::vector<double> scale;
@@ -1954,7 +1957,7 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositePolyDataMapper2::SetVBOShiftScaleMethod(int m)
+void vtkCompositePolyDataMapper2::SetVBOShiftScaleMethod(ShiftScaleMethodType m)
 {
   if (this->ShiftScaleMethod == m)
   {

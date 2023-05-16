@@ -26,19 +26,20 @@
 #ifndef vtkCompositeSurfaceLICMapper_h
 #define vtkCompositeSurfaceLICMapper_h
 
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
+
 #include "vtkNew.h"                       // for ivars
 #include "vtkRenderingLICOpenGL2Module.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSurfaceLICInterface;
+class vtkCompositePolyDataMapperDelegator;
 
-class VTKRENDERINGLICOPENGL2_EXPORT vtkCompositeSurfaceLICMapper
-  : public vtkCompositePolyDataMapper2
+class VTKRENDERINGLICOPENGL2_EXPORT vtkCompositeSurfaceLICMapper : public vtkCompositePolyDataMapper
 {
 public:
   static vtkCompositeSurfaceLICMapper* New();
-  vtkTypeMacro(vtkCompositeSurfaceLICMapper, vtkCompositePolyDataMapper2);
+  vtkTypeMacro(vtkCompositeSurfaceLICMapper, vtkCompositePolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -59,10 +60,7 @@ protected:
 
   vtkNew<vtkSurfaceLICInterface> LICInterface;
 
-  vtkCompositeMapperHelper2* CreateHelper() override;
-
-  // copy values to the helpers
-  void CopyMapperValuesToHelper(vtkCompositeMapperHelper2* helper) override;
+  vtkCompositePolyDataMapperDelegator* CreateADelegator() override;
 
 private:
   vtkCompositeSurfaceLICMapper(const vtkCompositeSurfaceLICMapper&) = delete;

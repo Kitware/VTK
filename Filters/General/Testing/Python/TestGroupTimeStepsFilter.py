@@ -14,11 +14,11 @@ from vtkmodules.vtkFiltersSources import (
 )
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
+    vtkCompositePolyDataMapper,
     vtkRenderWindow,
     vtkRenderWindowInteractor,
     vtkRenderer,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
@@ -88,7 +88,7 @@ class MovingPDC(VTKPythonAlgorithmBase):
 source1 = MovingSphereSource()
 group1 = vtkGroupTimeStepsFilter()
 group1.SetInputConnection(source1.GetOutputPort())
-mapper1 = vtkCompositePolyDataMapper2()
+mapper1 = vtkCompositePolyDataMapper()
 mapper1.SetInputConnection(group1.GetOutputPort())
 actor1 = vtkActor()
 actor1.SetMapper(mapper1)
@@ -96,7 +96,7 @@ actor1.SetMapper(mapper1)
 source2 = MovingPDC()
 group2 = vtkGroupTimeStepsFilter()
 group2.SetInputConnection(source2.GetOutputPort())
-mapper2 = vtkCompositePolyDataMapper2()
+mapper2 = vtkCompositePolyDataMapper()
 mapper2.SetInputConnection(group2.GetOutputPort())
 actor2 = vtkActor()
 actor2.SetMapper(mapper2)

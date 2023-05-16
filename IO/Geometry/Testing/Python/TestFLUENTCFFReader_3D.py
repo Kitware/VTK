@@ -3,11 +3,11 @@ from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
 from vtkmodules.vtkIOGeometry import vtkFLUENTCFFReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
+    vtkCompositePolyDataMapper,
     vtkRenderWindow,
     vtkRenderWindowInteractor,
     vtkRenderer,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
@@ -35,7 +35,7 @@ cut0.ComputeNormalsOff()
 g = vtkGeometryFilter()
 g.SetInputConnection(cut0.GetOutputPort())
 
-FluentMapper = vtkCompositePolyDataMapper2()
+FluentMapper = vtkCompositePolyDataMapper()
 FluentMapper.SetInputConnection(g.GetOutputPort())
 FluentMapper.SetScalarModeToUseCellFieldData()
 FluentMapper.SelectColorArray("phase_1-SV_VOF")

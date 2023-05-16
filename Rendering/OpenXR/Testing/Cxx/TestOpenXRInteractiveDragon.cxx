@@ -76,7 +76,7 @@ int TestOpenXRInteractiveDragon(int argc, char* argv[])
 
   vtkNew<vtkOpenGLPolyDataMapper> mapper;
   mapper->SetInputConnection(tf->GetOutputPort());
-  mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE);
+  mapper->SetVBOShiftScaleMethod(vtkPolyDataMapper::ShiftScaleMethodType::AUTO_SHIFT_SCALE);
   actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
@@ -94,7 +94,7 @@ int TestOpenXRInteractiveDragon(int argc, char* argv[])
 
   vtkNew<vtkOpenGLPolyDataMapper> pmapper;
   pmapper->SetInputConnection(reader->GetOutputPort());
-  pmapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE);
+  pmapper->SetVBOShiftScaleMethod(vtkPolyDataMapper::ShiftScaleMethodType::AUTO_SHIFT_SCALE);
   pactor->SetMapper(pmapper);
 
   pactor->SetUserMatrix(trans2->GetMatrix());
@@ -114,7 +114,7 @@ int TestOpenXRInteractiveDragon(int argc, char* argv[])
 
   vtkNew<vtkOpenGLPolyDataMapper> dmapper;
   dmapper->SetInputConnection(reader->GetOutputPort());
-  dmapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE);
+  dmapper->SetVBOShiftScaleMethod(vtkPolyDataMapper::AUTO_SHIFT_SCALE);
   dactor->SetMapper(dmapper);
   dactor->SetScale(2.0, 2.0, 2.0);
   dactor->SetPosition(0.0, 0.0, -0.2);

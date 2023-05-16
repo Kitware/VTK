@@ -17,7 +17,7 @@
  */
 #include <vtkBoundingBox.h>
 #include <vtkCamera.h>
-#include <vtkCompositePolyDataMapper2.h>
+#include <vtkCompositePolyDataMapper.h>
 #include <vtkCompositedSynchronizedRenderers.h>
 #include <vtkDataArraySelection.h>
 #include <vtkDataSetSurfaceFilter.h>
@@ -124,7 +124,7 @@ int TestIOSSExodusParallelWriter(int argc, char* argv[])
 
   vtkNew<vtkProcessIdScalars> procIdScalars;
   vtkNew<vtkDataSetSurfaceFilter> surface;
-  vtkNew<vtkCompositePolyDataMapper2> mapper;
+  vtkNew<vtkCompositePolyDataMapper> mapper;
   vtkNew<vtkActor> actor;
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;

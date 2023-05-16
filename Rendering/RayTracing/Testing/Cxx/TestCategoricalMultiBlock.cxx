@@ -26,7 +26,7 @@
 #include "vtkCellData.h"
 #include "vtkColorSeries.h"
 #include "vtkCompositeDataDisplayAttributes.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkDoubleArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMultiBlockDataSet.h"
@@ -149,8 +149,8 @@ int TestCategoricalMultiBlock(int argc, char* argv[])
   prop = actor->GetProperty();
   prop->SetMaterialName("Value Indexed"); // making submaterials
 
-  vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
-    vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+  vtkSmartPointer<vtkCompositePolyDataMapper> mapper =
+    vtkSmartPointer<vtkCompositePolyDataMapper>::New();
   mapper->SetInputDataObject(mbds);
   mapper->SetLookupTable(lut);
   actor->SetMapper(mapper);

@@ -13,10 +13,10 @@ from vtkmodules.vtkRenderingCore import (
     vtkActor,
     vtkCellPicker,
     vtkCompositeDataDisplayAttributes,
+    vtkCompositePolyDataMapper,
     vtkRenderWindow,
     vtkRenderer,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
 import math
@@ -64,7 +64,7 @@ parts=[
 mbd=vtkMultiBlockDataSet()
 mbd.SetNumberOfBlocks(len(parts))
 cda=vtkCompositeDataDisplayAttributes()
-m=vtkCompositePolyDataMapper2()
+m=vtkCompositePolyDataMapper()
 m.SetInputDataObject(mbd)
 m.SetCompositeDataDisplayAttributes(cda)
 

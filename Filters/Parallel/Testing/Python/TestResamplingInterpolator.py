@@ -14,7 +14,7 @@ from vtkmodules.vtkRenderingCore import (
     vtkRenderWindowInteractor,
     vtkWindowToImageFilter,
 )
-from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
+import vtkmodules.vtkRenderingOpenGL2
 from vtkmodules.util.vtkAlgorithm import VTKPythonAlgorithmBase
 from vtkmodules.util.misc import vtkGetDataRoot
 

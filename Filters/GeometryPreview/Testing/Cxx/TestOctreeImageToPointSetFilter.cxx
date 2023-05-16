@@ -16,7 +16,7 @@
 #include "vtkArrayCalculator.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkOctreeImageToPointSetFilter.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPointSetToOctreeImageFilter.h"
@@ -61,7 +61,7 @@ int TestOctreeImageToPointSetFilter(int argc, char* argv[])
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "sin_x");
   imageToPointSetFilter->SetCellArrayComponent(1);
 
-  vtkNew<vtkCompositePolyDataMapper2> mapper;
+  vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputConnection(imageToPointSetFilter->GetOutputPort());
 
   vtkNew<vtkActor> actor;

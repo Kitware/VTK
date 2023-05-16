@@ -84,7 +84,6 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 //------------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   : UsingScalarColoring(false)
-  , PauseShiftScale(false)
   , TimerQuery(new vtkOpenGLRenderTimer)
 {
   this->InternalColorTexture = nullptr;
@@ -100,7 +99,6 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->UseProgramPointSize = false;
 
   this->PrimitiveIDOffset = 0;
-  this->ShiftScaleMethod = vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE;
 
   this->CellScalarTexture = nullptr;
   this->CellScalarBuffer = nullptr;
@@ -249,6 +247,20 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   this->IBOBuildState.Clear();
   this->CellTextureBuildState.Clear();
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkPolyDataMapper::MapperHashType vtkOpenGLPolyDataMapper::GenerateHash(vtkPolyData* polydata)
+{
+  int cellFlag = 0;
+  bool hasScalars = this->ScalarVisibility &&
+    (vtkAbstractMapper::GetAbstractScalars(polydata, this->ScalarMode, this->ArrayAccessMode,
+       this->ArrayId, this->ArrayName, cellFlag) != nullptr);
+  bool hasNormals =
+    (polydata->GetPointData()->GetNormals() || polydata->GetCellData()->GetNormals());
+  bool hasTCoords = (polydata->GetPointData()->GetTCoords() != nullptr);
+
+  return (hasScalars << 0) + (hasNormals << 1) + (hasTCoords << 2);
 }
 
 //------------------------------------------------------------------------------
@@ -3585,8 +3597,8 @@ void vtkOpenGLPolyDataMapper::UpdateCameraShiftScale(vtkRenderer* ren, vtkActor*
   }
 
   // handle camera shift scale
-  if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::NEAR_PLANE_SHIFT_SCALE ||
-    this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE)
+  if (this->ShiftScaleMethod == ShiftScaleMethodType::NEAR_PLANE_SHIFT_SCALE ||
+    this->ShiftScaleMethod == ShiftScaleMethodType::FOCAL_POINT_SHIFT_SCALE)
   {
     // get ideal shift scale from camera
     auto posVBO = this->VBOs->GetVBO("vertexMC");
@@ -4332,19 +4344,18 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(int m)
+void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(ShiftScaleMethodType method)
 {
-  if (this->ShiftScaleMethod == m)
+  if (this->ShiftScaleMethod == method)
   {
     return;
   }
 
-  this->ShiftScaleMethod = m;
+  this->ShiftScaleMethod = method;
   vtkOpenGLVertexBufferObject* posVBO = this->VBOs->GetVBO("vertexMC");
   if (posVBO)
   {
-    posVBO->SetCoordShiftAndScaleMethod(
-      static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
+    posVBO->SetCoordShiftAndScaleMethod(this->ShiftScaleMethod);
   }
 }
 

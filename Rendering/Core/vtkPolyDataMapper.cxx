@@ -35,6 +35,8 @@ vtkPolyDataMapper::vtkPolyDataMapper()
   this->GhostLevel = 0;
   this->SeamlessU = false;
   this->SeamlessV = false;
+  this->PauseShiftScale = false;
+  this->ShiftScaleMethod = ShiftScaleMethodType::AUTO_SHIFT_SCALE;
 }
 
 //------------------------------------------------------------------------------
@@ -95,6 +97,17 @@ vtkTypeBool vtkPolyDataMapper::ProcessRequest(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), this->GhostLevel);
   }
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkPolyDataMapper::SetVBOShiftScaleMethod(int method)
+{
+  if (method >= 0 && method <= static_cast<int>(ShiftScaleMethodType::FOCAL_POINT_SHIFT_SCALE))
+  {
+    vtkWarningMacro(<< "Method " << method << " is an invalid value for " << __func__ << ".");
+    return;
+  }
+  this->SetVBOShiftScaleMethod(static_cast<ShiftScaleMethodType>(method));
 }
 
 //------------------------------------------------------------------------------
@@ -164,6 +177,8 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
     this->SetNumberOfSubPieces(m->GetNumberOfSubPieces());
     this->SetSeamlessU(m->GetSeamlessU());
     this->SetSeamlessV(m->GetSeamlessV());
+    this->SetVBOShiftScaleMethod(m->GetVBOShiftScaleMethod());
+    this->SetPauseShiftScale(m->GetPauseShiftScale());
   }
 
   // Now do superclass

@@ -17,6 +17,7 @@ find_package(VTK
   OPTIONAL_COMPONENTS
     IOExport
     IOImport
+    RenderingOpenGL2
     TestingRendering)
 if (NOT VTK_FOUND)
   message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")

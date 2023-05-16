@@ -57,7 +57,7 @@ int TestOpenXRInteractiveBox(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkNew<vtkOpenGLPolyDataMapper> mapper;
   mapper->SetInputConnection(cube->GetOutputPort());
-  mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE);
+  mapper->SetVBOShiftScaleMethod(vtkPolyDataMapper::ShiftScaleMethodType::AUTO_SHIFT_SCALE);
   actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);

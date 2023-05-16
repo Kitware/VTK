@@ -16,7 +16,7 @@
  * Test for paraview/paraview#19404
  */
 #include <vtkCamera.h>
-#include <vtkCompositePolyDataMapper2.h>
+#include <vtkCompositePolyDataMapper.h>
 #include <vtkDataArraySelection.h>
 #include <vtkDataObject.h>
 #include <vtkDataSetSurfaceFilter.h>
@@ -61,7 +61,7 @@ int TestIOSSTri6(int argc, char* argv[])
   vtkNew<vtkDataSetSurfaceFilter> surface;
   surface->SetInputConnection(reader->GetOutputPort());
 
-  vtkNew<vtkCompositePolyDataMapper2> mapper;
+  vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputConnection(surface->GetOutputPort());
 
   vtkNew<vtkActor> actor;
