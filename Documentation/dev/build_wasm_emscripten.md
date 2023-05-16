@@ -1,4 +1,4 @@
-# Building VTK using emscripten for WebAssembly
+# Building using emscripten for WebAssembly
 
 ## Introduction
 
