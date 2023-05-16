@@ -496,11 +496,12 @@ public:
     {
       return;
     }
+    auto& localDistinctCellTypes = this->LocalDistinctCellTypes.Local();
 
     for (vtkIdType idx = begin; idx < end; ++idx)
     {
       unsigned char cellType = static_cast<unsigned char>(this->DS->GetCellType(idx));
-      this->LocalDistinctCellTypes.Local().insert(cellType);
+      localDistinctCellTypes.insert(cellType);
     }
   }
 
