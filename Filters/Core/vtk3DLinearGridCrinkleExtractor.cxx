@@ -1064,8 +1064,8 @@ bool vtk3DLinearGridCrinkleExtractor::CanFullyProcessDataObject(vtkDataObject* o
       for (vtkIdType i = 0; i < cellTypes->GetNumberOfValues(); ++i)
       {
         unsigned char cellType = cellTypes->GetValue(i);
-        if (cellType != VTK_VOXEL && cellType != VTK_TETRA && cellType != VTK_HEXAHEDRON &&
-          cellType != VTK_WEDGE && cellType != VTK_PYRAMID)
+        if (cellType != VTK_EMPTY_CELL && cellType != VTK_VOXEL && cellType != VTK_TETRA &&
+          cellType != VTK_HEXAHEDRON && cellType != VTK_WEDGE && cellType != VTK_PYRAMID)
         {
           // Unsupported cell type, can't process data
           return false;
