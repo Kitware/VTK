@@ -136,6 +136,13 @@ public:
     const vtkTypeInt64* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
   ///@}
 
+  /**
+   * Variant that permits dynamic type sends, like those create by MPI_Type_create_subarray
+   * mpiType is interpreted as an MPI_Datatype
+   */
+  int NoBlockSend(
+    const void* data, vtkTypeInt64 length, int mpiType, int remoteProcessId, int tag, Request& req);
+
   ///@{
   /**
    * This method receives data from a corresponding send (non-blocking).

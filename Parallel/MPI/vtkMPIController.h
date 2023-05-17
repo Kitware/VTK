@@ -132,6 +132,7 @@ public:
 
   vtkMPIController* PartitionController(int localColor, int localKey) override;
 
+  ///@{
   /**
    * This method sends data to another process (non-blocking).
    * Tag eliminates ambiguity when multiple sends or receives
@@ -177,15 +178,68 @@ public:
     return ((vtkMPICommunicator*)this->Communicator)
       ->NoBlockSend(data, length, remoteProcessId, tag, req);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int NoBlockSend(const vtkIdType* data, int length, int remoteProcessId, int tag,
+  int NoBlockSend(const vtkTypeInt64* data, int length, int remoteProcessId, int tag,
     vtkMPICommunicator::Request& req)
   {
     return ((vtkMPICommunicator*)this->Communicator)
       ->NoBlockSend(data, length, remoteProcessId, tag, req);
   }
-#endif
+  int NoBlockSend(const int* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockSend(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockSend(const unsigned long* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockSend(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockSend(const char* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockSend(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockSend(const unsigned char* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockSend(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockSend(const float* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockSend(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockSend(const double* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockSend(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockSend(const vtkTypeInt64* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockSend(data, length, remoteProcessId, tag, req);
+  }
+  ///@}
 
+  /**
+   * Variant that permits dynamic type sends, like those create by MPI_Type_create_subarray
+   * mpiType is interpreted as an MPI_Datatype
+   */
+  int NoBlockSend(const void* data, vtkTypeInt64 length, int mpiType, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockSend(data, length, mpiType, remoteProcessId, tag, req);
+  }
+
+  ///@{
   /**
    * This method receives data from a corresponding send (non-blocking).
    * The last argument,
@@ -230,14 +284,55 @@ public:
     return ((vtkMPICommunicator*)this->Communicator)
       ->NoBlockReceive(data, length, remoteProcessId, tag, req);
   }
-#ifdef VTK_USE_64BIT_IDS
   int NoBlockReceive(
-    vtkIdType* data, int length, int remoteProcessId, int tag, vtkMPICommunicator::Request& req)
+    vtkTypeInt64* data, int length, int remoteProcessId, int tag, vtkMPICommunicator::Request& req)
   {
     return ((vtkMPICommunicator*)this->Communicator)
       ->NoBlockReceive(data, length, remoteProcessId, tag, req);
   }
-#endif
+  int NoBlockReceive(
+    int* data, vtkTypeInt64 length, int remoteProcessId, int tag, vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockReceive(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockReceive(unsigned long* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockReceive(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockReceive(
+    char* data, vtkTypeInt64 length, int remoteProcessId, int tag, vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockReceive(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockReceive(unsigned char* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockReceive(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockReceive(float* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockReceive(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockReceive(double* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockReceive(data, length, remoteProcessId, tag, req);
+  }
+  int NoBlockReceive(vtkTypeInt64* data, vtkTypeInt64 length, int remoteProcessId, int tag,
+    vtkMPICommunicator::Request& req)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)
+      ->NoBlockReceive(data, length, remoteProcessId, tag, req);
+  }
+  ///@}
 
   /**
    * Nonblocking test for a message.  Inputs are: source -- the source rank
