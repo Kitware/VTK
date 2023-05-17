@@ -27,7 +27,7 @@ cmake -GNinja "$ospray_src/scripts/superbuild" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr/local \
     -DCMAKE_INSTALL_LIBDIR=lib64 \
-    -DBUILD_EMBREE_FROM_SOURCE=OFF \
+    -DBUILD_EMBREE_FROM_SOURCE=ON \
     -DBUILD_GLFW=OFF \
     -DBUILD_OSPRAY_APPS=OFF \
     -DDEPENDENCIES_BUILD_TYPE=Release \
