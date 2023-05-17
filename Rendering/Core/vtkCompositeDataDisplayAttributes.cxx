@@ -83,11 +83,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockVisibility(vtkDataObject* dat
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilities()
 {
-  if (this->HasBlockVisibilities())
+  if (!this->HasBlockVisibilities())
   {
-    this->Modified();
+    return;
   }
   this->BlockVisibilities.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -138,11 +139,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockPickability(vtkDataObject* da
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockPickabilities()
 {
-  if (this->HasBlockPickabilities())
+  if (!this->HasBlockPickabilities())
   {
-    this->Modified();
+    return;
   }
   this->BlockPickabilities.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -205,11 +207,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockColor(vtkDataObject* data_obj
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockColors()
 {
-  if (this->HasBlockColors())
+  if (!this->HasBlockColors())
   {
-    this->Modified();
+    return;
   }
   this->BlockColors.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -263,11 +266,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockOpacity(vtkDataObject* data_o
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockOpacities()
 {
-  if (this->HasBlockOpacities())
+  if (!this->HasBlockOpacities())
   {
-    this->Modified();
+    return;
   }
   this->BlockOpacities.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -318,11 +322,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockMaterial(vtkDataObject* data_
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockMaterials()
 {
-  if (this->HasBlockMaterials())
+  if (!this->HasBlockMaterials())
   {
-    this->Modified();
+    return;
   }
   this->BlockMaterials.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -371,11 +376,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockArrayAccessMode(vtkDataObject
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockArrayAccessModes()
 {
-  if (this->HasBlockArrayAccessModes())
+  if (!this->HasBlockArrayAccessModes())
   {
-    this->Modified();
+    return;
   }
   this->BlockArrayAccessModes.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -425,11 +431,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockArrayComponent(vtkDataObject*
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockArrayComponents()
 {
-  if (this->HasBlockArrayComponents())
+  if (!this->HasBlockArrayComponents())
   {
-    this->Modified();
+    return;
   }
   this->BlockArrayComponents.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -477,11 +484,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockArrayId(vtkDataObject* data_o
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockArrayIds()
 {
-  if (this->HasBlockArrayIds())
+  if (!this->HasBlockArrayIds())
   {
-    this->Modified();
+    return;
   }
   this->BlockArrayIds.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -530,11 +538,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockArrayName(vtkDataObject* data
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockArrayNames()
 {
-  if (this->HasBlockArrayNames())
+  if (!this->HasBlockArrayNames())
   {
-    this->Modified();
+    return;
   }
   this->BlockArrayNames.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -584,11 +593,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockFieldDataTupleId(vtkDataObjec
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::RemoveBlockFieldDataTupleIds()
 {
-  if (this->HasBlockFieldDataTupleIds())
+  if (!this->HasBlockFieldDataTupleIds())
   {
-    this->Modified();
+    return;
   }
   this->BlockFieldDataTupleIds.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
