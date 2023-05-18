@@ -282,7 +282,8 @@ bool vtkCompositePolyDataMapper::HasTranslucentPolygonalGeometry()
     this->InvokeEvent(vtkCommand::EndEvent, nullptr);
   }
 
-  if (this->GetInputDataObject(0, 0) == nullptr)
+  auto input = this->GetInputDataObject(0, 0);
+  if (input == nullptr)
   {
     return false;
   }
@@ -294,7 +295,7 @@ bool vtkCompositePolyDataMapper::HasTranslucentPolygonalGeometry()
   this->TempState.Clear();
   this->TempState.Append(cda ? cda->GetMTime() : 0, "cda mtime");
   this->TempState.Append(lut ? lut->GetMTime() : 0, "lut mtime");
-  this->TempState.Append(this->GetInputDataObject(0, 0)->GetMTime(), "input mtime");
+  this->TempState.Append(input->GetMTime(), "input mtime");
   if (this->TranslucentState != this->TempState)
   {
     this->TranslucentState = this->TempState;
@@ -306,8 +307,7 @@ bool vtkCompositePolyDataMapper::HasTranslucentPolygonalGeometry()
 
     // Push base-values on the state stack.
     unsigned int flat_index = 0;
-    this->HasTranslucentGeometry =
-      this->RecursiveHasTranslucentGeometry(this->GetInputDataObject(0, 0), flat_index);
+    this->HasTranslucentGeometry = this->RecursiveHasTranslucentGeometry(input, flat_index);
   }
 
   return this->HasTranslucentGeometry;
@@ -334,7 +334,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     this->InvokeEvent(vtkCommand::EndEvent, nullptr);
   }
   auto input = this->GetInputDataObject(0, 0);
-  if (this->GetInputDataObject(0, 0) == nullptr)
+  if (input == nullptr)
   {
     vtkErrorMacro(<< "No input!");
   }
@@ -343,8 +343,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
   // signatures (aka have normals, have scalars etc)
   // At a high-level, the following code visits every polydata in this composite dataset,
   // creates/reuses an existing polydata mapper based on a hash string.
-  if (this->DelegatorMTime < this->GetInputDataObject(0, 0)->GetMTime() ||
-    this->DelegatorMTime < this->GetMTime())
+  if (this->DelegatorMTime < input->GetMTime() || this->DelegatorMTime < this->GetMTime())
   {
     this->DelegatorMTime.Modified();
   }
@@ -392,7 +391,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
 
     {
       unsigned int flatIndex = 0;
-      this->BuildRenderValues(renderer, actor, this->GetInputDataObject(0, 0), flatIndex);
+      this->BuildRenderValues(renderer, actor, input, flatIndex);
     }
 
     internals.BlockState.Visibility.pop();
