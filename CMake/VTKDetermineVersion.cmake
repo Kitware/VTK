@@ -17,13 +17,16 @@
 #   ${var_prefix}_VERSION
 #   ${var_prefix}_MAJOR_VERSION
 #   ${var_prefix}_MINOR_VERSION
-#   ${var_prefix}_BUILD_VERSION
-#   ${var_prefix}_BUILD_VERSION_EXTRA
+#   ${var_prefix}_PATCH_VERSION
+#   ${var_prefix}_PATCH_VERSION_EXTRA
 #   ${var_prefix}_VERSION_FULL
 #   ${var_prefix}_VERSION_IS_RELEASE is true, if patch-extra is empty.
 #
 # If git is not found, or git describe cannot be run successfully, then these
 # variables are left unchanged and status message is printed.
+#
+# If uses ${var_prefix}_BUILD_VERSION to correct ${var_prefix}_VERSION
+# if ${var_prefix}_BUILD_VERSION is greater than ${var_prefix}_PATCH_VERSION.
 #
 # Arguments are:
 #   source_dir : Source directory
@@ -68,6 +71,10 @@ function(determine_version source_dir git_command var_prefix)
             "Please update your fork tags, using this command: `git fetch origin --tags && git push gitlab --tags`.")
         endif ()
       endif ()
+      # git describe rely on tags that do not have access to the build version, correct the ${var_prefix}_VERSION accordingly
+      if (${var_prefix}_BUILD_VERSION GREATER tmp_PATCH_VERSION)
+        set(tmp_VERSION "${tmp_MAJOR_VERSION}.${tmp_MINOR_VERSION}.${${var_prefix}_BUILD_VERSION}")
+      endif ()
     elseif (NOT "${tmp_VERSION}" STREQUAL "${${var_prefix}_VERSION}")
       message(WARNING
         "Version from git (${tmp_VERSION}) disagrees with hard coded version (${${var_prefix}_VERSION}). Either update the git tags or version.txt.")
@@ -76,8 +83,8 @@ function(determine_version source_dir git_command var_prefix)
           "Please update your fork tags, using this command: `git fetch origin --tags && git push gitlab --tags`.")
       endif ()
     endif()
-    foreach(suffix VERSION VERSION_MAJOR VERSION_MINOR VERSION_PATCH
-                   VERSION_PATCH_EXTRA VERSION_FULL VERSION_IS_RELEASE)
+    foreach(suffix VERSION MAJOR_VERSION MINOR_VERSION PATCH_VERSION
+                   PATCH_VERSION_EXTRA VERSION_FULL VERSION_IS_RELEASE)
       set(${var_prefix}_${suffix} ${tmp_${suffix}} PARENT_SCOPE)
     endforeach()
   else()
@@ -102,8 +109,8 @@ function(extract_version_components version_string var_prefix)
     set(${var_prefix}_VERSION "${major}.${minor}.${patch}" PARENT_SCOPE)
     set(${var_prefix}_MAJOR_VERSION ${major} PARENT_SCOPE)
     set(${var_prefix}_MINOR_VERSION ${minor} PARENT_SCOPE)
-    set(${var_prefix}_BUILD_VERSION ${patch} PARENT_SCOPE)
-    set(${var_prefix}_BUILD_VERSION_EXTRA ${patch_extra} PARENT_SCOPE)
+    set(${var_prefix}_PATCH_VERSION ${patch} PARENT_SCOPE)
+    set(${var_prefix}_PATCH_VERSION_EXTRA ${patch_extra} PARENT_SCOPE)
     set(${var_prefix}_VERSION_FULL ${full} PARENT_SCOPE)
     if("${major}.${minor}.${patch}" VERSION_EQUAL "${full}")
       set(${var_prefix}_VERSION_IS_RELEASE TRUE PARENT_SCOPE)
