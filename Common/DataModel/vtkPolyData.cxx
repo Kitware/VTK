@@ -6,27 +6,18 @@
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
-#include "vtkEmptyCell.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLine.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
-#include "vtkPolyLine.h"
-#include "vtkPolyVertex.h"
-#include "vtkPolygon.h"
-#include "vtkQuad.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
-#include "vtkTriangle.h"
-#include "vtkTriangleStrip.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkVertex.h"
 
 #include <stdexcept>
 
@@ -151,118 +142,8 @@ vtkIdType vtkPolyData::GetCellIdRelativeToCellArray(vtkIdType cellId)
 //------------------------------------------------------------------------------
 vtkCell* vtkPolyData::GetCell(vtkIdType cellId)
 {
-  if (!this->Cells)
-  {
-    this->BuildCells();
-  }
-
-  const TaggedCellId tag = this->Cells->GetTag(cellId);
-
-  vtkIdType numPts;
-  const vtkIdType* pts;
-  vtkCell* cell = nullptr;
-  switch (tag.GetCellType())
-  {
-    case VTK_VERTEX:
-      if (!this->Vertex)
-      {
-        this->Vertex = vtkSmartPointer<vtkVertex>::New();
-      }
-      cell = this->Vertex;
-      this->Verts->GetCellAtId(tag.GetCellId(), numPts, pts);
-      assert(numPts == 1);
-      break;
-
-    case VTK_POLY_VERTEX:
-      if (!this->PolyVertex)
-      {
-        this->PolyVertex = vtkSmartPointer<vtkPolyVertex>::New();
-      }
-      cell = this->PolyVertex;
-      this->Verts->GetCellAtId(tag.GetCellId(), numPts, pts);
-      cell->PointIds->SetNumberOfIds(numPts);
-      cell->Points->SetNumberOfPoints(numPts);
-      break;
-
-    case VTK_LINE:
-      if (!this->Line)
-      {
-        this->Line = vtkSmartPointer<vtkLine>::New();
-      }
-      cell = this->Line;
-      this->Lines->GetCellAtId(tag.GetCellId(), numPts, pts);
-      assert(numPts == 2);
-      break;
-
-    case VTK_POLY_LINE:
-      if (!this->PolyLine)
-      {
-        this->PolyLine = vtkSmartPointer<vtkPolyLine>::New();
-      }
-      cell = this->PolyLine;
-      this->Lines->GetCellAtId(tag.GetCellId(), numPts, pts);
-      cell->PointIds->SetNumberOfIds(numPts);
-      cell->Points->SetNumberOfPoints(numPts);
-      break;
-
-    case VTK_TRIANGLE:
-      if (!this->Triangle)
-      {
-        this->Triangle = vtkSmartPointer<vtkTriangle>::New();
-      }
-      cell = this->Triangle;
-      this->Polys->GetCellAtId(tag.GetCellId(), numPts, pts);
-      assert(numPts == 3);
-      break;
-
-    case VTK_QUAD:
-      if (!this->Quad)
-      {
-        this->Quad = vtkSmartPointer<vtkQuad>::New();
-      }
-      cell = this->Quad;
-      this->Polys->GetCellAtId(tag.GetCellId(), numPts, pts);
-      assert(numPts == 4);
-      break;
-
-    case VTK_POLYGON:
-      if (!this->Polygon)
-      {
-        this->Polygon = vtkSmartPointer<vtkPolygon>::New();
-      }
-      cell = this->Polygon;
-      this->Polys->GetCellAtId(tag.GetCellId(), numPts, pts);
-      cell->PointIds->SetNumberOfIds(numPts);
-      cell->Points->SetNumberOfPoints(numPts);
-      break;
-
-    case VTK_TRIANGLE_STRIP:
-      if (!this->TriangleStrip)
-      {
-        this->TriangleStrip = vtkSmartPointer<vtkTriangleStrip>::New();
-      }
-      cell = this->TriangleStrip;
-      this->Strips->GetCellAtId(tag.GetCellId(), numPts, pts);
-      cell->PointIds->SetNumberOfIds(numPts);
-      cell->Points->SetNumberOfPoints(numPts);
-      break;
-
-    default:
-      if (!this->EmptyCell)
-      {
-        this->EmptyCell = vtkSmartPointer<vtkEmptyCell>::New();
-      }
-      cell = this->EmptyCell;
-      return cell;
-  }
-
-  for (vtkIdType i = 0; i < numPts; ++i)
-  {
-    cell->PointIds->SetId(i, pts[i]);
-    cell->Points->SetPoint(i, this->Points->GetPoint(pts[i]));
-  }
-
-  return cell;
+  this->GetCell(cellId, this->GenericCell);
+  return this->GenericCell->GetRepresentativeCell();
 }
 
 //------------------------------------------------------------------------------
@@ -668,16 +549,6 @@ vtkCellArray* vtkPolyData::GetStrips()
 //------------------------------------------------------------------------------
 void vtkPolyData::Cleanup()
 {
-  this->Vertex = nullptr;
-  this->PolyVertex = nullptr;
-  this->Line = nullptr;
-  this->PolyLine = nullptr;
-  this->Triangle = nullptr;
-  this->Quad = nullptr;
-  this->Polygon = nullptr;
-  this->TriangleStrip = nullptr;
-  this->EmptyCell = nullptr;
-
   this->Verts = nullptr;
   this->Lines = nullptr;
   this->Polys = nullptr;
