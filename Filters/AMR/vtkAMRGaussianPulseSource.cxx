@@ -238,7 +238,7 @@ void vtkAMRGaussianPulseSource::Generate2DDataSet(vtkOverlappingAMR* amr)
 
   amr->Initialize(2, blocksPerLevel.data());
   amr->SetOrigin(grid->GetOrigin());
-  amr->SetGridDescription(grid->GetGridDescription());
+  amr->SetGridDescription(grid->GetDataDescription());
   amr->SetSpacing(level, grid->GetSpacing());
   amr->SetAMRBox(level, blockId, box);
   amr->SetDataSet(level, blockId, grid);
@@ -294,7 +294,7 @@ void vtkAMRGaussianPulseSource::Generate3DDataSet(vtkOverlappingAMR* amr)
 
   amr->Initialize(2, blocksPerLevel.data());
   amr->SetOrigin(grid->GetOrigin());
-  amr->SetGridDescription(grid->GetGridDescription());
+  amr->SetGridDescription(grid->GetDataDescription());
   amr->SetSpacing(level, grid->GetSpacing());
   amr->SetAMRBox(level, blockId, box);
   amr->SetDataSet(level, blockId, grid);

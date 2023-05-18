@@ -354,6 +354,12 @@ struct CellTT
   static std::vector<CellTT> GetElements(int gid, vtkPoints* centers, vtkDataSet* ds)
   {
     const vtkIdType ncells = ds->GetNumberOfCells();
+    // this is possible if vtkPoints created by vtkCellCenters included empty cells, which were
+    // empty because they were ghosts.
+    if (centers->GetNumberOfPoints() != ds->GetNumberOfCells())
+    {
+      return std::vector<CellTT>();
+    }
     assert(centers->GetNumberOfPoints() == ncells);
 
     std::vector<CellTT> elems(ncells);

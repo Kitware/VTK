@@ -225,6 +225,13 @@ public:
     vtkIdType cellId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
 
   /**
+   * Given a cellId and grid dimensions 'dim', get the min and max structured coordinates
+   * (i-j-k). This method does not adjust for the beginning of the extent.
+   */
+  static void ComputeCellStructuredMinMaxCoords(vtkIdType cellId, const int dim[3], int ijkMin[3],
+    int ijkMax[3], int dataDescription = VTK_EMPTY);
+
+  /**
    * Given a pointId and the grid extent ext, get the structured coordinates
    * (i-j-k). This method adjusts for the beginning of the extent.
    * The dataDescription argument is not used.

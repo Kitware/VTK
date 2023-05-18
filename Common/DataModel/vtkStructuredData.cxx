@@ -234,6 +234,104 @@ int vtkStructuredData::SetExtent(VTK_FUTURE_CONST int inExt[6], int ext[6])
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredData::ComputeCellStructuredMinMaxCoords(
+  vtkIdType cellId, const int dim[3], int ijkMin[3], int ijkMax[3], int dataDescription)
+{
+  switch (dataDescription)
+  {
+    case VTK_EMPTY:
+      ijkMin[0] = ijkMin[1] = ijkMin[2] = 0;
+      ijkMax[0] = ijkMax[1] = ijkMax[2] = 0;
+      return;
+
+    case VTK_SINGLE_POINT:
+      ijkMin[0] = ijkMin[1] = ijkMin[2] = 0;
+      ijkMax[0] = ijkMax[1] = ijkMax[2] = 0;
+      break;
+
+    case VTK_X_LINE:
+      ijkMin[0] = cellId;
+      ijkMin[1] = 0;
+      ijkMin[2] = 0;
+      ijkMax[0] = ijkMin[0] + 1;
+      ijkMax[1] = 0;
+      ijkMax[2] = 0;
+      break;
+
+    case VTK_Y_LINE:
+      ijkMin[0] = 0;
+      ijkMin[1] = cellId;
+      ijkMin[2] = 0;
+      ijkMax[0] = 0;
+      ijkMax[1] = ijkMin[1] + 1;
+      ijkMax[2] = 0;
+      break;
+
+    case VTK_Z_LINE:
+      ijkMin[0] = 0;
+      ijkMax[1] = 0;
+      ijkMin[2] = cellId;
+      ijkMax[0] = 0;
+      ijkMin[1] = 0;
+      ijkMax[2] = ijkMin[2] + 1;
+      break;
+
+    case VTK_XY_PLANE:
+    {
+      const auto div = std::div(cellId, (vtkIdType)(dim[0] - 1));
+      ijkMin[0] = div.rem;
+      ijkMin[1] = div.quot;
+      ijkMin[2] = 0;
+      ijkMax[0] = ijkMin[0] + 1;
+      ijkMax[1] = ijkMin[1] + 1;
+      ijkMax[2] = 0;
+      break;
+    }
+
+    case VTK_YZ_PLANE:
+    {
+      const auto div = std::div(cellId, (vtkIdType)(dim[1] - 1));
+      ijkMin[0] = 0;
+      ijkMin[1] = div.rem;
+      ijkMin[2] = div.quot;
+      ijkMax[0] = 0;
+      ijkMax[1] = ijkMin[1] + 1;
+      ijkMax[2] = ijkMin[2] + 1;
+      break;
+    }
+
+    case VTK_XZ_PLANE:
+    {
+      const auto div = std::div(cellId, (vtkIdType)(dim[0] - 1));
+      ijkMin[0] = div.rem;
+      ijkMin[1] = 0;
+      ijkMin[2] = div.quot;
+      ijkMax[0] = ijkMin[0] + 1;
+      ijkMax[1] = 0;
+      ijkMax[2] = ijkMin[2] + 1;
+      break;
+    }
+
+    case VTK_XYZ_GRID:
+    {
+      const auto div1 = std::div(cellId, (vtkIdType)(dim[0] - 1));
+      const auto div2 = std::div(div1.quot, (vtkIdType)(dim[1] - 1));
+      ijkMin[0] = div1.rem;
+      ijkMin[1] = div2.rem;
+      ijkMin[2] = div2.quot;
+      ijkMax[0] = ijkMin[0] + 1;
+      ijkMax[1] = ijkMin[1] + 1;
+      ijkMax[2] = ijkMin[2] + 1;
+      break;
+    }
+
+    default:
+      vtkErrorWithObjectMacro(nullptr, "Invalid DataDescription.");
+      return;
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkStructuredCellArray> vtkStructuredData::GetCellArray(
   int extent[6], bool usePixelVoxelOrientation)
 {

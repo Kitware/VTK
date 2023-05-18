@@ -152,7 +152,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       slice->SetOrigin(sliceOrigin);
       slice->SetDimensions(sliceDims);
       slice->SetSpacing(spacing);
-      assert(slice->GetGridDescription() == VTK_YZ_PLANE);
+      assert(slice->GetDataDescription() == VTK_YZ_PLANE);
       break;
     case Y_NORMAL: // -- XZ plane
       sliceDims[0] = dims[0];
@@ -166,7 +166,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       slice->SetOrigin(sliceOrigin);
       slice->SetDimensions(sliceDims);
       slice->SetSpacing(spacing);
-      assert(slice->GetGridDescription() == VTK_XZ_PLANE);
+      assert(slice->GetDataDescription() == VTK_XZ_PLANE);
       break;
     case Z_NORMAL: // -- XY plane
       sliceDims[0] = dims[0];
@@ -180,7 +180,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       slice->SetOrigin(sliceOrigin);
       slice->SetDimensions(sliceDims);
       slice->SetSpacing(spacing);
-      assert(slice->GetGridDescription() == VTK_XY_PLANE);
+      assert(slice->GetDataDescription() == VTK_XY_PLANE);
       break;
     default:
       vtkErrorMacro("Undefined normal");

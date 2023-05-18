@@ -4,22 +4,23 @@
 #include "vtkImageData.h"
 
 #include "vtkCellData.h"
+#include "vtkConstantArray.h"
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkLargeInteger.h"
-#include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStructuredCellArray.h"
+#include "vtkStructuredPointArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkVertex.h"
 #include "vtkVoxel.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -29,16 +30,9 @@ vtkStandardExtendedNewMacro(vtkImageData);
 //------------------------------------------------------------------------------
 vtkImageData::vtkImageData()
 {
-  int idx;
-
-  this->Vertex = nullptr;
-  this->Line = nullptr;
-  this->Pixel = nullptr;
-  this->Voxel = nullptr;
-
   this->DataDescription = VTK_EMPTY;
 
-  for (idx = 0; idx < 3; ++idx)
+  for (int idx = 0; idx < 3; ++idx)
   {
     this->Dimensions[idx] = 0;
     this->Increments[idx] = 0;
@@ -48,6 +42,7 @@ vtkImageData::vtkImageData()
   }
 
   this->DirectionMatrix = vtkMatrix3x3::New();
+  this->DirectionMatrixIsIdentity = true;
   this->IndexToPhysicalMatrix = vtkMatrix4x4::New();
   this->PhysicalToIndexMatrix = vtkMatrix4x4::New();
   this->DirectionMatrix->Identity();
@@ -63,22 +58,6 @@ vtkImageData::vtkImageData()
 //------------------------------------------------------------------------------
 vtkImageData::~vtkImageData()
 {
-  if (this->Vertex)
-  {
-    this->Vertex->Delete();
-  }
-  if (this->Line)
-  {
-    this->Line->Delete();
-  }
-  if (this->Pixel)
-  {
-    this->Pixel->Delete();
-  }
-  if (this->Voxel)
-  {
-    this->Voxel->Delete();
-  }
   if (this->DirectionMatrix)
   {
     this->DirectionMatrix->Delete();
@@ -101,16 +80,26 @@ void vtkImageData::CopyStructure(vtkDataSet* ds)
   vtkImageData* sPts = static_cast<vtkImageData*>(ds);
   this->Initialize();
 
-  int i;
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
-    this->Dimensions[i] = sPts->Dimensions[i];
     this->Spacing[i] = sPts->Spacing[i];
     this->Origin[i] = sPts->Origin[i];
   }
+  // set extent sets, extent, dimensions, and data description
   this->DirectionMatrix->DeepCopy(sPts->GetDirectionMatrix());
   this->ComputeTransforms();
-  this->SetExtent(sPts->GetExtent());
+  this->SetExtent(sPts->Extent);
+
+  if (ds->HasAnyBlankPoints())
+  {
+    // there is blanking
+    this->GetPointData()->AddArray(ds->GetPointGhostArray());
+  }
+  if (ds->HasAnyBlankCells())
+  {
+    // there is blanking
+    this->GetCellData()->AddArray(ds->GetCellGhostArray());
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -179,405 +168,154 @@ void vtkImageData::PrepareForNewData()
 }
 
 //------------------------------------------------------------------------------
-void vtkImageData::GetCellDims(int cellDims[3])
+vtkPoints* vtkImageData::GetPoints()
 {
+  if (this->StructuredPoints == nullptr)
+  {
+    this->BuildPoints();
+  }
+  return this->StructuredPoints.Get();
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::BuildPoints()
+{
+  vtkNew<vtkDoubleArray> xCoords;
+  vtkNew<vtkDoubleArray> yCoords;
+  vtkNew<vtkDoubleArray> zCoords;
+  vtkDoubleArray* axisCoords[3] = { xCoords.Get(), yCoords.Get(), zCoords.Get() };
+
+  int loc[3];
+  int ijk[3];
+  double point[3];
   for (int i = 0; i < 3; ++i)
   {
-    cellDims[i] = ((this->Dimensions[i] - 1) < 1) ? 1 : this->Dimensions[i] - 1;
-  }
-}
-
-namespace
-{
-class CellVisibility
-{
-public:
-  CellVisibility(vtkImageData* input)
-    : Input(input)
-  {
-  }
-  bool operator()(const vtkIdType id) { return !Input->IsCellVisible(id); }
-
-private:
-  vtkImageData* Input;
-};
-} // anonymous namespace
-
-//------------------------------------------------------------------------------
-void vtkImageData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
-{
-  int numPtIds = ptIds->GetNumberOfIds();
-
-  // Use special methods for speed
-  switch (numPtIds)
-  {
-    case 0:
-      cellIds->Reset();
-      return;
-
-    case 1:
-    case 2:
-    case 4: // vertex, edge, face neighbors
-      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, this->GetDimensions());
-      break;
-
-    default:
-      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
-  }
-
-  // If blanking, remove blanked cells.
-  if (this->GetPointGhostArray() || this->GetCellGhostArray())
-  {
-    vtkIdType* pCellIds = cellIds->GetPointer(0);
-    vtkIdType* end =
-      std::remove_if(pCellIds, pCellIds + cellIds->GetNumberOfIds(), CellVisibility(this));
-    cellIds->Resize(std::distance(pCellIds, end));
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkImageData::GetCellNeighbors(
-  vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds, int* seedLoc)
-{
-  int numPtIds = ptIds->GetNumberOfIds();
-
-  // Use special methods for speed
-  switch (numPtIds)
-  {
-    case 0:
-      cellIds->Reset();
-      return;
-
-    case 1:
-    case 2:
-    case 4: // vertex, edge, face neighbors
-      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, this->GetDimensions(), seedLoc);
-      break;
-
-    default:
-      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
-  }
-
-  // If blanking, remove blanked cells.
-  if (this->GetPointGhostArray() || this->GetCellGhostArray())
-  {
-    vtkIdType* pCellIds = cellIds->GetPointer(0);
-    vtkIdType* end =
-      std::remove_if(pCellIds, pCellIds + cellIds->GetNumberOfIds(), CellVisibility(this));
-    cellIds->Resize(std::distance(pCellIds, end));
-  }
-}
-
-//------------------------------------------------------------------------------
-unsigned char vtkImageData::IsPointVisible(vtkIdType pointId)
-{
-  return vtkStructuredData::IsPointVisible(pointId, this->GetPointGhostArray());
-}
-
-//------------------------------------------------------------------------------
-// Return non-zero if the specified cell is visible (i.e., not blanked)
-unsigned char vtkImageData::IsCellVisible(vtkIdType cellId)
-{
-  return vtkStructuredData::IsCellVisible(cellId, this->Dimensions, this->DataDescription,
-    this->GetCellGhostArray(), this->GetPointGhostArray());
-}
-
-//------------------------------------------------------------------------------
-template <class T>
-unsigned long vtkImageDataGetTypeSize(T*)
-{
-  return sizeof(T);
-}
-
-//------------------------------------------------------------------------------
-vtkCell* vtkImageData::GetCellTemplateForDataDescription()
-{
-  vtkCell* cell = nullptr;
-  switch (this->DataDescription)
-  {
-    case VTK_EMPTY:
-      break;
-
-    case VTK_SINGLE_POINT:
-      cell = this->Vertex;
-      break;
-
-    case VTK_X_LINE:
-    case VTK_Y_LINE:
-    case VTK_Z_LINE:
-      cell = this->Line;
-      break;
-
-    case VTK_XY_PLANE:
-    case VTK_YZ_PLANE:
-    case VTK_XZ_PLANE:
-      cell = this->Pixel;
-      break;
-
-    case VTK_XYZ_GRID:
-      cell = this->Voxel;
-      break;
-
-    default:
-      vtkErrorMacro("Invalid DataDescription.");
-      break;
-  }
-  return cell;
-}
-
-//------------------------------------------------------------------------------
-bool vtkImageData::GetCellTemplateForDataDescription(vtkGenericCell* cell)
-{
-  switch (this->DataDescription)
-  {
-    case VTK_EMPTY:
-      cell->SetCellTypeToEmptyCell();
-      break;
-
-    case VTK_SINGLE_POINT:
-      cell->SetCellTypeToVertex();
-      break;
-
-    case VTK_X_LINE:
-    case VTK_Y_LINE:
-    case VTK_Z_LINE:
-      cell->SetCellTypeToLine();
-      break;
-
-    case VTK_XY_PLANE:
-    case VTK_YZ_PLANE:
-    case VTK_XZ_PLANE:
-      cell->SetCellTypeToPixel();
-      break;
-
-    case VTK_XYZ_GRID:
-      cell->SetCellTypeToVoxel();
-      break;
-
-    default:
-      vtkErrorMacro("Invalid DataDescription.");
-      return false;
-  }
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkImageData::GetIJKMinForCellId(vtkIdType cellId, int ijkMin[3])
-{
-  vtkIdType dims[3];
-  this->GetDimensions(dims);
-
-  ijkMin[0] = ijkMin[1] = ijkMin[2] = 0;
-
-  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
-  {
-    vtkErrorMacro("Requesting a cell from an empty image.");
-    return false;
-  }
-
-  switch (this->DataDescription)
-  {
-    case VTK_EMPTY:
-      return false;
-
-    case VTK_SINGLE_POINT:
-      // cellId can only be = 0
-      break;
-
-    case VTK_X_LINE:
-      ijkMin[0] = cellId;
-      break;
-
-    case VTK_Y_LINE:
-      ijkMin[1] = cellId;
-      break;
-
-    case VTK_Z_LINE:
-      ijkMin[2] = cellId;
-      break;
-
-    case VTK_XY_PLANE:
-      ijkMin[0] = cellId % (dims[0] - 1);
-      ijkMin[1] = cellId / (dims[0] - 1);
-      break;
-
-    case VTK_YZ_PLANE:
-      ijkMin[1] = cellId % (dims[1] - 1);
-      ijkMin[2] = cellId / (dims[1] - 1);
-      break;
-
-    case VTK_XZ_PLANE:
-      ijkMin[0] = cellId % (dims[0] - 1);
-      ijkMin[2] = cellId / (dims[0] - 1);
-      break;
-
-    case VTK_XYZ_GRID:
-      ijkMin[0] = cellId % (dims[0] - 1);
-      ijkMin[1] = (cellId / (dims[0] - 1)) % (dims[1] - 1);
-      ijkMin[2] = cellId / ((dims[0] - 1) * (dims[1] - 1));
-      break;
-
-    default:
-      vtkErrorMacro("Invalid DataDescription.");
-      return false;
-  }
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkImageData::GetIJKMaxForIJKMin(int ijkMin[3], int ijkMax[3])
-{
-  vtkIdType dims[3];
-  this->GetDimensions(dims);
-
-  ijkMax[0] = ijkMax[1] = ijkMax[2] = 0;
-
-  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
-  {
-    vtkErrorMacro("Requesting a cell from an empty image.");
-    return false;
-  }
-
-  switch (this->DataDescription)
-  {
-    case VTK_EMPTY:
-      return false;
-
-    case VTK_SINGLE_POINT:
-      // cellId can only be = 0
-      break;
-
-    case VTK_X_LINE:
-      ijkMax[0] = ijkMin[0] + 1;
-      break;
-
-    case VTK_Y_LINE:
-      ijkMax[1] = ijkMin[1] + 1;
-      break;
-
-    case VTK_Z_LINE:
-      ijkMax[2] = ijkMin[2] + 1;
-      break;
-
-    case VTK_XY_PLANE:
-      ijkMax[0] = ijkMin[0] + 1;
-      ijkMax[1] = ijkMin[1] + 1;
-      break;
-
-    case VTK_YZ_PLANE:
-      ijkMax[1] = ijkMin[1] + 1;
-      ijkMax[2] = ijkMin[2] + 1;
-      break;
-
-    case VTK_XZ_PLANE:
-      ijkMax[0] = ijkMin[0] + 1;
-      ijkMax[2] = ijkMin[2] + 1;
-      break;
-
-    case VTK_XYZ_GRID:
-      ijkMax[0] = ijkMin[0] + 1;
-      ijkMax[1] = ijkMin[1] + 1;
-      ijkMax[2] = ijkMin[2] + 1;
-      break;
-
-    default:
-      vtkErrorMacro("Invalid DataDescription.");
-      return false;
-  }
-  return true;
-}
-
-//------------------------------------------------------------------------------
-void vtkImageData::AddPointsToCellTemplate(vtkCell* cell, int ijkMin[3], int ijkMax[3])
-{
-  int loc[3], i, j, k;
-  vtkIdType idx, npts;
-  double xyz[3];
-  const int* extent = this->Extent;
-
-  vtkIdType dims[3];
-  this->GetDimensions(dims);
-  vtkIdType d01 = dims[0] * dims[1];
-
-  // Extract point coordinates and point ids
-  // Ids are relative to extent min.
-  npts = 0;
-  for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
-  {
-    k = loc[2] + extent[4];
-    for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
+    if (this->DirectionMatrixIsIdentity)
     {
-      j = loc[1] + extent[2];
-      for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
+      axisCoords[i]->SetNumberOfValues(this->Dimensions[i]);
+      for (loc[i] = 0, ijk[i] = this->Extent[2 * i]; loc[i] < this->Dimensions[i];
+           ++loc[i], ++ijk[i])
       {
-        i = loc[0] + extent[0];
-        this->TransformIndexToPhysicalPoint(i, j, k, xyz);
-
-        idx = loc[0] + loc[1] * dims[0] + loc[2] * d01;
-        cell->PointIds->SetId(npts, idx);
-        cell->Points->SetPoint(npts++, xyz);
+        point[i] = this->Origin[i] + this->Spacing[i] * ijk[i];
+        axisCoords[i]->SetValue(loc[i], point[i]);
       }
     }
+    else
+    {
+      // axis coords will be used to extract spacing and origin, so we use loc instead of ijk
+      axisCoords[i]->SetNumberOfValues(2);
+      axisCoords[i]->SetValue(0, this->Origin[i]);
+      axisCoords[i]->SetValue(1, this->Origin[i] + this->Spacing[i]);
+    }
   }
+  this->StructuredPoints = vtkStructuredData::GetPoints(
+    xCoords, yCoords, zCoords, this->Extent, this->DirectionMatrix->GetData());
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::BuildCells()
+{
+  this->StructuredCells = vtkStructuredData::GetCellArray(this->Extent, true);
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::BuildCellTypes()
+{
+  this->StructuredCellTypes = vtkStructuredData::GetCellTypesArray(this->Extent, true);
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::BuildImplicitStructures()
+{
+  this->BuildPoints();
+  this->BuildCells();
+  this->BuildCellTypes();
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
+{
+  static_cast<vtkStructuredPointArray<double>*>(this->StructuredPoints->GetData())
+    ->GetTypedTuple(ptId, x);
 }
 
 //------------------------------------------------------------------------------
 vtkCell* vtkImageData::GetCell(vtkIdType cellId)
 {
-  int ijkMin[3];
-  if (!this->GetIJKMinForCellId(cellId, ijkMin))
-  {
-    return nullptr;
-  }
-
-  // Need to use vtImageData:: to avoid calling child classes implementation
-  return this->vtkImageData::GetCell(ijkMin[0], ijkMin[1], ijkMin[2]);
+  this->GetCell(cellId, this->GenericCell);
+  return this->GenericCell->GetRepresentativeCell();
 }
 
 //------------------------------------------------------------------------------
 vtkCell* vtkImageData::GetCell(int iMin, int jMin, int kMin)
 {
-  vtkCell* cell = this->GetCellTemplateForDataDescription();
-  if (cell == nullptr)
-  {
-    return nullptr;
-  }
-
   int ijkMin[3] = { iMin, jMin, kMin };
-  int ijkMax[3];
-  if (!this->GetIJKMaxForIJKMin(ijkMin, ijkMax))
-  {
-    return nullptr;
-  }
-
-  this->AddPointsToCellTemplate(cell, ijkMin, ijkMax);
-  return cell;
+  const auto cellId = vtkStructuredData::ComputeCellId(this->Dimensions, ijkMin);
+  return this->GetCell(cellId);
 }
 
 //------------------------------------------------------------------------------
 void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 {
-  if (!this->GetCellTemplateForDataDescription(cell))
+  // Make sure data is defined
+  if (!this->StructuredPoints)
+  {
+    vtkErrorMacro(<< "No data");
+    return;
+  }
+  // see whether the cell is blanked
+  if (!this->IsCellVisible(cellId))
   {
     cell->SetCellTypeToEmptyCell();
     return;
   }
+  // set cell type
+  cell->SetCellType(this->StructuredCellTypes->GetValue(cellId));
 
-  int ijkMin[3];
-  if (!this->GetIJKMinForCellId(cellId, ijkMin))
+  // get min max ijk
+  int ijkMin[3], ijkMax[3];
+  vtkStructuredData::ComputeCellStructuredMinMaxCoords(
+    cellId, this->Dimensions, ijkMin, ijkMax, this->DataDescription);
+
+  // set cell point ids
+  vtkIdType cellSize;
+  this->StructuredCells->GetCellAtId(ijkMin, cellSize, cell->PointIds->GetPointer(0));
+
+  // set cell points
+  const auto pointsBackend =
+    static_cast<vtkStructuredPointArray<double>*>(this->StructuredPoints->GetData())->GetBackend();
+  int loc[3], npts = 0;
+  double point[3];
+  if (this->DirectionMatrixIsIdentity)
   {
-    cell->SetCellTypeToEmptyCell();
-    return;
+    for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
+    {
+      point[2] = pointsBackend->mapStructuredZComponent(loc[2]);
+      for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
+      {
+        point[1] = pointsBackend->mapStructuredYComponent(loc[1]);
+        for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
+        {
+          point[0] = pointsBackend->mapStructuredXComponent(loc[0]);
+          cell->Points->SetPoint(npts++, point);
+        }
+      }
+    }
   }
-
-  int ijkMax[3];
-  if (!this->GetIJKMaxForIJKMin(ijkMin, ijkMax))
+  else
   {
-    cell->SetCellTypeToEmptyCell();
-    return;
+    for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
+    {
+      for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
+      {
+        for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
+        {
+          pointsBackend->mapStructuredTuple(loc, point);
+          cell->Points->SetPoint(npts++, point);
+        }
+      }
+    }
   }
-
-  this->AddPointsToCellTemplate(cell, ijkMin, ijkMax);
 }
 
 //------------------------------------------------------------------------------
@@ -585,123 +323,61 @@ void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 // constructing a cell.
 void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
-  int ijkMin[3];
-  if (!this->GetIJKMinForCellId(cellId, ijkMin))
+  if (this->StructuredCells->GetCellSize(cellId) == 0)
   {
     bounds[0] = bounds[1] = bounds[2] = bounds[3] = bounds[4] = bounds[5] = 0.0;
     return;
   }
+  int ijkMin[3], ijkMax[3];
+  vtkStructuredData::ComputeCellStructuredMinMaxCoords(
+    cellId, this->Dimensions, ijkMin, ijkMax, this->DataDescription);
 
-  int ijkMax[3];
-  if (!this->GetIJKMaxForIJKMin(ijkMin, ijkMax))
+  const auto pointsBackend =
+    static_cast<vtkStructuredPointArray<double>*>(this->StructuredPoints->GetData())->GetBackend();
+  int loc[3];
+  double point[3];
+  bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
+  bounds[1] = bounds[3] = bounds[5] = VTK_DOUBLE_MIN;
+  if (this->DirectionMatrixIsIdentity)
   {
-    bounds[0] = bounds[1] = bounds[2] = bounds[3] = bounds[4] = bounds[5] = 0.0;
-    return;
-  }
-
-  int loc[3], i, j, k;
-  double xyz[3];
-  const int* extent = this->Extent;
-
-  // Compute the bounds
-  if (ijkMax[2] >= ijkMin[2] && ijkMax[1] >= ijkMin[1] && ijkMax[0] >= ijkMin[0])
-  {
-    bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
-    bounds[1] = bounds[3] = bounds[5] = VTK_DOUBLE_MIN;
-
     for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
     {
-      k = loc[2] + extent[4];
-      for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
-      {
-        j = loc[1] + extent[2];
-        for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
-        {
-          i = loc[0] + extent[0];
-          this->TransformIndexToPhysicalPoint(i, j, k, xyz);
-
-          bounds[0] = (xyz[0] < bounds[0] ? xyz[0] : bounds[0]);
-          bounds[1] = (xyz[0] > bounds[1] ? xyz[0] : bounds[1]);
-          bounds[2] = (xyz[1] < bounds[2] ? xyz[1] : bounds[2]);
-          bounds[3] = (xyz[1] > bounds[3] ? xyz[1] : bounds[3]);
-          bounds[4] = (xyz[2] < bounds[4] ? xyz[2] : bounds[4]);
-          bounds[5] = (xyz[2] > bounds[5] ? xyz[2] : bounds[5]);
-        }
-      }
+      point[2] = pointsBackend->mapStructuredZComponent(loc[2]);
+      bounds[4] = std::min(bounds[4], point[2]);
+      bounds[5] = std::max(bounds[5], point[2]);
+    }
+    for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
+    {
+      point[1] = pointsBackend->mapStructuredYComponent(loc[1]);
+      bounds[2] = std::min(bounds[2], point[1]);
+      bounds[3] = std::max(bounds[3], point[1]);
+    }
+    for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
+    {
+      point[0] = pointsBackend->mapStructuredXComponent(loc[0]);
+      bounds[0] = std::min(bounds[0], point[0]);
+      bounds[1] = std::max(bounds[1], point[0]);
     }
   }
   else
   {
-    vtkMath::UninitializeBounds(bounds);
+    for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
+    {
+      for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
+      {
+        for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
+        {
+          pointsBackend->mapStructuredTuple(loc, point);
+          bounds[0] = std::min(bounds[0], point[0]);
+          bounds[1] = std::max(bounds[1], point[0]);
+          bounds[2] = std::min(bounds[2], point[1]);
+          bounds[3] = std::max(bounds[3], point[1]);
+          bounds[4] = std::min(bounds[4], point[2]);
+          bounds[5] = std::max(bounds[5], point[2]);
+        }
+      }
+    }
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
-{
-  const int* extent = this->Extent;
-
-  vtkIdType dims[3];
-  this->GetDimensions(dims);
-
-  x[0] = x[1] = x[2] = 0.0;
-  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
-  {
-    vtkErrorMacro("Requesting a point from an empty image.");
-    return;
-  }
-
-  // "loc" holds the point x,y,z indices
-  int loc[3];
-  loc[0] = loc[1] = loc[2] = 0;
-
-  switch (this->DataDescription)
-  {
-    case VTK_EMPTY:
-      return;
-
-    case VTK_SINGLE_POINT:
-      break;
-
-    case VTK_X_LINE:
-      loc[0] = ptId;
-      break;
-
-    case VTK_Y_LINE:
-      loc[1] = ptId;
-      break;
-
-    case VTK_Z_LINE:
-      loc[2] = ptId;
-      break;
-
-    case VTK_XY_PLANE:
-      loc[0] = ptId % dims[0];
-      loc[1] = ptId / dims[0];
-      break;
-
-    case VTK_YZ_PLANE:
-      loc[1] = ptId % dims[1];
-      loc[2] = ptId / dims[1];
-      break;
-
-    case VTK_XZ_PLANE:
-      loc[0] = ptId % dims[0];
-      loc[2] = ptId / dims[0];
-      break;
-
-    case VTK_XYZ_GRID:
-      loc[0] = ptId % dims[0];
-      loc[1] = (ptId / dims[0]) % dims[1];
-      loc[2] = ptId / (dims[0] * dims[1]);
-      break;
-  }
-
-  int i, j, k;
-  i = loc[0] + extent[0];
-  j = loc[1] + extent[2];
-  k = loc[2] + extent[4];
-  this->TransformIndexToPhysicalPoint(i, j, k, x);
 }
 
 //------------------------------------------------------------------------------
@@ -835,14 +511,19 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
   //  From this location get the cell id
   //
   subId = 0;
-  return this->ComputeCellId(idx);
+  const vtkIdType cellId = this->ComputeCellId(idx);
+  if (!this->IsCellVisible(cellId))
+  {
+    return -1;
+  }
+  return cellId;
 }
 
 //------------------------------------------------------------------------------
 vtkCell* vtkImageData::FindAndGetCell(double x[3], vtkCell* vtkNotUsed(cell),
   vtkIdType vtkNotUsed(cellId), double tol2, int& subId, double pcoords[3], double* weights)
 {
-  vtkIdType cellId = this->FindCell(x, nullptr, 0, tol2, subId, pcoords, nullptr);
+  const vtkIdType cellId = this->FindCell(x, nullptr, 0, tol2, subId, pcoords, nullptr);
 
   if (cellId < 0)
   {
@@ -856,63 +537,30 @@ vtkCell* vtkImageData::FindAndGetCell(double x[3], vtkCell* vtkNotUsed(cell),
 }
 
 //------------------------------------------------------------------------------
-int vtkImageData::GetCellType(vtkIdType vtkNotUsed(cellId))
+int vtkImageData::GetCellType(vtkIdType cellId)
 {
-  switch (this->DataDescription)
-  {
-    case VTK_EMPTY:
-      return VTK_EMPTY_CELL;
-
-    case VTK_SINGLE_POINT:
-      return VTK_VERTEX;
-
-    case VTK_X_LINE:
-    case VTK_Y_LINE:
-    case VTK_Z_LINE:
-      return VTK_LINE;
-
-    case VTK_XY_PLANE:
-    case VTK_YZ_PLANE:
-    case VTK_XZ_PLANE:
-      return VTK_PIXEL;
-
-    case VTK_XYZ_GRID:
-      return VTK_VOXEL;
-
-    default:
-      vtkErrorMacro(<< "Bad data description!");
-      return VTK_EMPTY_CELL;
-  }
+  // see whether the cell is blanked
+  return this->IsCellVisible(cellId) ? this->StructuredCellTypes->GetValue(cellId) : VTK_EMPTY_CELL;
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkImageData::GetCellSize(vtkIdType vtkNotUsed(cellId))
+vtkIdType vtkImageData::GetCellSize(vtkIdType cellId)
 {
-  switch (this->DataDescription)
-  {
-    case VTK_EMPTY:
-      return 0;
+  // see whether the cell is blanked
+  return this->IsCellVisible(cellId) ? this->StructuredCells->GetCellSize(cellId) : 0;
+}
 
-    case VTK_SINGLE_POINT:
-      return 1;
+//------------------------------------------------------------------------------
+void vtkImageData::GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts,
+  vtkIdList* ptIds) VTK_SIZEHINT(pts, npts)
+{
+  this->StructuredCells->GetCellAtId(cellId, npts, pts, ptIds);
+}
 
-    case VTK_X_LINE:
-    case VTK_Y_LINE:
-    case VTK_Z_LINE:
-      return 2;
-
-    case VTK_XY_PLANE:
-    case VTK_YZ_PLANE:
-    case VTK_XZ_PLANE:
-      return 4;
-
-    case VTK_XYZ_GRID:
-      return 8;
-
-    default:
-      vtkErrorMacro(<< "Bad data description!");
-      return 0;
-  }
+//------------------------------------------------------------------------------
+void vtkImageData::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
+{
+  this->StructuredCells->GetCellAtId(cellId, ptIds);
 }
 
 //------------------------------------------------------------------------------
@@ -930,7 +578,7 @@ void vtkImageData::ComputeBounds()
   }
   else
   {
-    if (this->DirectionMatrix->IsIdentity())
+    if (this->DirectionMatrixIsIdentity)
     {
       // Direction is identity: bounds are easy to compute
       // with only origin and spacing
@@ -999,6 +647,213 @@ void vtkImageData::ComputeBounds()
     }
   }
   this->ComputeTime.Modified();
+}
+
+namespace
+{
+class CellVisibility
+{
+public:
+  CellVisibility(vtkImageData* input)
+    : Input(input)
+  {
+  }
+  bool operator()(const vtkIdType id) { return !Input->IsCellVisible(id); }
+
+private:
+  vtkImageData* Input;
+};
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+void vtkImageData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
+{
+  int numPtIds = ptIds->GetNumberOfIds();
+
+  // Use special methods for speed
+  switch (numPtIds)
+  {
+    case 0:
+      cellIds->Reset();
+      return;
+
+    case 1:
+    case 2:
+    case 4: // vertex, edge, face neighbors
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, this->Dimensions);
+      break;
+
+    default:
+      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
+  }
+
+  // If blanking, remove blanked cells.
+  if (this->GetPointGhostArray() || this->GetCellGhostArray())
+  {
+    vtkIdType* pCellIds = cellIds->GetPointer(0);
+    vtkIdType* end =
+      std::remove_if(pCellIds, pCellIds + cellIds->GetNumberOfIds(), CellVisibility(this));
+    cellIds->Resize(std::distance(pCellIds, end));
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::GetCellNeighbors(
+  vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds, int* seedLoc)
+{
+  int numPtIds = ptIds->GetNumberOfIds();
+
+  // Use special methods for speed
+  switch (numPtIds)
+  {
+    case 0:
+      cellIds->Reset();
+      return;
+
+    case 1:
+    case 2:
+    case 4: // vertex, edge, face neighbors
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, this->Dimensions, seedLoc);
+      break;
+
+    default:
+      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
+  }
+
+  // If blanking, remove blanked cells.
+  if (this->GetPointGhostArray() || this->GetCellGhostArray())
+  {
+    vtkIdType* pCellIds = cellIds->GetPointer(0);
+    vtkIdType* end =
+      std::remove_if(pCellIds, pCellIds + cellIds->GetNumberOfIds(), CellVisibility(this));
+    cellIds->Resize(std::distance(pCellIds, end));
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkStructuredCellArray* vtkImageData::GetCells()
+{
+  return this->StructuredCells;
+}
+
+//------------------------------------------------------------------------------
+vtkConstantArray<int>* vtkImageData::GetCellTypesArray()
+{
+  return this->StructuredCellTypes;
+}
+
+//------------------------------------------------------------------------------
+// Turn off a particular data point.
+void vtkImageData::BlankPoint(vtkIdType ptId)
+{
+  vtkUnsignedCharArray* ghosts = this->GetPointGhostArray();
+  if (!ghosts)
+  {
+    this->AllocatePointGhostArray();
+    ghosts = this->GetPointGhostArray();
+  }
+  ghosts->SetValue(ptId, ghosts->GetValue(ptId) | vtkDataSetAttributes::HIDDENPOINT);
+  assert(!this->IsPointVisible(ptId));
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::BlankPoint(int i, int j, int k)
+{
+  int ijk[3] = { i, j, k };
+  const int idx = vtkStructuredData::ComputePointId(this->Dimensions, ijk);
+  this->BlankPoint(idx);
+}
+
+//------------------------------------------------------------------------------
+// Turn on a particular data point.
+void vtkImageData::UnBlankPoint(vtkIdType ptId)
+{
+  vtkUnsignedCharArray* ghosts = this->GetPointGhostArray();
+  if (!ghosts)
+  {
+    return;
+  }
+  ghosts->SetValue(ptId, ghosts->GetValue(ptId) & ~vtkDataSetAttributes::HIDDENPOINT);
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::UnBlankPoint(int i, int j, int k)
+{
+  int ijk[3] = { i, j, k };
+  const int idx = vtkStructuredData::ComputePointId(this->Dimensions, ijk);
+  this->UnBlankPoint(idx);
+}
+
+//------------------------------------------------------------------------------
+// Turn off a particular data cell.
+void vtkImageData::BlankCell(vtkIdType cellId)
+{
+  vtkUnsignedCharArray* ghost = this->GetCellGhostArray();
+  if (!ghost)
+  {
+    this->AllocateCellGhostArray();
+    ghost = this->GetCellGhostArray();
+  }
+  ghost->SetValue(cellId, ghost->GetValue(cellId) | vtkDataSetAttributes::HIDDENCELL);
+  assert(!this->IsCellVisible(cellId));
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::BlankCell(int i, int j, int k)
+{
+  int ijk[3] = { i, j, k };
+  const int idx = vtkStructuredData::ComputeCellId(this->Dimensions, ijk);
+  assert("cell id in range:" && ((idx >= 0) && (idx < this->GetNumberOfCells())));
+  this->BlankCell(idx);
+}
+
+//------------------------------------------------------------------------------
+// Turn on a particular data cell.
+void vtkImageData::UnBlankCell(vtkIdType cellId)
+{
+  vtkUnsignedCharArray* ghosts = this->GetCellGhostArray();
+  if (!ghosts)
+  {
+    return;
+  }
+  ghosts->SetValue(cellId, ghosts->GetValue(cellId) & ~vtkDataSetAttributes::HIDDENCELL);
+  assert(this->IsCellVisible(cellId));
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::UnBlankCell(int i, int j, int k)
+{
+  int ijk[3] = { i, j, k };
+  const int idx = vtkStructuredData::ComputeCellId(this->Dimensions, ijk);
+  assert("cell id in range:" && ((idx >= 0) && (idx < this->GetNumberOfCells())));
+  this->UnBlankCell(idx);
+}
+
+//------------------------------------------------------------------------------
+unsigned char vtkImageData::IsPointVisible(vtkIdType pointId)
+{
+  return vtkStructuredData::IsPointVisible(pointId, this->GetPointGhostArray());
+}
+
+//------------------------------------------------------------------------------
+// Return non-zero if the specified cell is visible (i.e., not blanked)
+unsigned char vtkImageData::IsCellVisible(vtkIdType cellId)
+{
+  return vtkStructuredData::IsCellVisible(cellId, this->Dimensions, this->DataDescription,
+    this->GetCellGhostArray(), this->GetPointGhostArray());
+}
+
+//------------------------------------------------------------------------------
+bool vtkImageData::HasAnyBlankPoints()
+{
+  return this->PointData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENPOINT);
+}
+
+//------------------------------------------------------------------------------
+bool vtkImageData::HasAnyBlankCells()
+{
+  int cellBlanking = this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
+  return cellBlanking || this->HasAnyBlankPoints();
 }
 
 //------------------------------------------------------------------------------
@@ -1131,6 +986,15 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray* s, double
   // axis above, and do not need to translate by the origin
   // since this is a gradient computation
   this->DirectionMatrix->MultiplyPoint(g, g);
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::GetCellDims(int cellDims[3])
+{
+  for (int i = 0; i < 3; ++i)
+  {
+    cellDims[i] = ((this->Dimensions[i] - 1) < 1) ? 1 : this->Dimensions[i] - 1;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -2026,60 +1890,6 @@ void vtkImageData::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
 }
 
 //------------------------------------------------------------------------------
-void vtkImageData::SetDataDescription(int desc)
-{
-  if (desc == this->DataDescription)
-  {
-    return;
-  }
-
-  this->DataDescription = desc;
-
-  if (this->Vertex)
-  {
-    this->Vertex->Delete();
-    this->Vertex = nullptr;
-  }
-  if (this->Line)
-  {
-    this->Line->Delete();
-    this->Line = nullptr;
-  }
-  if (this->Pixel)
-  {
-    this->Pixel->Delete();
-    this->Pixel = nullptr;
-  }
-  if (this->Voxel)
-  {
-    this->Voxel->Delete();
-    this->Voxel = nullptr;
-  }
-  switch (this->DataDescription)
-  {
-    case VTK_SINGLE_POINT:
-      this->Vertex = vtkVertex::New();
-      break;
-
-    case VTK_X_LINE:
-    case VTK_Y_LINE:
-    case VTK_Z_LINE:
-      this->Line = vtkLine::New();
-      break;
-
-    case VTK_XY_PLANE:
-    case VTK_YZ_PLANE:
-    case VTK_XZ_PLANE:
-      this->Pixel = vtkPixel::New();
-      break;
-
-    case VTK_XYZ_GRID:
-      this->Voxel = vtkVoxel::New();
-      break;
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkImageData::SetExtent(int* extent)
 {
   int description;
@@ -2097,7 +1907,9 @@ void vtkImageData::SetExtent(int* extent)
 
   vtkStructuredData::GetDimensionsFromExtent(extent, this->Dimensions);
 
-  this->SetDataDescription(description);
+  this->DataDescription = description;
+
+  this->BuildImplicitStructures();
 
   this->Modified();
 }
@@ -2203,47 +2015,16 @@ void vtkImageData::DeepCopy(vtkDataObject* dataObject)
 // This copies all the local variables (but not objects).
 void vtkImageData::InternalImageDataCopy(vtkImageData* src)
 {
-  int idx;
-
-  // this->SetScalarType(src->GetScalarType());
-  // this->SetNumberOfScalarComponents(src->GetNumberOfScalarComponents());
-  for (idx = 0; idx < 3; ++idx)
+  for (int idx = 0; idx < 3; ++idx)
   {
-    this->Dimensions[idx] = src->Dimensions[idx];
     this->Increments[idx] = src->Increments[idx];
     this->Origin[idx] = src->Origin[idx];
     this->Spacing[idx] = src->Spacing[idx];
   }
   this->DirectionMatrix->DeepCopy(src->DirectionMatrix);
   this->ComputeTransforms();
-  this->SetExtent(src->GetExtent());
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkImageData::GetNumberOfCells()
-{
-  vtkIdType nCells = 1;
-  int i;
-  const int* extent = this->Extent;
-
-  vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
-
-  for (i = 0; i < 3; i++)
-  {
-    if (dims[i] == 0)
-    {
-      return 0;
-    }
-    if (dims[i] > 1)
-    {
-      nCells *= (dims[i] - 1);
-    }
-  }
-
-  return nCells;
+  // set extent sets, extent, dimensions, and data description
+  this->SetExtent(src->Extent);
 }
 
 //============================================================================
@@ -2381,6 +2162,7 @@ void vtkImageData::SetSpacing(double i, double j, double k)
     this->Spacing[1] = j;
     this->Spacing[2] = k;
     this->ComputeTransforms();
+    this->BuildPoints();
     this->Modified();
   }
 }
@@ -2402,6 +2184,7 @@ void vtkImageData::SetOrigin(double i, double j, double k)
     this->Origin[1] = j;
     this->Origin[2] = k;
     this->ComputeTransforms();
+    this->BuildPoints();
     this->Modified();
   }
 }
@@ -2420,6 +2203,8 @@ void vtkImageData::SetDirectionMatrix(vtkMatrix3x3* m)
   if (lastModified < this->GetMTime())
   {
     this->ComputeTransforms();
+    this->BuildPoints();
+    this->Modified();
   }
 }
 
@@ -2450,6 +2235,7 @@ void vtkImageData::SetDirectionMatrix(double e00, double e01, double e02, double
   if (lastModified < m3->GetMTime())
   {
     this->ComputeTransforms();
+    this->BuildPoints();
     this->Modified();
   }
 }
@@ -2553,7 +2339,8 @@ void vtkImageData::TransformPhysicalPlaneToContinuousIndex(
 void vtkImageData::ComputeTransforms()
 {
   vtkMatrix4x4* m4 = vtkMatrix4x4::New();
-  if (this->DirectionMatrix->IsIdentity())
+  this->DirectionMatrixIsIdentity = this->DirectionMatrix->IsIdentity();
+  if (this->DirectionMatrixIsIdentity)
   {
     m4->Zero();
     m4->SetElement(0, 0, this->Spacing[0]);
@@ -2605,18 +2392,5 @@ void vtkImageData::ComputeIndexToPhysicalMatrix(
   result[13] = 0;
   result[14] = 0;
   result[15] = 1;
-}
-
-//------------------------------------------------------------------------------
-bool vtkImageData::HasAnyBlankPoints()
-{
-  return this->PointData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENPOINT);
-}
-
-//------------------------------------------------------------------------------
-bool vtkImageData::HasAnyBlankCells()
-{
-  int cellBlanking = this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
-  return cellBlanking || this->HasAnyBlankPoints();
 }
 VTK_ABI_NAMESPACE_END

@@ -161,9 +161,9 @@ void vtkUniformGridAMR::SetDataSet(unsigned int level, unsigned int idx, vtkUnif
 
   if (this->AMRInfo->GetGridDescription() < 0)
   {
-    this->AMRInfo->SetGridDescription(grid->GetGridDescription());
+    this->AMRInfo->SetGridDescription(grid->GetDataDescription());
   }
-  else if (grid->GetGridDescription() != this->AMRInfo->GetGridDescription())
+  else if (grid->GetDataDescription() != this->AMRInfo->GetGridDescription())
   {
     vtkErrorMacro("Inconsistent types of vtkUniformGrid");
     return;
