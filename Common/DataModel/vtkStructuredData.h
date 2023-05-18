@@ -342,13 +342,12 @@ inline vtkIdType vtkStructuredData::GetNumberOfPoints(const int ext[6], int)
 //------------------------------------------------------------------------------
 inline vtkIdType vtkStructuredData::GetNumberOfCells(const int ext[6], int)
 {
-  int cellDims[3];
-  vtkStructuredData::GetCellDimensionsFromExtent(ext, cellDims);
+  int dims[3];
+  vtkStructuredData::GetDimensionsFromExtent(ext, dims);
 
-  // Replace 0's with 1's so we can just multiply them regardless of cell type.
-  cellDims[0] = vtkStructuredData::Max(cellDims[0], 1);
-  cellDims[1] = vtkStructuredData::Max(cellDims[1], 1);
-  cellDims[2] = vtkStructuredData::Max(cellDims[2], 1);
+  // if any of the dimensions is 0, then there are no cells
+  const int cellDims[3] = { dims[0] != 0 ? std::max(dims[0] - 1, 1) : 0,
+    dims[1] != 0 ? std::max(dims[1] - 1, 1) : 0, dims[2] != 0 ? std::max(dims[2] - 1, 1) : 0 };
 
   // Note, when we compute the result below, we statically cast to vtkIdType to
   // ensure the compiler will generate a 32x32=64 instruction.
