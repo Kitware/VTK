@@ -63,10 +63,16 @@ public:
    */
   void CopyStructure(vtkDataSet* ds) override;
 
+  /**
+   * Restore object to initial state. Release memory back to system.
+   */
+  void Initialize() override;
+
   ///@{
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
+  vtkIdType GetNumberOfCells() override;
   vtkIdType GetNumberOfPoints() override { return vtkPointSet::GetNumberOfPoints(); }
   double* GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override
   {
@@ -79,8 +85,8 @@ public:
   void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
   int GetCellType(vtkIdType cellId) override;
   vtkIdType GetCellSize(vtkIdType cellId) override;
-  vtkIdType GetNumberOfCells() override;
-  using vtkDataSet::GetCellPoints;
+  void GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
+    VTK_SIZEHINT(pts, npts) override;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override
   {
@@ -88,12 +94,86 @@ public:
     this->GetDimensions(dims);
     vtkStructuredData::GetPointCells(ptId, cellIds, dims);
   }
-  void Initialize() override;
   int GetMaxCellSize() override { return 8; } // hexahedron is the largest
   int GetMaxSpatialDimension() override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds, int* seedLoc);
   ///@}
+
+  /**
+   * Return the structured grid connectivity array.
+   *
+   * NOTE: the returned object should not be modified.
+   */
+  vtkStructuredCellArray* GetCells();
+
+  /**
+   * Get the array of all cell types in the structured grid. Each single-component
+   * integer value is the same. The array is of size GetNumberOfCells().
+   *
+   * NOTE: the returned object should not be modified.
+   */
+  vtkConstantArray<int>* GetCellTypesArray();
+
+  ///@{
+  /**
+   * Methods for supporting blanking of cells. Blanking turns on or off
+   * points in the structured grid, and hence the cells connected to them.
+   * These methods should be called only after the dimensions of the
+   * grid are set.
+   */
+  void BlankPoint(vtkIdType ptId);
+  void UnBlankPoint(vtkIdType ptId);
+  ///@}
+
+  ///@{
+  /**
+   * Methods for supporting blanking of cells. Blanking turns on or off
+   * cells in the structured grid, and hence the points connected to them.
+   * These methods should be called only after the dimensions of the
+   * grid are set.
+   */
+  void BlankCell(vtkIdType ptId);
+  void UnBlankCell(vtkIdType ptId);
+  ///@}
+
+  /**
+   * Return non-zero value if specified point is visible.
+   * These methods should be called only after the dimensions of the
+   * grid are set.
+   */
+  unsigned char IsPointVisible(vtkIdType ptId);
+
+  /**
+   * Return non-zero value if specified point is visible.
+   * These methods should be called only after the dimensions of the
+   * grid are set.
+   */
+  unsigned char IsCellVisible(vtkIdType cellId);
+
+  /**
+   * Returns 1 if there is any visibility constraint on the points,
+   * 0 otherwise.
+   */
+  bool HasAnyBlankPoints() override;
+  /**
+   * Returns 1 if there is any visibility constraint on the cells,
+   * 0 otherwise.
+   */
+  bool HasAnyBlankCells() override;
+
+  /**
+   * Get the data description of the structured grid.
+   */
+  vtkGetMacro(DataDescription, int);
+
+  /**
+   * Given the node dimensions of this grid instance, this method computes the
+   * node dimensions. The value in each dimension can will have a lowest value
+   * of "1" such that computing the total number of cells can be achieved by
+   * simply by cellDims[0]*cellDims[1]*cellDims[2].
+   */
+  void GetCellDims(int cellDims[3]);
 
   ///@{
   /**
@@ -159,61 +239,6 @@ public:
    */
   int GetExtentType() override { return VTK_3D_EXTENT; }
 
-  ///@{
-  /**
-   * Methods for supporting blanking of cells. Blanking turns on or off
-   * points in the structured grid, and hence the cells connected to them.
-   * These methods should be called only after the dimensions of the
-   * grid are set.
-   */
-  void BlankPoint(vtkIdType ptId);
-  void UnBlankPoint(vtkIdType ptId);
-  ///@}
-
-  ///@{
-  /**
-   * Methods for supporting blanking of cells. Blanking turns on or off
-   * cells in the structured grid, and hence the points connected to them.
-   * These methods should be called only after the dimensions of the
-   * grid are set.
-   */
-  void BlankCell(vtkIdType ptId);
-  void UnBlankCell(vtkIdType ptId);
-  ///@}
-
-  /**
-   * Return non-zero value if specified point is visible.
-   * These methods should be called only after the dimensions of the
-   * grid are set.
-   */
-  unsigned char IsPointVisible(vtkIdType ptId);
-
-  /**
-   * Return non-zero value if specified point is visible.
-   * These methods should be called only after the dimensions of the
-   * grid are set.
-   */
-  unsigned char IsCellVisible(vtkIdType cellId);
-
-  /**
-   * Returns 1 if there is any visibility constraint on the points,
-   * 0 otherwise.
-   */
-  bool HasAnyBlankPoints() override;
-  /**
-   * Returns 1 if there is any visibility constraint on the cells,
-   * 0 otherwise.
-   */
-  bool HasAnyBlankCells() override;
-
-  /**
-   * Given the node dimensions of this grid instance, this method computes the
-   * node dimensions. The value in each dimension can will have a lowest value
-   * of "1" such that computing the total number of cells can be achieved by
-   * simply by cellDims[0]*cellDims[1]*cellDims[2].
-   */
-  void GetCellDims(int cellDims[3]);
-
   /**
    * Reallocates and copies to set the Extent to the UpdateExtent.
    * This is used internally when the exact extent is requested,
@@ -244,25 +269,24 @@ protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid() override;
 
-  // for the GetCell method
-  vtkVertex* Vertex;
-  vtkLine* Line;
-  vtkQuad* Quad;
-  vtkHexahedron* Hexahedron;
-  vtkEmptyCell* EmptyCell;
-
-#if !defined(VTK_LEGACY_REMOVE)
   int Dimensions[3];
-#endif
+
   int DataDescription;
 
   int Extent[6];
+
+  vtkSmartPointer<vtkStructuredCellArray> StructuredCells;
+  vtkSmartPointer<vtkConstantArray<int>> StructuredCellTypes;
 
   /**
    * Compute the range of the scalars and cache it into ScalarRange
    * only if the cache became invalid (ScalarRangeComputeTime).
    */
   void ComputeScalarRange() override;
+
+  void BuildImplicitStructures();
+  void BuildCells();
+  void BuildCellTypes();
 
 private:
   // Internal method used by DeepCopy and ShallowCopy.
@@ -272,31 +296,16 @@ private:
   void operator=(const vtkStructuredGrid&) = delete;
 };
 
-inline vtkIdType vtkStructuredGrid::GetNumberOfCells()
-{
-  vtkIdType nCells = 1;
-  int dims[3];
-  int i;
-
-  this->GetDimensions(dims);
-  for (i = 0; i < 3; i++)
-  {
-    if (dims[i] <= 0)
-    {
-      return 0;
-    }
-    if (dims[i] > 1)
-    {
-      nCells *= (dims[i] - 1);
-    }
-  }
-
-  return nCells;
-}
-
+//------------------------------------------------------------------------------
 inline int vtkStructuredGrid::GetDataDimension()
 {
   return vtkStructuredData::GetDataDimension(this->DataDescription);
+}
+
+//------------------------------------------------------------------------------
+inline vtkIdType vtkStructuredGrid::GetNumberOfCells()
+{
+  return vtkStructuredData::GetNumberOfCells(this->Extent);
 }
 
 inline int vtkStructuredGrid::GetMaxSpatialDimension()
