@@ -4,7 +4,7 @@ set(CMAKE_CROSSCOMPILING_EMULATOR "$ENV{EMSDK_NODE}")
 
 # Disable unsupported features
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
-set(VTK_ENABLE_LOGGING OFF CACHE BOOL "")
+set(VTK_ENABLE_LOGGING ON CACHE BOOL "")
 set(VTK_ENABLE_WRAPPING OFF CACHE BOOL "")
 set(VTK_BUILD_TESTING OFF CACHE BOOL "")
 set(VTK_BUILD_EXAMPLES OFF CACHE BOOL "")
@@ -55,7 +55,6 @@ set(VTK_MODULE_ENABLE_VTK_RenderingZSpace NO CACHE STRING "") # no zspace
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # no adios2
 set(VTK_MODULE_ENABLE_VTK_hdf5 NO CACHE STRING "") # fails to configure
 set(VTK_MODULE_ENABLE_VTK_libproj NO CACHE STRING "") # fails to generate proj.db
-set(VTK_MODULE_ENABLE_VTK_loguru NO CACHE STRING "") # no execinfo.h
 set(VTK_MODULE_ENABLE_VTK_vtkvtkm NO CACHE STRING "") # no execinfo.h in vtkm's loguru
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_common.cmake")
