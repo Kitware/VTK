@@ -8,3 +8,4 @@ You can choose which scalar array or component of an array is used to map colors
 3. **ArrayId**: Applicable when arrays are accessed by indices. this integer is an index of the vtkDataArray on the point/cell data.
 4. **ArrayName**: Applicable when arrays are accessed by names.
 5. **FieldDataTupleId**:  this integer is an index of the vtkDataArray on the field data.
+6. **ScalarMode**: Specifies where the scalars come from, either point or cell data.
