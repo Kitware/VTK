@@ -60,7 +60,7 @@ inline bool vtkReebGraphVertexSoS(
     (var2) = tmp;                                                                                  \
   } while (false)
 
-#define vtkReebGraphInitialStreamSize 1000
+constexpr int vtkReebGraphInitialStreamSize = 1000;
 
 #define vtkReebGraphIsSmaller(myReebGraph, nodeId0, nodeId1, node0, node1)                         \
   ((node0->Value < node1->Value) || (node0->Value == node1->Value && (nodeId0) < (nodeId1)))

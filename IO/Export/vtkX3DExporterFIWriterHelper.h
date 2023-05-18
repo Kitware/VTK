@@ -297,7 +297,7 @@ public:
 
     size_t bufferSize = deltas.size() + static_cast<unsigned int>(ceil(deltas.size() * 0.001)) + 12;
     unsigned char* buffer = new unsigned char[bufferSize];
-    size_t newSize = compressor->Compress(&deltas[0], static_cast<unsigned long>(deltas.size()),
+    size_t newSize = compressor->Compress(deltas.data(), static_cast<unsigned long>(deltas.size()),
       buffer, static_cast<unsigned long>(bufferSize));
 
     std::string bytes;

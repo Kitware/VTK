@@ -1030,7 +1030,7 @@ void vtkOctreePointLocator::GenerateRepresentation(int level, vtkPolyData* pd)
   std::list<vtkOctreePointLocatorNode*> nodesAtLevel;
   // queue of nodes to be examined and what level each one is at
   std::queue<std::pair<vtkOctreePointLocatorNode*, int>> testNodes;
-  testNodes.push(std::make_pair(this->Top, 0));
+  testNodes.emplace(this->Top, 0);
   while (!testNodes.empty())
   {
     vtkOctreePointLocatorNode* node = testNodes.front().first;
@@ -1044,7 +1044,7 @@ void vtkOctreePointLocator::GenerateRepresentation(int level, vtkPolyData* pd)
     {
       for (int i = 0; i < 8; i++)
       {
-        testNodes.push(std::make_pair(node->GetChild(i), nodeLevel + 1));
+        testNodes.emplace(node->GetChild(i), nodeLevel + 1);
       }
     }
   }

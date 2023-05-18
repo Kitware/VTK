@@ -51,11 +51,11 @@ void vtkParallelReader::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkParallelReader::AddFileName(const char* fname)
 {
-  if (fname == nullptr || strlen(fname) == 0)
+  if (fname == nullptr || *fname == '\0')
   {
     return;
   }
-  this->Internal->FileNames.push_back(fname);
+  this->Internal->FileNames.emplace_back(fname);
   this->Modified();
 }
 

@@ -97,7 +97,7 @@ void StreaklineFilterInternal::Finalize()
       }
       Streak& streak = streaks[streakId];
       float age = particleAge->GetValue(i);
-      streak.push_back(StreakParticle(i, age));
+      streak.emplace_back(i, age);
     }
 
     // sort streaks based on age

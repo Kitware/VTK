@@ -128,7 +128,7 @@ int vtkNetworkHierarchy::RequestData(
   for (vtkIdType i = 0; i < ipArray->GetNumberOfTuples(); ++i)
   {
     unsigned int packedID = this->ITON(ipArray->GetValue(i));
-    SubnetMap.push_back(std::make_pair(packedID, i));
+    SubnetMap.emplace_back(packedID, i);
   }
   std::sort(SubnetMap.begin(), SubnetMap.end());
 

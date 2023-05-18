@@ -894,7 +894,7 @@ vtkSmartPointer<vtkImageData> TreeInformation::SplitTileTexture(
 
   // place cells in the new image using Next-Fit Decreasing Height (NFDH) algorithm
   // https://cgi.csc.liv.ac.uk/~epa/surveyhtml.html
-  groupedRegions.emplace_back(std::vector<size_t>());
+  groupedRegions.emplace_back();
   int currentWidth = 0;
   int currentHeight = (scatteredRegions[0].Region[3] - scatteredRegions[0].Region[2] + 1);
   for (size_t i = 0; i < scatteredRegions.size(); ++i)
@@ -918,7 +918,7 @@ vtkSmartPointer<vtkImageData> TreeInformation::SplitTileTexture(
         return nullptr;
       }
       // create a new row and add the cell there
-      groupedRegions.emplace_back(std::vector<size_t>());
+      groupedRegions.emplace_back();
       rowWidthHeight.push_back({ { currentWidth, currentHeight } });
       currentWidth = 0;
       currentHeight = (scatteredRegions[i].Region[3] - scatteredRegions[i].Region[2] + 1);

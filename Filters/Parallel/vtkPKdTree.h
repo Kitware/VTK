@@ -155,7 +155,7 @@ public:
    * Returns the region assignment map where index is the region and value is
    * the processes id for that region.
    */
-  const int* GetRegionAssignmentMap() { return &this->RegionAssignmentMap[0]; }
+  const int* GetRegionAssignmentMap() { return this->RegionAssignmentMap.data(); }
 
   ///@{
   /**

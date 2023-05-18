@@ -295,6 +295,7 @@ int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(reques
   // print out some debugging information
   int num = this->GetNumberOfExtractedClusters();
   int count = 0;
+  (void)count; // Only used in Debug builds.
 
   for (int ii = 0; ii < num; ii++)
   {

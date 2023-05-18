@@ -22,6 +22,9 @@
 #include "vtkUnstructuredGridReader.h"
 #include <vtksys/SystemTools.hxx>
 
+// TODO: Convert this test to use C++-based RAII memory management instead.
+// NOLINTBEGIN(bugprone-suspicious-realloc-usage)
+
 #define VTK_BRUTE_FORCE_VERIFICATION
 
 // The following epsilon value is needed to address numerical inaccuracy /
@@ -899,3 +902,5 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
   return retValue;
 }
+
+// NOLINTEND(bugprone-suspicious-realloc-usage)

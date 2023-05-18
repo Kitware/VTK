@@ -55,7 +55,6 @@
 #include <vtkTriangle.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVector.h>
-#include <vtkVectorFieldTopology.h>
 #include <vtkVertex.h>
 
 // Eigen3

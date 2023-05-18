@@ -1715,13 +1715,13 @@ struct ProduceIntersectionPoints
         ((vtkMath::Distance2BetweenPoints(xInt, y0) <= this->MergeTol2) ? v0 : v1);
 
       vtkPointList& newPts = this->LocalIntData.Local().NewPoints;
-      newPts.emplace_back(vtkPointInfo());
+      newPts.emplace_back();
       vtkPointInfo& pt = newPts.back();
       pt.Classification = PointClassification::OnVertex;
       this->PtClassifier->SetClassification(vtkPtId, PointClassification::OnVertex);
       pt.VTKPtId = vtkPtId; // The target point which the imprint edge intersects
       target->GetPoint(vtkPtId, pt.X);
-      eIntList.emplace_back(vtkEdgeIntersection(u, newPts.size() - 1, &newPts));
+      eIntList.emplace_back(u, newPts.size() - 1, &newPts);
       return 2;
     }
 
@@ -1734,8 +1734,7 @@ struct ProduceIntersectionPoints
     target->GetCellEdgeNeighbors(-1, v0, v1, neighbors);
     cells[0] = (neighbors->GetNumberOfIds() < 1 ? -1 : neighbors->GetId(0));
     cells[1] = (neighbors->GetNumberOfIds() < 2 ? -1 : neighbors->GetId(1));
-    newPts.emplace_back(
-      vtkPointInfo(PointClassification::OnEdge, -1, cells, v0, v1, v, u0, u1, u, xInt));
+    newPts.emplace_back(PointClassification::OnEdge, -1, cells, v0, v1, v, u0, u1, u, xInt);
 
     // For now, we are using local point ids. Later we'll update to refer to
     // global point ids. Note we have to use ids rather than pointers to
@@ -1934,7 +1933,7 @@ struct ProduceIntersectionPoints
       // Output an edge fragment if appropriate.
       if (outputCellId >= 0)
       {
-        newEdges.emplace_back(vtkEdgeFragment(edgeIntList[i], edgeIntList[i + 1], outputCellId));
+        newEdges.emplace_back(edgeIntList[i], edgeIntList[i + 1], outputCellId);
       }
     } // for all edge fragments
   }   // ProduceInteriorEdgeFragments
@@ -2016,9 +2015,8 @@ struct ProduceIntersectionPoints
           vtkIdType candidateCell = this->IsInteriorEdge(pStart, pEnd);
           if (candidateCell >= 0)
           {
-            newEdges.emplace_back(
-              vtkEdgeFragment(vtkEdgeIntersection(0.0, viStart, this->PointList),
-                vtkEdgeIntersection(1.0, viEnd, this->PointList), candidateCell));
+            newEdges.emplace_back(vtkEdgeIntersection(0.0, viStart, this->PointList),
+              vtkEdgeIntersection(1.0, viEnd, this->PointList), candidateCell);
             continue;
           }
 
@@ -2138,7 +2136,7 @@ struct ProduceIntersectionPoints
           vtkPointInfo& v0 = frag.V0.GetPointInfo();
           vtkPointInfo& v1 = frag.V1.GetPointInfo();
 
-          cInfo->InteriorEdges.emplace_back(vtkEdge(v0.VTKPtId, v1.VTKPtId));
+          cInfo->InteriorEdges.emplace_back(v0.VTKPtId, v1.VTKPtId);
         }
       } // for each edge fragment
     }   // for all local data in threads
@@ -2317,7 +2315,7 @@ struct Triangulate
       {
         double t = (swapped ? (1.0 - pInfo->TargetEdge.Data) : pInfo->TargetEdge.Data);
         t += static_cast<double>(eId);
-        pList.emplace_back(vtkPerimeterPoint(t, pInfo->X, pInfo->VTKPtId));
+        pList.emplace_back(t, pInfo->X, pInfo->VTKPtId);
         return;
       }
     } // for all edges
@@ -2344,7 +2342,7 @@ struct Triangulate
     {
       outPts->GetPoint(pts[i], x);
       t = static_cast<double>(i);
-      pList.emplace_back(vtkPerimeterPoint(t, x, pts[i]));
+      pList.emplace_back(t, x, pts[i]);
     }
 
     // Now insert edge points around the perimeter with the appropriate

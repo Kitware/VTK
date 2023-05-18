@@ -41,7 +41,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolygon);
 
-#define VTK_POLYGON_TOL 1.e-08 // Absolute tolerance for testing near polygon boundary
+constexpr double VTK_POLYGON_TOL = 1.e-08; // Absolute tolerance for testing near polygon boundary
 
 //------------------------------------------------------------------------------
 // Instantiate polygon.
@@ -100,11 +100,11 @@ bool vtkPolygon::IsConvex()
     this->GetPoints(), this->GetNumberOfPoints(), this->GetPointIds()->GetPointer(0));
 }
 
-#define VTK_POLYGON_FAILURE (-1)
-#define VTK_POLYGON_OUTSIDE 0
-#define VTK_POLYGON_INSIDE 1
-#define VTK_POLYGON_INTERSECTION 2
-#define VTK_POLYGON_ON_LINE 3
+constexpr int VTK_POLYGON_FAILURE = -1;
+constexpr int VTK_POLYGON_OUTSIDE = 0;
+constexpr int VTK_POLYGON_INSIDE = 1;
+/* constexpr int VTK_POLYGON_INTERSECTION = 2; */
+/* constexpr int VTK_POLYGON_ON_LINE = 3; */
 
 namespace
 {

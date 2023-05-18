@@ -3,7 +3,9 @@ Checks: "-*,\
 boost-*,\
 bugprone-*,\
 -bugprone-argument-comment,\
+-bugprone-assignment-in-if-condition,\
 -bugprone-branch-clone,\
+-bugprone-easily-swappable-parameters,\
 -bugprone-fold-init-type,\
 -bugprone-implicit-widening-of-multiplication-result,\
 -bugprone-incorrect-roundings,\
@@ -15,6 +17,7 @@ bugprone-*,\
 -bugprone-not-null-terminated-result,\
 -bugprone-reserved-identifier,\
 -bugprone-signed-char-misuse,\
+-bugprone-suspicious-realloc-usage,\
 -bugprone-unhandled-self-assignment,\
 clang-analyzer-*,\
 -clang-analyzer-core.CallAndMessage,\
@@ -43,17 +46,22 @@ clang-analyzer-*,\
 -clang-analyzer-unix.MismatchedDeallocator,\
 -clang-analyzer-valist.Unterminated,\
 misc-*,\
+-misc-const-correctness,\
+-misc-confusable-identifiers,\
 -misc-no-recursion,\
 -misc-non-private-member-variables-in-classes,\
 -misc-redundant-expression,\
 -misc-throw-by-value-catch-by-reference,\
 -misc-unconventional-assign-operator,\
+-misc-use-anonymous-namespace,\
 -misc-unused-parameters,\
 -misc-unused-using-decls,\
 modernize-*,\
 -modernize-avoid-c-arrays,\
+-modernize-concat-nested-namespaces,\
 -modernize-deprecated-headers,\
 -modernize-loop-convert,\
+-modernize-macro-to-enum,\
 -modernize-make-unique,\
 -modernize-pass-by-value,\
 -modernize-raw-string-literal,\
@@ -77,6 +85,7 @@ readability-*,\
 -readability-braces-around-statements,\
 -readability-convert-member-functions-to-static,\
 -readability-else-after-return,\
+-readability-identifier-length,\
 -readability-function-cognitive-complexity,\
 -readability-function-size,\
 -readability-implicit-bool-conversion,\
@@ -91,6 +100,7 @@ readability-*,\
 -readability-redundant-preprocessor,\
 -readability-simplify-boolean-expr,\
 -readability-static-accessed-through-instance,\
+-readability-suspicious-call-argument,\
 -readability-uppercase-literal-suffix,\
 -readability-use-anyofallof,\
 "

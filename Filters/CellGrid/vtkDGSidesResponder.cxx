@@ -56,7 +56,7 @@ bool vtkDGSidesResponder::Query(
   // Loop over elements, one per tuple of conn:
   for (vtkIdType ii = 0; ii < conn->GetNumberOfTuples(); ++ii)
   {
-    conn->GetTypedTuple(ii, &entry[0]);
+    conn->GetTypedTuple(ii, entry.data());
     // Loop over types of side (one entry per shape) of the element:
     for (int sideType = 0; sideType < numSideTypes; ++sideType)
     {

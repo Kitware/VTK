@@ -794,7 +794,7 @@ int vtkTableToGraph::RequestData(
       }
       else if (!hiddenSource && hiddenTarget)
       {
-        hiddenInEdges[target].push_back(std::make_pair(source, r));
+        hiddenInEdges[target].emplace_back(source, r);
       }
       else
       {

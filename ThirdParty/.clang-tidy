@@ -3,10 +3,13 @@
 # we enable a single set of checks (because disabling all checks is an error).
 Checks: "-*,\
 bugprone-*,\
+-bugprone-assignment-in-if-condition,\
 -bugprone-branch-clone,\
 -bugprone-copy-constructor-init,\
+-bugprone-easily-swappable-parameters,\
 -bugprone-exception-escape,\
 -bugprone-fold-init-type,\
+-bugprone-implicit-widening-of-multiplication-result,\
 -bugprone-infinite-loop,\
 -bugprone-integer-division,\
 -bugprone-macro-parentheses,\
@@ -16,9 +19,11 @@ bugprone-*,\
 -bugprone-not-null-terminated-result,\
 -bugprone-parent-virtual-call,\
 -bugprone-reserved-identifier,\
+-bugprone-signal-handler,\
 -bugprone-signed-char-misuse,\
 -bugprone-sizeof-expression,\
 -bugprone-suspicious-include,\
+-bugprone-suspicious-memory-comparison,\
 -bugprone-suspicious-missing-comma,\
 -bugprone-suspicious-semicolon,\
 -bugprone-suspicious-string-compare,\

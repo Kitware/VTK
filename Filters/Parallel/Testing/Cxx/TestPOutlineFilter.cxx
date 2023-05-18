@@ -12,7 +12,6 @@
     PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
-#include "vtkDummyController.h"
 #include "vtkImageData.h"
 #include "vtkMultiBlockDataGroupFilter.h"
 #include "vtkMultiBlockDataSet.h"

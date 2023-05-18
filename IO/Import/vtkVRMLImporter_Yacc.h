@@ -394,10 +394,10 @@ VrmlNodeType::addExposedField(const char *nodeName, int type)
   size_t length = 20 + strlen(nodeName);
   std::vector<char> tmp(length);
   add(fields, nodeName, type);
-  snprintf(&tmp[0], length, "set_%s", nodeName);
-  add(eventIns, &tmp[0], type);
-  snprintf(&tmp[0], length, "%s_changed", nodeName);
-  add(eventOuts, &tmp[0], type);
+  snprintf(tmp.data(), length, "set_%s", nodeName);
+  add(eventIns, tmp.data(), type);
+  snprintf(tmp.data(), length, "%s_changed", nodeName);
+  add(eventOuts, tmp.data(), type);
 };
 
 inline void

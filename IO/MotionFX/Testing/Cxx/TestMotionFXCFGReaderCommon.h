@@ -144,7 +144,7 @@ int Test(int argc, char* argv[], const char* dfile, const InitializationCallback
   initCallback(renWin, renderer, reader);
 
   std::vector<double> ts(numTimeSteps);
-  outInfo->Get(SDDP::TIME_STEPS(), &ts[0]);
+  outInfo->Get(SDDP::TIME_STEPS(), ts.data());
 
   // for baseline comparison, we'll jump to the middle of the
   // time sequence and do a capture.

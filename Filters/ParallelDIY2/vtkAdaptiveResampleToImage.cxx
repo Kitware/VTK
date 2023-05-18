@@ -283,7 +283,7 @@ int vtkAdaptiveResampleToImage::RequestData(
           // vtkLogF(TRACE, "dequeue from %d", source.gid);
           auto img = vtkImageData::SafeDownCast(ptr);
           assert(img);
-          resamples[rp.gid()].push_back(img);
+          resamples[rp.gid()].emplace_back(img);
           ptr->Delete();
         }
       }

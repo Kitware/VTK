@@ -851,7 +851,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
     nNextLevel = nRefined * this->BlockSize;
     if (nRefined > 0)
     {
-      this->LevelDescriptors.emplace_back(std::string(nNextLevel, '.'));
+      this->LevelDescriptors.emplace_back(nNextLevel, '.');
     }
   }
 

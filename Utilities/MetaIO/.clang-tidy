@@ -3,8 +3,11 @@ Checks: "-*,\
 boost-*,\
 bugprone-*,\
 -bugprone-argument-comment,\
+-bugprone-assignment-in-if-condition,\
 -bugprone-branch-clone,\
+-bugprone-easily-swappable-parameters,\
 -bugprone-fold-init-type,\
+-bugprone-implicit-widening-of-multiplication-result,\
 -bugprone-incorrect-roundings,\
 -bugprone-infinite-loop,\
 -bugprone-integer-division,\
@@ -42,6 +45,8 @@ clang-analyzer-*,\
 -clang-analyzer-unix.MismatchedDeallocator,\
 -clang-analyzer-valist.Unterminated,\
 misc-*,\
+-misc-confusable-identifiers,\
+-misc-const-correctness,\
 -misc-no-recursion,\
 -misc-non-private-member-variables-in-classes,\
 -misc-redundant-expression,\
@@ -49,6 +54,7 @@ misc-*,\
 -misc-unconventional-assign-operator,\
 -misc-unused-parameters,\
 -misc-unused-using-decls,\
+-misc-use-anonymous-namespace,\
 modernize-*,\
 -modernize-avoid-c-arrays,\
 -modernize-deprecated-headers,\
@@ -80,10 +86,12 @@ performance-*,\
 portability-*,\
 readability-*,\
 -readability-braces-around-statements,\
+-readability-container-data-pointer,\
 -readability-convert-member-functions-to-static,\
 -readability-else-after-return,\
 -readability-function-cognitive-complexity,\
 -readability-function-size,\
+-readability-identifier-length,\
 -readability-implicit-bool-conversion,\
 -readability-isolate-declaration,\
 -readability-magic-numbers,\

@@ -296,7 +296,7 @@ int vtkMultiThreshold::AddBooleanSet(int operation, int numInputs, int* inputs)
 
   BooleanSet* bset = new BooleanSet(sId, operation, inputs, inputs + numInputs);
   this->Sets.push_back(bset);
-  this->DependentSets.push_back(TruthTreeValues());
+  this->DependentSets.emplace_back();
 
   // Add dependency to input sets
   for (i = 0; i < numInputs; ++i)
@@ -428,7 +428,7 @@ int vtkMultiThreshold::AddIntervalSet(NormKey& nk, double xmin, double xmax, int
   interval->Id = entry;
 
   this->Sets.push_back(interval);
-  this->DependentSets.push_back(TruthTreeValues());
+  this->DependentSets.emplace_back();
   this->IntervalRules[nk].push_back(interval);
 
   return entry;

@@ -398,7 +398,7 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
       vtkLagrangianParticle* clone = particle->CloneParticle();
       clone->SetInteraction(vtkLagrangianParticle::SURFACE_INTERACTION_PASS);
       this->InterpolateNextParticleVariables(clone, item.second);
-      passThroughParticles.push(std::make_pair(item.first, clone));
+      passThroughParticles.emplace(item.first, clone);
     }
   }
 

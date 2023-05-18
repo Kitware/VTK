@@ -787,11 +787,11 @@ VTK_ABI_NAMESPACE_END
   {                                                                                                \
     if (vtkObject::GetGlobalWarningDisplay())                                                      \
     {                                                                                              \
-      vtkOStreamWrapper::EndlType endl;                                                            \
+      vtkOStreamWrapper::EndlType const endl;                                                      \
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       vtkmsg << "" x;                                                                              \
-      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      std::string const _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                \
       vtkOutputWindowDisplayGenericWarningText(_filename.c_str(), __LINE__, vtkmsg.str());         \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
@@ -827,7 +827,7 @@ VTK_ABI_NAMESPACE_END
   {                                                                                                \
     if (vtkObject::GetGlobalWarningDisplay())                                                      \
     {                                                                                              \
-      vtkOStreamWrapper::EndlType endl;                                                            \
+      vtkOStreamWrapper::EndlType const endl;                                                      \
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       vtkObject* _object = const_cast<vtkObject*>(static_cast<const vtkObject*>(self));            \
@@ -840,7 +840,7 @@ VTK_ABI_NAMESPACE_END
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      std::string const _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                \
       vtkOutputWindowDisplayErrorText(_filename.c_str(), __LINE__, vtkmsg.str(), _object);         \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
       vtkObject::BreakOnError();                                                                   \
@@ -859,7 +859,7 @@ VTK_ABI_NAMESPACE_END
   {                                                                                                \
     if (vtkObject::GetGlobalWarningDisplay())                                                      \
     {                                                                                              \
-      vtkOStreamWrapper::EndlType endl;                                                            \
+      vtkOStreamWrapper::EndlType const endl;                                                      \
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       vtkObject* _object = const_cast<vtkObject*>(static_cast<const vtkObject*>(self));            \
@@ -872,7 +872,7 @@ VTK_ABI_NAMESPACE_END
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      std::string const _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                \
       vtkOutputWindowDisplayWarningText(_filename.c_str(), __LINE__, vtkmsg.str(), _object);       \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
@@ -897,7 +897,7 @@ VTK_ABI_NAMESPACE_END
     vtkObject* _object = const_cast<vtkObject*>(static_cast<const vtkObject*>(self));              \
     if ((!_object || _object->GetDebug()) && vtkObject::GetGlobalWarningDisplay())                 \
     {                                                                                              \
-      vtkOStreamWrapper::EndlType endl;                                                            \
+      vtkOStreamWrapper::EndlType const endl;                                                      \
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       if (_object)                                                                                 \
@@ -909,7 +909,7 @@ VTK_ABI_NAMESPACE_END
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      std::string const _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                \
       vtkOutputWindowDisplayDebugText(_filename.c_str(), __LINE__, vtkmsg.str(), _object);         \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \

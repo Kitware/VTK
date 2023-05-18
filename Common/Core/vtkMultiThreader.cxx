@@ -40,8 +40,8 @@ typedef vtkThreadFunctionType vtkExternCThreadFunctionType;
 #include <sys/types.h>
 #endif
 
-// Initialize static member that controls global maximum number of threads
 VTK_ABI_NAMESPACE_BEGIN
+// Initialize static member that controls global maximum number of threads
 static int vtkMultiThreaderGlobalMaximumNumberOfThreads = 0;
 
 void vtkMultiThreader::SetGlobalMaximumNumberOfThreads(int val)

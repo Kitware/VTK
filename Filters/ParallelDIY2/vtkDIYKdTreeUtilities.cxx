@@ -336,7 +336,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
             if (target_rank == myrank)
             {
               // short-circuit messages to self.
-              (*block)[partId].push_back(part);
+              (*block)[partId].emplace_back(part);
             }
             else
             {

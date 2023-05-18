@@ -260,6 +260,7 @@ void vtkCompositeMapperHelper2::RemoveUnused()
 std::vector<vtkPolyData*> vtkCompositeMapperHelper2::GetRenderedList() const
 {
   std::vector<vtkPolyData*> result;
+  result.reserve(this->Data.size());
   for (const auto& pair : this->Data)
   {
     result.push_back(pair.first);
@@ -2171,10 +2172,10 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer* ren, vtkActor* actor)
     this->BlockState.Visibility.push(true);
     this->BlockState.Pickability.push(true);
     this->BlockState.Opacity.push(prop->GetOpacity());
-    this->BlockState.AmbientColor.push(vtkColor3d(prop->GetAmbientColor()));
-    this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
-    this->BlockState.SpecularColor.push(vtkColor3d(prop->GetSpecularColor()));
-    this->BlockState.SelectionColor.push(vtkColor3d(selColor));
+    this->BlockState.AmbientColor.emplace(prop->GetAmbientColor());
+    this->BlockState.DiffuseColor.emplace(prop->GetDiffuseColor());
+    this->BlockState.SpecularColor.emplace(prop->GetSpecularColor());
+    this->BlockState.SelectionColor.emplace(selColor);
     this->BlockState.SelectionOpacity.push(selColor[3]);
 
     unsigned int flat_index = 0;

@@ -466,7 +466,7 @@ private:
 #define vtkVLog(level, x)                                                                          \
   if ((level) <= vtkLogger::GetCurrentVerbosityCutoff())                                           \
   {                                                                                                \
-    vtkOStrStreamWrapper::EndlType endl;                                                           \
+    vtkOStrStreamWrapper::EndlType const endl;                                                     \
     vtkOStrStreamWrapper::UseEndl(endl);                                                           \
     vtkOStrStreamWrapper vtkmsg;                                                                   \
     vtkmsg << "" x;                                                                                \

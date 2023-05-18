@@ -646,7 +646,7 @@ void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr)
   }
 
   // Save this reference.
-  v->References.push_back(EntryEdge(w, ptr));
+  v->References.emplace_back(w, ptr);
 }
 
 //------------------------------------------------------------------------------

@@ -25,8 +25,8 @@
 #include <sstream>
 #include <vector>
 
-// Initialize static member that controls warning display
 VTK_ABI_NAMESPACE_BEGIN
+// Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
 
 //------------------------------------------------------------------------------
