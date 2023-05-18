@@ -135,7 +135,7 @@ int TestCompositePolyDataMapperOverrideScalarArray(int argc, char* argv[])
   scalarsD->SetNumberOfComponents(1);
   scalarsD->SetNumberOfTuples(2);
   scalarsD->SetValue(0, 0.0);
-  scalarsD->SetValue(1, 1.0);
+  scalarsD->SetValue(1, 4.0);
   // scalarsD will be an extra array on the cell data of all polydata
   polydata5->GetCellData()->AddArray(scalarsD);
 
