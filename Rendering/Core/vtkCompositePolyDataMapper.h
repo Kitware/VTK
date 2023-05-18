@@ -288,7 +288,7 @@ protected:
   vtkCompositePolyDataMapper();
   ~vtkCompositePolyDataMapper() override;
 
-  void InsertPolyData(vtkPolyData* polydata, const unsigned int& flatIndex);
+  MapperHashType InsertPolyData(vtkPolyData* polydata, const unsigned int& flatIndex);
 
   /**
    * We need to override this method because the standard streaming

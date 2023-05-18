@@ -346,47 +346,6 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
   if (this->DelegatorMTime < this->GetInputDataObject(0, 0)->GetMTime() ||
     this->DelegatorMTime < this->GetMTime())
   {
-    this->PrototypeMapper->vtkMapper::ShallowCopy(this);
-    // unmark old delegates
-    for (auto& iter : internals.BatchedDelegators)
-    {
-      auto& delegator = iter.second;
-      delegator->Unmark();
-    }
-    if (auto tree = vtkDataObjectTree::SafeDownCast(input))
-    {
-      auto dobjIter = vtk::TakeSmartPointer(this->MakeAnIterator(tree));
-      for (dobjIter->InitTraversal(); !dobjIter->IsDoneWithTraversal(); dobjIter->GoToNextItem())
-      {
-        const auto polydata = vtkPolyData::SafeDownCast(dobjIter->GetCurrentDataObject());
-        const auto flatIndex = dobjIter->GetCurrentFlatIndex();
-        this->InsertPolyData(polydata, flatIndex);
-      }
-    }
-    else if (auto polydata = vtkPolyData::SafeDownCast(input))
-    {
-      this->InsertPolyData(polydata, 0);
-    }
-    else
-    {
-      vtkErrorMacro(<< "Expected a vtkDataObjectTree or vtkPolyData input. Got "
-                    << input->GetClassName());
-    }
-    // delete unused old helpers/data
-    for (auto iter = internals.BatchedDelegators.begin();
-         iter != internals.BatchedDelegators.end();)
-    {
-      iter->second->ClearUnmarkedBatchElements();
-      if (!iter->second->GetMarked())
-      {
-        iter->second->GetDelegate()->ReleaseGraphicsResources(renderer->GetVTKWindow());
-        internals.BatchedDelegators.erase(iter++);
-      }
-      else
-      {
-        ++iter;
-      }
-    }
     this->DelegatorMTime.Modified();
   }
 
@@ -407,6 +366,13 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
       lut->Build();
     }
     auto selColor = property->GetSelectionColor();
+
+    // unmark old delegators
+    for (auto& iter : internals.BatchedDelegators)
+    {
+      auto& delegator = iter.second;
+      delegator->Unmark();
+    }
 
     // Push base-values on the state stack.
     internals.BlockState.Visibility.push(true);
@@ -443,6 +409,22 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     internals.BlockState.ArrayId.pop();
     internals.BlockState.ArrayName.pop();
     internals.BlockState.FieldDataTupleId.pop();
+
+    // delete unused old helpers/data
+    for (auto iter = internals.BatchedDelegators.begin();
+         iter != internals.BatchedDelegators.end();)
+    {
+      iter->second->ClearUnmarkedBatchElements();
+      if (!iter->second->GetMarked())
+      {
+        iter->second->GetDelegate()->ReleaseGraphicsResources(renderer->GetVTKWindow());
+        internals.BatchedDelegators.erase(iter++);
+      }
+      else
+      {
+        ++iter;
+      }
+    }
   }
 
   for (auto& iter : internals.BatchedDelegators)
@@ -458,14 +440,14 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositePolyDataMapper::InsertPolyData(
+vtkCompositePolyDataMapper::MapperHashType vtkCompositePolyDataMapper::InsertPolyData(
   vtkPolyData* polydata, const unsigned int& flatIndex)
 {
   if (polydata == nullptr)
   {
     vtkDebugMacro(<< "DataObject at flatIndex=" << flatIndex
                   << " is not a vtkPolyData or a vtkPolyData derived instance!");
-    return;
+    return VTK_TYPE_UINT64_MAX;
   }
   auto& internals = (*this->Internals);
   const auto hash = this->GenerateHash(polydata);
@@ -490,6 +472,7 @@ void vtkCompositePolyDataMapper::InsertPolyData(
   };
 
   delegator->Insert(createBatchElement(polydata, flatIndex));
+  return hash;
 }
 
 //------------------------------------------------------------------------------
@@ -562,6 +545,7 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
 
   // Advance flat-index. After this point, flatIndex no longer points to this
   // block.
+  const auto originalFlatIndex = flatIndex;
   flatIndex++;
 
   bool textureOpaque = true;
@@ -585,10 +569,20 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
       }
     }
   }
-  else
+  else if (auto polydata = vtkPolyData::SafeDownCast(dobj))
   {
-    vtkPolyData* polydata = vtkPolyData::SafeDownCast(dobj);
-    const auto hash = this->GenerateHash(polydata);
+    this->PrototypeMapper->SetScalarMode(internals.BlockState.ScalarMode.top());
+    this->PrototypeMapper->SetArrayAccessMode(internals.BlockState.ArrayAccessMode.top());
+    this->PrototypeMapper->SetArrayComponent(internals.BlockState.ArrayComponent.top());
+    this->PrototypeMapper->SetArrayId(internals.BlockState.ArrayId.top());
+    this->PrototypeMapper->SetArrayName(internals.BlockState.ArrayName.top().c_str());
+    this->PrototypeMapper->SetFieldDataTupleId(internals.BlockState.FieldDataTupleId.top());
+
+    const auto hash = this->InsertPolyData(polydata, originalFlatIndex);
+    if (hash == VTK_TYPE_UINT64_MAX)
+    {
+      return;
+    }
     const auto& delegator = internals.BatchedDelegators[hash];
     // because it was incremented few lines above.
     if (auto inputItem = delegator->Get(polydata))
@@ -628,6 +622,11 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
         }
       }
     }
+  }
+  else
+  {
+    vtkErrorMacro(<< "Expected a vtkDataObjectTree or vtkPolyData input. Got "
+                  << dobj->GetClassName());
   }
   if (overrides_scalar_mode)
   {
