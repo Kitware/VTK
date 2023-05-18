@@ -5,7 +5,6 @@
 #include "vtkCell.h"
 #include "vtkCellLocator.h"
 #include "vtkClosestPointStrategy.h"
-#include "vtkEmptyCell.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -33,24 +32,14 @@ vtkPointSet::vtkPointSet()
   this->Points = nullptr;
   this->PointLocator = nullptr;
   this->CellLocator = nullptr;
-  this->EmptyCell = nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkPointSet::~vtkPointSet()
 {
   this->Cleanup();
-
-  if (this->PointLocator != nullptr)
-  {
-    cout << "DELETING LOCATOR: PointSet: " << this << " locator: " << this->PointLocator << "\n";
-  }
   this->SetPointLocator(nullptr);
   this->SetCellLocator(nullptr);
-  if (this->EmptyCell)
-  {
-    this->EmptyCell->Delete();
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -245,11 +234,8 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell* cell, vtkIdType cellId, do
 //------------------------------------------------------------------------------
 vtkCell* vtkPointSet::GetCell(vtkIdType)
 {
-  if (!this->EmptyCell)
-  {
-    this->EmptyCell = vtkEmptyCell::New();
-  }
-  return this->EmptyCell;
+  this->GenericCell->SetCellTypeToEmptyCell();
+  return this->GenericCell;
 }
 
 //------------------------------------------------------------------------------

@@ -30,7 +30,8 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
-#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_3_0
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
+#include "vtkNew.h"         // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
@@ -530,6 +531,8 @@ protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
   ~vtkDataSet() override;
+
+  vtkNew<vtkGenericCell> GenericCell; // used by GetCell()
 
   /**
    * Compute the range of the scalars and cache it into ScalarRange

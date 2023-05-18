@@ -44,7 +44,6 @@
 #include "vtkDataSet.h"
 
 #include "vtkCellTypes.h"   // For GetCellType
-#include "vtkEmptyCell.h"   // For GetCell
 #include "vtkGenericCell.h" // For GetCell
 #include "vtkPoints.h"      // Needed for inline methods
 
@@ -271,7 +270,6 @@ protected:
 
 private:
   void Cleanup();
-  vtkEmptyCell* EmptyCell;
 
   vtkPointSet(const vtkPointSet&) = delete;
   void operator=(const vtkPointSet&) = delete;

@@ -27,57 +27,9 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
-class vtkBezierCurve;
-class vtkBezierQuadrilateral;
-class vtkBezierHexahedron;
-class vtkBezierTriangle;
-class vtkBezierTetra;
-class vtkBezierWedge;
-class vtkConvexPointSet;
-class vtkEmptyCell;
-class vtkHexahedron;
 class vtkIdList;
 class vtkIdTypeArray;
-class vtkLagrangeCurve;
-class vtkLagrangeQuadrilateral;
-class vtkLagrangeHexahedron;
-class vtkLagrangeTriangle;
-class vtkLagrangeTetra;
-class vtkLagrangeWedge;
-class vtkLine;
-class vtkPixel;
-class vtkPolyLine;
-class vtkPolyVertex;
-class vtkPolygon;
-class vtkPyramid;
-class vtkPentagonalPrism;
-class vtkHexagonalPrism;
-class vtkQuad;
-class vtkQuadraticEdge;
-class vtkQuadraticHexahedron;
-class vtkQuadraticWedge;
-class vtkQuadraticPolygon;
-class vtkQuadraticPyramid;
-class vtkQuadraticQuad;
-class vtkQuadraticTetra;
-class vtkQuadraticTriangle;
-class vtkTetra;
-class vtkTriangle;
-class vtkTriangleStrip;
 class vtkUnsignedCharArray;
-class vtkVertex;
-class vtkVoxel;
-class vtkWedge;
-class vtkTriQuadraticHexahedron;
-class vtkTriQuadraticPyramid;
-class vtkQuadraticLinearWedge;
-class vtkQuadraticLinearQuad;
-class vtkBiQuadraticQuad;
-class vtkBiQuadraticQuadraticWedge;
-class vtkBiQuadraticQuadraticHexahedron;
-class vtkBiQuadraticTriangle;
-class vtkCubicLine;
-class vtkPolyhedron;
 class vtkIdTypeArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGrid : public vtkUnstructuredGridBase
@@ -565,57 +517,6 @@ protected:
   ~vtkUnstructuredGrid() override;
 
   void ReportReferences(vtkGarbageCollector*) override;
-
-  // These are all the cells that vtkUnstructuredGrid can represent. Used by
-  // GetCell() (and similar) methods.
-  vtkVertex* Vertex;
-  vtkPolyVertex* PolyVertex;
-  vtkBezierCurve* BezierCurve;
-  vtkBezierQuadrilateral* BezierQuadrilateral;
-  vtkBezierHexahedron* BezierHexahedron;
-  vtkBezierTriangle* BezierTriangle;
-  vtkBezierTetra* BezierTetra;
-  vtkBezierWedge* BezierWedge;
-  vtkLagrangeCurve* LagrangeCurve;
-  vtkLagrangeQuadrilateral* LagrangeQuadrilateral;
-  vtkLagrangeHexahedron* LagrangeHexahedron;
-  vtkLagrangeTriangle* LagrangeTriangle;
-  vtkLagrangeTetra* LagrangeTetra;
-  vtkLagrangeWedge* LagrangeWedge;
-  vtkLine* Line;
-  vtkPolyLine* PolyLine;
-  vtkTriangle* Triangle;
-  vtkTriangleStrip* TriangleStrip;
-  vtkPixel* Pixel;
-  vtkQuad* Quad;
-  vtkPolygon* Polygon;
-  vtkTetra* Tetra;
-  vtkVoxel* Voxel;
-  vtkHexahedron* Hexahedron;
-  vtkWedge* Wedge;
-  vtkPyramid* Pyramid;
-  vtkPentagonalPrism* PentagonalPrism;
-  vtkHexagonalPrism* HexagonalPrism;
-  vtkQuadraticEdge* QuadraticEdge;
-  vtkQuadraticTriangle* QuadraticTriangle;
-  vtkQuadraticQuad* QuadraticQuad;
-  vtkQuadraticPolygon* QuadraticPolygon;
-  vtkQuadraticTetra* QuadraticTetra;
-  vtkQuadraticHexahedron* QuadraticHexahedron;
-  vtkQuadraticWedge* QuadraticWedge;
-  vtkQuadraticPyramid* QuadraticPyramid;
-  vtkQuadraticLinearQuad* QuadraticLinearQuad;
-  vtkBiQuadraticQuad* BiQuadraticQuad;
-  vtkTriQuadraticHexahedron* TriQuadraticHexahedron;
-  vtkTriQuadraticPyramid* TriQuadraticPyramid;
-  vtkQuadraticLinearWedge* QuadraticLinearWedge;
-  vtkBiQuadraticQuadraticWedge* BiQuadraticQuadraticWedge;
-  vtkBiQuadraticQuadraticHexahedron* BiQuadraticQuadraticHexahedron;
-  vtkBiQuadraticTriangle* BiQuadraticTriangle;
-  vtkCubicLine* CubicLine;
-  vtkConvexPointSet* ConvexPointSet;
-  vtkPolyhedron* Polyhedron;
-  vtkEmptyCell* EmptyCell;
 
   // Points derived from vtkPointSet.
   // Attribute data (i.e., point and cell data (i.e., scalars, vectors, normals, tcoords)
