@@ -221,7 +221,7 @@ public:
    * Specify point array to define point coordinates.
    */
   virtual void SetPoints(vtkPoints*);
-  vtkGetObjectMacro(Points, vtkPoints);
+  vtkPoints* GetPoints() override { return this->Points; }
   ///@}
 
   /**

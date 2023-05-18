@@ -30,8 +30,9 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
-#include "vtkNew.h"         // For vtkNew
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_3_0
+#include "vtkNew.h"          // For vtkNew
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
@@ -41,6 +42,7 @@ class vtkCellTypes;
 class vtkGenericCell;
 class vtkIdList;
 class vtkPointData;
+class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkCallbackCommand;
 
@@ -76,6 +78,14 @@ public:
    * THIS METHOD IS THREAD SAFE
    */
   virtual vtkIdType GetNumberOfCells() = 0;
+
+  /**
+   * If the subclass has (implicit/explicit) points, then return them.
+   * Otherwise, create a vtkPoints object and return that.
+   *
+   * DO NOT MODIFY THE RETURNED POINTS OBJECT.
+   */
+  virtual vtkPoints* GetPoints();
 
   /**
    * Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
@@ -576,6 +586,9 @@ private:
    */
   static void OnDataModified(
     vtkObject* source, unsigned long eid, void* clientdata, void* calldata);
+
+  // This should only be used if a vtkDataSet subclass don't define GetPoints()
+  vtkSmartPointer<vtkPoints> TempPoints;
 
   vtkDataSet(const vtkDataSet&) = delete;
   void operator=(const vtkDataSet&) = delete;
