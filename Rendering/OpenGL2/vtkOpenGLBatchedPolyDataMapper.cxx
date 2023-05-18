@@ -680,6 +680,32 @@ void vtkOpenGLBatchedPolyDataMapper::ProcessCompositePixelBuffers(vtkHardwareSel
 }
 
 //------------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkOpenGLBatchedPolyDataMapper::MapScalars(vtkDataSet* input, double alpha)
+{
+  int cellFlag = 0;
+  bool restoreLookupTable = false;
+  // Can't use ScopedValueRollback here because vtkMapper::SetLookupTable affects the refcount.
+  auto oldLut = this->LookupTable;
+  auto scalars = vtkAbstractMapper::GetAbstractScalars(
+    input, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+  // Get the lookup table.
+  vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
+  if (dataArray && dataArray->GetLookupTable())
+  {
+    this->SetLookupTable(dataArray->GetLookupTable());
+    restoreLookupTable = true;
+  }
+  // let superclass use the new lookup table specified on the array.
+  auto result = this->Superclass::MapScalars(input, alpha, cellFlag);
+  // restore original lookup table.
+  if (restoreLookupTable)
+  {
+    this->SetLookupTable(oldLut);
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLBatchedPolyDataMapper::UpdateCameraShiftScale(vtkRenderer* renderer, vtkActor* actor)
 {
   if (this->PauseShiftScale)
@@ -975,6 +1001,13 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
         glBatchElement->StartIndex[i] = static_cast<unsigned int>(this->IndexArray[i].size());
       }
 
+      ScopedValueRollback<int> accessModeSaver(this->ArrayAccessMode, batchElement.ArrayAccessMode);
+      ScopedValueRollback<int> arrayComponentSaver(
+        this->ArrayComponent, batchElement.ArrayComponent);
+      ScopedValueRollback<int> arrayIdSaver(this->ArrayId, batchElement.ArrayId);
+      ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, &batchElement.ArrayName.front());
+      ScopedValueRollback<vtkIdType> fieldDataTupleIdSaver(
+        this->FieldDataTupleId, batchElement.FieldDataTupleId);
       vtkIdType vertexOffset = 0;
       // vert cell offset starts at the end of the last block
       glBatchElement->CellCellMap->SetStartOffset(
@@ -1165,6 +1198,14 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
       {
         glBatchElement->StartIndex[i] = this->PrimitiveIndexArrays[i].size();
       }
+
+      ScopedValueRollback<int> accessModeSaver(this->ArrayAccessMode, batchElement.ArrayAccessMode);
+      ScopedValueRollback<int> arrayComponentSaver(
+        this->ArrayComponent, batchElement.ArrayComponent);
+      ScopedValueRollback<int> arrayIdSaver(this->ArrayId, batchElement.ArrayId);
+      ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, &batchElement.ArrayName.front());
+      ScopedValueRollback<vtkIdType> fieldDataTupleIdSaver(
+        this->FieldDataTupleId, batchElement.FieldDataTupleId);
       glBatchElement->StartVertex = 0;
       glBatchElement->CellCellMap->SetStartOffset(
         prevGLBatchElement ? prevGLBatchElement->CellCellMap->GetFinalOffset() : 0);

@@ -66,8 +66,10 @@ public:
     bool Pickability;
     bool OverridesColor;
 
-    int ScalarMode;
+    int ArrayAccessMode;
     int ArrayComponent;
+    int ArrayId;
+    vtkIdType FieldDataTupleId;
 
     unsigned int FlatIndex;
 
@@ -79,8 +81,7 @@ public:
     double Opacity;
     double SelectionOpacity;
 
-    std::string ScalarArrayName;
-
+    std::string ArrayName;
     vtkPolyData* PolyData;
   };
 

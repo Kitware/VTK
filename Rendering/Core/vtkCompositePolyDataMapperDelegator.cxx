@@ -45,22 +45,6 @@ void vtkCompositePolyDataMapperDelegator::ShallowCopy(vtkCompositePolyDataMapper
   {
     // bypass vtkPolyDataMapper::ShallowCopy because it copies input connection.
     this->Delegate->vtkMapper::ShallowCopy(polydataMapper);
-    // special handling for field data arrays.
-    if (polydataMapper->GetScalarMode() == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
-      polydataMapper->GetScalarMode() == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
-    {
-      if (polydataMapper->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID)
-      {
-        this->Delegate->ColorByArrayComponent(
-          polydataMapper->GetArrayId(), polydataMapper->GetArrayComponent());
-      }
-      else
-      {
-        this->Delegate->ColorByArrayComponent(
-          polydataMapper->GetArrayName(), polydataMapper->GetArrayComponent());
-      }
-    }
-    // pass through selection
     this->Delegate->SetSelection(polydataMapper->GetSelection());
     // remaining properties related to vtkPolyDataMapper
     this->Delegate->SetVBOShiftScaleMethod(polydataMapper->GetVBOShiftScaleMethod());

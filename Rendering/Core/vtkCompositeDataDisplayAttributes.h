@@ -190,6 +190,66 @@ public:
    */
   void RemoveBlockMaterials();
 
+  ///@{
+  /**
+   * @see vtkMapper::SetArrayAccessMode
+   */
+  void SetBlockArrayAccessMode(vtkDataObject* data_object, int value);
+  int GetBlockArrayAccessMode(vtkDataObject* data_object) const;
+  bool HasBlockArrayAccessMode(vtkDataObject* data_object) const;
+  bool HasBlockArrayAccessModes() const;
+  void RemoveBlockArrayAccessMode(vtkDataObject* data_object);
+  void RemoveBlockArrayAccessModes();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetArrayComponent
+   */
+  void SetBlockArrayComponent(vtkDataObject* data_object, int value);
+  int GetBlockArrayComponent(vtkDataObject* data_object) const;
+  bool HasBlockArrayComponent(vtkDataObject* data_object) const;
+  bool HasBlockArrayComponents() const;
+  void RemoveBlockArrayComponent(vtkDataObject* data_object);
+  void RemoveBlockArrayComponents();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetArrayId
+   */
+  void SetBlockArrayId(vtkDataObject* data_object, int value);
+  int GetBlockArrayId(vtkDataObject* data_object) const;
+  bool HasBlockArrayId(vtkDataObject* data_object) const;
+  bool HasBlockArrayIds() const;
+  void RemoveBlockArrayId(vtkDataObject* data_object);
+  void RemoveBlockArrayIds();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetArrayName
+   */
+  void SetBlockArrayName(vtkDataObject* data_object, const std::string& value);
+  std::string GetBlockArrayName(vtkDataObject* data_object) const;
+  bool HasBlockArrayName(vtkDataObject* data_object) const;
+  bool HasBlockArrayNames() const;
+  void RemoveBlockArrayName(vtkDataObject* data_object);
+  void RemoveBlockArrayNames();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetFieldDataTupleId
+   */
+  void SetBlockFieldDataTupleId(vtkDataObject* data_object, vtkIdType value);
+  vtkIdType GetBlockFieldDataTupleId(vtkDataObject* data_object) const;
+  bool HasBlockFieldDataTupleId(vtkDataObject* data_object) const;
+  bool HasBlockFieldDataTupleIds() const;
+  void RemoveBlockFieldDataTupleId(vtkDataObject* data_object);
+  void RemoveBlockFieldDataTupleIds();
+  ///@}
+
   /**
    * If the input \a dobj is a vtkCompositeDataSet, we will loop over the
    * hierarchy recursively starting from initial index 0 and use only visible
@@ -238,6 +298,8 @@ private:
 
   using BoolMap = std::unordered_map<vtkDataObject*, bool>;
   using DoubleMap = std::unordered_map<vtkDataObject*, double>;
+  using IntMap = std::unordered_map<vtkDataObject*, int>;
+  using VtkIdTypeMap = std::unordered_map<vtkDataObject*, vtkIdType>;
   using ColorMap = std::unordered_map<vtkDataObject*, vtkColor3d>;
   using StringMap = std::unordered_map<vtkDataObject*, std::string>;
 
@@ -246,6 +308,11 @@ private:
   DoubleMap BlockOpacities;
   StringMap BlockMaterials;
   BoolMap BlockPickabilities;
+  IntMap BlockArrayAccessModes;
+  IntMap BlockArrayComponents;
+  IntMap BlockArrayIds;
+  StringMap BlockArrayNames;
+  VtkIdTypeMap BlockFieldDataTupleIds;
 };
 
 VTK_ABI_NAMESPACE_END
