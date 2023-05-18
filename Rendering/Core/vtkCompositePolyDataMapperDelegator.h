@@ -66,6 +66,7 @@ public:
     bool Pickability;
     bool OverridesColor;
 
+    int ScalarMode;
     int ArrayAccessMode;
     int ArrayComponent;
     int ArrayId;

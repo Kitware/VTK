@@ -136,6 +136,16 @@ public:
 
   ///@{
   /**
+   * @see vtkMapper::SetScalarMode
+   */
+  void SetBlockScalarMode(unsigned int index, int value);
+  int GetBlockScalarMode(unsigned int index);
+  void RemoveBlockScalarMode(unsigned int index);
+  void RemoveBlockScalarModes();
+  ///@}
+
+  ///@{
+  /**
    * @see vtkMapper::SetArrayAccessMode
    */
   void SetBlockArrayAccessMode(unsigned int index, int value);

@@ -65,6 +65,7 @@ public:
     std::stack<vtkColor3d> SpecularColor;
     std::stack<vtkColor3d> SelectionColor;
     std::stack<double> SelectionOpacity;
+    std::stack<int> ScalarMode;
     std::stack<int> ArrayAccessMode;
     std::stack<int> ArrayComponent;
     std::stack<int> ArrayId;
@@ -416,11 +417,12 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     internals.BlockState.SpecularColor.emplace(property->GetSpecularColor());
     internals.BlockState.SelectionColor.emplace(selColor);
     internals.BlockState.SelectionOpacity.push(selColor[3]);
-    internals.BlockState.ArrayAccessMode.push(this->GetArrayAccessMode());
-    internals.BlockState.ArrayComponent.push(this->GetArrayComponent());
-    internals.BlockState.ArrayId.push(this->GetArrayId());
-    internals.BlockState.ArrayName.emplace(this->GetArrayName());
-    internals.BlockState.FieldDataTupleId.push(this->GetFieldDataTupleId());
+    internals.BlockState.ScalarMode.push(this->ScalarMode);
+    internals.BlockState.ArrayAccessMode.push(this->ArrayAccessMode);
+    internals.BlockState.ArrayComponent.push(this->ArrayComponent);
+    internals.BlockState.ArrayId.push(this->ArrayId);
+    internals.BlockState.ArrayName.emplace(this->ArrayName);
+    internals.BlockState.FieldDataTupleId.push(this->FieldDataTupleId);
 
     {
       unsigned int flatIndex = 0;
@@ -435,6 +437,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     internals.BlockState.SpecularColor.pop();
     internals.BlockState.SelectionColor.pop();
     internals.BlockState.SelectionOpacity.pop();
+    internals.BlockState.ScalarMode.pop();
     internals.BlockState.ArrayAccessMode.pop();
     internals.BlockState.ArrayComponent.pop();
     internals.BlockState.ArrayId.pop();
@@ -521,6 +524,12 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
     internals.BlockState.SpecularColor.push(color);
   }
 
+  bool overrides_scalar_mode = (cda && cda->HasBlockScalarMode(dobj));
+  if (overrides_scalar_mode)
+  {
+    internals.BlockState.ScalarMode.push(cda->GetBlockScalarMode(dobj));
+  }
+
   bool overrides_scalar_array_access_mode = (cda && cda->HasBlockArrayAccessMode(dobj));
   if (overrides_scalar_array_access_mode)
   {
@@ -593,6 +602,7 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
       inputItem->SelectionOpacity = internals.BlockState.SelectionOpacity.top();
       inputItem->OverridesColor = (internals.BlockState.AmbientColor.size() > 1);
       inputItem->IsOpaque = (inputItem->Opacity >= 1.0) ? textureOpaque : false;
+      inputItem->ScalarMode = internals.BlockState.ScalarMode.top();
       inputItem->ArrayAccessMode = internals.BlockState.ArrayAccessMode.top();
       inputItem->ArrayComponent = internals.BlockState.ArrayComponent.top();
       inputItem->ArrayId = internals.BlockState.ArrayId.top();
@@ -603,12 +613,13 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
       {
         vtkScalarsToColors* lut = this->GetLookupTable();
         int cellFlag;
-        vtkDataArray* scalars = vtkCompositePolyDataMapper::GetScalars(polydata, this->ScalarMode,
-          inputItem->ArrayAccessMode, inputItem->ArrayId, inputItem->ArrayName.c_str(), cellFlag);
+        vtkDataArray* scalars =
+          vtkCompositePolyDataMapper::GetScalars(polydata, inputItem->ScalarMode,
+            inputItem->ArrayAccessMode, inputItem->ArrayId, inputItem->ArrayName.c_str(), cellFlag);
 
         unsigned char ghostsToSkip;
         vtkUnsignedCharArray* ghosts =
-          vtkAbstractMapper::GetGhostArray(polydata, this->ScalarMode, ghostsToSkip);
+          vtkAbstractMapper::GetGhostArray(polydata, inputItem->ScalarMode, ghostsToSkip);
 
         if (!lut->IsOpaque(
               scalars, this->ColorMode, inputItem->ArrayComponent, ghosts, ghostsToSkip))
@@ -617,6 +628,10 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
         }
       }
     }
+  }
+  if (overrides_scalar_mode)
+  {
+    internals.BlockState.ScalarMode.pop();
   }
   if (overrides_scalar_array_access_mode)
   {
@@ -705,10 +720,17 @@ bool vtkCompositePolyDataMapper::RecursiveHasTranslucentGeometry(
         return false;
       }
     }
+    int scalarMode = this->ScalarMode;
     int arrayAccessMode = this->ArrayAccessMode;
     int arrayComponent = this->ArrayComponent;
     int arrayId = this->ArrayId;
     std::string arrayName = this->ArrayName;
+
+    bool overrides_scalar_mode = (cda && cda->HasBlockArrayAccessMode(dobj));
+    if (overrides_scalar_mode)
+    {
+      scalarMode = cda->GetBlockArrayAccessMode(dobj);
+    }
 
     bool overrides_scalar_array_access_mode = (cda && cda->HasBlockArrayAccessMode(dobj));
     if (overrides_scalar_array_access_mode)
@@ -742,11 +764,10 @@ bool vtkCompositePolyDataMapper::RecursiveHasTranslucentGeometry(
       vtkScalarsToColors* lut = this->GetLookupTable();
       int cellFlag;
       vtkDataArray* scalars = vtkCompositePolyDataMapper::GetScalars(
-        pd, this->ScalarMode, arrayAccessMode, arrayId, arrayName.c_str(), cellFlag);
+        pd, scalarMode, arrayAccessMode, arrayId, arrayName.c_str(), cellFlag);
 
       unsigned char ghostsToSkip;
-      vtkUnsignedCharArray* ghosts =
-        vtkAbstractMapper::GetGhostArray(pd, this->ScalarMode, ghostsToSkip);
+      vtkUnsignedCharArray* ghosts = vtkAbstractMapper::GetGhostArray(pd, scalarMode, ghostsToSkip);
 
       if (lut->IsOpaque(scalars, this->ColorMode, arrayComponent, ghosts, ghostsToSkip) == 0)
       {
@@ -981,6 +1002,65 @@ void vtkCompositePolyDataMapper::RemoveBlockOpacities()
     this->CompositeAttributes->RemoveBlockOpacities();
     this->Modified();
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::SetBlockScalarMode(unsigned int index, int value)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->SetBlockScalarMode(dataObj, value);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositePolyDataMapper::GetBlockScalarMode(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return VTK_SCALAR_MODE_DEFAULT;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    return this->CompositeAttributes->GetBlockScalarMode(dataObj);
+  }
+  return VTK_SCALAR_MODE_DEFAULT;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockScalarMode(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  unsigned int start_index = 0;
+  if (auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0), start_index))
+  {
+    this->CompositeAttributes->RemoveBlockScalarMode(dataObj);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockScalarModes()
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+  this->CompositeAttributes->RemoveBlockScalarModes();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
