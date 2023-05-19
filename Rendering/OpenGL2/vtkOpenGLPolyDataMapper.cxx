@@ -256,11 +256,13 @@ vtkPolyDataMapper::MapperHashType vtkOpenGLPolyDataMapper::GenerateHash(vtkPolyD
   bool hasScalars = this->ScalarVisibility &&
     (vtkAbstractMapper::GetAbstractScalars(polydata, this->ScalarMode, this->ArrayAccessMode,
        this->ArrayId, this->ArrayName, cellFlag) != nullptr);
+  bool hasPointScalars = hasScalars && !cellFlag;
+  bool hasCellScalars = hasScalars && cellFlag == 1;
   bool hasNormals =
     (polydata->GetPointData()->GetNormals() || polydata->GetCellData()->GetNormals());
   bool hasTCoords = (polydata->GetPointData()->GetTCoords() != nullptr);
 
-  return (hasScalars << 0) + (hasNormals << 1) + (hasTCoords << 2);
+  return (hasPointScalars << 0) + (hasCellScalars << 1) + (hasNormals << 2) + (hasTCoords << 3);
 }
 
 //------------------------------------------------------------------------------

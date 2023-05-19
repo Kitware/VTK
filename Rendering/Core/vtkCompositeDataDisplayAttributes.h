@@ -192,6 +192,18 @@ public:
 
   ///@{
   /**
+   * @see vtkMapper::SetScalarMode
+   */
+  void SetBlockScalarMode(vtkDataObject* data_object, int value);
+  int GetBlockScalarMode(vtkDataObject* data_object) const;
+  bool HasBlockScalarMode(vtkDataObject* data_object) const;
+  bool HasBlockScalarModes() const;
+  void RemoveBlockScalarMode(vtkDataObject* data_object);
+  void RemoveBlockScalarModes();
+  ///@}
+
+  ///@{
+  /**
    * @see vtkMapper::SetArrayAccessMode
    */
   void SetBlockArrayAccessMode(vtkDataObject* data_object, int value);
@@ -308,6 +320,7 @@ private:
   DoubleMap BlockOpacities;
   StringMap BlockMaterials;
   BoolMap BlockPickabilities;
+  IntMap BlockScalarModes;
   IntMap BlockArrayAccessModes;
   IntMap BlockArrayComponents;
   IntMap BlockArrayIds;

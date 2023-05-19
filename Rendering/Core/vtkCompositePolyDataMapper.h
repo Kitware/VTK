@@ -136,6 +136,16 @@ public:
 
   ///@{
   /**
+   * @see vtkMapper::SetScalarMode
+   */
+  void SetBlockScalarMode(unsigned int index, int value);
+  int GetBlockScalarMode(unsigned int index);
+  void RemoveBlockScalarMode(unsigned int index);
+  void RemoveBlockScalarModes();
+  ///@}
+
+  ///@{
+  /**
    * @see vtkMapper::SetArrayAccessMode
    */
   void SetBlockArrayAccessMode(unsigned int index, int value);
@@ -278,7 +288,7 @@ protected:
   vtkCompositePolyDataMapper();
   ~vtkCompositePolyDataMapper() override;
 
-  void InsertPolyData(vtkPolyData* polydata, const unsigned int& flatIndex);
+  MapperHashType InsertPolyData(vtkPolyData* polydata, const unsigned int& flatIndex);
 
   /**
    * We need to override this method because the standard streaming

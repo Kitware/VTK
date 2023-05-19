@@ -331,6 +331,59 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockMaterials()
 }
 
 //----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockScalarMode(vtkDataObject* data_object, int value)
+{
+  const auto result = this->BlockScalarModes.emplace(data_object, value);
+  const auto& iter = result.first;
+  const auto& inserted = result.second;
+  if (inserted || iter->second != value)
+  {
+    iter->second = value;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataDisplayAttributes::GetBlockScalarMode(vtkDataObject* data_object) const
+{
+  const auto iter = this->BlockScalarModes.find(data_object);
+  if (iter != this->BlockScalarModes.end())
+  {
+    return iter->second;
+  }
+  return VTK_SCALAR_MODE_DEFAULT;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockScalarMode(vtkDataObject* data_object) const
+{
+  return this->BlockScalarModes.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockScalarModes() const
+{
+  return !this->BlockScalarModes.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockScalarMode(vtkDataObject* data_object)
+{
+  this->BlockScalarModes.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockScalarModes()
+{
+  if (!this->HasBlockScalarModes())
+  {
+    return;
+  }
+  this->BlockScalarModes.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::SetBlockArrayAccessMode(
   vtkDataObject* data_object, int value)
 {

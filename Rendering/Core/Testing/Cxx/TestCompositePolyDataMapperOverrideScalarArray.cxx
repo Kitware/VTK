@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+#include "vtkAbstractMapper.h"
+#include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePolyDataMapper.h"
@@ -51,7 +53,8 @@ vtkPolyData* createAQuad(vtkVector3d center = vtkVector3d{ 0., 0., 0. })
   points->InsertNextPoint(center.GetX() + 0.5, center.GetY() - 0.5, center.GetZ()); // lower-right
   points->InsertNextPoint(center.GetX() + 0.5, center.GetY() + 0.5, center.GetZ()); // upper-right
   points->InsertNextPoint(center.GetX() - 0.5, center.GetY() + 0.5, center.GetZ()); // upper-left
-  polys->InsertNextCell({ 0, 1, 2, 3 });
+  polys->InsertNextCell({ 0, 1, 2 });
+  polys->InsertNextCell({ 2, 3, 0 });
   polydata->SetPoints(points);
   polydata->SetPolys(polys);
   return polydata;
@@ -72,6 +75,8 @@ int TestCompositePolyDataMapperOverrideScalarArray(int argc, char* argv[])
   auto polydata3 = vtk::TakeSmartPointer(::createAQuad(/*center=*/{ 1., -1, 0. }));
   // colored by default color map (rainbow)
   auto polydata4 = vtk::TakeSmartPointer(::createAQuad(/*center=*/{ 1., 0., 1. }));
+  // colored by cell data
+  auto polydata5 = vtk::TakeSmartPointer(::createAQuad(/*center=*/{ 4., 1., 0. }));
 
   vtkNew<vtkFloatArray> scalars;
   scalars->SetName("scalars");
@@ -125,18 +130,29 @@ int TestCompositePolyDataMapperOverrideScalarArray(int argc, char* argv[])
   polydata1->GetPointData()->AddArray(scalarsC);
   polydata2->GetPointData()->AddArray(scalarsC);
 
+  vtkNew<vtkFloatArray> scalarsD;
+  scalarsD->SetName("scalarsD");
+  scalarsD->SetNumberOfComponents(1);
+  scalarsD->SetNumberOfTuples(2);
+  scalarsD->SetValue(0, 0.0);
+  scalarsD->SetValue(1, 4.0);
+  // scalarsD will be an extra array on the cell data of all polydata
+  polydata5->GetCellData()->AddArray(scalarsD);
+
   vtkNew<vtkPartitionedDataSetCollection> pdsc;
   pdsc->SetPartition(0, 0, polydata0);
   pdsc->SetPartition(1, 0, polydata1);
   pdsc->SetPartition(2, 0, polydata2);
   pdsc->SetPartition(3, 0, polydata3);
   pdsc->SetPartition(4, 0, polydata4);
+  pdsc->SetPartition(5, 0, polydata5);
 
   vtkDebugWithObjectMacro(pdsc, << "polydata0" << vtkLogIdentifier(polydata0));
   vtkDebugWithObjectMacro(pdsc, << "polydata1" << vtkLogIdentifier(polydata1));
   vtkDebugWithObjectMacro(pdsc, << "polydata2" << vtkLogIdentifier(polydata2));
   vtkDebugWithObjectMacro(pdsc, << "polydata3" << vtkLogIdentifier(polydata3));
   vtkDebugWithObjectMacro(pdsc, << "polydata4" << vtkLogIdentifier(polydata4));
+  vtkDebugWithObjectMacro(pdsc, << "polydata5" << vtkLogIdentifier(polydata5));
 
   vtkNew<vtkTrivialProducer> source;
   source->SetOutput(pdsc);
@@ -185,8 +201,12 @@ int TestCompositePolyDataMapperOverrideScalarArray(int argc, char* argv[])
   attributes->SetBlockArrayAccessMode(polydata1, VTK_GET_ARRAY_BY_NAME);
   attributes->SetBlockArrayName(polydata1, scalarsB->GetName());
   // override scalar array ID for polydata2
-  attributes->SetBlockArrayAccessMode(polydata2, VTK_GET_ARRAY_BY_ID);
   attributes->SetBlockArrayId(polydata2, 2); // scalarsC is the the third array on the pointdata.
+  // override scalar array ID for polydata5
+  attributes->SetBlockArrayAccessMode(polydata5, VTK_GET_ARRAY_BY_NAME);
+  attributes->SetBlockScalarMode(polydata5, VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);
+  attributes->SetBlockArrayName(
+    polydata5, scalarsD->GetName()); // scalarsD is the the first array on the celldata.
   mapper->SetInputConnection(source->GetOutputPort());
   mapper->SetColorMissingArraysWithNanColor(true);
   mapper->SetLookupTable(lut);
