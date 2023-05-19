@@ -1,4 +1,5 @@
 #include <vtkActor.h>
+#include <vtkCellData.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
@@ -7,6 +8,8 @@
 #include <vtkRenderer.h>
 #include <vtkSTLReader.h>
 #include <vtkSmartPointer.h>
+
+#include <string>
 
 int TestSTLReader(int argc, char* argv[])
 {
@@ -21,6 +24,35 @@ int TestSTLReader(int argc, char* argv[])
   vtkSmartPointer<vtkSTLReader> reader = vtkSmartPointer<vtkSTLReader>::New();
   reader->SetFileName(inputFilename.c_str());
   reader->Update();
+
+  // Check if header and solids match for ASCII STL
+  if (reader->GetBinaryHeader() == nullptr) // check if ASCII
+  {
+    reader->ScalarTagsOn();
+    reader->Update();
+
+    double range[2];
+    reader->GetOutput()->GetCellData()->GetScalars("STLSolidLabeling")->GetRange(range);
+    int nSolids = static_cast<int>(range[1]) + 1;
+
+    int nHeaders = 1; // At least one solid even when it does not have associated name
+
+    std::string header(reader->GetHeader());
+    if (!header.empty())
+    {
+      nHeaders += std::count(header.begin(), header.end(), '\n');
+    }
+
+    if (nSolids != nHeaders)
+    {
+      std::cerr << "Number of Solid Names in Header does not match with the number of solids"
+                << endl;
+      return EXIT_FAILURE;
+    }
+
+    reader->ScalarTagsOff();
+    reader->Update();
+  }
 
   // Visualize
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
