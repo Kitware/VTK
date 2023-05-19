@@ -875,40 +875,34 @@ struct SerialBoundsFunctor : public BaseBoundsFunctor<TPointsArray>
       vtkMath::UninitializeBounds(this->Bounds);
       return;
     }
-    const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray, 0, numberOfPoints);
+    const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray);
+    double point[3];
     // Initialize bounds to first point:
     {
-      const auto pt = points[0];
-
       // Explicitly reusing a local will improve performance when virtual
       // calls are involved in the iterator read:
-      const double x = static_cast<double>(pt[0]);
-      const double y = static_cast<double>(pt[1]);
-      const double z = static_cast<double>(pt[2]);
+      points.GetTuple(0, point);
 
-      this->Bounds[0] = x;
-      this->Bounds[1] = x;
-      this->Bounds[2] = y;
-      this->Bounds[3] = y;
-      this->Bounds[4] = z;
-      this->Bounds[5] = z;
+      this->Bounds[0] = point[0];
+      this->Bounds[1] = point[0];
+      this->Bounds[2] = point[1];
+      this->Bounds[3] = point[1];
+      this->Bounds[4] = point[2];
+      this->Bounds[5] = point[2];
     }
     // Reduce bounds with the rest of the ids:
     for (vtkIdType i = 1; i < numberOfPoints; ++i)
     {
-      const auto point = points[i];
       // Explicitly reusing a local will improve performance when virtual
       // calls are involved in the iterator read:
-      const double x = static_cast<double>(point[0]);
-      const double y = static_cast<double>(point[1]);
-      const double z = static_cast<double>(point[2]);
+      points.GetTuple(i, point);
 
-      this->Bounds[0] = std::min(this->Bounds[0], x);
-      this->Bounds[1] = std::max(this->Bounds[1], x);
-      this->Bounds[2] = std::min(this->Bounds[2], y);
-      this->Bounds[3] = std::max(this->Bounds[3], y);
-      this->Bounds[4] = std::min(this->Bounds[4], z);
-      this->Bounds[5] = std::max(this->Bounds[5], z);
+      this->Bounds[0] = std::min(this->Bounds[0], point[0]);
+      this->Bounds[1] = std::max(this->Bounds[1], point[0]);
+      this->Bounds[2] = std::min(this->Bounds[2], point[1]);
+      this->Bounds[3] = std::max(this->Bounds[3], point[1]);
+      this->Bounds[4] = std::min(this->Bounds[4], point[2]);
+      this->Bounds[5] = std::max(this->Bounds[5], point[2]);
     }
   }
 };
@@ -929,20 +923,21 @@ struct ThreadedBoundsFunctor : public ThreadedBaseBoundsFunctor<TPointsArray>
   void operator()(vtkIdType beginPtId, vtkIdType endPtId) override
   {
     std::array<double, 6>& localBds = this->LocalBounds.Local();
-    const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray, beginPtId, endPtId);
+    const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray);
+    double point[3];
 
-    for (const auto point : points)
+    for (vtkIdType i = beginPtId; i < endPtId; ++i)
     {
-      const double x = static_cast<double>(point[0]);
-      const double y = static_cast<double>(point[1]);
-      const double z = static_cast<double>(point[2]);
+      // Explicitly reusing a local will improve performance when virtual
+      // calls are involved in the iterator read:
+      points.GetTuple(i, point);
 
-      localBds[0] = std::min(localBds[0], x);
-      localBds[1] = std::max(localBds[1], x);
-      localBds[2] = std::min(localBds[2], y);
-      localBds[3] = std::max(localBds[3], y);
-      localBds[4] = std::min(localBds[4], z);
-      localBds[5] = std::max(localBds[5], z);
+      localBds[0] = std::min(localBds[0], point[0]);
+      localBds[1] = std::max(localBds[1], point[0]);
+      localBds[2] = std::min(localBds[2], point[1]);
+      localBds[3] = std::max(localBds[3], point[1]);
+      localBds[4] = std::min(localBds[4], point[2]);
+      localBds[5] = std::max(localBds[5], point[2]);
     }
   }
 
@@ -973,25 +968,24 @@ struct SerialBoundsPointUsesFunctor : public BaseBoundsFunctor<TPointsArray>
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = VTK_DOUBLE_MIN;
 
-    const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray, 0, numberOfPoints);
+    const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray);
     const TUsed* used = static_cast<const TUsed*>(this->PointUses);
+    double point[3];
 
-    for (const auto point : points)
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
     {
       if (*used)
       {
         // Explicitly reusing a local will improve performance when virtual
         // calls are involved in the iterator read:
-        const double x = static_cast<double>(point[0]);
-        const double y = static_cast<double>(point[1]);
-        const double z = static_cast<double>(point[2]);
+        points.GetTuple(i, point);
 
-        this->Bounds[0] = std::min(this->Bounds[0], x);
-        this->Bounds[1] = std::max(this->Bounds[1], x);
-        this->Bounds[2] = std::min(this->Bounds[2], y);
-        this->Bounds[3] = std::max(this->Bounds[3], y);
-        this->Bounds[4] = std::min(this->Bounds[4], z);
-        this->Bounds[5] = std::max(this->Bounds[5], z);
+        this->Bounds[0] = std::min(this->Bounds[0], point[0]);
+        this->Bounds[1] = std::max(this->Bounds[1], point[0]);
+        this->Bounds[2] = std::min(this->Bounds[2], point[1]);
+        this->Bounds[3] = std::max(this->Bounds[3], point[1]);
+        this->Bounds[4] = std::min(this->Bounds[4], point[2]);
+        this->Bounds[5] = std::max(this->Bounds[5], point[2]);
       }
       ++used;
     }
@@ -1017,23 +1011,24 @@ struct ThreadedBoundsPointUsesFunctor : public ThreadedBaseBoundsFunctor<TPoints
   void operator()(vtkIdType beginPtId, vtkIdType endPtId) override
   {
     std::array<double, 6>& localBds = this->LocalBounds.Local();
-    const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray, beginPtId, endPtId);
+    const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray);
     const TUsed* used = static_cast<const TUsed*>(this->PointUses + beginPtId);
+    double point[3];
 
-    for (const auto point : points)
+    for (vtkIdType i = beginPtId; i < endPtId; ++i)
     {
       if (*used)
       {
-        const double x = static_cast<double>(point[0]);
-        const double y = static_cast<double>(point[1]);
-        const double z = static_cast<double>(point[2]);
+        // Explicitly reusing a local will improve performance when virtual
+        // calls are involved in the iterator read:
+        points.GetTuple(i, point);
 
-        localBds[0] = std::min(localBds[0], x);
-        localBds[1] = std::max(localBds[1], x);
-        localBds[2] = std::min(localBds[2], y);
-        localBds[3] = std::max(localBds[3], y);
-        localBds[4] = std::min(localBds[4], z);
-        localBds[5] = std::max(localBds[5], z);
+        localBds[0] = std::min(localBds[0], point[0]);
+        localBds[1] = std::max(localBds[1], point[0]);
+        localBds[2] = std::min(localBds[2], point[1]);
+        localBds[3] = std::max(localBds[3], point[1]);
+        localBds[4] = std::min(localBds[4], point[2]);
+        localBds[5] = std::max(localBds[5], point[2]);
       }
       ++used;
     }
@@ -1064,39 +1059,33 @@ struct SerialBoundsPointIdsFunctor : public BaseBoundsFunctor<TPointsArray>
       return;
     }
     const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray);
+    double point[3];
     // Initialize bounds to first point:
     {
-      const auto pt = points[this->PointIds[0]];
-
       // Explicitly reusing a local will improve performance when virtual
       // calls are involved in the iterator read:
-      const double x = static_cast<double>(pt[0]);
-      const double y = static_cast<double>(pt[1]);
-      const double z = static_cast<double>(pt[2]);
+      points.GetTuple(this->PointIds[0], point);
 
-      this->Bounds[0] = x;
-      this->Bounds[1] = x;
-      this->Bounds[2] = y;
-      this->Bounds[3] = y;
-      this->Bounds[4] = z;
-      this->Bounds[5] = z;
+      this->Bounds[0] = point[0];
+      this->Bounds[1] = point[0];
+      this->Bounds[2] = point[1];
+      this->Bounds[3] = point[1];
+      this->Bounds[4] = point[2];
+      this->Bounds[5] = point[2];
     }
     // Reduce bounds with the rest of the ids:
     for (vtkIdType i = 1; i < numberOfPoints; ++i)
     {
-      const auto point = points[this->PointIds[i]];
       // Explicitly reusing a local will improve performance when virtual
       // calls are involved in the iterator read:
-      const double x = static_cast<double>(point[0]);
-      const double y = static_cast<double>(point[1]);
-      const double z = static_cast<double>(point[2]);
+      points.GetTuple(this->PointIds[i], point);
 
-      this->Bounds[0] = std::min(this->Bounds[0], x);
-      this->Bounds[1] = std::max(this->Bounds[1], x);
-      this->Bounds[2] = std::min(this->Bounds[2], y);
-      this->Bounds[3] = std::max(this->Bounds[3], y);
-      this->Bounds[4] = std::min(this->Bounds[4], z);
-      this->Bounds[5] = std::max(this->Bounds[5], z);
+      this->Bounds[0] = std::min(this->Bounds[0], point[0]);
+      this->Bounds[1] = std::max(this->Bounds[1], point[0]);
+      this->Bounds[2] = std::min(this->Bounds[2], point[1]);
+      this->Bounds[3] = std::max(this->Bounds[3], point[1]);
+      this->Bounds[4] = std::min(this->Bounds[4], point[2]);
+      this->Bounds[5] = std::max(this->Bounds[5], point[2]);
     }
   }
 };
@@ -1121,22 +1110,20 @@ struct ThreadedBoundsPointIdsFunctor : public ThreadedBaseBoundsFunctor<TPointsA
   {
     std::array<double, 6>& localBds = this->LocalBounds.Local();
     const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray);
+    double point[3];
     // Reduce bounds with the rest of the ids:
     for (vtkIdType i = beginPtId + 1; i < endPtId; ++i)
     {
-      const auto point = points[this->PointIds[i]];
       // Explicitly reusing a local will improve performance when virtual
       // calls are involved in the iterator read:
-      const double x = static_cast<double>(point[0]);
-      const double y = static_cast<double>(point[1]);
-      const double z = static_cast<double>(point[2]);
+      points.GetTuple(this->PointIds[i], point);
 
-      localBds[0] = std::min(localBds[0], x);
-      localBds[1] = std::max(localBds[1], x);
-      localBds[2] = std::min(localBds[2], y);
-      localBds[3] = std::max(localBds[3], y);
-      localBds[4] = std::min(localBds[4], z);
-      localBds[5] = std::max(localBds[5], z);
+      localBds[0] = std::min(localBds[0], point[0]);
+      localBds[1] = std::max(localBds[1], point[0]);
+      localBds[2] = std::min(localBds[2], point[1]);
+      localBds[3] = std::max(localBds[3], point[1]);
+      localBds[4] = std::min(localBds[4], point[2]);
+      localBds[5] = std::max(localBds[5], point[2]);
     }
   }
 
@@ -1215,8 +1202,8 @@ struct BoundsPointIdsWorker
 void vtkBoundingBox::ComputeBounds(vtkPoints* pts, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Reals>;
   BoundsWorker worker;
 
   if (!Dispatcher::Execute(pts->GetData(), worker, bounds))
@@ -1229,8 +1216,8 @@ void vtkBoundingBox::ComputeBounds(vtkPoints* pts, double bounds[6])
 void vtkBoundingBox::ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Reals>;
   BoundsPointUsesWorker worker;
 
   if (!Dispatcher::Execute(pts->GetData(), worker, ptUses, bounds))
@@ -1244,8 +1231,8 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const std::atomic<unsigned char>* ptUses, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Reals>;
   BoundsPointUsesWorker worker;
 
   if (!Dispatcher::Execute(pts->GetData(), worker, ptUses, bounds))
@@ -1259,8 +1246,8 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const long long* ptIds, long long numberOfPointsIds, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Reals>;
   BoundsPointIdsWorker worker;
 
   if (!Dispatcher::Execute(pts->GetData(), worker, ptIds, numberOfPointsIds, bounds))
@@ -1274,8 +1261,8 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const long* ptIds, long numberOfPointsIds, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Reals>;
   BoundsPointIdsWorker worker;
 
   if (!Dispatcher::Execute(pts->GetData(), worker, ptIds, numberOfPointsIds, bounds))
@@ -1289,8 +1276,8 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const int* ptIds, int numberOfPointsIds, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Reals>;
   BoundsPointIdsWorker worker;
 
   if (!Dispatcher::Execute(pts->GetData(), worker, ptIds, numberOfPointsIds, bounds))
