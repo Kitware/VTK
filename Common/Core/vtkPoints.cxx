@@ -74,13 +74,15 @@ struct GetTuplesFromListWorker
     const auto srcTuples = vtk::DataArrayTupleRange<3>(src);
     auto dstTuples = vtk::DataArrayTupleRange<3>(dst);
 
-    vtkIdType* srcTupleId = this->Ids->GetPointer(0);
-    vtkIdType* srcTupleIdEnd = this->Ids->GetPointer(this->Ids->GetNumberOfIds());
-
-    auto dstTupleIter = dstTuples.begin();
-    while (srcTupleId != srcTupleIdEnd)
+    double point[3];
+    vtkIdType* idsPtr = this->Ids->GetPointer(0);
+    for (vtkIdType i = 0, max = this->Ids->GetNumberOfIds(); i < max; ++i)
     {
-      *dstTupleIter++ = srcTuples[*srcTupleId++];
+      // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+      // we do that since the input points can be implicit points, and GetTypedTuple is faster
+      // than accessing the component of the TupleReference using GetTypedComponent internally.
+      srcTuples.GetTuple(idsPtr[i], point);
+      dstTuples.SetTuple(i, point);
     }
   }
 };
@@ -98,8 +100,8 @@ void vtkPoints::GetPoints(vtkIdList* ptIds, vtkPoints* outPoints)
   //    Points are 99% of the times floats or doubles, so we can avoid A LOT of failed FastDownCast
   //    operations, by utilizing this knowledge.
   // 4) The Worker isn't aware of the number of components of the tuple which slows down the access.
-  using Dispatcher =
-    vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
   GetTuplesFromListWorker worker(ptIds);
   if (!Dispatcher::Execute(this->Data, outPoints->Data, worker))
   {
