@@ -17,6 +17,7 @@
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageInterpolatorInternals.h"
+#include "vtkMatrix3x3.h"
 #include "vtkPointData.h"
 #include "vtkTypeTraits.h"
 
@@ -61,19 +62,24 @@ vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
   this->Scalars = nullptr;
   this->BorderMode = VTK_IMAGE_BORDER_CLAMP;
   this->SlidingWindow = false;
+  this->UseDirection = false;
 
-  for (int i = 0; i < 6; i++)
+  for (int i = 0; i < 6; ++i)
   {
     this->StructuredBoundsDouble[i] = 0.0;
     this->StructuredBoundsFloat[i] = 0.0f;
   }
 
-  for (int j = 0; j < 3; j++)
+  for (int j = 0; j < 3; ++j)
   {
     this->Extent[2 * j] = 0;
     this->Extent[2 * j + 1] = -1;
     this->Spacing[j] = 1.0;
     this->Origin[j] = 0.0;
+    for (int i = 0; i < 3; ++i)
+    {
+      this->Direction[j * 3 + i] = (j == i ? 1.0 : 0.0);
+    }
   }
 
   this->OutValue = 0.0;
@@ -116,6 +122,15 @@ void vtkAbstractImageInterpolator::DeepCopy(vtkAbstractImageInterpolator* obj)
   this->SetSlidingWindow(obj->SlidingWindow);
   obj->GetExtent(this->Extent);
   obj->GetOrigin(this->Origin);
+  obj->GetDirection(this->Direction);
+  this->UseDirection = obj->UseDirection;
+  if (this->UseDirection)
+  {
+    for (int i = 0; i < 9; ++i)
+    {
+      this->InverseDirection[i] = obj->InverseDirection[i];
+    }
+  }
   obj->GetSpacing(this->Spacing);
   if (this->Scalars)
   {
@@ -145,6 +160,11 @@ void vtkAbstractImageInterpolator::PrintSelf(ostream& os, vtkIndent indent)
      << " " << this->Extent[3] << " " << this->Extent[4] << " " << this->Extent[5] << "\n";
   os << indent << "Origin: " << this->Origin[0] << " " << this->Origin[1] << " " << this->Origin[2]
      << "\n";
+  os << indent << "Direction: ";
+  for (int i = 0; i < 9; ++i)
+  {
+    os << this->Direction[i] << (i < 8 ? " " : "\n");
+  }
   os << indent << "Spacing: " << this->Spacing[0] << " " << this->Spacing[1] << " "
      << this->Spacing[2] << "\n";
 }
@@ -272,6 +292,18 @@ void vtkAbstractImageInterpolator::Initialize(vtkDataObject* o)
 
   // get the image information
   data->GetSpacing(this->Spacing);
+  vtkMatrix3x3* matrix = data->GetDirectionMatrix();
+  if (matrix->IsIdentity())
+  {
+    this->UseDirection = false;
+    vtkMatrix3x3::Identity(this->Direction);
+  }
+  else
+  {
+    this->UseDirection = true;
+    vtkMatrix3x3::DeepCopy(this->Direction, data->GetDirectionMatrix());
+    vtkMatrix3x3::Invert(this->Direction, this->InverseDirection);
+  }
   data->GetOrigin(this->Origin);
   data->GetExtent(this->Extent);
 
@@ -794,12 +826,27 @@ void vtkAbstractImageInterpolator::Update()
 }
 
 //------------------------------------------------------------------------------
+void vtkAbstractImageInterpolator::CoordinateToIJK(const double point[3], double p[3])
+{
+  p[0] = point[0] - this->Origin[0];
+  p[1] = point[1] - this->Origin[1];
+  p[2] = point[2] - this->Origin[2];
+
+  if (this->UseDirection)
+  {
+    vtkMatrix3x3::MultiplyPoint(this->InverseDirection, p, p);
+  }
+
+  p[0] /= this->Spacing[0];
+  p[1] /= this->Spacing[1];
+  p[2] /= this->Spacing[2];
+}
+
+//------------------------------------------------------------------------------
 bool vtkAbstractImageInterpolator::Interpolate(const double point[3], double* value)
 {
   double p[3];
-  p[0] = (point[0] - this->Origin[0]) / this->Spacing[0];
-  p[1] = (point[1] - this->Origin[1]) / this->Spacing[1];
-  p[2] = (point[2] - this->Origin[2]) / this->Spacing[2];
+  this->CoordinateToIJK(point, p);
 
   if (this->CheckBoundsIJK(p))
   {
@@ -819,15 +866,8 @@ bool vtkAbstractImageInterpolator::Interpolate(const double point[3], double* va
 double vtkAbstractImageInterpolator::Interpolate(double x, double y, double z, int component)
 {
   double value = this->OutValue;
-  double point[3];
-  point[0] = x;
-  point[1] = y;
-  point[2] = z;
-
-  double p[3];
-  p[0] = (point[0] - this->Origin[0]) / this->Spacing[0];
-  p[1] = (point[1] - this->Origin[1]) / this->Spacing[1];
-  p[2] = (point[2] - this->Origin[2]) / this->Spacing[2];
+  double p[3] = { x, y, z };
+  this->CoordinateToIJK(p, p);
 
   if (this->CheckBoundsIJK(p))
   {

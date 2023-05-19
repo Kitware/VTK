@@ -11,6 +11,7 @@ vtk_add_test_cxx(vtkImagingCoreCxxTests tests
   ImageHistogramStatistics.cxx,NO_VALID
   ImageInterpolateSlidingWindow2D.cxx
   ImageInterpolateSlidingWindow3D.cxx
+  ImageInterpolator.cxx,NO_VALID,NO_DATA
   ImageResize.cxx
   ImageResize3D.cxx
   ImageResizeCropping.cxx
