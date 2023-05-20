@@ -29,6 +29,7 @@ typedef vtkTypeList::Unique<                //
     vtkSOADataArrayTemplate<unsigned char>, //
     vtkSOADataArrayTemplate<vtkIdType>      //
     >>::Result Arrays;
+typedef Arrays AllArrays;
 } // end namespace vtkArrayDispatch
 
 #include "vtkArrayDispatch.h"

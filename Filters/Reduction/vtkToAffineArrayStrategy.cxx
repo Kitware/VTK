@@ -4,7 +4,6 @@
 
 #include "vtkAffineArray.h"
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchImplicitArrayList.h"
 #include "vtkDataArrayRange.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"

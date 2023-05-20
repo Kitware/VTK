@@ -13,11 +13,9 @@ SPDX_COPYRIGHT_TEXT
 DEPENDS
   VTK::CommonCore
   VTK::CommonExecutionModel
-  VTK::CommonImplicitArrays
 PRIVATE_DEPENDS
   VTK::CommonDataModel
 TEST_DEPENDS
-  VTK::CommonImplicitArrays
   VTK::CommonSystem
   VTK::FiltersSources
   VTK::TestingCore

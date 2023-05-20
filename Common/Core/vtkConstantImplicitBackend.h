@@ -4,7 +4,7 @@
 #ifndef vtkConstantImplicitBackend_h
 #define vtkConstantImplicitBackend_h
 
-#include "vtkCommonImplicitArraysModule.h"
+#include "vtkCommonCoreModule.h"
 #include "vtkSetGet.h" // for vtkNotUsed
 
 /**
@@ -30,7 +30,7 @@
  */
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
-struct vtkConstantImplicitBackend final
+struct VTKCOMMONCORE_EXPORT vtkConstantImplicitBackend final
 {
   /**
    * A non-trivially contructible constructor
@@ -57,3 +57,10 @@ struct vtkConstantImplicitBackend final
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkConstantImplicitBackend_h
+
+#ifdef VTK_CONSTANT_BACKEND_INSTANTIATING
+#define VTK_INSTANTIATE_CONSTANT_BACKEND(ValueType)                                                \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  template struct VTKCOMMONCORE_EXPORT vtkConstantImplicitBackend<ValueType>;                      \
+  VTK_ABI_NAMESPACE_END
+#endif

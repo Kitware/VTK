@@ -3,7 +3,6 @@
 #include "vtkIndexedImplicitBackend.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchImplicitArrayList.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIdList.h"
 #include "vtkImplicitArray.h"
@@ -11,8 +10,9 @@
 
 #include <memory>
 
-namespace
+namespace vtkIndexedImplicitBackendDetail
 {
+VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------
 template <typename ValueType>
 struct TypedArrayCache
@@ -103,8 +103,8 @@ struct IdListWrapper
 
   vtkSmartPointer<vtkIdList> Handles;
 };
-
-}
+VTK_ABI_NAMESPACE_END
+} // namespace vtkIndexedImplicitBackendDetail
 
 VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------
@@ -112,7 +112,7 @@ template <typename ValueType>
 struct vtkIndexedImplicitBackend<ValueType>::Internals
 {
   using InternalArrayList = vtkTypeList::Append<vtkArrayDispatch::AllArrays,
-    vtkTypeList::Create<vtkImplicitArray<::IdListWrapper>>>::Result;
+    vtkTypeList::Create<vtkImplicitArray<vtkIndexedImplicitBackendDetail::IdListWrapper>>>::Result;
 
   Internals(vtkIdList* indexes, vtkDataArray* array)
   {
@@ -121,8 +121,9 @@ struct vtkIndexedImplicitBackend<ValueType>::Internals
       vtkErrorWithObjectMacro(nullptr, "Either index array or array itself is nullptr");
       return;
     }
-    vtkNew<vtkImplicitArray<::IdListWrapper>> newHandles;
-    newHandles->SetBackend(std::make_shared<IdListWrapper>(indexes));
+    vtkNew<vtkImplicitArray<vtkIndexedImplicitBackendDetail::IdListWrapper>> newHandles;
+    newHandles->SetBackend(
+      std::make_shared<vtkIndexedImplicitBackendDetail::IdListWrapper>(indexes));
     newHandles->SetNumberOfComponents(1);
     newHandles->SetNumberOfTuples(indexes->GetNumberOfIds());
     this->Handles = this->TypeCacheArray<vtkIdType>(newHandles);
@@ -147,18 +148,27 @@ struct vtkIndexedImplicitBackend<ValueType>::Internals
   }
 
   template <typename VT>
-  static vtkSmartPointer<vtkImplicitArray<::TypedCacheWrapper<InternalArrayList, VT>>>
+  static vtkSmartPointer<
+    vtkImplicitArray<vtkIndexedImplicitBackendDetail::TypedCacheWrapper<InternalArrayList, VT>>>
   TypeCacheArray(vtkDataArray* da)
   {
-    vtkNew<vtkImplicitArray<::TypedCacheWrapper<InternalArrayList, VT>>> wrapped;
-    wrapped->SetBackend(std::make_shared<::TypedCacheWrapper<InternalArrayList, VT>>(da));
+    vtkNew<
+      vtkImplicitArray<vtkIndexedImplicitBackendDetail::TypedCacheWrapper<InternalArrayList, VT>>>
+      wrapped;
+    wrapped->SetBackend(
+      std::make_shared<vtkIndexedImplicitBackendDetail::TypedCacheWrapper<InternalArrayList, VT>>(
+        da));
     wrapped->SetNumberOfComponents(1);
     wrapped->SetNumberOfTuples(da->GetNumberOfTuples() * da->GetNumberOfComponents());
     return wrapped;
   }
 
-  vtkSmartPointer<vtkImplicitArray<::TypedCacheWrapper<InternalArrayList, ValueType>>> Array;
-  vtkSmartPointer<vtkImplicitArray<::TypedCacheWrapper<InternalArrayList, vtkIdType>>> Handles;
+  vtkSmartPointer<vtkImplicitArray<
+    vtkIndexedImplicitBackendDetail::TypedCacheWrapper<InternalArrayList, ValueType>>>
+    Array;
+  vtkSmartPointer<vtkImplicitArray<
+    vtkIndexedImplicitBackendDetail::TypedCacheWrapper<InternalArrayList, vtkIdType>>>
+    Handles;
 };
 
 //-----------------------------------------------------------------------

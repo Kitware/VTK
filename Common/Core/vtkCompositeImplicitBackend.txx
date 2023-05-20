@@ -4,14 +4,13 @@
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchImplicitArrayList.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayRange.h"
 #include "vtkImplicitArray.h"
 #include "vtkSmartPointer.h"
 
-namespace
+namespace vtkCompositeImplicitBackendDetail
 {
+VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------
 /*
  * A generic interface towards a typed get value. Specialized structures should inherit from this
@@ -109,7 +108,8 @@ private:
   using Dispatcher = vtkArrayDispatch::DispatchByArray<ArrayList>;
   std::shared_ptr<TypedArrayCache<ValueType>> Cache = nullptr;
 };
-}
+VTK_ABI_NAMESPACE_END
+} // namespace vtkCompositeImplicitBackendDetail
 
 VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------
@@ -117,7 +117,8 @@ template <typename ValueType>
 struct vtkCompositeImplicitBackend<ValueType>::Internals
 {
   using InternalArrayList = vtkArrayDispatch::AllArrays;
-  using CachedBackend = ::TypedCacheWrapper<InternalArrayList, ValueType>;
+  using CachedBackend =
+    vtkCompositeImplicitBackendDetail::TypedCacheWrapper<InternalArrayList, ValueType>;
   using CachedArray = vtkImplicitArray<CachedBackend>;
 
   /*

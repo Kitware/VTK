@@ -4,7 +4,7 @@
 #ifndef vtkAffineImplicitBackend_h
 #define vtkAffineImplicitBackend_h
 
-#include "vtkCommonImplicitArraysModule.h"
+#include "vtkCommonCoreModule.h"
 
 /**
  * \struct vtkAffineImplicitBackend
@@ -32,7 +32,7 @@
  */
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
-struct vtkAffineImplicitBackend final
+struct VTKCOMMONCORE_EXPORT vtkAffineImplicitBackend final
 {
   /**
    * A non-trivially constructible constructor
@@ -52,7 +52,10 @@ struct vtkAffineImplicitBackend final
    * \param index the index at which one wished to evaluate the backend
    * \return the affinely computed value
    */
-  ValueType operator()(int index) const { return this->Slope * index + this->Intercept; }
+  ValueType operator()(int index) const
+  {
+    return this->Slope * static_cast<ValueType>(index) + this->Intercept;
+  }
 
   /**
    * The slope of the affine function on the indeces
@@ -66,3 +69,10 @@ struct vtkAffineImplicitBackend final
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkAffineImplicitBackend_h
+
+#ifdef VTK_AFFINE_BACKEND_INSTANTIATING
+#define VTK_INSTANTIATE_AFFINE_BACKEND(ValueType)                                                  \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  template struct VTKCOMMONCORE_EXPORT vtkAffineImplicitBackend<ValueType>;                        \
+  VTK_ABI_NAMESPACE_END
+#endif

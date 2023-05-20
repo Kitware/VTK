@@ -212,9 +212,8 @@ More advanced options:
 
 The `VTK_DISPATCH_<array_type>_ARRAYS` options (default `OFF` for all but AOS) enable the
 specified type of array to be included in a dispatch type list. Explicit arrays (such as
-AOS, SOA and Typed) are included in the `vtkArrayDispatchTypeList.h` while
-`vtkArrayDispatchImplicitTypeList.h` includes both explicit and implicit arrays. The implicit
-array framework is included in the `CommonImplicitArrays` module. The following array types
+AOS, SOA, Typed, and implicit arrays) are included in the `vtkArrayDispatchTypeList.h`
+The implicit array framework is included in the `CommonCore` module. The following array types
 currently exist for use with the VTK dispatch mechanism:
 
   * `VTK_DISPATCH_AOS_ARRAYS` (default `ON`): includes dispatching for the commonly used

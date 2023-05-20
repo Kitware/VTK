@@ -9,7 +9,6 @@
 
 #ifdef VTK_DISPATCH_INDEXED_ARRAYS
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchImplicitArrayList.h"
 #endif // VTK_DISPATCH_INDEXED_ARRAYS
 
 #include <cstdlib>

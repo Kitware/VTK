@@ -4,7 +4,7 @@
 #ifndef vtkImplicitArray_h
 #define vtkImplicitArray_h
 
-#include "vtkCommonImplicitArraysModule.h" // for export macro
+#include "vtkCommonCoreModule.h" // for export macro
 #include "vtkGenericDataArray.h"
 #include "vtkImplicitArrayTraits.h" // for traits
 
@@ -448,21 +448,6 @@ VTK_ABI_NAMESPACE_END
 
 #include "vtkImplicitArray.txx"
 
-#define vtkInstantiateSecondOrderTemplateMacro(decl0, decl1)                                       \
-  decl0<decl1<float>>;                                                                             \
-  decl0<decl1<double>>;                                                                            \
-  decl0<decl1<char>>;                                                                              \
-  decl0<decl1<signed char>>;                                                                       \
-  decl0<decl1<unsigned char>>;                                                                     \
-  decl0<decl1<short>>;                                                                             \
-  decl0<decl1<unsigned short>>;                                                                    \
-  decl0<decl1<int>>;                                                                               \
-  decl0<decl1<unsigned int>>;                                                                      \
-  decl0<decl1<long>>;                                                                              \
-  decl0<decl1<unsigned long>>;                                                                     \
-  decl0<decl1<long long>>;                                                                         \
-  decl0<decl1<unsigned long long>>
-
 #endif // vtkImplicitArray_h
 
 // See vtkGenericDataArray for similar section
@@ -481,13 +466,13 @@ VTK_ABI_NAMESPACE_END
 
 // Needed to export for this module and not CmmonCore
 #define VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                 \
-  template VTKCOMMONIMPLICITARRAYS_EXPORT bool DoComputeScalarRange(                               \
+  template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(                                         \
     ArrayType*, ValueType*, vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);  \
-  template VTKCOMMONIMPLICITARRAYS_EXPORT bool DoComputeScalarRange(ArrayType*, ValueType*,        \
+  template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(ArrayType*, ValueType*,                  \
     vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);                       \
-  template VTKCOMMONIMPLICITARRAYS_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],      \
+  template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],                \
     vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);                          \
-  template VTKCOMMONIMPLICITARRAYS_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],      \
+  template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],                \
     vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
 
 #define VTK_INSTANTIATE_VALUERANGE_VALUETYPE(ValueType)                                            \
@@ -539,14 +524,14 @@ VTK_ABI_NAMESPACE_END
 } // namespace vtkDataArrayPrivate
 
 #define VTK_DECLARE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                     \
-  extern template VTKCOMMONIMPLICITARRAYS_EXPORT bool DoComputeScalarRange(                        \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(                                  \
     ArrayType*, ValueType*, vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);  \
-  extern template VTKCOMMONIMPLICITARRAYS_EXPORT bool DoComputeScalarRange(ArrayType*, ValueType*, \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(ArrayType*, ValueType*,           \
     vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);                       \
-  extern template VTKCOMMONIMPLICITARRAYS_EXPORT bool DoComputeVectorRange(ArrayType*,             \
-    ValueType[2], vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);            \
-  extern template VTKCOMMONIMPLICITARRAYS_EXPORT bool DoComputeVectorRange(ArrayType*,             \
-    ValueType[2], vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],         \
+    vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);                          \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],         \
+    vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
 
 #define VTK_DECLARE_VALUERANGE_VALUETYPE(ValueType)                                                \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(                                                                \

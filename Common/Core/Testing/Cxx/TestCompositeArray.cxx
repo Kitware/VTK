@@ -9,7 +9,6 @@
 
 #ifdef VTK_DISPATCH_COMPOSITE_ARRAYS
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchImplicitArrayList.h"
 #endif // VTK_DISPATCH_AFFINE_ARRAYS
 
 #include <cstdlib>

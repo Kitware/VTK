@@ -56,7 +56,7 @@
 #define VTK_OBJECT 21
 
 // deleted value
-//#define VTK_UNICODE_STRING 22 <==== do not use
+// #define VTK_UNICODE_STRING 22 <==== do not use
 
 /*--------------------------------------------------------------------------*/
 /* Define a unique integer identifier for each vtkDataObject type.          */
@@ -375,11 +375,47 @@ VTK_ABI_NAMESPACE_END
   decl<long long>;                                                                                 \
   decl<unsigned long long>
 
+#define vtkInstantiateSecondOrderTemplateMacro(decl0, decl1)                                       \
+  decl0<decl1<float>>;                                                                             \
+  decl0<decl1<double>>;                                                                            \
+  decl0<decl1<char>>;                                                                              \
+  decl0<decl1<signed char>>;                                                                       \
+  decl0<decl1<unsigned char>>;                                                                     \
+  decl0<decl1<short>>;                                                                             \
+  decl0<decl1<unsigned short>>;                                                                    \
+  decl0<decl1<int>>;                                                                               \
+  decl0<decl1<unsigned int>>;                                                                      \
+  decl0<decl1<long>>;                                                                              \
+  decl0<decl1<unsigned long>>;                                                                     \
+  decl0<decl1<long long>>;                                                                         \
+  decl0<decl1<unsigned long long>>
+
+#define vtkInstantiateStdFunctionTemplateMacro(decl0, decl1, delc2)                                \
+  decl0<decl1<float(delc2)>>;                                                                      \
+  decl0<decl1<double(delc2)>>;                                                                     \
+  decl0<decl1<char(delc2)>>;                                                                       \
+  decl0<decl1<signed char(delc2)>>;                                                                \
+  decl0<decl1<unsigned char(delc2)>>;                                                              \
+  decl0<decl1<short(delc2)>>;                                                                      \
+  decl0<decl1<unsigned short(delc2)>>;                                                             \
+  decl0<decl1<int(delc2)>>;                                                                        \
+  decl0<decl1<unsigned int(delc2)>>;                                                               \
+  decl0<decl1<long(delc2)>>;                                                                       \
+  decl0<decl1<unsigned long(delc2)>>;                                                              \
+  decl0<decl1<long long(delc2)>>;                                                                  \
+  decl0<decl1<unsigned long long(delc2)>>
+
 /** A macro to declare extern templates for all numerical types */
 #ifdef VTK_USE_EXTERN_TEMPLATE
 #define vtkExternTemplateMacro(decl) vtkInstantiateTemplateMacro(decl)
+#define vtkExternSecondOrderTemplateMacro(decl0, decl1)                                            \
+  vtkInstantiateSecondOrderTemplateMacro(decl0, decl1)
+#define vtkExternStdFunctionTemplateMacro(decl0, decl1, decl2)                                     \
+  vtkInstantiateStdFunctionTemplateMacro(decl0, decl1, decl2)
 #else
 #define vtkExternTemplateMacro(decl)
+#define vtkExternSecondOrderTemplateMacro(decl0, decl1)
+#define vtkExternStdFunctionTemplateMacro(decl0, decl1, decl2)
 #endif
 
 #endif
