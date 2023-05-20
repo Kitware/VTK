@@ -117,6 +117,7 @@ option(VTK_DISPATCH_TYPED_ARRAYS "Include vtkTypedDataArray subclasses (e.g. old
 option(VTK_DISPATCH_AFFINE_ARRAYS "Include implicit vtkDataArray subclasses based on an affine function backend in dispatcher" OFF)
 option(VTK_DISPATCH_CONSTANT_ARRAYS "Include implicit vtkDataArray subclasses based on a constant backend in dispatcher" OFF)
 option(VTK_DISPATCH_STD_FUNCTION_ARRAYS "Include implicit vtkDataArray subclasses based on std::function in dispatcher" OFF)
+option(VTK_DISPATCH_STRUCTURED_POINT_ARRAYS "Include implicit vtkDataArray subclasses based on structured point backend dispatcher" ON)
 
 option(VTK_WARN_ON_DISPATCH_FAILURE "If enabled, vtkArrayDispatch will print a warning when a dispatch fails." OFF)
 
@@ -128,6 +129,7 @@ mark_as_advanced(
   VTK_DISPATCH_AFFINE_ARRAYS
   VTK_DISPATCH_CONSTANT_ARRAYS
   VTK_DISPATCH_STD_FUNCTION_ARRAYS
+  VTK_DISPATCH_STRUCTURED_POINT_ARRAYS
 
   VTK_WARN_ON_DISPATCH_FAILURE)
 
@@ -168,7 +170,9 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
     vtkIndexedArrayInstantiate
     vtkIndexedImplicitBackendInstantiate
     vtkSOADataArrayTemplateInstantiate
-    vtkStdFunctionArrayInstantiate)
+    vtkStdFunctionArrayInstantiate
+    vtkStructuredPointBackendInstantiate
+    vtkStructuredPointArrayInstantiate)
   if (VTK_BUILD_SCALED_SOA_ARRAYS)
     list(APPEND _list "vtkScaledSOADataArrayTemplateInstantiate")
   endif ()
@@ -327,6 +331,7 @@ set(nowrap_template_classes
   vtkCompositeImplicitBackend
   vtkImplicitArray
   vtkIndexedImplicitBackend
+  vtkStructuredPointBackend
   vtkTypeList)
 
 set(sources
@@ -493,6 +498,7 @@ set(nowrap_headers
   vtkInherits.h
   vtkMathPrivate.hxx
   vtkStdFunctionArray.h
+  vtkStructuredPointArray.h
   vtkTypeName.h
   ${vtk_smp_nowrap_headers}
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"

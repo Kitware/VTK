@@ -10,5 +10,7 @@
 #cmakedefine VTK_DISPATCH_CONSTANT_ARRAYS
 // defined if VTK dispatches the vtkStdFunctionArray class
 #cmakedefine VTK_DISPATCH_STD_FUNCTION_ARRAYS
+// defined if VTK dispatches the vtkStructuredPointArray class
+#cmakedefine VTK_DISPATCH_STRUCTURED_POINT_ARRAYS
 
 #endif // vtkVTK_DISPATCH_IMPLICIT_ARRAYS_h
