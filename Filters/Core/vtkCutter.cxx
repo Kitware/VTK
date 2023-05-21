@@ -317,11 +317,15 @@ int vtkCutter::RequestData(
       this->CreateDefaultLocator();
     }
 
-    vtkNew<vtkAppendDataSets> append;
-    append->SetContainerAlgorithm(this);
-    append->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
-    append->MergePointsOff();
-    append->SetOutputDataSetType(VTK_POLY_DATA);
+    vtkSmartPointer<vtkAppendDataSets> append;
+    if (this->GetNumberOfContours() > 1)
+    {
+      append = vtkSmartPointer<vtkAppendDataSets>::New();
+      append->SetContainerAlgorithm(this);
+      append->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
+      append->MergePointsOff();
+      append->SetOutputDataSetType(VTK_POLY_DATA);
+    }
     for (vtkIdType i = 0; i < this->GetNumberOfContours(); ++i)
     {
       // Create a copy of vtkPlane and nudge it by the single contour
@@ -347,12 +351,22 @@ int vtkCutter::RequestData(
       this->PlaneCutter->BuildTreeOff();
       this->PlaneCutter->ComputeNormalsOff();
       this->PlaneCutter->Update();
-      vtkNew<vtkPolyData> pd;
-      pd->ShallowCopy(this->PlaneCutter->GetOutput());
-      append->AddInputData(pd);
+      if (this->GetNumberOfContours() > 1)
+      {
+        vtkNew<vtkPolyData> pd;
+        pd->ShallowCopy(this->PlaneCutter->GetOutput());
+        append->AddInputData(pd);
+      }
     }
-    append->Update();
-    output->ShallowCopy(append->GetOutput());
+    if (this->GetNumberOfContours() > 1)
+    {
+      append->Update();
+      output->ShallowCopy(append->GetOutput());
+    }
+    else
+    {
+      output->ShallowCopy(this->PlaneCutter->GetOutput());
+    }
   };
   if (vtkImageData::SafeDownCast(input) &&
     static_cast<vtkImageData*>(input)->GetDataDimension() == 3)
