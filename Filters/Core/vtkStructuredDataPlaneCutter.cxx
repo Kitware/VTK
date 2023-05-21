@@ -1092,7 +1092,12 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
     return 0;
   }
 
-  bool allCellsVisible = !(input->HasAnyGhostCells() || input->HasAnyBlankCells());
+  static constexpr int MASKED_CELL_VALUE = vtkDataSetAttributes::DUPLICATECELL |
+    vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
+  const bool hasCellGhosts = input->GetCellData()->HasAnyGhostBitSet(MASKED_CELL_VALUE);
+  const bool hasPointGhosts = input->HasAnyBlankPoints();
+  const bool allCellsVisible = !(hasCellGhosts || hasPointGhosts);
+  const bool hasOnlyCellGhosts = hasCellGhosts && !hasPointGhosts;
 
   // Set up the cut operation
   double planeOrigin[3], planeNormal[3];
@@ -1115,7 +1120,9 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   // delegate to flying edges if possible
-  if (inputImage && this->GetGeneratePolygons() == 0 && allCellsVisible)
+  const bool canHandleGhostsIfPresent =
+    allCellsVisible || (hasOnlyCellGhosts && this->InterpolateAttributes);
+  if (inputImage && this->GetGeneratePolygons() == 0 && canHandleGhostsIfPresent)
   {
     vtkDataSet* tmpInput = input;
     bool addScalars = false;
@@ -1165,6 +1172,12 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       vtkDataArray* scalars = slice->GetPointData()->GetScalars();
       slice->GetPointData()->RemoveArray(scalars->GetName());
     }
+    // vtkFlyingEdgesPlaneCutter does not handle ghost cells, if there are any ghost cells
+    // in the input, we need to remove them from the output
+    if (!allCellsVisible)
+    {
+      slice->RemoveGhostCells();
+    }
     output->ShallowCopy(slice);
     return 1;
   }
@@ -1186,7 +1199,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   vtkSmartPointer<vtkPolyData> result;
-  if (inputImage && (this->GetGeneratePolygons() == 1 || !allCellsVisible))
+  if (inputImage && (this->GetGeneratePolygons() == 1 || !canHandleGhostsIfPresent))
   {
     auto pointsArray = inputImage->GetPoints()->GetData();
 #ifdef VTK_USE_64BIT_IDS
