@@ -7,7 +7,6 @@
 #include "vtkArrayListTemplate.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkElevationFilter.h"
 #include "vtkFloatArray.h"
 #include "vtkFlyingEdgesPlaneCutter.h"
 #include "vtkImageData.h"
@@ -1119,18 +1118,25 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
   if (inputImage && this->GetGeneratePolygons() == 0 && allCellsVisible)
   {
     vtkDataSet* tmpInput = input;
-    bool elevationFlag = false;
+    bool addScalars = false;
 
     // Check to see if there is a scalar associated with the image
     if (!input->GetPointData()->GetScalars())
     {
-      // Add an elevation scalar
-      vtkNew<vtkElevationFilter> elevation;
-      elevation->SetInputData(tmpInput);
-      elevation->Update();
-      tmpInput = elevation->GetOutput();
+      auto tmpImage = vtkSmartPointer<vtkImageData>::New();
+      tmpImage->ShallowCopy(inputImage);
+      // Add a scalar to the image
+      vtkNew<vtkFloatArray> scalars;
+      scalars->SetName("ConstantScalars");
+      scalars->SetNumberOfComponents(1);
+      scalars->SetNumberOfTuples(tmpImage->GetNumberOfPoints());
+      vtkSMPTools::For(0, tmpImage->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
+        std::fill_n(scalars->GetPointer(begin), (end - begin), 1.0f);
+      });
+      tmpImage->GetPointData()->SetScalars(scalars);
+      tmpInput = tmpImage;
       tmpInput->Register(this);
-      elevationFlag = true;
+      addScalars = true;
     }
 
     // let flying edges do the work
@@ -1144,11 +1150,11 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
     planeCutter->SetContainerAlgorithm(this);
     planeCutter->SetInputData(tmpInput);
     planeCutter->Update();
-    vtkDataSet* slice = planeCutter->GetOutput();
-    if (elevationFlag)
+    vtkPolyData* slice = planeCutter->GetOutput();
+    if (addScalars)
     {
-      // Remove elevation data
-      slice->GetPointData()->RemoveArray("Elevation");
+      // Remove scalars data
+      slice->GetPointData()->RemoveArray("ConstantScalars");
       tmpInput->Delete();
     }
     else if (!this->InterpolateAttributes)
