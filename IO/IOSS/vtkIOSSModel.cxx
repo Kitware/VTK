@@ -811,23 +811,6 @@ struct PutFieldWorker
 
     this->Offset += this->SourceIds->size();
   }
-
-  void ImplicitPointsOperator(vtkDataSet* ds)
-  {
-    vtkSMPThreadLocal<std::vector<double>> tlTuple;
-    vtkSMPTools::For(0, this->SourceIds->size(), [&](vtkIdType start, vtkIdType end) {
-      auto tuple = tlTuple.Local();
-      tuple.resize(this->NumComponents);
-      for (vtkIdType cc = start; cc < end; ++cc)
-      {
-        ds->GetPoint((*this->SourceIds)[cc], tuple.data());
-        for (int comp = 0; comp < this->NumComponents; ++comp)
-        {
-          this->SOAData[comp][this->Offset + cc] = static_cast<T>(tuple[comp]);
-        }
-      }
-    });
-  }
 };
 
 template <typename T>
@@ -1104,26 +1087,20 @@ struct vtkNodeBlock : vtkGroupingEntity
     nodeBlock->put_field_data("ids", this->Ids);
 
     // add mesh coordinates
-    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+    using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+      vtkArrayDispatch::Reals>;
     PutFieldWorker<double> worker(3, this->Ids.size(), false /* createAOS */);
     for (size_t dsIndex = 0; dsIndex < this->DataSets.size(); ++dsIndex)
     {
       auto& ds = this->DataSets[dsIndex];
       auto& lids = this->IdsRaw[dsIndex];
       worker.SetSourceIds(&lids);
-      if (auto ps = vtkPointSet::SafeDownCast(ds))
+      if (ds->GetPoints())
       {
-        if (ps->GetPoints())
+        if (!Dispatcher::Execute(ds->GetPoints()->GetData(), worker))
         {
-          if (!Dispatcher::Execute(ps->GetPoints()->GetData(), worker))
-          {
-            vtkLog(ERROR, "Failed to dispatch points.");
-          }
+          vtkLog(ERROR, "Failed to dispatch points.");
         }
-      }
-      else
-      {
-        worker.ImplicitPointsOperator(ds);
       }
     }
 
