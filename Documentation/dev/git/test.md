@@ -1,5 +1,5 @@
-Test Data
-=========
+Adding Tests
+============
 
 This page documents how to add test data while developing VTK with [Git][].
 See the [README](README.md) for more information.
@@ -27,6 +27,55 @@ Return here when you reach the "edit files" step.
 
 These instructions follow a typical use case of adding a new
 test with a baseline image.
+
+### Writing new tests
+
+All new features that go into VTK must be accompanied by tests. This ensures
+that the feature works on many platforms and that it will continue to work as
+VTK evolves.
+
+Tests for the classes in each module of VTK are placed underneath the module's
+Testing/<Language> subdirectory. Modules that the tests depend upon beyond
+those that the module itself depends upon are declared with the TEST_DEPENDS
+argument in the `vtk.module`   file. Test executables are added to VTK's build
+system by naming them in the `CMakeLists.txt` files in each Testing/<Language>
+directory. In those `CMakeLists`, standard `add_executable()` + `add_test()` command
+pairs could be used, but the following macros defined in `vtkModuleTesting.cmake`
+are preferable as they consolidate multiple tests together, participate in
+VTK's modular build scripts, and ensure consistency:
+
+-   {cmake:command}`vtk_add_test_cxx`
+-   {cmake:command}`vtk_add_test_mpi`
+-   {cmake:command}`vtk_add_test_python`
+
+Tests indicate success to CTest by returning `EXIT_SUCCESS` (0) and failure by
+returning `EXIT_FAILURE` (1). How the test determines what result to return is
+up to the developer. VTK contains a number of utilities for this task. For
+example, vtkRegressionTester is a helper class that does a fuzzy comparison of
+images drawn by VTK against known good baseline images and returns a metric
+that can be simply compared against a numeric threshold.
+
+
+Many tests require data files to run. The image comparison tests for example
+need baseline images to compare against, and many tests open up one or more
+files to visualize.
+
+The source code and data file versions are kept in sync because the
+Testing/Data directory contains, instead of the real files, similarly named
+files which contain only the SHA512 hash of the matching data files. During the
+build process, when CMake sees that a required data file is not available, it
+downloads it into the directory defined by the ExternalData_OBJECT_STORES cmake
+configuration entry. The test executables read all data from there. The default
+setting for ExternalData_OBJECT_STORES is the ExternalData directory underneath
+the VTK build tree.
+
+To make a change to VTK that modifies or adds a new test data file, place the
+new version in the Testing/Data or directory (for input data files) or
+Module/Name/Testing/Data (for regression test images), and build (or run
+cmake). CMake will do the work of moving the original out of the way and
+replacing it with an SHA512 link file. When you push the new link file to Gitlab,
+`git pre-commit` hooks push the original file up to Kitware's data service, where
+everyone can retrieve it.
 
 ### Add Test ###
 

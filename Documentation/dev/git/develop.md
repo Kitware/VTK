@@ -92,7 +92,7 @@ A reader should have a general idea of the feature or fix to be developed given 
         $ git commit
 
     Caveats:
-    * To add data follow [these instructions](data.md).
+    * To add data follow [these instructions](test.md#add-data).
     * If your change modifies third party code, see the  [ThirdParty][] documentation.
     * To deprecate APIs, follow [these instructions](deprecation.md).
 
@@ -147,7 +147,7 @@ signed in for [GitLab Access][] and created your fork by visiting the main
     Notes:
     * If you are revising a previously pushed topic and have rewritten the
       topic history, add `-f` or `--force` to overwrite the destination.
-    * If the topic adds data see [this note](data.md#push).
+    * If the topic adds data see [this note](test.md#push).
     * The `gitlab-push` script also pushes the `master` branch to your
       fork in GitLab to keep it in sync with the upstream `master`.
 
