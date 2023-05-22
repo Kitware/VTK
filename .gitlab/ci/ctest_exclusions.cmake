@@ -167,6 +167,14 @@ if (("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen" AND "$ENV{CMAKE_CONFIGURATI
     "^VTK::InteractionStylePython-TestStyleTrackballCamera$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
+  list(APPEND test_exclusions
+    # Test is flaky with STDThread
+    # See #18555
+    "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
+    )
+endif ()
+
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
   list(APPEND test_exclusions
     # The wheels have a broken `proj.db`.
