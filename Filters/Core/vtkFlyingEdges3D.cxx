@@ -447,7 +447,7 @@ public:
     {
       this->Algo = algo;
       outCD->CopyAllocate(inCD, numCells);
-      this->CellArrays.AddArrays(numCells, inCD, outCD);
+      this->CellArrays.AddArrays(numCells, inCD, outCD, /*nullValue*/ 0.0, /*promote*/ false);
     }
     vtkFlyingEdges3DAlgorithm<TT>* Algo;
     void operator()(vtkIdType slice, vtkIdType end)
