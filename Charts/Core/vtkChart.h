@@ -74,6 +74,8 @@ public:
    * SELECT - alias for SELECT_RECTANGLE
    * CLICKANDDRAG - move one point selected by a click
    * NOTIFY - Post vtkCommand::InteractionEvent on selection of a point
+   * ACTION_TYPES_COUNT - total action types count (needed in ParaView,
+   * see `pqChartSelectionReaction.h`)
    */
   enum
   {
@@ -84,7 +86,8 @@ public:
     SELECT_RECTANGLE = SELECT,
     SELECT_POLYGON,
     CLICK_AND_DRAG,
-    NOTIFY
+    NOTIFY,
+    ACTION_TYPES_COUNT
   };
 
   /**
