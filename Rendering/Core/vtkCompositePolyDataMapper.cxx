@@ -456,6 +456,12 @@ vtkCompositePolyDataMapper::MapperHashType vtkCompositePolyDataMapper::InsertPol
                   << " is not a vtkPolyData or a vtkPolyData derived instance!");
     return VTK_TYPE_UINT64_MAX;
   }
+  if (polydata->GetPoints() == nullptr || !polydata->GetNumberOfPoints())
+  {
+    vtkDebugMacro(<< "vtkPolyData at flatIndex=" << flatIndex
+                  << " does not have points. It will not be rendered.");
+    return VTK_TYPE_UINT64_MAX;
+  }
   auto& internals = (*this->Internals);
   const auto hash = this->GenerateHash(polydata);
   // Find a mapper. If it doesn't exist, a new one is created.
