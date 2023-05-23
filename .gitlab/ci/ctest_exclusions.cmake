@@ -81,7 +81,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
 
     # Syntax error in generated shader program.
-    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$")
+    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
+    
+    # Flaky timeouts 
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18984
+    "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
+    )
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
