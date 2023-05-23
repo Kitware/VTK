@@ -199,7 +199,7 @@ void vtkCompositePolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositePolyDataMapper::SetVBOShiftScaleMethod(ShiftScaleMethodType method)
+void vtkCompositePolyDataMapper::SetVBOShiftScaleMethod(int method)
 {
   if (this->ShiftScaleMethod == method)
   {

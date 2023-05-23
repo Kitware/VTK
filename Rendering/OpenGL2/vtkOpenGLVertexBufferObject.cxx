@@ -60,8 +60,7 @@ bool vtkOpenGLVertexBufferObject::GetCoordShiftAndScaleEnabled()
   return value;
 }
 
-vtkOpenGLVertexBufferObject::ShiftScaleMethod
-vtkOpenGLVertexBufferObject::GetCoordShiftAndScaleMethod()
+int vtkOpenGLVertexBufferObject::GetCoordShiftAndScaleMethod()
 {
   auto value = GetGlobalCoordShiftAndScaleEnabled() ? this->CoordShiftAndScaleMethod
                                                     : ShiftScaleMethod::DISABLE_SHIFT_SCALE;
@@ -70,7 +69,7 @@ vtkOpenGLVertexBufferObject::GetCoordShiftAndScaleMethod()
   return value;
 }
 
-void vtkOpenGLVertexBufferObject::SetCoordShiftAndScaleMethod(ShiftScaleMethod meth)
+void vtkOpenGLVertexBufferObject::SetCoordShiftAndScaleMethod(int meth)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CoordShiftAndScaleMethod to "
                 << static_cast<int>(meth));

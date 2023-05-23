@@ -60,6 +60,19 @@ public:
 
   using ShiftScaleMethod = vtkPolyDataMapper::ShiftScaleMethodType;
 
+  ///@{
+  /**
+   * These typed enums are available in class scope for convenience and backward compatibility.
+   */
+  static constexpr int DISABLE_SHIFT_SCALE = ShiftScaleMethod::DISABLE_SHIFT_SCALE;
+  static constexpr int AUTO_SHIFT_SCALE = ShiftScaleMethod::AUTO_SHIFT_SCALE;
+  static constexpr int ALWAYS_AUTO_SHIFT_SCALE = ShiftScaleMethod::ALWAYS_AUTO_SHIFT_SCALE;
+  static constexpr int MANUAL_SHIFT_SCALE = ShiftScaleMethod::MANUAL_SHIFT_SCALE;
+  static constexpr int AUTO_SHIFT = ShiftScaleMethod::AUTO_SHIFT;
+  static constexpr int NEAR_PLANE_SHIFT_SCALE = ShiftScaleMethod::NEAR_PLANE_SHIFT_SCALE;
+  static constexpr int FOCAL_POINT_SHIFT_SCALE = ShiftScaleMethod::FOCAL_POINT_SHIFT_SCALE;
+  ///@}
+
   // Description:
   // Get the shift and scale vectors computed by CreateVBO;
   // or set the values CreateVBO and AppendVBO will use.
@@ -92,8 +105,8 @@ public:
   // These methods are used by the mapper to determine the
   // additional transform (if any) to apply to the rendering transform.
   virtual bool GetCoordShiftAndScaleEnabled();
-  virtual ShiftScaleMethod GetCoordShiftAndScaleMethod();
-  virtual void SetCoordShiftAndScaleMethod(ShiftScaleMethod meth);
+  virtual int GetCoordShiftAndScaleMethod();
+  virtual void SetCoordShiftAndScaleMethod(int meth);
   virtual void SetShift(const std::vector<double>& shift);
   virtual void SetShift(double x, double y, double z);
   virtual void SetScale(const std::vector<double>& scale);
@@ -163,7 +176,7 @@ protected:
   int DataType;
   unsigned int DataTypeSize;
 
-  ShiftScaleMethod CoordShiftAndScaleMethod;
+  int CoordShiftAndScaleMethod;
   bool CoordShiftAndScaleEnabled;
   std::vector<double> Shift;
   std::vector<double> Scale;

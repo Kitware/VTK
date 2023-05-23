@@ -4346,7 +4346,7 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(ShiftScaleMethodType method)
+void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(int method)
 {
   if (this->ShiftScaleMethod == method)
   {
