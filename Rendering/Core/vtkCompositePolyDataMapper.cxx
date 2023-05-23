@@ -426,6 +426,13 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     }
   }
 
+  std::vector<vtkSmartPointer<vtkCompositePolyDataMapperDelegator>> delegators;
+  delegators.reserve(internals.BatchedDelegators.size());
+  for (const auto& pair : internals.BatchedDelegators)
+  {
+    delegators.emplace_back(pair.second);
+  }
+  this->PreRender(delegators, renderer, actor);
   for (auto& iter : internals.BatchedDelegators)
   {
     auto& delegator = iter.second;
@@ -436,6 +443,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
       internals.RenderedList.emplace_back(polydata);
     }
   }
+  this->PostRender(delegators, renderer, actor);
 }
 
 //------------------------------------------------------------------------------
