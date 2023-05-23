@@ -41,7 +41,9 @@
 #define vtkImplicitPolyDataDistance_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkGenericCell.h"       // For thread local storage
 #include "vtkImplicitFunction.h"
+#include "vtkSMPThreadLocalObject.h" // For thread local storage
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellLocator;
@@ -137,6 +139,8 @@ protected:
 
   vtkPolyData* Input;
   vtkCellLocator* Locator;
+  vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
+  vtkSMPThreadLocalObject<vtkIdList> TLCellIds;
 
 private:
   vtkImplicitPolyDataDistance(const vtkImplicitPolyDataDistance&) = delete;

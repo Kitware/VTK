@@ -21,6 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangle.h"
@@ -28,43 +29,6 @@
 // The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
 // We support up to 6th order hexahedra.
 #define VTK_MAXIMUM_NUMBER_OF_POINTS 216
-
-namespace
-{
-class DistanceOp
-{
-private:
-  vtkDistancePolyDataFilter* Self;
-  vtkImplicitPolyDataDistance* Imp;
-  vtkPolyData* Src;
-  vtkDoubleArray* OutputScalar;
-
-public:
-  DistanceOp(vtkDistancePolyDataFilter* self, vtkImplicitPolyDataDistance* imp, vtkPolyData* src,
-    vtkDoubleArray* outputScalar)
-    : Self(self)
-    , Imp(imp)
-    , Src(src)
-    , OutputScalar(outputScalar)
-  {
-  }
-  void operator()(vtkIdType begin, vtkIdType end)
-  {
-    vtkImplicitPolyDataDistance* imp = this->Imp;
-    vtkTypeBool signedDistance = Self->GetSignedDistance();
-    vtkTypeBool negateDistance = Self->GetNegateDistance();
-    for (vtkIdType ptId = begin; ptId < end; ptId++)
-    {
-      double pt[3];
-      Src->GetPoint(ptId, pt);
-
-      double val = imp->EvaluateFunction(pt);
-      double dist = signedDistance ? (negateDistance ? -val : val) : fabs(val);
-      OutputScalar->SetValue(ptId, dist);
-    }
-  }
-};
-}
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDistancePolyDataFilter);
@@ -127,54 +91,61 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
     return;
   }
 
-  vtkImplicitPolyDataDistance* imp = vtkImplicitPolyDataDistance::New();
+  vtkNew<vtkImplicitPolyDataDistance> imp;
   imp->SetInput(src);
 
   // Calculate distance from points.
-  int numPts = mesh->GetNumberOfPoints();
+  const vtkIdType numPts = mesh->GetNumberOfPoints();
 
-  vtkDoubleArray* pointArray = vtkDoubleArray::New();
+  vtkNew<vtkDoubleArray> pointArray;
   pointArray->SetName("Distance");
   pointArray->SetNumberOfComponents(1);
   pointArray->SetNumberOfTuples(numPts);
 
-  DistanceOp functor(this, imp, mesh, pointArray);
-  vtkSMPTools::For(0, numPts, functor);
+  vtkSMPTools::For(0, numPts, [&](vtkIdType begin, vtkIdType end) {
+    double pt[3];
+    for (vtkIdType ptId = begin; ptId < end; ptId++)
+    {
+      mesh->GetPoint(ptId, pt);
+      double val = imp->EvaluateFunction(pt);
+      double dist = this->SignedDistance ? (this->NegateDistance ? -val : val) : std::abs(val);
+      pointArray->SetValue(ptId, dist);
+    }
+  });
 
   mesh->GetPointData()->AddArray(pointArray);
-  pointArray->Delete();
   mesh->GetPointData()->SetActiveScalars("Distance");
 
   // Calculate distance from cell centers.
   if (this->ComputeCellCenterDistance)
   {
-    int numCells = mesh->GetNumberOfCells();
+    const vtkIdType numCells = mesh->GetNumberOfCells();
 
-    vtkDoubleArray* cellArray = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> cellArray;
     cellArray->SetName("Distance");
     cellArray->SetNumberOfComponents(1);
     cellArray->SetNumberOfTuples(numCells);
 
-    for (vtkIdType cellId = 0; cellId < numCells; cellId++)
-    {
-      vtkCell* cell = mesh->GetCell(cellId);
+    vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
+    vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+      auto cell = TLCell.Local();
       int subId;
       double pcoords[3], x[3], weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
+      for (vtkIdType cellId = begin; cellId < end; cellId++)
+      {
+        mesh->GetCell(cellId, cell);
+        cell->GetParametricCenter(pcoords);
+        cell->EvaluateLocation(subId, pcoords, x, weights);
 
-      cell->GetParametricCenter(pcoords);
-      cell->EvaluateLocation(subId, pcoords, x, weights);
-
-      double val = imp->EvaluateFunction(x);
-      double dist = SignedDistance ? (NegateDistance ? -val : val) : fabs(val);
-      cellArray->SetValue(cellId, dist);
-    }
+        double val = imp->EvaluateFunction(x);
+        double dist = this->SignedDistance ? (this->NegateDistance ? -val : val) : std::abs(val);
+        cellArray->SetValue(cellId, dist);
+      }
+    });
 
     mesh->GetCellData()->AddArray(cellArray);
-    cellArray->Delete();
     mesh->GetCellData()->SetActiveScalars("Distance");
   }
-
-  imp->Delete();
 
   vtkDebugMacro(<< "End vtkDistancePolyDataFilter::GetPolyDataDistance");
 }
