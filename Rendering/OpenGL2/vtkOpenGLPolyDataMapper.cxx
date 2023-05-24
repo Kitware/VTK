@@ -2213,48 +2213,36 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
 
     toString.clear();
     toString.str("");
-    // OK we have no point or cell normals, so compute something
+    // We have no point or cell normals, so compute something.
+    // Caveat: this assumes that neighboring fragments are present,
+    // result is undefined (maybe NaN?) if neighbors are missing.
+    vtkShaderProgram::Substitute(FSSource, "//VTK::UniformFlow::Impl",
+      "vec3 fdx = dFdx(vertexVC.xyz);\n"
+      "  vec3 fdy = dFdy(vertexVC.xyz);\n"
+      "  //VTK::UniformFlow::Impl\n" // For further replacements
+    );
+
     // we have a formula for wireframe
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
     {
-      // generate a normal for lines, it will be perpendicular to the line
-      // and maximally aligned with the camera view direction
-      // no clue if this is the best way to do this.
-      // the code below has been optimized a bit so what follows is
-      // an explanation of the basic approach. Compute the gradient of the line
-      // with respect to x and y, the larger of the two
-      // cross that with the camera view direction. That gives a vector
-      // orthogonal to the camera view and the line. Note that the line and the camera
-      // view are probably not orthogonal. Which is why when we cross result that with
-      // the line gradient again we get a reasonable normal. It will be othogonal to
-      // the line (which is a plane but maximally aligned with the camera view.
-      vtkShaderProgram::Substitute(FSSource, "//VTK::UniformFlow::Impl",
-        "  vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
-        "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
-        // the next two lines deal with some rendering systems
-        // that have difficulty computing dfdx/dfdy when they
-        // are near zero. Normalization later on can amplify
-        // the issue causing rendering artifacts.
-        "  if (abs(fdx.x) < 0.000001) { fdx = vec3(0.0);}\n"
-        "  if (abs(fdy.y) < 0.000001) { fdy = vec3(0.0);}\n"
-        "  //VTK::UniformFlow::Impl\n" // For further replacements
-      );
-
-      toString << "vec3 normalVCVSOutput;\n"
-                  "  fdx = normalize(fdx);\n"
-                  "  fdy = normalize(fdy);\n"
-                  "  if (abs(fdx.x) > 0.0)\n"
-                  "    { normalVCVSOutput = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
-                  "  else { normalVCVSOutput = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}\n";
+      // Generate a normal for a line that is perpendicular to the line and
+      // maximally aligned with the camera view direction.  Basic approach
+      // is as follows.  Start with the gradients dFdx and dFdy (see above),
+      // both of these gradients will point along the line but may have
+      // different magnitudes and directions, either gradient might be zero.
+      // Sum them to get a good measurement of the line direction vector,
+      // use a dot product to check if they point in opposite directions.
+      // Cross this line vector with (0, 0, 1) to get a vector orthogonal to
+      // the camera view and the line, result is (lineVec.y, -lineVec.x, 0).
+      // Cross this vector with the line vector again to get a normal that
+      // is orthogonal to the line and maximally aligned with the camera.
+      toString << "  float addOrSubtract = (dot(fdx, fdy) >= 0) ? 1.0 : -1.0;\n"
+                  "  vec3 lineVec = addOrSubtract*fdy + fdx;\n"
+                  "  vec3 normalVCVSOutput = normalize(cross(vec3(lineVec.y, -lineVec.x, 0.0), "
+                  "lineVec));\n";
     }
     else // not lines, so surface
     {
-      vtkShaderProgram::Substitute(FSSource, "//VTK::UniformFlow::Impl",
-        "vec3 fdx = dFdx(vertexVC.xyz);\n"
-        "  vec3 fdy = dFdy(vertexVC.xyz);\n"
-        "  //VTK::UniformFlow::Impl\n" // For further replacements
-      );
-
       toString << "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
                   "  if (cameraParallel == 1 && normalVCVSOutput.z < 0.0) { normalVCVSOutput = "
                   "-1.0*normalVCVSOutput; }\n"
