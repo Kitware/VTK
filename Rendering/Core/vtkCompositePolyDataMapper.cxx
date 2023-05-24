@@ -199,7 +199,7 @@ void vtkCompositePolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositePolyDataMapper::SetVBOShiftScaleMethod(ShiftScaleMethodType method)
+void vtkCompositePolyDataMapper::SetVBOShiftScaleMethod(int method)
 {
   if (this->ShiftScaleMethod == method)
   {
@@ -426,6 +426,13 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     }
   }
 
+  std::vector<vtkSmartPointer<vtkCompositePolyDataMapperDelegator>> delegators;
+  delegators.reserve(internals.BatchedDelegators.size());
+  for (const auto& pair : internals.BatchedDelegators)
+  {
+    delegators.emplace_back(pair.second);
+  }
+  this->PreRender(delegators, renderer, actor);
   for (auto& iter : internals.BatchedDelegators)
   {
     auto& delegator = iter.second;
@@ -436,6 +443,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
       internals.RenderedList.emplace_back(polydata);
     }
   }
+  this->PostRender(delegators, renderer, actor);
 }
 
 //------------------------------------------------------------------------------
@@ -446,6 +454,12 @@ vtkCompositePolyDataMapper::MapperHashType vtkCompositePolyDataMapper::InsertPol
   {
     vtkDebugMacro(<< "DataObject at flatIndex=" << flatIndex
                   << " is not a vtkPolyData or a vtkPolyData derived instance!");
+    return VTK_TYPE_UINT64_MAX;
+  }
+  if (polydata->GetPoints() == nullptr || !polydata->GetNumberOfPoints())
+  {
+    vtkDebugMacro(<< "vtkPolyData at flatIndex=" << flatIndex
+                  << " does not have points. It will not be rendered.");
     return VTK_TYPE_UINT64_MAX;
   }
   auto& internals = (*this->Internals);

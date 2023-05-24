@@ -520,7 +520,10 @@ bool vtkSSAOPass::PreReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
   std::string& vtkNotUsed(geometryShader), std::string& fragmentShader, vtkAbstractMapper* mapper,
   vtkProp* vtkNotUsed(prop))
 {
-  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+  // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+  // here, it is very likely that OpenGL classes are used.
+  if (vtkPolyDataMapper::SafeDownCast(mapper) != nullptr)
   {
     // apply SSAO after lighting
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::Light::Impl",
@@ -537,7 +540,10 @@ bool vtkSSAOPass::PostReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
   std::string& vtkNotUsed(geometryShader), std::string& fragmentShader, vtkAbstractMapper* mapper,
   vtkProp* vtkNotUsed(prop))
 {
-  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+  // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+  // here, it is very likely that OpenGL classes are used.
+  if (vtkPolyDataMapper::SafeDownCast(mapper) != nullptr)
   {
     if (fragmentShader.find("vertexVC") != std::string::npos &&
       fragmentShader.find("normalVCVSOutput") != std::string::npos)

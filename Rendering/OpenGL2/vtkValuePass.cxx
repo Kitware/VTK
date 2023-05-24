@@ -398,8 +398,12 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState* s)
     vtkProperty* property = actor->GetProperty();
     vtkMapper* mapper = actor->GetMapper();
 
+    // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+    // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+    // here, it is very likely that OpenGL classes are used.
     vtkOpenGLPolyDataMapper* pdm = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
-    if (!pdm)
+    vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(mapper);
+    if (!pdm && !cpdm)
     {
       continue;
     }
@@ -413,7 +417,6 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState* s)
     this->ImplFloat->CellCellMap.clear();
     this->ImplFloat->CCMapTime = maptime;
 
-    vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(mapper);
     if (cpdm)
     {
       vtkIdType offset = 0;
@@ -813,7 +816,10 @@ void vtkValuePass::RenderPieceStart(vtkDataArray* dataArr, vtkMapper* mapper)
   // In the parallel case however (ParaView with IceT), the solution below causes
   // data not to be uploaded at all (leading to empty images). Because of this, data
   // is uploaded on every render pass.
-  vtkOpenGLPolyDataMapper* pdm = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
+  // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+  // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+  // here, it is very likely that OpenGL classes are used.
+  vtkPolyDataMapper* pdm = vtkPolyDataMapper::SafeDownCast(mapper);
   if (!pdm)
   {
     return;

@@ -166,7 +166,7 @@ public:
   /**\brief A convenience method for enabling/disabling
    *   the VBO's shift+scale transform.
    */
-  void SetVBOShiftScaleMethod(ShiftScaleMethodType method) override;
+  void SetVBOShiftScaleMethod(int method) override;
 
   /**
    * Allow the shader code to set the point size (with gl_PointSize variable)

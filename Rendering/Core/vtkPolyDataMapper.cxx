@@ -100,17 +100,6 @@ vtkTypeBool vtkPolyDataMapper::ProcessRequest(
 }
 
 //------------------------------------------------------------------------------
-void vtkPolyDataMapper::SetVBOShiftScaleMethod(int method)
-{
-  if (method >= 0 && method <= static_cast<int>(ShiftScaleMethodType::FOCAL_POINT_SHIFT_SCALE))
-  {
-    vtkWarningMacro(<< "Method " << method << " is an invalid value for " << __func__ << ".");
-    return;
-  }
-  this->SetVBOShiftScaleMethod(static_cast<ShiftScaleMethodType>(method));
-}
-
-//------------------------------------------------------------------------------
 // Get the bounds for the input of this mapper as
 // (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double* vtkPolyDataMapper::GetBounds()

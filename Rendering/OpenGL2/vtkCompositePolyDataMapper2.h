@@ -138,7 +138,7 @@ public:
   /**\brief A convenience method for enabling/disabling
    *   the VBO's shift+scale transform.
    */
-  void SetVBOShiftScaleMethod(ShiftScaleMethodType m) override;
+  void SetVBOShiftScaleMethod(int m) override;
 
   /**\brief Pause updates of shift-scale parameters based on camera position.
    *

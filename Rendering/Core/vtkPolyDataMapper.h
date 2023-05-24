@@ -186,7 +186,7 @@ public:
    * The camera method will shift scale the VBO so that the visible
    * part of the data has reasonable values.
    */
-  enum class ShiftScaleMethodType : int
+  enum ShiftScaleMethodType
   {
     DISABLE_SHIFT_SCALE,     //!< Do not shift/scale point coordinates. Ever!
     AUTO_SHIFT_SCALE,        //!< The default, automatic computation.
@@ -200,9 +200,8 @@ public:
   /**\brief A convenience method for enabling/disabling
    *   the VBO's shift+scale transform.
    */
-  virtual void SetVBOShiftScaleMethod(int);
-  virtual void SetVBOShiftScaleMethod(ShiftScaleMethodType) {}
-  virtual ShiftScaleMethodType GetVBOShiftScaleMethod() { return this->ShiftScaleMethod; }
+  virtual void SetVBOShiftScaleMethod(int) {}
+  virtual int GetVBOShiftScaleMethod() { return this->ShiftScaleMethod; }
 
   /**\brief Pause per-render updates to VBO shift+scale parameters.
    *
@@ -238,7 +237,7 @@ protected:
   int NumberOfSubPieces;
   int GhostLevel;
   bool SeamlessU, SeamlessV;
-  ShiftScaleMethodType ShiftScaleMethod; // for points
+  int ShiftScaleMethod; // for points
   bool PauseShiftScale;
 
   int FillInputPortInformation(int, vtkInformation*) override;

@@ -1958,7 +1958,7 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositePolyDataMapper2::SetVBOShiftScaleMethod(ShiftScaleMethodType m)
+void vtkCompositePolyDataMapper2::SetVBOShiftScaleMethod(int m)
 {
   if (this->ShiftScaleMethod == m)
   {

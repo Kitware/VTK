@@ -233,7 +233,7 @@ public:
   /**
    * A convenience method for enabling/disabling  the VBO's shift+scale transform.
    */
-  void SetVBOShiftScaleMethod(ShiftScaleMethodType method) override;
+  void SetVBOShiftScaleMethod(int method) override;
 
   /**
    * Pause updates of shift-scale parameters based on camera position.
@@ -310,6 +310,25 @@ protected:
    * delegator->GetDelegate()
    */
   virtual vtkCompositePolyDataMapperDelegator* CreateADelegator();
+
+  /**
+   * Invoked just before all delegators render their datasets. You may
+   * access the built delegators this way to do custom initialization
+   * that is specific to the domain of your custom delegator.
+   */
+  virtual void PreRender(const std::vector<vtkSmartPointer<vtkCompositePolyDataMapperDelegator>>&,
+    vtkRenderer*, vtkActor*)
+  {
+  }
+
+  /**
+   * Invoked just after all delegators render their datasets. You may
+   * access the built delegators this way to performa a finalize action.
+   */
+  virtual void PostRender(const std::vector<vtkSmartPointer<vtkCompositePolyDataMapperDelegator>>&,
+    vtkRenderer*, vtkActor*)
+  {
+  }
 
   /**
    * Creates an empty polydata mapper and asks the mapper to hash the polydata.
