@@ -281,6 +281,14 @@ public:
   ///@}
 
   /**
+   * Update window location if a window location is set.
+   *
+   * This function was made public for VTK issue #18987.
+   * Positioning and scaling needs a better API.
+   */
+  virtual void UpdateWindowLocation();
+
+  /**
    * Define the various states that the representation can be in.
    */
   enum InteractionStateType
@@ -441,7 +449,6 @@ protected:
 
   // Window location by enumeration
   int WindowLocation = AnyLocation;
-  virtual void UpdateWindowLocation();
 
   // Sometimes subclasses must negotiate with their superclasses
   // to achieve the correct layout.
