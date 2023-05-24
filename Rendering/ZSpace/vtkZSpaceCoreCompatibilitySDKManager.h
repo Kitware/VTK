@@ -151,6 +151,12 @@ protected:
    */
   void ConvertZSpaceMatrixToVTKMatrix(ZSMatrix4 zSpaceMatrix, vtkMatrix4x4* vtkMatrix);
 
+  /**
+   * Set to true if zSpaceCoreCompatibility dynamic libraries are found upon
+   * vtkZSpaceCoreCompatibilitySDKManager instantiation (see InitializeZSpace()).
+   */
+  bool Initialized = false;
+
 private:
   vtkZSpaceCoreCompatibilitySDKManager(const vtkZSpaceCoreCompatibilitySDKManager&) = delete;
   void operator=(const vtkZSpaceCoreCompatibilitySDKManager&) = delete;
