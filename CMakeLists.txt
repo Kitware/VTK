@@ -472,7 +472,7 @@ if (VTK_CUSTOM_LIBRARY_SUFFIX STREQUAL "<DEFAULT>")
 endif ()
 
 set(vtk_library_version_info
-  VERSION             "${VTK_VERSION}"
+  VERSION             "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
   SOVERSION           "1")
 if (VTK_WHEEL_BUILD)
   set(vtk_library_version_info)
