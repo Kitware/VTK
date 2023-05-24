@@ -180,6 +180,28 @@ endif()
 option(VTK_ENABLE_LOGGING "Enable logging support." ON)
 mark_as_advanced(VTK_ENABLE_LOGGING)
 
+set(VTK_LOGGING_TIME_PRECISION "3"
+  CACHE STRING "Precision of loguru scope timers. 3=ms, 6=us, 9=ns")
+mark_as_advanced(VTK_LOGGING_TIME_PRECISION)
+set(known_logging_precisions 3 6 9)
+set_property(CACHE VTK_LOGGING_TIME_PRECISION
+  PROPERTY
+    STRINGS ${known_logging_precisions})
+# Emulate `cmake_dependent_option` for non-bool values.
+if (VTK_ENABLE_LOGGING)
+  set_property(CACHE VTK_LOGGING_TIME_PRECISION PROPERTY TYPE STRING)
+else ()
+  set_property(CACHE VTK_LOGGING_TIME_PRECISION PROPERTY TYPE INTERNAL)
+  # Use a default value.
+  set(VTK_LOGGING_TIME_PRECISION 3)
+endif ()
+if (NOT VTK_LOGGING_TIME_PRECISION IN_LIST known_logging_precisions)
+  string(REPLACE ";" ", " known_logging_precisions_list "${known_logging_precisions}")
+  message(FATAL_ERROR
+    "`VTK_LOGGING_TIME_PRECISION` must be one of "
+    "${known_logging_precisions_list}; given '${VTK_LOGGING_TIME_PRECISION}'")
+endif ()
+
 #-----------------------------------------------------------------------------
 # Add an option to enable/disable catalyst2 support.
 option(VTK_ENABLE_CATALYST "Build IOCatalystConduit module and VTK catalyst implementation." OFF)

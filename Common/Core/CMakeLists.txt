@@ -551,6 +551,9 @@ list(APPEND headers "${CMAKE_CURRENT_BINARY_DIR}/vtkCxxABIConfigure.h")
 set_property(SOURCE vtkObjectBase.cxx
   PROPERTY
      COMPILE_DEFINITIONS ${vtk_object_base_defines})
+set_property(SOURCE vtkLogger.cxx
+  PROPERTY
+    COMPILE_DEFINITIONS "LOGURU_SCOPE_TIME_PRECISION=${VTK_LOGGING_TIME_PRECISION}")
 
 if(MSVC)
   set_source_files_properties(
