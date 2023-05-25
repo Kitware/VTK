@@ -693,7 +693,8 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // been specified already.  This is the case for a 'pure vtk application'.
   // If you are using vtk in a 'regular Mac application' you should call
   // SetRootWindow() and SetWindowId() so that a window is not created here.
-  if (!this->GetRootWindow() && !this->GetWindowId() && !this->GetParentId())
+  if (!this->GetRootWindow() && !this->GetWindowId() && !this->GetParentId() &&
+    this->GetConnectContextToNSView())
   {
     // Ordinarily, only .app bundles get proper mouse and keyboard interaction,
     // but here we change the 'activation policy' to behave as if we were a
@@ -794,7 +795,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   }
 
   // create an NSView if one has not been specified
-  if (!this->GetWindowId())
+  if (!this->GetWindowId() && this->GetConnectContextToNSView())
   {
     // For NSViews that display OpenGL, the OS defaults to drawing magnified,
     // not in high resolution. There is a tradeoff here between better visual
