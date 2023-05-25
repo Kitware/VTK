@@ -242,15 +242,67 @@ std::string vtkLogger::GetThreadName()
 #endif
 }
 
+namespace
+{
+struct CallbackBridgeData
+{
+  vtkLogger::LogHandlerCallbackT handler;
+  vtkLogger::CloseHandlerCallbackT close;
+  vtkLogger::FlushHandlerCallbackT flush;
+  void* inner_data;
+};
+
+void loguru_callback_bridge_handler(void* user_data, const loguru::Message& message)
+{
+  auto* data = reinterpret_cast<CallbackBridgeData*>(user_data);
+
+  auto vtk_message = vtkLogger::Message{
+    static_cast<vtkLogger::Verbosity>(message.verbosity),
+    message.filename,
+    message.line,
+    message.preamble,
+    message.indentation,
+    message.prefix,
+    message.message,
+  };
+
+  data->handler(data->inner_data, vtk_message);
+}
+
+void loguru_callback_bridge_close(void* user_data)
+{
+  auto* data = reinterpret_cast<CallbackBridgeData*>(user_data);
+
+  if (data->close)
+  {
+    data->close(data->inner_data);
+    data->inner_data = nullptr;
+  }
+
+  delete data;
+}
+
+void loguru_callback_bridge_flush(void* user_data)
+{
+  auto* data = reinterpret_cast<CallbackBridgeData*>(user_data);
+
+  if (data->flush)
+  {
+    data->flush(data->inner_data);
+  }
+}
+}
+
 //------------------------------------------------------------------------------
 void vtkLogger::AddCallback(const char* id, vtkLogger::LogHandlerCallbackT callback,
   void* user_data, vtkLogger::Verbosity verbosity, vtkLogger::CloseHandlerCallbackT on_close,
   vtkLogger::FlushHandlerCallbackT on_flush)
 {
 #if VTK_MODULE_ENABLE_VTK_loguru
-  loguru::add_callback(id, reinterpret_cast<loguru::log_handler_t>(callback), user_data,
-    static_cast<loguru::Verbosity>(verbosity), reinterpret_cast<loguru::close_handler_t>(on_close),
-    reinterpret_cast<loguru::flush_handler_t>(on_flush));
+  auto* callback_data = new CallbackBridgeData{ callback, on_close, on_flush, user_data };
+  loguru::add_callback(id, loguru_callback_bridge_handler, callback_data,
+    static_cast<loguru::Verbosity>(verbosity), loguru_callback_bridge_close,
+    loguru_callback_bridge_flush);
 #else
   (void)id;
   (void)callback;
