@@ -838,7 +838,8 @@ void vtkOpenGLBatchedPolyDataMapper::SetShaderValues(
   ScopedValueRollback<int> accessModeSaver(this->ArrayAccessMode, batchElement.ArrayAccessMode);
   ScopedValueRollback<int> arrayComponentSaver(this->ArrayComponent, batchElement.ArrayComponent);
   ScopedValueRollback<int> arrayIdSaver(this->ArrayId, batchElement.ArrayId);
-  ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, &batchElement.ArrayName.front());
+  char* newArrayName = batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front();
+  ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, newArrayName);
   ScopedValueRollback<vtkIdType> fieldDataTupleIdSaver(
     this->FieldDataTupleId, batchElement.FieldDataTupleId);
   // If requested, color partial / missing arrays with NaN color.
@@ -1013,7 +1014,9 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
       ScopedValueRollback<int> arrayComponentSaver(
         this->ArrayComponent, batchElement.ArrayComponent);
       ScopedValueRollback<int> arrayIdSaver(this->ArrayId, batchElement.ArrayId);
-      ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, &batchElement.ArrayName.front());
+      char* newArrayName =
+        batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front();
+      ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, newArrayName);
       ScopedValueRollback<vtkIdType> fieldDataTupleIdSaver(
         this->FieldDataTupleId, batchElement.FieldDataTupleId);
       vtkIdType vertexOffset = 0;
@@ -1212,7 +1215,9 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
       ScopedValueRollback<int> arrayComponentSaver(
         this->ArrayComponent, batchElement.ArrayComponent);
       ScopedValueRollback<int> arrayIdSaver(this->ArrayId, batchElement.ArrayId);
-      ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, &batchElement.ArrayName.front());
+      char* newArrayName =
+        batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front();
+      ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, newArrayName);
       ScopedValueRollback<vtkIdType> fieldDataTupleIdSaver(
         this->FieldDataTupleId, batchElement.FieldDataTupleId);
       glBatchElement->StartVertex = 0;
