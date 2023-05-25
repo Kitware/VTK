@@ -805,8 +805,8 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
         blocksPerLevelLocal.resize(level + 1);
         blocksPerLevelLocal[level] = 0;
       }
+      domainID2LvlID[domain_id] = { level, blocksPerLevelLocal[level] };
       blocksPerLevelLocal[level]++;
-      domainID2LvlID[domain_id] = { level, blocksPerLevelLocal[level] - 1 };
 
       origin[0] = child["coordsets/coords/origin/x"].to_float64();
       origin[1] = child["coordsets/coords/origin/y"].to_float64();
@@ -886,7 +886,8 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
     const auto child = node.child(cc);
     if (child.has_path("state"))
     {
-      int dims[3] = { 0, 0, 0 };
+      int pdims[3] = { 0, 0, 0 };
+      int cdims[3] = { 0, 0, 0 };
       const int domain_id = child["state/domain_id"].to_int32();
       const int level = child["state/level"].to_int32();
 
@@ -896,21 +897,20 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
       spacing[0] = child["coordsets/coords/spacing/dx"].to_float64();
       spacing[1] = child["coordsets/coords/spacing/dy"].to_float64();
       spacing[2] = child["coordsets/coords/spacing/dz"].to_float64();
-      dims[0] = child["coordsets/coords/dims/i"].to_int32();
-      dims[1] = child["coordsets/coords/dims/j"].to_int32();
-      dims[2] = child["coordsets/coords/dims/k"].to_int32();
+      pdims[0] = child["coordsets/coords/dims/i"].to_int32();
+      pdims[1] = child["coordsets/coords/dims/j"].to_int32();
+      pdims[2] = child["coordsets/coords/dims/k"].to_int32();
 
       vtkNew<vtkUniformGrid> ug;
       ug->Initialize();
       ug->SetOrigin(origin);
       ug->SetSpacing(spacing);
-      ug->SetDimensions(dims);
+      ug->SetDimensions(pdims);
 
       const auto fields = child["fields"];
       detail::AddFieldData(ug, fields, true);
 
-      vtkAMRBox box(origin, dims, spacing, global_origin, amr->GetGridDescription());
-
+      vtkAMRBox box(origin, pdims, spacing, global_origin, amr->GetGridDescription());
       // set level spacing
       amr->SetSpacing(level, spacing);
       amr->SetAMRBox(
@@ -949,21 +949,25 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
       boxBoundsCounts[i] = blocksPerRank[i] * 8;
     }
 
-    for (int i = 0; i < blocks_local; ++i)
+    int local_index = 0;
+    for (std::map<int, std::pair<int, int>>::const_iterator it = domainID2LvlID.begin();
+         it != domainID2LvlID.end(); ++it)
     {
-      int level = domainID2LvlID[i].first;
-      int id = domainID2LvlID[i].second + offset_local;
+      int level = it->second.first;
+      int id = it->second.second + offset_local;
+
       vtkAMRBox box = amr->GetAMRBox(level, id);
       const int* loCorner = box.GetLoCorner();
       const int* hiCorner = box.GetHiCorner();
-      boxExtentsLocal[8 * i + 0] = level;
-      boxExtentsLocal[8 * i + 1] = id;
-      boxExtentsLocal[8 * i + 2] = loCorner[0];
-      boxExtentsLocal[8 * i + 3] = loCorner[1];
-      boxExtentsLocal[8 * i + 4] = loCorner[2];
-      boxExtentsLocal[8 * i + 5] = hiCorner[0];
-      boxExtentsLocal[8 * i + 6] = hiCorner[1];
-      boxExtentsLocal[8 * i + 7] = hiCorner[2];
+      boxExtentsLocal[8 * local_index + 0] = level;
+      boxExtentsLocal[8 * local_index + 1] = id;
+      boxExtentsLocal[8 * local_index + 2] = loCorner[0];
+      boxExtentsLocal[8 * local_index + 3] = loCorner[1];
+      boxExtentsLocal[8 * local_index + 4] = loCorner[2];
+      boxExtentsLocal[8 * local_index + 5] = hiCorner[0];
+      boxExtentsLocal[8 * local_index + 6] = hiCorner[1];
+      boxExtentsLocal[8 * local_index + 7] = hiCorner[2];
+      ++local_index;
     }
 
     ctrlr->AllGatherV(boxExtentsLocal.data(), boxExtentsGlobal.data(), boxExtentsLocal.size(),
