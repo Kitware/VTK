@@ -304,6 +304,8 @@ void vtkLogger::AddCallback(const char* id, vtkLogger::LogHandlerCallbackT callb
     static_cast<loguru::Verbosity>(verbosity), loguru_callback_bridge_close,
     loguru_callback_bridge_flush);
 #else
+  // FIXME: Should we call the `close` callback with `user_data` to free any
+  // resources expected to be passed in here?
   (void)id;
   (void)callback;
   (void)user_data;
