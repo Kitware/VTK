@@ -760,11 +760,17 @@ wheel:vtk:upload:
         - wheel-macos-python311-arm64:build
         - wheel-macos-python311-x86_64:build
         - wheel-windows-python36-x86_64:build
+        - wheel-windows-python36-x86_64-osmesa:build
         - wheel-windows-python37-x86_64:build
+        - wheel-windows-python37-x86_64-osmesa:build
         - wheel-windows-python38-x86_64:build
+        - wheel-windows-python38-x86_64-osmesa:build
         - wheel-windows-python39-x86_64:build
+        - wheel-windows-python39-x86_64-osmesa:build
         - wheel-windows-python310-x86_64:build
+        - wheel-windows-python310-x86_64-osmesa:build
         - wheel-windows-python311-x86_64:build
+        - wheel-windows-python311-x86_64-osmesa:build
     needs:
         - wheel-linux-python36-x86_64:build
         # - wheel-linux-python36-x86_64:test
