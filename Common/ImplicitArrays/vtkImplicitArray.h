@@ -127,6 +127,23 @@
  * @sa
  * vtkGenericDataArray vtkImplicitArrayTraits vtkDataArray
  */
+
+//-------------------------------------------------------------------------------------------------
+// Special macro for implicit array types modifying the behavior of NewInstance to provide writable
+// AOS arrays instead of empty implicit arrays
+#define vtkImplicitArrayTypeMacro(thisClass, superclass)                                           \
+  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superclass,                                   \
+    vtkAOSDataArrayTemplate<thisClass::ValueTypeT>, typeid(thisClass).name());                     \
+                                                                                                   \
+protected:                                                                                         \
+  vtkObjectBase* NewInstanceInternal() const override                                              \
+  {                                                                                                \
+    return vtkAOSDataArrayTemplate<thisClass::ValueTypeT>::New();                                  \
+  }                                                                                                \
+                                                                                                   \
+public:
+//-------------------------------------------------------------------------------------------------
+
 VTK_ABI_NAMESPACE_BEGIN
 template <class BackendT>
 class vtkImplicitArray
@@ -142,7 +159,7 @@ class vtkImplicitArray
 
 public:
   using SelfType = vtkImplicitArray<BackendT>;
-  vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
+  vtkImplicitArrayTypeMacro(SelfType, GenericDataArrayType);
   using ValueType = typename GenericDataArrayType::ValueType;
   using BackendType = BackendT;
 
