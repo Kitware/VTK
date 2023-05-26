@@ -118,6 +118,24 @@ The read-only parts of the `vtkDataArray` API work out of the box for any `vtkIm
   * Standard library like ranges and iterators using `vtkDataArrayRange` functionalities
   * `vtkArrayDispatch`, provided the correct compilation options have been set and the correct type list is used for dispatching (see below)
 
+### `NewInstance` behavior
+
+The `NewInstance` method is often used on arrays in cases where one has a `vtkDataArray` and one wants a freshly constructed instance of the same type without actually having to  determine its type by hand. The workflow often goes on to populate the newly minted instance with transformed values from the original array.
+
+```
+vtkSmartPointer<vtkDataArray> originalArr = SomeMethodProvidingAnArray();
+vtkSmartPointer<vtkDataArray> newArr = vtk::TakeSmartPointer(originalArr->NewInstance());
+newArr->SetNumberOfTuples(1);
+newArr->SetComponent(0, 0, originalArr->GetComponent(0, 0));
+CHECK(originalArr->getComponent(0, 0) == newArr->GetComponent(0, 0));
+```
+
+In the case of `vtkImplicitArray`s, this kind of approach will not work since a `vtkImplicitArray` is by definition read-only.
+
+In order for `vtkImplicitArray`s to behave nicely in areas where this kind of workflow is implemented, the behavior of `vtkImplicitArray::NewInstance` has been modified to return a new instance of `vtkAOSDataArrayTemplate<vtkImplicitArray<BackendT>::ValueTypeT>` so that explicit population of the new array with values from the previous array will happen seamlessly.
+
+Of course, in this context, a call to `NewInstance` will not provide the propagation of the implicit nature of the arrays and the new arrays will be explicitly stored in memory.
+
 ### Focus on `vtkCompositeArrays`
 
 The `vtkCompositeArray` is a family of `vtkImplicitArray`s that can concatenate arrays together to interface a group of arrays as if they were a single array. This concatenation operates in the "tuple" direction and not in the "component" direction.
