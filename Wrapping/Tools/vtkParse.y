@@ -1282,12 +1282,6 @@ static unsigned int buildTypeBase(unsigned int a, unsigned int b)
         base = VTK_PARSE_UNSIGNED_LONG_LONG;
       }
       break;
-    case VTK_PARSE___INT64:
-      if (basemod == VTK_PARSE_UNSIGNED_INT)
-      {
-        base = VTK_PARSE_UNSIGNED___INT64;
-      }
-      break;
     case VTK_PARSE_DOUBLE:
       if (basemod == VTK_PARSE_LONG)
       {
@@ -1655,7 +1649,7 @@ static unsigned int add_indirection_to_array(unsigned int type)
 
 /* Expect 110 reduce/reduce conflicts, these can be cleared by removing
    either '<' or angle_brackets_sig from constant_expression_item. */
-%expect-rr 110
+%expect-rr 109
 
 /* The parser will shift/reduce values <str> or <integer>, where
    <str> is for IDs and <integer> is for types, modifiers, etc. */
@@ -1781,7 +1775,6 @@ static unsigned int add_indirection_to_array(unsigned int type)
 %token INT
 %token SHORT
 %token LONG
-%token INT64__
 %token CHAR
 %token CHAR16_T
 %token CHAR32_T
@@ -3046,7 +3039,6 @@ primitive_type:
   | INT    { postSig("int "); $<integer>$ = VTK_PARSE_INT; }
   | SHORT  { postSig("short "); $<integer>$ = VTK_PARSE_SHORT; }
   | LONG   { postSig("long "); $<integer>$ = VTK_PARSE_LONG; }
-  | INT64__ { postSig("__int64 "); $<integer>$ = VTK_PARSE___INT64; }
   | SIGNED { postSig("signed "); $<integer>$ = VTK_PARSE_INT; }
   | UNSIGNED { postSig("unsigned "); $<integer>$ = VTK_PARSE_UNSIGNED_INT; }
 
@@ -3535,12 +3527,6 @@ static const char* type_class(unsigned int type, const char* classname)
         case VTK_PARSE_UNSIGNED_LONG_LONG:
           classname = "unsigned long long";
           break;
-        case VTK_PARSE___INT64:
-          classname = "__int64";
-          break;
-        case VTK_PARSE_UNSIGNED___INT64:
-          classname = "unsigned __int64";
-          break;
       }
     }
   }
@@ -3880,10 +3866,6 @@ static unsigned int guess_constant_type(const char* valstring)
     if (strncmp(cp, "long long", k) == 0)
     {
       valtype = VTK_PARSE_LONG_LONG;
-    }
-    else if (strncmp(cp, "__int64", k) == 0)
-    {
-      valtype = VTK_PARSE___INT64;
     }
     else if (strncmp(cp, "long", k) == 0)
     {
@@ -5024,8 +5006,6 @@ int vtkParse_ReadHints(FileInfo* file_info, FILE* hfile, FILE* errfile)
               case VTK_PARSE_DOUBLE_PTR:
               case VTK_PARSE_LONG_LONG_PTR:
               case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
-              case VTK_PARSE___INT64_PTR:
-              case VTK_PARSE_UNSIGNED___INT64_PTR:
               case VTK_PARSE_INT_PTR:
               case VTK_PARSE_UNSIGNED_INT_PTR:
               case VTK_PARSE_SHORT_PTR:

@@ -89,11 +89,9 @@ size_t vtkWrapPython_PyTemplateName(const char* name, char* pname)
       ptype = "uint";
       break;
     case VTK_PARSE_LONG_LONG:
-    case VTK_PARSE___INT64:
       ptype = "int64";
       break;
     case VTK_PARSE_UNSIGNED_LONG_LONG:
-    case VTK_PARSE_UNSIGNED___INT64:
       ptype = "uint64";
       break;
     case VTK_PARSE_FLOAT:
