@@ -36,6 +36,9 @@ vtkFileResourceStream::vtkFileResourceStream()
 }
 
 //------------------------------------------------------------------------------
+vtkFileResourceStream::~vtkFileResourceStream() = default;
+
+//------------------------------------------------------------------------------
 bool vtkFileResourceStream::Open(VTK_FILEPATH const char* path)
 {
   if (this->Impl->File.is_open())

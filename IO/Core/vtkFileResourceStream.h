@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkFileResourceStream();
-  ~vtkFileResourceStream() override = default;
+  ~vtkFileResourceStream() override;
   vtkFileResourceStream(const vtkFileResourceStream&) = delete;
   vtkFileResourceStream& operator=(const vtkFileResourceStream&) = delete;
 
