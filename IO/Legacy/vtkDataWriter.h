@@ -374,7 +374,8 @@ protected:
   bool CanWriteInformationKey(vtkInformation* info, vtkInformationKey* key);
 
   /**
-   * Format is detailed \ref IOLegacyInformationFormat "here".
+   * Format is detailed at
+   * https://docs.vtk.org/en/latest/design_documents/IOLegacyInformationFormat.html
    */
   int WriteInformation(ostream* fp, vtkInformation* info);
 

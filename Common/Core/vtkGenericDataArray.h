@@ -20,7 +20,7 @@
  *
  *
  * A more detailed description of this class and related tools can be found
- * \ref VTK-7-1-ArrayDispatch "here".
+ * [here](https://docs.vtk.org/en/latest/design_documents/array_dispatch.html)
  *
  * The vtkGenericDataArray class provides a generic implementation of the
  * vtkDataArray API. It relies on subclasses providing access to data

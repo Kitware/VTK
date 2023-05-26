@@ -52,7 +52,6 @@ IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" \
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
 INPUT                = \
-          "@VTK_SOURCE_DIR@/Documentation/Doxygen" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_version.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2examples.dox" \
@@ -71,7 +70,13 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtk3DS.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtkVRML.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/PLY/vtkPLY.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/FreeType/fonts/vtkEmbeddedFonts.h"
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/FreeType/fonts/vtkEmbeddedFonts.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModule.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleJson.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleGraphviz.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleTesting.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleWrapJava.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleWrapPython.cmake" \
 
 # TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION@-nightly.tag"=http://www.vtk.org/doc/nightly/html
 

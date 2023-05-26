@@ -10,7 +10,9 @@ For instance, there is a `vtkRenderWindow` class in VTK. When this is
 constructed, it instead actually returns a window for the X window system,
 Cocoa, or Win32 depending on what is available.
 
-VTK's implementation utilizes the [autoinit](@ref module-autoinit) logic of the
+VTK's implementation utilizes the
+[autoinit](https://docs.vtk.org/en/latest/api/cmake/ModuleSystem.html#autoinit)
+logic of the
 module system. A module which contains an object factory must declare itself as
 `IMPLEMENTABLE` and modules which contain an implementation of an object
 factory must claim that they `IMPLEMENTS` modules containing those base object

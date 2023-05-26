@@ -26,7 +26,7 @@
  * is intended to be used in conjunction with vtkArrayDispatcher.
  *
  * A more detailed description of this class and related tools can be found
- * \ref VTK-7-1-ArrayDispatch "here".
+ * [here](https://docs.vtk.org/en/latest/design_documents/array_dispatch.html).
  *
  * The goal of this helper template is to allow developers to write a single
  * templated worker function that will generates code to use the efficient typed
