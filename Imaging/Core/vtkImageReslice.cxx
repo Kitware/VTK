@@ -1937,13 +1937,16 @@ void vtkImageResliceClearExecute(
 }
 
 //------------------------------------------------------------------------------
-// application of the transform has different forms for fixed-point
-// vs. floating-point
+// this function is only called when the ResliceTransform is not homogenous,
+// i.e. when it can't be represented as a 4x4 matrix multiplication
 template <class F>
 void vtkResliceApplyTransform(
   vtkAbstractTransform* newtrans, F inPoint[3], const F inOrigin[3], const F inInvMatrix[9])
 {
+  // first, apply this->ResliceTransform (or an optimized replacement)
   newtrans->InternalTransformPoint(inPoint, inPoint);
+  // second, apply the physical-to-index transformation for the input image
+  // (the inInvMatrix is the inverse direction matrix divided by the spacing)
   F x = inPoint[0] - inOrigin[0];
   F y = inPoint[1] - inOrigin[1];
   F z = inPoint[2] - inOrigin[2];
@@ -3039,15 +3042,35 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
 } // end of anonymous namespace
 
 //------------------------------------------------------------------------------
-// The transform matrix supplied by the user converts output coordinates
-// to input coordinates.
-// To speed up the pixel lookup, the following function provides a
-// matrix which converts output pixel indices to input pixel indices.
+// GetIndexMatrix() builds a 4x4 matrix that operates on i,j,k coordinates.
 //
-// This will also concatenate the ResliceAxes and the ResliceTransform
-// if possible (if the ResliceTransform is a 4x4 matrix transform).
-// If it does, this->OptimizedTransform will be set to nullptr, otherwise
-// this->OptimizedTransform will be equal to this->ResliceTransform.
+// Background: during the execution of vtkImageReslice, we map the i,j,k
+// index of each output point through various transformations, in order to
+// get the position on the input point grid to sample (interpolate) the data.
+// We want to combine as many of the transformations as possible into a
+// single 4x4 matrix for efficiency and simplicity.  There are two cases
+// that we handle:
+//
+// Case A: If all transformations are homogenous, they can be combined into
+// one matrix that concatenates these transforms together:
+// 1) the output index-to-physical transformation
+// 2) the ResliceAxes transformation
+// 3) the ResliceTransform itself
+// 4) the input physical-to-index transformation
+//
+// Case B: If the ResliceTransform is not homogeneous, the IndexMatrix will
+// only concatenate the first two transformations:
+// 1) the output index-to-physical transformation
+// 2) the ResliceAxes transformation
+// Then in vtkImageResliceExecute(), the vtkResliceApplyTransform() function
+// performs the ResliceTransform and the input physical-to-index transform.
+//
+// For Case A, this->OptimizedTransform is set to nullptr so that the
+// vtkImageResliceExecute() method knows that the IndexMatrix performs
+// the full transformation from output index to input continous index.
+// For Case B, this->OptimizedTransform is set to this->ResliceTransform
+// so that vtkImageResliceExecute() knows it must apply the IndexMatrix
+// and then call vtkResliceApplyTransform() to get the input index.
 
 vtkMatrix4x4* vtkImageReslice::GetIndexMatrix(vtkInformation* inInfo, vtkInformation* outInfo)
 {
@@ -3174,12 +3197,14 @@ vtkMatrix4x4* vtkImageReslice::GetIndexMatrix(vtkInformation* inInfo, vtkInforma
     outMatrix->Element[i][3] = outOrigin[i];
   }
 
+  // finish building the IndexMatrix transformation
   if (!isIdentity)
   {
+    // pre-multiply by outMatrix so that we can operate directly on output indices
     transform->PreMultiply();
     transform->Concatenate(outMatrix);
-    // the OptimizedTransform requires data coords, not
-    // index coords, as its input
+    // post-multiply by inMatrix only if ResliceTransform is a homogeneous transform
+    // (see Case B in comments at the top to see why we only do this for Case A).
     if (this->OptimizedTransform == nullptr)
     {
       transform->PostMultiply();
