@@ -16,6 +16,7 @@
 #include "vtkPlotParallelCoordinates.h"
 
 #include "vtkAxis.h"
+#include "vtkBrush.h"
 #include "vtkChartParallelCoordinates.h"
 #include "vtkContext2D.h"
 #include "vtkContextDevice2D.h"
@@ -65,6 +66,7 @@ vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()
   this->LookupTable = nullptr;
   this->Colors = nullptr;
   this->ScalarVisibility = 0;
+  this->ColorMode = VTK_COLOR_MODE_MAP_SCALARS;
 }
 
 //------------------------------------------------------------------------------
@@ -173,10 +175,17 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D* painter)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int)
+bool vtkPlotParallelCoordinates::PaintLegend(
+  vtkContext2D* painter, const vtkRectf& rect, int legendIndex)
 {
+  if (this->Colors)
+  {
+    this->Brush->SetColor(this->Colors->GetPointer(4 * legendIndex));
+  }
   painter->ApplyPen(this->Pen);
+  painter->ApplyBrush(this->Brush);
   painter->DrawLine(rect[0], rect[1] + 0.5 * rect[3], rect[0] + rect[2], rect[1] + 0.5 * rect[3]);
+  painter->DrawRect(rect[0], rect[1], rect[2], rect[3]);
   return true;
 }
 
@@ -391,7 +400,7 @@ bool vtkPlotParallelCoordinates::UpdateCache()
       {
         this->CreateDefaultLookupTable();
       }
-      this->Colors = this->LookupTable->MapScalars(c, VTK_COLOR_MODE_MAP_SCALARS, -1);
+      this->Colors = this->LookupTable->MapScalars(c, this->ColorMode, -1);
       // Consistent register and unregisters
       this->Colors->Register(this);
       this->Colors->Delete();

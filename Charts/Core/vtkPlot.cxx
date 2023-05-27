@@ -22,6 +22,7 @@
 #include "vtkContextTransform.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
@@ -375,7 +376,9 @@ vtkStringArray* vtkPlot::GetLabels()
   {
     return this->AutoLabels;
   }
-  else if (this->Data->GetInput() && this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
+  else if (this->Data->GetInput() &&
+    this->Data->GetInformation()->Get(vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS()) &&
+    this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
   {
     this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
     this->AutoLabels->InsertNextValue(
