@@ -134,12 +134,10 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
       break;
     case VTK_PARSE_SIZE_T:
     case VTK_PARSE_UNSIGNED_LONG_LONG:
-    case VTK_PARSE_UNSIGNED___INT64:
       typeChar = 'K';
       break;
     case VTK_PARSE_SSIZE_T:
     case VTK_PARSE_LONG_LONG:
-    case VTK_PARSE___INT64:
       typeChar = 'k';
       break;
     case VTK_PARSE_SIGNED_CHAR:

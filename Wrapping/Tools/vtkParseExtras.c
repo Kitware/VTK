@@ -584,11 +584,6 @@ size_t vtkParse_BasicTypeFromString(
       classname = "void";
       base_bits = VTK_PARSE_VOID;
     }
-    else if (n == 7 && strncmp(cp, "__int64", n) == 0)
-    {
-      classname = "__int64";
-      base_bits = VTK_PARSE___INT64;
-    }
     else
     {
       /* if type already found, break */
@@ -698,9 +693,6 @@ size_t vtkParse_BasicTypeFromString(
         break;
       case VTK_PARSE_LONG_LONG:
         classname = "unsigned long long";
-        break;
-      case VTK_PARSE___INT64:
-        classname = "unsigned __int64";
         break;
     }
   }

@@ -27,16 +27,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
-#ifdef _WIN64
-#define vtk_fseek _fseeki64
-#define vtk_ftell _ftelli64
-#define vtk_off_t __int64
-#else
-#define vtk_fseek fseek
-#define vtk_ftell ftell
-#define vtk_off_t long
-#endif
-
 struct vtkMultiBlockPLOT3DReaderInternals
 {
   struct Dims

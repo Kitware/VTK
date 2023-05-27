@@ -43,16 +43,16 @@ static int gettimeofday(struct timeval* tv, void*)
   FILETIME ft;
   GetSystemTimeAsFileTime(&ft);
 
-  __int64 tmpres = 0;
+  vtkTypeInt64 tmpres = 0;
   tmpres = ft.dwHighDateTime;
   tmpres <<= 32;
   tmpres |= ft.dwLowDateTime;
 
   /*converting file time to unix epoch*/
-  const __int64 DELTA_EPOCH_IN_MICROSECS = 11644473600000000;
+  const vtkTypeInt64 DELTA_EPOCH_IN_MICROSECS = 11644473600000000;
   tmpres /= 10; /*convert into microseconds*/
   tmpres -= DELTA_EPOCH_IN_MICROSECS;
-  tv->tv_sec = (__int32)(tmpres * 0.000001);
+  tv->tv_sec = (vtkTypeInt64)(tmpres * 0.000001);
   tv->tv_usec = (tmpres % 1000000);
 
   return 0;

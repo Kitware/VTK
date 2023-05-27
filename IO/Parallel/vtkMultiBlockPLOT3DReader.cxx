@@ -1239,6 +1239,16 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 
+#ifdef _WIN64
+#define vtk_fseek _fseeki64
+#define vtk_ftell _ftelli64
+#define vtk_off_t __int64
+#else
+#define vtk_fseek fseek
+#define vtk_ftell ftell
+#define vtk_off_t long
+#endif
+
 template <class DataType>
 class vtkPLOT3DArrayReader
 {

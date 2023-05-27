@@ -137,11 +137,9 @@ size_t vtkParse_MangledTypeName(const char* name, char* new_name)
       basictype = 'm';
       break;
     case VTK_PARSE_LONG_LONG:
-    case VTK_PARSE___INT64:
       basictype = 'x';
       break;
     case VTK_PARSE_UNSIGNED_LONG_LONG:
-    case VTK_PARSE_UNSIGNED___INT64:
       basictype = 'y';
       break;
     case VTK_PARSE_FLOAT:

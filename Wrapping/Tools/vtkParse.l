@@ -143,7 +143,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "double"        return(DOUBLE);
 "float"         return(FLOAT);
-"__int64"       return(INT64__);
 "short"         return(SHORT);
 "long"          return(LONG);
 "char"          return(CHAR);

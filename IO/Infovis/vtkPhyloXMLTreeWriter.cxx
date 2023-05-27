@@ -427,14 +427,9 @@ void vtkPhyloXMLTreeWriter::WritePropertyElement(
   {
     datatype = "xsd:unsignedInt";
   }
-  else if (variantType == "unsigned long" || variantType == "unsigned __int64" ||
-    variantType == "idtype")
+  else if (variantType == "unsigned long" || variantType == "idtype")
   {
     datatype = "xsd:unsignedLong";
-  }
-  else if (variantType == "__int64")
-  {
-    datatype = "xsd:long";
   }
 
   // get the value for this property
