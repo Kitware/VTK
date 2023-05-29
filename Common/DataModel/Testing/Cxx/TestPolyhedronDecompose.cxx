@@ -5,10 +5,12 @@
 #include <vtkActor.h>
 #include <vtkBitArray.h>
 #include <vtkCamera.h>
+#include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkContourFilter.h>
 #include <vtkDoubleArray.h>
 #include <vtkGeometryFilter.h>
+#include <vtkIdTypeArray.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
@@ -318,10 +320,16 @@ vtkSmartPointer<vtkPolyhedron> MakePolyhedron1()
   polyhedron->GetPoints()->InsertNextPoint(6.25, -3.75, 6.25);
 
   // Faces
-  vtkIdType faces[31] = { 6, 4, 0, 1, 3, 2, 4, 0, 4, 5, 1, 4, 0, 2, 6, 4, 4, 1, 5, 7, 3, 4, 3, 7, 6,
-    2, 4, 4, 6, 7, 5 };
-
-  polyhedron->SetFaces(faces);
+  vtkIdType face_offsets[7] = { 0, 4, 8, 12, 16, 20, 24 };
+  vtkIdType face_conns[24] = { 0, 1, 3, 2, 0, 4, 5, 1, 0, 2, 6, 4, 1, 5, 7, 3, 3, 7, 6, 2, 4, 6, 7,
+    5 };
+  vtkNew<vtkCellArray> faces;
+  vtkNew<vtkIdTypeArray> offsets_arr;
+  vtkNew<vtkIdTypeArray> conns_arr;
+  offsets_arr->SetArray(face_offsets, 7, 1);
+  conns_arr->SetArray(face_conns, 24, 1);
+  faces->SetData(offsets_arr, conns_arr);
+  polyhedron->SetCellFaces(faces);
   polyhedron->Initialize();
 
   return polyhedron;
@@ -349,10 +357,16 @@ vtkSmartPointer<vtkPolyhedron> MakePolyhedron2()
   polyhedron->GetPoints()->InsertNextPoint(6.25, -13.75, 6.25);
 
   // Faces
-  vtkIdType faces[31] = { 6, 4, 10, 11, 9, 8, 4, 9, 13, 12, 8, 4, 12, 14, 10, 8, 4, 11, 15, 13, 9,
-    4, 10, 14, 15, 11, 4, 13, 15, 14, 12 };
-
-  polyhedron->SetFaces(faces);
+  vtkIdType face_offsets[7] = { 0, 4, 8, 12, 16, 20, 24 };
+  vtkIdType face_conns[24] = { 10, 11, 9, 8, 9, 13, 12, 8, 12, 14, 10, 8, 11, 15, 13, 9, 10, 14, 15,
+    11, 13, 15, 14, 12 };
+  vtkNew<vtkCellArray> faces;
+  vtkNew<vtkIdTypeArray> offsets_arr;
+  vtkNew<vtkIdTypeArray> conns_arr;
+  offsets_arr->SetArray(face_offsets, 7, 1);
+  conns_arr->SetArray(face_conns, 24, 1);
+  faces->SetData(offsets_arr, conns_arr);
+  polyhedron->SetCellFaces(faces);
   polyhedron->Initialize();
 
   return polyhedron;

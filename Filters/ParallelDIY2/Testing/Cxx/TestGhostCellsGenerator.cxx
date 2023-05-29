@@ -1977,12 +1977,12 @@ vtkSmartPointer<vtkUnstructuredGrid> Convert3DImageToUnstructuredGrid(
   }
 
   const int* extent = input->GetExtent();
-  vtkNew<vtkIdTypeArray> faces;
-  // half cells * number of faces in voxel [6] * (number of points in face + 1) [4 + 1]
-  faces->SetNumberOfValues((numberOfCells / 2) * (6 * 5 + 1));
+  vtkNew<vtkCellArray> faces;
+  // half cells * number of faces in voxel [6] * (number of points in face) [4]
+  faces->AllocateExact((numberOfCells / 2) * 6, (numberOfCells / 2) * (6 * 4));
 
-  vtkNew<vtkIdTypeArray> faceLocations;
-  faceLocations->SetNumberOfValues(numberOfCells);
+  vtkNew<vtkCellArray> faceLocations;
+  faceLocations->AllocateExact(numberOfCells, (numberOfCells / 2) * 6);
 
   vtkNew<vtkUnsignedCharArray> types;
   types->SetNumberOfValues(numberOfCells);
@@ -2009,72 +2009,70 @@ vtkSmartPointer<vtkUnstructuredGrid> Convert3DImageToUnstructuredGrid(
 
     if (producePolyhedrons && cellId % 2)
     {
-      vtkIdType id = ((cellId / 2) * (5 * 6 + 1));
-      faceLocations->SetValue(cellId, id);
+      vtkIdType pos = (cellId / 2) * 6;
+      faceLocations->InsertNextCell(6); // 6 faces.
+      faceLocations->InsertCellPoint(pos + 0);
+      faceLocations->InsertCellPoint(pos + 1);
+      faceLocations->InsertCellPoint(pos + 2);
+      faceLocations->InsertCellPoint(pos + 3);
+      faceLocations->InsertCellPoint(pos + 4);
+      faceLocations->InsertCellPoint(pos + 5);
 
       types->SetValue(cellId, VTK_POLYHEDRON);
 
-      faces->SetValue(id, 6); // 6 faces.
-      ++id;
-
       vtkIdType offsetId = connectivityId - 8;
-      faces->SetValue(id, 4); // 4 points per face.
+      faces->InsertNextCell(4); // 4 points per face.
       // Bottom face
-      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 0));
-      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 1));
-      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 3));
-      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 2));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 0));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 1));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 3));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 2));
 
-      id += 5;
-      faces->SetValue(id, 4); // 4 points per face.
+      faces->InsertNextCell(4); // 4 points per face.
       // Top face
-      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 4));
-      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 5));
-      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 7));
-      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 6));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 4));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 5));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 7));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 6));
 
-      id += 5;
-      faces->SetValue(id, 4); // 4 points per face.
+      faces->InsertNextCell(4); // 4 points per face.
       // Front face
-      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 0));
-      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 1));
-      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 5));
-      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 4));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 0));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 1));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 5));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 4));
 
-      id += 5;
-      faces->SetValue(id, 4); // 4 points per face.
+      faces->InsertNextCell(4); // 4 points per face.
       // Back face
-      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 2));
-      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 3));
-      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 7));
-      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 6));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 2));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 3));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 7));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 6));
 
-      id += 5;
-      faces->SetValue(id, 4); // 4 points per face.
+      faces->InsertNextCell(4); // 4 points per face.
       // Left face
-      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 0));
-      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 2));
-      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 6));
-      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 4));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 0));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 2));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 6));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 4));
 
-      id += 5;
-      faces->SetValue(id, 4); // 4 points per face.
+      faces->InsertNextCell(4); // 4 points per face.
       // Right face
-      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 1));
-      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 3));
-      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 7));
-      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 5));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 1));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 3));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 7));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 5));
     }
     else
     {
-      faceLocations->SetValue(cellId, -1);
+      faceLocations->InsertNextCell(0);
       types->SetValue(cellId, VTK_VOXEL);
     }
   }
 
   if (producePolyhedrons)
   {
-    output->SetCells(types, cells, faceLocations, faces);
+    output->SetPolyhedralCells(types, cells, faceLocations, faces);
   }
   else
   {

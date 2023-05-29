@@ -56,7 +56,6 @@ const unsigned int* MooreCursors[3] = {
 // Conversion table of canonical ids from voxel to polyhedron
 constexpr vtkIdType CANONICAL_FACES[24] = { 2, 3, 1, 0, 1, 5, 4, 0, 4, 6, 2, 0, 3, 7, 5, 1, 2, 6, 7,
   3, 5, 7, 6, 4 };
-constexpr std::size_t POLY_FACES_SIZE = 31;
 constexpr vtkIdType POLY_FACES_NB = 6;
 constexpr vtkIdType POLY_FACES_POINTS_NB = 4;
 constexpr vtkIdType POLY_POINTS_NB = 8;
@@ -259,7 +258,7 @@ void ReplaceWithIndexedArray(const std::string& contourArrayName, vtkContourValu
 struct vtkHyperTreeGridContour::vtkInternals
 {
   // Temporary data structures related to USE_DECOMPOSED_POLYHEDRA strategy
-  std::vector<vtkIdType> Faces;
+  vtkNew<vtkCellArray> Faces;
   vtkNew<vtkPolyhedron> Polyhedron;
   vtkNew<vtkGenericCell> Tetra;
   vtkNew<vtkDoubleArray> TetraScalars;
@@ -305,7 +304,7 @@ vtkHyperTreeGridContour::vtkHyperTreeGridContour()
   // Initialize temporal structures related to USE_DECOMPOSED_POLYHEDRA strategy
   this->Internals->Polyhedron->GetPointIds()->SetNumberOfIds(::POLY_POINTS_NB);
   this->Internals->Polyhedron->GetPoints()->SetNumberOfPoints(::POLY_POINTS_NB);
-  this->Internals->Faces.reserve(::POLY_FACES_SIZE);
+  this->Internals->Faces->AllocateExact(::POLY_FACES_NB, ::POLY_FACES_POINTS_NB * ::POLY_FACES_NB);
 }
 
 //------------------------------------------------------------------------------
@@ -887,18 +886,18 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
           }
 
           // Construct faces from voxel point ids (global ids)
-          this->Internals->Faces.clear();
-          this->Internals->Faces.emplace_back(::POLY_FACES_NB);
+          this->Internals->Faces->Reset();
           for (int faceId = 0, canonicalId = 0; faceId < ::POLY_FACES_NB; faceId++)
           {
-            this->Internals->Faces.emplace_back(::POLY_FACES_POINTS_NB);
+            this->Internals->Faces->InsertNextCell(::POLY_FACES_POINTS_NB);
             for (int i = 0; i < ::POLY_FACES_POINTS_NB; i++, canonicalId++)
             {
-              this->Internals->Faces.emplace_back(cell->GetPointId(::CANONICAL_FACES[canonicalId]));
+              this->Internals->Faces->InsertCellPoint(
+                cell->GetPointId(::CANONICAL_FACES[canonicalId]));
             }
           }
 
-          this->Internals->Polyhedron->SetFaces(this->Internals->Faces.data());
+          this->Internals->Polyhedron->SetCellFaces(this->Internals->Faces);
           this->Internals->Polyhedron->Initialize();
 
           // Decompose the this->Internals->Polyhedron

@@ -35,8 +35,8 @@ struct ExtractedCellsT
 {
   vtkSmartPointer<vtkCellArray> Connectivity;
   vtkSmartPointer<vtkUnsignedCharArray> CellTypes;
-  vtkSmartPointer<vtkIdTypeArray> Faces;
-  vtkSmartPointer<vtkIdTypeArray> FaceLocations;
+  vtkSmartPointer<vtkCellArray> PolyFaces;
+  vtkSmartPointer<vtkCellArray> PolyFaceLocations;
 };
 
 //=============================================================================
@@ -304,65 +304,87 @@ void ExtractPolyhedralFaces(
   ExtractedCellsT& result, vtkUnstructuredGrid* input, const CellWorkT& work)
 {
   const auto numCells = work.GetNumberOfCells();
-  auto inFaceLocations = input->GetFaceLocations();
-  auto inFaces = input->GetFaces();
+  auto inFaceLocations = input->GetPolyhedronFaceLocations();
+  auto inFaces = input->GetPolyhedronFaces();
 
-  result.FaceLocations.TakeReference(vtkIdTypeArray::New());
-  result.FaceLocations->SetNumberOfTuples(numCells);
+  vtkNew<vtkIdTypeArray> connectivityPoly;
+  vtkNew<vtkIdTypeArray> offsetsPoly;
+  vtkNew<vtkIdTypeArray> connectivityPolyFaces;
+  vtkNew<vtkIdTypeArray> offsetsPolyFaces;
 
   vtkIdType outFacesSize = 0;
+  vtkIdType outFaceLocSize = 0;
+
   for (vtkIdType cc = 0; cc < numCells; ++cc)
   {
-    const auto loc = inFaceLocations->GetValue(work.GetCellId(cc));
-    if (loc == -1)
+    const auto size = inFaceLocations->GetCellSize(work.GetCellId(cc));
+    if (size != 0)
     {
-      // not a polyhedral cell
-      result.FaceLocations->SetTypedComponent(cc, 0, -1);
-    }
-    else
-    {
-      result.FaceLocations->SetTypedComponent(cc, 0, outFacesSize);
-      vtkIdType* pfaces_start = inFaces->GetPointer(loc);
-      vtkIdType* pfaces = pfaces_start;
-      const auto nfaces = (*pfaces++);
-      for (vtkIdType face = 0; face < nfaces; ++face)
-      {
-        const auto npts = (*pfaces++);
-        pfaces += npts;
-      }
-      outFacesSize += static_cast<vtkIdType>(std::distance(pfaces_start, pfaces));
+      outFaceLocSize += size;
     }
   }
-
-  // Now copy polyhedron Faces.
-  result.Faces.TakeReference(vtkIdTypeArray::New());
-  result.Faces->SetNumberOfTuples(outFacesSize);
-
-  vtkSMPTools::For(0, numCells, [&](vtkIdType start, vtkIdType end) {
-    for (vtkIdType cc = start; cc < end; ++cc)
+  offsetsPoly->SetNumberOfValues(numCells + 1);
+  connectivityPoly->SetNumberOfValues(outFaceLocSize);
+  offsetsPoly->SetValue(0, 0);
+  // Prepare polyhedron cells offsets
+  vtkIdType facePos = 0;
+  vtkNew<vtkIdList> faceIds;
+  for (vtkIdType cc = 0; cc < numCells; ++cc)
+  {
+    const auto size = inFaceLocations->GetCellSize(work.GetCellId(cc));
+    if (size != 0)
     {
-      const auto inLoc = inFaceLocations->GetValue(work.GetCellId(cc));
-      if (inLoc == -1)
-      {
-        continue;
-      }
-      const auto outLoc = result.FaceLocations->GetValue(cc);
-
-      auto iptr = inFaces->GetPointer(inLoc);
-      auto optr = result.Faces->GetPointer(outLoc);
-      const auto nfaces = *iptr++;
-      *optr++ = nfaces;
+      vtkIdType nfaces;
+      const vtkIdType* faces;
+      inFaceLocations->GetCellAtId(work.GetCellId(cc), nfaces, faces, faceIds);
       for (vtkIdType face = 0; face < nfaces; ++face)
       {
-        const auto npts = (*iptr++);
-        *optr++ = npts;
-        std::transform(
-          iptr, iptr + npts, optr, [&work](vtkIdType id) { return work.GetPointId(id); });
-        optr += npts;
-        iptr += npts;
+        outFacesSize += static_cast<vtkIdType>(inFaces->GetCellSize(faces[face]));
+        // Store local to global faceId for later reuse
+        connectivityPoly->SetValue(facePos, faces[face]);
+        facePos++;
       }
     }
+    offsetsPoly->SetValue(cc + 1, facePos);
+  }
+  faceIds->Initialize();
+  offsetsPolyFaces->SetNumberOfValues(outFaceLocSize + 1);
+  connectivityPolyFaces->SetNumberOfValues(outFacesSize);
+  connectivityPolyFaces->FillValue(0);
+  offsetsPolyFaces->SetValue(0, 0);
+  // Prepare offsets needed for SMPTools
+  facePos = 0;
+  for (vtkIdType face = 0; face < outFaceLocSize; ++face)
+  {
+    const auto size = inFaces->GetCellSize(connectivityPoly->GetValue(face));
+    facePos += size;
+    offsetsPolyFaces->SetValue(face + 1, facePos);
+  }
+  // Now copy polyhedron Faces.
+  vtkSMPTools::For(0, outFaceLocSize, [&](vtkIdType start, vtkIdType end) {
+    vtkNew<vtkIdList> facePts;
+    for (vtkIdType cc = start; cc < end; ++cc)
+    {
+      vtkIdType npts;
+      const vtkIdType* pts;
+      vtkIdType faceId = connectivityPoly->GetValue(cc);
+      inFaces->GetCellAtId(faceId, npts, pts, facePts);
+      const auto loc = offsetsPolyFaces->GetValue(cc);
+      auto optr = connectivityPolyFaces->GetPointer(loc);
+      std::transform(pts, pts + npts, optr, [&work](vtkIdType id) { return work.GetPointId(id); });
+    }
   });
+  // Finalize the mapping to local faces
+  facePos = 0;
+  for (vtkIdType face = 0; face < outFaceLocSize; ++face)
+  {
+    connectivityPoly->SetValue(face, face);
+  }
+  // Prepare return result
+  result.PolyFaceLocations.TakeReference(vtkCellArray::New());
+  result.PolyFaceLocations->SetData(offsetsPoly, connectivityPoly);
+  result.PolyFaces.TakeReference(vtkCellArray::New());
+  result.PolyFaces->SetData(offsetsPolyFaces, connectivityPolyFaces);
 }
 
 //------------------------------------------------------------------------------
@@ -668,12 +690,13 @@ int vtkExtractCells::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Handle polyhedral cells
   auto inputUG = vtkUnstructuredGrid::SafeDownCast(input);
-  if (inputUG && inputUG->GetFaces() && inputUG->GetFaceLocations() &&
-    inputUG->GetFaceLocations()->GetRange(0)[1] != -1)
+  if (inputUG && inputUG->GetPolyhedronFaces() && inputUG->GetPolyhedronFaceLocations() &&
+    inputUG->GetPolyhedronFaceLocations()->GetOffsetsArray()->GetRange(0)[1] != 0)
   {
     ::ExtractPolyhedralFaces(cells, inputUG, work);
   }
-  output->SetCells(cells.CellTypes, cells.Connectivity, cells.FaceLocations, cells.Faces);
+  output->SetPolyhedralCells(
+    cells.CellTypes, cells.Connectivity, cells.PolyFaceLocations, cells.PolyFaces);
   this->UpdateProgress(1.00);
 
   return 1;
@@ -713,7 +736,7 @@ bool vtkExtractCells::Copy(vtkDataSet* input, vtkUnstructuredGrid* output)
 
   const auto numCells = input->GetNumberOfCells();
   auto cells = ::ExtractCells(input, AllElementsWork{ 0, numCells }, this->BatchSize);
-  output->SetCells(cells.CellTypes, cells.Connectivity, nullptr, nullptr);
+  output->SetPolyhedralCells(cells.CellTypes, cells.Connectivity, nullptr, nullptr);
 
   // copy cell/point arrays.
   output->GetPointData()->ShallowCopy(input->GetPointData());
