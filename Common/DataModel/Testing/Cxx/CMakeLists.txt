@@ -65,6 +65,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestPolyhedronConvexity.cxx
   TestPolyhedronConvexityMultipleCells.cxx
   TestPolyhedronTriangulateFaces.cxx
+  TestPolyhedralCellsInUG.cxx
   TestPyramid.cxx
   TestQuadraticPolygon.cxx
   TestRect.cxx
