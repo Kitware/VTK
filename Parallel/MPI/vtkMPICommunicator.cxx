@@ -1131,6 +1131,14 @@ int vtkMPICommunicator::NoBlockSend(
   return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(data, length, remoteProcessId, tag,
     vtkMPICommunicatorGetMPIType(VTK_LONG_LONG), req, this->MPIComm->Handle));
 }
+//------------------------------------------------------------------------------
+int vtkMPICommunicator::NoBlockSend(
+  const void* data, vtkTypeInt64 length, int mpiType, int remoteProcessId, int tag, Request& req)
+{
+
+  return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(data, length, remoteProcessId, tag,
+    static_cast<MPI_Datatype>(mpiType), req, this->MPIComm->Handle));
+}
 
 //------------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(

@@ -803,7 +803,7 @@ void CommunicationManager::Exchange(vtkMPIController* comm)
     unsigned char* buffer = it->second;
     assert("pre: rcv buffer size not found!" &&
       this->RcvByteSize.find(fromRank) != this->RcvByteSize.end());
-    unsigned int bytesize = this->RcvByteSize[fromRank];
+    int bytesize = this->RcvByteSize[fromRank];
 
     comm->NoBlockReceive(buffer, bytesize, fromRank, 0, this->Requests[rqstIdx]);
     ++rqstIdx;
@@ -816,7 +816,7 @@ void CommunicationManager::Exchange(vtkMPIController* comm)
     unsigned char* buffer = it->second;
     assert("pre: rcv buffer size not found!" &&
       this->SendByteSize.find(toRank) != this->SendByteSize.end());
-    unsigned int bytesize = this->SendByteSize[toRank];
+    int bytesize = this->SendByteSize[toRank];
 
     comm->NoBlockSend(buffer, bytesize, toRank, 0, this->Requests[rqstIdx]);
     ++rqstIdx;
