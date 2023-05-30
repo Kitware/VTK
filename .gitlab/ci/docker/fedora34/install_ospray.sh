@@ -28,11 +28,12 @@ cmake -GNinja "$ospray_src/scripts/superbuild" \
     -DCMAKE_INSTALL_PREFIX=/usr/local \
     -DCMAKE_INSTALL_LIBDIR=lib64 \
     -DBUILD_EMBREE_FROM_SOURCE=ON \
+    -DBUILD_TBB_FROM_SOURCE=OFF \
     -DBUILD_GLFW=OFF \
     -DBUILD_OSPRAY_APPS=OFF \
     -DDEPENDENCIES_BUILD_TYPE=Release \
     -DDOWNLOAD_ISPC=ON \
-    -DDOWNLOAD_TBB=OFF \
+    -DDOWNLOAD_TBB=ON \
     -DINSTALL_IN_SEPARATE_DIRECTORIES=OFF
 ninja
 cmake --install .
