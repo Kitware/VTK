@@ -87,4 +87,6 @@ configuration_flag(VTK_ENABLE_VTKM_OVERRIDES "vtkmoverride")
 # ospray
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "ospray")
   set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing YES CACHE STRING "")
+else ()
+  set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "")
 endif ()
