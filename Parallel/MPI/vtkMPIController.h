@@ -232,8 +232,8 @@ public:
    * Variant that permits dynamic type sends, like those create by MPI_Type_create_subarray
    * mpiType is interpreted as an MPI_Datatype
    */
-  int NoBlockSend(const void* data, vtkTypeInt64 length, int mpiType, int remoteProcessId, int tag,
-    vtkMPICommunicator::Request& req)
+  int NoBlockSend(const void* data, vtkTypeInt64 length, std::intptr_t mpiType, int remoteProcessId,
+    int tag, vtkMPICommunicator::Request& req)
   {
     return ((vtkMPICommunicator*)this->Communicator)
       ->NoBlockSend(data, length, mpiType, remoteProcessId, tag, req);
