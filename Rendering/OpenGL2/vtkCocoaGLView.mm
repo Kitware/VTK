@@ -100,8 +100,8 @@
 #if !VTK_OBJC_IS_ARC
 - (void)dealloc
 {
-  [super dealloc];
   [_rolloverTrackingArea release];
+  [super dealloc];
 }
 #endif
 
