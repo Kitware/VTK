@@ -86,6 +86,7 @@ struct ConstComponentStruct
 int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int res = EXIT_SUCCESS;
+
   vtkNew<vtkImplicitArray<::Const42>> arr42;
   arr42->SetNumberOfComponents(1);
   arr42->SetNumberOfTuples(100);
@@ -176,6 +177,14 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
   arr42->Squeeze();
+
+  vtkSmartPointer<vtkDataArray> newInstance;
+  newInstance.TakeReference(arr42->NewInstance());
+  if (!vtkAOSDataArrayTemplate<int>::SafeDownCast(newInstance))
+  {
+    res = EXIT_FAILURE;
+    std::cout << "NewInstance did not return the correct AOS type array." << std::endl;
+  }
 
   vtkNew<vtkImplicitArray<::ConstStruct>> genericConstArr;
   genericConstArr->ConstructBackend(42);

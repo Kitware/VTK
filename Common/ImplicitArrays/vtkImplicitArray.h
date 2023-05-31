@@ -124,9 +124,44 @@
  * };
  * @endcode
  *
+ * A peculiarity of `vtkImplicitArray`s is that their `NewInstance` method no longer gives
+ * an instance of the exact same array type. A `NewInstance` call on a `vtkImplicitArray`
+ * will return a `vtkAOSDataArrayTemplate<ValueTypeT>` with the same value type as the
+ * orginal implicit array. This is so that the following workflow (used extensively
+ * throughout VTK) can work without issues:
+ * @code
+ * struct Const42
+ * {
+ *   int operator()(int idx) const { return 42; }
+ * };
+ * vtkNew<vtkImplicitArray<Const42>> arr42;
+ * arr42->SetNumberOfTuples(11);
+ * vtkSmartPointer<vtkDataArray> arr43 = vtk::TakeSmartPointer(arr42->NewInstance());
+ * arr43->SetNumberOfComponents(arr42->GetNumberOfComponents());
+ * arr43->SetNumberOfTuples(arr42->GetNumberOfTuples());
+ * arr43->Fill(43);
+ * @endcode
+ *
  * @sa
  * vtkGenericDataArray vtkImplicitArrayTraits vtkDataArray
  */
+
+//-------------------------------------------------------------------------------------------------
+// Special macro for implicit array types modifying the behavior of NewInstance to provide writable
+// AOS arrays instead of empty implicit arrays
+#define vtkImplicitArrayTypeMacro(thisClass, superclass)                                           \
+  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superclass,                                   \
+    vtkAOSDataArrayTemplate<thisClass::ValueTypeT>, typeid(thisClass).name());                     \
+                                                                                                   \
+protected:                                                                                         \
+  vtkObjectBase* NewInstanceInternal() const override                                              \
+  {                                                                                                \
+    return vtkAOSDataArrayTemplate<thisClass::ValueTypeT>::New();                                  \
+  }                                                                                                \
+                                                                                                   \
+public:
+//-------------------------------------------------------------------------------------------------
+
 VTK_ABI_NAMESPACE_BEGIN
 template <class BackendT>
 class vtkImplicitArray
@@ -142,7 +177,7 @@ class vtkImplicitArray
 
 public:
   using SelfType = vtkImplicitArray<BackendT>;
-  vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
+  vtkImplicitArrayTypeMacro(SelfType, GenericDataArrayType);
   using ValueType = typename GenericDataArrayType::ValueType;
   using BackendType = BackendT;
 
