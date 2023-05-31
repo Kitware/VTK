@@ -447,6 +447,11 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
           fileExtent[iDim * 2] = extentBuffer[rIDim * 2];
           fileExtent[iDim * 2 + 1] = extentBuffer[rIDim * 2 + 1] + pointModifier;
         }
+        if (this->HasTransientData && !pointModifier)
+        {
+          // Add one to the extent for the time dimension if needed
+          fileExtent[1] += 1;
+        }
         if ((array = vtk::TakeSmartPointer(
                this->Impl->NewArray(attributeType, name.c_str(), fileExtent))) == nullptr)
         {

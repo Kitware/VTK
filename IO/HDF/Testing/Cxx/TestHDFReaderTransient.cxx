@@ -16,6 +16,7 @@
 #include "vtkHDFReader.h"
 
 #include "vtkAppendFilter.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkFieldData.h"
@@ -280,16 +281,16 @@ int TestUGTransient(const std::string& dataRoot)
     CheckerWorklet checks(CHECK_TOLERANCE);
 
     // Point Data checks
-    auto getLHSData = [&](vtkIdType iP) {
+    auto getLHSPData = [&](vtkIdType iP) {
       std::array<double, 3> point = { 0 };
       dSet->GetPoint(iP, point.data());
       return ::Sin11T(dSet->GetFieldData()->GetArray("Time")->GetComponent(0, 0), point);
     };
-    auto getRHSData = [&](vtkIdType iP) {
+    auto getRHSPData = [&](vtkIdType iP) {
       return dSet->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0);
     };
 
-    if (!checks(0, dSet->GetNumberOfPoints(), getLHSData, getRHSData))
+    if (!checks(0, dSet->GetNumberOfPoints(), getLHSPData, getRHSPData))
     {
       std::cout << "PointData: Failed array checks" << std::endl;
       return EXIT_FAILURE;
@@ -363,17 +364,29 @@ int TestImageDataTransient(const std::string& dataRoot)
     CheckerWorklet checks(CHECK_TOLERANCE);
 
     // Point Data checks
-    auto getLHSData = [&](vtkIdType iP) {
+    auto getLHSPData = [&](vtkIdType iP) {
       auto wave = refGeometry->GetPointData()->GetArray("RTData");
       return dSet->GetFieldData()->GetArray("Time")->GetComponent(0, 0) * wave->GetComponent(iP, 0);
     };
-    auto getRHSData = [&](vtkIdType iP) {
+    auto getRHSPData = [&](vtkIdType iP) {
       return dSet->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0);
     };
 
-    if (!checks(0, dSet->GetNumberOfPoints(), getLHSData, getRHSData))
+    if (!checks(0, dSet->GetNumberOfPoints(), getLHSPData, getRHSPData))
     {
       std::cout << "PointData: Failed array checks" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    // Cell Data checks
+    auto getLHSCData = [&](vtkIdType iC) { return iC; };
+    auto getRHSCData = [&](vtkIdType iC) {
+      return dSet->GetCellData()->GetArray("IDs")->GetComponent(iC, 0);
+    };
+
+    if (!checks(0, dSet->GetNumberOfCells(), getLHSCData, getRHSCData))
+    {
+      std::cout << "CellData: Failed array checks" << std::endl;
       return EXIT_FAILURE;
     }
   }
