@@ -1025,14 +1025,13 @@ void vtkXOpenGLRenderWindow::SetSize(int width, int height)
             if (vtksys::SystemTools::GetTime() > maxtime)
             {
               vtkWarningMacro(<< "Timeout while waiting for response to XResizeWindow.");
-              break;
+              return;
             }
           }
+          XPutBackEvent(this->DisplayId, &e);
         }
       }
     }
-
-    this->Modified();
   }
 }
 
