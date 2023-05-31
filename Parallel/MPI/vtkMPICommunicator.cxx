@@ -26,6 +26,7 @@
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <cassert>
+#include <type_traits> // for std::is_pointer
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -42,7 +43,7 @@ static inline void vtkMPICommunicatorDebugBarrier(MPI_Comm* handle)
 #if (MPI_VERSION >= 4)
 // Flag to indicate "_c" versions of communication routines exist, like MPI_Send_c,
 // which use the 64bit type MPI_Count for length parameters.
-// #define VTKMPI_64BIT_LENGTH
+#define VTKMPI_64BIT_LENGTH
 #endif
 
 vtkStandardNewMacro(vtkMPICommunicator);
@@ -1131,13 +1132,33 @@ int vtkMPICommunicator::NoBlockSend(
   return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(data, length, remoteProcessId, tag,
     vtkMPICommunicatorGetMPIType(VTK_LONG_LONG), req, this->MPIComm->Handle));
 }
-//------------------------------------------------------------------------------
-int vtkMPICommunicator::NoBlockSend(
-  const void* data, vtkTypeInt64 length, int mpiType, int remoteProcessId, int tag, Request& req)
-{
 
-  return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(data, length, remoteProcessId, tag,
-    static_cast<MPI_Datatype>(mpiType), req, this->MPIComm->Handle));
+//------------------------------------------------------------------------------
+namespace
+{
+// For MPI_Datatype, openmpi uses a pointer, and mpich uses `int`
+// This template provides the correct cast.
+
+template <typename T, typename std::enable_if<std::is_pointer<T>::value, int>::type = 0>
+T vtkMPI_Datatype_cast(std::intptr_t mpiType)
+{
+  return reinterpret_cast<T>(mpiType);
+}
+
+template <typename T, typename std::enable_if<!std::is_pointer<T>::value, int>::type = 0>
+T vtkMPI_Datatype_cast(std::intptr_t mpiType)
+{
+  return static_cast<T>(mpiType);
+}
+}
+//------------------------------------------------------------------------------
+int vtkMPICommunicator::NoBlockSend(const void* data, vtkTypeInt64 length, std::intptr_t mpiType,
+  int remoteProcessId, int tag, Request& req)
+{
+  MPI_Datatype convertedMPIType = vtkMPI_Datatype_cast<MPI_Datatype>(mpiType);
+
+  return CheckForMPIError(vtkMPICommunicatorNoBlockSendData(
+    data, length, remoteProcessId, tag, convertedMPIType, req, this->MPIComm->Handle));
 }
 
 //------------------------------------------------------------------------------
