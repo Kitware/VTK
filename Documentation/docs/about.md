@@ -35,7 +35,6 @@ Check out the links below for more information:
 * [Open Hub](https://www.openhub.net/p/vtk)
 * [PyPI stats](https://pypistats.org/packages/vtk)
 
-
 ## Features
 
 VTK provides a comprehensive set of features that support visualization,
@@ -99,6 +98,7 @@ When citing VTK in your scientific research, please mention the following work t
     Schroeder, Will; Martin, Ken; Lorensen, Bill (2006), The Visualization Toolkit (4th ed.), Kitware, ISBN 978-1-930934-19-1
 
 For your convenience here is a bibtex entry:
+
 ```bibtex
 @Book{vtkBook,
   author    = "Will Schroeder and Ken Martin and Bill Lorensen",
@@ -111,7 +111,6 @@ For your convenience here is a bibtex entry:
 
 To cite a specific filter, check for extra references in the included headers or the [doxygen](https://vtk.org/doc/nightly/html) documentation of the filter.
 
-
 ## History
 
 **2016 - Rendering Backend in ParaView 5.0**
@@ -121,7 +120,6 @@ See [Brand-New Rendering Backend in ParaView 5.0](https://www.kitware.com/kitwar
 **2014 - Transition from OpenGL to OpenGL2**
 
 See [New OpenGL Rendering in VTK](https://www.kitware.com/new-opengl-rendering-in-vtk).
-
 
 **1993 - Origin**
 
@@ -154,7 +152,6 @@ found Kitware, Inc. Since that time, hundreds of additional developers have
 turned VTK into what is now the premier visualization system in the world.
 Sandia National Laboratories, for example, has been a strong supporter and
 co-developer, revamping 2D charting and information visualization in VTK.
-
 
 ## Acknowledgments
 

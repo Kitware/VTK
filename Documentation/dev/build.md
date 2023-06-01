@@ -27,7 +27,6 @@ To obtain VTK's sources locally, clone this repository using
 git clone --recursive https://gitlab.kitware.com/vtk/vtk.git
 ```
 
-
 ## Prerequisites
 
 VTK only requires a few packages in order to build in general, however
@@ -52,7 +51,6 @@ Required:
     - Apple Clang 7.0 (from Xcode 7.2.1) or newer
     - Microsoft Visual Studio 2015 or newer
     - Intel 14.0 or newer
-
 
 ### Optional Additions
 
@@ -96,6 +94,7 @@ Required:
 ### Linux (Ubuntu/Debian)
 
 Install  the following packages:
+
 ```bash
 $ sudo apt install \
 build-essential \
@@ -113,12 +112,13 @@ ninja-build
 ### Windows
 
   * [Visual Studio Community Edition][visual-studio]
+
   * Use "x64 Native Tools Command Prompt" for the installed Visual Studio
     version to configure with CMake and to build with ninja.
+
   * Get [ninja][ninja]. Unzip the binary and put it in `PATH`. Note that newer
     Visual Studio releases come with a version of `ninja` already and should
     already exist in `PATH` within the command prompt.
-
 
 ## Configure and Building
 
@@ -155,8 +155,6 @@ cmake --build .
 ```{tip}
 Different features can be enabled/disabled by setting the [Build Settings](build_settings.md) during the configure stage.
 ```
-
-
 
 [cmake]: https://cmake.org
 [cmake-download]: https://cmake.org/download

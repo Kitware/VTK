@@ -38,7 +38,6 @@ For this guide, you will need the following:
 
    For more detailed instructions see  [emsdk/README.md](https://github.com/emscripten-core/emsdk#readme).
 
-
 3. **VTK source-code**: If you have these then you can skip the rest of this section and proceed to [Build project](#build-project).
    Download VTK source for the version you want from
    [https://vtk.org/download/](https://vtk.org/download/)  (zip or tar.gz (Do
@@ -49,7 +48,6 @@ For this guide, you will need the following:
    Alternatively the source-code can be obtained from the repository as well.
    This is recommended only if you intent to make changes and contribute to
    VTK. Please refer to [git/develop.md](git/develop.md) for help with `git`.
-
 
 ## Build project
 
@@ -76,6 +74,7 @@ $ emcmake cmake \
 ```
 
 2. Compile.
+
 ```
 $ cd /work/build-vtk-wasm
 $ ninja

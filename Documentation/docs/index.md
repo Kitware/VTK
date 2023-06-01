@@ -9,8 +9,6 @@ rendering techniques.
 We invite you to join the VTK community and explore our documentation to find
 out how you can use VTK to bring your visions to life.
 
-
-
 ![Latest Release](https://img.shields.io/gitlab/v/tag/vtk/vtk?gitlab_url=https%3A%2F%2Fgitlab.kitware.com)
 ![PyPI](https://img.shields.io/pypi/v/vtk)
 ![License](https://img.shields.io/pypi/l/vtk)

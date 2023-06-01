@@ -29,12 +29,11 @@ Disabling a module can be done as follows:
 cmake -DVTK_MODULE_ENABLE_<module name>=DONT_WANT ...
 ```
 
-
 Enabling a module may cause more to be enabled due to dependencies.  For more
 details about the module infrastructure in VTK see  the
 [Module System](../api/cmake/ModuleSystem.md) section.
 
-## Available  Modules
+## Available Modules
 
 Here is a complete list of the available vtk modules:
 

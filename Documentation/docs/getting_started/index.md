@@ -1,6 +1,7 @@
 # Getting Started
 
 ## Introduction
+
 Welcome to VTK! We recommend that you start by reading [The VTK
 Book](https://book.vtk.org), a comprehensive guide to VTK that covers all
 aspects of its functionality. Additionally, you may find it helpful to explore
@@ -18,7 +19,6 @@ Lastly, to help address your specific needs, you may also consider exploring
 existing free and open-source [frameworks or applications](#using-existing-frameworks-and-applications)
 that already leverage VTK. These frameworks and applications can be extended and customized to work
 for specific use cases and may provide ready-to-use solutions for your project.
-
 
 ```{include} ./system_requirements.md
 :heading-offset: 1

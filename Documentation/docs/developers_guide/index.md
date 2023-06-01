@@ -1,8 +1,6 @@
 # Developer's Guide
 
-
 This guide is a comprehensive resource for contributing to VTK – for both new and experienced contributors. We welcome your contributions to VTK !
-
 
 ```{toctree}
 :titlesonly:

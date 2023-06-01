@@ -45,6 +45,7 @@ pip install vtk
 ::::
 
 To verify the installation try to import vtk from an interactive python environment:
+
 ```python
 >>> import vtk
 >>> print(vtk.__version__)

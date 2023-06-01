@@ -99,6 +99,7 @@ find_package(VTK
 ```
 
 Based on the suggestions of the script and the template above the relevant sections of the `CMakeLists.txt` are:
+
 ```cmake
 ...
 find_package(VTK COMPONENTS
@@ -123,7 +124,6 @@ vtk_module_autoinit(
 ```
 
 The full source of the example can be found [here](https://examples.vtk.org/site/Cxx/GeometricObjects/CylinderExample/).
-
 
 To build the example:
 

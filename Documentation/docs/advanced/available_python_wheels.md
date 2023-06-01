@@ -34,8 +34,8 @@ To install the **OSMesa variant** from the latest release
 ```
 pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 ```
-For more information see [here](https://discourse.vtk.org/t/status-update-vtk-python-wheels/11212).
 
+For more information see [here](https://discourse.vtk.org/t/status-update-vtk-python-wheels/11212).
 
 ```{note}
 conda-forge packages are also [available](https://anaconda.org/conda-forge/vtk) and maintained by the community.

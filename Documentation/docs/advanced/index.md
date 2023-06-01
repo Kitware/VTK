@@ -1,6 +1,5 @@
 # Advanced Topics
 
-
 ```{toctree}
 :titlesonly:
 :caption: Contents
