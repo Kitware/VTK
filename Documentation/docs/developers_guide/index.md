@@ -16,7 +16,7 @@ git/dashboard
 git/thirdparty
 
 git/deprecation
-process
+release_process
 coding_conventions
 about_this_documentation
 ```
