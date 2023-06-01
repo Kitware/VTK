@@ -61,8 +61,8 @@
 
 #include <map>
 #include <numeric>
-#include <unordered_map>
 #include <set>
+#include <unordered_map>
 
 namespace
 {
@@ -1008,7 +1008,10 @@ struct vtkNodeBlock : vtkGroupingEntity
       }
 
       const auto numPoints = ds->GetNumberOfPoints();
-      assert(gids->GetNumberOfTuples() == numPoints);
+      if (gids)
+      {
+        assert(gids->GetNumberOfTuples() == numPoints);
+      }
 
       this->Ids.reserve(this->Ids.size() + numPoints);
       this->IdsRaw.emplace_back();
@@ -1570,7 +1573,10 @@ struct vtkNodeSet : public vtkGroupingEntity
         throw std::runtime_error("missing point global IDs for nodesets.");
       }
       const auto numPoints = ds->GetNumberOfPoints();
-      assert(gids->GetNumberOfTuples() == numPoints);
+      if (gids)
+      {
+        assert(gids->GetNumberOfTuples() == numPoints);
+      }
       this->Count += numPoints;
     }
 
