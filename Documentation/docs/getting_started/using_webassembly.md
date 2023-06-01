@@ -16,4 +16,4 @@ To learn more about VTK-Wasm and its capabilities, please take a look at the fol
 
 * [Deep dive into WebAssembly & WebGPU in VTK: presentation from April 28th, 2023](https://docs.google.com/presentation/d/1Nl0TVa55616QKCSHP54BoYBvByMKe6lIUl6IFZqSeJo/edit#slide=id.p). This presentation covers topics such as Emscripten, VTK-wasm Docker image, WASM Dev tools, VTK and WebGPU: PolyData Mapper, API inspection with RenderDoc, and performance profiles.
 
-We welcome your feedback and contributions to this project. Feel free to share your experiences, questions, and ideas in the [web/vtk-wasm](https://discourse.vtk.org/c/web/vtk-wasm/12) category of the VTK Forum. Stay tuned for updates and new developments!
+We welcome your feedback and contributions to this project. Feel free to share your experiences, questions, and ideas in the [web/vtk-wasm](https://discourse.vtk.org/c/web/vtk-wasm/12) category of the VTK Discourse forum. Stay tuned for updates and new developments!

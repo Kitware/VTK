@@ -35,6 +35,7 @@ Our collaboration workflow consists of three main steps:
     * [Merge a Topic](#merge-a-topic) (requires permission in GitLab)
     * [Delete a Topic](#delete-a-topic)
 
+[GitLab Access]: https://gitlab.kitware.com/users/sign_in
 [branchy workflow]: https://public.kitware.com/Wiki/Git/Workflow/Topic
 
 Update

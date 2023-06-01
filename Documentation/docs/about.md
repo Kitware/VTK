@@ -186,7 +186,7 @@ regarding VTK, there are several communication channels available for you:
 
 **VTK Forum**
 
-Visit the [VTK forum](https://discourse.vtk.org) for community-driven support,
+Visit the [VTK Discourse](https://discourse.vtk.org) forum for community-driven support,
 to share your experiences, exchange ideas and best practices, and to discuss
 challenges.
 

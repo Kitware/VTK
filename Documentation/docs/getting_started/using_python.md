@@ -1,6 +1,6 @@
 # Using Python
 
-VTK is available on [PyPi](https://pypi.org/) for Windows,Mac OS and Linux.
+VTK is available on [PyPi](https://pypi.org/) for Windows, macOS and Linux.
 ```
 pip install vtk
 ```

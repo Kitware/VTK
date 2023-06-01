@@ -8,7 +8,7 @@ pip install vtk
 
 More wheels can be accessed from the [GitLab Package Registry](https://gitlab.kitware.com/vtk/vtk/-/packages).
 
-To install the **latest release** wheel from the gitlab registry:
+To install the **latest release** wheel from the GitLab registry:
 
 ```
 pip install --extra-index-url https://wheels.vtk.org vtk

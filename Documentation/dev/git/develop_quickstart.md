@@ -63,7 +63,7 @@ ctest -VV -R yourTest
 
 ## Upload
 
-Push your changes to the gitlab fork that you created in the [initial setup](#initial-setup) stage:
+Push your changes to the GitLab fork that you created in the [initial setup](#initial-setup) stage:
 
 ```
 git push gitlab
@@ -103,7 +103,7 @@ Tag some VTK maintainers in the description to ensure someone will see it, see h
 
 ## Robot Checks
 
-Once the MR is created, our gitlab robot will check multiple things and make automated suggestions. Please read them and try to follow the instructions.
+Once the MR is created, our GitLab robot will check multiple things and make automated suggestions. Please read them and try to follow the instructions.
 The two standard suggestions are related to formatting errors and adding markdown changelog.
 
 To fix the formatting, just add a comment containing:
