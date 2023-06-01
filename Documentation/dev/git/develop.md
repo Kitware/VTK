@@ -94,10 +94,9 @@ A reader should have a general idea of the feature or fix to be developed given 
 
     Caveats:
     * To add data follow [these instructions](test.md#add-data).
-    * If your change modifies third party code, see the  [ThirdParty][] documentation.
-    * To deprecate APIs, follow [these instructions](deprecation.md).
+    * If your change modifies third party code, see [Updating Third Party Projects](/ThirdParty/UPDATING.md).
+    * To deprecate APIs, see [Deprecation Process](deprecation.md).
 
-[ThirdParty]: /ThirdParty/UPDATING.md
 Guidelines for Commit logs
 --------------------------
 
