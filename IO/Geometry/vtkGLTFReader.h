@@ -168,6 +168,7 @@ public:
    * as linearly interpolated time values between 0s and the animations' maximum durations,
    * sampled at the specified frame rate.
    * Use the TIME_STEPS information key to obtain integer indices to each of these steps.
+   * Set to 0 to not set any TIME_STEPS and only provide a TIME_RANGE.
    */
   vtkGetMacro(FrameRate, unsigned int);
   vtkSetMacro(FrameRate, unsigned int);
