@@ -602,15 +602,7 @@ int vtkPNetCDFPOPReader::ReadAndSend(vtkInformation* outInfo, int varID)
           // using the depth value as the tag
           this->Controller->NoBlockSend(
             buffer, (vtkTypeInt64)1, subArrayType, destRank, curDepth, sendReq);
-          if (sendReq.Req->Handle >= 0)
-          {
-            this->Internals->SendReqs.push_back(sendReq);
-          }
-          else
-          {
-            vtkWarningMacro(<< "vtkPNetCDFPOPReader NoBlockSend unexpected MPI_Request val "
-                            << sendReq.Req->Handle);
-          }
+          this->Internals->SendReqs.push_back(sendReq);
           MPI_Type_free(&subArrayType);
         }
       }
