@@ -2054,7 +2054,7 @@ void ADFH_Children_IDs(const double pid,
 #endif
     if (IDs[0]==-1)
     {
-#if H5_VERSION_GE(1,12,0)
+#if ADFH_HDF5_HAVE_112_API
       H5Literate2(hpid,H5_INDEX_NAME,H5_ITER_INC,
                  NULL,children_ids,(void *)IDs);
 #else
@@ -2240,21 +2240,6 @@ void ADFH_Database_Open(const char   *name,
   H5Pset_fclose_degree(g_propfileopen, H5F_CLOSE_STRONG);
 #endif
 
-  /* Patch to read file created with CGNS 3.3 and hdf5 > 1.8 */
-  if (mode == ADFH_MODE_RDO) {
-      H5Pset_libver_bounds(g_propfileopen,
-          H5F_LIBVER_LATEST, H5F_LIBVER_LATEST);
-  }
-  else {
-    /* Compatibility with V1.8 */
-    H5Pset_libver_bounds(g_propfileopen,
-#if ADFH_HDF5_HAVE_110_API
-          H5F_LIBVER_V18, H5F_LIBVER_V18);
-#else
-          H5F_LIBVER_LATEST, H5F_LIBVER_LATEST);
-#endif
-  }
-
   /* open the file */
 
 #if CG_BUILD_PARALLEL
@@ -2288,6 +2273,15 @@ void ADFH_Database_Open(const char   *name,
   set_error(NO_ERROR, err);
 
   if (mode == ADFH_MODE_NEW) {
+
+    /* Compatibility with V1.8 */
+    H5Pset_libver_bounds(g_propfileopen,
+#if ADFH_HDF5_HAVE_110_API
+          H5F_LIBVER_V18, H5F_LIBVER_V18);
+#else
+          H5F_LIBVER_LATEST, H5F_LIBVER_LATEST);
+#endif
+
     hid_t g_propfilecreate = H5Pcreate(H5P_FILE_CREATE);
 
 #ifdef JFC_PATCH_2015_2
@@ -2326,6 +2320,7 @@ void ADFH_Database_Open(const char   *name,
       (prop set to file creation )*/
     H5Pset_link_creation_order(g_propfilecreate,
                                H5P_CRT_ORDER_TRACKED | H5P_CRT_ORDER_INDEXED);
+
     fid = H5Fcreate(name, H5F_ACC_TRUNC, g_propfilecreate, g_propfileopen);
     H5Pclose(g_propfilecreate);
     H5Pclose(g_propfileopen);
@@ -2356,16 +2351,44 @@ void ADFH_Database_Open(const char   *name,
       set_error(ADFH_ERR_NOT_HDF5_FILE, err);
       return;
     }
+
 #if CG_BUILD_PARALLEL
 #if HDF5_HAVE_COLL_METADATA
     H5Pset_all_coll_metadata_ops( g_propfileopen, 1 );
 #endif
 #endif
     if (mode == ADFH_MODE_RDO) {
+      /* Patch to read file created with CGNS 3.3 and hdf5 > 1.8 */
+      H5Pset_libver_bounds(g_propfileopen,
+                           H5F_LIBVER_LATEST, H5F_LIBVER_LATEST);
       fid = H5Fopen(name, H5F_ACC_RDONLY, g_propfileopen);
     }
     else {
+
+#if !ADFH_HDF5_HAVE_110_API
+      H5Pset_libver_bounds(g_propfileopen,
+                           H5F_LIBVER_LATEST, H5F_LIBVER_LATEST);
+#endif
+
       fid = H5Fopen(name, H5F_ACC_RDWR, g_propfileopen);
+
+#if ADFH_HDF5_HAVE_110_API
+      hid_t access_fapl = H5Fget_access_plist(fid);
+
+      H5F_libver_t low, high; /* File format bounds */
+      H5Pget_libver_bounds(access_fapl, &low, &high);
+
+      if(low > H5F_LIBVER_V18) {
+        /* NOTE: HDF5 can not downgrade to a lower version bound (which can be done with h5repack), so
+           the best that can be done is not to use a version higher than the lower bound. */
+        H5Fset_libver_bounds(fid, low, low);
+      } else {
+        H5Fset_libver_bounds(fid, H5F_LIBVER_V18, H5F_LIBVER_V18);
+      }
+
+      H5Pclose(access_fapl);
+#endif
+
     }
     H5Pclose(g_propfileopen);
     if (fid < 0) {
