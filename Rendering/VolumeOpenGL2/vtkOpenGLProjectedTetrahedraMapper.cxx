@@ -52,6 +52,7 @@
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
+#include "vtkTextureObject.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -516,13 +517,28 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
       vtkErrorMacro("FO is incomplete ");
     }
 
-    ostate->vtkglBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
-      this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
+    auto srcDepthTexture =
+      renderWindow->GetRenderFramebuffer()->GetDepthAttachmentAsTextureObject();
+    auto dstDepthTexture = fo->GetDepthAttachmentAsTextureObject();
+    const auto srcDepthFormat = srcDepthTexture->GetFormat(0, 0, false);
+    const auto dstDepthFormat = dstDepthTexture->GetFormat(0, 0, false);
     // We need to treat depth buffer blitting specially because depth buffer formats may not
     // be compatible between the FBO used in this class and the renderwindow's FBO.
-    renderWindow->TextureDepthBlit(
-      renderWindow->GetRenderFramebuffer()->GetDepthAttachmentAsTextureObject());
+    if (srcDepthFormat == dstDepthFormat)
+    {
+      // compatible, blit color and depth attachments.
+      ostate->vtkglBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
+        this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+        GL_NEAREST);
+    }
+    else
+    {
+      // incompatible, blit only color attachment
+      ostate->vtkglBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
+        this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+      // depth values are sampled from srcDepthTexture into our framebuffer's depth attachment.
+      renderWindow->TextureDepthBlit(srcDepthTexture);
+    }
 
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
   }
