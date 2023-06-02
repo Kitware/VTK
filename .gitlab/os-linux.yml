@@ -94,7 +94,7 @@
 
 .fedora34:
     extends: .linux
-    image: "kitware/vtk:ci-fedora34-20230324"
+    image: "kitware/vtk:ci-fedora34-20230619"
 
 .el7_mindeps:
     extends: .linux
