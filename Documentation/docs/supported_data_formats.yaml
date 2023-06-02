@@ -345,7 +345,7 @@
   description: "FLUENT CFF format"
   reader_class: vtkFLUENTCFFReader
   writer_class: null
-  vtk_module: VTK::IOGeometry
+  vtk_module: VTK::IOFLUENTCFF
 
 - extensions: [.cas, .dat]
   description: "FLUENT native format"

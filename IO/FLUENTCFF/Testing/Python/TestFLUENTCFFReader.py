@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
-from vtkmodules.vtkIOGeometry import vtkFLUENTCFFReader
+from vtkmodules.vtkIOFLUENTCFF import vtkFLUENTCFFReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
     vtkCompositePolyDataMapper,

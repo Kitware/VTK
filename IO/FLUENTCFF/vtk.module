@@ -1,0 +1,16 @@
+NAME
+  VTK::IOFLUENTCFF
+LIBRARY_NAME
+  vtkIOFLUENTCFF
+DESCRIPTION
+  Reader for the FluentCFF file format
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+  VTK::hdf5

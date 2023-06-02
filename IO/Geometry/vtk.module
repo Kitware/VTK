@@ -23,7 +23,6 @@ PRIVATE_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersHybrid
   VTK::FiltersVerdict
-  VTK::hdf5
   VTK::ImagingCore
   VTK::IOImage
   VTK::RenderingCore

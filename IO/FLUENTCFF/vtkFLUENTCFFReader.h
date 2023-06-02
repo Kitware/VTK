@@ -43,7 +43,7 @@
 
 #include <memory> // std::unique_ptr
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOFLUENTCFFModule.h" // For export macro
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // For vtkNew
@@ -58,7 +58,7 @@ class vtkHexahedron;
 class vtkPyramid;
 class vtkWedge;
 
-class VTKIOGEOMETRY_EXPORT vtkFLUENTCFFReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOFLUENTCFF_EXPORT vtkFLUENTCFFReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkFLUENTCFFReader* New();
