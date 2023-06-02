@@ -15,6 +15,7 @@
 
 #include "vtkHDFReader.h"
 
+#include "vtkAppendDataSets.h"
 #include "vtkAppendFilter.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -28,6 +29,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkXMLPolyDataReader.h"
 
 #include <cstdlib>
 
@@ -46,6 +48,7 @@ struct CheckerWorklet;
 // assemblies
 int TestUGTransient(const std::string& dataRoot);
 int TestImageDataTransient(const std::string& dataRoot);
+int TestPolyDataTransient(const std::string& dataRoot);
 }
 
 int TestHDFReaderTransient(int argc, char* argv[])
@@ -55,6 +58,7 @@ int TestHDFReaderTransient(int argc, char* argv[])
   std::string dataRoot = testUtils->GetDataRoot();
   int res = ::TestUGTransient(dataRoot);
   res |= ::TestImageDataTransient(dataRoot);
+  res |= ::TestPolyDataTransient(dataRoot);
   return res;
 }
 
@@ -204,6 +208,54 @@ bool GeometryCheckerWorklet::operator()(vtkImageData* lhs, vtkImageData* rhs)
   return true;
 }
 
+template <>
+bool GeometryCheckerWorklet::operator()(vtkPolyData* lhs, vtkPolyData* rhs)
+{
+  CheckerWorklet checks(this->Tolerance);
+
+  // Geometry checks
+  auto refRange = vtk::DataArrayValueRange<3>(lhs->GetPoints()->GetData());
+  auto getLHSPoints = [&](vtkIdType iPComp) { return refRange[iPComp]; };
+  auto hdfRange = vtk::DataArrayValueRange<3>(rhs->GetPoints()->GetData());
+  auto getRHSPoints = [&](vtkIdType iPComp) { return hdfRange[iPComp]; };
+  if (!checks(0, lhs->GetNumberOfPoints() * 3, getLHSPoints, getRHSPoints))
+  {
+    std::cout << "Points: Failed point geometry checks" << std::endl;
+    return false;
+  }
+
+  std::map<std::string, std::pair<vtkCellArray*, vtkCellArray*>> topos{
+    { "Verts", std::make_pair(lhs->GetVerts(), rhs->GetVerts()) },
+    { "Lines", std::make_pair(lhs->GetLines(), rhs->GetLines()) },
+    { "Polys", std::make_pair(lhs->GetPolys(), rhs->GetPolys()) },
+    { "Strips", std::make_pair(lhs->GetStrips(), rhs->GetStrips()) }
+  };
+  for (auto& keyVal : topos)
+  {
+    auto refConnRange = vtk::DataArrayValueRange<1>(keyVal.second.first->GetConnectivityArray());
+    auto getLHSConn = [&](vtkIdType iConn) { return refConnRange[iConn]; };
+    auto hdfConnRange = vtk::DataArrayValueRange<1>(keyVal.second.second->GetConnectivityArray());
+    auto getRHSConn = [&](vtkIdType iConn) { return hdfConnRange[iConn]; };
+    if (!checks(0, refConnRange.size(), getLHSConn, getRHSConn))
+    {
+      std::cout << "Connectivity: Failed connectivity geometry checks for " << keyVal.first
+                << std::endl;
+      return false;
+    }
+
+    auto refOffRange = vtk::DataArrayValueRange<1>(keyVal.second.first->GetOffsetsArray());
+    auto getLHSOff = [&](vtkIdType iOff) { return refOffRange[iOff]; };
+    auto hdfOffRange = vtk::DataArrayValueRange<1>(keyVal.second.second->GetOffsetsArray());
+    auto getRHSOff = [&](vtkIdType iOff) { return hdfOffRange[iOff]; };
+    if (!checks(0, refOffRange.size(), getLHSOff, getRHSOff))
+    {
+      std::cout << "Offsets: Failed offsets geometry checks" << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
 int TestUGTransient(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
@@ -217,9 +269,10 @@ int TestUGTransient(const std::string& dataRoot)
   }
 
   auto tRange = opener.GetReader()->GetTimeRange();
-  if (tRange[0] != 0.0 && tRange[1] != 1.0)
+  if (!vtkMathUtilities::FuzzyCompare(tRange[0], 0.0, CHECK_TOLERANCE) ||
+    !vtkMathUtilities::FuzzyCompare(tRange[1], 0.9, CHECK_TOLERANCE))
   {
-    std::cout << "Time range is incorrect: (0.0, 1.0) != (" << tRange[0] << ", " << tRange[1] << ")"
+    std::cout << "Time range is incorrect: (0.0, 0.9) != (" << tRange[0] << ", " << tRange[1] << ")"
               << std::endl;
     return EXIT_FAILURE;
   }
@@ -313,9 +366,10 @@ int TestImageDataTransient(const std::string& dataRoot)
   }
 
   auto tRange = opener.GetReader()->GetTimeRange();
-  if (tRange[0] != 0.0 && tRange[1] != 1.0)
+  if (!vtkMathUtilities::FuzzyCompare(tRange[0], 0.0, CHECK_TOLERANCE) ||
+    !vtkMathUtilities::FuzzyCompare(tRange[1], 0.9, CHECK_TOLERANCE))
   {
-    std::cout << "Time range is incorrect: (0.0, 1.0) != (" << tRange[0] << ", " << tRange[1] << ")"
+    std::cout << "Time range is incorrect: (0.0, 0.9) != (" << tRange[0] << ", " << tRange[1] << ")"
               << std::endl;
     return EXIT_FAILURE;
   }
@@ -387,6 +441,103 @@ int TestImageDataTransient(const std::string& dataRoot)
     if (!checks(0, dSet->GetNumberOfCells(), getLHSCData, getRHSCData))
     {
       std::cout << "CellData: Failed array checks" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+int TestPolyDataTransient(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
+
+  // Generic Time data checks
+  if (opener.GetReader()->GetNumberOfSteps() != 10)
+  {
+    std::cout << "Number of time steps is not correct: " << opener.GetReader()->GetNumberOfSteps()
+              << " != " << 10 << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto tRange = opener.GetReader()->GetTimeRange();
+  if (!vtkMathUtilities::FuzzyCompare(tRange[0], 0.0, CHECK_TOLERANCE) ||
+    !vtkMathUtilities::FuzzyCompare(tRange[1], 0.9, CHECK_TOLERANCE))
+  {
+    std::cout << "Time range is incorrect: (0.0, 0.9) != (" << tRange[0] << ", " << tRange[1] << ")"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  for (std::size_t iStep = 0; iStep < 10; ++iStep)
+  {
+    // Open data at right time
+    vtkSmartPointer<vtkDataSet> dSet = opener(iStep);
+
+    // Reference Geometry
+    vtkNew<vtkXMLPolyDataReader> refReader;
+    refReader->SetFileName(
+      (dataRoot + "/Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_00" +
+        std::to_string(iStep) + ".vtp")
+        .c_str());
+    refReader->Update();
+
+    vtkDataSet* refGeometry = vtkDataSet::SafeDownCast(refReader->GetOutputDataObject(0));
+
+    // Local Time Checks
+    if (!vtkMathUtilities::FuzzyCompare(
+          opener.GetReader()->GetTimeValue(), static_cast<double>(iStep) / 10, CHECK_TOLERANCE))
+    {
+      std::cout << "Property: TimeValue is wrong: " << opener.GetReader()->GetTimeValue()
+                << " != " << static_cast<double>(iStep) / 10 << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    auto timeArr = dSet->GetFieldData()->GetArray("Time");
+    if (!timeArr)
+    {
+      std::cout << "No Time array in FieldData" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    if (!vtkMathUtilities::FuzzyCompare(
+          timeArr->GetComponent(0, 0), static_cast<double>(iStep) / 10, CHECK_TOLERANCE))
+    {
+      std::cout << "FieldData: Time value is wrong: " << timeArr->GetComponent(0, 0)
+                << " != " << static_cast<double>(iStep) / 10 << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    GeometryCheckerWorklet gChecker(CHECK_TOLERANCE);
+    if (!gChecker(vtkPolyData::SafeDownCast(refGeometry), vtkPolyData::SafeDownCast(dSet)))
+    {
+      std::cout << "Geometry: Failed geometry checks." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    CheckerWorklet checks(CHECK_TOLERANCE);
+
+    // Point Data checks
+    auto lhsPRange = vtk::DataArrayValueRange<3>(refGeometry->GetPointData()->GetArray("Warping"));
+    auto getLHSPData = [&](vtkIdType iC) { return lhsPRange[iC]; };
+    auto rhsPRange = vtk::DataArrayValueRange<3>(dSet->GetPointData()->GetArray("Warping"));
+    auto getRHSPData = [&](vtkIdType iC) { return rhsPRange[iC]; };
+
+    if (!checks(0, dSet->GetNumberOfPoints() * 3, getLHSPData, getRHSPData))
+    {
+      std::cout << "PointData: Failed array checks at step " << iStep << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    // Cell Data checks
+    auto lhsCRange = vtk::DataArrayValueRange<1>(refGeometry->GetCellData()->GetArray("Materials"));
+    auto getLHSCData = [&](vtkIdType iC) { return lhsCRange[iC]; };
+    auto rhsCRange = vtk::DataArrayValueRange<1>(dSet->GetCellData()->GetArray("Materials"));
+    auto getRHSCData = [&](vtkIdType iC) { return rhsCRange[iC]; };
+
+    if (!checks(0, dSet->GetNumberOfCells(), getLHSCData, getRHSCData))
+    {
+      std::cout << "CellData: Failed array checks at step " << iStep << std::endl;
       return EXIT_FAILURE;
     }
   }
