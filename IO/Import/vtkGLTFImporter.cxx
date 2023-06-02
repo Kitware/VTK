@@ -814,21 +814,24 @@ bool vtkGLTFImporter::IsAnimationEnabled(vtkIdType animationIndex)
 bool vtkGLTFImporter::GetTemporalInformation(vtkIdType animationIndex, double frameRate,
   int& nbTimeSteps, double timeRange[2], vtkDoubleArray* timeSteps)
 {
-  nbTimeSteps = 0;
   if (animationIndex < this->GetNumberOfAnimations())
   {
     timeRange[0] = 0;
     timeRange[1] = this->Loader->GetInternalModel()->Animations[animationIndex].Duration;
 
-    timeSteps->SetNumberOfComponents(1);
-    timeSteps->SetNumberOfTuples(0);
-
-    std::vector<double> ts;
-    double period = (1.0 / frameRate);
-    for (double i = timeRange[0]; i < timeRange[1]; i += period)
+    if (frameRate > 0)
     {
-      timeSteps->InsertNextTuple(&i);
-      nbTimeSteps++;
+      nbTimeSteps = 0;
+      timeSteps->SetNumberOfComponents(1);
+      timeSteps->SetNumberOfTuples(0);
+
+      std::vector<double> ts;
+      double period = (1.0 / frameRate);
+      for (double i = timeRange[0]; i < timeRange[1]; i += period)
+      {
+        timeSteps->InsertNextTuple(&i);
+        nbTimeSteps++;
+      }
     }
     return true;
   }

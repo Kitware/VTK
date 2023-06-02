@@ -761,33 +761,41 @@ int vtkGLTFReader::RequestInformation(
     }
   }
 
-  // Append TIME_STEPS
-  if (this->GetFrameRate() > 0 && maxDuration > 0.0)
+  // Append TIME_STEPS and/or TIME_RANGE
+  if (maxDuration == 0.0)
   {
-    int maxFrameIndex = vtkMath::Floor(this->GetFrameRate() * maxDuration);
-    if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  }
+  else
+  {
+    // Add TIME_RANGE
+    std::array<double, 2> timeRange = { { 0.0, maxDuration } };
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange.data(), 2);
+
+    // If a framerate is set, TIME_STEPS are expected
+    if (this->GetFrameRate() > 0)
+    {
+      int maxFrameIndex = vtkMath::Floor(this->GetFrameRate() * maxDuration);
+      if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+      {
+        info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+      }
+      double period = 1.0 / this->GetFrameRate();
+      // Append sampled time steps
+      for (int i = 0; i <= maxFrameIndex; i++)
+      {
+        info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), i * period);
+      }
+      // Append the last step of the animation, if it doesn't match with the last sampled step
+      if (maxDuration != maxFrameIndex * period)
+      {
+        info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), maxDuration);
+      }
+    }
+    else if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
     {
       info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     }
-    double period = 1.0 / this->GetFrameRate();
-    // Append sampled time steps
-    for (int i = 0; i <= maxFrameIndex; i++)
-    {
-      info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), i * period);
-    }
-    // Append the last step of the animation, if it doesn't match with the last sampled step
-    if (maxDuration != maxFrameIndex * period)
-    {
-      info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), maxDuration);
-    }
-
-    // Add TIME_RANGE()
-    std::array<double, 2> timeRange = { { 0.0, maxDuration } };
-    info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange.data(), 2);
-  }
-  else if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
-  {
-    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   }
 
   this->NumberOfAnimations = static_cast<vtkIdType>(model->Animations.size());
@@ -848,7 +856,7 @@ int vtkGLTFReader::RequestData(
   // Apply selected animations on specified time step to the model's transforms
   vtkInformation* info = outputVector->GetInformationObject(0);
 
-  if (this->FrameRate > 0)
+  if (info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     double time = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     for (vtkIdType i = 0; i < this->NumberOfAnimations; i++)

@@ -139,9 +139,14 @@ public:
   virtual void SetCamera(vtkIdType vtkNotUsed(camIndex)) {}
 
   /**
-   * Get temporal information for the currently enabled animations.
-   * the three return arguments can be defined or not.
-   * Return true in case of success, false otherwise.
+   * Get temporal information for the provided animationIndex and frameRate.
+   * This implementation return false, but concrete classe implementation
+   * behavior is as follows.
+   * frameRate is used to define the number of frames for one second of simulation,
+   * set to zero if timeSteps are not needed.
+   * If animation is present in the dataset, timeRange should be set by this method, return true.
+   * If animation is present and frameRate > 0, nbTimeSteps and timeSteps should also be set, return
+   * true. If animation is not present, return false.
    */
   virtual bool GetTemporalInformation(vtkIdType animationIndex, double frameRate, int& nbTimeSteps,
     double timeRange[2], vtkDoubleArray* timeSteps);

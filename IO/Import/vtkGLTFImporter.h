@@ -140,9 +140,12 @@ public:
   void SetCamera(vtkIdType camIndex) override;
 
   /**
-   * Get temporal information for the currently enabled animations.
-   * frameRate is used to define the number of frames for one second of simulation.
-   * the three return arguments are defined in this implementation.
+   * Get temporal information for the provided animationIndex and frameRate.
+   * frameRate is used to define the number of frames for one second of simulation,
+   * set to zero if timeSteps are not needed.
+   * If animation is present in the dataset, timeRange will be set by this method, return true.
+   * If animation is present and frameRate > 0, nbTimeSteps and timeSteps will also be set, return
+   * true. If animation is not present, return false.
    */
   bool GetTemporalInformation(vtkIdType animationIndex, double frameRate, int& nbTimeSteps,
     double timeRange[2], vtkDoubleArray* timeSteps) override;
