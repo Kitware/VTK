@@ -17,13 +17,15 @@
  */
 #include <vtkBoundingBox.h>
 #include <vtkCamera.h>
+#include <vtkCellData.h>
 #include <vtkCompositePolyDataMapper.h>
 #include <vtkCompositedSynchronizedRenderers.h>
 #include <vtkDataObject.h>
 #include <vtkDataSetSurfaceFilter.h>
+#include <vtkGenerateProcessIds.h>
 #include <vtkIOSSReader.h>
 #include <vtkNew.h>
-#include <vtkProcessIdScalars.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -69,22 +71,28 @@ int TestIOSSExodusParitionedFiles(int argc, char* argv[])
   // Let's read only 3 files.
   reader->SetFileRange(0, 3);
 
-  vtkNew<vtkProcessIdScalars> procIdScalars;
+  vtkNew<vtkGenerateProcessIds> pidGenerator;
   vtkNew<vtkDataSetSurfaceFilter> surface;
   vtkNew<vtkCompositePolyDataMapper> mapper;
   vtkNew<vtkActor> actor;
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
 
-  procIdScalars->SetInputConnection(reader->GetOutputPort());
-  procIdScalars->SetScalarModeToCellData();
-  surface->SetInputConnection(procIdScalars->GetOutputPort());
+  pidGenerator->SetInputConnection(reader->GetOutputPort());
+  pidGenerator->GeneratePointDataOff();
+  pidGenerator->GenerateCellDataOn();
+  pidGenerator->Update();
+  vtkPartitionedDataSetCollection* pidOutputCollection =
+    vtkPartitionedDataSetCollection::SafeDownCast(pidGenerator->GetOutputDataObject(0));
+  vtkDataSet* pidOutput = pidOutputCollection->GetPartition(0, 0);
+
+  surface->SetInputConnection(pidGenerator->GetOutputPort());
   mapper->SetInputConnection(surface->GetOutputPort());
   mapper->SetPiece(myId);
   mapper->SetNumberOfPieces(numProcs);
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SetColorModeToMapScalars();
-  mapper->SelectColorArray("ProcessId");
+  mapper->SelectColorArray(pidOutput->GetCellData()->GetProcessIds()->GetName());
   mapper->SetScalarRange(0, numProcs - 1);
 
   // update mapper an get parallel bounds.

@@ -48,6 +48,7 @@ const char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIB
   "Tangents",
   "RationalWeights",
   "HigherOrderDegrees",
+  "ProcessIds",
 };
 
 //------------------------------------------------------------------------------
@@ -63,6 +64,7 @@ const char vtkDataSetAttributes::LongAttributeNames[vtkDataSetAttributes::NUM_AT
   "vtkDataSetAttributes::TANGENTS",
   "vtkDataSetAttributes::RATIONALWEIGHTS",
   "vtkDataSetAttributes::HIGHERORDERDEGREES",
+  "vtkDataSetAttributes::PROCESSIDS",
 };
 
 //------------------------------------------------------------------------------
@@ -86,6 +88,9 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   // Pedigree IDs should not be interpolated because they are labels, not "numbers"
   // Pedigree IDs may be copied since they do not require 1:1 mapping.
   this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] = 0;
+
+  // Process IDs should not be interpolated because they are labels, not "numbers"
+  this->CopyAttributeFlags[INTERPOLATE][PROCESSIDS] = 0;
 
   this->TargetIndices = nullptr;
 }
@@ -114,6 +119,7 @@ void vtkDataSetAttributes::CopyAllOn(int ctype)
   this->SetCopyTangents(1, ctype);
   this->SetCopyRationalWeights(1, ctype);
   this->SetCopyHigherOrderDegrees(1, ctype);
+  this->SetCopyProcessIds(1, ctype);
 }
 
 //------------------------------------------------------------------------------
@@ -131,6 +137,7 @@ void vtkDataSetAttributes::CopyAllOff(int ctype)
   this->SetCopyTangents(0, ctype);
   this->SetCopyRationalWeights(0, ctype);
   this->SetCopyHigherOrderDegrees(0, ctype);
+  this->SetCopyProcessIds(0, ctype);
 }
 
 //------------------------------------------------------------------------------
@@ -242,6 +249,8 @@ void vtkDataSetAttributes::InitializeFields()
   this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] = 0;
 
   this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] = 0;
+
+  this->CopyAttributeFlags[INTERPOLATE][PROCESSIDS] = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -268,6 +277,8 @@ void vtkDataSetAttributes::Initialize()
   this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] = 0;
 
   this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] = 0;
+
+  this->CopyAttributeFlags[INTERPOLATE][PROCESSIDS] = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1375,6 +1386,24 @@ vtkDataArray* vtkDataSetAttributes::GetHigherOrderDegrees()
 }
 
 //------------------------------------------------------------------------------
+int vtkDataSetAttributes::SetProcessIds(vtkDataArray* da)
+{
+  return this->SetAttribute(da, PROCESSIDS);
+}
+
+//------------------------------------------------------------------------------
+int vtkDataSetAttributes::SetActiveProcessIds(const char* name)
+{
+  return this->SetActiveAttribute(name, PROCESSIDS);
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray* vtkDataSetAttributes::GetProcessIds()
+{
+  return this->GetAttribute(PROCESSIDS);
+}
+
+//------------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetScalars(const char* name)
 {
   if (name == nullptr || name[0] == '\0')
@@ -1475,6 +1504,16 @@ vtkDataArray* vtkDataSetAttributes::GetHigherOrderDegrees(const char* name)
 }
 
 //------------------------------------------------------------------------------
+vtkDataArray* vtkDataSetAttributes::GetProcessIds(const char* name)
+{
+  if (name == nullptr || name[0] == '\0')
+  {
+    return this->GetProcessIds();
+  }
+  return this->GetArray(name);
+}
+
+//------------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 {
   if ((index >= 0) && (index < this->GetNumberOfArrays()))
@@ -1513,13 +1552,36 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 
 //------------------------------------------------------------------------------
 const int
-  vtkDataSetAttributes ::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES] = { 0, 3,
-    3, 3, 9, 1, 1, 1, 3, 1, 3 };
+  vtkDataSetAttributes ::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES] = {
+    0, // SCALARS
+    3, // VECTORS
+    3, // NORMALS
+    3, // TCOORDS
+    9, // TENSORS
+    1, // GLOBALIDS
+    1, // PEDIGREEIDS
+    1, // EDGEFLAG
+    3, // TANGENTS
+    1, // RATIONALWEIGHTS
+    3, // HIGHERORDERDEGREE
+    1  // PROCESSIDS
+  };
 
 //------------------------------------------------------------------------------
-// Scalars set to NOLIMIT
-const int vtkDataSetAttributes ::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES] = { NOLIMIT,
-  EXACT, EXACT, MAX, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT };
+const int vtkDataSetAttributes ::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES] = {
+  NOLIMIT, // SCALARS
+  EXACT,   // VECTORS
+  EXACT,   // NORMALS
+  MAX,     // TCOORDS
+  EXACT,   // TENSORS
+  EXACT,   // GLOBALIDS
+  EXACT,   // PEDIGREEIDS
+  EXACT,   // EDGEFLAG
+  EXACT,   // TANGENTS
+  EXACT,   // RATIONALWEIGHTS
+  EXACT,   // HIGHERORDERDEGREE
+  EXACT    // PROCESSIDS
+};
 
 //------------------------------------------------------------------------------
 int vtkDataSetAttributes::CheckNumberOfComponents(vtkAbstractArray* aa, int attributeType)
@@ -1868,6 +1930,18 @@ void vtkDataSetAttributes::SetCopyHigherOrderDegrees(vtkTypeBool i, int ctype)
 vtkTypeBool vtkDataSetAttributes::GetCopyHigherOrderDegrees(int ctype)
 {
   return this->GetCopyAttribute(HIGHERORDERDEGREES, ctype);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataSetAttributes::SetCopyProcessIds(vtkTypeBool i, int ctype)
+{
+  this->SetCopyAttribute(PROCESSIDS, i, ctype);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkDataSetAttributes::GetCopyProcessIds(int ctype)
+{
+  return this->GetCopyAttribute(PROCESSIDS, ctype);
 }
 
 //------------------------------------------------------------------------------
