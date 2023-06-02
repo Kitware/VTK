@@ -564,7 +564,8 @@ protected:
   int ReadEdgeFlags(vtkDataSetAttributes* a, vtkIdType num);
 
   /**
-   * Format is detailed \ref IOLegacyInformationFormat "here".
+   * Format is detailed at
+   * https://docs.vtk.org/en/latest/design_documents/IOLegacyInformationFormat.html
    */
   int ReadInformation(vtkInformation* info, vtkIdType numKeys);
 

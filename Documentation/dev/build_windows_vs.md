@@ -1,24 +1,8 @@
 # Building VTK using Visual Studio on Windows
 
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Prerequisites](#prerequisites)
-    1. [Get CMake](#get-cmake)
-    2. [Get Visual Studio](#get-visual-studio)
-    3. [Get VTK Source-code](#get-vtk-source-code)
-3. [BUILD SOLUTION](#build-solution)
-    1. [Prepare folder structure](#prepare-folder-structure)
-    2. [Run CMake](#run-cmake)
-    3. [Build](#build)
-4. [INSTALL](#install)
-5. [TEST WITH AN EXAMPLE](#test-with-an-example)
-6. [Guide created using](#guide-created-using)
-
-
 ## Introduction
 
-This page describes how to build and install VTK using Visual Studio on Windows in recipe-style fashion. It is also possible to build VTK on Windows without using Visual Studio directly, this is covered in [Building VTK](<./build.md>).
+This page describes how to build and install VTK using Visual Studio on Windows in recipe-style fashion. It is also possible to build VTK on Windows without using Visual Studio directly, this is covered in [Building VTK](build.md).
 
 Adapted from the [Paraview build instructions](https://gitlab.kitware.com/paraview/paraview/-/blob/master/Documentation/dev/build.md) and [VTK wiki](https://vtk.org/Wiki/VTK/Building/Windows).
 Inspired by [This video](https://www.youtube.com/watch?v=IgvbhyDh8r0)
@@ -78,10 +62,10 @@ c:\data\cpp\vtk\src\....
 
 Use CMake to generate a visual studio solution.
 
-1. Open CMake-GUI, either by typing cmake-gui on the command propmpt or from the start-menu.
+1. Open CMake-GUI, either by typing cmake-gui on the command prompt or from the start-menu.
 2. Enter the source and build directories
 
-   ![cmake1](<./images/cmake1.png>)
+   ![cmake1](images/cmake1.png)
 
 3. Click [Configure]
 4. You will now get a selection screen in which you can specify your "generator". Select the one you need. This guide was tested with Visual Studio 15 2017 Win64 in combination with the default options.
@@ -97,12 +81,12 @@ Use CMake to generate a visual studio solution.
 ### Build
 
 Use Visual Studio to build the .dll files.
-The last step of CMAke will launch Visual Studio and will open the generated solution.
+The last step of CMake will launch Visual Studio and will open the generated solution.
 
 1. Set the configuration to "Release"
 2. Build the "ALL_BUILD" project.
 
-Again, this will take a while [About ten mintues on a 2-core i7].
+Again, this will take a while [About ten minutes on a 2-core i7].
 
 After this there should be a folder /build/bin/Release containing the created .dll libraries.
 
@@ -115,7 +99,7 @@ To be able to use VTK in other project it first needs to be installed.
 3. Hit [Configure]
 4. Set the "CMKAE_INSTALL_PREFIX" directory.
 
-   ![cmake4](<./images/cmake4.png>)
+   ![cmake4](images/cmake4.png)
 
 5. Click [Generate]
 6. Click [Open Project]
@@ -127,12 +111,12 @@ To be able to use VTK in other project it first needs to be installed.
 
    At this moment Visual Studio may FAIL because it is not allowed to create the installation folder.
 
-   ![adminerror1](<./images/adminerror1.png>)
+   ![adminerror1](images/adminerror1.png)
 
    If this happens then you have two options:
 
    - Either repeat the previous steps with a different install directory in CMAKE
-   - Start Visual Studio as administrator by right-clicking on its icon and selecting "start as administrator". ![vs4](<./images/vs4.png>)
+   - Start Visual Studio as administrator by right-clicking on its icon and selecting "start as administrator". ![vs4](images/vs4.png)
 
    After installation where VTK should have been installed in the specified installation directory. Something like the following directories should now exist:
 
@@ -158,7 +142,7 @@ From [vtk-examples](https://kitware.github.io/vtk-examples/site/Cxx/) pick a sim
 3. Click [Configure]
 4. Verify that the VTK_DIR is set correctly. This folder should contain the file UseVTK.cmake
 
-   ![cmake5](<./images/cmake5.png>)
+   ![cmake5](images/cmake5.png)
 
 5. Click [Configure]
 6. Click [Generate]
@@ -167,12 +151,12 @@ From [vtk-examples](https://kitware.github.io/vtk-examples/site/Cxx/) pick a sim
 
 7. Click [Open Project]
 
-   In visual sudio:
+   In visual studio:
 
    1. Select the example (HighlightPickedActor) as start-up project. (right click -> set as start-up project)
    2. Run!
 
-![TestHighlightPickedActor](<./images/TestHighlightPickedActor.png>)
+![TestHighlightPickedActor](images/TestHighlightPickedActor.png)
 
 If your program complains about missing DLLs then check if the .dll path (last step of INSTALL section) was added correctly.
 

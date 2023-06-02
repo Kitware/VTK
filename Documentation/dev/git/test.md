@@ -1,5 +1,5 @@
-VTK Data
-========
+Adding Tests
+============
 
 This page documents how to add test data while developing VTK with [Git][].
 See the [README](README.md) for more information.
@@ -10,7 +10,7 @@ Setup
 -----
 
 The workflow below depends on local hooks to function properly.
-Follow the main [developer setup instructions](develop.md#setup)
+Follow the main [developer setup instructions](develop_quickstart.md#initial-setup)
 before proceeding.  In particular, run [SetupForDevelopment.sh][]:
 
     $ ./Utilities/SetupForDevelopment.sh
@@ -27,6 +27,55 @@ Return here when you reach the "edit files" step.
 
 These instructions follow a typical use case of adding a new
 test with a baseline image.
+
+### Writing new tests
+
+All new features that go into VTK must be accompanied by tests. This ensures
+that the feature works on many platforms and that it will continue to work as
+VTK evolves.
+
+Tests for the classes in each module of VTK are placed underneath the module's
+Testing/<Language> subdirectory. Modules that the tests depend upon beyond
+those that the module itself depends upon are declared with the TEST_DEPENDS
+argument in the `vtk.module`   file. Test executables are added to VTK's build
+system by naming them in the `CMakeLists.txt` files in each Testing/<Language>
+directory. In those `CMakeLists`, standard `add_executable()` + `add_test()` command
+pairs could be used, but the following macros defined in `vtkModuleTesting.cmake`
+are preferable as they consolidate multiple tests together, participate in
+VTK's modular build scripts, and ensure consistency:
+
+-   {cmake:command}`vtk_add_test_cxx`
+-   {cmake:command}`vtk_add_test_mpi`
+-   {cmake:command}`vtk_add_test_python`
+
+Tests indicate success to CTest by returning `EXIT_SUCCESS` (0) and failure by
+returning `EXIT_FAILURE` (1). How the test determines what result to return is
+up to the developer. VTK contains a number of utilities for this task. For
+example, vtkRegressionTester is a helper class that does a fuzzy comparison of
+images drawn by VTK against known good baseline images and returns a metric
+that can be simply compared against a numeric threshold.
+
+
+Many tests require data files to run. The image comparison tests for example
+need baseline images to compare against, and many tests open up one or more
+files to visualize.
+
+The source code and data file versions are kept in sync because the
+Testing/Data directory contains, instead of the real files, similarly named
+files which contain only the SHA512 hash of the matching data files. During the
+build process, when CMake sees that a required data file is not available, it
+downloads it into the directory defined by the ExternalData_OBJECT_STORES cmake
+configuration entry. The test executables read all data from there. The default
+setting for ExternalData_OBJECT_STORES is the ExternalData directory underneath
+the VTK build tree.
+
+To make a change to VTK that modifies or adds a new test data file, place the
+new version in the Testing/Data or directory (for input data files) or
+Module/Name/Testing/Data (for regression test images), and build (or run
+cmake). CMake will do the work of moving the original out of the way and
+replacing it with an SHA512 link file. When you push the new link file to Gitlab,
+`git pre-commit` hooks push the original file up to Kitware's data service, where
+everyone can retrieve it.
 
 ### Add Test ###
 
@@ -240,7 +289,7 @@ discuss details of the workflow implementation.
 ### ExternalData ###
 
 While [CMake runs](#run-cmake) the [ExternalData][] module evaluates
-[DATA{} references](#add-test).  VTK [sets](/CMake/vtkExternalData.cmake)
+[DATA{} references](#add-test).  VTK sets in [vtkExternalData.cmake][]
 the `ExternalData_LINK_CONTENT` option to `SHA512` to enable automatic
 conversion of raw data files into content links.  When the module detects
 a real data file in the source tree it performs the following
@@ -258,6 +307,8 @@ For example:
     $ cat Some/Module/Testing/Data/Baseline/MyTest.png.sha512
     477e6028...
 
+[vtkExternalData.cmake]: /CMake/vtkExternalData.cmake
+
 #### Recover Data File ####
 
 To recover the original file after running CMake but before committing,
@@ -269,7 +320,7 @@ undo the operation:
 ### pre-commit ###
 
 While [committing](#commit) a new or modified content link the
-[pre-commit](/Utilities/Scripts/pre-commit) hook moves the real data
+[pre-commit][] hook moves the real data
 object from the `.ExternalData_SHA512_${hash}` file left by the
 [ExternalData][] module to a local object repository stored in a
 `.ExternalData` directory at the top of the source tree.
@@ -285,10 +336,12 @@ it to the project history.  For example:
     $ git cat-file blob refs/data/SHA512/477e6028... | sha512sum
     477e6028...  -
 
+[pre-commit]: /Utilities/Scripts/pre-commit
+
 ### git gitlab-push ###
 
 The `git gitlab-push` command is actually an alias for the
-[git-gitlab-push](/Utilities/GitSetup/git-gitlab-push) script.
+[git-gitlab-push][] script.
 In addition to pushing the topic branch to GitLab the script also detects
 content links added or modified by the commits in the topic.
 It reads the data object hashes from the content links and looks for
@@ -304,7 +357,7 @@ For example:
 A GitLab webhook that triggers whenever a topic branch is pushed checks
 for `refs/data/` in your VTK GitLab fork, fetches them, erases the refs
 from your fork, and uploads them to a location that we
-[tell ExternalData to search](/CMake/vtkExternalData.cmake) at build time.
+tell ExternalData to search in [vtkExternalData][] at build time.
 
 To verify that the data has been uploaded as expected, you may direct
 a web browser to the location where ExternalData has uploaded the files.
@@ -312,6 +365,8 @@ For VTK, that location is currently
 `http://www.vtk.org/files/ExternalData/SHA512/XXXX` where `XXXX` is the
 complete SHA512 hash stored in the content link file (e.g., the text in
 `MyTest.png.sha512`).
+
+[git-gitlab-push]: /Utilities/GitSetup/git-gitlab-push
 
 ### Publishing Data for an External Branch ###
 

@@ -1,9 +1,15 @@
-#[==[
-@ingroup module-impl
-@brief Output a node in the graph
+#[==[.rst:
+*****************
+vtkModuleGraphviz
+*****************
+#]==]
+#[==[.rst:
+.. cmake:command:: _vtk_module_graphviz_module_node
 
-Queries the properties for modules and generates the node for it in the graph
-and its outgoing dependency edges.
+  Output a node in the graph |module-impl|
+  
+  Queries the properties for modules and generates the node for it in the graph
+  and its outgoing dependency edges.
 #]==]
 function (_vtk_module_graphviz_module_node var module)
   get_property(_vtk_graphviz_file GLOBAL
@@ -105,28 +111,30 @@ function (_vtk_module_graphviz_module_node var module)
   set("${var}" "${_vtk_graphviz_node_block}" PARENT_SCOPE)
 endfunction ()
 
-#[==[
-@ingroup module-support
-@brief Generate graphviz output for a module dependency graph
+#[==[.rst:
 
-Information about the modules built and/or available may be dumped to a
-Graphviz `.dot` file.
+.. cmake:command:: vtk_module_graphviz
 
-~~~
-vtk_module_graphviz(
-  MODULES   <module>...
-  OUTPUT    <path>
+  Generate graphviz output for a module dependency graph. |module-support|
 
-  [PRIVATE_DEPENDENCIES <ON|OFF>]
-  [KIT_CLUSTERS <ON|OFF>])
-~~~
+  Information about the modules built and/or available may be dumped to a
+  Graphviz `.dot` file.
 
-  * `MODULES`: (Required) The modules to output information for.
-  * `OUTPUT`: (Required) A Graphviz file describing the modules built will
-    be output to this path. Relative paths are rooted to `CMAKE_BINARY_DIR`.
-  * `PRIVATE_DEPENDENCIES`: (Default `ON`) Whether to draw private dependency
+  .. code-block:: cmake
+
+     vtk_module_graphviz(
+       MODULES   <module>...
+       OUTPUT    <path>
+
+       [PRIVATE_DEPENDENCIES <ON|OFF>]
+       [KIT_CLUSTERS <ON|OFF>])
+
+  * ``MODULES``: (Required) The modules to output information for.
+  * ``OUTPUT``: (Required) A Graphviz file describing the modules built will
+    be output to this path. Relative paths are rooted to ``CMAKE_BINARY_DIR``.
+  * ``PRIVATE_DEPENDENCIES``: (Default ``ON``) Whether to draw private dependency
     edges or not..
-  * `KIT_CLUSTERS`: (Default `OFF`) Whether to draw modules as part of a kit as
+  * ``KIT_CLUSTERS``: (Default ``OFF``) Whether to draw modules as part of a kit as
     a cluster or not.
 #]==]
 function (vtk_module_graphviz)

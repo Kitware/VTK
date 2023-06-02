@@ -12,7 +12,7 @@ issues is listed below.
 
 Where to put namespaces
 * Around classes, functions, variables, typedefs (optional).
-* Inner most named namespaces, there is no need to use the ABI namespace inside of an anonomous namespace.
+* Inner most named namespaces, there is no need to use the ABI namespace inside of an anonymous namespace.
   * ABI namespace should never be around a named namespace.
 * Forward declarations of classes/functions/variables/typedefs require ABI namespace if their implementation/declarion was inside the ABI namespace.
 

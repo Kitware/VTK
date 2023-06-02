@@ -1,5 +1,5 @@
-VTK Deprecation Process
-=======================
+Deprecation Process
+===================
 
 This page documents how to deprecate an API and mark it as no longer necessary
 for downstream consumers of VTK.

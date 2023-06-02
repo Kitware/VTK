@@ -168,7 +168,7 @@ CHECK(composite->GetComponent(42, 1) == 0.0); // always true
 
 The family of `vtkIndexedArray`s allow you to wrap an existing `vtkDataArray` with a layer of indirection through a list of indexes (`vtkIdList` or another `vtkDataArray`) to create a derived subset data array without any excess memory consumption. As such, by providing a `vtkIndexedImplicitBackend` with an indexation array and a `vtkDataArray`, one can effectively construct a reduced and reordered view of the base array.
 
-While using this type of feature to create only one indexed array can be counter productive (allocation of the index array more expensive than an explicit copy of the data might be), using this feature you can share the same index list amoungst multiple indexed arrays effectively using less memory total.
+While using this type of feature to create only one indexed array can be counter productive (allocation of the index array more expensive than an explicit copy of the data might be), using this feature you can share the same index list amongst multiple indexed arrays effectively using less memory total.
 
 Here is an example use case:
 ```

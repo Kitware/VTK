@@ -1,4 +1,4 @@
-# VTK::IOADIOS2 Module
+# VTK::IOADIOS2
 
 ## Goal
 

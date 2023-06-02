@@ -7,7 +7,7 @@ performance benefits.
 
 This refactor significantly impacted few VTK modules:
 - `vtkCompositePolyDataMapper` now has an API similar to `vtkCompositePolyDataMapper2`. You will most likely
- end up renaming all occurences of `vtkCompositePolyDataMapper2` to `vtkCompositePolyDataMapper` in your C++/Python code.
+ end up renaming all occurrences of `vtkCompositePolyDataMapper2` to `vtkCompositePolyDataMapper` in your C++/Python code.
 - `vtkCompositeSurfaceLICMapper` derives `vtkCompositePolyDataMapper` instead of `vtkCompositePolyDataMapper2`.
 - The OSPRay module uses `vtkCompositePolyDataMapper` instead of `vtkCompositePolyDataMapper2`.
 - `vtkVtkJSSceneGraphSerializer` uses `vtkCompositePolyDataMapper` instead of `vtkCompositePolyDataMapper2`.

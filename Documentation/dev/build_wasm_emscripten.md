@@ -1,16 +1,4 @@
-# Building VTK using emscripten for WebAssembly
-
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Prerequisites](#prerequisites)
-    1. [Get CMake](#get-cmake)
-    2. [Get Emscripten SDK](#get-emscripten-sdk)
-    3. [Get VTK source code](#get-vtk-source-code)
-3. [Build project](#build-project)
-4. [Install project](#install-project)
-5. [Test with an example](#test-with-an-example)
-6. [Guide created using](#guide-created-using)
+# Building using emscripten for WebAssembly
 
 ## Introduction
 
@@ -19,35 +7,47 @@ These steps can be followed inside a docker container that comes with preinstall
 [dockcross/web-wasm](https://hub.docker.com/r/dockcross/web-wasm). In fact, the VTK CI stage `webassembly-build`
 uses that container to configure and build VTK wasm.
 
+```{note}
+
+Guide created using
+
+- VTK v9.2.6-2535-gc8cebe56fb
+- dockcross/web-wasm:20230222-162287d
+```
+
 ## Prerequisites
 
 For this guide, you will need the following:
 
-1. CMake [CMake](http://www.cmake.org/) version 3.10 or higher and a working compiler.
-2. Emscripten SDK [emsdk](https://github.com/emscripten-core/emsdk) and any dependencies needed by emsdk.
-3. The VTK source-code
+1. **CMake**: [CMake](http://www.cmake.org/) version 3.12 or higher and a
+  working compiler. CMake is a tool that makes cross-platform building simple.
+  On several systems it will probably be already installed. If it is not,
+  please use the following instructions to install it.  There are several
+  precompiled binaries available at the [CMake download page](https://cmake.org/download/).
+  Add CMake to your PATH environment variable if you downloaded an archive and not an installer.
 
-If you have these then you can skip the rest of this section and proceed to [Build project](#build-project).
+2. **Emscripten SDK**: [emsdk](https://github.com/emscripten-core/emsdk) and
+   any dependencies needed by emsdk.  Emscripten is a complete compiler toolchain
+   to WebAssembly, using LLVM, with a special focus on speed, size, and the Web
+   platform.  Please download the SDK from
+   [github.com/emscripten-core/emsdk.git](https://github.com/emscripten-core/emsdk). Then,
 
-### Get CMake
+   - Install latest toolchain with `./emsdk install latest`
+   - Activate the toolchain `./emsdk activate latest`
+   - Run `emsdk_env.bat` or `emsdk_env.ps1` (Windows) or `source ./emsdk_env.sh` (Linux and OS X) to set up the environment for the calling terminal.
 
-CMake is a tool that makes cross-platform building simple. On several systems it will probably be already installed. If it is not, please use the following instructions to install it.
-There are several precompiled binaries available at the [CMake download page](https://cmake.org/download/). Download version 3.12 or later.
-Add CMake to your PATH environment variable if you downloaded an archive and not an installer.
+   For more detailed instructions see  [emsdk/README.md](https://github.com/emscripten-core/emsdk#readme).
 
-### Get Emscripten SDK
+3. **VTK source-code**: If you have these then you can skip the rest of this section and proceed to [Build project](#build-project).
+   Download VTK source for the version you want from
+   [https://vtk.org/download/](https://vtk.org/download/)  (zip or tar.gz (Do
+   NOT download the exe - this is not the VTK library.) ) You will probably
+   want the latest one (highest version number) unless you have a specific
+   reason to use an older one.
 
-Emscripten is a complete compiler toolchain to WebAssembly, using LLVM, with a special focus on speed, size, and the Web platform.
-Please download the SDK from [github.com/emscripten-core/emsdk.git](https://github.com/emscripten-core/emsdk) and follow the instructions
-in [emsdk/README.md](https://github.com/emscripten-core/emsdk#readme) to get started on Linux, Windows or macOS.
-
-### Get VTK source code
-
-Download VTK source for the version you want from [https://vtk.org/download/](https://vtk.org/download/)  (zip or tar.gz (Do NOT download the exe - this is not the VTK library.) )
-You will probably want the latest one (highest version number) unless you have a specific reason to use an older one.
-
-Alternatively the source-code can be obtained from the repository as well. This is recommended only if you intent to make changes and contribute to VTK.
-Please refer to [git/develop.md](git/develop.md) for help with `git`.
+   Alternatively the source-code can be obtained from the repository as well.
+   This is recommended only if you intent to make changes and contribute to
+   VTK. Please refer to [git/develop.md](git/develop.md) for help with `git`.
 
 ## Build project
 
@@ -74,14 +74,13 @@ $ emcmake cmake \
 ```
 
 2. Compile.
+
 ```
 $ cd /work/build-vtk-wasm
 $ ninja
 ```
 
-## Install project
-
-1. Install the project.
+3. Install the project.
 
 ```
 $ cd /work/build-vtk-wasm
@@ -90,13 +89,8 @@ $ ninja install
 
 The binaries are now installed and you may use `-DVTK_DIR=/work/install/lib/cmake/vtk-9.2` to configure VTK wasm applications with CMake.
 
-## Test with an example
+## Verify installation
 
 If everything went well then it should now be possible to compile and run the one of the C++ examples.
 Head over to [Examples/Emscripten/Cxx/Cone/README.md](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Examples/Emscripten/Cxx/Cone/README.md)
 and test the simple Cone example.
-
-## Guide created using
-
-- VTK v9.2.6-2535-gc8cebe56fb
-- dockcross/web-wasm:20230222-162287d

@@ -1,5 +1,5 @@
-Contributing to VTK
-===================
+Contributing
+============
 
 This page documents at a very high level how to contribute to VTK.
 Please check our [developer instructions] for a more detailed guide to
@@ -69,7 +69,7 @@ to coordinate development and to provide support.
 [Fork VTK]: https://gitlab.kitware.com/vtk/vtk/-/forks/new
 [download instructions]: Documentation/dev/git/download.md#clone
 [developer setup script]: /Utilities/SetupForDevelopment.sh
-[Setup]: Documentation/dev/git/develop.md#Setup
+[Setup]: Documentation/dev/git/develop_quickstart.md#initial-setup
 [Create a Topic]: Documentation/dev/git/develop.md#create-a-topic
 [Share a Topic]: Documentation/dev/git/develop.md#share-a-topic
 [Create a Merge Request]: Documentation/dev/git/develop.md#create-a-merge-request

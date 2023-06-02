@@ -1,6 +1,7 @@
-# VR Module
+# VTK::RenderingVR
+## vtkRenderingVR - Virtual reality support for VTK
 
-## Introduction
+### Introduction
 
 The VR module defines an API and support classes for adding virtual reality
 support to VTK. The OpenVR and OpenXR modules are both subclassed off of
@@ -8,7 +9,7 @@ this module. For a list of todos and development issues please see
 
 https://gitlab.kitware.com/vtk/vtk/-/issues/18302
 
-## Coordinate Systems
+### Coordinate Systems
 
 With VR the transformations between coordinate systems can quickly become
 confusing. To help with this note that most matrices in the VR code are

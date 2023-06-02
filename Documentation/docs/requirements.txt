@@ -1,0 +1,9 @@
+furo
+myst-parser[linkify]
+sphinx
+sphinx-autodoc2
+sphinx-copybutton
+sphinx-design
+sphinxcontrib-moderncmakedomain
+pygments
+pyparsing

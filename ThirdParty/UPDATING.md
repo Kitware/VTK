@@ -6,19 +6,24 @@ itself (e.g., the `zlib/vtkzlib` directory for zlib), should go through the
 party projects are tracked externally and available for (preferably) upstream
 or other projects also embedding the library.
 
-The projects listed in the [imported.md](imported.md) file are already using
-this setup.
+The [imported.md](imported.md) document lists all projects grouped by import
+method:
+1. `update.sh` framework
+2. `git submodule`
+3. `copy`
 
-Any updates to projects not listed there should first convert over to this
-framework.
+:::{important}
+Any updates to projects imported through the `copy` method should first be converted
+over to the `update.sh` framework.
+:::
 
-# Updating a Project Upstream
+## Updating a Project Upstream
 
 Ideally, any code changes to third party code should first be submitted to the upstream
 project using whatever workflow they prefer or require.  Once that is done, the changes
 can next be brought into VTK.
 
-# Updating the Import
+## Updating the Import
 
 Examine the project's `update.sh` script and note the value of the `repo=` field.
 
@@ -42,7 +47,7 @@ $ git push
 When deciding what to rebase, you should generally use
 the first commit in the current history that isn't upstream.
 
-# Updating a Project into VTK
+## Updating a Project into VTK
 
 Bringing changes into VTK involves first deciding what to bring in. That is specified in the
 `update.sh` script under the `tag=` field. Usually this is a `for/vtk` branch, but may
@@ -68,7 +73,7 @@ simplify the availability of the commits to the main checkout.)
 
 Now you can review the change and make a merge request from the branch as normal.
 
-# Porting a Project
+## Porting a Project
 
 When converting a project, if there are any local patches, a project should be
 created [on Kitware's GitLab](https://gitlab.kitware.com/third-party) to track it
@@ -129,7 +134,7 @@ On Windows, run:
 Also add an entry to [imported.md](imported.md) for the project, and
 `CMakeLists.txt` and `module.cmake` as appropriate.
 
-# Process
+## Process
 
 The basic process involves a second branch where the third party project's
 changes are tracked. This branch has a commit for each time it has been

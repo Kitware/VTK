@@ -4,14 +4,16 @@ Field Data as Time Meta-Data in VTK XML File Formats
 As of VTK 8.2, VTK XML readers and writers support embedding time
 meta-data as a field array. This is demonstrated best with an example:
 
-    <VTKFile type="PolyData" version="1.0" byte_order="LittleEndian" header_type="UInt64">
-      <PolyData>
-        <FieldData>
-          <DataArray type="Float64" Name="TimeValue" NumberOfTuples="1">1.24
-          </DataArray>
-        </FieldData>
-        ...
-    </VTKFile>
+```xml
+<VTKFile type="PolyData" version="1.0" byte_order="LittleEndian" header_type="UInt64">
+  <PolyData>
+    <FieldData>
+      <DataArray type="Float64" Name="TimeValue" NumberOfTuples="1">1.24
+      </DataArray>
+    </FieldData>
+    ...
+</VTKFile>
+```
 
 Here TimeValue is a regular double precision array that has a single value of 1.24.
 The XML readers will treat this array in a special way. When they encounter this array

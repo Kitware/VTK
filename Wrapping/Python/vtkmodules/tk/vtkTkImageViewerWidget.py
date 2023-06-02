@@ -169,12 +169,6 @@ class vtkTkImageViewerWidget(tkinter.Widget):
         self.bind("<KeyPress-r>",
                   lambda e,s=self: s.ResetTkImageViewer())
 
-    def GetImageViewer(self):
-        return self._ImageViewer
-
-    def Render(self):
-        self._ImageViewer.Render()
-
     def _GrabFocus(self):
         self._OldFocus=self.focus_get()
         self.focus()

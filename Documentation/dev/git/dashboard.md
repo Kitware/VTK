@@ -1,5 +1,5 @@
-VTK Dashboard Scripts
-=====================
+Dashboard Scripts
+=================
 
 This page documents how to use the VTK `dashboard` branch in [Git][].
 See the [README](README.md) for more information.

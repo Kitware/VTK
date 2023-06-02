@@ -1,3 +1,5 @@
+# VTK::FiltersOpenTURNS
+
 This module is based on the OpenTURNS library, which is LGPL licensed.
 There are some dependencies of OpenTURNS under the GPL license, namely:
  * the optional hmat library, under GPL but with an explicit exception for its use within OpenTURNS. This dependency can be deactivated as no part of OpenTURNS used by the VTK module depends on hmat. By the way, the authors of hmat are in the exact same department as the authors of OpenTURNS coming from Airbus

@@ -1,23 +1,26 @@
-#[==[
-@defgroup module-wrapping-java Module Java CMake APIs
+#[==[.rst:
+*****************
+vtkModuleWrapJava
+*****************
 #]==]
 
-#[==[
-@file vtkModuleWrapJava.cmake
-@brief APIs for wrapping modules for Java
+#[==[.rst:
+APIs for wrapping modules for Java
 #]==]
 
-#[==[
-@ingroup module-impl
-@brief Generate sources for using a module's classes from Java
+#[==[.rst:
 
-This function generates the wrapped sources for a module. It places the list of
-generated source files and Java source files in variables named in the second
-and third arguments, respectively.
+.. cmake:command:: _vtk_module_wrap_java_sources
 
-~~~
-_vtk_module_wrap_java_sources(<module> <sources> <classes>)
-~~~
+  Generate sources for using a module's classes from Java. |module-impl|
+  
+  This function generates the wrapped sources for a module. It places the list of
+  generated source files and Java source files in variables named in the second
+  and third arguments, respectively.
+  
+  .. code-block:: cmake
+  
+    _vtk_module_wrap_java_sources(<module> <sources> <classes>)
 #]==]
 
 cmake_policy(PUSH)
@@ -203,23 +206,24 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
     PARENT_SCOPE)
 endfunction ()
 
-#[==[
-@ingroup module-impl
-@brief Generate a JNI library for a set of modules
+#[==[.rst:
+.. cmake:command:: _vtk_module_wrap_java_library
 
-A single JNI library may consist of the Java wrappings of multiple modules.
-This is useful for kit-based builds where the modules part of the same kit
-belong to the same JNI library as well.
-
-~~~
-_vtk_module_wrap_java_library(<name> <module>...)
-~~~
-
-The first argument is the name of the JNI library. The remaining arguments are
-modules to include in the JNI library.
-
-The remaining information it uses is assumed to be provided by the
-@ref vtk_module_wrap_java function.
+  Generate a JNI library for a set of modules. |module-impl|
+  
+  A single JNI library may consist of the Java wrappings of multiple modules.
+  This is useful for kit-based builds where the modules part of the same kit
+  belong to the same JNI library as well.
+  
+  .. code-block:: cmake
+  
+    _vtk_module_wrap_java_library(<name> <module>...)
+  
+  The first argument is the name of the JNI library. The remaining arguments are
+  modules to include in the JNI library.
+  
+  The remaining information it uses is assumed to be provided by the
+  :cmake:command:`vtk_module_wrap_java` function.
 #]==]
 function (_vtk_module_wrap_java_library name)
   set(_vtk_java_library_sources)
@@ -329,46 +333,48 @@ function (_vtk_module_wrap_java_library name)
       VTK::Java)
 endfunction ()
 
-#[==[
-@ingroup module-wrapping-java
-@brief Wrap a set of modules for use in Java
+#[==[.rst:
 
-~~~
-vtk_module_wrap_java(
-  MODULES <module>...
-  [WRAPPED_MODULES <varname>]
+.. cmake:command:: vtk_module_wrap_java
 
-  [UTILITY_TARGET <target>]
-
-  [JAVA_OUTPUT <destination>]
-
-  [LIBRARY_DESTINATION <destination>]
-  [JNILIB_DESTINATION <destination>]
-  [JNILIB_COMPONENT <component>])
-~~~
-
-  * `MODULES`: (Required) The list of modules to wrap.
-  * `WRAPPED_MODULES`: (Recommended) Not all modules are wrappable. This
+  Wrap a set of modules for use in Java. |module-wrapping-java|
+  
+  .. code-block:: cmake
+  
+    vtk_module_wrap_java(
+      MODULES <module>...
+      [WRAPPED_MODULES <varname>]
+    
+      [UTILITY_TARGET <target>]
+    
+      [JAVA_OUTPUT <destination>]
+    
+      [LIBRARY_DESTINATION <destination>]
+      [JNILIB_DESTINATION <destination>]
+      [JNILIB_COMPONENT <component>])
+  
+  * ``MODULES``: (Required) The list of modules to wrap.
+  * ``WRAPPED_MODULES``: (Recommended) Not all modules are wrappable. This
     variable will be set to contain the list of modules which were wrapped.
-  * `UTILITY_TARGET`: If specified, all libraries made by the Java wrapping
+  * ``UTILITY_TARGET``: If specified, all libraries made by the Java wrapping
     will link privately to this target. This may be used to add compile flags
     to the Java libraries.
-  * `JAVA_OUTPUT`: Defaults to
-    `${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/vtkJava`. Java source files are
+  * ``JAVA_OUTPUT``: Defaults to
+    ``${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/vtkJava``. Java source files are
     written to this directory. After generation, the files may be compiled as
     needed.
-  * `LIBRARY_DESTINATION` (Recommended): If provided, dynamic loader
+  * ``LIBRARY_DESTINATION`` (Recommended): If provided, dynamic loader
     information will be added to modules for loading dependent libraries.
-  * `JNILIB_DESTINATION`: Where to install JNI libraries.
-  * `JNILIB_COMPONENT`: Defaults to `jni`. The install component to use for JNI
+  * ``JNILIB_DESTINATION``: Where to install JNI libraries.
+  * ``JNILIB_COMPONENT``: Defaults to ``jni``. The install component to use for JNI
     libraries.
-
-For each wrapped module, a `<module>Java` target will be created. These targets
-will have a `_vtk_module_java_files` property which is the list of generated
-Java source files for that target.
-
-For dependency purposes, the `<module>Java-java-sources` target may also be
-used.
+  
+  For each wrapped module, a ``<module>Java`` target will be created. These targets
+  will have a ``_vtk_module_java_files`` property which is the list of generated
+  Java source files for that target.
+  
+  For dependency purposes, the ``<module>Java-java-sources`` target may also be
+  used.
 #]==]
 function (vtk_module_wrap_java)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_java
