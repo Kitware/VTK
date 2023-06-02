@@ -8,12 +8,6 @@ release (including release candidates), a milestone should be created with a
 plausible due date. The milestone page allows for an easy overview of branches
 which need wrangling for a release.
 
-Issues
-------
-
-Currently, Mantis is still used, there are no maintenance tasks on the GitLab
-side here.
-
 Merge Requests
 --------------
 
