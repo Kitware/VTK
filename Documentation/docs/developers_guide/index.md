@@ -12,6 +12,7 @@ testing
 git/test
 git/dashboard
 git/thirdparty
+git/thirdparty-projects
 
 git/deprecation
 release_process

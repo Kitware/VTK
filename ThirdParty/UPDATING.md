@@ -6,11 +6,16 @@ itself (e.g., the `zlib/vtkzlib` directory for zlib), should go through the
 party projects are tracked externally and available for (preferably) upstream
 or other projects also embedding the library.
 
-The projects listed in the [imported.md](imported.md) file are already using
-this setup.
+The [imported.md](imported.md) document lists all projects grouped by import
+method:
+1. `update.sh` framework
+2. `git submodule`
+3. `copy`
 
-Any updates to projects not listed there should first convert over to this
-framework.
+:::{important}
+Any updates to projects imported through the `copy` method should first be converted
+over to the `update.sh` framework.
+:::
 
 ## Updating a Project Upstream
 

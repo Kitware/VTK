@@ -1,4 +1,15 @@
-# Converted projects
+# Imported Third Party Projects
+
+This page provides an overview of the imported third-party projects that VTK depends
+on, grouped by import method.
+
+The lists below references project directory name found in either the `ThirdParty`
+or `Utilities` source sub-directory available in the [VTK GitLab][] repository where additional
+details may be found.
+
+[VTK GitLab]: https://gitlab.kitware.com/vtk/vtk
+
+## Using the `update.sh` framework
 
 The following list shows third-party projects that were imported using the `update.sh`
 framework described in the [UPDATING](UPDATING.md) document:
@@ -58,6 +69,57 @@ for path in $(ls -d -1 */) $(ls -d -1 ../Utilities/*/); do
   project=${path##*/}  # "dir1/dir2/Dir3" -> "Dir3"
   if [[ -f "$path/update.sh" ]]; then
     echo "  * [$project]($path/update.sh)"
+  fi
+done | sort --ignore-case
+```
+-->
+
+## Using `git submodule`
+
+The following third-party project were imported as git submodules:
+
+  * vtkm
+
+<!--
+The list above was generated using the following script:
+
+```
+cd VTK/ThirdParty
+
+root_src_dir=$(git rev-parse --show-toplevel)
+
+for submodule in $(git config --file ${root_src_dir}/.gitmodules --get-regexp path | awk '{ print $2 }'); do
+  # Ignore submodules not associated with the "ThirdParty" directory
+  if ! [[ "$submodule" =~ ^ThirdParty* ]]; then
+    continue
+  fi
+  project=$(echo $submodule | cut -d/ -f2) # "ThirdParty/vtkm/vtkvtkm/vtk-m" -> "vtkm"
+  echo "  * $project"
+done
+```
+-->
+
+## Using `copy`
+
+The following third-party projects were imported by copying the files:
+
+  * vpic
+  * xdmf2
+
+<!--
+The list above was generated using the following script:
+
+```
+root_src_dir=$(git rev-parse --show-toplevel)
+submodule_paths=$(git config --file ${root_src_dir}/.gitmodules --get-regexp path | awk '{ print $2 }')
+
+for path in $(ls -d -1 */); do
+  path=${path%/*}  # "dir1/dir2/Dir3/" -> "dir1/dir2/Dir3"
+  project=${path##*/}  # "dir1/dir2/Dir3" -> "Dir3"
+
+  # List project that are neither imported through "update.sh" or git submodule
+  if [ ! -f "$path/update.sh" ] && [[ "$submodule_paths" != *"ThirdParty/$project"* ]]; then
+    echo "  * $project"
   fi
 done | sort --ignore-case
 ```

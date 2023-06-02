@@ -204,12 +204,26 @@ MANUAL_SUBSTITUTIONS = [
         ],
     },
     {
+        "source": "../../ThirdParty/imported.md",
+        "destination": "./developers_guide/git/thirdparty-projects.md",
+        "substitutions": [
+            (
+                "\[.+\]\(UPDATING.md\)",
+                "[](thirdparty.md)",
+            ),
+            (
+                "\* \[(\w+)\]\((.+\/update\.sh)\)$",
+                "* \\1",
+            ),
+        ],
+    },
+    {
         "source": "../../ThirdParty/UPDATING.md",
         "destination": "./developers_guide/git/thirdparty.md",
         "substitutions": [
             (
                 "\[imported.md\]\(imported.md\)",
-                "[imported.md](path:../../../../ThirdParty/imported.md)",
+                "[](thirdparty-projects.md)",
             ),
             (
                 "\[update-common.sh\]\(update-common.sh\)",
