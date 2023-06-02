@@ -83,6 +83,21 @@ The process for cutting releases is as follows:
        of the release branch and release it as the next candidate, then the
        cycle continues.
 
+   4. Distribution specific patches can accumulate over time. Consider reviewing the
+      following distribution specific pages to identify potential fixes and improvements
+      that could be integrated in VTK itself:
+
+      * Debian:
+        - https://tracker.debian.org/pkg/vtk9
+        - https://udd.debian.org/patches.cgi?src=vtk9
+
+      * Gentoo:
+        - https://packages.gentoo.org/packages/sci-libs/vtk
+        - https://gitweb.gentoo.org/repo/gentoo.git/tree/sci-libs/vtk/files
+
+      * openSUSE:
+        - https://build.opensuse.org/package/show/openSUSE:Factory/vtk
+
 5. Package the official release
 
    The official VTK package consists of tar balls and ZIP files of the source,
