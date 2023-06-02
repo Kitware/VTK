@@ -18,14 +18,36 @@ Makefiles, and Visual Studio generators are the most well-tested however.
 Note that VTK does not support in-source builds, so you must have a build tree
 that is not the source tree.
 
-## Obtaining the source
+## Obtaining the sources
 
-To obtain VTK's sources locally, clone this repository using
-[Git][git].
+ There are two approaches:
+
+::::{tab-set}
+
+:::{tab-item} Release Download
+1. Download the source release `VTK-X.Y.Z.tar.gz` from https://vtk.org/download/.
+2. Create a folder for VTK.
+3. Extract the contents of the VTK folder in the downloaded archive to the subfolder called `source`
+:::
+
+:::{tab-item} Git Clone
+To obtain VTK's sources locally, clone the VTK repository using [Git][git].
+
+[git]: https://git-scm.org
+
+Open `Git Bash` on Windows or a terminal on Linux and macOS and
+execute the following:
 
 ```sh
-git clone --recursive https://gitlab.kitware.com/vtk/vtk.git
+mkdir -p ~/vtk
+git clone --recursive https://gitlab.kitware.com/vtk/vtk.git ~/vtk/source
 ```
+:::
+
+::::
+
+To use the latest features being developed or to make changes and
+contribute to VTK, download the source using **Git Clone**.
 
 ## Prerequisites
 
@@ -39,11 +61,6 @@ Required:
     - Version 3.12 or newer, however, the latest version is always recommended.
     If the system package management utilities do not offer cmake or if the offered version is too old
     Precompiled binaries available on [CMake's download page][cmake-download].
-
-    ```{tip}
-    If you are using cmake through the system's package management it is highly recommended install
-    `ccmake` (package `cmake-curses-gui` on Ubuntu/Debian) that allows to interactively set building options.
-    ```
 
   * Supported compiler
     - GCC 4.8 or newer
@@ -89,29 +106,28 @@ Required:
   likely necessary for bug fixes and support. Its source and build instructions
   can be found on [its website][mesa].
 
+[cmake]: https://cmake.org
+[cmake-download]: https://cmake.org/download
+[ffmpeg]: https://ffmpeg.org
+[mpi]: https://www.mcs.anl.gov/research/projects/mpi
+[mpich]: https://www.mpich.org
+[msmpi]: https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi
+[openmpi]: https://www.open-mpi.org
+[python]: https://python.org
+[qt-download]: https://download.qt.io/official_releases/qt
+[mesa]: https://www.mesa3d.org
+
 ## Creating the Build Environment
 
-### Linux (Ubuntu/Debian)
+::::{tab-set}
 
-Install  the following packages:
+:::{tab-item} Windows
 
-```bash
-$ sudo apt install \
-build-essential \
-cmake \
-mesa-common-dev \
-mesa-utils \
-freeglut3-dev \
-ninja-build
-```
+  * Install CMake
 
-```{tip}
-`ninja` is a speedy replacement for `make`, highly recommended.
-```
+  * Install [Visual Studio Community Edition][visual-studio]
 
-### Windows
-
-  * [Visual Studio Community Edition][visual-studio]
+  * During installation select the "desktop development with C++" workload.
 
   * Use "x64 Native Tools Command Prompt" for the installed Visual Studio
     version to configure with CMake and to build with ninja.
@@ -120,55 +136,139 @@ ninja-build
     Visual Studio releases come with a version of `ninja` already and should
     already exist in `PATH` within the command prompt.
 
-## Configure and Building
+[ninja]: https://ninja-build.org
+[visual-studio]: https://visualstudio.microsoft.com/vs
+
+:::
+
+:::{tab-item} Linux (Ubuntu/Debian)
+
+Install the following packages:
+
+```bash
+$ sudo apt install \
+build-essential \
+cmake \
+cmake-curses-gui \
+mesa-common-dev \
+mesa-utils \
+freeglut3-dev \
+ninja-build
+```
+:::
+
+:::{tab-item} macOS
+
+* Install CMake
+
+* Install XCode
+
+* Ensure XCode command line tools are installed:
+
+```bash
+xcode-select --install
+```
+:::
+
+::::
+
+```{note}
+`ninja` is a more efficient alternative to `Makefiles` or Visual Studio solution files. The
+speed increase is the most noticeable when doing incremental build.
+```
+
+## Configure
 
 In order to build, CMake requires two steps, configure and build. VTK itself
 does not support what are known as in-source builds, so the first step is to
 create a build directory.
 
+::::{tab-set}
+
+:::{tab-item} Windows (Ninja)
+
+Open "x64 Native Tools Command Prompt" for the installed Visual Studio:
+
 ```sh
-mkdir -p vtk/build
-cd vtk/build
-ccmake -GNinja ../path/to/vtk/source # -GNinja may be skipped to use the default generator for each platform
+ccmake -GNinja -S %HOMEPATH%\vtk\source -B %HOMEPATH%\vtk\build
 ```
 
-CMake's GUI has input entries for the build directory and the generator
-already. Note that on Windows, the GUI must be launched from a "Native Tools
-Command Prompt" available with Visual Studio in the start menu.
+Note that CMake GUI must also be launched from the "Native Tools Command Prompt".
+
+:::
+
+:::{tab-item} Windows (Visual Studio)
+
+Use CMake to generate a Visual Studio solution file (`.sln`).
+
+1. Open CMake GUI, either by typing `cmake-gui` on the command prompt or from the start-menu.
+2. Enter the source and build directories
+3. Click `[Configure]`
+4. You will now get a selection screen in which you can specify your "generator". Select the one you need.
+5. We are now presented with a few options that can be turned on or off as desired.
+6. Click `[Configure]` to apply the changes.
+7. Click `[Generate]`. This will populate the "build" sub-folder.
+8. Finally, click `[Open Project]` to open the generated solution in Visual Studio.
+
+:::
+
+:::{tab-item} Linux/macOS
+
+```sh
+mkdir -p ~/vtk/build
+cd ~/vtk/build
+ccmake -GNinja ../path/to/vtk/source
+```
+
+The parameter `-GNinja` may be skipped to use the default generator (e.g `Unix Makefiles`).
+:::
+
+::::
 
 ```{admonition} **Missing dependencies**
 :class: warning
 
 CMake may not find all dependencies automatically in all cases. The steps
-needed to find any given package depends on the package itself. For general
-assistance, please see the documentation for
+needed to find any given package depends on the package itself.
+
+For general assistance, please see the documentation for
 [`find_package`'s search procedure][cmake-find_package-search] and
 [the relevant Find module][cmake-modules-find] (as available).
-```
 
-To build vtk run:
-
-```sh
-cmake --build .
-```
-
-```{tip}
-Different features can be enabled/disabled by setting the [Build Settings](build_settings.md) during the configure stage.
-```
-
-[cmake]: https://cmake.org
-[cmake-download]: https://cmake.org/download
 [cmake-find_package-search]: https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
 [cmake-modules-find]: https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html#find-modules
-[ffmpeg]: https://ffmpeg.org
-[git]: https://git-scm.org
-[mesa]: https://www.mesa3d.org
-[mpi]: https://www.mcs.anl.gov/research/projects/mpi
-[mpich]: https://www.mpich.org
-[msmpi]: https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi
-[ninja]: https://ninja-build.org
-[openmpi]: https://www.open-mpi.org
-[python]: https://python.org
-[qt]: https://qt.io
-[qt-download]: https://download.qt.io/official_releases/qt
-[visual-studio]: https://visualstudio.microsoft.com/vs
+```
+:::{hint}
+Different features can be enabled/disabled by setting the [Build Settings](build_settings.md) during the configure stage.
+:::
+
+## Building
+
+To build VTK:
+
+::::{tab-set}
+
+:::{tab-item} Windows (Ninja)
+
+```sh
+cmake --build %HOMEPATH%\vtk\build --config Release
+```
+:::
+
+:::{tab-item} Windows (Visual Studio)
+
+Open the generated solution file.
+
+1. Set the configuration to "Release"
+
+2. On the menu bar, choose `Build`, and then choose `Build Solution`.
+:::
+
+:::{tab-item} Linux/macOS
+
+```sh
+cmake --build ~/vtk/build
+```
+:::
+
+::::

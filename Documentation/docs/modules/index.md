@@ -22,7 +22,8 @@ cmake -DVTK_MODULE_ENABLE_<module name>=WANT ...
 ```
 
 during the
-[configuration](../build_instructions/index.md#configure-and-building) stage.
+[configuration](../build_instructions/index.md#configure) stage.
+
 Disabling a module can be done as follows:
 
 ```
