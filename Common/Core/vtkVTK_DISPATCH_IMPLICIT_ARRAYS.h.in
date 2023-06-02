@@ -6,12 +6,8 @@
 
 // defined if VTK dispatches the vtkAffineArray class
 #cmakedefine VTK_DISPATCH_AFFINE_ARRAYS
-// defined if VTK dispatches the vtkCompositeArray class
-#cmakedefine VTK_DISPATCH_COMPOSITE_ARRAYS
 // defined if VTK dispatches the vtkConstantArray class
 #cmakedefine VTK_DISPATCH_CONSTANT_ARRAYS
-// defined if VTK dispatches the vtkIndexedArray class
-#cmakedefine VTK_DISPATCH_INDEXED_ARRAYS
 // defined if VTK dispatches the vtkStdFunctionArray class
 #cmakedefine VTK_DISPATCH_STD_FUNCTION_ARRAYS
 

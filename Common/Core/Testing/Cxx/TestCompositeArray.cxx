@@ -7,41 +7,11 @@
 #include "vtkIntArray.h"
 #include "vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
 
-#ifdef VTK_DISPATCH_COMPOSITE_ARRAYS
-#include "vtkArrayDispatch.h"
-#endif // VTK_DISPATCH_AFFINE_ARRAYS
-
 #include <cstdlib>
 #include <memory>
 
 namespace
 {
-#ifdef VTK_DISPATCH_COMPOSITE_ARRAYS
-struct ScaleWorker
-{
-  template <typename SrcArray, typename DstArray>
-  void operator()(SrcArray* srcArr, DstArray* dstArr, double scale)
-  {
-    using SrcType = vtk::GetAPIType<SrcArray>;
-    using DstType = vtk::GetAPIType<DstArray>;
-
-    const auto srcRange = vtk::DataArrayValueRange(srcArr);
-    auto dstRange = vtk::DataArrayValueRange(dstArr);
-
-    if (srcRange.size() != dstRange.size())
-    {
-      std::cout << "Different array sizes in ScaleWorker" << std::endl;
-      return;
-    }
-
-    auto dstIter = dstRange.begin();
-    for (SrcType srcVal : srcRange)
-    {
-      *dstIter++ = static_cast<DstType>(srcVal * scale);
-    }
-  }
-};
-#endif // VTK_DISPATCH_COMPOSITE_ARRAYS
 
 vtkSmartPointer<vtkCompositeArray<int>> SetupCompositeArray(int length)
 {
@@ -103,33 +73,6 @@ int TestCompositeArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
     iArr++;
   }
-
-#ifdef VTK_DISPATCH_COMPOSITE_ARRAYS
-  std::cout << "vtkCompositeArray: performing dispatch tests" << std::endl;
-  vtkNew<vtkIntArray> destination;
-  destination->SetNumberOfTuples(100);
-  destination->SetNumberOfComponents(1);
-  using Dispatcher =
-    vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::ReadOnlyArrays, vtkArrayDispatch::Arrays>;
-  ::ScaleWorker worker;
-  if (!Dispatcher::Execute(composite, destination, worker, 3.0))
-  {
-    res = EXIT_FAILURE;
-    std::cout << "vtkArrayDispatch failed with vtkCompositeArray" << std::endl;
-    worker(composite.Get(), destination.Get(), 3.0);
-  }
-
-  iArr = 0;
-  for (auto val : vtk::DataArrayValueRange<1>(destination))
-  {
-    if (val != 3 * iArr)
-    {
-      res = EXIT_FAILURE;
-      std::cout << "dispatch failed to populate the array with the correct values" << std::endl;
-    }
-    iArr++;
-  }
-#endif // VTK_DISPATCH_COMPOSITE_ARRAYS
 
   // test a 1 composite
   vtkSmartPointer<vtkCompositeArray<int>> oneComposite =

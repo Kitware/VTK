@@ -19,15 +19,9 @@
 # - VTK_DISPATCH_AFFINE_ARRAYS (default: OFF)
 #   Include vtkAffineArray<ValueType> for the basic types supported
 #   by VTK.
-# - VTK_DISPATCH_COMPOSITE_ARRAYS (default: OFF)
-#   Include vtkCompositeDataArrayTemplate<ValueType> for the basic types
-#   supported by VTK.
 # - VTK_DISPATCH_CONSTANT_ARRAYS (default: OFF)
 #   Include vtkConstantArray<ValueType> for the basic types supported
 #   by VTK.
-# - VTK_DISPATCH_INDEXED_ARRAYS (default: OFF)
-#   Include vtkIndexedDataArrayTemplate<ValueType> for the basic types
-#   supported by VTK.
 # - VTK_DISPATCH_STD_FUNCTION_ARRAYS (default: OFF)
 #   Include vtkStdFunctionArray<ValueType> for the basic types supported
 #   by VTK.
@@ -194,13 +188,7 @@ endmacro()
 _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_AFFINE_ARRAYS "vtkAffineArray"
   "${vtkArrayDispatch_all_types}")
 
-_vtkCreateArrayDispatchImplicit(VTK_DISPATCH_COMPOSITE_ARRAYS "vtkCompositeArray"
-  "${vtkArrayDispatch_all_types}")
-
 _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_CONSTANT_ARRAYS "vtkConstantArray"
-  "${vtkArrayDispatch_all_types}")
-
-_vtkCreateArrayDispatchImplicit(VTK_DISPATCH_INDEXED_ARRAYS "vtkIndexedArray"
   "${vtkArrayDispatch_all_types}")
 
 _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STD_FUNCTION_ARRAYS "vtkStdFunctionArray"

@@ -228,12 +228,6 @@ currently exist for use with the VTK dispatch mechanism:
     `vtkConstantArray` as part of the implicit array framework
   * `VTK_DISPATCH_STD_FUNCTION_ARRAYS` (default `OFF`): includes dispatching for arrays with
     an `std::function` backend `vtkStdFunctionArray` as part of the implicit array framework
-  * `VTK_DISPATCH_COMPOSITE_ARRAYS` (default `OFF`): includes dispatching of arrays with a
-    `vtkCompositeImplicitBackend` backend, `vtkCompositeArray`, as part of the implicit array
-    framework
-  * `VTK_DISPATCH_INDEXED_ARRAYS` (default `OFF`): includes dispatching of arrays with a
-    `vtkIndexedImplicitBackend` backend, `vtkIndexedArray`, as part of the implicit array
-    framework
 
 The outlier in terms of dispatch support is the family of arrays derived from
 `vtkScaledSOADataArrayTemplate` which are automatically included in dispatch when built setting
