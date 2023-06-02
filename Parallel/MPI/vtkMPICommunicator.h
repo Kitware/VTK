@@ -37,8 +37,8 @@
 #define vtkMPICommunicator_h
 
 #include "vtkCommunicator.h"
+#include "vtkMPI.h"               // for MPI_Datatype
 #include "vtkParallelMPIModule.h" // For export macro
-#include <cstdint>                // for std::intptr_t
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMPIController;
@@ -139,9 +139,8 @@ public:
 
   /**
    * Variant that permits dynamic type sends, like those create by MPI_Type_create_subarray
-   * mpiType is interpreted as an MPI_Datatype, which might be an int or a pointer.
    */
-  int NoBlockSend(const void* data, vtkTypeInt64 length, std::intptr_t mpiType, int remoteProcessId,
+  int NoBlockSend(const void* data, vtkTypeInt64 length, MPI_Datatype mpiType, int remoteProcessId,
     int tag, Request& req);
 
   ///@{
