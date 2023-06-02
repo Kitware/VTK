@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <cstdlib>
 #include <utility>
 
