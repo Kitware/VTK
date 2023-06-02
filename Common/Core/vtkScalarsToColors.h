@@ -261,7 +261,7 @@ public:
   virtual void DeepCopy(vtkScalarsToColors* o);
 
   /**
-   * This should return 1 is the subclass is using log scale for mapping scalars
+   * This should return 1 if the subclass is using log scale for mapping scalars
    * to colors. Default implementation always returns 0.
    */
   virtual vtkTypeBool UsingLogScale() { return 0; }
@@ -309,11 +309,13 @@ public:
 
   /**
    * Return the annotated value at a particular index in the list of annotations.
+   * If there are no annotations, or \p idx is out-of-range, returns a default/invalid vtkVariant.
    */
   vtkVariant GetAnnotatedValue(vtkIdType idx);
 
   /**
    * Return the annotation at a particular index in the list of annotations.
+   * If there are no annotations, or \p idx is out-of-range, returns an empty string.
    */
   vtkStdString GetAnnotation(vtkIdType idx);
 
@@ -344,7 +346,7 @@ public:
    * vtkColorTransferFunction returns the color associated with node \a index % \a this->GetSize().
 
    * Note that implementations *must* set the opacity (alpha) component of the color, even if they
-   * do not provide opacity values in their colormaps. In that case, alpha = 1 should be used.
+   * do not provide opacity values in their colormaps. In that case, alpha = 1.0 should be used.
    */
   virtual void GetIndexedColor(vtkIdType i, double rgba[4]);
 
@@ -477,12 +479,14 @@ private:
 template <>
 inline unsigned char vtkScalarsToColors::ColorToUChar(double t)
 {
-  return static_cast<unsigned char>(t * 255 + 0.5);
+  double temp = (t * 255.0) + 0.5;
+  return static_cast<unsigned char>(temp);
 }
 template <>
 inline unsigned char vtkScalarsToColors::ColorToUChar(float t)
 {
-  return static_cast<unsigned char>(t * 255 + 0.5);
+  double temp = (t * 255.0) + 0.5;
+  return static_cast<unsigned char>(temp);
 }
 ///@}
 
