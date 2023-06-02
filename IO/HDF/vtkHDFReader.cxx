@@ -30,6 +30,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPolyData.h"
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
@@ -52,6 +53,10 @@ vtkStandardNewMacro(vtkHDFReader);
 
 namespace
 {
+//----------------------------------------------------------------------------
+constexpr std::size_t NUM_POLY_DATA_TOPOS = 4;
+const std::vector<std::string> POLY_DATA_TOPOS{ "Vertices", "Lines", "Polygons", "Strips" };
+
 //----------------------------------------------------------------------------
 int GetNDims(int* extent)
 {
@@ -79,6 +84,108 @@ std::vector<hsize_t> ReduceDimension(int* updateExtent, int* wholeExtent)
     v[j + 1] = updateExtent[j + 1];
   }
   return v;
+}
+
+//----------------------------------------------------------------------------
+struct TransientGeometryOffsets
+{
+public:
+  bool Success = true;
+  vtkIdType PartOffset = 0;
+  vtkIdType PointOffset = 0;
+  std::vector<vtkIdType> CellOffsets;
+  std::vector<vtkIdType> ConnectivityOffsets;
+
+  template <class T>
+  TransientGeometryOffsets(T* impl, vtkIdType step)
+  {
+    auto recupMultiOffset = [&](std::string path, std::vector<vtkIdType>& val) {
+      val = impl->GetMetadata(path.c_str(), 1, step);
+      if (val.empty())
+      {
+        vtkErrorWithObjectMacro(
+          nullptr, << path.c_str() << " array cannot be empty when there is transient data");
+        return false;
+      }
+      return true;
+    };
+    auto recupSingleOffset = [&](std::string path, vtkIdType& val) {
+      std::vector<vtkIdType> buffer;
+      if (!recupMultiOffset(path, buffer))
+      {
+        return false;
+      }
+      val = buffer[0];
+      return true;
+    };
+    if (!recupSingleOffset("Steps/PartOffsets", this->PartOffset))
+    {
+      this->Success = false;
+      return;
+    }
+    if (!recupSingleOffset("Steps/PointOffsets", this->PointOffset))
+    {
+      this->Success = false;
+      return;
+    }
+    if (!recupMultiOffset("Steps/CellOffsets", this->CellOffsets))
+    {
+      this->Success = false;
+      return;
+    }
+    if (!recupMultiOffset("Steps/ConnectivityIdOffsets", this->ConnectivityOffsets))
+    {
+      this->Success = false;
+      return;
+    }
+  }
+};
+
+template <class T>
+bool ReadPolyDataPiece(T* impl, vtkIdType pointOffset, vtkIdType numberOfPoints,
+  std::vector<vtkIdType>& cellOffsets, std::vector<vtkIdType>& numberOfCells,
+  std::vector<vtkIdType>& connectivityOffsets, std::vector<vtkIdType>& numberOfConnectivityIds,
+  vtkPolyData* pieceData)
+{
+  vtkNew<vtkPoints> points;
+  vtkSmartPointer<vtkDataArray> pointArray;
+  if ((pointArray = vtk::TakeSmartPointer(
+         impl->NewMetadataArray("Points", pointOffset, numberOfPoints))) == nullptr)
+  {
+    vtkErrorWithObjectMacro(nullptr, "Cannot read the Points array");
+    return false;
+  }
+  points->SetData(pointArray);
+  pieceData->SetPoints(points);
+
+  std::vector<vtkSmartPointer<vtkCellArray>> cArrays;
+  for (std::size_t iTopo = 0; iTopo < ::NUM_POLY_DATA_TOPOS; ++iTopo)
+  {
+    const auto& name = ::POLY_DATA_TOPOS[iTopo];
+    vtkSmartPointer<vtkDataArray> offsetsArray;
+    if ((offsetsArray = vtk::TakeSmartPointer(impl->NewMetadataArray(
+           (name + "/Offsets").c_str(), cellOffsets[iTopo], numberOfCells[iTopo] + 1))) == nullptr)
+    {
+      vtkErrorWithObjectMacro(nullptr, "Cannot read the Offsets array for " + name);
+      return false;
+    }
+    vtkSmartPointer<vtkDataArray> connectivityArray;
+    if ((connectivityArray =
+            vtk::TakeSmartPointer(impl->NewMetadataArray((name + "/Connectivity").c_str(),
+              connectivityOffsets[iTopo], numberOfConnectivityIds[iTopo]))) == nullptr)
+    {
+      vtkErrorWithObjectMacro(nullptr, "Cannot read the Connectivity array for " + name);
+      return false;
+    }
+    vtkNew<vtkCellArray> cellArray;
+    cellArray->SetData(offsetsArray, connectivityArray);
+    cArrays.emplace_back(cellArray);
+  }
+  pieceData->SetVerts(cArrays[0]);
+  pieceData->SetLines(cArrays[1]);
+  pieceData->SetPolys(cArrays[2]);
+  pieceData->SetStrips(cArrays[3]);
+  return true;
 }
 }
 
@@ -226,9 +333,11 @@ const char* vtkHDFReader::GetCellArrayName(int index)
 int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
-  std::map<int, std::string> typeNameMap = { { VTK_IMAGE_DATA, "vtkImageData" },
-    { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" },
-    { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" } };
+  std::map<int, std::string> typeNameMap = {
+    { VTK_IMAGE_DATA, "vtkImageData" }, { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" },
+    { VTK_POLY_DATA, "vtkPolyData" }, { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" }
+
+  };
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
 
@@ -268,6 +377,10 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     else if (dataSetType == VTK_OVERLAPPING_AMR)
     {
       newOutput = vtkSmartPointer<vtkOverlappingAMR>::New();
+    }
+    else if (dataSetType == VTK_POLY_DATA)
+    {
+      newOutput = vtkSmartPointer<vtkPolyData>::New();
     }
     else
     {
@@ -329,7 +442,7 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
     outInfo->Set(CAN_PRODUCE_SUB_EXTENT(), 1);
   }
-  else if (dataSetType == VTK_UNSTRUCTURED_GRID)
+  else if (dataSetType == VTK_UNSTRUCTURED_GRID || dataSetType == VTK_POLY_DATA)
   {
     outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
   }
@@ -608,39 +721,23 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
 int vtkHDFReader::Read(vtkInformation* outInfo, vtkUnstructuredGrid* data)
 {
   // this->PrintPieceInformation(outInfo);
-  int filePieceCount = this->Impl->GetNumberOfPieces();
+  int filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
   vtkIdType partOffset = 0;
   vtkIdType startingPointOffset = 0;
   vtkIdType startingCellOffset = 0;
   vtkIdType startingConnectivityIdOffset = 0;
   if (this->HasTransientData)
   {
-    auto recupOffset = [&](std::string path, vtkIdType& val) {
-      std::vector<vtkIdType> buffer = this->Impl->GetMetadata(path.c_str(), 1, this->Step);
-      if (buffer.empty())
-      {
-        vtkErrorMacro(<< path.c_str() << " array cannot be empty when there is transient data");
-        return false;
-      }
-      val = buffer[0];
-      return true;
-    };
-    if (!recupOffset("Steps/PartOffsets", partOffset))
+    ::TransientGeometryOffsets geoOffs(this->Impl, this->Step);
+    if (!geoOffs.Success)
     {
+      vtkErrorMacro("Error in reading transient geometry offsets");
       return 0;
     }
-    if (!recupOffset("Steps/PointOffsets", startingPointOffset))
-    {
-      return 0;
-    }
-    if (!recupOffset("Steps/CellOffsets", startingCellOffset))
-    {
-      return 0;
-    }
-    if (!recupOffset("Steps/ConnectivityIdOffsets", startingConnectivityIdOffset))
-    {
-      return 0;
-    }
+    partOffset = geoOffs.PartOffset;
+    startingPointOffset = geoOffs.PointOffset;
+    startingCellOffset = geoOffs.CellOffsets[0];
+    startingConnectivityIdOffset = geoOffs.ConnectivityOffsets[0];
   }
   std::vector<vtkIdType> numberOfPoints =
     this->Impl->GetMetadata("NumberOfPoints", filePieceCount, partOffset);
@@ -674,6 +771,158 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkUnstructuredGrid* data)
           pieceData))
     {
       return 0;
+    }
+    append->Update();
+    data->ShallowCopy(append->GetOutput());
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data)
+{
+  // The number of pieces in this step
+  int filePieceCount = this->Impl->GetNumberOfPieces();
+  if (this->HasTransientData)
+  {
+    filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
+  }
+
+  // The initial offsetting with which to read the step in particular
+  vtkIdType partOffset = 0;
+  vtkIdType startingPointOffset = 0;
+  std::vector<vtkIdType> startingCellOffsets(::NUM_POLY_DATA_TOPOS, 0);
+  std::vector<vtkIdType> startingConnectivityIdOffsets(::NUM_POLY_DATA_TOPOS, 0);
+  if (this->HasTransientData)
+  {
+    // Read the time offsets for this step
+    ::TransientGeometryOffsets geoOffs(this->Impl, this->Step);
+    if (!geoOffs.Success)
+    {
+      vtkErrorMacro("Error in reading transient geometry offsets");
+      return 0;
+    }
+    // bring these offsets up in scope
+    partOffset = geoOffs.PartOffset;
+    startingPointOffset = geoOffs.PointOffset;
+    std::swap(startingCellOffsets, geoOffs.CellOffsets);
+    std::swap(startingConnectivityIdOffsets, geoOffs.ConnectivityOffsets);
+  }
+
+  // extract the array containing the number of points for this step
+  std::vector<vtkIdType> numberOfPoints =
+    this->Impl->GetMetadata("NumberOfPoints", filePieceCount, partOffset);
+  if (numberOfPoints.empty())
+  {
+    vtkErrorMacro("Error in reading NumberOfPoints");
+    return 0;
+  }
+
+  std::map<std::string, std::vector<vtkIdType>> numberOfCells;
+  std::map<std::string, std::vector<vtkIdType>> numberOfConnectivityIds;
+  for (const auto& name : ::POLY_DATA_TOPOS)
+  {
+    // extract the array containing the number of cells of this topology for this step
+    numberOfCells[name] =
+      this->Impl->GetMetadata((name + "/NumberOfCells").c_str(), filePieceCount, partOffset);
+    if (numberOfCells[name].empty())
+    {
+      vtkErrorMacro("Error in reading NumberOfCells for " + name);
+      return 0;
+    }
+    // extract the array containing the number of connectivity ids of this topology for this step
+    numberOfConnectivityIds[name] = this->Impl->GetMetadata(
+      (name + "/NumberOfConnectivityIds").c_str(), filePieceCount, partOffset);
+    if (numberOfConnectivityIds[name].empty())
+    {
+      vtkErrorMacro("Error in reading NumberOfConnectivityIds for " + name);
+      return 0;
+    }
+  }
+  // determine the stride to use when updating pieces
+  int memoryPieceCount = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  // determine the initial piece number to update
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+
+  // initialize the appending filter mechanism
+  vtkNew<vtkPolyData> pieceData;
+  vtkNew<vtkAppendDataSets> append;
+  append->SetOutputDataSetType(VTK_POLY_DATA);
+  append->AddInputData(data);
+  append->AddInputData(pieceData);
+  vtkIdType startingCellOffset =
+    std::accumulate(startingCellOffsets.begin(), startingCellOffsets.end(), 0);
+  for (int filePiece = piece; filePiece < filePieceCount; filePiece += memoryPieceCount)
+  {
+    // determine the exact offsetting for the piece that needs to be read
+    vtkIdType pointOffset =
+      std::accumulate(numberOfPoints.data(), &numberOfPoints[filePiece], startingPointOffset);
+    std::vector<vtkIdType> cellOffsets(::NUM_POLY_DATA_TOPOS, 0);
+    std::vector<vtkIdType> pieceNumberOfCells(::NUM_POLY_DATA_TOPOS, 0);
+    std::vector<vtkIdType> connectivityOffsets(::NUM_POLY_DATA_TOPOS, 0);
+    std::vector<vtkIdType> pieceNumberOfConnectivityIds(::NUM_POLY_DATA_TOPOS, 0);
+    for (std::size_t iTopo = 0; iTopo < ::NUM_POLY_DATA_TOPOS; ++iTopo)
+    {
+      const auto& nCells = numberOfCells[::POLY_DATA_TOPOS[iTopo]];
+      cellOffsets[iTopo] = std::accumulate(nCells.begin(), nCells.begin() + filePiece,
+        startingCellOffsets[iTopo] + partOffset + filePiece);
+      pieceNumberOfCells[iTopo] = nCells[filePiece];
+      const auto& nConnectivity = numberOfConnectivityIds[::POLY_DATA_TOPOS[iTopo]];
+      connectivityOffsets[iTopo] = std::accumulate(nConnectivity.begin(),
+        nConnectivity.begin() + filePiece, startingConnectivityIdOffsets[iTopo]);
+      pieceNumberOfConnectivityIds[iTopo] = nConnectivity[filePiece];
+    }
+
+    // populate the poly data piece
+    pieceData->Initialize();
+    if (!::ReadPolyDataPiece(this->Impl, pointOffset, numberOfPoints[filePiece], cellOffsets,
+          pieceNumberOfCells, connectivityOffsets, pieceNumberOfConnectivityIds, pieceData))
+    {
+      vtkErrorMacro(
+        "There was an error in reading the " << filePiece << " piece of the poly data file.");
+      return 0;
+    }
+
+    // sum over topologies to get total offsets for fields
+    vtkIdType cellOffset = startingCellOffset;
+    for (const auto& name : ::POLY_DATA_TOPOS)
+    {
+      const auto& nCells = numberOfCells[name];
+      cellOffset = std::accumulate(nCells.begin(), nCells.begin() + filePiece, cellOffset);
+    }
+    vtkIdType accumulatedNumberOfCells =
+      std::accumulate(pieceNumberOfCells.begin(), pieceNumberOfCells.end(), 0);
+
+    std::vector<vtkIdType> offsets = { pointOffset, cellOffset };
+    std::vector<vtkIdType> startingOffsets = { startingPointOffset, startingCellOffset };
+    std::vector<vtkIdType> numberOf = { numberOfPoints[filePiece], accumulatedNumberOfCells };
+    for (int attributeType = 0; attributeType < vtkDataObject::FIELD; ++attributeType)
+    {
+      std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
+      for (const std::string& name : names)
+      {
+        if (this->DataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
+        {
+          vtkIdType arrayOffset = offsets[attributeType];
+          if (this->HasTransientData)
+          {
+            vtkIdType buff = this->Impl->GetArrayOffset(this->Step, attributeType, name);
+            if (buff >= 0)
+            {
+              arrayOffset += buff - startingOffsets[attributeType];
+            }
+          }
+          vtkSmartPointer<vtkDataArray> array;
+          if ((array = vtk::TakeSmartPointer(this->Impl->NewArray(
+                 attributeType, name.c_str(), arrayOffset, numberOf[attributeType]))) == nullptr)
+          {
+            vtkErrorMacro("Error reading array " << name);
+            return 0;
+          }
+          array->SetName(name.c_str());
+          pieceData->GetAttributesAsFieldData(attributeType)->AddArray(array);
+        }
+      }
     }
     append->Update();
     data->ShallowCopy(append->GetOutput());
@@ -734,6 +983,11 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {
     vtkUnstructuredGrid* data = vtkUnstructuredGrid::SafeDownCast(output);
+    ok = this->Read(outInfo, data);
+  }
+  else if (dataSetType == VTK_POLY_DATA)
+  {
+    vtkPolyData* data = vtkPolyData::SafeDownCast(output);
     ok = this->Read(outInfo, data);
   }
   else if (dataSetType == VTK_OVERLAPPING_AMR)

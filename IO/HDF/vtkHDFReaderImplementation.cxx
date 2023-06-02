@@ -210,7 +210,7 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
 
     try
     {
-      if (this->DataSetType == VTK_UNSTRUCTURED_GRID)
+      if (this->DataSetType == VTK_UNSTRUCTURED_GRID || this->DataSetType == VTK_POLY_DATA)
       {
         const char* datasetName = "/VTKHDF/NumberOfPoints";
         std::vector<hsize_t> dims = this->GetDimensions(datasetName);
@@ -218,7 +218,7 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
         {
           throw std::runtime_error(std::string(datasetName) + " dataset should have 1 dimension");
         }
-        // Consider that the data set should have the same number of pieces at all time steps
+        // Case where the data set has the same number of pieces for  all steps in the dataset
         this->NumberOfPieces = dims[0] / nSteps;
       }
       else if (this->DataSetType == VTK_IMAGE_DATA || this->DataSetType == VTK_OVERLAPPING_AMR)
@@ -298,6 +298,10 @@ bool vtkHDFReader::Implementation::ReadDataSetType()
     {
       this->DataSetType = VTK_UNSTRUCTURED_GRID;
     }
+    else if (typeName == "PolyData")
+    {
+      this->DataSetType = VTK_POLY_DATA;
+    }
     else
     {
       vtkErrorWithObjectMacro(this->Reader, "Unknown data set type: " << typeName);
@@ -347,6 +351,25 @@ std::size_t vtkHDFReader::Implementation::GetNumberOfSteps(hid_t vtkHDFGroup)
   int nSteps = 1;
   this->GetAttribute(steps, "NSteps", 1, &nSteps);
   return nSteps > 0 ? static_cast<std::size_t>(nSteps) : 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkHDFReader::Implementation::GetNumberOfPieces(vtkIdType step)
+{
+  if (step < 0 || this->GetNumberOfSteps() == 1 ||
+    H5Lexists(this->VTKGroup, "Steps/NumberOfParts", H5P_DEFAULT) <= 0)
+  {
+    return this->NumberOfPieces;
+  }
+  std::vector<vtkIdType> buffer = this->GetMetadata("Steps/NumberOfParts", 1, step);
+  if (buffer.empty())
+  {
+    vtkErrorWithObjectMacro(
+      nullptr, "Could not read step " << step << " in NumberOfParts data set.");
+    return -1;
+  }
+  this->NumberOfPieces = buffer[0];
+  return this->NumberOfPieces;
 }
 
 //------------------------------------------------------------------------------
@@ -848,7 +871,7 @@ std::vector<vtkIdType> vtkHDFReader::Implementation::GetMetadata(
   {
     return v;
   }
-  v.resize(a->GetNumberOfTuples());
+  v.resize(a->GetNumberOfTuples() * a->GetNumberOfComponents());
   auto range = vtk::DataArrayValueRange(a);
   std::copy(range.begin(), range.end(), v.begin());
   return v;

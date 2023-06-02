@@ -37,6 +37,7 @@ class vtkImageData;
 class vtkInformationVector;
 class vtkInformation;
 class vtkOverlappingAMR;
+class vtkPolyData;
 class vtkUnstructuredGrid;
 
 /**
@@ -153,6 +154,7 @@ protected:
    */
   int Read(vtkInformation* outInfo, vtkImageData* data);
   int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data);
+  int Read(vtkInformation* outInfo, vtkPolyData* data);
   int Read(vtkInformation* outInfo, vtkOverlappingAMR* data);
   ///@}
   /**

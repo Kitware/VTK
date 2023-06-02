@@ -72,7 +72,7 @@ public:
   /**
    * Returns the number of partitions for this dataset.
    */
-  int GetNumberOfPieces() { return this->NumberOfPieces; }
+  int GetNumberOfPieces(vtkIdType step = -1);
   /**
    * For an ImageData, sets the extent for 'partitionIndex'. Returns
    * true for success and false otherwise.
