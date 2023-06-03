@@ -98,6 +98,16 @@ public:
 
   ///@{
   /**
+   * Enable writing the 'obj_info' in the header. Default is on.
+   * Note that some software is unable to read ply files with the 'obj_info' included.
+   */
+  vtkSetMacro(WriteObjectInformation, bool);
+  vtkGetMacro(WriteObjectInformation, bool);
+  vtkBooleanMacro(WriteObjectInformation, bool);
+  ///@}
+
+  ///@{
+  /**
    * These methods enable the user to control how to add color into the PLY
    * output file. The default behavior is as follows. The user provides the
    * name of an array and a component number. If the type of the array is
@@ -257,6 +267,8 @@ protected:
   // Whether this object is writing to a string or a file.
   // Default is 0: write to file.
   bool WriteToOutputString;
+
+  bool WriteObjectInformation;
 
   // The output string.
   std::string OutputString;
