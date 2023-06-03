@@ -674,13 +674,13 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
-void vtkGLTFImporter::UpdateTimeStep(double timestep)
+void vtkGLTFImporter::UpdateTimeStep(double timeValue)
 {
   for (int animationId = 0; animationId < this->GetNumberOfAnimations(); animationId++)
   {
     if (this->EnabledAnimations[animationId])
     {
-      this->Loader->ApplyAnimation(static_cast<float>(timestep), animationId);
+      this->Loader->ApplyAnimation(static_cast<float>(timeValue), animationId);
     }
   }
   this->Loader->BuildGlobalTransforms();

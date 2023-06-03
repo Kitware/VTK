@@ -526,8 +526,8 @@ public:
   };
 
   /**
-   * Apply the specified animation, at the specified time, to the internal Model. Changes node
-   * transforms and morphing weights.
+   * Apply the specified animation, at the specified time value t, to the internal Model. Changes
+   * node transforms and morphing weights.
    */
   bool ApplyAnimation(float t, int animationId, bool forceStep = false);
 
