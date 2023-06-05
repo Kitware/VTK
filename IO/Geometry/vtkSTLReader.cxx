@@ -525,11 +525,14 @@ bool vtkSTLReader::ReadASCIISTL(
           {
             header += "\n";
           }
-          header += arg;
-          // strip end-of-line character from the end
-          while (!header.empty() && (header.back() == '\r' || header.back() == '\n'))
+          if (*arg)
           {
-            header.pop_back();
+            header += arg;
+            // strip end-of-line character from the end
+            while (!header.empty() && (header.back() == '\r' || header.back() == '\n'))
+            {
+              header.pop_back();
+            }
           }
         }
         else
