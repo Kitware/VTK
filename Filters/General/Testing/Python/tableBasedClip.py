@@ -12,7 +12,9 @@ from vtkmodules.vtkCommonDataModel import (
 )
 from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkThreshold
+from vtkmodules.vtkFiltersGeometry import vtkDataSetRegionSurfaceFilter
 from vtkmodules.vtkFiltersGeneral import vtkTableBasedClipDataSet
+from vtkmodules.vtkFiltersParallel import vtkPPolyDataNormals
 from vtkmodules.vtkIOEnSight import vtkEnSightGoldReader
 from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
 from vtkmodules.vtkRenderingCore import (
@@ -253,7 +255,42 @@ class TestClip(Testing.vtkTest):
         rw.Render()
         rtResult = rtTester.RegressionTest(10)
 
+    def testClipOnNormal(self):
+        eg = vtkEnSightGoldReader()
+        eg.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/elements.case")
+        eg.Update()
 
+        rs = vtkDataSetRegionSurfaceFilter()
+        rs.SetInputConnection(eg.GetOutputPort())
+        rs.Update()
+
+        n = vtkPPolyDataNormals()
+        n.SetInputConnection(rs.GetOutputPort())
+        n.Update()
+
+        pl = vtkPlane()
+        pl.SetOrigin(3.5, 3.5, 0.5)
+        pl.SetNormal(0, 0, 1)
+
+        c = vtkTableBasedClipDataSet()
+        c.SetInputConnection(n.GetOutputPort())
+        c.SetClipFunction(pl)
+        c.SetInsideOut(1)
+
+        c.Update()
+        data = c.GetOutputDataObject(0).GetBlock(0)
+
+        normals_points = data.GetPointData().GetNormals()
+
+        [x, y, z] = normals_points.GetTuple3(18)
+        self.assertEqual(x, 0)
+        self.assertEqual(y, 0)
+        self.assertEqual(z, 1)
+
+        [x, y, z] = normals_points.GetTuple3(103)
+        self.assertEqual(x, -0.6324555277824402)
+        self.assertEqual(y, -0.3162277638912201)
+        self.assertEqual(z, -0.7071067690849304)
 
 if __name__ == "__main__":
     Testing.main([(TestClip, 'test')])

@@ -96,8 +96,10 @@
 #ifndef vtkTableBasedClipDataSet_h
 #define vtkTableBasedClipDataSet_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersGeneralModule.h"    // For export macro
+#include "vtkIncrementalPointLocator.h" // For vtkIncrementalPointLocator
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWeakPointer.h" // Needed for weak pointer to the vtkIncrementalPointLocator
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
@@ -227,6 +229,15 @@ public:
   vtkGetMacro(BatchSize, unsigned int);
   ///@}
 
+  ///@{
+  /**
+   * Specify a spatial locator for merging points.
+   * Forwarded to vtkClipDataSet.
+   */
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
+  ///@}
+
 protected:
   vtkTableBasedClipDataSet(vtkImplicitFunction* cf = nullptr);
   ~vtkTableBasedClipDataSet() override;
@@ -315,6 +326,8 @@ protected:
   unsigned int BatchSize;
 
   int OutputPointsPrecision;
+
+  vtkWeakPointer<vtkIncrementalPointLocator> Locator;
 
 private:
   vtkTableBasedClipDataSet(const vtkTableBasedClipDataSet&) = delete;
