@@ -51,6 +51,7 @@ vtkPLYWriter::vtkPLYWriter()
   this->HeaderComments = vtkSmartPointer<vtkStringArray>::New();
   this->HeaderComments->InsertNextValue("VTK generated PLY File");
   this->WriteToOutputString = false;
+  this->WriteObjectInformation = true;
 }
 
 vtkPLYWriter::~vtkPLYWriter()
@@ -214,7 +215,10 @@ void vtkPLYWriter::WriteData()
   {
     vtkPLY::ply_put_comment(ply, this->HeaderComments->GetValue(idx).c_str());
   }
-  vtkPLY::ply_put_obj_info(ply, "vtkPolyData points and polygons: vtk4.0");
+  if (this->WriteObjectInformation)
+  {
+    vtkPLY::ply_put_obj_info(ply, "vtkPolyData points and polygons: vtk4.0");
+  }
 
   // complete the header
   vtkPLY::ply_header_complete(ply);
@@ -492,6 +496,7 @@ void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "EnableAlpha: " << this->EnableAlpha << "\n";
   os << indent << "Alpha: " << static_cast<int>(this->Alpha) << "\n";
+  os << indent << "WriteObjectInformation: " << this->WriteObjectInformation << "\n";
 }
 
 void vtkPLYWriter::AddComment(const std::string& comment)
