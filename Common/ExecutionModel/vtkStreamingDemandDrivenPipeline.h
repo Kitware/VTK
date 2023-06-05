@@ -235,27 +235,27 @@ public:
    * and keep some cache helping them to retrieve upcoming timesteps as they arrive.
    *
    * @note One should check the actual value of this key. Possible values are listed
-   * in `INCOMPLETE_TIME_STEPS_STATES`.
+   * in `NO_PRIOR_TEMPORAL_ACCESS_STATES`.
    */
-  static vtkInformationIntegerKey* INCOMPLETE_TIME_STEPS();
+  static vtkInformationIntegerKey* NO_PRIOR_TEMPORAL_ACCESS();
 
   /**
-   * States that the information key `INCOMPLETE_TIME_STEPS` can have.
+   * States that the information key `NO_PRIOR_TEMPORAL_ACCESS` can have.
    */
-  enum INCOMPLETE_TIME_STEPS_STATES
+  enum NO_PRIOR_TEMPORAL_ACCESS_STATES
   {
     /**
      * Notifies that the current `UPDATE_TIME_STEP()` is to be integrated in the
      * output of the current `vtkAlgorithm`.
      */
-    INCOMPLETE_TIME_STEPS_CONTINUE = 1,
+    NO_PRIOR_TEMPORAL_ACCESS_CONTINUE = 1,
 
     /**
      * Notifies that the filter should reset its internal state.
      * This bit should be activated if one wants to rerun the time steps
      * from scratch. It does not need to be set on the first update of the pipeline.
      */
-    INCOMPLETE_TIME_STEPS_RESET = 2
+    NO_PRIOR_TEMPORAL_ACCESS_RESET = 2
   };
 
   ///@{

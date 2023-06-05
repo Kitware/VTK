@@ -9,6 +9,7 @@ class PointSource(VTKPythonAlgorithmBase):
         VTKPythonAlgorithmBase.__init__(self, nInputPorts=0,
                 nOutputPorts=1, outputType='vtkUnstructuredGrid')
         self.Scale = 1.0
+        self.FirstIteration = True
 
     def RequestInformation(self, request, inInfo, outInfo):
         info = outInfo.GetInformationObject(0)
@@ -22,12 +23,17 @@ class PointSource(VTKPythonAlgorithmBase):
         output = vtk.vtkUnstructuredGrid.GetData(info)
         # The time step requested
         t = info.Get(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP())
+        if info.Has(vtk.vtkStreamingDemandDrivenPipeline.NO_PRIOR_TEMPORAL_ACCESS()):
+            assert(self.FirstIteration !=
+                    (info.Get(vtk.vtkStreamingDemandDrivenPipeline.NO_PRIOR_TEMPORAL_ACCESS()) ==
+                        vtk.vtkStreamingDemandDrivenPipeline.NO_PRIOR_TEMPORAL_ACCESS_CONTINUE))
         pts = vtk.vtkPoints()
         pts.SetNumberOfPoints(3)
         pts.SetPoint(0, t * self.Scale, t * self.Scale, t)
         pts.SetPoint(1, t / self.Scale, t, t * self.Scale)
         pts.SetPoint(2, t * self.Scale, t / self.Scale, t)
         output.SetPoints(pts)
+        self.FirstIteration = False
         return 1
 
 ps = PointSource()
@@ -51,15 +57,13 @@ for scale in [1.0, 2.0]:
     pathLinesRef.Update()
 
     ps.Scale = scale
-    ps.SetIncompleteTimeStepsInformationKey(
-            vtk.vtkStreamingDemandDrivenPipeline.INCOMPLETE_TIME_STEPS_RESET)
+    ps.FirstIteration = True
+    ps.SetNoPriorTemporalAccessInformationKey()
 
     idx = 0
     for t in ts:
         pathLines.UpdateTimeStep(t)
         assert(pathLines.GetOutput().GetFieldData().GetArray("time_steps").GetValue(idx) == idx)
-        ps.SetIncompleteTimeStepsInformationKey(
-                vtk.vtkStreamingDemandDrivenPipeline.INCOMPLETE_TIME_STEPS_CONTINUE)
         idx += 1
 
     points = pathLines.GetOutput().GetPoints()

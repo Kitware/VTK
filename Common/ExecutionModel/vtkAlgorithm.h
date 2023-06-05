@@ -729,21 +729,23 @@ public:
   ///@{
   /**
    * Set to all output ports of this algorithm the information key
-   * `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()`. This should
+   * `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()`. This should
    * be set on sources of pipelines for which all timesteps are not necessarily
    * all available at once. This is typically the case for visualization in situ.
    *
-   * @note Default value in `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS_CONTINUE`.
+   * @note Default value in `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET`.
+   * `vtkStreamingDemandDrivenPipeline` will set it to `NO_PRIOR_TEMPORAL_ACCESS_CONTINUE' after
+   * execution of the first time step.
    */
-  void SetIncompleteTimeStepsInformationKey(int key);
-  void SetIncompleteTimeStepsInformationKey();
+  void SetNoPriorTemporalAccessInformationKey(int key);
+  void SetNoPriorTemporalAccessInformationKey();
   ///@}
 
   /**
-   * Removes any information key `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()`
+   * Removes any information key `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()`
    * to all output ports of this `vtkAlgorithm`.
    */
-  void RemoveIncompleteTimeStepsInformationKey();
+  void RemoveNoPriorTemporalAccessInformationKey();
 
 protected:
   vtkAlgorithm();

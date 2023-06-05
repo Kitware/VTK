@@ -250,43 +250,44 @@ bool vtkAlgorithm::CheckUpstreamAbort()
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::SetIncompleteTimeStepsInformationKey()
+void vtkAlgorithm::SetNoPriorTemporalAccessInformationKey()
 {
-  this->SetIncompleteTimeStepsInformationKey(
-    vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS_CONTINUE);
+  this->SetNoPriorTemporalAccessInformationKey(
+    vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET);
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::SetIncompleteTimeStepsInformationKey(int key)
+void vtkAlgorithm::SetNoPriorTemporalAccessInformationKey(int key)
 {
   using vtkSDDP = vtkStreamingDemandDrivenPipeline;
 
-  if (key != vtkSDDP::INCOMPLETE_TIME_STEPS_CONTINUE && key != vtkSDDP::INCOMPLETE_TIME_STEPS_RESET)
+  if (key != vtkSDDP::NO_PRIOR_TEMPORAL_ACCESS_CONTINUE &&
+    key != vtkSDDP::NO_PRIOR_TEMPORAL_ACCESS_RESET)
   {
-    vtkWarningMacro("Setting vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS() with"
+    vtkWarningMacro("Setting vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS() with"
                     " unsupported value, setting it to"
-                    " vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS_CONTINUE by default");
-    key = vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS_CONTINUE;
+                    " vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET by default");
+    key = vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET;
   }
 
   for (int port = 0; port < this->GetNumberOfOutputPorts(); ++port)
   {
     if (vtkInformation* outputInfo = this->GetOutputInformation(port))
     {
-      outputInfo->Set(vtkSDDP::INCOMPLETE_TIME_STEPS(), key);
+      outputInfo->Set(vtkSDDP::NO_PRIOR_TEMPORAL_ACCESS(), key);
     }
   }
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::RemoveIncompleteTimeStepsInformationKey()
+void vtkAlgorithm::RemoveNoPriorTemporalAccessInformationKey()
 {
   for (int port = 0; this->GetNumberOfOutputPorts(); ++port)
   {
     if (vtkInformation* outputInfo = this->GetOutputInformation(port))
     {
-      outputInfo->Remove(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS());
+      outputInfo->Remove(vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS());
     }
   }
 }

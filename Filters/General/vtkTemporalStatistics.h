@@ -13,7 +13,7 @@
  * point or cell variable changes over time.  For example, vtkTemporalStatistics
  * can compute the average value of "pressure" over time of each point.
  *
- * If the key `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()` is set, typically
+ * If the key `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()` is set, typically
  * when running this filter in situ,
  * then the filter runs the time steps one at a time. It requires causing the execution
  * of the filter multiple times externally, by calling `UpdateTimeStep()` in a loop

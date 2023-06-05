@@ -54,7 +54,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVecto
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, BOUNDS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_DEPENDENT_INFORMATION, Integer);
 
-vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, INCOMPLETE_TIME_STEPS, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, NO_PRIOR_TEMPORAL_ACCESS, Integer);
 
 //------------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
@@ -352,6 +352,22 @@ vtkTypeBool vtkStreamingDemandDrivenPipeline ::ProcessRequest(
           info->Set(COMBINED_UPDATE_EXTENT(), emptyExt, 6);
         }
       }
+
+      // If input ports have the key NO_PRIOR_TEMPORAL_ACCESS set to NO_PRIOR_TEMPORAL_ACCESS_RESET,
+      // we can now set it to NO_PRIOR_TEMPORAL_ACCESS_CONTINUE as the first temporal iteration has
+      // been executed.
+      for (int port = 0; port < this->GetNumberOfInputPorts(); ++port)
+      {
+        for (int i = 0; i < inInfoVec[port]->GetNumberOfInformationObjects(); ++i)
+        {
+          vtkInformation* info = inInfoVec[port]->GetInformationObject(i);
+          if (info->Has(vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()))
+          {
+            info->Set(vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS(),
+              vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_CONTINUE);
+          }
+        }
+      }
       return 1;
     }
     return 0;
@@ -510,7 +526,7 @@ void vtkStreamingDemandDrivenPipeline ::CopyDefaultInformation(vtkInformation* r
           outInfo->CopyEntry(inInfo, vtkDataObject::DIRECTION());
           outInfo->CopyEntry(inInfo, vtkDataObject::SPACING());
           outInfo->CopyEntry(inInfo, TIME_DEPENDENT_INFORMATION());
-          outInfo->CopyEntry(inInfo, INCOMPLETE_TIME_STEPS());
+          outInfo->CopyEntry(inInfo, NO_PRIOR_TEMPORAL_ACCESS());
           if (scalarInfo)
           {
             int scalarType = VTK_DOUBLE;

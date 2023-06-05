@@ -32,14 +32,14 @@
  * compromises filters that have `IntegrateFullTimeSeries` ON, and which rely on knowledge provided
  * by the information key `TIME_STEPS()`. The implementation of this algorithm provides a specal
  * mode for such circumstences. All the user needs to do is set the information key
- * `INCOMPLETE_TIME_STEPS()` in the sources.
- * If the information key `INCOMPLETE_TIME_STEPS()` is set on the first input on port 0,
+ * `NO_PRIOR_TEMPORAL_ACCESS()` in the sources.
+ * If the information key `NO_PRIOR_TEMPORAL_ACCESS()` is set on the first input on port 0,
  * then this class will assume that the user is requesing time
  * steps in chronological order using `UpdateTimeStep(double)` and will provide a complete
  * output at each temporal iteration. Effectively, at each iteration, `Execute` and `Finalize` are
- * called. `Initialize` is called at the first iteration, or when `INCOMPLETE_TIME_STEPS()` is set
- * to `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS_RESET`. Processed time steps are
- * gathered in an array added to the field data of the outputs. The name of this array is
+ * called. `Initialize` is called at the first iteration, or when `NO_PRIOR_TEMPORAL_ACCESS()` is
+ * set to `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET`. Processed time steps
+ * are gathered in an array added to the field data of the outputs. The name of this array is
  * `time_steps` and can be retrieved through the methon `TimeStepsArrayName()`.
  *
  * @warning Python wrapping of subclasses require special handling. Here is an example
@@ -101,7 +101,7 @@ public:
   ///@}
 
   /**
-   * When `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()` is set, an array with this
+   * When `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()` is set, an array with this
    * name is populated in the output's field data listing all the time steps executed so far.
    */
   static const char* TimeStepsArrayName() { return "time_steps"; }
@@ -188,15 +188,15 @@ private:
 
   /**
    * When true, the algorithm calls Finalize at each iteration. It is set to true if the first input
-   * on port 0 has set the information key `INCOMPLETE_TIME_STEPS()`. It is typically set for in
+   * on port 0 has set the information key `NO_PRIOR_TEMPORAL_ACCESS()`. It is typically set for in
    * situ vizualization.
    */
   bool NoPriorTimeStepAccess = false;
 
   ///@{
   /**
-   * When the information key `INCOMPLETE_TIME_STEPS()` is not set on the input port, this is used
-   * to keep track of which iteration we are currently executing, and when to terminate.
+   * When the information key `NO_PRIOR_TEMPORAL_ACCESS()` is not set on the input port, this is
+   * used to keep track of which iteration we are currently executing, and when to terminate.
    */
   std::vector<double> InputTimeSteps;
   int TerminationTimeIndex = 0;
@@ -204,7 +204,7 @@ private:
   ///@}
 
   /**
-   * Array only used when the information key `INCOMPLETE_TIME_STEPS()` is set.
+   * Array only used when the information key `NO_PRIOR_TEMPORAL_ACCESS()` is set.
    * It is put in the output's field data.
    */
   vtkNew<vtkDoubleArray> ProcessedTimeSteps;

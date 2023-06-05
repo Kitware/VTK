@@ -8,6 +8,7 @@ class PointSource(VTKPythonAlgorithmBase):
         VTKPythonAlgorithmBase.__init__(self, nInputPorts=0,
                 nOutputPorts=1, outputType='vtkUnstructuredGrid')
         self.Scale = 1.0
+        self.FirstIteration = True
 
     def RequestInformation(self, request, inInfo, outInfo):
         info = outInfo.GetInformationObject(0)
@@ -21,6 +22,10 @@ class PointSource(VTKPythonAlgorithmBase):
         output = vtk.vtkUnstructuredGrid.GetData(info)
         # The time step requested
         t = info.Get(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP())
+        if info.Has(vtk.vtkStreamingDemandDrivenPipeline.NO_PRIOR_TEMPORAL_ACCESS()):
+            assert(self.FirstIteration !=
+                    (info.Get(vtk.vtkStreamingDemandDrivenPipeline.NO_PRIOR_TEMPORAL_ACCESS()) ==
+                        vtk.vtkStreamingDemandDrivenPipeline.NO_PRIOR_TEMPORAL_ACCESS_CONTINUE))
         pts = vtk.vtkPoints()
         pts.SetNumberOfPoints(1)
         pts.SetPoint(0, 0, 0, 0)
@@ -30,6 +35,7 @@ class PointSource(VTKPythonAlgorithmBase):
         a.SetNumberOfTuples(1)
         a.SetValue(0, t)
         output.GetPointData().AddArray(a)
+        self.FirstIteration = False
         return 1
 
 ps = PointSource()
@@ -54,16 +60,14 @@ for scale in [1.0, 2,0]:
     min = statsRef.GetOutput().GetPointData().GetArray("scalar_minimum").GetValue(0)
     stddev = statsRef.GetOutput().GetPointData().GetArray("scalar_stddev").GetValue(0)
 
-    ps.SetIncompleteTimeStepsInformationKey(
-            vtk.vtkStreamingDemandDrivenPipeline.INCOMPLETE_TIME_STEPS_RESET)
+    ps.SetNoPriorTemporalAccessInformationKey()
     ps.Scale = scale
+    ps.FirstIteration = True
 
     idx = 0
     for t in ts:
         stats.UpdateTimeStep(t)
         assert(stats.GetOutput().GetFieldData().GetArray("time_steps").GetValue(idx) == idx)
-        ps.SetIncompleteTimeStepsInformationKey(
-                vtk.vtkStreamingDemandDrivenPipeline.INCOMPLETE_TIME_STEPS_CONTINUE)
         idx += 1
 
     assert(avg == stats.GetOutput().GetPointData().GetArray("scalar_average").GetValue(0))

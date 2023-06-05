@@ -58,7 +58,7 @@ int vtkTemporalAlgorithm<AlgorithmT>::RequestInformation(
   this->CurrentTimeIndex = 0;
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (this->IntegrateFullTimeSeries && !inInfo->Has(vtkSDDP::INCOMPLETE_TIME_STEPS()))
+  if (this->IntegrateFullTimeSeries && !inInfo->Has(vtkSDDP::NO_PRIOR_TEMPORAL_ACCESS()))
   {
     for (int outPort = 0; outPort < outputVector->GetNumberOfInformationObjects(); ++outPort)
     {
@@ -96,9 +96,10 @@ int vtkTemporalAlgorithm<AlgorithmT>::RequestUpdateExtent(
 
   if (vtkInformation* inInfo = inputVector[0]->GetInformationObject(0))
   {
-    if (inInfo->Has(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()))
+    if (inInfo->Has(vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()))
     {
-      if (inInfo->Get(vtkSDDP::INCOMPLETE_TIME_STEPS()) == vtkSDDP::INCOMPLETE_TIME_STEPS_RESET)
+      if (inInfo->Get(vtkSDDP::NO_PRIOR_TEMPORAL_ACCESS()) ==
+        vtkSDDP::NO_PRIOR_TEMPORAL_ACCESS_RESET)
       {
         this->ProcessedTimeSteps->Initialize();
       }
