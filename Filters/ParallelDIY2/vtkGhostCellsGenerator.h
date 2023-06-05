@@ -76,8 +76,10 @@
 #ifndef vtkGhostCellsGenerator_h
 #define vtkGhostCellsGenerator_h
 
-#include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkPassInputTypeAlgorithm.h"
+
+#include "vtkFiltersParallelDIY2Module.h" // for export macros
+#include "vtkWeakPointer.h"               // for vtkWeakPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
@@ -94,8 +96,8 @@ public:
    * Get/Set the controller to use. By default
    * vtkMultiProcessController::GlobalController will be used.
    */
-  void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController*);
+  vtkMultiProcessController* GetController();
   ///@}
 
   ///@{
@@ -129,6 +131,26 @@ public:
   vtkSetClampMacro(NumberOfGhostLayers, int, 0, VTK_INT_MAX);
   ///@}
 
+  ///@{
+  /**
+   * Specify if the filter should generate GlobalsIds.
+   * Default is FALSE.
+   */
+  vtkSetMacro(GenerateGlobalIds, bool);
+  vtkGetMacro(GenerateGlobalIds, bool);
+  vtkBooleanMacro(GenerateGlobalIds, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Specify if the filter should generate ProcessIds.
+   * Default is FALSE.
+   */
+  vtkSetMacro(GenerateProcessIds, bool);
+  vtkGetMacro(GenerateProcessIds, bool);
+  vtkBooleanMacro(GenerateProcessIds, bool);
+  ///@}
+
 protected:
   vtkGhostCellsGenerator();
   ~vtkGhostCellsGenerator() override;
@@ -141,10 +163,12 @@ protected:
   /**
    * Local controller.
    */
-  vtkMultiProcessController* Controller;
+  vtkWeakPointer<vtkMultiProcessController> Controller;
 
-  int NumberOfGhostLayers;
-  bool BuildIfRequired;
+  int NumberOfGhostLayers = 1;
+  bool BuildIfRequired = true;
+  bool GenerateGlobalIds = false;
+  bool GenerateProcessIds = false;
 
 private:
   vtkGhostCellsGenerator(const vtkGhostCellsGenerator&) = delete;

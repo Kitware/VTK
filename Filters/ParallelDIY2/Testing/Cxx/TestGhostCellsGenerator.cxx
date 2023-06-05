@@ -30,8 +30,6 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkGenerateGlobalIds.h"
-#include "vtkGenerateProcessIds.h"
 #include "vtkGhostCellsGenerator.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
@@ -556,14 +554,10 @@ bool TestInterfacePointsSharing(vtkMultiProcessController* controller, int myran
     -MaxExtent, MaxExtent);
   FillImage(image);
 
-  vtkNew<vtkGenerateGlobalIds> GIDGenerator;
-  GIDGenerator->SetInputData(image);
-
-  vtkNew<vtkGenerateProcessIds> PIDGenerator;
-  PIDGenerator->SetInputConnection(GIDGenerator->GetOutputPort());
-
   vtkNew<vtkGhostCellsGenerator> generator;
-  generator->SetInputConnection(PIDGenerator->GetOutputPort());
+  generator->SetInputData(image);
+  generator->GenerateGlobalIdsOn();
+  generator->GenerateProcessIdsOn();
   generator->BuildIfRequiredOff();
   generator->SetController(controller);
   generator->SetNumberOfGhostLayers(1);
@@ -583,10 +577,12 @@ bool TestInterfacePointsSharing(vtkMultiProcessController* controller, int myran
 
   // Testing point tagging at the interfaces on UG
   vtkNew<vtkAppendFilter> UGConverter;
-  UGConverter->SetInputConnection(PIDGenerator->GetOutputPort());
+  UGConverter->SetInputData(image);
 
   vtkNew<vtkGhostCellsGenerator> UGGenerator;
   UGGenerator->SetInputConnection(UGConverter->GetOutputPort());
+  UGGenerator->GenerateGlobalIdsOn();
+  UGGenerator->GenerateProcessIdsOn();
   UGGenerator->BuildIfRequiredOff();
   UGGenerator->SetNumberOfGhostLayers(0);
   UGGenerator->Update();

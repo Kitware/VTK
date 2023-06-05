@@ -22,12 +22,15 @@
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkExplicitStructuredGrid.h"
+#include "vtkGenerateGlobalIds.h"
+#include "vtkGenerateProcessIds.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -46,9 +49,6 @@ vtkCxxSetObjectMacro(vtkGhostCellsGenerator, Controller, vtkMultiProcessControll
 
 //----------------------------------------------------------------------------
 vtkGhostCellsGenerator::vtkGhostCellsGenerator()
-  : Controller(nullptr)
-  , NumberOfGhostLayers(1)
-  , BuildIfRequired(true)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
@@ -65,6 +65,12 @@ void vtkGhostCellsGenerator::Initialize()
   this->NumberOfGhostLayers = 1;
   this->BuildIfRequired = true;
   this->SetController(nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkMultiProcessController* vtkGhostCellsGenerator::GetController()
+{
+  return this->Controller.Get();
 }
 
 //------------------------------------------------------------------------------
@@ -91,6 +97,22 @@ int vtkGhostCellsGenerator::RequestData(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   int numberOfGhostLayersToCompute =
     this->BuildIfRequired ? reqGhostLayers : std::max(reqGhostLayers, this->NumberOfGhostLayers);
+
+  if (this->GenerateProcessIds)
+  {
+    vtkNew<vtkGenerateProcessIds> pidGenerator;
+    pidGenerator->SetInputData(inputDO);
+    pidGenerator->GenerateCellDataOn();
+    pidGenerator->Update();
+    inputDO->ShallowCopy(pidGenerator->GetOutputDataObject(0));
+  }
+  if (this->GenerateGlobalIds)
+  {
+    vtkNew<vtkGenerateGlobalIds> gidGenerator;
+    gidGenerator->SetInputData(inputDO);
+    gidGenerator->Update();
+    inputDO->ShallowCopy(gidGenerator->GetOutputDataObject(0));
+  }
 
   std::vector<vtkDataObject*> inputPDSs, outputPDSs;
 
