@@ -43,6 +43,7 @@ public:
 
   void CompositeShallowCopy(vtkObject* src);
   void ShallowCopy(vtkObject* src);
+  void DeepCopy(vtkObject* src);
 
   bool Empty() const { return this->GetNumberOfBlocks() == 0; }
 

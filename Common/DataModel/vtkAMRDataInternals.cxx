@@ -112,6 +112,30 @@ void vtkAMRDataInternals::CompositeShallowCopy(vtkObject* src)
   this->Modified();
 }
 
+void vtkAMRDataInternals::DeepCopy(vtkObject* src)
+{
+  if (src == this)
+  {
+    return;
+  }
+
+  if (vtkAMRDataInternals* hbds = vtkAMRDataInternals::SafeDownCast(src))
+  {
+    this->Blocks = hbds->Blocks;
+    for (auto& item : this->Blocks)
+    {
+      if (item.Grid)
+      {
+        auto clone = item.Grid->NewInstance();
+        clone->DeepCopy(item.Grid);
+        item.Grid.TakeReference(clone);
+      }
+    }
+  }
+
+  this->Modified();
+}
+
 void vtkAMRDataInternals::ShallowCopy(vtkObject* src)
 {
   if (src == this)
