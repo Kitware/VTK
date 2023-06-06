@@ -171,8 +171,10 @@ bool vtkPlotPoints::Paint(vtkContext2D* painter)
     else
     {
       // draw all of the points
-      painter->DrawMarkers(this->MarkerStyle, false, points, this->Points->GetNumberOfPoints(),
-        colors, nColorComponents);
+      const std::uintptr_t cacheIdentifier = reinterpret_cast<std::uintptr_t>(this);
+      vtkUnsignedCharArray* colorsArray = this->ScalarVisibility ? this->Colors : nullptr;
+      painter->DrawMarkers(
+        this->MarkerStyle, false, this->Points->GetData(), colorsArray, cacheIdentifier);
     }
   }
 
