@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkZSpaceHardwarePicker_h
 #define vtkZSpaceHardwarePicker_h
 
-#include "vtkPropPicker.h"            // for inheritance
+#include "vtkPropPicker.h"
 #include "vtkRenderingZSpaceModule.h" // for export macro
 #include "vtkSmartPointer.h"          // for ivar
 

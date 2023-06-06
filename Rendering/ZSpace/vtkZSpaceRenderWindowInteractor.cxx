@@ -46,6 +46,12 @@ vtkZSpaceRenderWindowInteractor::vtkZSpaceRenderWindowInteractor()
 }
 
 //------------------------------------------------------------------------------
+void vtkZSpaceRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 void vtkZSpaceRenderWindowInteractor::ProcessEvents()
 {
   vtkZSpaceSDKManager* sdkManager = vtkZSpaceSDKManager::GetInstance();

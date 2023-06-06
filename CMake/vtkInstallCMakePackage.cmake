@@ -125,7 +125,6 @@ set(vtk_cmake_module_files
   Findutf8cpp.cmake
   FindCGNS.cmake
   FindzSpace.cmake
-  FindzSpaceCompat.cmake
 
   vtkCMakeBackports.cmake
   vtkDetectLibraryType.cmake

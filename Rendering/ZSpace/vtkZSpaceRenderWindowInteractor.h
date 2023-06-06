@@ -38,8 +38,8 @@ public:
    * Construct object so that light follows camera motion.
    */
   static vtkZSpaceRenderWindowInteractor* New();
-
   vtkTypeMacro(vtkZSpaceRenderWindowInteractor, vtkRenderWindowInteractor3D);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * These methods correspond to the Exit, User and Pick

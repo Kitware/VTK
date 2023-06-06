@@ -39,9 +39,9 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkZSpaceInteractorStyle_h
 #define vtkZSpaceInteractorStyle_h
 
-#include "vtkDataObject.h"            // for vtkDataObject enums
-#include "vtkEventData.h"             // for enums
-#include "vtkInteractorStyle3D.h"     // for inheritence
+#include "vtkDataObject.h" // for vtkDataObject enums
+#include "vtkEventData.h"  // for enums
+#include "vtkInteractorStyle3D.h"
 #include "vtkNew.h"                   // for ivar
 #include "vtkRenderingZSpaceModule.h" // for export macro
 

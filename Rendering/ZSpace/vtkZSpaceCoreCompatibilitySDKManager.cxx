@@ -56,6 +56,10 @@ vtkZSpaceCoreCompatibilitySDKManager::vtkZSpaceCoreCompatibilitySDKManager()
 //------------------------------------------------------------------------------
 vtkZSpaceCoreCompatibilitySDKManager::~vtkZSpaceCoreCompatibilitySDKManager()
 {
+  if (!this->Initialized)
+  {
+    return;
+  }
   ZCCompatError error;
 
   error = this->EntryPts.zccompatShutDown(this->ZSpaceContext);
@@ -125,6 +129,8 @@ void vtkZSpaceCoreCompatibilitySDKManager::InitializeZSpace()
     vtkErrorMacro("Unable to load the SDK functions entry points.");
     return;
   }
+
+  this->Initialized = true;
 
   ZCCompatError error;
 
@@ -231,6 +237,11 @@ void vtkZSpaceCoreCompatibilitySDKManager::InitializeZSpace()
 //------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::UpdateViewport()
 {
+  if (!this->Initialized)
+  {
+    return;
+  }
+
   if (!this->RenderWindow)
   {
     vtkErrorMacro("No render window has been set to the zSpace SDK manager !");
@@ -265,6 +276,11 @@ void vtkZSpaceCoreCompatibilitySDKManager::UpdateViewport()
 //------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::UpdateTrackers()
 {
+  if (!this->Initialized)
+  {
+    return;
+  }
+
   ZCCompatError error;
 
   // Update the zSpace SDK. This updates both tracking information
@@ -303,6 +319,11 @@ void vtkZSpaceCoreCompatibilitySDKManager::UpdateTrackers()
 //------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::UpdateViewAndProjectionMatrix()
 {
+  if (!this->Initialized)
+  {
+    return;
+  }
+
   ZCCompatError error;
 
   // Update the view matrix for each eye
@@ -346,6 +367,11 @@ void vtkZSpaceCoreCompatibilitySDKManager::UpdateViewAndProjectionMatrix()
 //------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::UpdateButtonState()
 {
+  if (!this->Initialized)
+  {
+    return;
+  }
+
   ZSBool isButtonPressed;
 
   for (int buttonId = vtkZSpaceSDKManager::MiddleButton;
@@ -366,6 +392,11 @@ void vtkZSpaceCoreCompatibilitySDKManager::UpdateButtonState()
 void vtkZSpaceCoreCompatibilitySDKManager::CalculateFrustumFit(
   const double bounds[6], double position[3], double viewUp[3])
 {
+  if (!this->Initialized)
+  {
+    return;
+  }
+
   ZCCompatError error;
 
   vtkBoundingBox bBox;
@@ -453,6 +484,11 @@ void vtkZSpaceCoreCompatibilitySDKManager::CalculateFrustumFit(
 //------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::BeginFrame()
 {
+  if (!this->Initialized)
+  {
+    return;
+  }
+
   ZCCompatError error = this->EntryPts.zccompatBeginFrame(this->ZSpaceContext);
   ZSPACE_CHECK_ERROR(zccompatBeginFrame, error);
 }
@@ -460,6 +496,11 @@ void vtkZSpaceCoreCompatibilitySDKManager::BeginFrame()
 //------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::EndFrame()
 {
+  if (!this->Initialized)
+  {
+    return;
+  }
+
   ZCCompatError error = this->EntryPts.zccompatEndFrame(this->ZSpaceContext);
   ZSPACE_CHECK_ERROR(zccompatEndFrame, error);
 }
@@ -467,6 +508,10 @@ void vtkZSpaceCoreCompatibilitySDKManager::EndFrame()
 //------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::SetRenderWindow(vtkRenderWindow* renderWindow)
 {
+  if (!this->Initialized)
+  {
+    return;
+  }
   // Give the application window handle to the zSpace Core Compatibilty API.
   HWND hWnd = static_cast<HWND>(renderWindow->GetGenericWindowId());
   ZCCompatError error =
