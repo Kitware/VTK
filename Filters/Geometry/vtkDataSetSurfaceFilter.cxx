@@ -58,26 +58,22 @@
 
 #include <algorithm>
 #include <cassert>
-#include <memory>
 #include <numeric>
 #include <unordered_map>
 
 namespace
 {
+constexpr int FSize = sizeof(vtkFastGeomQuad);
+constexpr int SizeId = sizeof(vtkIdType);
+constexpr int PointerSize = sizeof(void*);
+constexpr bool Is64BitsSystem = PointerSize == 8;
+constexpr bool IsId64Bits = SizeId == 8;
+constexpr bool EasyToComputeSize = !Is64BitsSystem || IsId64Bits;
+constexpr int FSizeDivSizeId = FSize / SizeId;
 inline int sizeofFastQuad(int numPts)
 {
-  const int qsize = sizeof(vtkFastGeomQuad);
-  const int sizeId = sizeof(vtkIdType);
-  // If necessary, we create padding after vtkFastGeomQuad such that
-  // the beginning of ids aligns evenly with sizeof(vtkIdType).
-  if (qsize % sizeId == 0)
-  {
-    return static_cast<int>(qsize + numPts * sizeId);
-  }
-  else
-  {
-    return static_cast<int>((qsize / sizeId + 1 + numPts) * sizeId);
-  }
+  return FSize +
+    (EasyToComputeSize ? numPts * SizeId : (numPts + (numPts & 1 /*fast %2*/)) * SizeId);
 }
 
 /**
@@ -2590,19 +2586,7 @@ vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad(int numPts)
   vtkFastGeomQuad* q = reinterpret_cast<vtkFastGeomQuad*>(
     this->FastGeomQuadArrays[this->NextArrayIndex] + this->NextQuadIndex);
   q->numPts = numPts;
-
-  const int qsize = sizeof(vtkFastGeomQuad);
-  const int sizeId = sizeof(vtkIdType);
-  // If necessary, we create padding after vtkFastGeomQuad such that
-  // the beginning of ids aligns evenly with sizeof(vtkIdType).
-  if (qsize % sizeId == 0)
-  {
-    q->ptArray = (vtkIdType*)q + qsize / sizeId;
-  }
-  else
-  {
-    q->ptArray = (vtkIdType*)q + qsize / sizeId + 1;
-  }
+  q->ptArray = (vtkIdType*)q + FSizeDivSizeId;
 
   this->NextQuadIndex += polySize;
 
