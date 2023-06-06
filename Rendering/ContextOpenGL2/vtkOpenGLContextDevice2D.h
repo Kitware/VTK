@@ -46,8 +46,10 @@ class vtkRenderer;
 class vtkShaderProgram;
 class vtkStringToImage;
 class vtkTransform;
+class vtkUnsignedCharArray;
 class vtkViewport;
 class vtkWindow;
+class vtkOpenGLContextDeviceBufferObjectBuilder;
 
 class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextDevice2D : public vtkContextDevice2D
 {
@@ -81,6 +83,8 @@ public:
    * which has nc_comps components
    */
   void DrawPoints(float* points, int n, unsigned char* colors = nullptr, int nc_comps = 0) override;
+  void DrawPoints(
+    vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier) override;
 
   /**
    * Draw a series of point sprites, images centred at the points supplied.
@@ -90,6 +94,8 @@ public:
    */
   void DrawPointSprites(vtkImageData* sprite, float* points, int n, unsigned char* colors = nullptr,
     int nc_comps = 0) override;
+  void DrawPointSprites(vtkImageData* sprite, vtkDataArray* positions, vtkUnsignedCharArray* colors,
+    std::uintptr_t cacheIdentifier) override;
 
   /**
    * Draw a series of markers centered at the points supplied. The \a shape
@@ -108,6 +114,8 @@ public:
    */
   void DrawMarkers(int shape, bool highlight, float* points, int n, unsigned char* colors = nullptr,
     int nc_comps = 0) override;
+  void DrawMarkers(int shape, bool highlight, vtkDataArray* positions, vtkUnsignedCharArray* colors,
+    std::uintptr_t cacheIdentifier) override;
 
   ///@{
   /**
@@ -458,6 +466,11 @@ protected:
    * Transform the width and height from pixels to data units.
    */
   void TransformSize(float& dx, float& dy) const;
+
+  /**
+   * Ask the buffer object builder to erase cache entry for given identifier.
+   */
+  void ReleaseCache(std::uintptr_t cacheIdentifier) override;
 
 private:
   vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D&) = delete;

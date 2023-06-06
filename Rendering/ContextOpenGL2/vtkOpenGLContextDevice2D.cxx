@@ -26,10 +26,12 @@
 #include "vtkMatrix3x3.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLContextDeviceBufferObjectBuilder.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLGL2PSHelper.h"
 #include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLRenderTimerLog.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
@@ -37,12 +39,17 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenGLVertexBufferObjectCache.h"
+#include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkPath.h"
 #include "vtkPen.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPoints2D.h"
 #include "vtkPolyData.h"
 #include "vtkRect.h"
+#include "vtkRenderTimerLog.h"
+#include "vtkSetGet.h"
 #include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
@@ -51,6 +58,7 @@
 #include "vtkTextureUnitManager.h"
 #include "vtkTransform.h"
 #include "vtkTransformFeedback.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
@@ -459,78 +467,26 @@ void vtkOpenGLContextDevice2D::SetMatrices(vtkShaderProgram* prog)
 void vtkOpenGLContextDevice2D::BuildVBO(
   vtkOpenGLHelper* cellBO, float* f, int nv, unsigned char* colors, int nc, float* tcoords)
 {
-  int stride = 2;
-  int cOffset = 0;
-  int tOffset = 0;
-  if (colors)
-  {
-    cOffset = stride;
-    stride++;
-  }
-  if (tcoords)
-  {
-    tOffset = stride;
-    stride += 2;
-  }
+  // build up temporary vtkDataArrays without copying the data.
+  vtkNew<vtkFloatArray> positionsArray;
+  vtkNew<vtkUnsignedCharArray> colorsArray;
+  vtkNew<vtkFloatArray> tcoordsArray;
 
-  std::vector<float> va;
-  va.resize(nv * stride);
-  vtkFourByteUnion c;
-  for (int i = 0; i < nv; i++)
-  {
-    va[i * stride] = f[i * 2];
-    va[i * stride + 1] = f[i * 2 + 1];
-    if (colors)
-    {
-      c.c[0] = colors[nc * i];
-      c.c[1] = colors[nc * i + 1];
-      c.c[2] = colors[nc * i + 2];
-      if (nc == 4)
-      {
-        c.c[3] = colors[nc * i + 3];
-      }
-      else
-      {
-        c.c[3] = 255;
-      }
-      va[i * stride + cOffset] = c.f;
-    }
-    if (tcoords)
-    {
-      va[i * stride + tOffset] = tcoords[i * 2];
-      va[i * stride + tOffset + 1] = tcoords[i * 2 + 1];
-    }
-  }
+  positionsArray->SetNumberOfComponents(2);
+  positionsArray->SetArray(f, nv * 2, 1); // do not take ownership of 'f'
 
-  // upload the data
-  cellBO->IBO->Upload(va, vtkOpenGLBufferObject::ArrayBuffer);
-  cellBO->VAO->ShaderProgramChanged();
-  cellBO->VAO->Bind();
-  if (!cellBO->VAO->AddAttributeArray(
-        cellBO->Program, cellBO->IBO, "vertexMC", 0, sizeof(float) * stride, VTK_FLOAT, 2, false))
-  {
-    vtkErrorMacro(<< "Error setting vertexMC in shader VAO.");
-  }
-  if (colors)
-  {
-    if (!cellBO->VAO->AddAttributeArray(cellBO->Program, cellBO->IBO, "vertexScalar",
-          sizeof(float) * cOffset, sizeof(float) * stride, VTK_UNSIGNED_CHAR, 4, true))
-    {
-      vtkErrorMacro(<< "Error setting vertexScalar in shader VAO.");
-    }
-  }
-  if (tcoords)
-  {
-    if (!cellBO->VAO->AddAttributeArray(cellBO->Program, cellBO->IBO, "tcoordMC",
-          sizeof(float) * tOffset, sizeof(float) * stride, VTK_FLOAT, 2, false))
-    {
-      vtkErrorMacro(<< "Error setting tcoordMC in shader VAO.");
-    }
-  }
+  colorsArray->SetNumberOfComponents(nc);
+  colorsArray->SetArray(colors, nv * nc, 1); // do not take ownership of 'colors'
 
-  cellBO->VAO->Bind();
+  tcoordsArray->SetNumberOfComponents(2);
+  tcoordsArray->SetArray(tcoords, nv * 2, 1); // do not take ownership of 'tcoords'
+
+  // use 'anonymous' cache identifier because of raw typed array pointers.
+  this->Storage->BufferObjectBuilder.BuildVBO(
+    cellBO, positionsArray, colorsArray, tcoordsArray, /*cacheIdentifier=*/0, this->RenderWindow);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::ReadyVBOProgram()
 {
   vtkOpenGLGL2PSHelper* gl2ps = PrepProgramForGL2PS(*this->VBO);
@@ -858,6 +814,12 @@ void vtkOpenGLContextDevice2D::DrawPoly(float* f, int n, unsigned char* colors, 
       colors ? newColors.data() : nullptr, nc, newDistances.data());
 
     PreDraw(*cbo, GL_TRIANGLES, newVerts.size() / 2);
+    auto timer = this->RenderWindow->GetRenderTimer();
+    VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+        << "::" << __func__ << "|glDrawArrays(cacheIdentifier: "
+        << "null,"
+        << "mode:GL_TRIANGLES,n:" << static_cast<GLsizei>(newVerts.size() / 2),
+      timer);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(newVerts.size() / 2));
     PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
   }
@@ -866,6 +828,12 @@ void vtkOpenGLContextDevice2D::DrawPoly(float* f, int n, unsigned char* colors, 
     this->SetLineWidth(this->Pen->GetWidth());
     this->BuildVBO(cbo, f, n, colors, nc, distances.data());
     PreDraw(*cbo, GL_LINE_STRIP, n);
+    auto timer = this->RenderWindow->GetRenderTimer();
+    VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+        << "::" << __func__ << "|glDrawArrays(cacheIdentifier: "
+        << "null,"
+        << "mode:GL_LINE_STRIP,n:" << n,
+      timer);
     glDrawArrays(GL_LINE_STRIP, 0, n);
     PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
     this->SetLineWidth(1.0);
@@ -995,6 +963,12 @@ void vtkOpenGLContextDevice2D::DrawLines(float* f, int n, unsigned char* colors,
     this->BuildVBO(cbo, newVerts.data(), static_cast<int>(newVerts.size() / 2),
       colors ? newColors.data() : nullptr, nc, newDistances.data());
     PreDraw(*cbo, GL_TRIANGLES, newVerts.size() / 2);
+    auto timer = this->RenderWindow->GetRenderTimer();
+    VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+        << "::" << __func__ << "|glDrawArrays(cacheIdentifier: "
+        << "null,"
+        << "mode:GL_TRIANGLES,n:" << static_cast<GLsizei>(newVerts.size() / 2),
+      timer);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(newVerts.size() / 2));
     PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
   }
@@ -1003,6 +977,12 @@ void vtkOpenGLContextDevice2D::DrawLines(float* f, int n, unsigned char* colors,
     this->SetLineWidth(this->Pen->GetWidth());
     this->BuildVBO(cbo, f, n, colors, nc, distances.data());
     PreDraw(*cbo, GL_LINES, n);
+    auto timer = this->RenderWindow->GetRenderTimer();
+    VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+        << "::" << __func__ << "|glDrawArrays(cacheIdentifier: "
+        << "null,"
+        << "mode:GL_LINES,n:" << n,
+      timer);
     glDrawArrays(GL_LINES, 0, n);
     PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
     this->SetLineWidth(1.0);
@@ -1014,13 +994,37 @@ void vtkOpenGLContextDevice2D::DrawLines(float* f, int n, unsigned char* colors,
 //------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPoints(float* f, int n, unsigned char* c, int nc)
 {
+  // build up temporary vtkDataArrays without copying the data.
+  vtkNew<vtkFloatArray> positionsArray;
+  vtkNew<vtkUnsignedCharArray> colorsArray;
+  vtkNew<vtkFloatArray> tcoordsArray;
+
+  positionsArray->SetNumberOfComponents(2);
+  positionsArray->SetArray(f, n * 2, 1); // do not take ownership of 'points'
+
+  if (c != nullptr)
+  {
+    colorsArray->SetNumberOfComponents(nc);
+    colorsArray->SetArray(c, n * nc, 1); // do not take ownership of 'colors'
+  }
+
+  // use 'anonymous' cache identifier because of raw typed array pointers.
+  this->DrawPoints(positionsArray, colorsArray, /*cacheIdentifier=*/0);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawPoints(
+  vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier)
+{
   if (SkipDraw())
   {
     return;
   }
 
   // Skip transparent elements.
-  if (!c && this->Pen->GetColorObject().GetAlpha() == 0)
+  bool noColors = (colors == nullptr);
+  noColors |= (colors && colors->GetNumberOfTuples() == 0);
+  if (noColors && this->Pen->GetColorObject().GetAlpha() == 0)
   {
     return;
   }
@@ -1028,7 +1032,7 @@ void vtkOpenGLContextDevice2D::DrawPoints(float* f, int n, unsigned char* c, int
   vtkOpenGLClearErrorMacro();
 
   vtkOpenGLHelper* cbo = nullptr;
-  if (c)
+  if (colors && colors->GetNumberOfTuples() > 0)
   {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
@@ -1050,11 +1054,17 @@ void vtkOpenGLContextDevice2D::DrawPoints(float* f, int n, unsigned char* c, int
 
   this->SetPointSize(this->Pen->GetWidth());
 
-  this->BuildVBO(cbo, f, n, c, nc, nullptr);
+  this->Storage->BufferObjectBuilder.BuildVBO(
+    cbo, positions, colors, nullptr, cacheIdentifier, this->RenderWindow);
   this->SetMatrices(cbo->Program);
 
-  PreDraw(*cbo, GL_POINTS, n);
-  glDrawArrays(GL_POINTS, 0, n);
+  PreDraw(*cbo, GL_POINTS, positions->GetNumberOfTuples());
+  auto timer = this->RenderWindow->GetRenderTimer();
+  VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+      << "::" << __func__ << "|glDrawArrays(cacheIdentifier: " << cacheIdentifier
+      << "mode:GL_POINTS,n:" << positions->GetNumberOfTuples(),
+    timer);
+  glDrawArrays(GL_POINTS, 0, positions->GetNumberOfTuples());
   PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
 
   vtkOpenGLCheckErrorMacro("failed after DrawPoints");
@@ -1064,6 +1074,28 @@ void vtkOpenGLContextDevice2D::DrawPoints(float* f, int n, unsigned char* c, int
 void vtkOpenGLContextDevice2D::DrawPointSprites(
   vtkImageData* sprite, float* points, int n, unsigned char* colors, int nc_comps)
 {
+  // build up temporary vtkDataArrays without copying the data.
+  vtkNew<vtkFloatArray> positionsArray;
+  vtkNew<vtkUnsignedCharArray> colorsArray;
+  vtkNew<vtkFloatArray> tcoordsArray;
+
+  positionsArray->SetNumberOfComponents(2);
+  positionsArray->SetArray(points, n * 2, 1); // do not take ownership of 'points'
+
+  if (colors != nullptr)
+  {
+    colorsArray->SetNumberOfComponents(nc_comps);
+    colorsArray->SetArray(colors, n * nc_comps, 1); // do not take ownership of 'colors'
+  }
+
+  // use 'anonymous' cache identifier because of raw typed array pointers.
+  this->DrawPointSprites(sprite, positionsArray, colorsArray, /*cacheIdentifier=*/0);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData* sprite, vtkDataArray* positions,
+  vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier)
+{
   //  // Draw these to the background -- we don't currently export them to GL2PS.
   //  if (SkipDraw())
   //    {
@@ -1071,12 +1103,12 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(
   //    }
 
   vtkOpenGLClearErrorMacro();
-  if (points && n > 0)
+  if (positions && positions->GetNumberOfTuples() > 0)
   {
     this->SetPointSize(this->Pen->GetWidth());
 
     vtkOpenGLHelper* cbo = nullptr;
-    if (colors)
+    if (colors && colors->GetNumberOfTuples() > 0)
     {
       this->ReadySCBOProgram();
       cbo = this->SCBO;
@@ -1096,7 +1128,8 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(
       cbo->Program->SetUniform4uc("vertexColor", this->Pen->GetColor());
     }
 
-    this->BuildVBO(cbo, points, n, colors, nc_comps, nullptr);
+    this->Storage->BufferObjectBuilder.BuildVBO(
+      cbo, positions, colors, nullptr, cacheIdentifier, this->RenderWindow);
     this->SetMatrices(cbo->Program);
 
     if (sprite)
@@ -1124,7 +1157,12 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(
     glPointParameteri(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
 #endif
 
-    glDrawArrays(GL_POINTS, 0, n);
+    auto timer = this->RenderWindow->GetRenderTimer();
+    VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+        << "::" << __func__ << "|glDrawArrays(cacheIdentifier: " << cacheIdentifier
+        << "mode:GL_POINTS,n:" << positions->GetNumberOfTuples(),
+      timer);
+    glDrawArrays(GL_POINTS, 0, positions->GetNumberOfTuples());
 
 #ifdef GL_POINT_SPRITE
     if (this->RenderWindow->IsPointSpriteBugPresent())
@@ -1150,14 +1188,44 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(
 void vtkOpenGLContextDevice2D::DrawMarkers(
   int shape, bool highlight, float* points, int n, unsigned char* colors, int nc_comps)
 {
+  // build up temporary vtkDataArrays without copying the data.
+  vtkNew<vtkFloatArray> positionsArray;
+  vtkNew<vtkUnsignedCharArray> colorsArray;
+  vtkNew<vtkFloatArray> tcoordsArray;
+
+  positionsArray->SetNumberOfComponents(2);
+  positionsArray->SetArray(points, n * 2, 1); // do not take ownership of 'points'
+
+  if (colors != nullptr)
+  {
+    colorsArray->SetNumberOfComponents(nc_comps);
+    colorsArray->SetArray(colors, n * nc_comps, 1); // do not take ownership of 'colors'
+  }
+
+  // use 'anonymous' cache identifier because of raw typed array pointers.
+  this->DrawMarkers(shape, highlight, positionsArray, colorsArray, /*cacheIdentifier=*/0);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawMarkers(int shape, bool highlight, vtkDataArray* positions,
+  vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier)
+{
   vtkOpenGLGL2PSHelper* gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   if (gl2ps)
   {
     switch (gl2ps->GetActiveState())
     {
       case vtkOpenGLGL2PSHelper::Capture:
-        this->DrawMarkersGL2PS(shape, highlight, points, n, colors, nc_comps);
+      {
+        // i don't think anyone does interactive rendering to a gl2ps context.
+        // grab raw pointers and draw.
+        float* f = vtkArrayDownCast<vtkFloatArray>(positions)->GetPointer(0);
+        int nv = positions->GetNumberOfTuples();
+        auto c = colors->GetPointer(0);
+        int nc_comps = colors->GetNumberOfComponents();
+        this->DrawMarkersGL2PS(shape, highlight, f, nv, c, nc_comps);
         return;
+      }
       case vtkOpenGLGL2PSHelper::Background:
         return; // Do nothing.
       case vtkOpenGLGL2PSHelper::Inactive:
@@ -1167,7 +1235,7 @@ void vtkOpenGLContextDevice2D::DrawMarkers(
 
   // Get a point sprite for the shape
   vtkImageData* sprite = this->GetMarker(shape, this->Pen->GetWidth(), highlight);
-  this->DrawPointSprites(sprite, points, n, colors, nc_comps);
+  this->DrawPointSprites(sprite, positions, colors, cacheIdentifier);
 }
 
 //------------------------------------------------------------------------------
@@ -1255,6 +1323,13 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(
   this->SetMatrices(cbo->Program);
 
   PreDraw(*cbo, GL_TRIANGLES, tverts.size() / 2);
+
+  auto timer = this->RenderWindow->GetRenderTimer();
+  VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+      << "::" << __func__ << "|glDrawArrays(cacheIdentifier: "
+      << "null,"
+      << "mode:GL_TRIANGLES,n:" << static_cast<GLsizei>(tverts.size() / 2),
+    timer);
   glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size() / 2));
   PostDraw(*cbo, this->Renderer, this->Brush->GetColor());
 
@@ -2902,5 +2977,11 @@ void vtkOpenGLContextDevice2D::TransformSize(float& dx, float& dy) const
 
   dx /= modelview[0];
   dy /= modelview[5];
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::ReleaseCache(std::uintptr_t cacheIdentifier)
+{
+  this->Storage->BufferObjectBuilder.Erase(cacheIdentifier, this->RenderWindow);
 }
 VTK_ABI_NAMESPACE_END

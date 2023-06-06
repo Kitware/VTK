@@ -139,6 +139,8 @@ public:
     {
       (*it)->SetParent(nullptr);
       (*it)->SetScene(nullptr);
+      // releases cache from 2D, 3D devices
+      (*it)->ReleaseGraphicsResources();
       (*it)->Delete();
     }
     this->clear();

@@ -36,6 +36,8 @@ class vtkOpenGLContextDevice2D;
 class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
 class vtkPen;
+class vtkUnsignedCharArray;
+class vtkFloatArray;
 class vtkRenderer;
 class vtkShaderProgram;
 class vtkTransform;
@@ -63,11 +65,15 @@ public:
    * Draw points at the vertex positions specified.
    */
   void DrawPoints(const float* verts, int n, const unsigned char* colors, int nc) override;
+  void DrawPoints(
+    vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier) override;
 
   /**
    * Draw triangles to generate the specified mesh.
    */
   void DrawTriangleMesh(const float* mesh, int n, const unsigned char* colors, int nc) override;
+  void DrawTriangleMesh(
+    vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier) override;
 
   /**
    * Apply the supplied pen which controls the outlines of shapes, as well as
@@ -140,6 +146,11 @@ public:
    * Begin drawing, pass in the viewport to set up the view.
    */
   virtual void Begin(vtkViewport* viewport);
+
+  /**
+   * Ask the buffer object builder to erase cache entry for given identifier.
+   */
+  void ReleaseCache(std::uintptr_t cacheIdentifier) override;
 
 protected:
   vtkOpenGLContextDevice3D();
