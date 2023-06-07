@@ -1,6 +1,7 @@
 set(classes
   vtkCGNSFileSeriesReader
-  vtkCGNSReader)
+  vtkCGNSReader
+  vtkCONVERGECFDCGNSReader)
 
 set(private_classes
   cgio_helpers
