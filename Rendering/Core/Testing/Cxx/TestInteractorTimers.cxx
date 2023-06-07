@@ -21,6 +21,22 @@
 #include "vtkRendererCollection.h"
 #include "vtkTesting.h"
 
+namespace
+{
+constexpr int REALLY_FAST_TIME = 3;
+constexpr int FAST_TIME = 25;
+constexpr int RENDER_TIME = 100;
+constexpr int SLOW_TIME = 1500;
+constexpr int END_TIME = 4000;
+
+bool CheckCount(int fullTime, int shortTime, int count)
+{
+  int expected = fullTime / shortTime;
+  int tolerance = expected / 5; // 20% tolerance
+  return (count < expected - tolerance || count > expected + tolerance) ? false : true;
+}
+}
+
 class vtkTimerCallback : public vtkCommand
 {
 public:
@@ -33,6 +49,8 @@ public:
     cb->FastTimerCount = 0;
     cb->RenderTimerId = 0;
     cb->RenderTimerCount = 0;
+    cb->SlowTimerId = 0;
+    cb->SlowTimerCount = 0;
     cb->OneShotTimerId = 0;
     cb->QuitOnOneShotTimer = 1;
     return cb;
@@ -75,6 +93,10 @@ public:
 
           iren->Render();
         }
+      }
+      else if (tid == this->SlowTimerId)
+      {
+        ++this->SlowTimerCount;
       }
       else if (tid == this->OneShotTimerId)
       {
@@ -121,6 +143,12 @@ public:
     this->RenderTimerCount = 0;
   }
 
+  void SetSlowTimerId(int tid)
+  {
+    this->SlowTimerId = tid;
+    this->SlowTimerCount = 0;
+  }
+
   void SetOneShotTimerId(int tid) { this->OneShotTimerId = tid; }
 
   void SetQuitOnOneShotTimer(int quit) { this->QuitOnOneShotTimer = quit; }
@@ -134,8 +162,40 @@ public:
     cout << "  FastTimerCount: " << this->FastTimerCount << endl;
     cout << "  RenderTimerId: " << this->RenderTimerId << endl;
     cout << "  RenderTimerCount: " << this->RenderTimerCount << endl;
+    cout << "  SlowTimerId: " << this->RenderTimerId << endl;
+    cout << "  SlowTimerCount: " << this->SlowTimerCount << endl;
     cout << "  OneShotTimerId: " << this->OneShotTimerId << endl;
     cout << "  QuitOnOneShotTimer: " << this->QuitOnOneShotTimer << endl;
+  }
+
+  bool CheckTimerCount()
+  {
+    // Really fast timer can't be tested reliably as it may heavilly impacted by
+    // the CPU charge on some systems.
+    if (!::CheckCount(::END_TIME, ::REALLY_FAST_TIME, this->ReallyFastTimerCount))
+    {
+      std::cout << "Unexpected really fast timer count: " << this->ReallyFastTimerCount
+                << std::endl;
+      std::cout << "This does not count as an error" << std::endl;
+    }
+
+    bool ret = true;
+    if (!::CheckCount(::END_TIME, ::FAST_TIME, this->FastTimerCount))
+    {
+      std::cerr << "Unexpected fast timer count:" << this->FastTimerCount << std::endl;
+      ret = false;
+    }
+    if (!::CheckCount(::END_TIME, ::RENDER_TIME, this->RenderTimerCount))
+    {
+      std::cerr << "Unexpected render timer count:" << this->RenderTimerCount << std::endl;
+      ret = false;
+    }
+    if (!::CheckCount(::END_TIME, ::SLOW_TIME, this->SlowTimerCount))
+    {
+      std::cerr << "Unexpected slow timer count:" << this->SlowTimerCount << std::endl;
+      ret = false;
+    }
+    return ret;
   }
 
 private:
@@ -145,6 +205,8 @@ private:
   int FastTimerCount;
   int RenderTimerId;
   int RenderTimerCount;
+  int SlowTimerId;
+  int SlowTimerCount;
   int OneShotTimerId;
   int QuitOnOneShotTimer;
 };
@@ -178,21 +240,27 @@ int TestInteractorTimers(int argc, char* argv[])
   // Create two relatively fast repeating timers:
   //
   int tid;
-  tid = iren->CreateRepeatingTimer(3);
+  tid = iren->CreateRepeatingTimer(::REALLY_FAST_TIME);
   cb->SetReallyFastTimerId(tid);
 
-  tid = iren->CreateRepeatingTimer(25);
+  tid = iren->CreateRepeatingTimer(::FAST_TIME);
   cb->SetFastTimerId(tid);
 
   // Create a slower repeating timer to trigger Render calls.
   // (This fires at the rate of approximately 10 frames per second.)
   //
-  tid = iren->CreateRepeatingTimer(100);
+  tid = iren->CreateRepeatingTimer(::RENDER_TIME);
   cb->SetRenderTimerId(tid);
+
+  // Create a very slow repeating timer.
+  // (This fires at the rate of approximately once every 1.5s.)
+  //
+  tid = iren->CreateRepeatingTimer(::SLOW_TIME);
+  cb->SetSlowTimerId(tid);
 
   // And create a one shot timer to quit after 4 seconds.
   //
-  tid = iren->CreateOneShotTimer(4000);
+  tid = iren->CreateOneShotTimer(::END_TIME);
   cb->SetOneShotTimerId(tid);
   cb->SetQuitOnOneShotTimer(!testing->IsInteractiveModeSpecified());
 
@@ -200,6 +268,8 @@ int TestInteractorTimers(int argc, char* argv[])
   //
   cout << "Calling iren->Start()..." << endl;
   iren->Start();
+
+  bool ret = cb->CheckTimerCount();
 
   // Clean up:
   //
@@ -209,5 +279,5 @@ int TestInteractorTimers(int argc, char* argv[])
   iren->Delete();
   testing->Delete();
 
-  return 0;
+  return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -163,13 +163,14 @@ endif ()
 if (("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "ext_vtk") OR
     ("$ENV{CMAKE_CONFIGURATION}" MATCHES "linux" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa"))
   # These tests fail when using an external VTK because the condition
-  # vtk_can_do_onscreen AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN should be false
+  # VTK_USE_X, vtk_can_do_onscreen AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN should be false
   # in Interaction/Style/Testing/Python/CMakeLists.txt
   list(APPEND test_exclusions
     "^VTK::InteractionStylePython-TestStyleJoystickActor$"
     "^VTK::InteractionStylePython-TestStyleJoystickCamera$"
     "^VTK::InteractionStylePython-TestStyleRubberBandZoomPerspective$"
-    "^VTK::InteractionStylePython-TestStyleTrackballCamera$")
+    "^VTK::InteractionStylePython-TestStyleTrackballCamera$"
+    "^VTK::RenderingCoreCxx-TestInteractorTimers$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")

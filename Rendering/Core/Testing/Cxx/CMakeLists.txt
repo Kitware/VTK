@@ -2,6 +2,9 @@ set(extra_opengl2_tests)
 if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   list(APPEND extra_opengl2_tests TestOffscreenIsOffscreen.cxx,NO_DATA,NO_VALID)
 endif()
+if (VTK_USE_X)
+  list(APPEND extra_opengl2_tests TestInteractorTimers.cxx,NO_VALID)
+endif()
 
 vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   ${extra_opengl2_tests}
@@ -66,7 +69,6 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestHomogeneousTransformOfActor.cxx
   TestImageAndAnnotations.cxx,NO_DATA
   TestInteractorStyleImageProperty.cxx,NO_VALID
-  TestInteractorTimers.cxx,NO_VALID
   TestLabeledContourMapper.cxx
   TestLabeledContourMapperNoLabels.cxx
   TestLabeledContourMapperWithActorMatrix.cxx
@@ -120,5 +122,10 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
 set_source_files_properties(
   TestEdgeFlags.cxx # fails on OpenGL Mesa
   PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+
+if (VTK_USE_X)
+  set_tests_properties(VTK::RenderingCoreCxx-TestInteractorTimers
+     PROPERTIES RUN_SERIAL ON)
+endif ()  
 
 vtk_test_cxx_executable(vtkRenderingCoreCxxTests tests)

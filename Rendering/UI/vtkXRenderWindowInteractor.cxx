@@ -137,8 +137,12 @@ public:
             }
             else
             {
-              timer.second.lastFire.tv_sec = ctv.tv_sec;
-              timer.second.lastFire.tv_usec = ctv.tv_usec;
+              auto it = this->LocalToTimer.find(timer.first);
+              if (it != this->LocalToTimer.end())
+              {
+                it->second.lastFire.tv_sec = ctv.tv_sec;
+                it->second.lastFire.tv_usec = ctv.tv_usec;
+              }
             }
           }
         }
