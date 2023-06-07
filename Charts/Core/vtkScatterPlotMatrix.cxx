@@ -106,6 +106,15 @@ public:
     std::string title;
   };
 
+  enum class AnimationPhaseEnum
+  {
+    Ready,
+    Start,
+    Rotate,
+    Stop,
+    Finalize
+  };
+
   class pimplChartSetting
   {
   public:
@@ -205,7 +214,7 @@ public:
   bool AnimationCallbackInitialized;
   unsigned long int TimerId;
   bool TimerCallbackInitialized;
-  int AnimationPhase;
+  AnimationPhaseEnum AnimationPhase;
   float CurrentAngle;
   float IncAngle;
   float FinalAngle;
@@ -634,7 +643,7 @@ void vtkScatterPlotMatrix::StartAnimation(vtkRenderWindowInteractor* interactor)
     // This defines the interval at which the animation will proceed. 25Hz?
     this->Private->TimerId = interactor->CreateRepeatingTimer(1000 / 50);
     this->Private->AnimationIter = this->Private->AnimationPath.begin();
-    this->Private->AnimationPhase = 0;
+    this->Private->AnimationPhase = PIMPL::AnimationPhaseEnum::Ready;
   }
 }
 
@@ -653,7 +662,8 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
   this->InvokeEvent(vtkCommand::AnimationCueTickEvent);
   switch (this->Private->AnimationPhase)
   {
-    case 0: // Remove decoration from the big chart, load up the 3D chart
+    case PIMPL::AnimationPhaseEnum::Ready: // Remove decoration from the big chart, load up the 3D
+                                           // chart
     {
       this->Private->NextActivePlot = *this->Private->AnimationIter;
       vtkChartXYZ* chart = this->Private->BigChart3D;
@@ -710,19 +720,19 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       }
       chart->RecalculateTransform();
       this->GetScene()->SetDirty(true);
-      ++this->Private->AnimationPhase;
+      this->Private->AnimationPhase = PIMPL::AnimationPhaseEnum::Start;
       return;
     }
-    case 1: // Make BigChart invisible, and BigChart3D visible.
+    case PIMPL::AnimationPhaseEnum::Start: // Make BigChart invisible, and BigChart3D visible.
       this->Private->BigChart->SetVisible(false);
       this->AddItem(this->Private->BigChart3D);
       this->Private->CurrentAngle = 0.0;
       this->Private->BigChart3D->SetAngle(0.0);
       this->Private->BigChart3D->SetVisible(true);
       this->GetScene()->SetDirty(true);
-      ++this->Private->AnimationPhase;
+      this->Private->AnimationPhase = PIMPL::AnimationPhaseEnum::Rotate;
       return;
-    case 2: // Rotation of the 3D chart from start to end angle.
+    case PIMPL::AnimationPhaseEnum::Rotate: // Rotation of the 3D chart from start to end angle.
       if (fabs(this->Private->CurrentAngle) < (this->Private->FinalAngle - 0.001))
       {
         this->Private->CurrentAngle += this->Private->IncAngle;
@@ -730,21 +740,21 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       }
       else
       {
-        ++this->Private->AnimationPhase;
+        this->Private->AnimationPhase = PIMPL::AnimationPhaseEnum::Stop;
       }
       this->GetScene()->SetDirty(true);
       return;
-    case 3: // Transition to new dimensionality, update the big chart.
+    case PIMPL::AnimationPhaseEnum::Stop: // Transition to new dimensionality, update the big chart.
       this->SetActivePlot(this->Private->NextActivePlot);
       this->Private->BigChart->Update();
       this->GetScene()->SetDirty(true);
-      ++this->Private->AnimationPhase;
+      this->Private->AnimationPhase = PIMPL::AnimationPhaseEnum::Finalize;
       break;
-    case 4:
+    case PIMPL::AnimationPhaseEnum::Finalize:
       this->GetScene()->SetDirty(true);
       ++this->Private->AnimationIter;
       // Clean up - we are done.
-      this->Private->AnimationPhase = 0;
+      this->Private->AnimationPhase = PIMPL::AnimationPhaseEnum::Ready;
       if (this->Private->AnimationIter == this->Private->AnimationPath.end())
       {
         this->Private->BigChart->SetVisible(true);
