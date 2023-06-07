@@ -69,13 +69,13 @@ bool vtkPlotPoints3D::Paint(vtkContext2D* painter)
   }
 
   this->Update();
-  const std::uintptr_t cacheIdentifier = reinterpret_cast<std::uintptr_t>(this);
 
   if (numPoints > 0)
   {
 
     // Draw the points in 3d.
     context->ApplyPen(this->Pen);
+    const std::uintptr_t cacheIdentifier = reinterpret_cast<std::uintptr_t>(this);
     if (this->NumberOfComponents == 0)
     {
       context->DrawPoints(this->Points->GetData(), nullptr, cacheIdentifier);
@@ -98,6 +98,8 @@ bool vtkPlotPoints3D::Paint(vtkContext2D* painter)
       this->SelectedPointsBuildTime.Modified();
     }
 
+    const std::uintptr_t cacheIdentifier =
+      reinterpret_cast<std::uintptr_t>(this->SelectedPoints.Get());
     // Now to render the selected points.
     if (this->SelectedPoints->GetNumberOfPoints() > 0)
     {

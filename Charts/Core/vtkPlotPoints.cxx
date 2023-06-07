@@ -191,17 +191,15 @@ bool vtkPlotPoints::Paint(vtkContext2D* painter)
     painter->GetPen()->SetOpacity(this->SelectionPen->GetOpacity());
     painter->GetPen()->SetWidth(width + 2.7);
 
+    const std::uintptr_t cacheIdentifier =
+      reinterpret_cast<std::uintptr_t>(this->SelectedPoints.Get());
     if (this->MarkerStyle == VTK_MARKER_NONE)
     {
-      painter->DrawMarkers(VTK_MARKER_PLUS, false,
-        static_cast<float*>(this->SelectedPoints->GetVoidPointer(0)),
-        this->SelectedPoints->GetNumberOfTuples());
+      painter->DrawMarkers(VTK_MARKER_PLUS, false, this->SelectedPoints, nullptr, cacheIdentifier);
     }
     else
     {
-      painter->DrawMarkers(this->MarkerStyle, true,
-        static_cast<float*>(this->SelectedPoints->GetVoidPointer(0)),
-        this->SelectedPoints->GetNumberOfTuples());
+      painter->DrawMarkers(this->MarkerStyle, true, this->SelectedPoints, nullptr, cacheIdentifier);
     }
   }
 
