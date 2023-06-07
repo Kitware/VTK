@@ -152,10 +152,10 @@ public:
     double timeRange[2], vtkDoubleArray* timeSteps);
 
   /**
-   * Import the actors, camera, lights and properties at a specific timestep.
+   * Import the actors, camera, lights and properties at a specific time value.
    * If not reimplemented, only call Update().
    */
-  virtual void UpdateTimeStep(double timeStep);
+  virtual void UpdateTimeStep(double timeValue);
 
 protected:
   vtkImporter();
