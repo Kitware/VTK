@@ -207,6 +207,12 @@ endif ()
 option(VTK_ENABLE_CATALYST "Build IOCatalystConduit module and VTK catalyst implementation." OFF)
 mark_as_advanced(VTK_ENABLE_CATALYST)
 
+#-----------------------------------------------------------------------------
+# Add an option to enable/disable SPDX generation
+# Remove the "Experimental" once https://gitlab.kitware.com/vtk/vtk/-/issues/18999 is adressed
+option(VTK_GENERATE_SPDX "Generate SPDX file for each module (Experimental)." OFF)
+mark_as_advanced(VTK_GENERATE_SPDX)
+
 include(vtkEncodeString)
 
 # Set up our directory structure for output libraries and binaries
@@ -497,7 +503,10 @@ vtk_module_build(
   UTILITY_TARGET      "VTK::vtkbuild"
   TARGET_SPECIFIC_COMPONENTS  "${VTK_TARGET_SPECIFIC_COMPONENTS}"
   TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
-  TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing")
+  TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing"
+  GENERATE_SPDX           ${VTK_GENERATE_SPDX}
+  SPDX_DOCUMENT_NAMESPACE "https://vtk.org/spdx"
+  SPDX_DOWNLOAD_LOCATION  "https://gitlab.kitware.com/vtk/vtk/-/tree/master")
 
 include(vtkModuleJson)
 vtk_module_json(
