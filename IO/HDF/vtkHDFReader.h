@@ -45,12 +45,13 @@ class vtkUnstructuredGrid;
  * @brief  Read VTK HDF files.
  *
  * Reads data saved using the VTK HDF format which supports all
- * vtkDataSet types (image data and unstructured grid are currently
- * implemented) and serial as well as parallel processing.
+ * vtkDataSet types (image data, poly data, unstructured grid and
+ * overlapping AMR are currently implemented) and serial as well
+ * as parallel processing.
  *
  * Can also read transient data with directions and offsets present
- * in a supplemental 'VTKHDF/Steps' group for vtkUnstructuredGrid and
- * vtkImageData.
+ * in a supplemental 'VTKHDF/Steps' group for vtkUnstructuredGrid
+ * vtkPolyData, and vtkImageData.
  *
  */
 class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataObjectAlgorithm
