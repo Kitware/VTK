@@ -110,4 +110,24 @@ bool vtkPlotPoints3D::Paint(vtkContext2D* painter)
 
   return true;
 }
+
+//------------------------------------------------------------------------------
+void vtkPlotPoints3D::ReleaseGraphicsCache()
+{
+  // Superclass clears cache related to cacheIdentifier=static_cast<uintptr_t>(this)
+  // but not SelectedPoints.
+  this->Superclass::ReleaseGraphicsCache();
+  // Removes cache related to SelectedPoints.
+  if (auto lastPainter = this->Scene->GetLastPainter())
+  {
+    if (auto ctx3D = lastPainter->GetContext3D())
+    {
+      if (auto device3D = ctx3D->GetDevice())
+      {
+        device3D->ReleaseCache(reinterpret_cast<std::uintptr_t>(this->SelectedPoints.Get()));
+      }
+    }
+  }
+}
+
 VTK_ABI_NAMESPACE_END

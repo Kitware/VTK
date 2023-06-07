@@ -19,7 +19,9 @@
 #include "vtkBrush.h"
 #include "vtkCharArray.h"
 #include "vtkContext2D.h"
+#include "vtkContextDevice2D.h"
 #include "vtkContextMapper2D.h"
+#include "vtkContextScene.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
@@ -683,6 +685,22 @@ bool vtkPlotPoints::UpdateCache()
   this->BuildTime.Modified();
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotPoints::ReleaseGraphicsCache()
+{
+  // Superclass clears cache related to cacheIdentifier=static_cast<uintptr_t>(this)
+  // but not SelectedPoints.
+  this->Superclass::ReleaseGraphicsCache();
+  // Removes cache related to SelectedPoints.
+  if (auto lastPainter = this->Scene->GetLastPainter())
+  {
+    if (auto device2d = lastPainter->GetDevice())
+    {
+      device2d->ReleaseCache(reinterpret_cast<std::uintptr_t>(this->SelectedPoints.Get()));
+    }
+  }
 }
 
 //------------------------------------------------------------------------------

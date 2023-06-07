@@ -266,6 +266,12 @@ void vtkAbstractContextItem::ReleaseGraphicsResources()
   {
     return;
   }
+  this->ReleaseGraphicsCache();
+}
+
+//------------------------------------------------------------------------------
+void vtkAbstractContextItem::ReleaseGraphicsCache()
+{
   // Remove our cache from 2D and 3D devices.
   if (auto lastPainter = this->Scene->GetLastPainter())
   {

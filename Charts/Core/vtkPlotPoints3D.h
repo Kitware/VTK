@@ -51,6 +51,8 @@ protected:
   vtkPlotPoints3D();
   ~vtkPlotPoints3D() override;
 
+  void ReleaseGraphicsCache() override;
+
   /**
    * The selected points.
    */
