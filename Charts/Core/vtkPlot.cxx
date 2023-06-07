@@ -15,11 +15,14 @@
 
 #include "vtkPlot.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkContextMapper2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextTransform.h"
+#include "vtkDataArrayMeta.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -717,5 +720,44 @@ bool vtkPlot::Hit(const vtkContextMouseEvent& mouse)
   vtkVector2f loc;
   vtkIdType segmentId;
   return this->GetNearestPoint(mouse.GetPos(), tol, &loc, &segmentId) >= 0;
+}
+
+namespace
+{
+struct FilterSelectedPoints
+{
+  template <typename ArrayType1, typename ArrayType2>
+  void operator()(ArrayType1* points, ArrayType2* selectedPoints, vtkIdTypeArray* selectedIds)
+  {
+    auto pointsRange = vtk::DataArrayTupleRange(points);
+    auto selectedPointsRange = vtk::DataArrayTupleRange(selectedPoints);
+    const vtkIdType nSelected = selectedIds->GetNumberOfTuples();
+    const vtkIdType* ids = selectedIds->GetPointer(0);
+    assert(pointsRange.GetTupleSize() > 1);
+    assert(selectedPointsRange.GetTupleSize() > 1);
+    for (vtkIdType i = 0; i < nSelected; ++i)
+    {
+      const vtkIdType& id = ids[i];
+      std::copy(pointsRange[id].cbegin(), pointsRange[id].cend(), selectedPointsRange[i].begin());
+    }
+  }
+};
+}
+
+//------------------------------------------------------------------------------
+void vtkPlot::FilterSelectedPoints(
+  vtkDataArray* points, vtkDataArray* selectedPoints, vtkIdTypeArray* selectedIds)
+{
+  // resize selectedPoints
+  selectedPoints->SetNumberOfComponents(points->GetNumberOfComponents());
+  selectedPoints->SetNumberOfTuples(selectedIds->GetNumberOfTuples());
+  // filter using selectedIds
+  using DispatchT = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
+  ::FilterSelectedPoints worker;
+  if (!DispatchT::Execute(points, selectedPoints, worker, selectedIds))
+  {
+    worker(points, selectedPoints, selectedIds);
+  }
+  selectedPoints->Modified();
 }
 VTK_ABI_NAMESPACE_END

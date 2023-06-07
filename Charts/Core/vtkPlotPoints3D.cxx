@@ -14,17 +14,16 @@
 =========================================================================*/
 
 #include "vtkPlotPoints3D.h"
-#include "vtkArrayDispatch.h"
-#include "vtkArrayDispatch.txx"
 #include "vtkChartXYZ.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
-#include "vtkDataArrayMeta.h"
-#include "vtkDataArrayRange.h"
+#include "vtkContextDevice3D.h"
+#include "vtkContextScene.h"
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPlot.h"
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -50,29 +49,6 @@ vtkPlotPoints3D::~vtkPlotPoints3D() = default;
 void vtkPlotPoints3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-namespace
-{
-struct FilterSelectedPoints
-{
-  template <typename ArrayType1, typename ArrayType2>
-  void operator()(ArrayType1* points, ArrayType2* selectedPoints, vtkIdTypeArray* selectedIds)
-  {
-    using ValueT = vtk::GetAPIType<ArrayType1>;
-    auto pointsRange = vtk::DataArrayTupleRange(points);
-    auto selectedPointsRange = vtk::DataArrayTupleRange(selectedPoints);
-    const vtkIdType nSelected = selectedIds->GetNumberOfTuples();
-    const vtkIdType* ids = selectedIds->GetPointer(0);
-    assert(pointsRange.GetTupleSize() == 3);
-    assert(selectedPointsRange.GetTupleSize() == 3);
-    for (vtkIdType i = 0; i < nSelected; ++i)
-    {
-      const vtkIdType& id = ids[i];
-      std::copy(pointsRange[id].cbegin(), pointsRange[id].cend(), selectedPointsRange[i].begin());
-    }
-  }
-};
 }
 
 //------------------------------------------------------------------------------
@@ -113,18 +89,12 @@ bool vtkPlotPoints3D::Paint(vtkContext2D* painter)
   // Now add some decorations for our selected points...
   if (this->Selection && this->Selection->GetNumberOfTuples())
   {
-    if (this->Selection->GetMTime() > this->SelectedPointsBuildTime ||
-      this->GetMTime() > this->SelectedPointsBuildTime)
+    if (this->Selection->GetMTime() > this->SelectedPointsBuildTime)
     {
       const vtkIdType nSelected = this->Selection->GetNumberOfTuples();
       this->SelectedPoints->SetNumberOfPoints(nSelected);
-      using DispatchT = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
-      ::FilterSelectedPoints worker;
-      if (!DispatchT::Execute(this->Points->GetData(), this->SelectedPoints->GetData(), worker,
-            this->Selection.Get()))
-      {
-        worker(this->Points->GetData(), this->SelectedPoints->GetData(), this->Selection.Get());
-      }
+      vtkPlot::FilterSelectedPoints(
+        this->Points->GetData(), this->SelectedPoints->GetData(), this->Selection);
       this->SelectedPointsBuildTime.Modified();
     }
 

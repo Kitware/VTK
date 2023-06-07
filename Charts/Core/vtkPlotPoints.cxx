@@ -182,18 +182,9 @@ bool vtkPlotPoints::Paint(vtkContext2D* painter)
   if (this->Selection && this->Selection->GetNumberOfTuples())
   {
     if (this->Selection->GetMTime() > this->SelectedPoints->GetMTime() ||
-      this->GetMTime() > this->SelectedPoints->GetMTime())
+      (this->SelectedPoints->GetNumberOfTuples() == 0))
     {
-      float* f = vtkArrayDownCast<vtkFloatArray>(this->Points->GetData())->GetPointer(0);
-      int nSelected(static_cast<int>(this->Selection->GetNumberOfTuples()));
-      this->SelectedPoints->SetNumberOfComponents(2);
-      this->SelectedPoints->SetNumberOfTuples(nSelected);
-      float* selectedPtr = static_cast<float*>(this->SelectedPoints->GetVoidPointer(0));
-      for (int i = 0; i < nSelected; ++i)
-      {
-        *(selectedPtr++) = f[2 * this->Selection->GetValue(i)];
-        *(selectedPtr++) = f[2 * this->Selection->GetValue(i) + 1];
-      }
+      vtkPlot::FilterSelectedPoints(this->Points->GetData(), this->SelectedPoints, this->Selection);
     }
     vtkDebugMacro(<< "Selection set " << this->Selection->GetNumberOfTuples());
     painter->GetPen()->SetColor(this->SelectionPen->GetColor());
