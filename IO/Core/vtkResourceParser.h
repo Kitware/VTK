@@ -104,7 +104,7 @@ private:
   /**
    * @brief Class for parser context, serves as a bridge between public API and real implementation
    */
-  class vtkParserContext
+  class VTKIOCORE_EXPORT vtkParserContext
   {
   public:
     vtkParserContext();
