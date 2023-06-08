@@ -244,6 +244,7 @@ std::string vtkLogger::GetThreadName()
 
 namespace
 {
+#if VTK_MODULE_ENABLE_VTK_loguru
 struct CallbackBridgeData
 {
   vtkLogger::LogHandlerCallbackT handler;
@@ -291,6 +292,7 @@ void loguru_callback_bridge_flush(void* user_data)
     data->flush(data->inner_data);
   }
 }
+#endif
 }
 
 //------------------------------------------------------------------------------
