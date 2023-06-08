@@ -80,7 +80,7 @@ int TestScatterPlotMatrix(int argc, char* argv[])
   {
     if (std::string(argv[i]) == "-timeit")
     {
-      numPoints = 1000000; // 1 million
+      numPoints = 10000000; // 10 million
       vtkNew<vtkCallbackCommand> renderCompleteCB;
       renderCompleteCB->SetCallback(RenderComplete);
       view->GetRenderWindow()->GetRenderTimer()->LoggingEnabledOn();

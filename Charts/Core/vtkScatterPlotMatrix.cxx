@@ -23,6 +23,7 @@
 #include "vtkChartXYZ.h"
 #include "vtkCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextActor.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkDataSetAttributes.h"
@@ -36,7 +37,9 @@
 #include "vtkPlotPoints.h"
 #include "vtkPlotPoints3D.h"
 #include "vtkPoints2D.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -79,6 +82,10 @@ public:
     this->SelectedChartBGBrush->SetColor(0, 204, 0, 102);
     this->SelectedRowColumnBGBrush->SetColor(204, 0, 0, 102);
     this->TooltipItem = vtkSmartPointer<vtkTooltipItem>::New();
+
+    this->BigChart3DRenderer->AddActor(this->BigChart3DActor);
+    this->BigChart3DRenderer->SetBackground(1.0, 1.0, 1.0);
+    this->BigChart3DActor->GetScene()->SetRenderer(this->BigChart3DRenderer);
   }
 
   ~PIMPL()
@@ -221,6 +228,8 @@ public:
   vtkVector2i NextActivePlot;
 
   vtkNew<vtkChartXYZ> BigChart3D;
+  vtkNew<vtkContextActor> BigChart3DActor;
+  vtkNew<vtkRenderer> BigChart3DRenderer;
   vtkNew<vtkAxis> TestAxis; // Used to get ranges/number of ticks
   vtkSmartPointer<vtkTooltipItem> TooltipItem;
   vtkSmartPointer<vtkStringArray> IndexedLabelsArray;
@@ -407,6 +416,11 @@ void vtkScatterPlotMatrix::Update()
 
 bool vtkScatterPlotMatrix::Paint(vtkContext2D* painter)
 {
+  // Do not paint ourselves in the rotation phase.
+  if (this->Private->AnimationPhase == PIMPL::AnimationPhaseEnum::Rotate)
+  {
+    return false;
+  }
   this->CurrentPainter = painter;
   this->Update();
   bool ret = this->Superclass::Paint(painter);
@@ -653,13 +667,14 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
 
   // 1: Remove decoration from the big chart.
   // 2: Set three dimensions to plot in the BigChart3D.
-  // 3: Make BigChart invisible, and BigChart3D visible.
+  // 3: Make BigChart invisible, and BigChart3D visible. Turn off erase for main scene renderer.
   // 4: Rotate between the two dimensions we are transitioning between.
   //    -> Loop from start to end angle to complete the effect.
   // 5: Make the new dimensionality active, update BigChart.
-  // 5: Make BigChart3D invisible and BigChart visible.
+  // 5: Make BigChart3D invisible and BigChart visible. Turn on erase for the main scene renderer.
   // 6: Stop the timer.
   this->InvokeEvent(vtkCommand::AnimationCueTickEvent);
+  auto renWin = this->Scene->GetRenderer()->GetRenderWindow();
   switch (this->Private->AnimationPhase)
   {
     case PIMPL::AnimationPhaseEnum::Ready: // Remove decoration from the big chart, load up the 3D
@@ -667,10 +682,8 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     {
       this->Private->NextActivePlot = *this->Private->AnimationIter;
       vtkChartXYZ* chart = this->Private->BigChart3D;
-      chart->SetVisible(false);
       chart->SetAutoRotate(true);
       chart->SetDecorateAxes(false);
-      chart->SetFitToScene(false);
 
       int yColumn = this->GetSize().GetY() - this->ActivePlot.GetY() - 1;
       bool isX = false;
@@ -680,6 +693,22 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       float zSize;
       this->Private->FinalAngle = 90.0;
 
+      double viewport[4] = {};
+      float chart3dSize[4] = { 0, 0, size.GetWidth(), size.GetHeight() };
+      // stretch and squeeze the viewport in x and y directions in order
+      // to accomodate the 3D chart in the rotation phase.
+      viewport[0] = size.GetX() / this->Scene->GetViewWidth();
+      viewport[1] = size.GetY() / this->Scene->GetViewHeight();
+      viewport[2] = (size.GetX() + size.GetWidth() + this->Gutter.GetX() + this->Borders[2]) /
+        this->Scene->GetViewWidth();
+      viewport[3] = (size.GetY() + size.GetHeight() + this->Gutter.GetY() + this->Borders[3]) /
+        this->Scene->GetViewHeight();
+      // DO NOT MODIFY. These magic numbers were found by trial and error to
+      // position the chart correctly so that the 3D axes are not clipped out
+      // of the 3D viewport during animation.
+      const float scaleFactor = 0.08;
+      const float orthogonalScaleFactor = 0.008;
+
       if (this->Private->NextActivePlot.GetY() == this->ActivePlot.GetY())
       {
         // Horizontal move.
@@ -687,6 +716,10 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
         isX = false;
         this->Private->IncAngle = this->Private->FinalAngle / this->NumberOfFrames;
         zSize = size.GetWidth();
+        chart3dSize[0] = scaleFactor * this->Scene->GetSceneWidth();
+        chart3dSize[1] = orthogonalScaleFactor * this->Scene->GetSceneHeight();
+        viewport[0] -= scaleFactor;
+        viewport[1] -= orthogonalScaleFactor;
       }
       else
       {
@@ -695,9 +728,15 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
         isX = true;
         this->Private->IncAngle = -this->Private->FinalAngle / this->NumberOfFrames;
         zSize = size.GetHeight();
+        chart3dSize[0] = orthogonalScaleFactor * this->Scene->GetSceneWidth();
+        chart3dSize[1] = scaleFactor * this->Scene->GetSceneHeight();
+        viewport[0] -= orthogonalScaleFactor;
+        viewport[1] -= scaleFactor;
       }
       chart->SetAroundX(isX);
-      chart->SetGeometry(size);
+      chart->SetGeometry(vtkRectf{ chart3dSize });
+      // show the 3d renderer in place of the 2d chart.
+      this->Private->BigChart3DRenderer->SetViewport(viewport);
 
       std::string names[3];
       names[0] = this->VisibleColumns->GetValue(this->ActivePlot.GetX());
@@ -725,10 +764,16 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     }
     case PIMPL::AnimationPhaseEnum::Start: // Make BigChart invisible, and BigChart3D visible.
       this->Private->BigChart->SetVisible(false);
-      this->AddItem(this->Private->BigChart3D);
+      // add 3d chart to 3d scene.
+      this->Private->BigChart3DActor->GetScene()->AddItem(this->Private->BigChart3D);
+      // add 3d renderer to render window.
+      renWin->AddRenderer(this->Private->BigChart3DRenderer);
+      // DO NOT ERASE main scene renderer. Allow the 2D scatter plots to remain on the color
+      // attachment. we don't want to draw those unncessarily during animation because it tanks
+      // framerate.
+      this->Scene->GetRenderer()->EraseOff();
       this->Private->CurrentAngle = 0.0;
       this->Private->BigChart3D->SetAngle(0.0);
-      this->Private->BigChart3D->SetVisible(true);
       this->GetScene()->SetDirty(true);
       this->Private->AnimationPhase = PIMPL::AnimationPhaseEnum::Rotate;
       return;
@@ -742,15 +787,20 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       {
         this->Private->AnimationPhase = PIMPL::AnimationPhaseEnum::Stop;
       }
-      this->GetScene()->SetDirty(true);
       return;
     case PIMPL::AnimationPhaseEnum::Stop: // Transition to new dimensionality, update the big chart.
+      this->Scene->GetRenderer()->EraseOn();
       this->SetActivePlot(this->Private->NextActivePlot);
       this->Private->BigChart->Update();
       this->GetScene()->SetDirty(true);
       this->Private->AnimationPhase = PIMPL::AnimationPhaseEnum::Finalize;
       break;
     case PIMPL::AnimationPhaseEnum::Finalize:
+      // remove 3d chart from 3d scene.
+      this->Private->BigChart3DActor->GetScene()->RemoveItem(this->Private->BigChart3D);
+      // remove 3d renderer from render window.
+      renWin->RemoveRenderer(this->Private->BigChart3DRenderer);
+      // turn on erase for the main scene.
       this->GetScene()->SetDirty(true);
       ++this->Private->AnimationIter;
       // Clean up - we are done.
@@ -758,8 +808,6 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       if (this->Private->AnimationIter == this->Private->AnimationPath.end())
       {
         this->Private->BigChart->SetVisible(true);
-        this->RemoveItem(this->Private->BigChart3D);
-        this->Private->BigChart3D->SetVisible(false);
         this->Private->Interactor->DestroyTimer(this->Private->TimerId);
         this->Private->TimerId = 0;
         this->Private->TimerCallbackInitialized = false;
