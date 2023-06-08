@@ -319,6 +319,18 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
+void vtkTableBasedClipDataSet::SetLocator(vtkIncrementalPointLocator* locator)
+{
+  if (this->Locator == locator)
+  {
+    return;
+  }
+
+  this->Locator = locator;
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::ClipDataSet(vtkDataSet* pDataSet, vtkUnstructuredGrid* outputUG)
 {
   vtkNew<vtkClipDataSet> clipData;
@@ -329,6 +341,7 @@ void vtkTableBasedClipDataSet::ClipDataSet(vtkDataSet* pDataSet, vtkUnstructured
   clipData->SetUseValueAsOffset(this->UseValueAsOffset);
   clipData->SetGenerateClipScalars(this->GenerateClipScalars);
   clipData->SetContainerAlgorithm(this);
+  clipData->SetLocator(this->Locator);
   clipData->Update();
   outputUG->ShallowCopy(clipData->GetOutput());
 }
