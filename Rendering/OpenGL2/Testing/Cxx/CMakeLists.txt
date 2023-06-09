@@ -69,6 +69,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestPBRMapping.cxx
   TestPBRMaterials.cxx
   TestPBRMaterialsCoat.cxx
+  TestPBRTextureInterpolateScalars.cxx
   TestPointFillPass.cxx
   TestPointGaussianMapper.cxx
   TestPointGaussianMapperOpacity.cxx
@@ -95,6 +96,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestTexture16Bits.cxx,NO_DATA
   TestTexture32Bits.cxx,NO_DATA
   TestTextureBufferEmulation.cxx,NO_DATA,NO_VALID,NO_OUTPUT
+  TestTextureInterpolateScalars.cxx
   TestToneMappingPass.cxx,NO_DATA
   TestUserShader.cxx
   TestUserShader2.cxx
