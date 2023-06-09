@@ -1,22 +1,27 @@
 # SPDX & SBOM
 
+## Overview
+
+Software Bill of Materials (SBOM) are becoming increasingly important for
+software development, especially when it comes to supply chain security.
 [Software Package Data Exchange (SPDX)](https://spdx.dev/) is an open standard
-for communicating software bill of materials (SBOM) information that supports
-accurate identification of software components, explicit mapping of relationships
-between components, and the association of security and licensing information
-with each component.
+for communicating SBOM information that supports accurate identification of
+software components, explicit mapping of relationships between components,
+and the association of security and licensing information with each component.
 
-To support this, each VTK module may be described by a `.spdx` file. See [](#examples).
+To support this, each VTK module may be described by a `.spdx` file. See [examples](#examples).
 
-Configuring VTK with the option `VTK_GENERATE_SPDX` set to `ON` enables
+Configuring VTK with the option `VTK_GENERATE_SPDX` set to `ON` enables the
 [](/api/cmake/ModuleSystem.md#spdx-files-generation) for each VTK module.
 
 :::{caution}
-The generation of SPDX files if considered experimental and both the VTK Module system
+The generation of SPDX files is considered experimental and both the VTK Module system
 API and the `SPDXID` used in the generated files may change.
 :::
 
-## How to set up your module to generate a correct SPDX file
+## Frequently Asked Questions
+
+### How to update your module to generate a valid SPDX file ?
 
 In the `vtk.module` file, make sure to specify `SPDX_LICENSE_IDENTIFIER` and `SPDX_COPYRIGHT_TEXT`
 as follows:
@@ -25,7 +30,7 @@ as follows:
 SPDX_LICENSE_IDENTIFIER
   BSD-3-CLAUSE
 SPDX_COPYRIGHT_TEXT
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright \(c\) Ken Martin, Will Schroeder, Bill Lorensen
 ```
 
 Then add SPDX tags on top of all source files in the module, as follows:
@@ -36,7 +41,13 @@ Then add SPDX tags on top of all source files in the module, as follows:
 // SPDX-License-Identifier: BSD-3-CLAUSE
 ```
 
-## How to setup your third party to generate a correct SPDX file
+:::{tip}
+Refer to the [limitations](/api/cmake/ModuleSystem.md#limitations) section for more
+information on any potential issues that may arise when updating your module to generate
+a valid SPDX file.
+:::
+
+### How to update a third party to generate a valid SPDX file ?
 
 In the third party `CMakeLists.txt`, make sure to specify, in the `vtk_module_third_party` call,
 `SPDX_LICENSE_IDENTIFIER` and `SPDX_COPYRIGHT_TEXT` as follows:
@@ -52,12 +63,15 @@ In the third party `CMakeLists.txt`, make sure to specify, in the `vtk_module_th
     [...]
 ```
 
-Do not quote the arguments, it is handled internally.
-Some chars, especially parenthesis, needs to be escaped for proper generation.
+:::{tip}
+Refer to the [limitations](/api/cmake/ModuleSystem.md#limitations) section for more
+information on any potential issues that may arise when updating your module to generate
+a valid SPDX file.
+:::
 
-Source files are not parsed for third parties.
+## Examples
 
-## Examples resulting SPDX files
+This section lists examples of generated SPDX files for different type of VTK modules.
 
 ### VTK Module
 

@@ -205,7 +205,6 @@ supported:
   language.
 * ``THIRD_PARTY``: If present, this module is a third party module.
 * ``LICENSE_FILES``: A list of license files to install for the module.
-  Optional.
 * ``SPDX_LICENSE_IDENTIFIER``: A license identifier for SPDX file generation.
 * ``SPDX_DOWNLOAD_LOCATION``: A download location for the SPDX file generation.
 * ``SPDX_COPYRIGHT_TEXT``: A copyright text for the SPDX file generation.
