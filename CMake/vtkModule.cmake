@@ -5810,7 +5810,7 @@ function (_vtk_module_generate_spdx)
   add_custom_command(OUTPUT ${_vtk_module_generate_spdx_output_file}
     COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${_vtkModule_dir}/SPDX_generate_output.py"
       -m "${_vtk_module_generate_spdx_MODULE_NAME}"
-      -l "${_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER}"
+      -l '${_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER}'
       -c '${_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT}'
       -o "${_vtk_module_generate_spdx_output_file}"
       -s "${CMAKE_CURRENT_SOURCE_DIR}"

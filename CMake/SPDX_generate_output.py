@@ -97,7 +97,6 @@ def __main__():
     if len(licenses) > 1:
         for lic in licenses:
             licenses_from_files += "PackageLicenseInfoFromFiles: %s\n" % lic
-        licenses_from_files = licenses_from_files[: licenses_from_files.rfind("\n")]
 
     # Create a string from the copyrights from files
     copyrights.add(args.copyright)
@@ -132,8 +131,7 @@ PackageDownloadLocation: %(download)s
 FilesAnalyzed: %(files_analyzed)s
 PackageLicenseConcluded: %(lic_concluded)s
 PackageLicenseDeclared: %(lic_declared)s
-%(lic_from_files)s
-%(cpy_from_files)s
+%(lic_from_files)s%(cpy_from_files)s
 
 Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package-%(module)s
 """
