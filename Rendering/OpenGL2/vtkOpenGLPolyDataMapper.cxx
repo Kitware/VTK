@@ -422,6 +422,13 @@ std::string vtkOpenGLPolyDataMapper::GetTextureCoordinateName(const char* tname)
       return it.first;
     }
   }
+
+  // Return the attribute name of the specific tcoords used for scalar coloring with texture
+  if (tname == std::string("colortexture"))
+  {
+    return "colorTCoord";
+  }
+
   return std::string("tcoord");
 }
 
@@ -473,8 +480,7 @@ std::vector<texinfo> vtkOpenGLPolyDataMapper::GetTextures(vtkActor* actor)
 //------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::HaveTCoords(vtkPolyData* poly)
 {
-  return (
-    this->ColorCoordinates || poly->GetPointData()->GetTCoords() || this->ForceTextureCoordinates);
+  return (poly->GetPointData()->GetTCoords() || this->ForceTextureCoordinates);
 }
 
 //------------------------------------------------------------------------------
@@ -736,7 +742,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   else if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates &&
     !this->DrawingVertices)
   {
-    colorImpl += "  vec4 texColor = texture(colortexture, tcoordVCVSOutput.st);\n"
+    colorImpl += "  vec4 texColor = texture(colortexture, colorTCoordVCVSOutput.st);\n"
                  "  vec3 ambientColor = ambientIntensity * texColor.rgb;\n"
                  "  vec3 diffuseColor = diffuseIntensity * texColor.rgb;\n"
                  "  float opacity = opacityUniform * texColor.a;";
@@ -3899,19 +3905,18 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
   // if we have offsets from the cell map then use them
   this->CellCellMap->BuildPrimitiveOffsetsIfNeeded(prims, representation, poly->GetPoints());
 
-  // Set the texture if we are going to use texture
-  // for coloring with a point attribute.
+  // Set the texture coordinate attribute if we are going to use texture for coloring
   vtkDataArray* tcoords = nullptr;
   if (this->HaveTCoords(poly))
   {
-    if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
-    {
-      tcoords = this->ColorCoordinates;
-    }
-    else
-    {
-      tcoords = poly->GetPointData()->GetTCoords();
-    }
+    tcoords = poly->GetPointData()->GetTCoords();
+  }
+
+  // Set specific texture coordinates if we are going to use texture for scalar coloring
+  vtkDataArray* colorTCoords = nullptr;
+  if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
+  {
+    colorTCoords = this->ColorCoordinates;
   }
 
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
@@ -3937,6 +3942,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
   this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
   this->VBOs->CacheDataArray("scalarColor", c, cache, VTK_UNSIGNED_CHAR);
   this->VBOs->CacheDataArray("tcoord", tcoords, cache, VTK_FLOAT);
+  this->VBOs->CacheDataArray("colorTCoord", colorTCoords, cache, VTK_FLOAT);
 
   // Look for tangents attribute
   vtkFloatArray* tangents = vtkFloatArray::SafeDownCast(poly->GetPointData()->GetTangents());
