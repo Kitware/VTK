@@ -16,7 +16,48 @@ The generation of SPDX files if considered experimental and both the VTK Module 
 API and the `SPDXID` used in the generated files may change.
 :::
 
-## Examples
+## How to set up your module to generate a correct SPDX file
+
+In the `vtk.module` file, make sure to specify `SPDX_LICENSE_IDENTIFIER` and `SPDX_COPYRIGHT_TEXT`
+as follows:
+
+```
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-CLAUSE
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+```
+
+Then add SPDX tags on top of all source files in the module, as follows:
+
+```
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Awesome contributor
+// SPDX-License-Identifier: BSD-3-CLAUSE
+```
+
+## How to setup your third party to generate a correct SPDX file
+
+In the third party `CMakeLists.txt`, make sure to specify, in the `vtk_module_third_party` call,
+`SPDX_LICENSE_IDENTIFIER` and `SPDX_COPYRIGHT_TEXT` as follows:
+
+```
+ vtk_module_third_party(
+    SPDX_LICENSE_IDENTIFIER
+      BSD-3-CLAUSE
+    SPDX_COPYRIGHT_TEXT
+      Copyright \(c\) Ken Martin, Will Schroeder, Bill Lorensen
+    SPDX_DOWNLOAD_LOCATION
+      https://gitlab.kitware.com/vtk/vtk
+    [...]
+```
+
+Do not quote the arguments, it is handled internally.
+Some chars, especially parenthesis, needs to be escaped for proper generation.
+
+Source files are not parsed for third parties.
+
+## Examples resulting SPDX files
 
 ### VTK Module
 
