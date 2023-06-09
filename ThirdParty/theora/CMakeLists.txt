@@ -7,8 +7,16 @@ endif ()
 
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtktheora/COPYING"
-    VERSION       "1.1.1"
+    LICENSE_FILES
+      "vtktheora/COPYING"
+    SPDX_LICENSE_IDENTIFIER
+      "BSD-3-CLAUSE"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright (C) 2002-2009 Xiph.org Foundation"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/theora.git@for/vtk-20220517-1.1.1"
+    VERSION
+      "1.1.1"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE THEORA

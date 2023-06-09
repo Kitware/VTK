@@ -1,8 +1,16 @@
 vtk_module_third_party(
   INTERNAL
     INTERFACE
-    LICENSE_FILES "vtknlohmannjson/LICENSE.MIT"
-    VERSION       "3.10.4"
+    LICENSE_FILES
+      "vtknlohmannjson/LICENSE.MIT"
+    SPDX_LICENSE_IDENTIFIER
+      "MIT"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright (c) 2013-2021 Niels Lohmann"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/nlohmann_json.git@for/vtk-20211106-3.10.4"
+    VERSION
+      "3.10.4"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE nlohmann_json

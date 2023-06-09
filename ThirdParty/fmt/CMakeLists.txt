@@ -1,7 +1,10 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkfmt/LICENSE.rst"
-    VERSION       "9.1.0"
+    LICENSE_FILES           "vtkfmt/LICENSE.rst"
+    SPDX_LICENSE_IDENTIFIER "MIT"
+    SPDX_COPYRIGHT_TEXT     "Copyright (c) 2012 - present, Victor Zverovich"
+    SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/third-party/fmt.git@for/vtk-20221020-9.1.0"
+    VERSION                 "9.1.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE fmt

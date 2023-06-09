@@ -8,8 +8,16 @@
 
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkcgns/license.txt"
-    VERSION       "4.20"
+    LICENSE_FILES
+      "vtkcgns/license.txt"
+    SPDX_LICENSE_IDENTIFIER
+      "Zlib"
+    SPDX_COPYRIGHT_TEXT
+      "© Copyright 1991-2020, CGNS Steering Commmittee"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/cgns.git@for/vtk-20230531-4.2.0"
+    VERSION
+      "4.20"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE CGNS

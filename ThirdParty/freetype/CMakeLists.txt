@@ -1,8 +1,16 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkfreetype/docs/FTL.TXT"
-                  "vtkfreetype/LICENSE.TXT"
-    VERSION       "2.12.0"
+    LICENSE_FILES
+      "vtkfreetype/docs/FTL.TXT"
+      "vtkfreetype/LICENSE.TXT"
+    SPDX_LICENSE_IDENTIFIER
+      "FTL"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/freetype.git@for/vtk-20220414-2.12.0"
+    VERSION
+      "2.12.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE Freetype

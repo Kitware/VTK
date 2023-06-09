@@ -1,7 +1,15 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkeigen/COPYING.BSD"
-    VERSION       "3.3.9"
+    LICENSE_FILES
+      "vtkeigen/COPYING.BSD"
+    SPDX_LICENSE_IDENTIFIER
+      "BSD-3-Clause"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright (c) 2011, Intel Corporation"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/eigen.git@for/vtk-20210726-3.3.9"
+    VERSION
+      "3.3.9"
     HEADER_ONLY
     STANDARD_INCLUDE_DIRS
   EXTERNAL

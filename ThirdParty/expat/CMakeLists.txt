@@ -1,7 +1,16 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkexpat/COPYING"
-    VERSION       "2.4.1"
+    LICENSE_FILES
+      "vtkexpat/COPYING"
+    SPDX_LICENSE_IDENTIFIER
+      "MIT"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper"
+      "Copyright (c) 2001-2019 Expat maintainers"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/expat.git@for/vtk-20220921-2.4.8"
+    VERSION
+      "2.4.1"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE EXPAT

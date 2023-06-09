@@ -1,8 +1,11 @@
 vtk_module_third_party(
   INTERNAL
     HEADER_ONLY
-    LICENSE_FILES "vtkexprtk/License.txt"
-    VERSION       "2.71"
+    LICENSE_FILES           "vtkexprtk/License.txt"
+    SPDX_LICENSE_IDENTIFIER "MIT"
+    SPDX_COPYRIGHT_TEXT     "Arash Partow (1999-2021)"
+    SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/third-party/exprtk.git@for/vtk-20210816-2.71"
+    VERSION                 "2.71"
   EXTERNAL
     PACKAGE ExprTk
     VERSION 2.7
