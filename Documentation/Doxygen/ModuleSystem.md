@@ -72,8 +72,8 @@ should be followed as much as possible when developing extensions as well.
 Building modules involves two phases. The first phase is called "scanning" and
 involves collecting all the information necessary for the second phase,
 "building". Scanning uses the {cmake:command}`vtk_module_scan` function to search the
-{cmake:command}`vtk.module` files for metadata, gathers the set of modules to build and
-returns them to the caller. That list of modules is eventually passed to
+{ref}`vtk.module <module-parse-module>` files for metadata, gathers the set of modules
+to build and returns them to the caller. That list of modules is eventually passed to
 {cmake:command}`vtk_module_build` which sorts the modules for their build order and then
 builds each module in turn. This separation allows for scanning and building
 modules in different groups. For example, the main set of modules may be scanned
@@ -90,7 +90,7 @@ when they are built.
 
 ## Modules
 
-Modules are described by {cmake:command}`vtk.module` files. These files are "scanned" using
+Modules are described by {ref}`vtk.module <module-parse-module>` files. These files are "scanned" using
 the {cmake:command}`vtk_module_scan` function. They provide all the information necessary for
 the module system to:
 
@@ -101,7 +101,7 @@ the module system to:
   - provide module-level metadata (such as exclusion from any wrapping and
     marking modules as third party)
 
-The {cmake:command}`vtk.module` files are read and "parsed", but not executed directly. This
+The {ref}`vtk.module <module-parse-module>` files are read and "parsed", but not executed directly. This
 ensures that the module files do not contain any procedural CMake code. The
 files may contain comments starting with `#` like CMake code. They may either
 be passed manually to {cmake:command}`vtk_module_scan` or discovered by using the
@@ -921,3 +921,117 @@ Some mechanisms use global properties instead:
   - `_vtk_module_autoinit_include`: The file that needs to be included in order
     to make the `VTK_MODULE_AUTOINIT` symbol available for use in the
     [autoinit](#autoinit) support.
+
+### SPDX files generation
+
+The generation of VTK module SPDX files relies on three components:
+
+ - SPDX arguments in {cmake:command}`vtk_module_build`
+ - SPDX arguments in each {ref}`vtk.module <module-parse-module>`
+ - SPDX Tags in the [sources files](#source-listing)
+
+SPDX files are named after `<ModuleName>.spdx` and are generated for
+all VTK modules.
+
+Generated SPDX files are based on the [SPDX 2.2 specification](https://spdx.dev/specifications/).
+
+If some information is missing, VTK will warn during configuration or during build
+but the SPDX file will still be generated with unknown fields being attributed a
+`NOASSERTION` or other default value.
+
+The collected license identifiers are joined together using `AND` keyword.
+
+Similarly all collected copyright texts are joined using a new line.
+
+#### SPDX arguments in `vtk_module_build`
+
+Support for SPDX file generation requires to specifiy the following
+{cmake:command}`vtk_module_build` arguments:
+
+- `GENERATE_SPDX`
+- `SPDX_DOCUMENT_NAMESPACE`
+- `SPDX_DOWNLOAD_LOCATION`
+
+`GENERATE_SPDX` is used to enable the generation and install of SPDX file for
+each modules. Set this to `ON` to enable it.
+
+`SPDX_DOCUMENT_NAMESPACE` is used as a basename for the `DocumentNamespace`
+SPDX field. The name of the module will simply be appended to the basename.
+If not provided, `https://vtk.org/spdx` will be used. This is the value VTK
+project uses as well. Note that the namespace does not need to be an actual
+website URL, but just a unique Uniform Resource Identifier (URI).
+
+:::{caution}
+If VTK decide to host SPDX files in the future, the namespace in use for the
+VTK SPDX files may change accordingly.
+:::
+
+`SPDX_DOWNLOAD_LOCATION` is used as a basename for the `PackageDownloadLocation`
+when not provided at module level. The relative path to the module will simply
+be appended in order to generate the actual `PackageDownloadLocation` SPDX field.
+If not provided at module or in {cmake:command}`vtk_module_build`, `NOASSERTION`
+will be used.
+
+#### SPDX arguments in `vtk.module`
+
+Defining these three arguments in {ref}`vtk.module <module-parse-module>` is required:
+ - `SPDX_LICENSE_IDENTIFIER`
+ - `SPDX_COPYRIGHT_TEXT`
+ - `SPDX_DOWNLOAD_LOCATION`
+
+`SPDX_LICENSE_IDENTIFIER` is an expected field corresponding to the `PackageLicenseDeclared`
+SPDX field that is considered as the global license for all files of the
+module that are not parsed during generation. This field is used to set
+the `PackageLicenseConcluded` SPDX field.
+
+:::{note}
+The SPDX generation system do not and cannot replace the `LICENSE_FILES` mechanism.
+Indeed, certains license (e.g Apache 2.0) requires additonal files (e.g `NOTICE`) to
+also be distributed.
+:::
+
+`SPDX_COPYRIGHT_TEXT` is an expected field that correspond to the copyright applying
+to all files that are not parsed during generation, it is used to generate `PackageCopyrightText`.
+
+`SPDX_DOWNLOAD_LOCATION` is a optional field for modules (see above for setting
+this in `vtk_module_build`) and expected field for [third parties](/developers_guide/git/thirdparty.md).
+If provided, it is used as is for the `PackageDownloadLocation` SPDX field.
+
+#### SPDX Tags in the sources files
+
+For VTK modules (except the one declared as `THIRD_PARTY`), [sources files](#source-listing)
+are parsed for specific SPDX tags in a specific order.
+
+First `N` lines of with the the `SPDX-FileCopyrightText` tag, then one line with
+the `SPDX-License-Identifier` tag. Like this:
+
+```
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Awesome contributor
+// SPDX-License-Identifier: BSD-3-CLAUSE
+```
+
+If a source file does not contain both `SPDX-FileCopyrightText` and `SPDX-License-Identifier`
+tags, a CMake warning is reported.
+
+TODO: It would be possible to add a dedicated tag to identify that a file should NOT be parsed for SPDX tags,
+but it is not needed yet.
+
+#### Limitations
+
+* Correctness of the `SPDX-FileCopyrightText` and `SPDX-License-Identifier` tags is not ensured. The value
+  will be used as is.
+
+* The generated SPDX files only include [Package information][spdx-package-information]
+  section. This means that there are no [File information][spdx-file-information] section
+  describing source files or build artifacts.
+
+* Third party source files are not parsed for SPDX tags.
+
+[spdx-package-information]: https://spdx.github.io/spdx-spec/v2.2.2/package-information/
+[spdx-file-information]: https://spdx.github.io/spdx-spec/v2.2.2/file-information/
+
+* Adding empty lines between `// SPDX-FileCopyrightText` and `// SPDX-License-Identifier`
+  tags is not supported.
+
+* Only comments starting with `//` are considered.

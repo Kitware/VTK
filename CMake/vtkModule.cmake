@@ -1,3 +1,5 @@
+get_filename_component(_vtkModule_dir "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
+
 #[==[.rst:
 *********
 vtkModule
@@ -153,6 +155,10 @@ Example:
     The base VTK library.
   LICENSE_FILES
     Copyright.txt
+  SPDX_COPYRIGHT_TEXT
+    Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  SPDX_LICENSE_IDENTIFIER
+    BSD-3-CLAUSE
   GROUPS
     StandAlone
   DEPENDS
@@ -200,6 +206,10 @@ supported:
 * ``THIRD_PARTY``: If present, this module is a third party module.
 * ``LICENSE_FILES``: A list of license files to install for the module.
   Optional.
+* ``SPDX_LICENSE_IDENTIFIER``: A license identifier for SPDX file generation.
+* ``SPDX_DOWNLOAD_LOCATION``: A download location for the SPDX file generation.
+* ``SPDX_COPYRIGHT_TEXT``: A copyright text for the SPDX file generation.
+
 #]==]
 
 #[==[.rst:
@@ -250,8 +260,8 @@ macro (_vtk_module_parse_module_args name_output)
 
   cmake_parse_arguments("${_name_NAME}"
     "IMPLEMENTABLE;EXCLUDE_WRAP;THIRD_PARTY"
-    "LIBRARY_NAME;NAME;KIT"
-    "GROUPS;DEPENDS;PRIVATE_DEPENDS;OPTIONAL_DEPENDS;ORDER_DEPENDS;TEST_DEPENDS;TEST_OPTIONAL_DEPENDS;TEST_LABELS;DESCRIPTION;CONDITION;IMPLEMENTS;LICENSE_FILES"
+    "LIBRARY_NAME;NAME;KIT;SPDX_DOWNLOAD_LOCATION"
+    "GROUPS;DEPENDS;PRIVATE_DEPENDS;OPTIONAL_DEPENDS;ORDER_DEPENDS;TEST_DEPENDS;TEST_OPTIONAL_DEPENDS;TEST_LABELS;DESCRIPTION;CONDITION;IMPLEMENTS;LICENSE_FILES;SPDX_LICENSE_IDENTIFIER;SPDX_COPYRIGHT_TEXT"
     ${ARGN})
 
   if (${_name_NAME}_UNPARSED_ARGUMENTS)
@@ -862,6 +872,16 @@ function (vtk_module_scan)
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_license_files" "${_license_files}")
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_module_${_vtk_scan_module_name}_spdx_license_identifier" "${${_vtk_scan_module_name}_SPDX_LICENSE_IDENTIFIER}")
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_module_${_vtk_scan_module_name}_spdx_copyright_text" "${${_vtk_scan_module_name}_SPDX_COPYRIGHT_TEXT}")
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_module_${_vtk_scan_module_name}_spdx_download_location" "${${_vtk_scan_module_name}_SPDX_DOWNLOAD_LOCATION}")
+
     if (_vtk_scan_ENABLE_TESTS STREQUAL "WANT")
       set_property(GLOBAL
         PROPERTY
@@ -2330,6 +2350,11 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
       [TEST_OUTPUT_DATA_DIRECTORY <directory>]
       [TEST_OUTPUT_DIRECTORY      <directory>]
 
+      [GENERATE_SPDX            <ON|OFF>]
+      [SPDX_COMPONENT           <component>]
+      [SPDX_DOCUMENT_NAMESPACE  <uri>]
+      [SPDX_DOWNLOAD_LOCATION   <url>]
+
       [ARCHIVE_DESTINATION    <destination>]
       [HEADERS_DESTINATION    <destination>]
       [LIBRARY_DESTINATION    <destination>]
@@ -2393,6 +2418,14 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
   * ``TEST_OUTPUT_DIRECTORY``: (Defaults to
     ``${CMAKE_BINARY_DIR}/<TEST_DIRECTORY_NAME>/Temporary``) The directory which
     tests may write any output files to.
+  * ``GENERATE_SPDX``: (Defaults to ``OFF``) Whether or not to generate and install
+    SPDX file for each modules and third parties.
+  * ``SPDX_COMPONENT``: (Defaults to ``spdx``) The install component to use
+    for SPDX files.
+  * ``SPDX_DOCUMENT_NAMESPACE``: (Defaults to ``""``) Document namespace to use when 
+    generating SPDX files.
+  * ``SPDX_DOWNLOAD_LOCATION``: (Defaults to ``""``) Download location to use when 
+    generating SPDX files.
 
   The remaining arguments control where to install files related to the build.
   See CMake documentation for the difference between ``ARCHIVE``, ``LIBRARY``, and
@@ -2410,6 +2443,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
     The install destination for CMake files.
   * ``LICENSE_DESTINATION``: (Defaults to ``${CMAKE_INSTALL_DATAROOTDIR}/licenses/${CMAKE_PROJECT_NAME}``)
     The install destination for license files.
+  * ``SPDX_DESTINATION``: (Defaults to ``${CMAKE_INSTALL_DATAROOTDIR}/doc/${CMAKE_PROJECT_NAME}/spdx/``)
+    The install destination for SPDX files.
   * ``HIERARCHY_DESTINATION``: (Defaults to
     ``<LIBRARY_DESTINATION>/vtk/hierarchy/<PACKAGE>``) The install destination
     for hierarchy files (used for language wrapping).
@@ -2424,6 +2459,7 @@ function (vtk_module_build)
     INSTALL_EXPORT
     TARGETS_COMPONENT
     LICENSE_COMPONENT
+    SPDX_COMPONENT
     TARGET_NAMESPACE
     UTILITY_TARGET
 
@@ -2434,6 +2470,7 @@ function (vtk_module_build)
     RUNTIME_DESTINATION
     CMAKE_DESTINATION
     LICENSE_DESTINATION
+    SPDX_DESTINATION
     HIERARCHY_DESTINATION)
   set(_vtk_build_test_arguments
     # Testing
@@ -2442,13 +2479,18 @@ function (vtk_module_build)
     TEST_INPUT_DATA_DIRECTORY
     TEST_OUTPUT_DATA_DIRECTORY
     TEST_OUTPUT_DIRECTORY)
+  set(_vtk_spdx_arguments
+    # SPDX related arguments
+    GENERATE_SPDX
+    SPDX_DOCUMENT_NAMESPACE
+    SPDX_DOWNLOAD_LOCATION)
 
   # TODO: Add an option to build statically? Currently, `BUILD_SHARED_LIBS` is
   # used.
 
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_build
     ""
-    "BUILD_WITH_KITS;USE_EXTERNAL;TARGET_SPECIFIC_COMPONENTS;LIBRARY_NAME_SUFFIX;VERSION;SOVERSION;PACKAGE;ENABLE_WRAPPING;${_vtk_build_install_arguments};${_vtk_build_test_arguments}"
+    "BUILD_WITH_KITS;USE_EXTERNAL;TARGET_SPECIFIC_COMPONENTS;LIBRARY_NAME_SUFFIX;VERSION;SOVERSION;PACKAGE;ENABLE_WRAPPING;${_vtk_build_install_arguments};${_vtk_build_test_arguments};${_vtk_spdx_arguments}"
     "MODULES;KITS")
 
   if (_vtk_build_UNPARSED_ARGUMENTS)
@@ -2540,6 +2582,14 @@ function (vtk_module_build)
     set(_vtk_build_LICENSE_COMPONENT "licenses")
   endif ()
 
+  if (NOT DEFINED _vtk_build_SPDX_COMPONENT)
+    set(_vtk_build_SPDX_COMPONENT "spdx")
+  endif ()
+
+  if (NOT DEFINED _vtk_build_GENERATE_SPDX)
+    set(_vtk_build_GENERATE_SPDX OFF)
+  endif ()
+
   if (NOT DEFINED _vtk_build_ARCHIVE_DESTINATION)
     set(_vtk_build_ARCHIVE_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
   endif ()
@@ -2562,6 +2612,10 @@ function (vtk_module_build)
 
   if (NOT DEFINED _vtk_build_LICENSE_DESTINATION)
     set(_vtk_build_LICENSE_DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/licenses/${CMAKE_PROJECT_NAME}")
+  endif ()
+
+  if (NOT DEFINED _vtk_build_SPDX_DESTINATION)
+    set(_vtk_build_SPDX_DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/doc/${CMAKE_PROJECT_NAME}/spdx/")
   endif ()
 
   if (NOT DEFINED _vtk_build_HIERARCHY_DESTINATION)
@@ -2593,6 +2647,7 @@ function (vtk_module_build)
     RUNTIME_DESTINATION
     CMAKE_DESTINATION
     LICENSE_DESTINATION
+    SPDX_DESTINATION
     HIERARCHY_DESTINATION)
 
   foreach (_vtk_build_module IN LISTS _vtk_build_MODULES)
@@ -4090,6 +4145,32 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
         COMPONENT   "${_vtk_build_LICENSE_COMPONENT}")
     endif ()
   endif ()
+
+  if (_vtk_build_GENERATE_SPDX AND NOT _vtk_add_module_third_party)
+    _vtk_module_generate_spdx(
+      MODULE_NAME "${_vtk_add_module_library_name}"
+      TARGET "${_vtk_add_module_target_name}-spdx"
+      OUTPUT "${_vtk_add_module_library_name}.spdx"
+      INPUT_FILES
+        ${_vtk_add_module_SOURCES}
+        ${_vtk_add_module_TEMPLATES}
+        ${_vtk_add_module_PRIVATE_TEMPLATES}
+        ${_vtk_add_module_HEADERS}
+        ${_vtk_add_module_NOWRAP_HEADERS}
+        ${_vtk_add_module_PRIVATE_HEADERS})
+     add_dependencies("${_vtk_add_module_real_target}" "${_vtk_add_module_target_name}-spdx")
+
+    if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
+      string(PREPEND _vtk_build_SPDX_COMPONENT "${_vtk_build_module}-")
+    endif ()
+    if (NOT _vtk_add_module_NO_INSTALL)
+      install(
+        FILES       "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_add_module_library_name}.spdx"
+        DESTINATION "${_vtk_build_SPDX_DESTINATION}"
+        COMPONENT   "${_vtk_build_SPDX_COMPONENT}")
+    endif ()
+  endif ()
+
 endfunction ()
 
 #[==[.rst:
@@ -5467,6 +5548,9 @@ endfunction ()
   ``HEADERS_ONLY``, it is assumed that it will create a target with the name of the
   module.
 
+  SPDX generation requires that ``SPDX_LICENSE_IDENTIFIER`` and ``SPDX_COPYRIGHT_TEXT``
+  are specified.
+
   .. code-block:: cmake
 
     vtk_module_third_party_internal(
@@ -5478,8 +5562,10 @@ endfunction ()
       [INTERFACE]
       [STANDARD_INCLUDE_DIRS])
 
-  All arguments are optional, however warnings are emitted if ``LICENSE_FILES`` or
-  ``VERSION`` is not specified. They are as follows:
+  All arguments are optional, however warnings are emitted if ``LICENSE_FILES``,
+  ``VERSION``, ``SPDX_LICENSE_IDENTIFIER`` or ``SPDX_COPYRIGHT_TEXT`` are not specified.
+
+  They are as follows:
 
   * ``SUBDIRECTORY``: (Defaults to the library name of the module) The
     subdirectory containing the ``CMakeLists.txt`` for the dependency.
@@ -5487,6 +5573,9 @@ endfunction ()
     headers.
   * ``LICENSE_FILES``: A list of license files to install for the dependency. If
     not given, a warning will be emitted.
+  * ``SPDX_LICENSE_IDENTIFIER``: A license identifier for SPDX file generation
+  * ``SPDX_DOWNLOAD_LOCATION``: A download location for SPDX file generation
+  * ``SPDX_COPYRIGHT_TEXT``: A copyright text for SPDX file generation
   * ``VERSION``: The version of the library that is included.
   * ``HEADER_ONLY``: The dependency is header only and will not create a target.
   * ``INTERFACE``: The dependency is an ``INTERFACE`` library.
@@ -5499,8 +5588,8 @@ function (vtk_module_third_party_internal)
 
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_third_party_internal
     "INTERFACE;HEADER_ONLY;STANDARD_INCLUDE_DIRS"
-    "SUBDIRECTORY;HEADERS_SUBDIR;VERSION"
-    "LICENSE_FILES")
+    "SUBDIRECTORY;HEADERS_SUBDIR;VERSION;SPDX_DOWNLOAD_LOCATION"
+    "LICENSE_FILES;SPDX_LICENSE_IDENTIFIER;SPDX_COPYRIGHT_TEXT")
 
   if (_vtk_third_party_internal_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -5582,5 +5671,151 @@ function (vtk_module_third_party_internal)
       COMPONENT   "${_vtk_third_party_internal_license_component}")
   endif ()
 
+  if (_vtk_build_GENERATE_SPDX)
+    # SPDX_DOWNLOAD_LOCATION is expected for third parties.
+    if (NOT _vtk_third_party_internal_SPDX_DOWNLOAD_LOCATION)
+      message(AUTHOR_WARNING
+        "The ${_vtk_third_party_internal_target_name} module should have a non-empty `SPDX_DOWNLOAD_LOCATION`. Defaulting to NOASSERTION.")
+      set(_vtk_third_party_internal_SPDX_DOWNLOAD_LOCATION "NOASSERTION")
+    endif ()
+
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_module_${_vtk_build_module}_spdx_license_identifier" "${_vtk_third_party_internal_SPDX_LICENSE_IDENTIFIER}")
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_module_${_vtk_build_module}_spdx_copyright_text" "${_vtk_third_party_internal_SPDX_COPYRIGHT_TEXT}")
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_module_${_vtk_build_module}_spdx_download_location" "${_vtk_third_party_internal_SPDX_DOWNLOAD_LOCATION}")
+
+    _vtk_module_generate_spdx(
+      MODULE_NAME "${_vtk_third_party_internal_target_name}"
+      TARGET "${_vtk_third_party_internal_target_name}-spdx"
+      OUTPUT "${_vtk_third_party_internal_library_name}.spdx")
+    add_dependencies("${_vtk_third_party_internal_target_name}" "${_vtk_third_party_internal_target_name}-spdx")
+
+    set(_vtk_third_party_internal_spdx_component "spdx")
+    if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
+      string(PREPEND _vtk_third_party_internal_spdx_component "${_vtk_build_module}-")
+    endif ()
+    install(
+      FILES       "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_third_party_internal_library_name}.spdx"
+      DESTINATION "${_vtk_build_SPDX_DESTINATION}"
+      COMPONENT   "${_vtk_third_party_internal_spdx_component}")
+  endif ()
+
   _vtk_module_mark_third_party("${_vtk_third_party_internal_target_name}")
+endfunction ()
+
+#[==[.rst:
+.. cmake:command:: _vtk_module_generate_spdx
+
+  SPDX file generation at build time.
+  |module-internal|
+
+  Modules can specify a copyright and a license identifier as well as other information
+  to generate a SPDX file in order to provide a Software Bill Of Materials (SBOM).
+  Inputs files can be parsed for SPDX copyrights and license identifier to add to the
+  SPDX file as well.
+
+  .. code-block:: cmake
+
+    _vtk_module_generate_spd(
+      [MODULE_NAME <name>]
+      [TARGET      <target>]
+      [OUTPUT      <file>]
+      [INPUT_FILES <file>...]
+
+  All arguments are required except for ``INPUT_FILES``.
+
+  * ``MODULE_NAME``: The name of the module that will be used as package name
+    in the SPDX file.
+  * ``TARGET``: A CMake target for the generation of the SPDX file at build time
+  * ``OUTPUT``: Path to the SPDX file to generate
+  * ``INPUT_FILES``: A list of input files to parse for SPDX copyrights and license identifiers,
+    some files are automatically excluded from parsing.
+#]==]
+
+function (_vtk_module_generate_spdx)
+
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_module_generate_spdx
+    ""
+    "MODULE_NAME;TARGET;OUTPUT"
+    "INPUT_FILES")
+  if (_vtk_module_generate_spdx_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unrecognized arguments for _vtk_module_generate_spdx: "
+      "${_vtk_module_generate_spdx_UNPARSED_ARGUMENTS}.")
+  endif ()
+  if (NOT DEFINED _vtk_module_generate_spdx_MODULE_NAME)
+    message(FATAL_ERROR
+      "The `MODULE_NAME` argument is required.")
+  endif ()
+  if (NOT DEFINED _vtk_module_generate_spdx_TARGET)
+    message(FATAL_ERROR
+      "The `TARGET` argument is required.")
+  endif ()
+  if (NOT DEFINED _vtk_module_generate_spdx_OUTPUT)
+    message(FATAL_ERROR
+      "The `OUTPUT` argument is required.")
+  endif ()
+
+  if (NOT TARGET "Python3::Interpreter")
+    find_package(Python3 QUIET COMPONENTS Interpreter)
+  endif ()
+  if (NOT TARGET "Python3::Interpreter")
+    message(WARNING
+      "Python not found, could not generate a SPDX file for ${_vtk_module_generate_spdx_MODULE_NAME}")
+    return ()
+  endif ()
+
+  set(_vtk_module_generate_spdx_output_file "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_module_generate_spdx_OUTPUT}")
+  string(TIMESTAMP _vtk_module_generate_spdx_timestamp UTC)
+
+  get_property(_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER GLOBAL PROPERTY "_vtk_module_${_vtk_build_module}_spdx_license_identifier")
+  if (NOT _vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER)
+    message(AUTHOR_WARNING
+      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a non-empty `SPDX_LICENSE_IDENTIFIER`. Defaulting to NOASSERTION.")
+    set(_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER "NOASSERTION")
+  endif ()
+
+  get_property(_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT GLOBAL PROPERTY "_vtk_module_${_vtk_build_module}_spdx_copyright_text")
+  if (NOT _vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT)
+    message(AUTHOR_WARNING
+      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a non-empty `SPDX_COPYRIGHT_TEXT`. Defaulting to NOASSERTION")
+    set(_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT "NOASSERTION")
+  endif ()
+
+  if (NOT _vtk_build_SPDX_DOCUMENT_NAMESPACE)
+    message(AUTHOR_WARNING
+      "_vtk_build_SPDX_DOCUMENT_NAMESPACE variable is not defined, defaulting to https://vtk.org/spdx")
+    set(_vtk_module_generate_spdx_namespace "https://vtk.org/spdx")
+  endif ()
+  set(_vtk_module_generate_spdx_namespace ${_vtk_build_SPDX_DOCUMENT_NAMESPACE}/${_vtk_module_generate_spdx_MODULE_NAME})
+
+  get_property(_vtk_module_generate_spdx_download_location GLOBAL PROPERTY "_vtk_module_${_vtk_build_module}_spdx_download_location")
+  if (NOT _vtk_module_generate_spdx_download_location)
+    if (NOT _vtk_build_SPDX_DOWNLOAD_LOCATION)
+      message(AUTHOR_WARNING
+        "_vtk_build_SPDX_DOWNLOAD_LOCATION variable is not defined, defaulting to NOASSERTION")
+      set(_vtk_module_generate_spdx_download_location "NOASSERTION")
+    else ()
+      string(REPLACE ${CMAKE_SOURCE_DIR} "" _vtk_module_generate_spdx_download_location_suffix ${CMAKE_CURRENT_SOURCE_DIR})
+      set(_vtk_module_generate_spdx_download_location ${_vtk_build_SPDX_DOWNLOAD_LOCATION}${_vtk_module_generate_spdx_download_location_suffix})
+    endif ()
+  endif ()
+
+  # COPYRIGHT_TEXT is single quoted to support a broad range of chars
+  add_custom_command(OUTPUT ${_vtk_module_generate_spdx_output_file}
+    COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${_vtkModule_dir}/SPDX_generate_output.py"
+      -m "${_vtk_module_generate_spdx_MODULE_NAME}"
+      -l "${_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER}"
+      -c '${_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT}'
+      -o "${_vtk_module_generate_spdx_output_file}"
+      -s "${CMAKE_CURRENT_SOURCE_DIR}"
+      -n "${_vtk_module_generate_spdx_namespace}"
+      -d "${_vtk_module_generate_spdx_download_location}"
+      ${_vtk_module_generate_spdx_INPUT_FILES})
+  add_custom_target(${_vtk_module_generate_spdx_TARGET} DEPENDS "${_vtk_module_generate_spdx_output_file}")
 endfunction ()
