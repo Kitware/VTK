@@ -1,37 +1,48 @@
+"""Generate a SPDX file for a VTK module
+
+This is a python script to generate a SPDX file for a VTK module
+following 2.2 specification.
+
+See https://spdx.github.io/spdx-spec/v2.2.2/.
+"""
+
 import argparse
 
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
 
+
+EPILOG = """
+
+VTK module system integration
+-----------------------------
+
+See ``vtkModule.cmake`` for usage inside VTK module system.
+
+List of sources may also be specified using a response file where
+each line corresponds to a different source file.
+
+Example of standalone usage
+---------------------------
+
+::
+
+    python SPDX_generate_output.py \\
+        -m ModuleName \\
+        -n https://mynamespace.org \\
+        -d https://github.com/Awesome/VTKModule \\
+        -l LicenseID \\
+        -c "Copyright Text" \\
+        -o output.spdx \\
+        -s /path/to/sources/dir \\
+        source1.cxx source2.cxx source1.h source2.h
+"""
 
 def __main__():
-    """A python script to generate a SPDX file for a VTK module
-
-    This is a python script to generate a SPDX file for a VTK module.
-
-    It will uses provided arguments and inputs files to generate a single
-    `.spdx` file following 2.2 specification, see https://spdx.github.io/spdx-spec/v2.2.2/.
-
-    See ``vtkModule.cmake`` for usage inside VTK module system.
-
-    Example of standalone usage::
-
-        python SPDX_generate_output.py \
-            -m ModuleName \
-            -n https://mynamespace.org \
-            -d https://github.com/Awesome/VTKModule \
-            -l LicenseID \
-            -c "Copyright Text" \
-            -o output.spdx \
-            -s /path/to/sources/dir \
-            source1.cxx source2.cxx source1.h source2.h
-
-    List of sources may also be specified using a response file where
-    each line corresponds to a different source file.
-    """
-
     parser = argparse.ArgumentParser(
-        description="Generate a SPDX output file for provided input module and related files",
+        description=__doc__ + "\nArguments\n---------\n",
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
         fromfile_prefix_chars="@",
     )
     parser.add_argument("-m", "--module", help="VTK module name", required=True)
@@ -48,10 +59,7 @@ def __main__():
     spdx_lic_expr = "// SPDX-License-Identifier: "
     copyrights = set()
     licenses = set()
-    files_analyzed = True
-
-    if not args.inFiles:
-        files_analyzed = False
+    files_analyzed = bool(args.inFiles)
 
     # Check input files exists
     for filename in args.inFiles:
