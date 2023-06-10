@@ -5820,12 +5820,18 @@ function (_vtk_module_generate_spdx)
     endif ()
   endif ()
 
-  set(_vtk_module_generate_spdx_args_file
-    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_module_generate_spdx_TARGET}/${_vtk_module_generate_spdx_MODULE_NAME}-spdx.$<CONFIGURATION>.args")
 
-  file(GENERATE
-    OUTPUT  "${_vtk_module_generate_spdx_args_file}"
-    CONTENT "$<JOIN:${_vtk_module_generate_spdx_INPUT_FILES},\n>")
+  set(_vtk_module_generate_spdx_args_file)
+  set(_vtk_module_generate_spdx_response_arg)
+
+  if(_vtk_module_generate_spdx_INPUT_FILES)
+    set(_vtk_module_generate_spdx_args_file
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_module_generate_spdx_TARGET}/${_vtk_module_generate_spdx_MODULE_NAME}-spdx.$<CONFIGURATION>.args")
+    file(GENERATE
+      OUTPUT  "${_vtk_module_generate_spdx_args_file}"
+      CONTENT "$<JOIN:${_vtk_module_generate_spdx_INPUT_FILES},\n>")
+    set(_vtk_module_generate_spdx_response_arg "@${_vtk_module_generate_spdx_args_file}")
+  endif()
 
   add_custom_command(OUTPUT ${_vtk_module_generate_spdx_output_file}
     COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${_vtkModule_dir}/SPDX_generate_output.py"
@@ -5836,7 +5842,7 @@ function (_vtk_module_generate_spdx)
       -s "${CMAKE_CURRENT_SOURCE_DIR}"
       -n "${_vtk_module_generate_spdx_namespace}"
       -d "${_vtk_module_generate_spdx_download_location}"
-      "@${_vtk_module_generate_spdx_args_file}"
+      ${_vtk_module_generate_spdx_response_arg}
       VERBATIM)
   add_custom_target(${_vtk_module_generate_spdx_TARGET}
     DEPENDS
