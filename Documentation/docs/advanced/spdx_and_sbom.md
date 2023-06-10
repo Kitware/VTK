@@ -30,7 +30,7 @@ as follows:
 SPDX_LICENSE_IDENTIFIER
   BSD-3-CLAUSE
 SPDX_COPYRIGHT_TEXT
-  Copyright \(c\) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 ```
 
 Then add SPDX tags on top of all source files in the module, as follows:
@@ -57,7 +57,7 @@ In the third party `CMakeLists.txt`, make sure to specify, in the `vtk_module_th
     SPDX_LICENSE_IDENTIFIER
       BSD-3-CLAUSE
     SPDX_COPYRIGHT_TEXT
-      Copyright \(c\) Ken Martin, Will Schroeder, Bill Lorensen
+      Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
     SPDX_DOWNLOAD_LOCATION
       https://gitlab.kitware.com/vtk/vtk
     [...]

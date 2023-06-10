@@ -1054,23 +1054,3 @@ but it is not needed yet.
     SPDX_COPYRIGHT_TEXT
       Awesome contributor
     ```
-
-  * Characters such as `(` or `)` must be escaped.
-
-    **Bad**
-
-    ```text
-    SPDX_LICENSE_IDENTIFIER
-      MIT AND (LGPL-2.1-or-later OR BSD-3-Clause)
-    SPDX_COPYRIGHT_TEXT
-      Copyright (c) Awesome contributor
-    ```
-
-    **Good**
-
-    ```text
-    SPDX_LICENSE_IDENTIFIER
-      MIT AND \(LGPL-2.1-or-later OR BSD-3-Clause\)
-    SPDX_COPYRIGHT_TEXT
-      Copyright \(c\) Awesome contributor
-    ```

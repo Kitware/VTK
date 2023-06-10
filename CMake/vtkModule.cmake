@@ -5805,7 +5805,8 @@ function (_vtk_module_generate_spdx)
     endif ()
   endif ()
 
-  # COPYRIGHT_TEXT is single quoted to support a broad range of chars
+  # SPDX_LICENSE_IDENTIFIER and SPDX_COPYRIGHT_TEXT are single quoted to
+  # support use of parentheses.
   add_custom_command(OUTPUT ${_vtk_module_generate_spdx_output_file}
     COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${_vtkModule_dir}/SPDX_generate_output.py"
       -m "${_vtk_module_generate_spdx_MODULE_NAME}"
