@@ -871,12 +871,27 @@ function (vtk_module_scan)
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_license_files" "${_license_files}")
+    
+    # Revert argument splitting done in vtk_module_scan() just before calling _vtk_module_parse_module_args()
+    # For example, it converts
+    #   "MIT;AND;(LGPL-2.1-or-later;OR;BSD-3-Clause)"
+    # back to
+    #   "MIT AND (LGPL-2.1-or-later OR BSD-3-Clause)"
+    string(REGEX REPLACE ";" " " _spdx_license_identifier "${${_vtk_scan_module_name}_SPDX_LICENSE_IDENTIFIER}")
     set_property(GLOBAL
       PROPERTY
-        "_vtk_module_${_vtk_scan_module_name}_spdx_license_identifier" "${${_vtk_scan_module_name}_SPDX_LICENSE_IDENTIFIER}")
+        "_vtk_module_${_vtk_scan_module_name}_spdx_license_identifier" "${_spdx_license_identifier}")
+
+    # Revert argument splitting done in vtk_module_scan() just before calling _vtk_module_parse_module_args()
+    # For example, it converts
+    #   "Copyright;(c);Ken;Martin,;Will;Schroeder,;Bill;Lorensen"
+    # back to
+    #   "Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen"
+    string(REGEX REPLACE ";" " " _spdx_copyright_text "${${_vtk_scan_module_name}_SPDX_COPYRIGHT_TEXT}")
     set_property(GLOBAL
       PROPERTY
-        "_vtk_module_${_vtk_scan_module_name}_spdx_copyright_text" "${${_vtk_scan_module_name}_SPDX_COPYRIGHT_TEXT}")
+        "_vtk_module_${_vtk_scan_module_name}_spdx_copyright_text" "${_spdx_copyright_text}")
+
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_spdx_download_location" "${${_vtk_scan_module_name}_SPDX_DOWNLOAD_LOCATION}")
@@ -5805,17 +5820,16 @@ function (_vtk_module_generate_spdx)
     endif ()
   endif ()
 
-  # SPDX_LICENSE_IDENTIFIER and SPDX_COPYRIGHT_TEXT are single quoted to
-  # support use of parentheses.
   add_custom_command(OUTPUT ${_vtk_module_generate_spdx_output_file}
     COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${_vtkModule_dir}/SPDX_generate_output.py"
       -m "${_vtk_module_generate_spdx_MODULE_NAME}"
-      -l '${_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER}'
-      -c '${_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT}'
+      -l "${_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER}"
+      -c "${_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT}"
       -o "${_vtk_module_generate_spdx_output_file}"
       -s "${CMAKE_CURRENT_SOURCE_DIR}"
       -n "${_vtk_module_generate_spdx_namespace}"
       -d "${_vtk_module_generate_spdx_download_location}"
-      ${_vtk_module_generate_spdx_INPUT_FILES})
+      ${_vtk_module_generate_spdx_INPUT_FILES}
+      VERBATIM)
   add_custom_target(${_vtk_module_generate_spdx_TARGET} DEPENDS "${_vtk_module_generate_spdx_output_file}")
 endfunction ()
