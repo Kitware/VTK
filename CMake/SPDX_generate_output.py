@@ -25,9 +25,15 @@ def __main__():
             -o output.spdx \
             -s /path/to/sources/dir \
             source1.cxx source2.cxx source1.h source2.h
+
+    List of sources may also be specified using a response file where
+    each line corresponds to a different source file.
     """
 
-    parser = argparse.ArgumentParser("Generate a SPDX output file for provided input module and related files")
+    parser = argparse.ArgumentParser(
+        description="Generate a SPDX output file for provided input module and related files",
+        fromfile_prefix_chars="@",
+    )
     parser.add_argument("-m", "--module", help="VTK module name", required=True)
     parser.add_argument("-n", "--namespace", help="Document namespace", required=True)
     parser.add_argument("-d", "--download", help="VTK module download location", required=True)
