@@ -1022,8 +1022,8 @@ but it is not needed yet.
 * Correctness of the `SPDX-FileCopyrightText` and `SPDX-License-Identifier` tags is not ensured. The value
   will be used as is.
 
-* The generated SPDX files only include [Package information][spdx-package-information]
-  section. This means that there are no [File information][spdx-file-information] section
+* The generated SPDX files only include the [Package information][spdx-package-information]
+  section. This means that there are no [File information][spdx-file-information] sections
   describing source files or build artifacts.
 
 * Third party source files are not parsed for SPDX tags.
