@@ -1035,22 +1035,3 @@ but it is not needed yet.
   tags is not supported.
 
 * Only comments starting with `//` are considered.
-
-* Related to arguments `SPDX_LICENSE_IDENTIFIER` and `SPDX_COPYRIGHT_TEXT` of
-  {ref}`vtk.module <module-parse-module>`
-
-  * Arguments should be unquoted.
-
-    **Bad**
-
-    ```text
-    SPDX_COPYRIGHT_TEXT
-      "Awesome contributor"
-    ```
-
-    **Good**
-
-    ```text
-    SPDX_COPYRIGHT_TEXT
-      Awesome contributor
-    ```
