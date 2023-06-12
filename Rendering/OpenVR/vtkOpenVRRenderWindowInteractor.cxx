@@ -136,6 +136,11 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkVRRenderWindow* renWin, vtkR
     // eat up any pending events
     while (pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t)))
     {
+      if (event.eventType == vr::VREvent_Quit)
+      {
+        this->Done = true;
+        return;
+      }
     }
   }
   else
@@ -145,6 +150,11 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkVRRenderWindow* renWin, vtkR
     // process all pending events
     while (result)
     {
+      if (event.eventType == vr::VREvent_Quit)
+      {
+        this->Done = true;
+        return;
+      }
       result = pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t));
     }
 

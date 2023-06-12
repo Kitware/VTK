@@ -133,10 +133,6 @@ void vtkQuadricLODActor::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(m))
       }
     }
 
-    // TODO: When the 'TestQuadricLODActor' test gets here frameRate=15.0
-    // and dim=40.  This causes vtkQuadricClustering::AddTriangle()'s computations
-    // to overflow.  If you set dim=35 there's no overflow, if you set it to 36 there is.
-
     // Construct the LOD
     vtkPolyData* pd = vtkPolyData::SafeDownCast(this->Mapper->GetInput());
 

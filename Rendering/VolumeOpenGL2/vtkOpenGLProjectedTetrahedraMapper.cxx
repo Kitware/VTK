@@ -52,6 +52,7 @@
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
+#include "vtkTextureObject.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -338,32 +339,6 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer* renderer, vtkVolume
   vtkUnstructuredGridBase* input = this->GetInput();
   vtkVolumeProperty* property = volume->GetProperty();
 
-  // has something changed that would require us to recreate the shader?
-  if (!this->Tris.Program)
-  {
-    // build the shader source code
-    std::string VSSource = vtkglProjectedTetrahedraVS;
-    std::string FSSource = vtkglProjectedTetrahedraFS;
-    std::string GSSource;
-
-    // compile and bind it if needed
-    vtkShaderProgram* newShader = renWin->GetShaderCache()->ReadyShaderProgram(
-      VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
-
-    // if the shader changed reinitialize the VAO
-    if (newShader != this->Tris.Program)
-    {
-      this->Tris.Program = newShader;
-      this->Tris.VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
-    }
-
-    this->Tris.ShaderSourceTime.Modified();
-  }
-  else
-  {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->Tris.Program);
-  }
-
   // Check to see if input changed.
   if ((this->InputAnalyzedTime < this->MTime) || (this->InputAnalyzedTime < input->GetMTime()))
   {
@@ -521,9 +496,9 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   this->AllocateFOResources(renderer);
 
   vtkOpenGLFramebufferObject* fo = nullptr;
-
-  vtkOpenGLState* ostate =
-    static_cast<vtkOpenGLRenderWindow*>(renderer->GetRenderWindow())->GetState();
+  vtkOpenGLRenderWindow* renderWindow =
+    static_cast<vtkOpenGLRenderWindow*>(renderer->GetRenderWindow());
+  vtkOpenGLState* ostate = renderWindow->GetState();
 
   // Copy existing Depth/Color buffers to FO
   if (this->UseFloatingPointFrameBuffer && this->CanDoFloatingPointFrameBuffer)
@@ -541,11 +516,56 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
       vtkErrorMacro("FO is incomplete ");
     }
 
-    ostate->vtkglBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
-      this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-      GL_NEAREST);
+    auto srcDepthTexture =
+      renderWindow->GetRenderFramebuffer()->GetDepthAttachmentAsTextureObject();
+    auto dstDepthTexture = fo->GetDepthAttachmentAsTextureObject();
+    const auto srcDepthFormat = srcDepthTexture->GetFormat(0, 0, false);
+    const auto dstDepthFormat = dstDepthTexture->GetFormat(0, 0, false);
+    // We need to treat depth buffer blitting specially because depth buffer formats may not
+    // be compatible between the FBO used in this class and the renderwindow's FBO.
+    if (srcDepthFormat == dstDepthFormat)
+    {
+      // compatible, blit color and depth attachments.
+      ostate->vtkglBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
+        this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+        GL_NEAREST);
+    }
+    else
+    {
+      // incompatible, blit only color attachment
+      ostate->vtkglBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
+        this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+      // depth values are sampled from srcDepthTexture into our framebuffer's depth attachment.
+      renderWindow->TextureDepthBlit(srcDepthTexture);
+    }
 
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
+  }
+
+  // has something changed that would require us to recreate the shader?
+  if (!this->Tris.Program)
+  {
+    // build the shader source code
+    std::string VSSource = vtkglProjectedTetrahedraVS;
+    std::string FSSource = vtkglProjectedTetrahedraFS;
+    std::string GSSource;
+
+    // compile and bind it if needed
+    vtkShaderProgram* newShader = window->GetShaderCache()->ReadyShaderProgram(
+      VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
+
+    // if the shader changed reinitialize the VAO
+    if (newShader != this->Tris.Program)
+    {
+      this->Tris.Program = newShader;
+      this->Tris.VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
+    }
+
+    this->Tris.ShaderSourceTime.Modified();
+  }
+  else
+  {
+    window->GetShaderCache()->ReadyShaderProgram(this->Tris.Program);
   }
 
   // TODO:
