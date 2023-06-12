@@ -868,44 +868,104 @@ T vtkVariantStringToNumeric(const vtkStdString& str, bool* valid, T* vtkNotUsed(
   return output;
 }
 
-//------------------------------------------------------------------------------
-// Definition of ToNumeric
-
-VTK_ABI_NAMESPACE_END
-
-#include "vtkVariantToNumeric.inl"
-
-//------------------------------------------------------------------------------
-// Explicitly instantiate the ToNumeric member template to make sure
-// the symbols are exported from this object file.
-// This explicit instantiation exists to resolve VTK issue #5791.
-
-#if !defined(VTK_VARIANT_NO_INSTANTIATE)
-
-#define vtkVariantToNumericInstantiateMacro(x) template x vtkVariant::ToNumeric<x>(bool*, x*) const
-
-VTK_ABI_NAMESPACE_BEGIN
-vtkVariantToNumericInstantiateMacro(char);
-vtkVariantToNumericInstantiateMacro(float);
-vtkVariantToNumericInstantiateMacro(double);
-vtkVariantToNumericInstantiateMacro(unsigned char);
-vtkVariantToNumericInstantiateMacro(signed char);
-vtkVariantToNumericInstantiateMacro(short);
-vtkVariantToNumericInstantiateMacro(unsigned short);
-vtkVariantToNumericInstantiateMacro(int);
-vtkVariantToNumericInstantiateMacro(unsigned int);
-vtkVariantToNumericInstantiateMacro(long);
-vtkVariantToNumericInstantiateMacro(unsigned long);
-vtkVariantToNumericInstantiateMacro(long long);
-vtkVariantToNumericInstantiateMacro(unsigned long long);
-
-VTK_ABI_NAMESPACE_END
-#endif
+template <typename T>
+T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
+{
+  if (valid)
+  {
+    *valid = true;
+  }
+  if (this->IsString())
+  {
+    return vtkVariantStringToNumeric<T>(*this->Data.String, valid);
+  }
+  if (this->IsFloat())
+  {
+    return static_cast<T>(this->Data.Float);
+  }
+  if (this->IsDouble())
+  {
+    return static_cast<T>(this->Data.Double);
+  }
+  if (this->IsChar())
+  {
+    return static_cast<T>(this->Data.Char);
+  }
+  if (this->IsUnsignedChar())
+  {
+    return static_cast<T>(this->Data.UnsignedChar);
+  }
+  if (this->IsSignedChar())
+  {
+    return static_cast<T>(this->Data.SignedChar);
+  }
+  if (this->IsShort())
+  {
+    return static_cast<T>(this->Data.Short);
+  }
+  if (this->IsUnsignedShort())
+  {
+    return static_cast<T>(this->Data.UnsignedShort);
+  }
+  if (this->IsInt())
+  {
+    return static_cast<T>(this->Data.Int);
+  }
+  if (this->IsUnsignedInt())
+  {
+    return static_cast<T>(this->Data.UnsignedInt);
+  }
+  if (this->IsLong())
+  {
+    return static_cast<T>(this->Data.Long);
+  }
+  if (this->IsUnsignedLong())
+  {
+    return static_cast<T>(this->Data.UnsignedLong);
+  }
+  if (this->IsLongLong())
+  {
+    return static_cast<T>(this->Data.LongLong);
+  }
+  if (this->IsUnsignedLongLong())
+  {
+    return static_cast<T>(this->Data.UnsignedLongLong);
+  }
+  // For arrays, convert the first value to the appropriate type.
+  if (this->IsArray())
+  {
+    if (this->Data.VTKObject->IsA("vtkDataArray"))
+    {
+      // Note: This are not the best conversion.
+      //       We convert the first value to double, then
+      //       cast it back to the appropriate numeric type.
+      vtkDataArray* da = vtkDataArray::SafeDownCast(this->Data.VTKObject);
+      return static_cast<T>(da->GetTuple1(0));
+    }
+    if (this->Data.VTKObject->IsA("vtkVariantArray"))
+    {
+      // Note: This are not the best conversion.
+      //       We convert the first value to double, then
+      //       cast it back to the appropriate numeric type.
+      vtkVariantArray* va = vtkVariantArray::SafeDownCast(this->Data.VTKObject);
+      return static_cast<T>(va->GetValue(0).ToDouble());
+    }
+    if (this->Data.VTKObject->IsA("vtkStringArray"))
+    {
+      vtkStringArray* sa = vtkStringArray::SafeDownCast(this->Data.VTKObject);
+      return vtkVariantStringToNumeric<T>(sa->GetValue(0), valid);
+    }
+  }
+  if (valid)
+  {
+    *valid = false;
+  }
+  return static_cast<T>(0);
+}
 
 //------------------------------------------------------------------------------
 // Callers causing implicit instantiations of ToNumeric
 
-VTK_ABI_NAMESPACE_BEGIN
 float vtkVariant::ToFloat(bool* valid) const
 {
   return this->ToNumeric(valid, static_cast<float*>(nullptr));
