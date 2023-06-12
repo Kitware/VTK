@@ -15,6 +15,9 @@
 // This class was developed by Takuya Oshima at Niigata University,
 // Japan (oshima@eng.niigata-u.ac.jp).
 //
+// Mark Olesen (OpenCFD Ltd.) www.openfoam.com
+// has provided various bugfixes, improvements, cleanup
+//
 // ---------------------------------------------------------------------------
 //
 // Bugs or support questions should be addressed to the discourse forum
@@ -395,25 +398,30 @@ void vtkPOpenFOAMReader::SetCaseType(const int t)
 int vtkPOpenFOAMReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  const bool isRootProc = (this->ProcessId == 0);
+  const bool isParallel = (this->NumProcesses > 1);
+  int returnCode = 1;
+
   if (this->CaseType == RECONSTRUCTED_CASE)
   {
-    int ret = 1;
-    if (this->ProcessId == 0)
+    if (isRootProc)
     {
-      ret = this->Superclass::RequestInformation(request, inputVector, outputVector);
+      returnCode = this->Superclass::RequestInformation(request, inputVector, outputVector);
     }
-    if (this->NumProcesses > 1)
+
+    if (isParallel)
     {
-      // if there was an error in process 0 abort all processes
-      this->BroadcastStatus(ret);
-      if (ret == 0)
+      this->Controller->Broadcast(&returnCode, 1, 0);
+
+      if (returnCode == 0)
       {
+        // Error encountered in process 0 - abort all processes
         vtkErrorMacro(<< "The master process returned an error.");
         return 0;
       }
 
-      vtkDoubleArray* timeValues;
-      if (this->ProcessId == 0)
+      vtkDoubleArray* timeValues = nullptr;
+      if (isRootProc)
       {
         timeValues = this->Superclass::GetTimeValues();
       }
@@ -422,16 +430,16 @@ int vtkPOpenFOAMReader::RequestInformation(
         timeValues = vtkDoubleArray::New();
       }
       this->Controller->Broadcast(timeValues, 0);
-      if (this->ProcessId != 0)
+      if (!isRootProc)
       {
         this->Superclass::SetTimeInformation(outputVector, timeValues);
-        timeValues->Delete();
         this->Superclass::Refresh = false;
+        timeValues->Delete();
       }
-      this->GatherMetaData(); // pvserver deadlocks without this
     }
 
-    return ret;
+    this->GatherMetaData();
+    return returnCode;
   }
 
   if (!this->Superclass::FileName || strlen(this->Superclass::FileName) == 0)
@@ -472,74 +480,85 @@ int vtkPOpenFOAMReader::RequestInformation(
 
     int nProcessorDirs = 0;
     auto processorDirs = vtkSmartPointer<vtkIntArray>::New();
-    vtkStringArray* timeNames;
-    vtkDoubleArray* timeValues;
+    vtkStringArray* timeNames = nullptr;
+    vtkDoubleArray* timeValues = nullptr;
 
-    int ret = 1;
-    if (this->ProcessId == 0)
+    if (isRootProc)
     {
-      // Search and list processor subdirectories
-      vtkNew<vtkDirectory> dir;
-      if (!dir->Open(masterCasePath.c_str()))
+      do
       {
-        vtkErrorMacro(<< "Cannot open " << masterCasePath);
-        this->BroadcastStatus(ret = 0);
+        // Search and list processor subdirectories
+        vtkNew<vtkDirectory> dir;
+        if (!dir->Open(masterCasePath.c_str()))
+        {
+          vtkErrorMacro(<< "Cannot open " << masterCasePath);
+          returnCode = 0;
+          break; // Failed
+        }
+
+        processorDirs = ::ScanForProcessorDirs(dir);
+        nProcessorDirs = static_cast<int>(processorDirs->GetNumberOfTuples());
+
+        if (nProcessorDirs)
+        {
+          // Get times from the first processor subdirectory
+          const std::string procDirName = ::ProcessorDirName(processorDirs, 0);
+          vtkFoamDebug(<< "First processor dir: " << procDirName << "\n");
+
+          auto masterReader = ::NewFoamReader(this);
+
+          if (!masterReader->MakeInformationVector(outputVector, procDirName) ||
+            !masterReader->MakeMetaDataAtTimeStep(true))
+          {
+            returnCode = 0;
+            break; // Failed
+          }
+          this->Superclass::Readers->AddItem(masterReader);
+          timeNames = masterReader->GetTimeNames();
+          timeValues = masterReader->GetTimeValues();
+        }
+        else
+        {
+          timeNames = vtkStringArray::New();
+          timeValues = vtkDoubleArray::New();
+          this->Superclass::SetTimeInformation(outputVector, timeValues);
+        }
+      } while (false); // End of process 0 only execution scope
+    }
+
+    if (isParallel)
+    {
+      this->Controller->Broadcast(&returnCode, 1, 0);
+
+      if (returnCode == 0)
+      {
+        // Error encountered in process 0 - abort all processes
+        vtkErrorMacro(<< "The master process returned an error.");
         return 0;
       }
 
-      processorDirs = ::ScanForProcessorDirs(dir);
-      nProcessorDirs = static_cast<int>(processorDirs->GetNumberOfTuples());
-
-      if (nProcessorDirs)
-      {
-        // Get times from the first processor subdirectory
-        const std::string procDirName = ::ProcessorDirName(processorDirs, 0);
-        vtkFoamDebug(<< "First processor dir: " << procDirName << "\n");
-
-        auto masterReader = ::NewFoamReader(this);
-
-        if (!masterReader->MakeInformationVector(outputVector, procDirName) ||
-          !masterReader->MakeMetaDataAtTimeStep(true))
-        {
-          this->BroadcastStatus(ret = 0);
-          return 0;
-        }
-        this->Superclass::Readers->AddItem(masterReader);
-        timeNames = masterReader->GetTimeNames();
-        timeValues = masterReader->GetTimeValues();
-      }
-      else
+      if (!isRootProc)
       {
         timeNames = vtkStringArray::New();
         timeValues = vtkDoubleArray::New();
-        this->Superclass::SetTimeInformation(outputVector, timeValues);
-      }
-    }
-    else
-    {
-      timeNames = vtkStringArray::New();
-      timeValues = vtkDoubleArray::New();
-    }
-
-    if (this->NumProcesses > 1)
-    {
-      // if there was an error in process 0 abort all processes
-      this->BroadcastStatus(ret);
-      if (ret == 0)
-      {
-        vtkErrorMacro(<< "The master process returned an error.");
-        timeValues->Delete(); // don't have to care about process 0
-        return 0;
       }
 
       this->Controller->Broadcast(processorDirs, 0);
       this->Controller->Broadcast(timeValues, 0);
       this->Broadcast(timeNames);
-      if (this->ProcessId != 0)
+      if (!isRootProc)
       {
         this->Superclass::SetTimeInformation(outputVector, timeValues);
       }
       nProcessorDirs = static_cast<int>(processorDirs->GetNumberOfTuples());
+    }
+    else
+    {
+      if (returnCode == 0)
+      {
+        // Error encountered (single process). Nothing to cleanup
+        return 0;
+      }
     }
 
     // Create reader instances for processor subdirectories,
@@ -566,10 +585,16 @@ int vtkPOpenFOAMReader::RequestInformation(
     }
 
     // Cleanup
-    if (this->ProcessId != 0 || (nProcessorDirs == 0))
+    if (!isRootProc || (nProcessorDirs == 0))
     {
-      timeNames->Delete();
-      timeValues->Delete();
+      if (timeNames)
+      {
+        timeNames->Delete();
+      }
+      if (timeValues)
+      {
+        timeValues->Delete();
+      }
     }
 
     this->GatherMetaData();
@@ -578,32 +603,36 @@ int vtkPOpenFOAMReader::RequestInformation(
 
   outputVector->GetInformationObject(0)->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
-  return 1;
+  return returnCode;
 }
 
 //------------------------------------------------------------------------------
 int vtkPOpenFOAMReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  const bool isRootProc = (this->ProcessId == 0);
+  const bool isParallel = (this->NumProcesses > 1);
+  int returnCode = 1;
+
   vtkSmartPointer<vtkMultiProcessController> splitController;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   auto* output = vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (this->CaseType == RECONSTRUCTED_CASE)
   {
-    int ret = 1;
-    if (this->ProcessId == 0)
+    if (isRootProc)
     {
-      ret = this->Superclass::RequestData(request, inputVector, outputVector);
+      returnCode = this->Superclass::RequestData(request, inputVector, outputVector);
     }
-    this->BroadcastStatus(ret);
     this->GatherMetaData();
 
-    if (this->NumProcesses > 1)
+    if (isParallel)
     {
+      this->Controller->Broadcast(&returnCode, 1, 0);
+
       splitController.TakeReference(this->Controller->PartitionController(1, this->ProcessId));
       vtkNew<vtkMultiBlockDataSet> mb;
-      if (this->ProcessId == 0)
+      if (isRootProc)
       {
         mb->CopyStructure(output);
         splitController->Broadcast(mb, 0);
@@ -614,14 +643,13 @@ int vtkPOpenFOAMReader::RequestData(
         output->CopyStructure(mb);
       }
     }
-    return ret;
+    return returnCode;
   }
 
-  int ret = 1;
   if (this->Superclass::Readers->GetNumberOfItems())
   {
-    int nTimes(0); // Also used for logic
-    double requestedTimeValue(0);
+    int nTimes = 0; // Also used for logic
+    double requestedTimeValue = 0;
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
       nTimes = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
@@ -667,7 +695,7 @@ int vtkPOpenFOAMReader::RequestData(
     if (append->GetNumberOfInputConnections(0) == 0)
     {
       output->Initialize();
-      ret = 0;
+      returnCode = 0;
     }
     else
     {
@@ -686,8 +714,8 @@ int vtkPOpenFOAMReader::RequestData(
     // To do so, we split the controller to broadcast only to the interested
     // processors (else case below) and avoid useless communication.
     splitController.TakeReference(
-      this->Controller->PartitionController(this->ProcessId == 0, this->ProcessId));
-    if (this->ProcessId == 0)
+      this->Controller->PartitionController(isRootProc, this->ProcessId));
+    if (isRootProc)
     {
       vtkNew<vtkMultiBlockDataSet> mb;
       mb->CopyStructure(output);
@@ -709,19 +737,11 @@ int vtkPOpenFOAMReader::RequestData(
   this->Superclass::UpdateStatus();
   this->MTimeOld = this->GetMTime();
 
-  return ret;
+  return returnCode;
 }
 
 //------------------------------------------------------------------------------
-void vtkPOpenFOAMReader::BroadcastStatus(int& status)
-{
-  if (this->NumProcesses > 1)
-  {
-    this->Controller->Broadcast(&status, 1, 0);
-  }
-}
-
-//------------------------------------------------------------------------------
+// Note: includes guard against non-parallel calls
 void vtkPOpenFOAMReader::GatherMetaData()
 {
   if (this->NumProcesses > 1)
@@ -739,131 +759,203 @@ void vtkPOpenFOAMReader::GatherMetaData()
 
 //------------------------------------------------------------------------------
 // Broadcast a vtkStringArray in process 0 to all processes
+// Low-level routine without guard against non-parallel calls
+//
+// Broadcasts a set of nul-char delimited strings which are re-parsed
+// into individual entries.
 void vtkPOpenFOAMReader::Broadcast(vtkStringArray* sa)
 {
-  vtkIdType lengths[2];
-  if (this->ProcessId == 0)
+  const bool isRootProc = (this->ProcessId == 0);
+
+  vtkIdType lengths[2]; // A tuple of local count, send length
+  std::vector<char> contents;
+
+  if (isRootProc)
   {
+    //- Get the overall send length
     lengths[0] = sa->GetNumberOfTuples();
     lengths[1] = 0;
-    for (int strI = 0; strI < sa->GetNumberOfTuples(); strI++)
+    for (int i = 0; i < lengths[0]; ++i)
     {
-      lengths[1] += static_cast<vtkIdType>(sa->GetValue(strI).length()) + 1;
+      const std::string& str = sa->GetValue(i);
+      lengths[1] += static_cast<vtkIdType>(str.length()) + 1; // Trailing nul-char
+    }
+    contents.resize(lengths[1]); // Send buffer
+
+    //- Add content to send (nul-delimited)
+    char* name = contents.data();
+    for (int i = 0; i < lengths[0]; ++i)
+    {
+      const std::string& str = sa->GetValue(i);
+      const int len = static_cast<int>(str.length()) + 1; // Trailing nul-char
+      memcpy(name, str.c_str(), len);
+      name += len;
     }
   }
+
   this->Controller->Broadcast(lengths, 2, 0);
-  char* contents = new char[lengths[1]];
-  if (this->ProcessId == 0)
+
+  if (!isRootProc)
   {
-    for (int strI = 0, idx = 0; strI < sa->GetNumberOfTuples(); strI++)
-    {
-      const int len = static_cast<int>(sa->GetValue(strI).length()) + 1;
-      memmove(contents + idx, sa->GetValue(strI).c_str(), len);
-      idx += len;
-    }
+    contents.resize(lengths[1]); // Recv buffer
   }
-  this->Controller->Broadcast(contents, lengths[1], 0);
-  if (this->ProcessId != 0)
+
+  this->Controller->Broadcast(contents.data(), contents.size(), 0);
+
+  if (!isRootProc)
   {
     sa->Initialize();
     sa->SetNumberOfTuples(lengths[0]);
-    for (int strI = 0, idx = 0; strI < lengths[0]; strI++)
+
+    // Walk the set of nul-char delimited strings
+    const char* name = contents.data();
+    for (int i = 0; i < lengths[0]; ++i)
     {
-      sa->SetValue(strI, contents + idx);
-      idx += static_cast<int>(sa->GetValue(strI).length()) + 1;
+      sa->SetValue(i, name);
+      const int len = static_cast<int>(sa->GetValue(i).length()) + 1; // Trailing nul-char
+      name += len;
     }
   }
-  delete[] contents;
 }
 
 //------------------------------------------------------------------------------
 // AllGather vtkStringArray from and to all processes
-void vtkPOpenFOAMReader::AllGather(vtkStringArray* s)
+// Low-level routine without guard against non-parallel calls
+//
+// Sends/receives a set of nul-char delimited strings which can be re-parsed
+// into individual entries.
+void vtkPOpenFOAMReader::AllGather(vtkStringArray* sa)
 {
+  // Construct a set of nul-char delimited strings to send
+
+  //- Get the overall send length
   vtkIdType length = 0;
-  for (int strI = 0; strI < s->GetNumberOfTuples(); strI++)
+  for (int i = 0; i < sa->GetNumberOfTuples(); ++i)
   {
-    length += static_cast<vtkIdType>(s->GetValue(strI).length()) + 1;
+    // Include trailing nul-char
+    length += static_cast<vtkIdType>(sa->GetValue(i).length()) + 1;
   }
-  vtkIdType* lengths = new vtkIdType[this->NumProcesses];
-  this->Controller->AllGather(&length, lengths, 1);
-  vtkIdType totalLength = 0;
-  vtkIdType* offsets = new vtkIdType[this->NumProcesses];
-  for (int procI = 0; procI < this->NumProcesses; procI++)
+
+  //- Add content to send (nul-delimited)
+  std::vector<char> contents(length);
   {
-    offsets[procI] = totalLength;
-    totalLength += lengths[procI];
-  }
-  char *allContents = new char[totalLength], *contents = new char[length];
-  for (int strI = 0, idx = 0; strI < s->GetNumberOfTuples(); strI++)
-  {
-    const int len = static_cast<int>(s->GetValue(strI).length()) + 1;
-    memmove(contents + idx, s->GetValue(strI).c_str(), len);
-    idx += len;
-  }
-  this->Controller->AllGatherV(contents, allContents, length, lengths, offsets);
-  delete[] contents;
-  delete[] lengths;
-  delete[] offsets;
-  s->Initialize();
-  for (int idx = 0; idx < totalLength; idx += static_cast<int>(strlen(allContents + idx)) + 1)
-  {
-    const char* str = allContents + idx;
-    // insert only when the same string is not found
-    if (s->LookupValue(str) == -1)
+    char* name = contents.data();
+    for (int i = 0; i < sa->GetNumberOfTuples(); ++i)
     {
-      s->InsertNextValue(str);
+      const int len = static_cast<int>(sa->GetValue(i).length()) + 1; // Trailing nul-char
+      memcpy(name, sa->GetValue(i).c_str(), len);
+      name += len;
     }
   }
-  s->Squeeze();
-  delete[] allContents;
+
+  std::vector<vtkIdType> lengths(this->NumProcesses);
+  std::vector<vtkIdType> offsets(this->NumProcesses);
+
+  this->Controller->AllGather(&length, lengths.data(), 1);
+
+  vtkIdType totalLength = 0;
+  for (int proci = 0; proci < this->NumProcesses; ++proci)
+  {
+    offsets[proci] = totalLength;
+    totalLength += lengths[proci];
+  }
+
+  std::vector<char> allContents(totalLength);
+
+  this->Controller->AllGatherV(
+    contents.data(), allContents.data(), length, lengths.data(), offsets.data());
+
+  sa->Initialize();
+
+  // Walk the set of nul-char delimited strings
+  {
+    const char* name = allContents.data();
+    for (int off = 0; off < totalLength; /*nil*/)
+    {
+      const int len = static_cast<int>(strlen(name)) + 1; // Trailing nul-char
+      if (sa->LookupValue(name) == -1)
+      {
+        // Insert only when the same string is not found
+        sa->InsertNextValue(name);
+      }
+      name += len;
+      off += len;
+    }
+  }
+  sa->Squeeze();
 }
 
 //------------------------------------------------------------------------------
-// AllGather vtkDataArraySelections from and to all processes
-void vtkPOpenFOAMReader::AllGather(vtkDataArraySelection* s)
+// AllGather vtkDataArraySelections from/to all processes
+// Low-level routine without non-parallel guard
+//
+// Sends/receives a set of nul-char delimited strings which can be re-parsed
+// into individual entries.
+// Each string element is prefixed with an additional char for its enabled/disabled state.
+void vtkPOpenFOAMReader::AllGather(vtkDataArraySelection* sa)
 {
+  // Construct a set of nul-char delimited strings, with bool prefix
+
+  //- Get the overall send length
   vtkIdType length = 0;
-  for (int strI = 0; strI < s->GetNumberOfArrays(); strI++)
+  for (int i = 0; i < sa->GetNumberOfArrays(); ++i)
   {
-    length += static_cast<vtkIdType>(strlen(s->GetArrayName(strI))) + 2;
+    // Include prefix char (bool) for enabled and trailing nul-char
+    length += static_cast<vtkIdType>(strlen(sa->GetArrayName(i))) + 2;
   }
-  vtkIdType* lengths = new vtkIdType[this->NumProcesses];
-  this->Controller->AllGather(&length, lengths, 1);
+
+  //- Add content to send (nul-delimited)
+  std::vector<char> contents(length);
+  {
+    char* send = contents.data();
+    for (int i = 0; i < sa->GetNumberOfArrays(); ++i)
+    {
+      const char* arrayName = sa->GetArrayName(i);
+      const int len = static_cast<int>(strlen(arrayName)) + 1; // With trailing nul-char
+      *send++ = sa->ArrayIsEnabled(arrayName);                 // enabled/disabled
+      memcpy(send, arrayName, len);
+      send += len;
+    }
+  }
+
+  std::vector<vtkIdType> lengths(this->NumProcesses);
+  std::vector<vtkIdType> offsets(this->NumProcesses);
+
+  this->Controller->AllGather(&length, lengths.data(), 1);
+
   vtkIdType totalLength = 0;
-  vtkIdType* offsets = new vtkIdType[this->NumProcesses];
-  for (int procI = 0; procI < this->NumProcesses; procI++)
+  for (int proci = 0; proci < this->NumProcesses; ++proci)
   {
-    offsets[procI] = totalLength;
-    totalLength += lengths[procI];
+    offsets[proci] = totalLength;
+    totalLength += lengths[proci];
   }
-  char *allContents = new char[totalLength], *contents = new char[length];
-  for (int strI = 0, idx = 0; strI < s->GetNumberOfArrays(); strI++)
-  {
-    const char* arrayName = s->GetArrayName(strI);
-    contents[idx] = s->ArrayIsEnabled(arrayName);
-    const int len = static_cast<int>(strlen(arrayName)) + 1;
-    memmove(contents + idx + 1, arrayName, len);
-    idx += len + 1;
-  }
-  this->Controller->AllGatherV(contents, allContents, length, lengths, offsets);
-  delete[] contents;
-  delete[] lengths;
-  delete[] offsets;
+
+  std::vector<char> allContents(totalLength);
+
+  this->Controller->AllGatherV(
+    contents.data(), allContents.data(), length, lengths.data(), offsets.data());
+
   // do not RemoveAllArray so that the previous arrays are preserved
-  // s->RemoveAllArrays();
-  for (int idx = 0; idx < totalLength; idx += static_cast<int>(strlen(allContents + idx + 1)) + 2)
+  // sa->RemoveAllArrays();
+
+  // Walk the set of nul-char delimited strings.
+  // Note that each string is prefixed with a bool.
   {
-    const char* arrayName = allContents + idx + 1;
-    s->AddArray(arrayName);
-    if (allContents[idx] == 0)
+    const char* name = allContents.data();
+    for (int off = 0; off < totalLength; /*nil*/)
     {
-      s->DisableArray(arrayName);
-    }
-    else
-    {
-      s->EnableArray(arrayName);
+      ++off; // leading bool
+      const bool isEnabled(*name++);
+      const int len = static_cast<int>(strlen(name)) + 1; // With trailing nul-char
+
+      // Add new or update current state
+      if (!sa->AddArray(name, isEnabled))
+      {
+        sa->SetArraySetting(name, isEnabled);
+      }
+
+      name += len;
+      off += len;
     }
   }
-  delete[] allContents;
 }

@@ -14,6 +14,13 @@ vtk_module_test_data(
   Data/OpenFOAM/cavity/constant/,REGEX:.*
   Data/OpenFOAM/cavity/constant/polyMesh/,REGEX:.*
   Data/OpenFOAM/cavity/system/,REGEX:.*
+
+  Data/OpenFOAM/mixerGgi/,REGEX:.*
+  Data/OpenFOAM/mixerGgi/processor0/,RECURSE:,REGEX:.*$
+  Data/OpenFOAM/mixerGgi/processor1/,RECURSE:,REGEX:.*$
+  Data/OpenFOAM/mixerGgi/processor2/,RECURSE:,REGEX:.*$
+  Data/OpenFOAM/mixerGgi/processor3/,RECURSE:,REGEX:.*$
+
   Data/bigendian.xyz)
 
 add_subdirectory(Cxx)

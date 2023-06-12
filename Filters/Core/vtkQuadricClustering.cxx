@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkQuadricClustering.h"
 
+#include <cstdint>
+
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkExecutive.h"
@@ -33,12 +35,11 @@ vtkStandardNewMacro(vtkQuadricClustering);
 
 //------------------------------------------------------------------------------
 // PIMPLd STL set for keeping track of inserted cells
-struct vtkQuadricClusteringIdTypeHash
+struct vtkQuadricClusteringIdxHash
 {
-  size_t operator()(vtkIdType val) const { return static_cast<size_t>(val); }
+  size_t operator()(int64_t val) const { return static_cast<size_t>(val); }
 };
-class vtkQuadricClusteringCellSet
-  : public std::unordered_set<vtkIdType, vtkQuadricClusteringIdTypeHash>
+class vtkQuadricClusteringCellSet : public std::unordered_set<int64_t, vtkQuadricClusteringIdxHash>
 {
 };
 typedef vtkQuadricClusteringCellSet::iterator vtkQuadricClusteringCellSetIterator;
@@ -158,7 +159,7 @@ int vtkQuadricClustering::RequestData(vtkInformation* vtkNotUsed(request),
   // (To minimize chance of overflow, force math in vtkIdType type,
   // which is sometimes bigger than int, and never smaller.)
   vtkIdType target = input->GetNumberOfPoints();
-  vtkIdType numDiv = static_cast<vtkIdType>(this->NumberOfXDivisions) * this->NumberOfYDivisions *
+  int64_t numDiv = static_cast<int64_t>(this->NumberOfXDivisions) * this->NumberOfYDivisions *
     this->NumberOfZDivisions / 2;
   if (this->AutoAdjustNumberOfDivisions && numDiv > target)
   {
@@ -554,9 +555,11 @@ void vtkQuadricClustering::AddTriangle(vtkIdType* binIds, double* pt0, double* p
             }
             break;
         }
-        // TODO: this arithmetic overflows with the TestQuadricLODActor test.
-        vtkIdType idx = binIds[minIdx] + this->NumberOfBins * binIds[midIdx] +
-          this->NumberOfBins * this->NumberOfBins * binIds[maxIdx];
+        int64_t upsizedBinMin = static_cast<int64_t>(binIds[minIdx]);
+        int64_t upsizedBinMid = static_cast<int64_t>(binIds[midIdx]);
+        int64_t upsizedBinMax = static_cast<int64_t>(binIds[maxIdx]);
+        int64_t idx = upsizedBinMin + this->NumberOfBins * upsizedBinMid +
+          this->NumberOfBins * this->NumberOfBins * upsizedBinMax;
         if (this->CellSet->find(idx) == this->CellSet->end())
         {
           this->CellSet->insert(idx);

@@ -15,6 +15,8 @@
 
 #include "vtkHigherOrderTriangle.h"
 
+#include <cstdint>
+
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
@@ -464,10 +466,18 @@ int vtkHigherOrderTriangle::IntersectWithLine(
       for (vtkIdType i = 0; i < 3; i++)
       {
         x[i] = xMin[i];
-        pcoords[i] = (i < 2 ? (bindices[0][i] + pcoordsMin[0] * (bindices[1][i] - bindices[0][i]) +
-                                pcoordsMin[1] * (bindices[2][i] - bindices[0][i])) /
-              order
-                            : 0.);
+
+        if (i < 2)
+        {
+          int64_t b0 = static_cast<int64_t>(bindices[0][i]);
+          int64_t b1 = static_cast<int64_t>(bindices[1][i]) - static_cast<int64_t>(bindices[0][i]);
+          int64_t b2 = static_cast<int64_t>(bindices[2][i]) - static_cast<int64_t>(bindices[0][i]);
+          pcoords[i] = (b0 + pcoordsMin[0] * b1 + pcoordsMin[1] * b2) / order;
+        }
+        else
+        {
+          pcoords[i] = 0.0;
+        }
       }
       t = tTmp;
     }

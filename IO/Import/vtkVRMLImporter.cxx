@@ -41,6 +41,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkLight.h"
 #include "vtkLookupTable.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -927,6 +928,13 @@ void vtkVRMLImporter::exitField()
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
     this->Parser->yylval.vec3f = nullptr;
+  }
+  // For the translation field of the Transform node
+  else if (fieldName == "rotation" && nodeTypeName == "Transform")
+  {
+    float angle = vtkMath::DegreesFromRadians(this->Parser->yylval.vec4f[3]);
+    this->CurrentTransform->RotateWXYZ(angle, this->Parser->yylval.vec4f[0],
+      this->Parser->yylval.vec4f[1], this->Parser->yylval.vec4f[2]);
   }
   // For the scale field of the transform node
   else if (fieldName == "scale" && nodeTypeName == "Transform")

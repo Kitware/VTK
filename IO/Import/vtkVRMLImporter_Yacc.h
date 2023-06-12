@@ -164,6 +164,7 @@ public:
     vtkFloatArray   *vec2f;
     vtkIdTypeArray  *mfint32;
     int             sfint;
+    float           vec4f[4];
   } YYSTYPE;
 
 
@@ -4483,8 +4484,8 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         {
           // .. add to array...
           float num[2];
-          num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(nullptr, " "));
+          num[0] = atof(strtok(yytext, " \t"));
+          num[1] = atof(strtok(nullptr, " \t"));
           // equivalent to: sscanf(yytext, "%f %f", &num[0], &num[1]);
           yylval.vec2f->InsertNextTuple(num);
         }
@@ -4500,9 +4501,9 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           {   BEGIN NODE; expectToken = 0;
           float num[3];
           yylval.vec3f = self->PointsNew();
-          num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(nullptr, " "));
-          num[2] = atof(strtok(nullptr, " "));
+          num[0] = atof(strtok(yytext, " \t"));
+          num[1] = atof(strtok(nullptr, " \t"));
+          num[2] = atof(strtok(nullptr, " \t"));
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertPoint(0, num);
           return SFVEC3F; }
@@ -4510,9 +4511,9 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         YY_USER_ACTION
         { if (parsing_mf) { /*  .. add to array... */
           float num[3];
-          num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(nullptr, " "));
-          num[2] = atof(strtok(nullptr, " "));
+          num[0] = atof(strtok(yytext, " \t"));
+          num[1] = atof(strtok(nullptr, " \t"));
+          num[2] = atof(strtok(nullptr, " \t"));
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertNextPoint(num);
           //return MFVEC3F;
@@ -4525,7 +4526,12 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         YY_BREAK
       case 31:
             YY_USER_ACTION
-          { BEGIN NODE; expectToken = 0; return SFROTATION; }
+          { BEGIN NODE; expectToken = 0;
+            yylval.vec4f[0] = atof(strtok(yytext, " \t"));
+            yylval.vec4f[1] = atof(strtok(nullptr, " \t"));
+            yylval.vec4f[2] = atof(strtok(nullptr, " \t"));
+            yylval.vec4f[3] = atof(strtok(nullptr, " \t"));
+            return SFROTATION; }
       case 32:
         YY_USER_ACTION
         { if (parsing_mf) ; /* .. add to array... */
@@ -4539,9 +4545,9 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           { BEGIN NODE; expectToken = 0;
           float num[3];
           yylval.vec3f = self->PointsNew();
-          num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(nullptr, " "));
-          num[2] = atof(strtok(nullptr, " "));
+          num[0] = atof(strtok(yytext, " \t"));
+          num[1] = atof(strtok(nullptr, " \t"));
+          num[2] = atof(strtok(nullptr, " \t"));
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertPoint(0, num);
           return SFCOLOR; }
@@ -4549,9 +4555,9 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         YY_USER_ACTION
         { if (parsing_mf) { /*  .. add to array... */
           float num[3];
-          num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(nullptr, " "));
-          num[2] = atof(strtok(nullptr, " "));
+          num[0] = atof(strtok(yytext, " \t"));
+          num[1] = atof(strtok(nullptr, " \t"));
+          num[2] = atof(strtok(nullptr, " \t"));
           yylval.vec3f->InsertNextPoint(num);
           }
           else {

@@ -48,7 +48,7 @@ int TestLogger(int, char*[])
 
     auto month = "May";
     vtkLogIf(2, true, << "Rough winds do shake the darling buds of " << month << ",");
-    vtkLogIfF(2, true, "And %s’s lease hath all too short a date;", "summers");
+    vtkLogIfF(2, true, "And %s's lease hath all too short a date;", "summers");
   }
 
   cerr << "--------------------------------------------" << endl

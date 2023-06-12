@@ -110,6 +110,7 @@ uninitMemberVar:*/Charts/Core/vtkScatterPlotMatrix.cxx
 uninitMemberVar:*/Common/ComputationalGeometry/vtkParametricEllipsoid.cxx
 uninitMemberVar:*/Common/ComputationalGeometry/vtkParametricSpline.cxx
 uninitMemberVar:*/Common/DataModel/Testing/Cxx/TestMappedGridDeepCopy.cxx
+uninitMemberVar:*/Common/DataModel/Testing/Cxx/TestMappedGridShallowCopy.cxx
 uninitMemberVar:*/Common/DataModel/vtkAbstractCellLocator.cxx
 uninitMemberVar:*/Common/DataModel/vtkAttributesErrorMetric.cxx
 uninitMemberVar:*/Common/DataModel/vtkBiQuadraticQuad.cxx
