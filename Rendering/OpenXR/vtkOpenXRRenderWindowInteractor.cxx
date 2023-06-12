@@ -518,10 +518,9 @@ void vtkOpenXRRenderWindowInteractor::Initialize()
     return;
   }
 
-  // Grip actions are handled by the interactor directly (why?)
-  this->AddAction("leftgripaction", [this](vtkEventData* ed) { this->HandleGripEvents(ed); });
-
-  this->AddAction("rightgripaction", [this](vtkEventData* ed) { this->HandleGripEvents(ed); });
+  // Complex gesture actions are handled by the interactor directly (why?)
+  this->AddAction(
+    "complexgestureaction", [this](vtkEventData* ed) { this->HandleComplexGestureEvents(ed); });
 
   // Create an entry for pose actions that are used to retrieve
   // Orientation and locations of trackers

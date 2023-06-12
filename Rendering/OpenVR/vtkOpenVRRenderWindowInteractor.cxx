@@ -55,10 +55,8 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
   vr::VRInput()->GetInputSourceHandle(
     "/user/head", &this->Trackers[vtkOpenVRRenderWindowInteractor::HEAD].Source);
 
-  this->AddAction("/actions/vtk/in/LeftGripAction", false,
-    [this](vtkEventData* ed) { this->HandleGripEvents(ed); });
-  this->AddAction("/actions/vtk/in/RightGripAction", false,
-    [this](vtkEventData* ed) { this->HandleGripEvents(ed); });
+  this->AddAction("/actions/vtk/in/ComplexGestureAction", false,
+    [this](vtkEventData* ed) { this->HandleComplexGestureEvents(ed); });
 
   // add extra event actions
   for (auto& it : this->ActionMap)

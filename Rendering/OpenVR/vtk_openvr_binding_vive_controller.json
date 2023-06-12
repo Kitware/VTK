@@ -20,7 +20,7 @@
         {
           "inputs": {
             "click": {
-              "output": "/actions/vtk/in/rightgripaction"
+              "output": "/actions/vtk/in/complexgestureaction"
             }
           },
           "mode": "button",
@@ -29,7 +29,7 @@
         {
           "inputs": {
             "click": {
-              "output": "/actions/vtk/in/leftgripaction"
+              "output": "/actions/vtk/in/complexgestureaction"
             }
           },
           "mode": "button",

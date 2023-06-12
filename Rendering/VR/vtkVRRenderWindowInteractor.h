@@ -169,11 +169,23 @@ protected:
 
   ///@{
   /**
-   * Handle multitouch events. Multitouch events recognition starts when
-   * both controllers triggers are pressed.
+   * Handle complex gesture events. Complex gesture events recognition starts when
+   * both buttons mapped to the ComplexGesture action are pressed.
+   *
+   * To differentiate the Rotate, Pinch and Pan gestures, the default implementation
+   * is based on the following heuristic:
+   * - Pinch is a move to/from the center point.
+   * - Rotate is a move along the circumference.
+   * - Pan is a move of the center point.
+   *
+   * After computing the distance along each of these axes in meters, the first
+   * to break the hard-coded threshold wins.
+   *
+   * Overriding both HandleComplexGestureEvents() and RecognizeComplexGesture() allows to define
+   * a different heuristic.
    */
-  void HandleGripEvents(vtkEventData* ed);
-  void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
+  virtual void HandleComplexGestureEvents(vtkEventData* ed);
+  virtual void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
   ///@}
 
   ///@{
@@ -187,12 +199,15 @@ protected:
   ///@}
 
   /**
-   * Store physical to world matrix at the start of a multitouch gesture.
+   * Store physical to world matrix at the start of a complex gesture.
    */
   vtkNew<vtkMatrix4x4> StartingPhysicalToWorldMatrix;
+
   int DeviceInputDownCount[vtkEventDataNumberOfDevices];
+
   std::string ActionManifestFileName;
   std::string ActionManifestDirectory;
+
   std::string ActionSetName;
 
 private:
