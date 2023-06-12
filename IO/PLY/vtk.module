@@ -4,10 +4,6 @@ LIBRARY_NAME
   vtkIOPLY
 LICENSE_FILES
   Copyright.txt
-SPDX_LICENSE_IDENTIFIER
-  MIT
-SPDX_COPYRIGHT_TEXT
-  Copyright © (c) Ken Martin, Will Schroeder, Bill Lorensen
 KIT
   VTK::IO
 GROUPS
