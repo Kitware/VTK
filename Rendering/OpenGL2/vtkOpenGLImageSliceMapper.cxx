@@ -26,6 +26,7 @@
 #include "vtkLookupTable.h"
 #include "vtkMapper.h"
 #include "vtkMath.h"
+#include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
@@ -395,17 +396,19 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
     vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
     double* origin = this->DataOrigin;
     double* spacing = this->DataSpacing;
-    double xshift = origin[xdim] - (0.5 - extent[2 * xdim]) * spacing[xdim];
+    double xshift = -(0.5 - extent[2 * xdim]) * spacing[xdim];
     double xscale = this->TextureSize[xdim] * spacing[xdim];
-    double yshift = origin[ydim] - (0.5 - extent[2 * ydim]) * spacing[ydim];
+    double yshift = -(0.5 - extent[2 * ydim]) * spacing[ydim];
     double yscale = this->TextureSize[ydim] * spacing[ydim];
     vtkIdType ncoords = points->GetNumberOfPoints();
     double coord[3];
     double tcoord[2];
+    double invDirection[9];
 
     polyPoints->DeepCopy(points);
     if (textured)
     {
+      vtkMatrix3x3::Invert(this->DataDirection, invDirection);
       polyTCoords->SetNumberOfTuples(ncoords);
     }
 
@@ -413,7 +416,10 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
     {
       if (textured)
       {
+        // convert points from 3D model coords to 2D texture coords
         points->GetPoint(i, coord);
+        vtkMath::Subtract(coord, origin, coord);
+        vtkMatrix3x3::MultiplyPoint(invDirection, coord, coord);
         tcoord[0] = (coord[0] - xshift) / xscale;
         tcoord[1] = (coord[1] - yshift) / yscale;
         polyTCoords->SetTuple(i, tcoord);
@@ -613,6 +619,7 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer* ren, vtkImageSlice* prop)
   // update the input information
   vtkImageData* input = this->GetInput();
   input->GetSpacing(this->DataSpacing);
+  vtkMatrix3x3::DeepCopy(this->DataDirection, input->GetDirectionMatrix());
   input->GetOrigin(this->DataOrigin);
   vtkInformation* inputInfo = this->GetInputInformation(0, 0);
   inputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->DataWholeExtent);
