@@ -13,10 +13,23 @@ vtk_module_test_data(
   Data/amr_gaussian_pulse/amr_gaussian_pulse_0.vti
   Data/amr_gaussian_pulse/amr_gaussian_pulse_1.vti
   Data/amr_gaussian_pulse/amr_gaussian_pulse_2.vti
+  Data/test_poly_data.hdf
+  Data/test_transient_poly_data.hdf
   Data/transient_sphere.hdf
   Data/transient_wavelet.hdf
   Data/wavelet_cell_data.hdf
   Data/wavelet_cell_data.vti
+  Data/hdf_poly_data_twin.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_000.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_001.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_002.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_003.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_004.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_005.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_006.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_007.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_008.vtp
+  Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_009.vtp
   )
 
 add_subdirectory(Cxx)

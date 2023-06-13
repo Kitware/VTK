@@ -22,11 +22,13 @@
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkTesting.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLPUnstructuredGridReader.h"
+#include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
@@ -157,7 +159,8 @@ int TestDataSet(vtkDataSet* data, vtkDataSet* expectedData)
       if (!tester.ArraysArePointerCompatible)
       {
         vtkLog(ERROR,
-          "Read array and expected arrays do not have compatible pointers."
+          "Read array and expected arrays do not have compatible pointers for "
+            << expectedArray->GetName() << "."
             << " Read array: " << array->GetClassName()
             << " Expected array: " << expectedArray->GetClassName());
         return EXIT_FAILURE;
@@ -286,6 +289,23 @@ int TestUnstructuredGrid(const std::string& dataRoot)
   return TestDataSet(data, expectedData);
 }
 
+int TestPolyData(const std::string& dataRoot)
+{
+  const std::string expectedName = dataRoot + "/Data/hdf_poly_data_twin.vtp";
+  vtkNew<vtkXMLPolyDataReader> expectedReader;
+  expectedReader->SetFileName(expectedName.c_str());
+  expectedReader->Update();
+  auto expectedData = vtkPolyData::SafeDownCast(expectedReader->GetOutput());
+
+  const std::string fileName = dataRoot + "/Data/test_poly_data.hdf";
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto data = vtkPolyData::SafeDownCast(reader->GetOutputAsDataSet());
+
+  return TestDataSet(data, expectedData);
+}
+
 int TestOverlappingAMR(const std::string& dataRoot)
 {
   std::string fileName = dataRoot + "/Data/amr_gaussian_pulse.hdf";
@@ -366,6 +386,10 @@ int TestHDFReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
   if (TestUnstructuredGrid<true /*parallel*/>(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestPolyData(dataRoot))
   {
     return EXIT_FAILURE;
   }

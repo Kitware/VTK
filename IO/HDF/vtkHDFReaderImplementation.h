@@ -70,9 +70,10 @@ public:
   template <typename T>
   bool GetAttribute(hid_t group, const char* attributeName, size_t numberOfElements, T* value);
   /**
-   * Returns the number of partitions for this dataset.
+   * Returns the number of partitions for this dataset at the time step
+   * `step` if applicable.
    */
-  int GetNumberOfPieces() { return this->NumberOfPieces; }
+  int GetNumberOfPieces(vtkIdType step = -1);
   /**
    * For an ImageData, sets the extent for 'partitionIndex'. Returns
    * true for success and false otherwise.

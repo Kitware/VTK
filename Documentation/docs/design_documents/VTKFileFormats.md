@@ -943,8 +943,8 @@ VTK HDF files start with a group called `VTKHDF` with two attributes:
 `Version`, an array of two integers and `Type`, a string showing the
 VTK dataset type stored in the file. Additional attributes can follow
 depending on the dataset type. Currently, `Version`
-is the array [1, 0] and `Type` can be `ImageData`, `UnstructuredGrid`
-or `OverlappingAMR`.
+is the array [2, 0] and `Type` can be `ImageData`, `PolyData`,
+`UnstructuredGrid` or `OverlappingAMR`.
 
 The data type for each HDF dataset is part of the dataset and it is
 determined at write time. The reader matches the type of the dataset
@@ -1000,7 +1000,7 @@ array for partition i. `NumberOfPoints` and `NumberOfCells` are arrays
 of size n, where NumberOfPoints[i] and NumberOfCells[i] are the number
 of points and number of cells for partition i. The `Points` array
 contains the points of the VTK dataset. `Offsets` is an array of size
-∑ S(i), where S(i) is the size of partition i, indicating the index in
+∑ (S(i) + 1), where S(i) is the number of cells in partition i, indicating the index in
 the `Connectivity` array where each cell's points start.
 `Connectivity` stores the lists of point ids for each cell, and
 `Types` contain the cell information stored as described in
@@ -1027,8 +1027,61 @@ To read the data for its rank a node reads the information about all
 partitions, compute the correct offset and then read data from that
 offset.
 
+### Poly data
+
+The format for unstructured grid is shown in Figure 8. In this case
+the `Type` attribute of the `VTKHDF` group is `PolyData`.
+The poly data is split into partitions, with a partition for
+each MPI rank. This is reflected in the HDF5 file structure. Each HDF
+dataset is obtained by concatenating the data for each partition. The
+offset O(i) where we store the data for partition i is computed using:
+
+O(i) = S(0) + ... + S(i-1), i > 1 with O(0) = 0.
+
+where S(i) is the size of partition i. This is very similar to and
+completely inspired by the `UnstructuredGrid` format.
+
+The split into partitions of the point coordinates is exactly the same
+as in the `UnstructuredGrid` format above. However, the split into
+partitions of each of the category of cells (`Vertices`, `Lines`,
+`Polygons` and `Strips`) using HDF5 datasets `NumberOfConnectivityIds`
+and `NumberOfCells`. Let n be the number of partitions which usually
+correspond to the number of the MPI ranks. `{CellCategory}/NumberOfConnectivityIds` has
+size n where NumberOfConnectivityIds[i] represents the size of the `{CellCategory}/Connectivity`
+array for partition i. `NumberOfPoints` and `{CellCategory}/NumberOfCells` are arrays
+of size n, where NumberOfPoints[i] and {CellCategory}/NumberOfCells[i] are the number
+of points and number of cells for partition i. The `Points` array
+contains the points of the VTK dataset. `{CellCategory}/Offsets` is an array of size
+∑ (S(i) + 1), where S(i) is the number of cells in partition i, indicating the index in
+the `{CellCategory}/Connectivity` array where each cell's points start.
+`{CellCategory}/Connectivity` stores the lists of point ids for each cell.
+Data for each partition is appended in a HDF dataset for `Points`, `Connectivity`, `Offsets`,
+`PointData` and `CellData`. We can compute the size of partition i
+using the following formulas:
+
+|   | Size of partition i |
+|:--|:--|
+| Points  | NumberOfPoints[i] * 3 * sizeof(Points[0][0])  |
+| {CellCategory}/Connectivity  | {CellCategory}/NumberOfConnectivityIds[i] * sizeof({CellCategory}/Connectivity[0]) |
+| {CellCategory}/Offsets  | ({CellCategory}/NumberOfCells[i] + 1) * sizeof({CellCategory}/Offsets[0]) |
+| PointData  | NumberOfPoints[i] * sizeof(point_array_k[0]) |
+| CellData | (∑j {CellCategory_j}/NumberOfCells[i]) * sizeof(cell_array_k[0]) |
+
+
+```{figure} poly_data_hdf_schema.png
+---
+width=640
+---
+Figure 8. - Poly Data VTKHDF File Format
+```
+
+To read the data for its rank a node reads the information about all
+partitions, compute the correct offset and then read data from that
+offset.
+
+
 ### Overlapping AMR
-The format for Overlapping AMR is shown in Figure 8. In this case
+The format for Overlapping AMR is shown in Figure 9. In this case
 the `Type` attribute of the `VTKHDF` group is `OverlappingAMR`.
 The mandatory `Origin` parameter is a double triplet that defines
 the global origin of the AMR data set.
@@ -1046,13 +1099,13 @@ PointData or CellData group.
 
 <figure>
   <img src="https://raw.githubusercontent.com/Kitware/vtk-examples/gh-pages/src/VTKFileFormats/Figures/vtkhdf-overlapping-amr.svg" width="640" alt="Overlapping AMR VTKHDF File Format">
-  <figcaption>Figure 8. - Overlapping AMR VTKHDF File Format</figcaption>
+  <figcaption>Figure 9. - Overlapping AMR VTKHDF File Format</figcaption>
 </figure>
 
 ### Limitations
 
 This specification and the reader available in VTK currently only
-supports ImageData, UnstructuredGrid and Overlapping AMR. Other dataset
+supports ImageData, UnstructuredGrid, PolyData and Overlapping AMR. Other dataset
 types may be added later depending on interest and funding.
 
 ### Examples
@@ -1318,6 +1371,128 @@ GROUP "/" {
       DATASET "Types" {
          DATATYPE  H5T_STD_U8LE
          DATASPACE  SIMPLE { ( 5480 ) / ( H5S_UNLIMITED ) }
+      }
+   }
+}
+}
+```
+
+#### PolyData
+
+The poly data is the `test_poly_data.hdf` from the `VTK` testing data:
+
+```
+HDF5 "./ExternalData/Testing/Data/test_poly_data.hdf" {
+GROUP "/" {
+   GROUP "VTKHDF" {
+      ATTRIBUTE "Type" {
+         DATATYPE  H5T_STRING {
+            STRSIZE 8;
+            STRPAD H5T_STR_NULLPAD;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         }
+         DATASPACE  SCALAR
+      }
+      ATTRIBUTE "Version" {
+         DATATYPE  H5T_STD_I64LE
+         DATASPACE  SIMPLE { ( 2 ) / ( 2 ) }
+      }
+      GROUP "CellData" {
+         DATASET "Materials" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 816 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+      GROUP "Lines" {
+         DATASET "Connectivity" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 0 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfCells" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfConnectivityIds" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "Offsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+      DATASET "NumberOfPoints" {
+         DATATYPE  H5T_STD_I64LE
+         DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+      }
+      GROUP "PointData" {
+         DATASET "Normals" {
+            DATATYPE  H5T_IEEE_F32LE
+            DATASPACE  SIMPLE { ( 412, 3 ) / ( H5S_UNLIMITED, 3 ) }
+         }
+         DATASET "Warping" {
+            DATATYPE  H5T_IEEE_F32LE
+            DATASPACE  SIMPLE { ( 412, 3 ) / ( H5S_UNLIMITED, 3 ) }
+         }
+      }
+      DATASET "Points" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 412, 3 ) / ( H5S_UNLIMITED, 3 ) }
+      }
+      GROUP "Polygons" {
+         DATASET "Connectivity" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2448 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfCells" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfConnectivityIds" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "Offsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 818 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+      GROUP "Strips" {
+         DATASET "Connectivity" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 0 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfCells" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfConnectivityIds" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "Offsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+      GROUP "Vertices" {
+         DATASET "Connectivity" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 0 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfCells" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfConnectivityIds" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "Offsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( H5S_UNLIMITED ) }
+         }
       }
    }
 }
