@@ -936,8 +936,8 @@ The following is a complete example specifying a vtkPolyData representing a cube
 
 ## HDF File Formats
 We use the same extension for serial and parallel formats and for all
-types of datasets. We use HDF standard file extensions such as hdf,
-hdf5, h5 or he5.
+types of datasets. Standard HDF file format extensions such as hdf,
+hdf5, h5 or he5 can be used but `.vtkhdf` should be preferred.
 
 VTK HDF files start with a group called `VTKHDF` with two attributes:
 `Version`, an array of two integers and `Type`, a string showing the
