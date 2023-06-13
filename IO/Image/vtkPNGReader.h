@@ -28,6 +28,11 @@
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkStringArray;
+VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkPNGReader : public vtkImageReader2
@@ -60,16 +65,25 @@ public:
    * [begin, end) indexes.
    */
   void GetTextChunks(const char* key, int beginEndIndex[2]);
+
+  ///@{
   /**
    * Returns the text key stored at 'index'.
    */
   const char* GetTextKey(int index);
+  vtkSmartPointer<vtkStringArray> GetTextKeys();
+  ///@}
+
+  ///@{
   /**
    * Returns the text value stored at 'index'. A range of indexes
    * that store values for a certain key can be obtained by calling
    * GetTextChunks.
    */
   const char* GetTextValue(int index);
+  vtkSmartPointer<vtkStringArray> GetTextValues();
+  ///@}
+
   /**
    * Return the number of text chunks in the PNG file.
    * Note that we don't process compressed or international text entries

@@ -19,6 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringArray.h"
 #include "vtk_png.h"
 #include <vtksys/SystemTools.hxx>
 
@@ -618,9 +619,33 @@ const char* vtkPNGReader::GetTextKey(int index)
 }
 
 //------------------------------------------------------------------------------
+vtkSmartPointer<vtkStringArray> vtkPNGReader::GetTextKeys()
+{
+  vtkSmartPointer<vtkStringArray> keys = vtkSmartPointer<vtkStringArray>::New();
+  keys->Allocate(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
+  for (auto& key : this->Internals->TextKeyValue)
+  {
+    keys->InsertNextValue(key.first);
+  }
+  return keys;
+}
+
+//------------------------------------------------------------------------------
 const char* vtkPNGReader::GetTextValue(int index)
 {
   return this->Internals->TextKeyValue[index].second.c_str();
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkStringArray> vtkPNGReader::GetTextValues()
+{
+  vtkSmartPointer<vtkStringArray> values = vtkSmartPointer<vtkStringArray>::New();
+  values->Allocate(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
+  for (auto& value : this->Internals->TextKeyValue)
+  {
+    values->InsertNextValue(value.second);
+  }
+  return values;
 }
 
 //------------------------------------------------------------------------------
