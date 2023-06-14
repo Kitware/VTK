@@ -190,6 +190,20 @@ public:
   vtkGetObjectMacro(LegendLabelProperty, vtkTextProperty);
   ///@}
 
+  /**
+   * Configuration forwarded to each axis.
+   */
+  ///@{
+  /// Set the axes text properties.
+  void SetAxesTextProperty(vtkTextProperty* property);
+
+  /// Set the axes to get font size from text property.
+  void SetUseFontSizeFromProperty(bool sizeFromProp);
+
+  /// Set the axes to adjust labels position to a "nice" one.
+  void SetAdjustLabels(bool ajust);
+  ///@}
+
   ///@{
   /**
    * These are methods to retrieve the vtkAxisActors used to represent

@@ -151,6 +151,40 @@ vtkLegendScaleActor::~vtkLegendScaleActor()
 }
 
 //------------------------------------------------------------------------------
+void vtkLegendScaleActor::SetAdjustLabels(bool adjust)
+{
+  this->RightAxis->SetAdjustLabels(adjust);
+  this->TopAxis->SetAdjustLabels(adjust);
+  this->LeftAxis->SetAdjustLabels(adjust);
+  this->BottomAxis->SetAdjustLabels(adjust);
+}
+
+//------------------------------------------------------------------------------
+void vtkLegendScaleActor::SetUseFontSizeFromProperty(bool fromProp)
+{
+  this->RightAxis->SetUseFontSizeFromProperty(fromProp);
+  this->TopAxis->SetUseFontSizeFromProperty(fromProp);
+  this->LeftAxis->SetUseFontSizeFromProperty(fromProp);
+  this->BottomAxis->SetUseFontSizeFromProperty(fromProp);
+}
+
+//------------------------------------------------------------------------------
+void vtkLegendScaleActor::SetAxesTextProperty(vtkTextProperty* prop)
+{
+  this->RightAxis->SetLabelTextProperty(prop);
+  this->TopAxis->SetLabelTextProperty(prop);
+  this->LeftAxis->SetLabelTextProperty(prop);
+  this->BottomAxis->SetLabelTextProperty(prop);
+
+  this->RightAxis->SetTitleTextProperty(prop);
+  this->TopAxis->SetTitleTextProperty(prop);
+  this->LeftAxis->SetTitleTextProperty(prop);
+  this->BottomAxis->SetTitleTextProperty(prop);
+
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkLegendScaleActor::GetActors2D(vtkPropCollection* pc)
 {
   pc->AddItem(this->RightAxis);
