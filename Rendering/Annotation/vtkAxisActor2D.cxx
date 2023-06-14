@@ -494,31 +494,38 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
     if (positionsHaveChanged || viewportSizeHasChanged ||
       this->LabelTextProperty->GetMTime() > this->BuildTime || labeltime > this->BuildTime)
     {
-      if (!this->SizeFontRelativeToAxis)
+      if (!this->UseFontSizeFromProperty)
       {
-        vtkTextMapper::SetMultipleRelativeFontSize(viewport, this->LabelMappers,
-          this->AdjustedNumberOfLabels, size, this->LastMaxLabelSize,
-          0.015 * this->FontFactor * this->LabelFactor);
+        if (!this->SizeFontRelativeToAxis)
+        {
+          vtkTextMapper::SetMultipleRelativeFontSize(viewport, this->LabelMappers,
+            this->AdjustedNumberOfLabels, size, this->LastMaxLabelSize,
+            0.015 * this->FontFactor * this->LabelFactor);
+        }
+        else
+        {
+          int minFontSize = 1000, fontSize, minLabel = 0;
+          for (i = 0; i < this->AdjustedNumberOfLabels; i++)
+          {
+            fontSize = this->LabelMappers[i]->SetConstrainedFontSize(viewport,
+              static_cast<int>((1.0 / this->AdjustedNumberOfLabels) * len),
+              static_cast<int>(0.2 * len));
+            if (fontSize < minFontSize)
+            {
+              minFontSize = fontSize;
+              minLabel = i;
+            }
+          }
+          for (i = 0; i < this->AdjustedNumberOfLabels; i++)
+          {
+            this->LabelMappers[i]->GetTextProperty()->SetFontSize(minFontSize);
+          }
+          this->LabelMappers[minLabel]->GetSize(viewport, this->LastMaxLabelSize);
+        }
       }
       else
       {
-        int minFontSize = 1000, fontSize, minLabel = 0;
-        for (i = 0; i < this->AdjustedNumberOfLabels; i++)
-        {
-          fontSize = this->LabelMappers[i]->SetConstrainedFontSize(viewport,
-            static_cast<int>((1.0 / this->AdjustedNumberOfLabels) * len),
-            static_cast<int>(0.2 * len));
-          if (fontSize < minFontSize)
-          {
-            minFontSize = fontSize;
-            minLabel = i;
-          }
-        }
-        for (i = 0; i < this->AdjustedNumberOfLabels; i++)
-        {
-          this->LabelMappers[i]->GetTextProperty()->SetFontSize(minFontSize);
-        }
-        this->LabelMappers[minLabel]->GetSize(viewport, this->LastMaxLabelSize);
+        this->LabelMappers[0]->GetSize(viewport, this->LastMaxLabelSize);
       }
     }
 
