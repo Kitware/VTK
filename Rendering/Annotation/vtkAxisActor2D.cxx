@@ -44,31 +44,7 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->Position2Coordinate->SetValue(0.75, 0.0);
   this->Position2Coordinate->SetReferenceCoordinate(nullptr);
 
-  this->NumberOfLabels = 5;
-
   this->Title = nullptr;
-
-  this->TitlePosition = 0.5;
-
-  this->AdjustLabels = 1;
-
-  this->TickLength = 5;
-  this->MinorTickLength = 3;
-  this->TickOffset = 2;
-  this->NumberOfMinorTicks = 0;
-
-  this->Range[0] = 0.0;
-  this->Range[1] = 1.0;
-
-  this->FontFactor = 1.0;
-  this->LabelFactor = 0.75;
-
-  this->SizeFontRelativeToAxis = 0;
-  this->UseFontSizeFromProperty = 0;
-
-  this->RulerMode = 0;
-  this->RulerDistance = 1.0;
-
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetBold(1);
   this->LabelTextProperty->SetItalic(1);
@@ -86,7 +62,6 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->TitleActor->SetMapper(this->TitleMapper);
 
   // To avoid deleting/rebuilding create once up front
-  this->NumberOfLabelsBuilt = 0;
   this->LabelMappers = new vtkTextMapper*[VTK_MAX_LABELS];
   this->LabelActors = new vtkActor2D*[VTK_MAX_LABELS];
   for (int i = 0; i < VTK_MAX_LABELS; i++)
@@ -96,22 +71,8 @@ vtkAxisActor2D::vtkAxisActor2D()
     this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
   }
 
-  this->Axis = vtkPolyData::New();
-  this->AxisMapper = vtkPolyDataMapper2D::New();
   this->AxisMapper->SetInputData(this->Axis);
-  this->AxisActor = vtkActor2D::New();
   this->AxisActor->SetMapper(this->AxisMapper);
-
-  this->AxisVisibility = 1;
-  this->TickVisibility = 1;
-  this->LabelVisibility = 1;
-  this->TitleVisibility = 1;
-
-  this->LastPosition[0] = this->LastPosition[1] = 0;
-  this->LastPosition2[0] = this->LastPosition2[1] = 0;
-
-  this->LastSize[0] = this->LastSize[1] = 0;
-  this->LastMaxLabelSize[0] = this->LastMaxLabelSize[1] = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -136,10 +97,6 @@ vtkAxisActor2D::~vtkAxisActor2D()
     delete[] this->LabelMappers;
     delete[] this->LabelActors;
   }
-
-  this->Axis->Delete();
-  this->AxisMapper->Delete();
-  this->AxisActor->Delete();
 
   this->SetLabelTextProperty(nullptr);
   this->SetTitleTextProperty(nullptr);

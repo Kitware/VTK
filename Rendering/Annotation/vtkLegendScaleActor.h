@@ -41,6 +41,8 @@
 #include "vtkProp.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+#include "vtkNew.h" // for vtkNew
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor2D;
 class vtkTextProperty;
@@ -215,36 +217,36 @@ protected:
   vtkLegendScaleActor();
   ~vtkLegendScaleActor() override;
 
-  int LabelMode;
-  int RightBorderOffset;
-  int TopBorderOffset;
-  int LeftBorderOffset;
-  int BottomBorderOffset;
-  double CornerOffsetFactor;
+  int LabelMode = DISTANCE;
+  int RightBorderOffset = 50;
+  int TopBorderOffset = 30;
+  int LeftBorderOffset = 50;
+  int BottomBorderOffset = 30;
+  double CornerOffsetFactor = 2.;
 
   // The four axes around the borders of the renderer
-  vtkAxisActor2D* RightAxis;
-  vtkAxisActor2D* TopAxis;
-  vtkAxisActor2D* LeftAxis;
-  vtkAxisActor2D* BottomAxis;
+  vtkNew<vtkAxisActor2D> RightAxis;
+  vtkNew<vtkAxisActor2D> TopAxis;
+  vtkNew<vtkAxisActor2D> LeftAxis;
+  vtkNew<vtkAxisActor2D> BottomAxis;
 
   // Control the display of the axes
-  vtkTypeBool RightAxisVisibility;
-  vtkTypeBool TopAxisVisibility;
-  vtkTypeBool LeftAxisVisibility;
-  vtkTypeBool BottomAxisVisibility;
+  vtkTypeBool RightAxisVisibility = 1;
+  vtkTypeBool TopAxisVisibility = 1;
+  vtkTypeBool LeftAxisVisibility = 1;
+  vtkTypeBool BottomAxisVisibility = 1;
 
   // Support for the legend.
-  vtkTypeBool LegendVisibility;
-  vtkPolyData* Legend;
-  vtkPoints* LegendPoints;
-  vtkPolyDataMapper2D* LegendMapper;
-  vtkActor2D* LegendActor;
+  vtkTypeBool LegendVisibility = 1;
+  vtkNew<vtkPolyData> Legend;
+  vtkNew<vtkPoints> LegendPoints;
+  vtkNew<vtkPolyDataMapper2D> LegendMapper;
+  vtkNew<vtkActor2D> LegendActor;
   vtkTextMapper* LabelMappers[6];
   vtkActor2D* LabelActors[6];
-  vtkTextProperty* LegendTitleProperty;
-  vtkTextProperty* LegendLabelProperty;
-  vtkCoordinate* Coordinate;
+  vtkNew<vtkTextProperty> LegendTitleProperty;
+  vtkNew<vtkTextProperty> LegendLabelProperty;
+  vtkNew<vtkCoordinate> Coordinate;
 
   vtkTimeStamp BuildTime;
 
