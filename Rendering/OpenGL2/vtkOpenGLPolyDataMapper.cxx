@@ -2258,7 +2258,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       // the camera view and the line, result is (lineVec.y, -lineVec.x, 0).
       // Cross this vector with the line vector again to get a normal that
       // is orthogonal to the line and maximally aligned with the camera.
-      toString << "  float addOrSubtract = (dot(fdx, fdy) >= 0) ? 1.0 : -1.0;\n"
+      toString << "  float addOrSubtract = (dot(fdx, fdy) >= 0.0) ? 1.0 : -1.0;\n"
                   "  vec3 lineVec = addOrSubtract*fdy + fdx;\n"
                   "  vec3 normalVCVSOutput = normalize(cross(vec3(lineVec.y, -lineVec.x, 0.0), "
                   "lineVec));\n";
