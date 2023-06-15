@@ -88,6 +88,7 @@ struct VertexAttributeArrays
   vtkSmartPointer<vtkDataArray> points;
   vtkSmartPointer<vtkDataArray> tangents;
   vtkSmartPointer<vtkDataArray> tcoords;
+  vtkSmartPointer<vtkDataArray> colorTCoords;
 
   void operator=(VertexAttributeArrays& other)
   {
@@ -116,6 +117,11 @@ struct VertexAttributeArrays
       this->tcoords = vtk::TakeSmartPointer(other.tcoords->NewInstance());
       this->tcoords->SetNumberOfComponents(other.tcoords->GetNumberOfComponents());
     }
+    if (other.colorTCoords != nullptr)
+    {
+      this->colorTCoords = vtk::TakeSmartPointer(other.colorTCoords->NewInstance());
+      this->colorTCoords->SetNumberOfComponents(other.colorTCoords->GetNumberOfComponents());
+    }
   }
 
   void Resize(int npts)
@@ -139,6 +145,10 @@ struct VertexAttributeArrays
     if (this->tcoords != nullptr)
     {
       this->tcoords->SetNumberOfTuples(npts);
+    }
+    if (this->colorTCoords != nullptr)
+    {
+      this->colorTCoords->SetNumberOfTuples(npts);
     }
   }
 };
@@ -874,19 +884,18 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
   }
   prim2cellMap->BuildPrimitiveOffsetsIfNeeded(prims, representation, polydata->GetPoints());
 
-  // Set the texture if we are going to use texture
-  // for coloring with a point attribute.
+  // Set the texture coordinate attribute if we are going to use texture for coloring
   vtkDataArray* tcoords = nullptr;
   if (this->HaveTCoords(polydata))
   {
-    if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
-    {
-      tcoords = this->ColorCoordinates;
-    }
-    else
-    {
-      tcoords = polydata->GetPointData()->GetTCoords();
-    }
+    tcoords = polydata->GetPointData()->GetTCoords();
+  }
+
+  // Set specific texture coordinates if we are going to use texture for scalar coloring
+  vtkDataArray* colorTCoords = nullptr;
+  if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
+  {
+    colorTCoords = this->ColorCoordinates;
   }
 
   VertexAttributeArrays originalVAttribs;
@@ -895,6 +904,7 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
   originalVAttribs.points = polydata->GetPoints()->GetData();
   originalVAttribs.tangents = polydata->GetPointData()->GetTangents();
   originalVAttribs.tcoords = tcoords;
+  originalVAttribs.colorTCoords = colorTCoords;
 
   bool draw_surface_with_edges =
     (act->GetProperty()->GetEdgeVisibility() && representation == VTK_SURFACE);
@@ -968,6 +978,7 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
     expand(originalVAttribs.points, newVertexAttrs.points, start, numIndices);
     expand(originalVAttribs.tangents, newVertexAttrs.tangents, start, numIndices);
     expand(originalVAttribs.tcoords, newVertexAttrs.tcoords, start, numIndices);
+    expand(originalVAttribs.colorTCoords, newVertexAttrs.colorTCoords, start, numIndices);
 
     if (newVertexAttrs.points != nullptr)
     {
@@ -1037,6 +1048,10 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
     if (newVertexAttrs.tcoords != nullptr)
     {
       vbos->AppendDataArray("tcoord", newVertexAttrs.tcoords, VTK_FLOAT);
+    }
+    if (newVertexAttrs.colorTCoords != nullptr)
+    {
+      vbos->AppendDataArray("colorTCoord", newVertexAttrs.colorTCoords, VTK_FLOAT);
     }
     if (draw_surface_with_edges && primType == PrimitiveTris)
     {
