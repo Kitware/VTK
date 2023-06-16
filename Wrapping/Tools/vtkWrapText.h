@@ -57,6 +57,11 @@ extern "C"
    */
   VTKWRAPPINGTOOLS_EXPORT int vtkWrapText_IsPythonKeyword(const char* name);
 
+  /**
+   * Check if a name is a reserved keyword in JavaScript.
+   */
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrapText_IsJavaScriptKeyword(const char* name);
+
 #ifdef __cplusplus
 }
 #endif

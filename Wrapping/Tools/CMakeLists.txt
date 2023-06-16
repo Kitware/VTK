@@ -168,3 +168,28 @@ if (NOT TARGET WrapSerDes)
   add_executable("${ns}::WrapSerDes" ALIAS
     WrapSerDes)
 endif ()
+
+if (NOT TARGET WrapJavaScript)
+  vtk_module_add_executable(WrapJavaScript
+    DEVELOPMENT
+    BASENAME vtkWrapJavaScript
+    vtkWrapJavaScript.c
+    vtkWrapJavaScriptClass.c
+    vtkWrapJavaScriptConstant.c
+    vtkWrapJavaScriptEnum.c
+    vtkWrapJavaScriptNamespace.c
+    vtkWrapJavaScriptMethod.c)
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # allows vtkWrapJavaScript to access host file system for headers, generated sources, etc.
+    # permit memory growth to generate arbitrary sized embind CXX files.
+    target_link_options(WrapJavaScript
+      PRIVATE
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s NODERAWFS=1")
+  endif ()
+  target_link_libraries(WrapJavaScript
+    PRIVATE
+      "${ns}::WrappingTools")
+  add_executable("${ns}::WrapJavaScript" ALIAS
+    WrapJavaScript)
+endif ()

@@ -72,8 +72,13 @@ $ emcmake cmake \
   -S .. \
   -B . \
   -G "Ninja" \
-  -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS:BOOL=OFF \
+  -DVTK_ENABLE_LOGGING:BOOL=OFF \
+  -DVTK_ENABLE_WRAPPING:BOOL=ON \
+  -DVTK_MODULE_ENABLE_VTK_hdf5:STRING=NO \
+  -DVTK_MODULE_ENABLE_VTK_RenderingContextOpenGL2:STRING=DONT_WANT \
+  -DVTK_MODULE_ENABLE_VTK_RenderingCellGrid:STRING=NO \
+  -DVTK_MODULE_ENABLE_VTK_sqlite:STRING=NO \
 ```
 
 In order to run the unit tests, please enable testing with `-DVTK_BUILD_TESTING=WANT`. Additionally,

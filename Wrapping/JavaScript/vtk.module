@@ -1,0 +1,13 @@
+NAME
+  VTK::WrappingJavaScript
+LIBRARY_NAME
+  vtkWrappingJavaScript
+CONDITION
+  VTK_WRAP_JAVASCRIPT
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+EXCLUDE_WRAP

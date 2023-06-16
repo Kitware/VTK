@@ -57,6 +57,17 @@ Less common, but variables which may be of interest to some:
     the test binaries.
   * `VTK_TESTING_WASM_ENGINE` (default ``):
     Path to a wasm runtime executable. This is used to run C++ tests in wasm environments.
+  * `VTK_WRAP_JAVASCRIPT` (default `OFF`; requires `VTK_ENABLE_WRAPPING`):
+    Whether JavaScript support will be available or not.
+  * `VTK_WASM_DEBUGINFO` (default `NONE`):
+    Extent of debug information in webassembly binaries when VTK_WRAP_JAVASCRIPT is `ON`.
+    Controls the debug flags that allow the compiler to collect the debugging information.
+    Must be either `NONE`, `READABLE_JS`, `PROFILE` or `DEBUG_NATIVE`.
+  * `VTK_WASM_OPTIMIZATION` (default `SMALL`):
+    Optimization knobs for the webassembly binaries when VTK_WRAP_JAVASCRIPT is `ON`.
+    Controls the optimization flags being used when running emcc.
+    Must be either `NO_OPTIMIZATION`, `LITTLE`, `MORE`, `BEST`, `SMALL`, `SMALLEST` or
+    `SMALLEST_WITH_CLOSURE`.
 
 ## OpenGL related build options:
 

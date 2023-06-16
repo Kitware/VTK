@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html>
+
+<body>
+  <script src="vtkWasmCanvas.js" type="module"></script>
+  <script src="vtkWasmConfiguration.js" type="module"></script>
+  <script src="vtkweb.js" type="module"></script>
+  <script type="module">
+    import { initializeVTKForRenderingWithWebGPU } from './vtkWasmCanvas.js'
+    import VTKWebAssemblyModule from './vtkweb.js'
+    // Acquire a VTK WebGPU configuration.
+    let vtkCfg = await initializeVTKForRenderingWithWebGPU(null, {requiredLimits: {maxBufferSize: 1024000000}});
+    // Stream and compile VTK.wasm binary
+    let vtk = await VTKWebAssemblyModule(vtkCfg);
+
+    let canvas = document.getElementById('canvas');
+    console.log("VTK WebAssembly runtime initialized");
+
+    // setup a simple VTK IO pipeline.
+    let plane = new vtk.vtkPlaneSource();
+    let mapper = new vtk.vtkPolyDataMapper();
+    let actor = new vtk.vtkActor();
+    let renderer = new vtk.vtkRenderer();
+    let renderWindow = new vtk.vtkRenderWindow();
+    let renderWindowInteractor = new vtk.vtkRenderWindowInteractor();
+
+    // set plane properties
+    plane.SetXResolution(10000);
+    plane.SetYResolution(1000);
+    plane.Update();
+    {
+      let polydata = plane.GetOutput();
+      let numPoints = polydata.GetNumberOfPoints();
+      let numPolys = polydata.GetNumberOfPolys();
+      // print data information
+      console.log(numPoints + " points, ", numPolys + " triangles, ", polydata.GetActualMemorySize() + " kB");
+    }
+
+    // connect reader to the mapper
+    mapper.SetInputConnection(plane.GetOutputPort());
+    actor.SetMapper(mapper);
+
+    // add the actor to the renderer.
+    renderer.AddActor(actor);
+    renderer.GradientBackgroundOn();
+    renderer.SetBackground(0.96078431, 0.87058824, 0.70196078);
+    renderWindow.AddRenderer(renderer);
+    renderWindowInteractor.SetRenderWindow(renderWindow);
+
+    // for access in dev console.
+    window.vtk = vtk;
+    window.renderer = renderer;
+    window.renderWindow = renderWindow;
+    window.renderWindowInteractor = renderWindowInteractor;
+
+    // sends a resize event so that the render window fills up browser tab dimensions.
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 0);
+    // focus on the canvas to grab keyboard inputs.
+    canvas.setAttribute('tabindex', '0');
+    // grab focus when the render window region receives mouse clicks.
+    canvas.addEventListener('click', () => canvas.focus());
+
+    // start the event loop on browser UI thread.
+    renderWindowInteractor.Start()
+  </script>
+</body>
+
+</html>
