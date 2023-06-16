@@ -170,6 +170,12 @@ struct ComputeWeightsForPolygonMesh
     {
       int nPolyPts = iter.CurrentPolygonSize;
 
+      if (nPolyPts == 0)
+      {
+        poly = ++iter;
+        continue;
+      }
+
       for (int j = 0; j < nPolyPts; j++)
       {
         u[j] = uVec.data() + 3 * poly[j];
