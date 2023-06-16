@@ -273,6 +273,7 @@ protected:
   vtkImageResliceToColors* ImageReslice;    // For software interpolation
   vtkMatrix4x4* ResliceMatrix;              // Cached reslice matrix
   vtkMatrix4x4* WorldToDataMatrix;          // World to Data transform matrix
+  vtkMatrix4x4* DataToSliceMatrix;          // Data to Slice transform matrix
   vtkMatrix4x4* SliceToWorldMatrix;         // Slice to World transform matrix
   vtkTimeStamp UpdateTime;
 
