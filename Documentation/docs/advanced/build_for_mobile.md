@@ -1,7 +1,7 @@
 # Cross-compiling for Mobile devices
 
 ```{tip}
-For complete build instructions see [here](build.md).
+For complete build instructions see [here](../build_instructions/build.md).
 ```
 
 VTK supports mobile devices in its build. These are triggered by a top-level

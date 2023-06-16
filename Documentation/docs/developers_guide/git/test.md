@@ -10,12 +10,12 @@ Setup
 -----
 
 The workflow below depends on local hooks to function properly.
-Follow the main [developer setup instructions](develop_quickstart.md#initial-setup)
+Follow the main [developer setup instructions](../develop_quickstart.md#initial-setup)
 before proceeding.  In particular, run [SetupForDevelopment.sh][]:
 
     $ ./Utilities/SetupForDevelopment.sh
 
-[SetupForDevelopment.sh]: /Utilities/SetupForDevelopment.sh
+[SetupForDevelopment.sh]:../../../../Utilities/SetupForDevelopment.sh
 
 Workflow
 --------
@@ -307,7 +307,7 @@ For example:
     $ cat Some/Module/Testing/Data/Baseline/MyTest.png.sha512
     477e6028...
 
-[vtkExternalData.cmake]: /CMake/vtkExternalData.cmake
+[vtkExternalData.cmake]: ../../../../CMake/vtkExternalData.cmake
 
 #### Recover Data File ####
 
@@ -336,7 +336,7 @@ it to the project history.  For example:
     $ git cat-file blob refs/data/SHA512/477e6028... | sha512sum
     477e6028...  -
 
-[pre-commit]: /Utilities/Scripts/pre-commit
+[pre-commit]:../../../../Utilities/Scripts/pre-commit
 
 ### git gitlab-push ###
 
@@ -366,7 +366,7 @@ For VTK, that location is currently
 complete SHA512 hash stored in the content link file (e.g., the text in
 `MyTest.png.sha512`).
 
-[git-gitlab-push]: /Utilities/GitSetup/git-gitlab-push
+[git-gitlab-push]:../../../../Utilities/GitSetup/git-gitlab-push
 
 ### Publishing Data for an External Branch ###
 
