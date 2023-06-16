@@ -114,6 +114,18 @@ start _build\html\index.html
 
 :::::{tab-item} With VTK build tree
 
+:::{important}
+In order to successfully build the VTK documentation using the instructions below, you will
+need to install the required Python packages.
+
+To ensure that you have the correct dependencies installed in the Python environment associated
+with the VTK build tree, please run `pip install -r Documentation\docs\requirements.txt` or
+`pip install --user -r Documentation\docs\requirements.txt`.
+
+If updating your system installation of Python is not feasible or you prefer not to do so,
+we recommend following the `Without VTK build tree` approach instead.
+:::
+
 1. [Download](/build_instructions/build.md#obtaining-the-sources) VTK sources.
 
 2. [Configure](/build_instructions/build.md#configure) VTK by setting the `VTK_BUILD_SPHINX_DOCUMENTATION`
