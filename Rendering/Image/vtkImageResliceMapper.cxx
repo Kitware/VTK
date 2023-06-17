@@ -17,6 +17,7 @@
 #include "vtkAbstractImageInterpolator.h"
 #include "vtkCamera.h"
 #include "vtkGarbageCollector.h"
+#include "vtkImageChangeInformation.h"
 #include "vtkImageData.h"
 #include "vtkImageProperty.h"
 #include "vtkImageResliceToColors.h"
@@ -44,6 +45,7 @@ vtkStandardNewMacro(vtkImageResliceMapper);
 //------------------------------------------------------------------------------
 vtkImageResliceMapper::vtkImageResliceMapper()
 {
+  this->ChangeInformation = vtkImageChangeInformation::New();
   this->SliceMapper = vtkImageSliceMapper::New();
   this->ImageReslice = vtkImageResliceToColors::New();
   this->ResliceMatrix = vtkMatrix4x4::New();
@@ -69,6 +71,10 @@ vtkImageResliceMapper::vtkImageResliceMapper()
 //------------------------------------------------------------------------------
 vtkImageResliceMapper::~vtkImageResliceMapper()
 {
+  if (this->ChangeInformation)
+  {
+    this->ChangeInformation->Delete();
+  }
   if (this->SliceMapper)
   {
     this->SliceMapper->Delete();
@@ -152,6 +158,24 @@ void vtkImageResliceMapper::Render(vtkRenderer* ren, vtkImageSlice* prop)
     this->ImageReslice->SetInputConnection(this->GetInputConnection(0, 0));
     this->ImageReslice->UpdateWholeExtent();
     this->ResliceNeedUpdate = 0;
+
+    // Adjust the reslice output to put it into a coordinate system that is
+    // aligned with the SlicePlane.  Since this coordinate system depends
+    // only on the SlicePlane and nothing else, it is identical for all
+    // instances of vtkImageResliceMapper that use the same slice plane,
+    // regardless of whether the prop orientation or image orientation
+    // differs between mappers.  Hence we expect the mappers to paint their
+    // pixels at the same depth in the depth buffer, reducing z-fighting.
+    // (Note that vtkImageChangeInformation passes the input data arrays
+    // unchanged to the output, so there is no duplication/copying of data).
+    this->ChangeInformation->SetInputData(this->ImageReslice->GetOutput());
+    double direction[9] = { 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 };
+    this->ChangeInformation->SetOutputDirection(direction);
+    double origin[4] = { 0.0, 0.0, 0.0, 1.0 };
+    this->ImageReslice->GetOutputOrigin(origin);
+    this->DataToSliceMatrix->MultiplyPoint(origin, origin);
+    this->ChangeInformation->SetOutputOrigin(origin);
+    this->ChangeInformation->UpdateWholeExtent();
   }
 
   // apply checkerboard pattern (should have timestamps)
@@ -163,8 +187,9 @@ void vtkImageResliceMapper::Render(vtkRenderer* ren, vtkImageSlice* prop)
   }
 
   // delegate to vtkImageSliceMapper
-  this->SliceMapper->SetInputConnection(this->ImageReslice->GetOutputPort());
-  this->SliceMapper->GetDataToWorldMatrix()->DeepCopy(this->GetDataToWorldMatrix());
+  this->SliceMapper->SetInputData(this->ChangeInformation->GetOutput());
+  // the SliceMapper uses a coordinate system aligned with the SlicePlane
+  this->SliceMapper->GetDataToWorldMatrix()->DeepCopy(this->SliceToWorldMatrix);
   // the mapper uses SliceFacesCamera to decide whether to use a polygon
   // for the texture versus using a quad the size of the window
   this->SliceMapper->SetSliceFacesCamera(
@@ -959,10 +984,8 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer* ren)
 
     for (vtkIdType k = 0; k < n; k++)
     {
-      double point[4];
+      double point[3];
       points->GetPoint(k, point);
-      point[3] = 1.0;
-      this->DataToSliceMatrix->MultiplyPoint(point, point);
 
       xmin = ((xmin < point[0]) ? xmin : point[0]);
       xmax = ((xmax > point[0]) ? xmax : point[0]);
@@ -1465,13 +1488,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer* ren)
   points->SetNumberOfPoints(n);
   for (int k = 0; k < n; k++)
   {
-    double point[4];
-    point[0] = coords[3 * k];
-    point[1] = coords[3 * k + 1];
-    point[2] = coords[3 * k + 2];
-    point[3] = 1.0;
-    this->ResliceMatrix->MultiplyPoint(point, point);
-    points->SetPoint(k, point);
+    points->SetPoint(k, &coords[3 * k]);
   }
   points->Modified();
 }
