@@ -183,7 +183,7 @@ foreach(file IN LISTS public_shader_files)
     ABI_MANGLE_SYMBOL_END   "VTK_ABI_NAMESPACE_END")
   list(APPEND sources
     "${source}")
-  list(APPEND headers
+  list(APPEND nowrap_headers
     "${header}")
 endforeach()
 
