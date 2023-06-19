@@ -36,16 +36,16 @@
 #include "vtk_libproj_mangle.h"
 #include "vtklibproj_export.h"
 
+// windows.h can confict with Criterion::STRICT
+#ifdef STRICT
+#undef STRICT
+#endif
+
 #include <exception>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-
-// Prevent interference with enum in this file.
-#ifdef _MSC_VER
-#undef STRICT
-#endif
 
 #ifndef NS_PROJ
 /** osgeo namespace */
