@@ -201,6 +201,10 @@ public:
    * When set to true, the reader will detect numeric columns and create
    * vtkDoubleArray or vtkIntArray for those instead of vtkStringArray. Default
    * is off.
+   * Then, it works as follow:
+   *  - uses vtkIntArray
+   *  - if data is not an int, try vtkDoubleArray
+   *  - if data is not a double, fallback to vtkStringArray
    */
   vtkSetMacro(DetectNumericColumns, bool);
   vtkGetMacro(DetectNumericColumns, bool);

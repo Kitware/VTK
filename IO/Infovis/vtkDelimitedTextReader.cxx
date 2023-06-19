@@ -3,17 +3,19 @@
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkDelimitedTextReader.h"
-#include "vtkCommand.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkStringToNumeric.h"
 #include "vtkTable.h"
+#include "vtkValueFromString.h"
 
 #include "vtkTextCodec.h"
 #include "vtkTextCodecFactory.h"
@@ -51,7 +53,8 @@ public:
   DelimitedTextIterator(const vtkIdType max_records, const std::string& record_delimiters,
     const std::string& field_delimiters, const std::string& string_delimiters,
     const std::string& whitespace, const std::string& escape, bool have_headers,
-    bool merg_cons_delimiters, bool use_string_delimiter, vtkTable* const output_table)
+    bool merg_cons_delimiters, bool use_string_delimiter, bool detect_numeric_columns,
+    bool force_double, int default_int, double default_double, vtkTable* const output_table)
     : MaxRecords(max_records)
     , MaxRecordIndex(have_headers ? max_records + 1 : max_records)
     , RecordDelimiters(record_delimiters.begin(), record_delimiters.end())
@@ -68,6 +71,10 @@ public:
     , MergeConsDelims(merg_cons_delimiters)
     , ProcessEscapeSequence(false)
     , UseStringDelimiter(use_string_delimiter)
+    , DetectNumericColumns(detect_numeric_columns)
+    , ForceDouble(force_double)
+    , DefaultIntegerValue(default_int)
+    , DefaultDoubleValue(default_double)
     , WithinString(0)
   {
   }
@@ -229,40 +236,221 @@ public:
   }
 
 private:
-  void InsertField()
+  template <typename T>
+  static vtkSmartPointer<vtkStringArray> ToStringArray(T* array)
   {
-    if (this->CurrentFieldIndex >= this->OutputTable->GetNumberOfColumns() &&
-      0 == this->CurrentRecordIndex)
-    {
-      vtkAbstractArray* array = vtkStringArray::New();
+    auto output = vtkSmartPointer<vtkStringArray>::New();
+    output->SetNumberOfTuples(array->GetNumberOfTuples());
+    output->SetName(array->GetName());
 
-      if (this->HaveHeaders)
+    for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
+    {
+      output->SetValue(i, std::to_string(array->GetValue(i)));
+    }
+
+    return output;
+  }
+
+  static vtkSmartPointer<vtkDoubleArray> ToDoubleArray(vtkIntArray* array)
+  {
+    auto output = vtkSmartPointer<vtkDoubleArray>::New();
+    output->SetNumberOfTuples(array->GetNumberOfTuples());
+    output->SetName(array->GetName());
+
+    for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
+    {
+      output->SetValue(i, static_cast<double>(array->GetValue(i)));
+    }
+
+    return output;
+  }
+
+  /**
+   * Append value in an Int array.
+   * Convert array if needed.
+   * Return the new array if constructed, or nullptr.
+   */
+  vtkSmartPointer<vtkAbstractArray> Append(
+    vtkIntArray* array, vtkIdType index, const std::string& str)
+  {
+    const auto pred = [](char c) { return std::isspace(static_cast<unsigned char>(c)); };
+
+    const auto begin = str.data();
+    const auto end = str.data() + str.size();
+
+    const auto trimBegin = std::find_if_not(begin, end, pred);
+    if (trimBegin == end)
+    {
+      array->InsertValue(index, this->DefaultIntegerValue);
+      return nullptr;
+    }
+
+    // Try convert to double to check if it is a valid numeric entry.
+    // If not, convert to vtkStringArray.
+    double valAsDouble = 0.0;
+    const size_t consumed = vtkValueFromString(trimBegin, end, valAsDouble);
+    if (consumed == 0 || std::find_if_not(trimBegin + consumed, end, pred) != end)
+    {
+      auto output = this->ToStringArray(array);
+      output->InsertValue(index, str.c_str());
+      return output;
+    }
+
+    // Now try using integer.
+    // If not, convert to vtkDoubleArray.
+    int valAsInt = 0;
+    const size_t consumed2 = vtkValueFromString(trimBegin, end, valAsInt);
+    if (consumed2 == 0 || consumed2 != consumed)
+    {
+      auto output = this->ToDoubleArray(array);
+      output->InsertValue(index, valAsDouble);
+      return output;
+    }
+
+    array->InsertValue(index, valAsInt);
+    return nullptr;
+  }
+
+  /**
+   * Append value in a Double array.
+   * Convert array if needed.
+   * Return the new array if constructed, or nullptr.
+   */
+  vtkSmartPointer<vtkAbstractArray> Append(
+    vtkDoubleArray* array, vtkIdType index, const std::string& str)
+  {
+    const auto pred = [](char c) { return std::isspace(static_cast<unsigned char>(c)); };
+
+    const auto begin = str.data();
+    const auto end = str.data() + str.size();
+
+    // empty data, insert default value.
+    const auto trimBegin = std::find_if_not(begin, end, pred);
+    if (trimBegin == end)
+    {
+      array->InsertValue(index, this->DefaultDoubleValue);
+      return nullptr;
+    }
+
+    // it is a double or a string that started with an integer
+    double valAsDouble = 0.0;
+    const size_t consumed = vtkValueFromString(trimBegin, end, valAsDouble);
+    if (consumed == 0 || std::find_if_not(trimBegin + consumed, end, pred) != end)
+    {
+      auto output = this->ToStringArray(array);
+      output->InsertValue(index, str.c_str());
+      return output;
+    }
+
+    array->InsertValue(index, valAsDouble);
+    return nullptr;
+  }
+
+  /**
+   * Append value in a string array.
+   * Always return nullptr as it never convert the array to a new type.
+   */
+  vtkSmartPointer<vtkAbstractArray> Append(
+    vtkStringArray* array, vtkIdType index, const std::string& str)
+  {
+    array->InsertValue(index, str.c_str());
+    return nullptr;
+  }
+
+  /**
+   * Append value to array.
+   * Forwards to the dedicated method specialized for each array type.
+   * Convert the array as needed to another type. If converted, return the new array.
+   * By default, return nullptr (array was not converted).
+   */
+  vtkSmartPointer<vtkAbstractArray> Append(
+    vtkAbstractArray* array, vtkIdType index, const std::string& str)
+  {
+    auto iarr = vtkIntArray::SafeDownCast(array);
+    if (iarr)
+    {
+      return this->Append(iarr, index, str);
+    }
+
+    auto darr = vtkDoubleArray::SafeDownCast(array);
+    if (darr)
+    {
+      return this->Append(darr, index, str);
+    }
+
+    return this->Append(vtkStringArray::SafeDownCast(array), index, str);
+  }
+
+  /**
+   * Create new array with the good basic type.
+   * Use header to set array name or construct a default name.
+   */
+  void CreateColumn()
+  {
+    vtkSmartPointer<vtkAbstractArray> array;
+    if (this->DetectNumericColumns)
+    {
+      if (this->ForceDouble)
       {
-        array->SetName(this->CurrentField.c_str());
+        array = vtkSmartPointer<vtkDoubleArray>::New();
       }
       else
       {
-        std::stringstream buffer;
-        buffer << "Field " << this->CurrentFieldIndex;
-        array->SetName(buffer.str().c_str());
-        vtkArrayDownCast<vtkStringArray>(array)->InsertValue(
-          this->CurrentRecordIndex, this->CurrentField);
+        array = vtkSmartPointer<vtkIntArray>::New();
       }
-      this->OutputTable->AddColumn(array);
-      array->Delete();
     }
-    else if (this->CurrentFieldIndex < this->OutputTable->GetNumberOfColumns())
+    else
     {
-      // Handle case where input file has header information ...
+      array = vtkSmartPointer<vtkStringArray>::New();
+    }
+
+    // Set array name
+    if (this->HaveHeaders)
+    {
+      array->SetName(this->CurrentField.c_str());
+    }
+    else
+    {
+      std::stringstream buffer;
+      buffer << "Field " << this->CurrentFieldIndex;
+      array->SetName(buffer.str().c_str());
+    }
+
+    array->SetNumberOfTuples(this->OutputTable->GetNumberOfRows());
+    this->OutputTable->AddColumn(array);
+  }
+
+  // Insert value in a column.
+  // Create the column as needed.
+  // Convert the column type if needed.
+  void InsertField()
+  {
+    // Add column only when parsing first line
+    if (this->CurrentFieldIndex >= this->OutputTable->GetNumberOfColumns() &&
+      this->CurrentRecordIndex == 0)
+    {
+      this->CreateColumn();
+    }
+
+    if (this->CurrentFieldIndex < this->OutputTable->GetNumberOfColumns())
+    {
       vtkIdType rec_index = this->CurrentRecordIndex;
       if (this->HaveHeaders)
       {
         rec_index--;
       }
 
-      vtkStringArray* sarray =
-        vtkArrayDownCast<vtkStringArray>(this->OutputTable->GetColumn(this->CurrentFieldIndex));
-      sarray->InsertValue(rec_index, this->CurrentField);
+      if (rec_index >= 0)
+      {
+        auto array = this->OutputTable->GetColumn(this->CurrentFieldIndex);
+        auto newArray = this->Append(array, rec_index, this->CurrentField);
+        if (newArray) // Array has been converted to another type
+        {
+          this->OutputTable->SetNumberOfRows(newArray->GetNumberOfTuples());
+          this->OutputTable->RemoveColumn(this->CurrentFieldIndex);
+          this->OutputTable->InsertColumn(newArray, this->CurrentFieldIndex);
+        }
+      }
     }
   }
 
@@ -283,6 +471,10 @@ private:
   bool MergeConsDelims;
   bool ProcessEscapeSequence;
   bool UseStringDelimiter;
+  bool DetectNumericColumns;
+  bool ForceDouble;
+  int DefaultIntegerValue;
+  double DefaultDoubleValue;
   vtkTypeUInt32 WithinString;
 };
 
@@ -598,7 +790,8 @@ int vtkDelimitedTextReader::ReadData(vtkTable* output_table)
     DelimitedTextIterator iterator(this->MaxRecords, this->UnicodeRecordDelimiters,
       this->UnicodeFieldDelimiters, this->UnicodeStringDelimiters, this->UnicodeWhitespace,
       this->UnicodeEscapeCharacter, this->HaveHeaders, this->MergeConsecutiveDelimiters,
-      this->UseStringDelimiter, output_table);
+      this->UseStringDelimiter, this->DetectNumericColumns, this->ForceDouble,
+      this->DefaultIntegerValue, this->DefaultDoubleValue, output_table);
 
     transCodec->ToUnicode(*input_stream, iterator);
     iterator.ReachedEndOfInput();
