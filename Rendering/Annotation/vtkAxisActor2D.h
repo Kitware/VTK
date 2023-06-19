@@ -61,6 +61,8 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+#include "vtkNew.h" // for vtkNew
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataMapper2D;
 class vtkPolyData;
@@ -390,37 +392,37 @@ protected:
   vtkTextProperty* LabelTextProperty;
 
   char* Title;
-  double Range[2];
-  double TitlePosition;
-  vtkTypeBool RulerMode;
-  double RulerDistance;
-  int NumberOfLabels;
   char* LabelFormat;
-  vtkTypeBool AdjustLabels;
-  double FontFactor;
-  double LabelFactor;
-  int TickLength;
-  int MinorTickLength;
-  int TickOffset;
-  int NumberOfMinorTicks;
+  double Range[2] = { 0., 1. };
+  double TitlePosition = 0.5;
+  vtkTypeBool RulerMode = 0;
+  double RulerDistance = 1.;
+  int NumberOfLabels = 5;
+  vtkTypeBool AdjustLabels = 1;
+  double FontFactor = 1.;
+  double LabelFactor = 0.75;
+  int TickLength = 5;
+  int MinorTickLength = 3;
+  int TickOffset = 2;
+  int NumberOfMinorTicks = 0;
 
   double AdjustedRange[2];
-  int AdjustedNumberOfLabels;
-  int NumberOfLabelsBuilt;
+  int AdjustedNumberOfLabels = 5;
+  int NumberOfLabelsBuilt = 0;
 
-  vtkTypeBool AxisVisibility;
-  vtkTypeBool TickVisibility;
-  vtkTypeBool LabelVisibility;
-  vtkTypeBool TitleVisibility;
+  vtkTypeBool AxisVisibility = 1;
+  vtkTypeBool TickVisibility = 1;
+  vtkTypeBool LabelVisibility = 1;
+  vtkTypeBool TitleVisibility = 1;
 
-  int LastPosition[2];
-  int LastPosition2[2];
+  int LastPosition[2] = { 0, 0 };
+  int LastPosition2[2] = { 0, 0 };
 
-  int LastSize[2];
-  int LastMaxLabelSize[2];
+  int LastSize[2] = { 0, 0 };
+  int LastMaxLabelSize[2] = { 0, 0 };
 
-  int SizeFontRelativeToAxis;
-  vtkTypeBool UseFontSizeFromProperty;
+  int SizeFontRelativeToAxis = 0;
+  vtkTypeBool UseFontSizeFromProperty = 0;
 
   virtual void BuildAxis(vtkViewport* viewport);
   static double ComputeStringOffset(double width, double height, double theta);
@@ -434,9 +436,9 @@ protected:
   vtkTextMapper** LabelMappers;
   vtkActor2D** LabelActors;
 
-  vtkPolyData* Axis;
-  vtkPolyDataMapper2D* AxisMapper;
-  vtkActor2D* AxisActor;
+  vtkNew<vtkPolyData> Axis;
+  vtkNew<vtkPolyDataMapper2D> AxisMapper;
+  vtkNew<vtkActor2D> AxisActor;
 
   vtkTimeStamp AdjustedRangeBuildTime;
   vtkTimeStamp BuildTime;

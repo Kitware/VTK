@@ -37,15 +37,6 @@ vtkStandardNewMacro(vtkLegendScaleActor);
 //------------------------------------------------------------------------------
 vtkLegendScaleActor::vtkLegendScaleActor()
 {
-  this->LabelMode = DISTANCE;
-
-  this->RightBorderOffset = 50;
-  this->TopBorderOffset = 30;
-  this->LeftBorderOffset = 50;
-  this->BottomBorderOffset = 30;
-  this->CornerOffsetFactor = 2.0;
-
-  this->RightAxis = vtkAxisActor2D::New();
   this->RightAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->RightAxis->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->RightAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
@@ -53,7 +44,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->RightAxis->SetNumberOfLabels(5);
   this->RightAxis->AdjustLabelsOff();
 
-  this->TopAxis = vtkAxisActor2D::New();
   this->TopAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->TopAxis->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->TopAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
@@ -61,7 +51,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->TopAxis->SetNumberOfLabels(5);
   this->TopAxis->AdjustLabelsOff();
 
-  this->LeftAxis = vtkAxisActor2D::New();
   this->LeftAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LeftAxis->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->LeftAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
@@ -69,7 +58,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LeftAxis->SetNumberOfLabels(5);
   this->LeftAxis->AdjustLabelsOff();
 
-  this->BottomAxis = vtkAxisActor2D::New();
   this->BottomAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->BottomAxis->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->BottomAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
@@ -77,24 +65,14 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->BottomAxis->SetNumberOfLabels(5);
   this->BottomAxis->AdjustLabelsOff();
 
-  this->RightAxisVisibility = 1;
-  this->TopAxisVisibility = 1;
-  this->LeftAxisVisibility = 1;
-  this->BottomAxisVisibility = 1;
-
-  this->LegendVisibility = 1;
-  this->Legend = vtkPolyData::New();
-  this->LegendPoints = vtkPoints::New();
   this->Legend->SetPoints(this->LegendPoints);
-  this->LegendMapper = vtkPolyDataMapper2D::New();
   this->LegendMapper->SetInputData(this->Legend);
-  this->LegendActor = vtkActor2D::New();
   this->LegendActor->SetMapper(this->LegendMapper);
 
   // Create the legend
   vtkIdType pts[4];
   this->LegendPoints->SetNumberOfPoints(10);
-  vtkCellArray* legendPolys = vtkCellArray::New();
+  vtkNew<vtkCellArray> legendPolys;
   legendPolys->AllocateEstimate(4, 4);
   pts[0] = 0;
   pts[1] = 1;
@@ -117,7 +95,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   pts[3] = 8;
   legendPolys->InsertNextCell(4, pts);
   this->Legend->SetPolys(legendPolys);
-  legendPolys->Delete();
 
   // Create the cell data
   vtkUnsignedCharArray* colors = vtkUnsignedCharArray::New();
@@ -131,7 +108,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   colors->Delete();
 
   // Now the text. The first five are for the 0,1/4,1/2,3/4,1 labels.
-  this->LegendTitleProperty = vtkTextProperty::New();
   this->LegendTitleProperty->SetJustificationToCentered();
   this->LegendTitleProperty->SetVerticalJustificationToBottom();
   this->LegendTitleProperty->SetBold(1);
@@ -139,7 +115,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LegendTitleProperty->SetShadow(1);
   this->LegendTitleProperty->SetFontFamilyToArial();
   this->LegendTitleProperty->SetFontSize(10);
-  this->LegendLabelProperty = vtkTextProperty::New();
+
   this->LegendLabelProperty->SetJustificationToCentered();
   this->LegendLabelProperty->SetVerticalJustificationToTop();
   this->LegendLabelProperty->SetBold(1);
@@ -161,31 +137,51 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LabelMappers[3]->SetInput("3/4");
   this->LabelMappers[4]->SetInput("1");
 
-  this->Coordinate = vtkCoordinate::New();
   this->Coordinate->SetCoordinateSystemToDisplay();
 }
 
 //------------------------------------------------------------------------------
 vtkLegendScaleActor::~vtkLegendScaleActor()
 {
-  this->RightAxis->Delete();
-  this->TopAxis->Delete();
-  this->LeftAxis->Delete();
-  this->BottomAxis->Delete();
-
-  this->Legend->Delete();
-  this->LegendPoints->Delete();
-  this->LegendMapper->Delete();
-  this->LegendActor->Delete();
-
   for (int i = 0; i < 6; i++)
   {
     this->LabelMappers[i]->Delete();
     this->LabelActors[i]->Delete();
   }
-  this->LegendTitleProperty->Delete();
-  this->LegendLabelProperty->Delete();
-  this->Coordinate->Delete();
+}
+
+//------------------------------------------------------------------------------
+void vtkLegendScaleActor::SetAdjustLabels(bool adjust)
+{
+  this->RightAxis->SetAdjustLabels(adjust);
+  this->TopAxis->SetAdjustLabels(adjust);
+  this->LeftAxis->SetAdjustLabels(adjust);
+  this->BottomAxis->SetAdjustLabels(adjust);
+}
+
+//------------------------------------------------------------------------------
+void vtkLegendScaleActor::SetUseFontSizeFromProperty(bool fromProp)
+{
+  this->RightAxis->SetUseFontSizeFromProperty(fromProp);
+  this->TopAxis->SetUseFontSizeFromProperty(fromProp);
+  this->LeftAxis->SetUseFontSizeFromProperty(fromProp);
+  this->BottomAxis->SetUseFontSizeFromProperty(fromProp);
+}
+
+//------------------------------------------------------------------------------
+void vtkLegendScaleActor::SetAxesTextProperty(vtkTextProperty* prop)
+{
+  this->RightAxis->SetLabelTextProperty(prop);
+  this->TopAxis->SetLabelTextProperty(prop);
+  this->LeftAxis->SetLabelTextProperty(prop);
+  this->BottomAxis->SetLabelTextProperty(prop);
+
+  this->RightAxis->SetTitleTextProperty(prop);
+  this->TopAxis->SetTitleTextProperty(prop);
+  this->LeftAxis->SetTitleTextProperty(prop);
+  this->BottomAxis->SetTitleTextProperty(prop);
+
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
