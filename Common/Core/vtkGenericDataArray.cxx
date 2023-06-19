@@ -22,6 +22,7 @@
 #include "vtkGenericDataArray.h"
 
 #include "vtkDataArrayPrivate.txx"
+#include "vtkOStreamWrapper.h"
 
 namespace vtkDataArrayPrivate
 {
