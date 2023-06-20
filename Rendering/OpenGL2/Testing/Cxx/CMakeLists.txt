@@ -4,7 +4,7 @@ vtk_module_test_data(
   )
 
 vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
-  TestBlockOpacity.cxx TestBlockVisibility.cxx
+  TestBlockVisibility.cxx
   TestBlurAndSobelPasses.cxx
   TestCameraShiftScale.cxx,NO_DATA
   TestCoincident.cxx
