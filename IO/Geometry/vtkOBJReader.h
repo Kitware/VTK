@@ -27,6 +27,7 @@
 
 #include "vtkAbstractPolyDataReader.h"
 #include "vtkIOGeometryModule.h" // For export macro
+#include "vtkResourceStream.h"   // For vtkResourceStream
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGEOMETRY_EXPORT vtkOBJReader : public vtkAbstractPolyDataReader
@@ -36,12 +37,20 @@ public:
   vtkTypeMacro(vtkOBJReader, vtkAbstractPolyDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  ///@{
   /**
    * Get first comment in the file.
    * Comment may be multiple lines. # and leading spaces are removed.
    */
   vtkGetStringMacro(Comment);
+
+  ///@{
+  /**
+   * Specify stream to read from
+   * When selecting input method, `Stream` has an higher priority than `Filename`.
+   * If both are null, reader outputs nothing.
+   */
+  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
+  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
   ///@}
 
 protected:
@@ -56,8 +65,11 @@ protected:
   vtkSetStringMacro(Comment);
 
   char* Comment;
+  vtkSmartPointer<vtkResourceStream> Stream;
 
 private:
+  vtkSmartPointer<vtkResourceStream> Open();
+
   vtkOBJReader(const vtkOBJReader&) = delete;
   void operator=(const vtkOBJReader&) = delete;
 };
