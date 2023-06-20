@@ -6,11 +6,10 @@ The *Visualization Toolkit* provides a number of source and writer objects to re
 
 There are two different styles of file formats available in VTK. The simplest are the legacy, serial formats that are easy to read and write either by hand or programmatically. However, these formats are less flexible than the XML based file formats described later in this section. The XML formats support random access, parallel I/O, and portable data compression and are preferred to the serial VTK file formats whenever possible.
 
-VTK 10.0 introduces the HDF file formats. The goal of this work is to
-provide simulations with a way to save data in the HDF format that
+The goal of this work is to provide simulations with a way to save data in the HDF format that
 could be easily loaded in VTK without the need for an external data
 description (such as XDMF). Currently we provide readers for Image
-Data and Unstructured Grid.
+Data, Poly Data, Unstructured Grid and Overlapping AMRs.
 
 
 ## Simple Legacy Formats
@@ -935,9 +934,24 @@ The following is a complete example specifying a vtkPolyData representing a cube
 ```
 
 ## HDF File Formats
-We use the same extension for serial and parallel formats and for all
-types of datasets. We use HDF standard file extensions such as hdf,
-hdf5, h5 or he5.
+
+The `VTKHDF` file format is a file format using the same concepts as the
+XML formats described above but relying on
+[HDF5](https://www.hdfgroup.org/solutions/hdf5/) for actual storage. It
+is meant to provide good I/O perfomance as well as robust and flexible
+parallel I/O capabilities.
+
+Note: This development is iterative and the format is expected to grow in
+its support for more and more use cases.
+
+### Extension
+
+The ` VTKHDF` format generally uses the `.vtkhdf` extension. The `.hdf`
+extension is also supported but is not preferred. There are no specific
+extensions to differentiate between different types of dataset, serial
+vs. distributed data or static vs. transient data.
+
+### General Specification
 
 VTK HDF files start with a group called `VTKHDF` with two attributes:
 `Version`, an array of two integers and `Type`, a string showing the
@@ -956,7 +970,7 @@ on certain platforms. Also, `vtkIdType` is read as the C++ type it
 represents (`long` or `long long`). Endianness conversions are done
 automatically.
 
-In the following diagrams showing the HDF file structure for VTK
+In the diagrams that follow, showing the HDF file structure for VTK
 datasets, the rounded blue rectangles are HDF groups and the gray
 rectangles are HDF datasets. Each rectangle shows the name of the
 group or dataset in bold font and the attributes underneath with
@@ -1102,11 +1116,71 @@ PointData or CellData group.
   <figcaption>Figure 9. - Overlapping AMR VTKHDF File Format</figcaption>
 </figure>
 
+### Transient Data
+
+The generic format for all `VTKHDF` transient data is shown in Figure 10.
+The general idea is to take the static formats described above and use them
+as a base to append all the time dependent data. As such, a file holding static
+data has a very similar structure to a file holding dynamic data. An additional
+`Steps` subgroup is added to the `VTKHDF` main group holding offset information
+for each of the time steps as well as the time values. The choice to include offset
+information as HDF5 datasets was made to reduce the quantity of meta-data in the
+file to improve performance. This `Steps` group has one integer like attribute
+`NSteps` indicating the number of steps in the transient dataset.
+
+The `Steps` group is structured as follows:
+* `Values` [dim = (NSteps)]: each entry indicates the time value for the associated
+time step.
+* `PartOffsets` [dims = (NSteps)]: each entry indicates at which part offset to
+start reading the associated time step (relevant for `Unstructured Grid`s and
+`Poly Data`).
+* `NumberOfParts` [dims = (NSteps)]: each entry indicates how many parts the
+associated time step has (relevant for `Unstructured Grid`s and `Poly Data`). This
+information is optional if there is a constant number of parts per time steps and the
+length of `VTKHDF/NumberOfPoints` is equal to `NumberOfPartsPerTimeStep x NSteps`.
+* `PointOffsets` [dims = (NSteps)]: each entry indicates where in the `VTKHDF/Points`
+data set to start reading point coordinates for the associated time step (relevant for
+`Unstructured Grid` and `Poly Data`).
+* `CellOffsets` [dims = (NSteps, NTopologies)]: each entry indicates by how many cells
+to offset reading into the connectivity offset structures for the associated time step
+(relevant for `Unstructured Grid` and `Poly Data`).
+  * `Unstructured Grid`s only have one set of connectivity data and NTopologies = 1.
+  *  `Poly Data`, however, have `Vertices`,`Lines`, `Polygons` and `Strips` in that order
+     and therefore NTopologies = 4.
+* `ConnectivityIdOffsets` [dims = (NSteps, NTopologies)]: each entry indicates by how many
+values to offset reading into the connectivity indexing structures for the associated time
+step (relevant for `Unstructured Grid` and `Poly Data`).
+  * `Unstructured Grid`s only have one set of connectivity data and NTopologies = 1.
+  *  `Poly Data`, however, have `Vertices`,`Lines`, `Polygons` and `Strips` in that order
+     and therefore NTopologies = 4.
+* `{Point,Cell,Field}DataOffsets/{ArrayName}` [dims = (NSteps)]: each entry indicates by how
+many values to offset reading into the given array for the associated time step. In the
+absence of a data set, the appropriate geometry offsetting for the time step is used in its
+place.
+
+```{figure} transient_hdf_schema.png
+---
+width=640
+---
+Figure 10. - Transient Data VTKHDF File Format
+```
+
+A particularity of transient `Image Data` in the format is that the reader expects an additional
+prepended dimension considering the time to be the first dimension in the multidimensional arrays.
+As such, arrays described in transient `Image Data` should have dimensions ordered as
+`(time, z, y, x)`.
+
+Writing incrementally to `VTKHDF` transient datasets is relatively straightforward using the
+appending functionality of `HDF5` chunked data sets
+([Chunking in HDF5](https://davis.lbl.gov/Manuals/HDF5-1.8.7/Advanced/Chunking/index.html)).
+
 ### Limitations
 
 This specification and the reader available in VTK currently only
 supports ImageData, UnstructuredGrid, PolyData and Overlapping AMR. Other dataset
 types may be added later depending on interest and funding.
+
+Also, Overlapping AMR transient data is not currently supported.
 
 ### Examples
 
@@ -1621,5 +1695,173 @@ GROUP "/" {
          }
       }
    }
+}
+```
+
+#### Transient Poly Data
+
+The poly data is the `test_transient_poly_data.hdf` from the `VTK` testing data:
+
+```
+HDF5 "./ExternalData/Testing/Data/test_transient_poly_data.hdf" {
+GROUP "/" {
+   GROUP "VTKHDF" {
+      ATTRIBUTE "Type" {
+         DATATYPE  H5T_STRING {
+            STRSIZE 8;
+            STRPAD H5T_STR_NULLPAD;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         }
+         DATASPACE  SCALAR
+      }
+      ATTRIBUTE "Version" {
+         DATATYPE  H5T_STD_I64LE
+         DATASPACE  SIMPLE { ( 2 ) / ( 2 ) }
+      }
+      GROUP "CellData" {
+         DATASET "Materials" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 8160 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+      GROUP "Lines" {
+         DATASET "Connectivity" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 0 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfCells" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfConnectivityIds" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "Offsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+      DATASET "NumberOfPoints" {
+         DATATYPE  H5T_STD_I64LE
+         DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+      }
+      GROUP "PointData" {
+         DATASET "Normals" {
+            DATATYPE  H5T_IEEE_F32LE
+            DATASPACE  SIMPLE { ( 4120, 3 ) / ( H5S_UNLIMITED, 3 ) }
+         }
+         DATASET "Warping" {
+            DATATYPE  H5T_IEEE_F32LE
+            DATASPACE  SIMPLE { ( 4120, 3 ) / ( H5S_UNLIMITED, 3 ) }
+         }
+      }
+      DATASET "Points" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 2060, 3 ) / ( H5S_UNLIMITED, 3 ) }
+      }
+      GROUP "Polygons" {
+         DATASET "Connectivity" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 12240 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfCells" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfConnectivityIds" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "Offsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 4090 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+      GROUP "Steps" {
+         ATTRIBUTE "NSteps" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SCALAR
+         }
+         GROUP "CellDataOffsets" {
+            DATASET "Materials" {
+               DATATYPE  H5T_STD_I64LE
+               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+            }
+         }
+         DATASET "CellOffsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10, 4 ) / ( H5S_UNLIMITED, 4 ) }
+         }
+         DATASET "ConnectivityIdOffsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10, 4 ) / ( H5S_UNLIMITED, 4 ) }
+         }
+         DATASET "NumberOfParts" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "PartOffsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         GROUP "PointDataOffsets" {
+            DATASET "Normals" {
+               DATATYPE  H5T_STD_I64LE
+               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+            }
+            DATASET "Warping" {
+               DATATYPE  H5T_STD_I64LE
+               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+            }
+         }
+         DATASET "PointOffsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "Values" {
+            DATATYPE  H5T_IEEE_F32LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+      GROUP "Strips" {
+         DATASET "Connectivity" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 0 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfCells" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfConnectivityIds" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "Offsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+      GROUP "Vertices" {
+         DATASET "Connectivity" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 0 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfCells" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "NumberOfConnectivityIds" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+         DATASET "Offsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+         }
+      }
+   }
+}
 }
 ```
