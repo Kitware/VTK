@@ -2,9 +2,9 @@
 
 set -e
 
-readonly ospray_version="2.7.1"
+readonly ospray_version="2.11.0"
 readonly ospray_tarball="v$ospray_version.tar.gz"
-readonly ospray_sha256sum="4e7bd8145e19541c04f5d949305f19a894d85a827f567d66ae2eb11a760a5ace"
+readonly ospray_sha256sum="55974e650d9b78989ee55adb81cffd8c6e39ce5d3cf0a3b3198c522bf36f6e81"
 
 readonly ospray_root="$HOME/ospray"
 
