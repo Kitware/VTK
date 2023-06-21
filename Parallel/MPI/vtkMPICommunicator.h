@@ -228,6 +228,34 @@ public:
   ///@}
 
   /**
+   * Check if this communicator implements a probe operation (always true for MPI communicator)
+   */
+  bool CanProbe() override { return true; };
+
+  ///@{
+  /**
+   * Blocking test for a message.  Inputs are: source -- the source rank
+   * or ANY_SOURCE; tag -- the tag value.  Outputs are:
+   * actualSource -- the rank sending the message (useful if ANY_SOURCE is used)
+   * if actualSource isn't nullptr; size -- the length of the message in
+   * bytes if flag is true (only set if size isn't nullptr). The return
+   * value is 1 for success and 0 otherwise.
+   */
+  int Probe(int source, int tag, int* actualSource) override;
+  int Probe(int source, int tag, int* actualSource, int* type, int* size);
+  int Probe(int source, int tag, int* actualSource, unsigned long* type, int* size);
+  int Probe(int source, int tag, int* actualSource, const char* type, int* size);
+  int Probe(int source, int tag, int* actualSource, float* type, int* size);
+  int Probe(int source, int tag, int* actualSource, double* type, int* size);
+
+  int Probe(int source, int tag, int* actualSource, int* type, vtkTypeInt64* size);
+  int Probe(int source, int tag, int* actualSource, unsigned long* type, vtkTypeInt64* size);
+  int Probe(int source, int tag, int* actualSource, const char* type, vtkTypeInt64* size);
+  int Probe(int source, int tag, int* actualSource, float* type, vtkTypeInt64* size);
+  int Probe(int source, int tag, int* actualSource, double* type, vtkTypeInt64* size);
+  ///@}
+
+  /**
    * Given the request objects of a set of non-blocking operations
    * (send and/or receive) this method blocks until all requests are complete.
    */
