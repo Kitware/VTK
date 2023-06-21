@@ -43,6 +43,7 @@ class vtkImageData;
 class vtkImageResliceToColors;
 class vtkMatrix4x4;
 class vtkAbstractImageInterpolator;
+class vtkImageChangeInformation;
 
 class VTKRENDERINGIMAGE_EXPORT vtkImageResliceMapper : public vtkImageMapper3D
 {
@@ -258,7 +259,8 @@ protected:
    */
   void ReportReferences(vtkGarbageCollector*) override;
 
-  vtkImageSliceMapper* SliceMapper; // Does the OpenGL rendering
+  vtkImageChangeInformation* ChangeInformation; // Prepare image for mapper
+  vtkImageSliceMapper* SliceMapper;             // Does the OpenGL rendering
 
   vtkTypeBool JumpToNearestSlice;           // Adjust SliceAtFocalPoint
   vtkTypeBool AutoAdjustImageQuality;       // LOD-style behavior
@@ -273,6 +275,7 @@ protected:
   vtkImageResliceToColors* ImageReslice;    // For software interpolation
   vtkMatrix4x4* ResliceMatrix;              // Cached reslice matrix
   vtkMatrix4x4* WorldToDataMatrix;          // World to Data transform matrix
+  vtkMatrix4x4* DataToSliceMatrix;          // Data to Slice transform matrix
   vtkMatrix4x4* SliceToWorldMatrix;         // Slice to World transform matrix
   vtkTimeStamp UpdateTime;
 
