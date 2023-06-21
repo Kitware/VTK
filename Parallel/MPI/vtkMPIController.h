@@ -375,6 +375,11 @@ public:
   }
   ///@}
 
+  /**
+   * This controller does have probing capability
+   */
+  bool CanProbe() override { return ((vtkMPICommunicator*)this->Communicator)->CanProbe(); }
+
   ///@{
   /**
    * Blocking test for a message.  Inputs are: source -- the source rank
@@ -385,7 +390,7 @@ public:
    * value is 1 for success and 0 otherwise.
    * Note: These methods delegate to the communicator
    */
-  int Probe(int source, int tag, int* actualSource)
+  int Probe(int source, int tag, int* actualSource) override
   {
     return ((vtkMPICommunicator*)this->Communicator)->Probe(source, tag, actualSource);
   }
