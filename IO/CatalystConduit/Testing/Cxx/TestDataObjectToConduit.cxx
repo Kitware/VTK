@@ -23,6 +23,7 @@
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
+#include <vtkPolyData.h>
 #include <vtkRectilinearGrid.h>
 #include <vtkStructuredGrid.h>
 #include <vtkTable.h>
@@ -306,22 +307,77 @@ bool TestMixedShapedUnstructuredGrid()
   unstructured_grid->SetPoints(points);
 
   unstructured_grid->Allocate(100);
-  for (auto const& connectivity : unstructured_grid_cell_connectivities)
-  {
-    unstructured_grid->InsertNextCell(
-      connectivity.cell_type, connectivity.connectivity.size(), connectivity.connectivity.data());
-  }
+  unstructured_grid->InsertNextCell(unstructured_grid_cell_connectivities[0].cell_type, // HEXA
+    unstructured_grid_cell_connectivities[0].connectivity.size(),
+    unstructured_grid_cell_connectivities[0].connectivity.data());
+  unstructured_grid->InsertNextCell(unstructured_grid_cell_connectivities[2].cell_type, // TETRA
+    unstructured_grid_cell_connectivities[2].connectivity.size(),
+    unstructured_grid_cell_connectivities[2].connectivity.data());
+  unstructured_grid->InsertNextCell(unstructured_grid_cell_connectivities[4].cell_type, // POLYGON
+    unstructured_grid_cell_connectivities[4].connectivity.size(),
+    unstructured_grid_cell_connectivities[4].connectivity.data());
+  unstructured_grid->InsertNextCell(unstructured_grid_cell_connectivities[6].cell_type, // QUAD
+    unstructured_grid_cell_connectivities[6].connectivity.size(),
+    unstructured_grid_cell_connectivities[6].connectivity.data());
+  unstructured_grid->InsertNextCell(unstructured_grid_cell_connectivities[7].cell_type, // TRIANGLE
+    unstructured_grid_cell_connectivities[7].connectivity.size(),
+    unstructured_grid_cell_connectivities[7].connectivity.data());
 
-  auto previous_verbosity = vtkLogger::GetCurrentVerbosityCutoff();
-  vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
-
-  bool is_filling_success =
+  bool is_success =
     vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(unstructured_grid), node);
 
-  vtkLogger::SetStderrVerbosity(previous_verbosity);
+  if (!is_success)
+  {
+    std::cerr << "FillConduitNode failed for TestMixedShapedUnstructuredGrid" << std::endl;
+    return is_success;
+  }
 
-  // Not supported for now.
-  return !is_filling_success;
+  conduit_cpp::Node expected_node;
+  auto coords_node = expected_node["coordsets/coords"];
+  coords_node["type"] = "explicit";
+  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
+    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
+    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+
+  auto topologies_node0 = expected_node["topologies/mesh"];
+  topologies_node0["type"] = "unstructured";
+  topologies_node0["coordset"] = "coords";
+  topologies_node0["elements/shape"] = "mixed";
+  topologies_node0["elements/shape_map/hex"] = VTK_HEXAHEDRON;
+  topologies_node0["elements/shape_map/tet"] = VTK_TETRA;
+  topologies_node0["elements/shape_map/quad"] = VTK_QUAD;
+  topologies_node0["elements/shape_map/tri"] = VTK_TRIANGLE;
+  topologies_node0["elements/shape_map/polygonal"] = VTK_POLYGON;
+  topologies_node0["elements/shapes"] = std::vector<conduit_uint8>{ 12, 10, 7, 9, 5 };
+
+  if (unstructured_grid->GetCells()->IsStorage64Bit())
+  {
+    topologies_node0["elements/offsets"] = std::vector<conduit_int64>{ 0, 8, 12, 18, 22 };
+    topologies_node0["elements/sizes"] = std::vector<conduit_int64>{ 8, 4, 6, 4, 3 };
+    topologies_node0["elements/connectivity"] = std::vector<conduit_int64>{ 0, 1, 4, 3, 6, 7, 10, 9,
+      6, 10, 9, 12, 16, 17, 14, 13, 12, 15, 22, 23, 20, 19, 21, 22, 18 };
+  }
+  else
+  {
+    topologies_node0["elements/offsets"] = std::vector<conduit_int32>{ 0, 8, 12, 16 };
+    topologies_node0["elements/sizes"] = std::vector<conduit_int32>{ 8, 4, 4, 3 };
+    topologies_node0["elements/connectivity"] = std::vector<conduit_int32>{ 0, 1, 4, 3, 6, 7, 10, 9,
+      6, 10, 9, 12, 16, 17, 14, 13, 12, 15, 22, 23, 20, 19, 21, 22, 18 };
+  }
+
+  conduit_cpp::Node diff_info;
+  bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
+  if (are_nodes_different)
+  {
+    diff_info.print();
+  }
+
+  is_success = !are_nodes_different;
+
+  return is_success;
 }
 
 bool TestHexahedronUnstructuredGrid()
@@ -465,6 +521,65 @@ bool TestTetrahedronUnstructuredGrid()
   cell_field_node["topology"] = "mesh";
   cell_field_node["volume_dependent"] = "false";
   cell_field_node["values"] = std::vector<double>{ 10, -10 };
+
+  conduit_cpp::Node diff_info;
+  bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
+  if (are_nodes_different)
+  {
+    diff_info.print();
+  }
+
+  is_success = !are_nodes_different;
+
+  return is_success;
+}
+
+bool TestPolygonalUnstructuredGrid()
+{
+  vtkNew<vtkUnstructuredGrid> unstructured_grid;
+  vtkNew<vtkPoints> points;
+  for (int i = 0; i < 27; i++)
+  {
+    points->InsertPoint(i, unstructured_grid_points_coordinates[i]);
+  }
+  unstructured_grid->SetPoints(points);
+  unstructured_grid->Allocate(100);
+  unstructured_grid->InsertNextCell(unstructured_grid_cell_connectivities[4].cell_type,
+    unstructured_grid_cell_connectivities[4].connectivity.size(),
+    unstructured_grid_cell_connectivities[4].connectivity.data());
+
+  conduit_cpp::Node node;
+  bool is_success =
+    vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(unstructured_grid), node);
+
+  if (!is_success)
+  {
+    std::cerr << "FillConduitNode failed for TestPolygonalUnstructuredGrid" << std::endl;
+    return is_success;
+  }
+
+  conduit_cpp::Node expected_node;
+  auto coords_node = expected_node["coordsets/coords"];
+  coords_node["type"] = "explicit";
+  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
+    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
+    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+
+  auto topologies_node = expected_node["topologies/mesh"];
+  topologies_node["type"] = "unstructured";
+  topologies_node["coordset"] = "coords";
+  topologies_node["elements/shape"] = "polygonal";
+  if (unstructured_grid->GetCells()->IsStorage64Bit())
+  {
+    topologies_node["elements/connectivity"] = std::vector<conduit_int64>{ 16, 17, 14, 13, 12, 15 };
+  }
+  else
+  {
+    topologies_node["elements/connectivity"] = std::vector<conduit_int32>{ 16, 17, 14, 13, 12, 15 };
+  }
 
   conduit_cpp::Node diff_info;
   bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
@@ -773,6 +888,35 @@ bool TestPointUnstructuredGrid()
   return is_success;
 }
 
+bool TestMixedShapePolyData()
+{
+  vtkNew<vtkPolyData> poly_data;
+  vtkNew<vtkPoints> points;
+  for (int i = 0; i < 27; i++)
+  {
+    points->InsertPoint(i, unstructured_grid_points_coordinates[i]);
+  }
+  poly_data->SetPoints(points);
+  poly_data->Allocate(100);
+  poly_data->InsertNextCell(unstructured_grid_cell_connectivities[10].cell_type,
+    unstructured_grid_cell_connectivities[10].connectivity.size(),
+    unstructured_grid_cell_connectivities[10].connectivity.data());
+  poly_data->InsertNextCell(unstructured_grid_cell_connectivities[11].cell_type,
+    unstructured_grid_cell_connectivities[11].connectivity.size(),
+    unstructured_grid_cell_connectivities[11].connectivity.data());
+
+  auto previous_verbosity = vtkLogger::GetCurrentVerbosityCutoff();
+  vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
+
+  conduit_cpp::Node node;
+  bool is_filling_success =
+    vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(poly_data), node);
+
+  vtkLogger::SetStderrVerbosity(previous_verbosity);
+
+  return !is_filling_success;
+}
+
 bool TestUnstructuredGrid()
 {
   bool is_success = true;
@@ -780,6 +924,7 @@ bool TestUnstructuredGrid()
   is_success &= TestMixedShapedUnstructuredGrid();
   is_success &= TestHexahedronUnstructuredGrid();
   is_success &= TestTetrahedronUnstructuredGrid();
+  is_success &= TestPolygonalUnstructuredGrid();
   is_success &= TestQuadUnstructuredGrid();
   is_success &= TestTriangleUnstructuredGrid();
   is_success &= TestLineUnstructuredGrid();
@@ -797,6 +942,7 @@ int TestDataObjectToConduit(int, char*[])
   is_success &= TestRectilinearGrid();
   is_success &= TestStructuredGrid();
   is_success &= TestUnstructuredGrid();
+  is_success &= TestMixedShapePolyData();
 
   return is_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
