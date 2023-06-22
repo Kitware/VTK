@@ -515,6 +515,7 @@ void vtkStreamingDemandDrivenPipeline ::CopyDefaultInformation(vtkInformation* r
           outInfo->CopyEntry(inInfo, TIME_STEPS());
           outInfo->CopyEntry(inInfo, TIME_RANGE());
           outInfo->CopyEntry(inInfo, vtkDataObject::ORIGIN());
+          outInfo->CopyEntry(inInfo, vtkDataObject::DIRECTION());
           outInfo->CopyEntry(inInfo, vtkDataObject::SPACING());
           outInfo->CopyEntry(inInfo, TIME_DEPENDENT_INFORMATION());
           if (scalarInfo)
