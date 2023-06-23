@@ -973,7 +973,8 @@ protected:
    * This method exchanges ghosts between connected blocks.
    */
   template <class DataSetT>
-  static void ExchangeGhosts(diy::Master& master, std::vector<DataSetT*>& inputs);
+  static bool ExchangeGhosts(diy::Master& master, diy::Assigner& assigner,
+    diy::RegularAllReducePartners& partners, std::vector<DataSetT*>& inputs);
 
   /**
    * This methods allocate a point and cell ghost array and fills it with 0.
