@@ -40,6 +40,7 @@ vtkDistancePolyDataFilter::vtkDistancePolyDataFilter()
   this->NegateDistance = 0;
   this->ComputeSecondDistance = 1;
   this->ComputeCellCenterDistance = 1;
+  this->ComputeDirection = 0;
 
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2);
@@ -102,19 +103,51 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
   pointArray->SetNumberOfComponents(1);
   pointArray->SetNumberOfTuples(numPts);
 
+  vtkNew<vtkDoubleArray> directionArray;
+  if (this->ComputeDirection)
+  {
+    directionArray->SetName("Direction");
+    directionArray->SetNumberOfComponents(3);
+    directionArray->SetNumberOfTuples(numPts);
+  }
+
+  auto DistanceWithSign = [&](const double& val) {
+    return this->SignedDistance ? (this->NegateDistance ? -val : val) : std::abs(val);
+  };
+
   vtkSMPTools::For(0, numPts, [&](vtkIdType begin, vtkIdType end) {
     double pt[3];
     for (vtkIdType ptId = begin; ptId < end; ptId++)
     {
       mesh->GetPoint(ptId, pt);
-      double val = imp->EvaluateFunction(pt);
-      double dist = this->SignedDistance ? (this->NegateDistance ? -val : val) : std::abs(val);
-      pointArray->SetValue(ptId, dist);
+      if (this->ComputeDirection)
+      {
+        double closestPoint[3];
+        double direction[3];
+        double val = imp->EvaluateFunctionAndGetClosestPoint(pt, closestPoint);
+        double dist = DistanceWithSign(val);
+        vtkMath::Subtract(closestPoint, pt, direction);
+        vtkMath::Normalize(direction);
+        pointArray->SetValue(ptId, dist);
+        directionArray->SetTuple(ptId, direction);
+      }
+      else
+      {
+        double val = imp->EvaluateFunction(pt);
+        double dist = DistanceWithSign(val);
+        pointArray->SetValue(ptId, dist);
+      }
     }
   });
 
   mesh->GetPointData()->AddArray(pointArray);
   mesh->GetPointData()->SetActiveScalars("Distance");
+
+  if (this->ComputeDirection)
+  {
+    mesh->GetPointData()->AddArray(directionArray);
+    mesh->GetPointData()->SetActiveVectors("Direction");
+  }
 
   // Calculate distance from cell centers.
   if (this->ComputeCellCenterDistance)
@@ -126,6 +159,13 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
     cellArray->SetNumberOfComponents(1);
     cellArray->SetNumberOfTuples(numCells);
 
+    vtkNew<vtkDoubleArray> cellDirectionArray;
+    cellDirectionArray->SetName("Direction");
+    if (this->ComputeDirection)
+    {
+      cellDirectionArray->SetNumberOfComponents(3);
+      cellDirectionArray->SetNumberOfTuples(numCells);
+    }
     vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
     vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
       auto cell = TLCell.Local();
@@ -136,15 +176,34 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
         mesh->GetCell(cellId, cell);
         cell->GetParametricCenter(pcoords);
         cell->EvaluateLocation(subId, pcoords, x, weights);
-
-        double val = imp->EvaluateFunction(x);
-        double dist = this->SignedDistance ? (this->NegateDistance ? -val : val) : std::abs(val);
-        cellArray->SetValue(cellId, dist);
+        if (this->ComputeDirection)
+        {
+          double closestPoint[3];
+          double direction[3];
+          double val = imp->EvaluateFunctionAndGetClosestPoint(x, closestPoint);
+          double dist = DistanceWithSign(val);
+          vtkMath::Subtract(closestPoint, x, direction);
+          vtkMath::Normalize(direction);
+          cellArray->SetValue(cellId, dist);
+          cellDirectionArray->SetTuple(cellId, direction);
+        }
+        else
+        {
+          double val = imp->EvaluateFunction(x);
+          double dist = DistanceWithSign(val);
+          cellArray->SetValue(cellId, dist);
+        }
       }
     });
 
     mesh->GetCellData()->AddArray(cellArray);
     mesh->GetCellData()->SetActiveScalars("Distance");
+
+    if (this->ComputeDirection)
+    {
+      mesh->GetCellData()->AddArray(cellDirectionArray);
+      mesh->GetCellData()->SetActiveVectors("Direction");
+    }
   }
 
   vtkDebugMacro(<< "End vtkDistancePolyDataFilter::GetPolyDataDistance");
@@ -168,5 +227,6 @@ void vtkDistancePolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NegateDistance: " << this->NegateDistance << "\n";
   os << indent << "ComputeSecondDistance: " << this->ComputeSecondDistance << "\n";
   os << indent << "ComputeCellCenterDistance: " << this->ComputeCellCenterDistance << "\n";
+  os << indent << "ComputeDirection: " << this->ComputeDirection << "\n";
 }
 VTK_ABI_NAMESPACE_END
