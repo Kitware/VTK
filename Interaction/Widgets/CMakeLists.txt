@@ -98,6 +98,8 @@ set(classes
   vtkMagnifierWidget
   vtkMeasurementCubeHandleRepresentation3D
   vtkOrientationMarkerWidget
+  vtkOrientationRepresentation
+  vtkOrientationWidget
   vtkOrientedGlyphContourRepresentation
   vtkOrientedGlyphFocalPlaneContourRepresentation
   vtkOrientedPolygonalHandleRepresentation3D

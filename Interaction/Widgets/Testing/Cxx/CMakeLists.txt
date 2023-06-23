@@ -49,6 +49,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestMultipleViewports.cxx
   TestOrientationMarkerWidget.cxx
   TestOrientationMarkerWidget2.cxx
+  TestOrientationWidget.cxx
   TestOrthoPlanes.cxx
   TestParallelopipedWidget.cxx
   TestPickingManagerSeedWidget.cxx
