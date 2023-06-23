@@ -40,6 +40,7 @@
 #include "vtkColor.h"
 #include "vtkFreeTypeTools.h"
 #include "vtkGenericCell.h"
+#include "vtkOpenGLContextDeviceBufferObjectBuilder.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTexture.h"
@@ -513,6 +514,7 @@ public:
    */
   mutable vtkTextureImageCache<UTF8TextPropertyKey> TextTextureCache;
   ///@}
+  vtkOpenGLContextDeviceBufferObjectBuilder BufferObjectBuilder;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////

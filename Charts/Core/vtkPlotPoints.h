@@ -185,6 +185,8 @@ public:
    */
   bool UpdateCache() override;
 
+  void ReleaseGraphicsCache() override;
+
 protected:
   vtkPlotPoints();
   ~vtkPlotPoints() override;

@@ -14,6 +14,10 @@
 =========================================================================*/
 
 #include "vtkAbstractContextItem.h"
+#include "vtkContext2D.h"
+#include "vtkContext3D.h"
+#include "vtkContextDevice2D.h"
+#include "vtkContextDevice3D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScenePrivate.h"
 #include "vtkObjectFactory.h"
@@ -257,6 +261,31 @@ void vtkAbstractContextItem::ReleaseGraphicsResources()
        it != this->Children->end(); ++it)
   {
     (*it)->ReleaseGraphicsResources();
+  }
+  if (!this->Scene)
+  {
+    return;
+  }
+  this->ReleaseGraphicsCache();
+}
+
+//------------------------------------------------------------------------------
+void vtkAbstractContextItem::ReleaseGraphicsCache()
+{
+  // Remove our cache from 2D and 3D devices.
+  if (auto lastPainter = this->Scene->GetLastPainter())
+  {
+    if (auto device2d = lastPainter->GetDevice())
+    {
+      device2d->ReleaseCache(reinterpret_cast<std::uintptr_t>(this));
+    }
+    if (auto ctx3D = lastPainter->GetContext3D())
+    {
+      if (auto device3D = ctx3D->GetDevice())
+      {
+        device3D->ReleaseCache(reinterpret_cast<std::uintptr_t>(this));
+      }
+    }
   }
 }
 

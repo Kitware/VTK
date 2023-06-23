@@ -292,6 +292,11 @@ protected:
   ~vtkAbstractContextItem() override;
 
   /**
+   * Release cache entries created by this context item.
+   */
+  virtual void ReleaseGraphicsCache();
+
+  /**
    * Point to the scene the item is on - can be null.
    */
   vtkContextScene* Scene;

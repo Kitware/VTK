@@ -51,10 +51,12 @@ protected:
   vtkPlotPoints3D();
   ~vtkPlotPoints3D() override;
 
+  void ReleaseGraphicsCache() override;
+
   /**
    * The selected points.
    */
-  std::vector<vtkVector3f> SelectedPoints;
+  vtkNew<vtkPoints> SelectedPoints;
 
   /**
    * The selected points.

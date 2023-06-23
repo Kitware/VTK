@@ -15,9 +15,12 @@
 
 #include "vtkPlotLine3D.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
+#include "vtkFloatArray.h"
 #include "vtkPen.h"
+#include "vtkPoints.h"
 
 #include "vtkObjectFactory.h"
 
@@ -37,7 +40,7 @@ bool vtkPlotLine3D::Paint(vtkContext2D* painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotLine3D.");
 
-  if (!this->Visible || this->Points.empty())
+  if (!this->Visible || !this->Points->GetNumberOfPoints())
   {
     return false;
   }
@@ -51,7 +54,8 @@ bool vtkPlotLine3D::Paint(vtkContext2D* painter)
 
   // Draw the line between the points
   context->ApplyPen(this->Pen);
-  context->DrawPoly(this->Points[0].GetData(), static_cast<int>(this->Points.size()));
+  float* points = vtkArrayDownCast<vtkFloatArray>(this->Points->GetData())->GetPointer(0);
+  context->DrawPoly(points, this->Points->GetNumberOfPoints());
 
   return this->vtkPlotPoints3D::Paint(painter);
 }

@@ -434,6 +434,13 @@ public:
    */
   virtual bool UpdateCache() { return true; }
 
+  /**
+   * Utility function that fills up `selectedPoints` with tuples from `points`. Indices
+   * from `selectedIds` are used to index into `points`.
+   */
+  static void FilterSelectedPoints(
+    vtkDataArray* points, vtkDataArray* selectedPoints, vtkIdTypeArray* selectedIds);
+
 protected:
   vtkPlot();
   ~vtkPlot() override;

@@ -17,6 +17,7 @@
 #include "vtkAbstractMapper.h" // for VTK_SCALAR_MODE defines
 #include "vtkBrush.h"
 #include "vtkCellIterator.h"
+#include "vtkFloatArray.h"
 #include "vtkMathTextUtilities.h"
 #include "vtkPen.h"
 #include "vtkPolyData.h"
@@ -192,4 +193,41 @@ void vtkContextDevice2D::DrawColoredPolygon(float*, int, unsigned char*, int)
 {
   vtkErrorMacro("DrawColoredPolygon not implemented on this device.");
 }
+
+//------------------------------------------------------------------------------
+void vtkContextDevice2D::DrawPoints(
+  vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t)
+{
+  float* f = vtkArrayDownCast<vtkFloatArray>(positions)->GetPointer(0);
+  const int nv = positions->GetNumberOfTuples();
+
+  auto c = (colors && colors->GetNumberOfTuples() > 0) ? colors->GetPointer(0) : nullptr;
+  const int nc_comps = colors ? colors->GetNumberOfComponents() : 0;
+  this->DrawPoints(f, nv, c, nc_comps);
+}
+
+//------------------------------------------------------------------------------
+void vtkContextDevice2D::DrawPointSprites(
+  vtkImageData* sprite, vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t)
+{
+  float* f = vtkArrayDownCast<vtkFloatArray>(positions)->GetPointer(0);
+  const int nv = positions->GetNumberOfTuples();
+
+  auto c = (colors && colors->GetNumberOfTuples() > 0) ? colors->GetPointer(0) : nullptr;
+  const int nc_comps = colors ? colors->GetNumberOfComponents() : 0;
+  this->DrawPointSprites(sprite, f, nv, c, nc_comps);
+}
+
+//------------------------------------------------------------------------------
+void vtkContextDevice2D::DrawMarkers(
+  int shape, bool highlight, vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t)
+{
+  float* f = vtkArrayDownCast<vtkFloatArray>(positions)->GetPointer(0);
+  const int nv = positions->GetNumberOfTuples();
+
+  auto c = (colors && colors->GetNumberOfTuples() > 0) ? colors->GetPointer(0) : nullptr;
+  const int nc_comps = colors ? colors->GetNumberOfComponents() : 0;
+  this->DrawMarkers(shape, highlight, f, nv, c, nc_comps);
+}
+
 VTK_ABI_NAMESPACE_END

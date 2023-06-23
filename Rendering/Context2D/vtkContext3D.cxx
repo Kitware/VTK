@@ -94,10 +94,24 @@ void vtkContext3D::DrawPoints(const float* points, int n, unsigned char* colors,
   this->Device->DrawPoints(points, n, colors, nc_comps);
 }
 
+void vtkContext3D::DrawPoints(
+  vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier)
+{
+  assert(this->Device);
+  this->Device->DrawPoints(positions, colors, cacheIdentifier);
+}
+
 void vtkContext3D::DrawTriangleMesh(const float* mesh, int n, const unsigned char* colors, int nc)
 {
   assert(this->Device);
   this->Device->DrawTriangleMesh(mesh, n, colors, nc);
+}
+
+void vtkContext3D::DrawTriangleMesh(
+  vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier)
+{
+  assert(this->Device);
+  this->Device->DrawTriangleMesh(positions, colors, cacheIdentifier);
 }
 
 void vtkContext3D::ApplyPen(vtkPen* pen)

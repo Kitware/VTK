@@ -113,7 +113,7 @@ protected:
   /**
    * Surface to render.
    */
-  std::vector<vtkVector3f> Surface;
+  vtkNew<vtkPoints> Surface;
 
   /**
    * The number of rows in the input table.

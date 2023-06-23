@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLContextDevice2D.h"
+#include "vtkOpenGLContextDeviceBufferObjectBuilder.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
@@ -30,6 +31,7 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPen.h"
+#include "vtkRenderTimerLog.h"
 #include "vtkShaderProgram.h"
 #include "vtkTransform.h"
 
@@ -75,6 +77,8 @@ public:
 
   vtkVector2i Dim;
   vtkVector2i Offset;
+
+  vtkOpenGLContextDeviceBufferObjectBuilder BufferObjectBuilder;
 };
 
 vtkStandardNewMacro(vtkOpenGLContextDevice3D);
@@ -153,76 +157,25 @@ void vtkOpenGLContextDevice3D::SetMatrices(vtkShaderProgram* prog)
 void vtkOpenGLContextDevice3D::BuildVBO(vtkOpenGLHelper* cellBO, const float* f, int nv,
   const unsigned char* colors, int nc, float* tcoords)
 {
-  int stride = 3;
-  int cOffset = 0;
-  int tOffset = 0;
-  if (colors)
-  {
-    cOffset = stride;
-    stride++;
-  }
-  if (tcoords)
-  {
-    tOffset = stride;
-    stride += 2;
-  }
+  // build up temporary vtkDataArrays without copying the data.
+  vtkNew<vtkFloatArray> positionsArray;
+  vtkNew<vtkUnsignedCharArray> colorsArray;
+  vtkNew<vtkFloatArray> tcoordsArray;
 
-  std::vector<float> va;
-  va.resize(nv * stride);
-  vtkFourByteUnion c;
-  for (int i = 0; i < nv; i++)
-  {
-    va[i * stride] = f[i * 3];
-    va[i * stride + 1] = f[i * 3 + 1];
-    va[i * stride + 2] = f[i * 3 + 2];
-    if (colors)
-    {
-      c.c[0] = colors[nc * i];
-      c.c[1] = colors[nc * i + 1];
-      c.c[2] = colors[nc * i + 2];
-      if (nc == 4)
-      {
-        c.c[3] = colors[nc * i + 3];
-      }
-      else
-      {
-        c.c[3] = 255;
-      }
-      va[i * stride + cOffset] = c.f;
-    }
-    if (tcoords)
-    {
-      va[i * stride + tOffset] = tcoords[i * 2];
-      va[i * stride + tOffset + 1] = tcoords[i * 2 + 1];
-    }
-  }
+  positionsArray->SetNumberOfComponents(3);
+  positionsArray->SetNumberOfTuples(nv);
+  std::copy(f, f + nv * 3, positionsArray->Begin());
 
-  // upload the data
-  cellBO->IBO->Upload(va, vtkOpenGLBufferObject::ArrayBuffer);
-  cellBO->VAO->Bind();
-  if (!cellBO->VAO->AddAttributeArray(
-        cellBO->Program, cellBO->IBO, "vertexMC", 0, sizeof(float) * stride, VTK_FLOAT, 3, false))
-  {
-    vtkErrorMacro(<< "Error setting vertexMC in shader VAO.");
-  }
-  if (colors)
-  {
-    if (!cellBO->VAO->AddAttributeArray(cellBO->Program, cellBO->IBO, "vertexScalar",
-          sizeof(float) * cOffset, sizeof(float) * stride, VTK_UNSIGNED_CHAR, 4, true))
-    {
-      vtkErrorMacro(<< "Error setting vertexScalar in shader VAO.");
-    }
-  }
-  if (tcoords)
-  {
-    if (!cellBO->VAO->AddAttributeArray(cellBO->Program, cellBO->IBO, "tcoordMC",
-          sizeof(float) * tOffset, sizeof(float) * stride, VTK_FLOAT, 2, false))
-    {
-      vtkErrorMacro(<< "Error setting tcoordMC in shader VAO.");
-    }
-  }
+  colorsArray->SetNumberOfComponents(nc);
+  colorsArray->SetNumberOfTuples(nv);
+  std::copy(colors, colors + nv * nc, colorsArray->Begin());
 
-  cellBO->VAO->Bind();
+  tcoordsArray->SetNumberOfComponents(2);
+  tcoordsArray->SetArray(tcoords, nv * 2, 1); // do not take ownership of 'tcoords'
+
+  // use 'anonymous' cache identifier because of raw typed array pointers.
+  this->Storage->BufferObjectBuilder.BuildVBO(
+    cellBO, positionsArray, colorsArray, tcoordsArray, /*cacheIdentifier=*/0, this->RenderWindow);
 }
 
 void vtkOpenGLContextDevice3D::ReadyVBOProgram()
@@ -278,6 +231,7 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
       "uniform mat4 WCDCMatrix;\n"
       "uniform mat4 MCWCMatrix;\n"
       "out vec4 vertexColor;\n"
+      "uniform int hasOpacity;\n"
       "uniform int numClipPlanes;\n"
       "uniform vec4 clipPlanes[6];\n"
       "out float clipDistances[6];\n"
@@ -288,7 +242,9 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
       "  {\n"
       "  clipDistances[planeNum] = dot(clipPlanes[planeNum], vertex*MCWCMatrix);\n"
       "  }\n"
-      "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
+      "gl_Position = vertex*MCWCMatrix*WCDCMatrix; \n"
+      "if (hasOpacity == 0) { vertexColor.a = 1.0f; }\n"
+      "}\n",
       // fragment shader
       "//VTK::System::Dec\n"
       "//VTK::Output::Dec\n"
@@ -373,6 +329,12 @@ void vtkOpenGLContextDevice3D::DrawPoly(
   this->BuildVBO(cbo, verts, n, colors, nc, nullptr);
   this->SetMatrices(cbo->Program);
 
+  auto timer = this->RenderWindow->GetRenderTimer();
+  VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+      << "::" << __func__ << "|glDrawArrays(cacheIdentifier: "
+      << "null"
+      << ",mode:GL_LINE_STRIP,n:" << n,
+    timer);
   glDrawArrays(GL_LINE_STRIP, 0, n);
 
   // free everything
@@ -432,6 +394,12 @@ void vtkOpenGLContextDevice3D::DrawLines(
   this->BuildVBO(cbo, verts, n, colors, nc, nullptr);
   this->SetMatrices(cbo->Program);
 
+  auto timer = this->RenderWindow->GetRenderTimer();
+  VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+      << "::" << __func__ << "|glDrawArrays(cacheIdentifier: "
+      << "null"
+      << ",mode:GL_LINES,n:" << n,
+    timer);
   glDrawArrays(GL_LINES, 0, n);
 
   // free everything
@@ -446,8 +414,30 @@ void vtkOpenGLContextDevice3D::DrawLines(
 void vtkOpenGLContextDevice3D::DrawPoints(
   const float* verts, int n, const unsigned char* colors, int nc)
 {
-  assert("verts must be non-null" && verts != nullptr);
-  assert("n must be greater than 0" && n > 0);
+  // build up temporary vtkDataArrays without copying the data.
+  vtkNew<vtkFloatArray> positionsArray;
+  vtkNew<vtkUnsignedCharArray> colorsArray;
+
+  positionsArray->SetNumberOfComponents(3);
+  positionsArray->SetNumberOfTuples(n);
+  std::copy(verts, verts + n * 3, positionsArray->Begin());
+
+  if (colors != nullptr)
+  {
+    vtkErrorMacro(<< "Here");
+    colorsArray->SetNumberOfComponents(nc);
+    colorsArray->SetNumberOfTuples(n);
+    std::copy(colors, colors + n * nc, colorsArray->Begin());
+  }
+
+  this->DrawPoints(positionsArray, colorsArray, /*cacheIdentifier=*/0);
+}
+
+void vtkOpenGLContextDevice3D::DrawPoints(
+  vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier)
+{
+  assert("positions must be non-null" && positions != nullptr);
+  assert("number of positions must be greater than 0" && positions->GetNumberOfTuples() > 0);
 
   vtkOpenGLClearErrorMacro();
 
@@ -456,7 +446,7 @@ void vtkOpenGLContextDevice3D::DrawPoints(
   this->RenderWindow->GetState()->vtkglPointSize(this->Pen->GetWidth());
 
   vtkOpenGLHelper* cbo = nullptr;
-  if (colors)
+  if (colors && colors->GetNumberOfTuples() > 0)
   {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
@@ -464,6 +454,8 @@ void vtkOpenGLContextDevice3D::DrawPoints(
     {
       return;
     }
+    const int hasOpacity = (colors->GetNumberOfComponents() == 4 ? 1 : 0);
+    cbo->Program->SetUniform1iv("hasOpacity", 1, &hasOpacity);
   }
   else
   {
@@ -476,13 +468,16 @@ void vtkOpenGLContextDevice3D::DrawPoints(
     cbo->Program->SetUniform4uc("vertexColor", this->Pen->GetColor());
   }
 
-  this->BuildVBO(cbo, verts, n, colors, nc, nullptr);
+  this->Storage->BufferObjectBuilder.BuildVBO(
+    cbo, positions, colors, nullptr, cacheIdentifier, this->RenderWindow);
   this->SetMatrices(cbo->Program);
 
-  glDrawArrays(GL_POINTS, 0, n);
-
-  // free everything
-  cbo->ReleaseGraphicsResources(this->RenderWindow);
+  auto timer = this->RenderWindow->GetRenderTimer();
+  VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+      << "::" << __func__ << "|glDrawArrays(cacheIdentifier: " << cacheIdentifier
+      << ",mode:GL_POINTS,n:" << positions->GetNumberOfTuples(),
+    timer);
+  glDrawArrays(GL_POINTS, 0, positions->GetNumberOfTuples());
 
   this->DisableDepthBuffer();
 
@@ -492,15 +487,36 @@ void vtkOpenGLContextDevice3D::DrawPoints(
 void vtkOpenGLContextDevice3D::DrawTriangleMesh(
   const float* mesh, int n, const unsigned char* colors, int nc)
 {
-  assert("mesh must be non-null" && mesh != nullptr);
-  assert("n must be greater than 0" && n > 0);
+  // build up temporary vtkDataArrays without copying the data.
+  vtkNew<vtkFloatArray> positionsArray;
+  vtkNew<vtkUnsignedCharArray> colorsArray;
+
+  positionsArray->SetNumberOfComponents(3);
+  positionsArray->SetNumberOfTuples(n);
+  std::copy(mesh, mesh + n * 3, positionsArray->Begin());
+
+  if (colors != nullptr)
+  {
+    colorsArray->SetNumberOfComponents(nc);
+    colorsArray->SetNumberOfTuples(n);
+    std::copy(colors, colors + n * nc, colorsArray->Begin());
+  }
+
+  this->DrawTriangleMesh(positionsArray, colorsArray, /*cacheIdentifier=*/0);
+}
+
+void vtkOpenGLContextDevice3D::DrawTriangleMesh(
+  vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier)
+{
+  assert("positions must be non-null" && positions != nullptr);
+  assert("number of positions must be greater than 0" && positions->GetNumberOfTuples() > 0);
 
   vtkOpenGLClearErrorMacro();
 
   this->EnableDepthBuffer();
 
   vtkOpenGLHelper* cbo = nullptr;
-  if (colors)
+  if (colors && colors->GetNumberOfTuples() > 0)
   {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
@@ -508,6 +524,8 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(
     {
       return;
     }
+    const int hasOpacity = (colors->GetNumberOfComponents() == 4 ? 1 : 0);
+    cbo->Program->SetUniform1iv("hasOpacity", 1, &hasOpacity);
   }
   else
   {
@@ -520,13 +538,16 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(
     cbo->Program->SetUniform4uc("vertexColor", this->Pen->GetColor());
   }
 
-  this->BuildVBO(cbo, mesh, n, colors, nc, nullptr);
+  this->Storage->BufferObjectBuilder.BuildVBO(
+    cbo, positions, colors, nullptr, cacheIdentifier, this->RenderWindow);
   this->SetMatrices(cbo->Program);
 
-  glDrawArrays(GL_TRIANGLES, 0, n);
-
-  // free everything
-  cbo->ReleaseGraphicsResources(this->RenderWindow);
+  auto timer = this->RenderWindow->GetRenderTimer();
+  VTK_SCOPED_RENDER_EVENT(this->GetClassNameInternal()
+      << "::" << __func__ << "|glDrawArrays(cacheIdentifier: " << cacheIdentifier
+      << ",mode:GL_TRIANGLES,n:" << positions->GetNumberOfTuples(),
+    timer);
+  glDrawArrays(GL_TRIANGLES, 0, positions->GetNumberOfTuples());
 
   this->DisableDepthBuffer();
 
@@ -642,5 +663,11 @@ void vtkOpenGLContextDevice3D::DisableDepthBuffer()
 void vtkOpenGLContextDevice3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice3D::ReleaseCache(std::uintptr_t cacheIdentifier)
+{
+  this->Storage->BufferObjectBuilder.Erase(cacheIdentifier, this->RenderWindow);
 }
 VTK_ABI_NAMESPACE_END
