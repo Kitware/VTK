@@ -475,10 +475,10 @@ vtkSmartPointer<vtkDataSet> GetMesh(
       conduit_cpp::Node connectivity = topologyNode["elements/connectivity"];
       const conduit_cpp::DataType dtype0 = connectivity.dtype();
       const auto nb_cells = dtype0.number_of_elements();
+      ug->SetPoints(CreatePoints(coords));
+      const auto vtk_cell_type = GetCellType(topologyNode["elements/shape"].as_string());
       if (nb_cells > 0)
       {
-        ug->SetPoints(CreatePoints(coords));
-        const auto vtk_cell_type = GetCellType(topologyNode["elements/shape"].as_string());
         if (vtk_cell_type == VTK_POLYHEDRON)
         {
           // polyhedra uses O2M and not M2C arrays, so need to process it
