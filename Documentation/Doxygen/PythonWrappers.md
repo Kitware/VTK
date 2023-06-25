@@ -328,6 +328,7 @@ The wrappable parameter types are:
 * `vtkObjectBase*` and derived types, as their respective Python type
 * `vtkSmartPointer<T>` as the Python vtkObjectBase-derived type `T`
 * `std::vector<vtkSmartPointer<T>>` as a sequence of objects of type `T`
+* `const std::vector<vtkSmartPointer<T>>` as a sequence of objects of type `T`
 * other wrapped classes (like `vtkVariant`), but not pointers to these types
 * `char*`, as Python `str` via utf-8 encoding/decoding
 * `void*`, as Python buffer (e.g. `bytes` or `bytearray`)

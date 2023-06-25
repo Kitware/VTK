@@ -872,7 +872,7 @@ VTK_PYTHON_BUILD_TUPLE(unsigned long long)
 VTK_PYTHON_BUILD_TUPLE(std::string)
 
 // For an array of smart pointers
-PyObject* vtkPythonArgs::BuildTuple(vtkSmartPointerBase* a, size_t n)
+PyObject* vtkPythonArgs::BuildTuple(const vtkSmartPointerBase* a, size_t n)
 {
   if (a)
   {

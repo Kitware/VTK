@@ -609,7 +609,7 @@ public:
   static PyObject* BuildTuple(const long long* a, size_t n);
   static PyObject* BuildTuple(const unsigned long long* a, size_t n);
   static PyObject* BuildTuple(const std::string* a, size_t n);
-  static PyObject* BuildTuple(vtkSmartPointerBase* a, size_t n);
+  static PyObject* BuildTuple(const vtkSmartPointerBase* a, size_t n);
   ///@}
 
   /**
