@@ -220,23 +220,34 @@ bool ConvertDataArrayToMCArray(
 }
 
 //----------------------------------------------------------------------------
-bool ConvertDataArrayToMCArray(vtkDataArray* data_array, conduit_cpp::Node& conduit_node)
+bool ConvertDataArrayToMCArray(vtkDataArray* data_array, conduit_cpp::Node& conduit_node,
+  const std::vector<std::string>* names = nullptr)
 {
-  return ConvertDataArrayToMCArray(data_array, 0, 0, conduit_node);
-}
-
-//----------------------------------------------------------------------------
-bool ConvertPoints(vtkPoints* points, conduit_cpp::Node& x_values_node,
-  conduit_cpp::Node& y_values_node, conduit_cpp::Node& z_values_node)
-{
-  if (auto data_array = points->GetData())
+  std::cerr << data_array->GetName() << ": components " << data_array->GetNumberOfComponents()
+            << std::endl;
+  int nComponents = data_array->GetNumberOfComponents();
+  if (nComponents > 1)
   {
-    return ConvertDataArrayToMCArray(data_array, 0, 3, x_values_node) &&
-      ConvertDataArrayToMCArray(data_array, 1, 3, y_values_node) &&
-      ConvertDataArrayToMCArray(data_array, 2, 3, z_values_node);
+    bool success = true;
+    for (int i = 0; i < nComponents; ++i)
+    {
+      conduit_cpp::Node component_node;
+      if (names && i < names->size())
+      {
+        component_node = conduit_node[(*names)[i]];
+      }
+      else
+      {
+        component_node = conduit_node[std::to_string(i)];
+      }
+      success = success && ConvertDataArrayToMCArray(data_array, i, nComponents, component_node);
+    }
+    return success;
   }
-
-  return false;
+  else
+  {
+    return ConvertDataArrayToMCArray(data_array, 0, 0, conduit_node);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -254,15 +265,13 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node)
 
   coords_node["type"] = "explicit";
 
-  auto x_values_node = coords_node["values/x"];
-  auto y_values_node = coords_node["values/y"];
-  auto z_values_node = coords_node["values/z"];
-
+  auto values_node = coords_node["values"];
   auto* points = dataset->GetPoints();
 
   if (points)
   {
-    if (!ConvertPoints(points, x_values_node, y_values_node, z_values_node))
+    std::vector<std::string> names = { "x", "y", "z" };
+    if (!ConvertDataArrayToMCArray(points->GetData(), values_node, &names))
     {
       vtkLogF(ERROR, "ConvertPoints failed for %s.", datasetType);
       return false;
@@ -270,9 +279,9 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node)
   }
   else
   {
-    x_values_node = std::vector<float>();
-    y_values_node = std::vector<float>();
-    z_values_node = std::vector<float>();
+    values_node["x"] = std::vector<float>();
+    values_node["y"] = std::vector<float>();
+    values_node["z"] = std::vector<float>();
   }
 
   auto topologies_node = conduit_node["topologies/mesh"];
@@ -391,11 +400,9 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
 
     coords_node["type"] = "explicit";
 
-    auto x_values_node = coords_node["values/x"];
-    auto y_values_node = coords_node["values/y"];
-    auto z_values_node = coords_node["values/z"];
-
-    if (!ConvertPoints(structured_grid->GetPoints(), x_values_node, y_values_node, z_values_node))
+    auto values_node = coords_node["values"];
+    std::vector<std::string> names = { "x", "y", "z" };
+    if (!ConvertDataArrayToMCArray(structured_grid->GetPoints()->GetData(), values_node, &names))
     {
       vtkLog(ERROR, "Failed ConvertPoints for structured grid");
       return false;
