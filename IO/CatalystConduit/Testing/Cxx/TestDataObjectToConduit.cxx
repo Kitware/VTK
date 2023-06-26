@@ -164,7 +164,8 @@ bool TestRectilinearGrid()
   field_node["association"] = "vertex";
   field_node["topology"] = "mesh";
   field_node["volume_dependent"] = "false";
-  field_node["values"] = field_values;
+  field_node["values/0"] = std::vector<double>{ 0, 1, 2, 3, 4, 5 };
+  field_node["values/1"] = std::vector<double>{ 0, 2, 4, 6, 8, 10 };
 
   conduit_cpp::Node diff_info;
   bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
