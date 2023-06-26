@@ -1409,24 +1409,18 @@ void vtkOpenGLBatchedPolyDataMapper::AppendOneBufferObject(vtkRenderer* renderer
   glBatchElement->CellCellMap->BuildPrimitiveOffsetsIfNeeded(
     prims, representation, poly->GetPoints());
 
-  // do we have texture maps?
-  bool haveTextures =
-    (this->ColorTextureMap || actor->GetTexture() || actor->GetProperty()->GetNumberOfTextures());
-
-  // Set the texture if we are going to use texture
-  // for coloring with a point attribute.
-  // fixme ... make the existence of the coordinate array the signal.
+  // Set the texture coordinate attribute if we are going to use texture for coloring
   vtkDataArray* tcoords = nullptr;
-  if (haveTextures)
+  if (this->HaveTCoords(poly))
   {
-    if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
-    {
-      tcoords = this->ColorCoordinates;
-    }
-    else
-    {
-      tcoords = poly->GetPointData()->GetTCoords();
-    }
+    tcoords = poly->GetPointData()->GetTCoords();
+  }
+
+  // Set specific texture coordinates if we are going to use texture for scalar coloring
+  vtkDataArray* colorTCoords = nullptr;
+  if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
+  {
+    colorTCoords = this->ColorCoordinates;
   }
 
   // Check if color array is already computed for the current array.
@@ -1457,6 +1451,7 @@ void vtkOpenGLBatchedPolyDataMapper::AppendOneBufferObject(vtkRenderer* renderer
   vtkIdType offsetNorm = 0;
   vtkIdType offsetColor = 0;
   vtkIdType offsetTex = 0;
+  vtkIdType offsetColorTex = 0;
   vtkIdType offsetTangents = 0;
   vtkIdType totalOffset = 0;
   vtkIdType dummy = 0;
@@ -1465,12 +1460,14 @@ void vtkOpenGLBatchedPolyDataMapper::AppendOneBufferObject(vtkRenderer* renderer
     this->VBOs->ArrayExists("normalMC", n, offsetNorm, dummy) &&
     this->VBOs->ArrayExists("scalarColor", c, offsetColor, dummy) &&
     this->VBOs->ArrayExists("tcoord", tcoords, offsetTex, dummy) &&
+    this->VBOs->ArrayExists("colorTCoord", colorTCoords, offsetColorTex, dummy) &&
     this->VBOs->ArrayExists("tangentMC", tangents, offsetTangents, dummy);
 
   // if all used arrays have the same offset and have already been added,
   // we can reuse them and save memory
   if (exists && (offsetNorm == 0 || offsetPos == offsetNorm) &&
     (offsetColor == 0 || offsetPos == offsetColor) && (offsetTex == 0 || offsetPos == offsetTex) &&
+    (offsetColorTex == 0 || offsetPos == offsetColorTex) &&
     (offsetTangents == 0 || offsetPos == offsetTangents))
   {
     vertexOffset = offsetPos;
@@ -1481,6 +1478,7 @@ void vtkOpenGLBatchedPolyDataMapper::AppendOneBufferObject(vtkRenderer* renderer
     this->VBOs->AppendDataArray("normalMC", n, VTK_FLOAT);
     this->VBOs->AppendDataArray("scalarColor", c, VTK_UNSIGNED_CHAR);
     this->VBOs->AppendDataArray("tcoord", tcoords, VTK_FLOAT);
+    this->VBOs->AppendDataArray("colorTCoord", colorTCoords, VTK_FLOAT);
     this->VBOs->AppendDataArray("tangentMC", tangents, VTK_FLOAT);
 
     vertexOffset = totalOffset;
