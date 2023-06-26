@@ -223,11 +223,11 @@ bool ConvertDataArrayToMCArray(
 bool ConvertDataArrayToMCArray(vtkDataArray* data_array, conduit_cpp::Node& conduit_node,
   const std::vector<std::string> names = std::vector<std::string>())
 {
-  int nComponents = data_array->GetNumberOfComponents();
+  size_t nComponents = data_array->GetNumberOfComponents();
   if (nComponents > 1)
   {
     bool success = true;
-    for (int i = 0; i < nComponents; ++i)
+    for (size_t i = 0; i < nComponents; ++i)
     {
       conduit_cpp::Node component_node;
       if (i < names.size())
