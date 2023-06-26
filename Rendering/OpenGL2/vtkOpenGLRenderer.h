@@ -24,8 +24,11 @@
 #define vtkOpenGLRenderer_h
 
 #include "vtkRenderer.h"
+
+#include "vtkOpenGLQuadHelper.h"       // for ivar
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
+#include <memory>                      // for unique_ptr
 #include <string>                      // Ivars
 #include <vector>                      // STL Header
 
@@ -242,6 +245,7 @@ protected:
   vtkPBRIrradianceTexture* EnvMapIrradiance;
   vtkPBRPrefilterTexture* EnvMapPrefiltered;
   vtkSmartPointer<vtkFloatArray> SphericalHarmonics;
+  std::unique_ptr<vtkOpenGLQuadHelper> BackgroundRenderer;
   bool UseSphericalHarmonics;
 
 private:
