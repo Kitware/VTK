@@ -221,10 +221,8 @@ bool ConvertDataArrayToMCArray(
 
 //----------------------------------------------------------------------------
 bool ConvertDataArrayToMCArray(vtkDataArray* data_array, conduit_cpp::Node& conduit_node,
-  const std::vector<std::string>* names = nullptr)
+  const std::vector<std::string> names = std::vector<std::string>())
 {
-  std::cerr << data_array->GetName() << ": components " << data_array->GetNumberOfComponents()
-            << std::endl;
   int nComponents = data_array->GetNumberOfComponents();
   if (nComponents > 1)
   {
@@ -232,9 +230,9 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, conduit_cpp::Node& cond
     for (int i = 0; i < nComponents; ++i)
     {
       conduit_cpp::Node component_node;
-      if (names && i < names->size())
+      if (i < names.size())
       {
-        component_node = conduit_node[(*names)[i]];
+        component_node = conduit_node[names[i]];
       }
       else
       {
@@ -270,8 +268,7 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node)
 
   if (points)
   {
-    std::vector<std::string> names = { "x", "y", "z" };
-    if (!ConvertDataArrayToMCArray(points->GetData(), values_node, &names))
+    if (!ConvertDataArrayToMCArray(points->GetData(), values_node, { "x", "y", "z" }))
     {
       vtkLogF(ERROR, "ConvertPoints failed for %s.", datasetType);
       return false;
@@ -401,8 +398,8 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
     coords_node["type"] = "explicit";
 
     auto values_node = coords_node["values"];
-    std::vector<std::string> names = { "x", "y", "z" };
-    if (!ConvertDataArrayToMCArray(structured_grid->GetPoints()->GetData(), values_node, &names))
+    if (!ConvertDataArrayToMCArray(
+          structured_grid->GetPoints()->GetData(), values_node, { "x", "y", "z" }))
     {
       vtkLog(ERROR, "Failed ConvertPoints for structured grid");
       return false;
