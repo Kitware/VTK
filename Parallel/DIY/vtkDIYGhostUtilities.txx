@@ -393,7 +393,8 @@ void vtkDIYGhostUtilities::ExchangeBoundingBoxes(
 
 //----------------------------------------------------------------------------
 template <class DataSetT>
-void vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, std::vector<DataSetT*>& inputs)
+bool vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, diy::Assigner& assigner,
+  diy::RegularAllReducePartners& partners, std::vector<DataSetT*>& inputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
@@ -411,7 +412,8 @@ void vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, std::vector<DataS
 
   master.exchange();
 
-  master.foreach ([](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+  bool error = false;
+  master.foreach ([&error](BlockType* block, const diy::Master::ProxyWithLink& cp) {
     std::vector<int> incoming;
     cp.incoming(incoming);
     for (const int& gid : incoming)
@@ -419,10 +421,37 @@ void vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, std::vector<DataS
       // we need this extra check because incoming is not empty when using only one block
       if (!cp.incoming(gid).empty())
       {
-        vtkDIYGhostUtilities::DequeueGhosts(cp, gid, block->BlockStructures.at(gid));
+        auto it = block->BlockStructures.find(gid);
+        if (it == block->BlockStructures.end())
+        {
+          error = true;
+        }
+        else
+        {
+          vtkDIYGhostUtilities::DequeueGhosts(cp, gid, block->BlockStructures.at(gid));
+        }
       }
     }
   });
+
+  diy::reduce(master, assigner, partners,
+    [&error](BlockType*, const diy::ReduceProxy& rp, const diy::RegularAllReducePartners&) {
+      for (int i = 0; i < rp.in_link().size(); ++i)
+      {
+        int gid = rp.in_link().target(i).gid;
+
+        bool receivedError;
+        rp.dequeue(gid, &receivedError, 1);
+        error |= receivedError;
+      }
+
+      for (int i = 0; i < rp.out_link().size(); ++i)
+      {
+        rp.enqueue(rp.out_link().target(i), &error, 1);
+      }
+    });
+
+  return !error;
 }
 
 //----------------------------------------------------------------------------
@@ -678,7 +707,13 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   vtkLogEndScope("Relinking blocks using link map");
 
   vtkLogStartScope(TRACE, "Exchanging ghost data between blocks");
-  vtkDIYGhostUtilities::ExchangeGhosts(master, inputs);
+  if (!vtkDIYGhostUtilities::ExchangeGhosts(master, assigner, partners, inputs))
+  {
+    vtkLog(ERROR,
+      "Could not connect adjacent datasets across partitions."
+        << " This is likely caused by an input with faulty point global ids. Aborting.");
+    return 0;
+  }
   vtkLogEndScope("Exchanging ghost data between blocks");
 
   vtkLogStartScope(TRACE, "Allocating ghosts in outputs");
