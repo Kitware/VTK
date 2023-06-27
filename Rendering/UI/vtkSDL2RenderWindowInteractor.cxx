@@ -293,6 +293,8 @@ void vtkSDL2RenderWindowInteractor::AddEventHandler()
   this->StartedMessageLoop = 1;
   this->Done = false;
 #ifdef __EMSCRIPTEN__
+  emscripten_set_resize_callback(
+    EMSCRIPTEN_EVENT_TARGET_WINDOW, reinterpret_cast<void*>(this), 1, ::ResizeCallback);
   emscripten_set_main_loop_arg(&mainLoopCallback, (void*)this, 0, 0);
 #endif
 }
