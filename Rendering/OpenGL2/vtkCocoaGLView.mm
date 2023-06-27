@@ -548,6 +548,23 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 
   if (filePaths->GetNumberOfTuples() > 0)
   {
+    int shiftDown = 0;
+    int controlDown = 0;
+    int altDown = 0;
+    NSWindow* draggingDestinationWindow = [sender draggingDestinationWindow];
+    NSEvent* currentEvent = [draggingDestinationWindow currentEvent];
+    if (currentEvent)
+    {
+      NSUInteger flags = [currentEvent modifierFlags];
+      shiftDown = ((flags & NSEventModifierFlagShift) != 0);
+      controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
+      altDown = ((flags & NSEventModifierFlagOption) != 0);
+    }
+
+    interactor->SetEventInformation(
+      static_cast<int>(backingLoc.x), static_cast<int>(backingLoc.y), controlDown, shiftDown);
+    interactor->SetAltKey(altDown);
+
     interactor->InvokeEvent(vtkCommand::DropFilesEvent, filePaths);
     return YES;
   }

@@ -771,8 +771,6 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
     return 0;
   }
 
-  int ret = 0;
-
   HDROP hdrop = reinterpret_cast<HDROP>(wParam);
 
   POINT pt;
@@ -782,11 +780,16 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
     location[0] = static_cast<double>(pt.x);
     location[1] = static_cast<double>(this->Size[1] - pt.y - 1); // flip Y
 
+    int ctrl = GetKeyState(VK_CONTROL) & (~1);
+    int shift = GetKeyState(VK_SHIFT) & (~1);
+    this->SetEventInformationFlipY(location[0], location[1], ctrl, shift);
+    this->SetAltKey(GetKeyState(VK_MENU) & (~1));
     this->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
   }
 
   UINT cFiles = DragQueryFileW(hdrop, 0xFFFFFFFF, nullptr, 0);
 
+  int ret = 0;
   if (cFiles > 0)
   {
     vtkNew<vtkStringArray> filePaths;

@@ -917,18 +917,14 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         }
 
         // Recover the position
-        int xWindow, yWindow;
-        int xRoot = event->xclient.data.l[2] >> 16;
-        int yRoot = event->xclient.data.l[2] & 0xffff;
-        Window root = DefaultRootWindow(this->DisplayId);
-        Window child;
-        XTranslateCoordinates(
-          this->DisplayId, root, this->WindowId, xRoot, yRoot, &xWindow, &yWindow, &child);
-
-        // Convert it to VTK compatible location
-        double location[2];
-        location[0] = static_cast<double>(xWindow);
-        location[1] = static_cast<double>(this->Size[1] - yWindow - 1);
+        int location[2];
+        unsigned int keys;
+        this->GetMousePositionAndModifierKeysState(&location[0], &location[1], &keys);
+        int ctrl = keys & ControlMask ? 1 : 0;
+        int shift = keys & ShiftMask ? 1 : 0;
+        int alt = keys & Mod1Mask ? 1 : 0;
+        this->SetEventInformationFlipY(location[0], location[1], ctrl, shift);
+        this->SetAltKey(alt);
         this->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
 
         // Reply that we are ready to copy the dragged data
@@ -993,12 +989,17 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
 //------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::GetMousePosition(int* x, int* y)
 {
+  unsigned int keys;
+  this->GetMousePositionAndModifierKeysState(x, y, &keys);
+}
+
+//------------------------------------------------------------------------------
+void vtkXRenderWindowInteractor::GetMousePositionAndModifierKeysState(
+  int* x, int* y, unsigned int* keys)
+{
   Window root, child;
   int root_x, root_y;
-  unsigned int keys;
-
-  XQueryPointer(this->DisplayId, this->WindowId, &root, &child, &root_x, &root_y, x, y, &keys);
-
+  XQueryPointer(this->DisplayId, this->WindowId, &root, &child, &root_x, &root_y, x, y, keys);
   *y = this->Size[1] - *y - 1;
 }
 
