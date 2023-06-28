@@ -1,0 +1,18 @@
+NAME
+  VTK::FiltersTensor
+LIBRARY_NAME
+  vtkFiltersTensor
+DESCRIPTION
+  Filters for tensor manipulation
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::IOXML
+  VTK::TestingCore
