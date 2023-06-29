@@ -116,11 +116,20 @@ bool IsFloatType(int data_type)
 }
 
 //----------------------------------------------------------------------------
-bool ConvertDataArrayToMCArray(
-  vtkDataArray* data_array, int offset, int stride, conduit_cpp::Node& conduit_node)
+bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
+  conduit_cpp::Node& conduit_node, int array_size = -1)
 {
   stride = std::max(stride, 1);
-  conduit_index_t number_of_elements = data_array->GetNumberOfValues() / stride;
+
+  conduit_index_t number_of_elements;
+  if (array_size == -1)
+  {
+    number_of_elements = data_array->GetNumberOfValues() / stride;
+  }
+  else
+  {
+    number_of_elements = array_size / stride;
+  }
 
   int data_type = data_array->GetDataType();
   int data_type_size = data_array->GetDataTypeSize();
@@ -249,15 +258,65 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, conduit_cpp::Node& cond
 }
 
 //----------------------------------------------------------------------------
+bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
+{
+  (void)dataset; // Avoid compiler warning for unused variable
+  (void)topologies_node;
+
+  return false; // Not implemented (yet)
+}
+
+//----------------------------------------------------------------------------
+bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_node)
+{
+  const auto number_of_cells = dataset->GetNumberOfCells();
+  topologies_node["elements/shape"].set("mixed");
+
+  auto shape_map = topologies_node["elements/shape_map"];
+  shape_map["hex"] = VTK_HEXAHEDRON;
+  shape_map["tet"] = VTK_TETRA;
+  shape_map["quad"] = VTK_QUAD;
+  shape_map["tri"] = VTK_TRIANGLE;
+  shape_map["polygonal"] = VTK_POLYGON;
+
+  auto offsets = dataset->GetCells()->GetOffsetsArray();
+  auto shapes = dataset->GetCellTypesArray();
+
+  vtkNew<vtkIdTypeArray> sizes;
+  sizes->SetName("vtkCellSizes");
+  sizes->SetNumberOfTuples(number_of_cells);
+  for (vtkIdType i = 0; i < number_of_cells; i++)
+  {
+    sizes->SetValue(i, dataset->GetCellSize(i));
+  }
+
+  // We need allocated heap memory for the size array, which is not stored natively in the
+  // dataset. To avoid Conduit making a copy or a memory leak, we attach the array to the
+  // dataset. Warning : this creates a side-effect, impacting the input dataset by adding a
+  // field.
+  dataset->GetCellData()->AddArray(sizes);
+
+  auto offsets_node = topologies_node["elements/offsets"];
+  auto shapes_node = topologies_node["elements/shapes"];
+  auto sizes_node = topologies_node["elements/sizes"];
+
+  // Conduit offsets array is of size `number_of_cells` and not `number_of_cells + 1`.
+  if (!ConvertDataArrayToMCArray(offsets, 0, 0, offsets_node, number_of_cells) ||
+    !ConvertDataArrayToMCArray(shapes, shapes_node) ||
+    !ConvertDataArrayToMCArray(sizes, sizes_node))
+  {
+    vtkLogF(ERROR, "ConvertDataArrayToMCArray failed for mixed shapes unstructured grid.");
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 template <class T>
 bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node)
 {
   const char* datasetType = dataset->GetClassName();
-  if (IsMixedShape(dataset))
-  {
-    vtkLogF(ERROR, "%s with mixed shape type unsupported.", datasetType);
-    return false;
-  }
 
   auto coords_node = conduit_node["coordsets/coords"];
 
@@ -286,39 +345,52 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node)
   topologies_node["coordset"] = "coords";
 
   int cell_type = VTK_VERTEX;
-  const auto number_of_cells = dataset->GetNumberOfCells();
-  if (number_of_cells > 0)
-  {
-    cell_type = dataset->GetCellType(0);
-  }
 
-  switch (cell_type)
+  if (IsMixedShape(dataset))
   {
-    case VTK_HEXAHEDRON:
-      topologies_node["elements/shape"] = "hex";
-      break;
-    case VTK_TETRA:
-      topologies_node["elements/shape"] = "tet";
-      break;
-    case VTK_POLYGON:
-      topologies_node["elements/shape"] = "polygonal";
-      break;
-    case VTK_QUAD:
-      topologies_node["elements/shape"] = "quad";
-      break;
-    case VTK_TRIANGLE:
-      topologies_node["elements/shape"] = "tri";
-      break;
-    case VTK_LINE:
-      topologies_node["elements/shape"] = "line";
-      break;
-    case VTK_VERTEX:
-      topologies_node["elements/shape"] = "point";
-      break;
-    default:
-      vtkLogF(ERROR, "Unsupported cell type in %s. Cell type: %s", datasetType,
-        vtkCellTypes::GetClassNameFromTypeId(cell_type));
+    if (!FillMixedShape(dataset, topologies_node))
+    {
+      vtkLogF(ERROR, "%s with mixed shape type partially supported.", datasetType);
       return false;
+    }
+  }
+  else
+  {
+    const auto number_of_cells = dataset->GetNumberOfCells();
+
+    if (number_of_cells > 0)
+    {
+      cell_type = dataset->GetCellType(0);
+    }
+
+    switch (cell_type)
+    {
+      case VTK_HEXAHEDRON:
+        topologies_node["elements/shape"] = "hex";
+        break;
+      case VTK_TETRA:
+        topologies_node["elements/shape"] = "tet";
+        break;
+      case VTK_POLYGON:
+        topologies_node["elements/shape"] = "polygonal";
+        break;
+      case VTK_QUAD:
+        topologies_node["elements/shape"] = "quad";
+        break;
+      case VTK_TRIANGLE:
+        topologies_node["elements/shape"] = "tri";
+        break;
+      case VTK_LINE:
+        topologies_node["elements/shape"] = "line";
+        break;
+      case VTK_VERTEX:
+        topologies_node["elements/shape"] = "point";
+        break;
+      default:
+        vtkLogF(ERROR, "Unsupported cell type in %s. Cell type: %s", datasetType,
+          vtkCellTypes::GetClassNameFromTypeId(cell_type));
+        return false;
+    }
   }
 
   auto cell_connectivity = GetCells(dataset, cell_type);
@@ -533,7 +605,7 @@ bool FillFields(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
 //----------------------------------------------------------------------------
 bool FillConduitNodeFromDataSet(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
 {
-  return FillTopology(data_set, conduit_node) && FillFields(data_set, conduit_node);
+  return FillFields(data_set, conduit_node) && FillTopology(data_set, conduit_node);
 }
 
 } // anonymous namespace
