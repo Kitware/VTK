@@ -309,19 +309,16 @@ void vtkWebGPUPolyDataMapper::SetupPipelineLayout(
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::SetupBindGroups(const wgpu::Device& device, vtkRenderer*)
 {
-  if (!this->MeshAttributeBindGroup.Get())
-  {
-    this->MeshAttributeBindGroup =
-      vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->MeshAttributeBindGroupLayout,
-        {
-          // clang-format off
+  this->MeshAttributeBindGroup =
+    vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->MeshAttributeBindGroupLayout,
+      {
+        // clang-format off
           { 0, this->AttributeDescriptorBuffer, 0},
           { 1, this->MeshSSBO.Point.Buffer, 0},
           { 2, this->MeshSSBO.Cell.Buffer, 0}
-          // clang-format on
-        });
-    this->MeshAttributeBindGroup.SetLabel("MeshAttributeBindGroup");
-  }
+        // clang-format on
+      });
+  this->MeshAttributeBindGroup.SetLabel("MeshAttributeBindGroup");
 
   if (!this->UpdatedPrimitiveSizes)
   {
