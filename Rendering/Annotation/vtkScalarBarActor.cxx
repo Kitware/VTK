@@ -267,6 +267,8 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->DrawColorBar = 1;
   this->DrawTickLabels = 1;
   this->UnconstrainedFontSize = false;
+
+  this->ForceVerticalTitle = false;
 }
 
 //------------------------------------------------------------------------------
@@ -1121,22 +1123,40 @@ void vtkScalarBarActor::LayoutTitle()
   }
 
   int targetWidth, targetHeight;
-  // Title spans entire width of frame at top, regardless of orientation.
-  targetWidth = static_cast<int>(this->P->Frame.Size[this->P->TL[0]]) - 2 * this->TextPad;
-  // Height is either: at most half the frame height or
-  // a fixed portion of the frame remaining after subtracting the
-  // scalar bar's thickness.
-  //
-  // When laid out horizontally, ticks share vertical space with title.
-  // We want the title to be larger (18pt vs 14pt).
-  targetHeight = static_cast<int>(
-    (this->Orientation == VTK_ORIENT_VERTICAL || this->LookupTable->GetIndexedLookup())
-      ? ceil(this->P->Frame.Size[this->P->TL[1]] / 2. - this->TextPad)
-      : (this->P->Frame.Size[0] - this->P->ScalarBarBox.Size[0] -
-          (this->TextPosition == SucceedScalarBar ? this->P->ScalarBarBox.Posn[this->P->TL[0]]
-                                                  : 0) -
-          this->TextPad) *
-        this->TitleRatio);
+  if (!this->ForceVerticalTitle)
+  {
+    // Title spans entire width of frame at top, regardless of orientation.
+    targetWidth = static_cast<int>(this->P->Frame.Size[this->P->TL[0]]) - 2 * this->TextPad;
+  }
+  else
+  {
+    targetWidth = static_cast<int>(
+      (this->P->Frame.Size[0] - this->P->ScalarBarBox.Size[0] - this->TextPad) * this->TitleRatio);
+  }
+
+  if (!this->ForceVerticalTitle)
+  {
+    // Height is either: at most half the frame height or
+    // a fixed portion of the frame remaining after subtracting the
+    // scalar bar's thickness.
+    //
+    // When laid out horizontally, ticks share vertical space with title.
+    // We want the title to be larger (18pt vs 14pt).
+    targetHeight = static_cast<int>(
+      (this->Orientation == VTK_ORIENT_VERTICAL || this->LookupTable->GetIndexedLookup())
+        ? ceil(this->P->Frame.Size[this->P->TL[1]] / 2. - this->TextPad)
+        : (this->P->Frame.Size[0] - this->P->ScalarBarBox.Size[0] -
+            (this->TextPosition == SucceedScalarBar ? this->P->ScalarBarBox.Posn[this->P->TL[0]]
+                                                    : 0) -
+            this->TextPad) *
+          this->TitleRatio);
+  }
+  else
+  {
+    targetHeight = static_cast<int>(this->P->Frame.Size[1] / 3.0);
+  }
+
+  this->TitleActor->SetOrientation(this->ForceVerticalTitle ? 90 : 0);
 
   if (this->UnconstrainedFontSize)
   {
@@ -1157,29 +1177,48 @@ void vtkScalarBarActor::LayoutTitle()
     this->P->TitleBox.Size[this->P->TL[i]] = static_cast<int>(ceil(titleSize[i]));
   }
 
-  this->P->TitleBox.Posn[0] =
-    this->P->Frame.Posn[0] + (this->P->Frame.Size[this->P->TL[0]] - titleSize[0]) / 2;
-  this->P->TitleBox.Posn[1] =
-    static_cast<int>(this->P->Frame.Posn[1] + this->P->Frame.Size[this->P->TL[1]]);
-  if (this->Orientation == VTK_ORIENT_VERTICAL ||
-    this->TextPosition == vtkScalarBarActor::SucceedScalarBar)
+  if (this->ForceVerticalTitle)
   {
-    this->P->TitleBox.Posn[1] -= this->P->TitleBox.Size[this->P->TL[1]] + this->TextPad +
-      static_cast<int>(this->FrameProperty->GetLineWidth());
+    this->P->TitleBox.Posn[0] = this->TextPosition == vtkScalarBarActor::PrecedeScalarBar
+      ? this->P->Frame.Posn[0]
+      : this->P->Frame.Posn[0] + this->P->Frame.Size[this->P->TL[0]] -
+        (this->P->TitleBox.Size[this->P->TL[0]] + this->TextPad);
+    this->P->TitleBox.Posn[1] = this->P->Frame.Posn[1] +
+      (this->P->Frame.Size[this->P->TL[1]] - this->P->TitleBox.Size[this->P->TL[1]]) / 2;
   }
   else
   {
-    this->P->TitleBox.Posn[1] = this->P->Frame.Posn[1] + this->TextPad -
-      static_cast<int>(this->FrameProperty->GetLineWidth());
+    this->P->TitleBox.Posn[0] =
+      this->P->Frame.Posn[0] + (this->P->Frame.Size[this->P->TL[0]] - titleSize[0]) / 2;
+    this->P->TitleBox.Posn[1] =
+      static_cast<int>(this->P->Frame.Posn[1] + this->P->Frame.Size[this->P->TL[1]]);
+    if (this->Orientation == VTK_ORIENT_VERTICAL ||
+      this->TextPosition == vtkScalarBarActor::SucceedScalarBar)
+    {
+      this->P->TitleBox.Posn[1] -= this->P->TitleBox.Size[this->P->TL[1]] + this->TextPad +
+        static_cast<int>(this->FrameProperty->GetLineWidth());
+    }
+    else
+    {
+      this->P->TitleBox.Posn[1] = this->P->Frame.Posn[1] + this->TextPad -
+        static_cast<int>(this->FrameProperty->GetLineWidth());
+    }
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkScalarBarActor::ComputeScalarBarLength()
 {
-  this->P->ScalarBarBox.Size[1] = this->Orientation == VTK_ORIENT_VERTICAL
-    ? this->P->Frame.Size[1] - this->P->TitleBox.Size[1] - this->VerticalTitleSeparation
-    : this->P->Frame.Size[1];
+  if (!this->ForceVerticalTitle)
+  {
+    this->P->ScalarBarBox.Size[1] = this->Orientation == VTK_ORIENT_VERTICAL
+      ? this->P->Frame.Size[1] - this->P->TitleBox.Size[1] - this->VerticalTitleSeparation
+      : this->P->Frame.Size[1];
+  }
+  else
+  {
+    this->P->ScalarBarBox.Size[1] = this->P->Frame.Size[1];
+  }
 
   // The scalar bar does not include the Nan Swatch, the Below Range Swatch and
   // the Above Range Swatch.
@@ -1333,6 +1372,11 @@ void vtkScalarBarActor::LayoutTicks()
       // lowered by box constraints, but we won't bother:
       this->P->TickBox.Size[1] = this->P->Frame.Size[1] - this->P->TitleBox.Size[1] -
         3 * this->TextPad - this->VerticalTitleSeparation;
+      if (this->ForceVerticalTitle)
+      {
+        this->P->TickBox.Size[0] -= this->P->TitleBox.Size[0];
+        this->P->TickBox.Size[1] += this->P->TitleBox.Size[1];
+      }
       // Tick box height also reduced by NaN swatch size, if present:
       if (this->DrawNanAnnotation)
       {
@@ -1353,6 +1397,10 @@ void vtkScalarBarActor::LayoutTicks()
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
       {
         this->P->TickBox.Posn[0] = this->TextPad;
+        if (this->ForceVerticalTitle)
+        {
+          this->P->TickBox.Posn[0] += this->P->TitleBox.Size[0];
+        }
       }
       else
       {
@@ -1643,11 +1691,19 @@ void vtkScalarBarActor::ConfigureScalarBar()
 //------------------------------------------------------------------------------
 void vtkScalarBarActor::ConfigureTitle()
 {
-  this->TitleActor->SetPosition(
-    this->P->TitleBox.Posn[0] + this->P->TitleBox.Size[this->P->TL[0]] / 2,
-    this->TitleActor->GetTextProperty()->GetVerticalJustification() == VTK_TEXT_BOTTOM
-      ? this->P->TitleBox.Posn[1]
-      : this->P->TitleBox.Posn[1] + this->P->TitleBox.Size[this->P->TL[1]]);
+  if (!this->ForceVerticalTitle)
+  {
+    this->TitleActor->SetPosition(
+      this->P->TitleBox.Posn[0] + this->P->TitleBox.Size[this->P->TL[0]] / 2,
+      this->TitleActor->GetTextProperty()->GetVerticalJustification() == VTK_TEXT_BOTTOM
+        ? this->P->TitleBox.Posn[1]
+        : this->P->TitleBox.Posn[1] + this->P->TitleBox.Size[this->P->TL[1]]);
+  }
+  else
+  {
+    this->TitleActor->SetPosition(this->P->TitleBox.Posn[0],
+      this->P->TitleBox.Posn[1] + this->P->TitleBox.Size[this->P->TL[1]] / 2);
+  }
 }
 
 //------------------------------------------------------------------------------

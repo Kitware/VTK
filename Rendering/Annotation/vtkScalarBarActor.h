@@ -189,6 +189,14 @@ public:
 
   ///@{
   /**
+   * Force the scalar bar title to be vertical.
+   */
+  vtkGetMacro(ForceVerticalTitle, bool);
+  vtkSetMacro(ForceVerticalTitle, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the title text property.
    */
   virtual void SetTitleTextProperty(vtkTextProperty* p);
@@ -773,6 +781,7 @@ protected:
   double BarRatio;
   double TitleRatio;
   bool UnconstrainedFontSize; // off by default
+  bool ForceVerticalTitle;    // off by default
 
   bool DrawBelowRangeSwatch;
   bool DrawAboveRangeSwatch;
