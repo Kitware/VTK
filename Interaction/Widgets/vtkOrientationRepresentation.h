@@ -17,14 +17,16 @@
  * @brief   a class defining the representation for the vtkOrientationWidget
  *
  * This class is a concrete representation for the vtkOrientationWidget.
- * The camera is represented by a box and a cone. The first one allows
- * camera movement, the second allows view angle update. There are three
- * more handles to rotate the view up, and move the target position.
- * It also has a frustum representation.
+ * The widget is represented by three flat tori of different colors in
+ * each base direction (X/Y/Z). Additional arrows can be added to it for
+ * each direction in order to simplify grabbing and understanding. Their
+ * default look is a diamond shape, but they can be customized to look
+ * like real double arrows.
  *
- * To use this representation, you can use the PlaceWidget() method
- * to position the widget looking at a specified region in space. This
- * is optional as you may want to not move the camera at setup.
+ * To use this representation, you can use the PlaceWidget() method to
+ * position the widget around an actor and scale it properly.
+ * You can retrieve orientation values with component-wise getters or
+ * through a vtkTransform.
  *
  * @sa
  * vtkOrientationWidget
@@ -38,13 +40,15 @@
 #include "vtkSmartPointer.h"             // For vtkSmartPointer
 #include "vtkWidgetRepresentation.h"
 
-#include <array>
+#include <map>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
+class vtkArrowSource;
 class vtkBox;
-class vtkOrientationWidget;
 class vtkCellPicker;
+class vtkOrientationWidget;
+class vtkPolyDataNormals;
 class vtkProperty;
 class vtkSuperquadricSource;
 class vtkTransform;
@@ -119,8 +123,8 @@ public:
    * Clamped between [0.01, 100.0].
    * Default: 7.5.
    */
-  void SetLength(double length);
-  vtkGetMacro(Length, double);
+  vtkSetClampMacro(TorusLength, double, MINIMUM_TORUS_LENGTH, MAXIMUM_TORUS_LENGTH);
+  vtkGetMacro(TorusLength, double);
   ///@}
 
   ///@{
@@ -128,11 +132,78 @@ public:
    * Set/Get the thickness of the torus.
    * Thickness handles width in every axes.
    * This means Length depends on it.
-   * Clamped between [0.001, 0.001].
+   * Clamped between [0.001, 0.1].
    * Default: 0.005.
    */
-  void SetThickness(double thickness);
-  vtkGetMacro(Thickness, double);
+  vtkSetClampMacro(TorusThickness, double, MINIMUM_TORUS_THICKNESS, MAXIMUM_TORUS_THICKNESS);
+  vtkGetMacro(TorusThickness, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get whether to show arrows.
+   * Default: False.
+   */
+  vtkSetMacro(ShowArrows, bool);
+  vtkGetMacro(ShowArrows, bool);
+  vtkBooleanMacro(ShowArrows, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the distance between arrows and torus.
+   * Clamped between [0.0, 0.5].
+   * Default: 0.0.
+   */
+  vtkSetClampMacro(ArrowDistance, double, MINIMUM_ARROW_DISTANCE, MAXIMUM_ARROW_DISTANCE);
+  vtkGetMacro(ArrowDistance, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the arrow length.
+   * This includes shaft+tip.
+   * Note that double arrows are two arrows
+   * next to each other.
+   * Clamped between [0.01, 0.5].
+   * Default: 0.05.
+   */
+  vtkSetClampMacro(ArrowLength, double, MINIMUM_ARROW_LENGTH, MAXIMUM_ARROW_LENGTH);
+  vtkGetMacro(ArrowLength, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the length of the arrow tip.
+   * Factor of arrow length, equals if set to 1.
+   * Note that double arrows are two arrows
+   * next to each other.
+   * Clamped between [0.0, 1.0].
+   * Default: 1.0.
+   */
+  vtkSetMacro(ArrowTipLength, double);
+  vtkGetMacro(ArrowTipLength, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the radius of the arrow tip.
+   * Clamped between [0.001, 0.5].
+   * Default: 0.03.
+   */
+  vtkSetClampMacro(ArrowTipRadius, double, MINIMUM_ARROW_TIP_RADIUS, MAXIMUM_ARROW_TIP_RADIUS);
+  vtkGetMacro(ArrowTipRadius, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the radius of the arrow shaft.
+   * Clamped between [0.001, 0.5].
+   * Default: 0.001.
+   */
+  vtkSetClampMacro(
+    ArrowShaftRadius, double, MINIMUM_ARROW_SHAFT_RADIUS, MAXIMUM_ARROW_SHAFT_RADIUS);
+  vtkGetMacro(ArrowShaftRadius, double);
   ///@}
 
   ///@{
@@ -202,38 +273,86 @@ protected:
   ~vtkOrientationRepresentation() override;
 
   virtual void CreateDefaultProperties();
-  void HighlightHandle(vtkProp* prop);
-
-  void Rotate(const double p1[4], const double p2[4], const double baseVector[3]);
-
-  // Manage how the representation appears
-  double LastEventPosition[3] = { 0.0 };
-
-  // The torus actors and geometry
-  std::map<Axis, vtkNew<vtkSuperquadricSource>> TorusSources;
-  std::map<Axis, vtkNew<vtkActor>> TorusActors;
-  // Properties used to control the appearance of selected objects and
-  // the manipulator in general.
-  std::map<Axis, vtkSmartPointer<vtkProperty>> TorusProperties;
-  std::map<Axis, vtkSmartPointer<vtkProperty>> SelectedTorusProperties;
-  double Thickness = 0.005;
-  double Length = 7.5;
-
-  // Do the picking
-  vtkNew<vtkCellPicker> HandlePicker;
-  vtkProp* CurrentHandle = nullptr;
-  vtkProp* LastHandle = nullptr;
-
-  // Transform informations
-  vtkSmartPointer<vtkTransform> BaseTransform;
-  vtkSmartPointer<vtkTransform> OrientationTransform;
-
-  // Support GetBounds() method
-  vtkNew<vtkBox> BoundingBox;
+  void UpdateGeometry();
+  void HighlightHandle();
 
 private:
   vtkOrientationRepresentation(const vtkOrientationRepresentation&) = delete;
   void operator=(const vtkOrientationRepresentation&) = delete;
+
+  /**
+   * Method to initialize (instantiate) geometric sources (tori and arrows).
+   */
+  void InitSources();
+  /**
+   * Method to initiliaze transform handling position and scaling of tori.
+   * Can be used to recompute them.
+   */
+  void InitTransforms();
+
+  /**
+   * Helper method to rotate the orientation transform around a base vector
+   * from the angle formed by two input positions.
+   */
+  void Rotate(const double p1[4], const double p2[4], const double baseVector[3]);
+
+  /**
+   * Helper to create a source made of 4 arrows rotated depending on axis.
+   */
+  vtkSmartPointer<vtkPolyDataNormals> GetArrowsOutput(int axisIndex);
+
+  // Manage how the representation appears
+  double LastEventPosition[3] = { 0.0 };
+
+  // Support GetBounds() method
+  vtkNew<vtkBox> BoundingBox;
+
+  // Do the picking
+  vtkNew<vtkCellPicker> HandlePicker;
+  vtkSmartPointer<vtkProp> CurrentHandle;
+  vtkSmartPointer<vtkProp> LastHandle;
+
+  // Transform informations
+  vtkNew<vtkTransform> BaseTransform;
+  vtkNew<vtkTransform> OrientationTransform;
+
+  // Actors and geometry
+  vtkNew<vtkTransform> ArrowPosTransform;
+  vtkNew<vtkTransform> ArrowPosInvTransform;
+  vtkNew<vtkTransform> ArrowScaleTransform;
+  std::vector<vtkSmartPointer<vtkArrowSource>> ArrowSources;
+  std::vector<vtkSmartPointer<vtkSuperquadricSource>> TorusSources;
+  std::map<Axis, vtkNew<vtkActor>> TorusActors;
+  std::map<Axis, vtkNew<vtkActor>> ArrowsActors;
+  // Parameters used to control the appearance of selected objects and
+  // the manipulator in general.
+  std::map<Axis, vtkSmartPointer<vtkProperty>> Properties;
+  std::map<Axis, vtkSmartPointer<vtkProperty>> SelectedProperties;
+  // ... torus specific
+  double TorusLength = 7.5;
+  double TorusThickness = 0.005;
+  // ... arrow specific
+  bool ShowArrows = false;
+  double ArrowDistance = 0.0;
+  double ArrowLength = 0.05;
+  double ArrowTipLength = 1.0;
+  double ArrowTipRadius = 0.03;
+  double ArrowShaftRadius = 0.001;
+
+  // Minima/maxima to clamp values
+  static constexpr double MINIMUM_TORUS_THICKNESS = 0.001;
+  static constexpr double MAXIMUM_TORUS_THICKNESS = 0.1;
+  static constexpr double MINIMUM_TORUS_LENGTH = 0.01;
+  static constexpr double MAXIMUM_TORUS_LENGTH = 100.0;
+
+  static constexpr double MINIMUM_ARROW_DISTANCE = 0.0;
+  static constexpr double MAXIMUM_ARROW_DISTANCE = 0.5;
+  static constexpr double MINIMUM_ARROW_LENGTH = 0.01;
+  static constexpr double MAXIMUM_ARROW_LENGTH = 0.5;
+  static constexpr double MINIMUM_ARROW_TIP_RADIUS = 0.001;
+  static constexpr double MAXIMUM_ARROW_TIP_RADIUS = 0.5;
+  static constexpr double MINIMUM_ARROW_SHAFT_RADIUS = 0.001;
+  static constexpr double MAXIMUM_ARROW_SHAFT_RADIUS = 0.5;
 };
 
 VTK_ABI_NAMESPACE_END

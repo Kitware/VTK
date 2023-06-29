@@ -107,12 +107,23 @@ void vtkOrientationWidget::SelectAction(vtkAbstractWidget* w)
 void vtkOrientationWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkOrientationWidget* self = vtkOrientationWidget::SafeDownCast(w);
+  vtkOrientationRepresentation* repr = vtkOrientationRepresentation::SafeDownCast(self->WidgetRep);
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
 
-  // See whether we're active
-  if (!self->Active)
+  if (self->Active)
+  {
+    // moving something
+    double eventPosition[2];
+    eventPosition[0] = static_cast<double>(X);
+    eventPosition[1] = static_cast<double>(Y);
+    repr->WidgetInteraction(eventPosition);
+    self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
+    self->EventCallbackCommand->SetAbortFlag(1);
+    self->Render();
+  }
+  else
   {
     self->Interactor->Disable(); // avoid extra renders
 
@@ -129,24 +140,13 @@ void vtkOrientationWidget::MoveAction(vtkAbstractWidget* w)
       changed = self->RequestCursorShape(VTK_CURSOR_HAND);
     }
 
-    vtkOrientationRepresentation::SafeDownCast(self->WidgetRep)->SetInteractionState(state);
+    repr->SetInteractionState(state);
     self->Interactor->Enable(); // avoid extra renders
 
     if (changed || oldState != state)
     {
       self->Render();
     }
-  }
-  else // Already Active
-  {
-    // moving something
-    double eventPosition[2];
-    eventPosition[0] = static_cast<double>(X);
-    eventPosition[1] = static_cast<double>(Y);
-    vtkOrientationRepresentation::SafeDownCast(self->WidgetRep)->WidgetInteraction(eventPosition);
-    self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
-    self->EventCallbackCommand->SetAbortFlag(1);
-    self->Render();
   }
 }
 

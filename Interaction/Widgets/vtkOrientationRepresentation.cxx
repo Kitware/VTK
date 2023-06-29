@@ -16,27 +16,25 @@
 #include "vtkOrientationRepresentation.h"
 
 #include "vtkActor.h"
+#include "vtkAppendPolyData.h"
+#include "vtkArrowSource.h"
 #include "vtkAssemblyPath.h"
 #include "vtkBox.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
-#include "vtkCellArray.h"
 #include "vtkCellPicker.h"
 #include "vtkEventData.h"
 #include "vtkInteractorObserver.h"
-#include "vtkLineSource.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPickingManager.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSuperquadricSource.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
-#include "vtkVectorOperators.h"
 #include "vtkWindow.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -44,14 +42,25 @@ vtkStandardNewMacro(vtkOrientationRepresentation);
 
 namespace
 {
+constexpr int NUMBER_OF_TORUS = 3;
+constexpr int NUMBER_OF_ARROWS = 4 * NUMBER_OF_TORUS;
+
 constexpr double X_VECTOR[3] = { 1.0, 0.0, 0.0 };
 constexpr double Y_VECTOR[3] = { 0.0, 1.0, 0.0 };
 constexpr double Z_VECTOR[3] = { 0.0, 0.0, 1.0 };
 
-constexpr double MINIMUM_THICKNESS = 0.001;
-constexpr double MAXIMUM_THICKNESS = 0.1;
-constexpr double MINIMUM_LENGTH = 0.01;
-constexpr double MAXIMUM_LENGTH = 100.0;
+constexpr int TORUS_RESOLUTION = 64;
+constexpr int TORUS_PHI_ROUNDNESS = 0;
+constexpr double TORUS_CENTERS[NUMBER_OF_TORUS][3] = { { 0.0, 0.0, 0.0 }, { 0.001, 0.001, 0.001 },
+  { -0.001, -0.001, -0.001 } };
+
+constexpr int ARROW_RESOLUTION = 16;
+constexpr double ARROW_ROTATION_X[NUMBER_OF_TORUS][2] = { { 0.0, 0.0 }, { 90.0, 90.0 },
+  { 0.0, 0.0 } };
+constexpr double ARROW_ROTATION_Y[NUMBER_OF_TORUS][2] = { { 90.0, -90.0 }, { 0.0, 0.0 },
+  { 0.0, 0.0 } };
+constexpr double ARROW_ROTATION_Z[NUMBER_OF_TORUS][2] = { { 90.0, -90.0 }, { 90.0, -90.0 },
+  { 0.0, 180.0 } };
 }
 
 //------------------------------------------------------------------------------
@@ -61,39 +70,48 @@ vtkOrientationRepresentation::vtkOrientationRepresentation()
   this->PlaceFactor = 1.0;
   this->ValidPick = 1;
 
-  this->BaseTransform = vtkSmartPointer<vtkTransform>::New();
-  this->OrientationTransform = vtkSmartPointer<vtkTransform>::New();
   this->BaseTransform->PostMultiply();
   this->OrientationTransform->PostMultiply();
 
   // Set up the initial properties
   this->CreateDefaultProperties();
 
-  // Create the torus
+  // Create the torus and arrows
+  this->InitSources();
+  this->InitTransforms();
+
   for (int i = Axis::X_AXIS; i <= Axis::Z_AXIS; ++i)
   {
     Axis axis = static_cast<Axis>(i);
 
-    this->TorusSources[axis]->SetToroidal(1);
-    this->TorusSources[axis]->SetAxisOfSymmetry(i);
-    this->TorusSources[axis]->SetThetaResolution(64);
-    this->TorusSources[axis]->SetPhiRoundness(0.0);
-    this->TorusSources[axis]->SetThickness(this->Thickness);
-    this->TorusSources[axis]->SetScale(1.0, 1.0, this->Length);
+    vtkNew<vtkTransformFilter> torusOrientationTransformFilter;
+    torusOrientationTransformFilter->SetTransform(this->OrientationTransform);
+    torusOrientationTransformFilter->SetInputConnection(this->TorusSources[i]->GetOutputPort());
+    vtkNew<vtkTransformFilter> torusBaseTransformFilter;
+    torusBaseTransformFilter->SetTransform(this->BaseTransform);
+    torusBaseTransformFilter->SetInputConnection(torusOrientationTransformFilter->GetOutputPort());
 
-    vtkNew<vtkTransformFilter> orientationTransform;
-    orientationTransform->SetTransform(this->OrientationTransform);
-    orientationTransform->SetInputConnection(this->TorusSources[axis]->GetOutputPort());
-    vtkNew<vtkTransformFilter> torusTransform;
-    torusTransform->SetTransform(this->BaseTransform);
-    torusTransform->SetInputConnection(orientationTransform->GetOutputPort());
+    vtkSmartPointer<vtkPolyDataNormals> arrows = this->GetArrowsOutput(i);
+    vtkNew<vtkTransformFilter> arrowsOrientationTransformFilter;
+    arrowsOrientationTransformFilter->SetTransform(this->OrientationTransform);
+    arrowsOrientationTransformFilter->SetInputConnection(arrows->GetOutputPort());
+    vtkNew<vtkTransformFilter> arrowsBaseTransformFilter;
+    arrowsBaseTransformFilter->SetTransform(this->BaseTransform);
+    arrowsBaseTransformFilter->SetInputConnection(
+      arrowsOrientationTransformFilter->GetOutputPort());
 
     vtkNew<vtkPolyDataMapper> torusMapper;
-    torusMapper->SetInputConnection(torusTransform->GetOutputPort());
+    torusMapper->SetInputConnection(torusBaseTransformFilter->GetOutputPort());
+    vtkNew<vtkPolyDataMapper> arrowsMapper;
+    arrowsMapper->SetInputConnection(arrowsBaseTransformFilter->GetOutputPort());
 
     this->TorusActors[axis]->SetMapper(torusMapper);
-    this->TorusActors[axis]->SetProperty(this->TorusProperties[axis]);
+    this->TorusActors[axis]->SetProperty(this->Properties[axis]);
     this->HandlePicker->AddPickList(this->TorusActors[axis]);
+
+    this->ArrowsActors[axis]->SetMapper(arrowsMapper);
+    this->ArrowsActors[axis]->SetProperty(this->Properties[axis]);
+    this->HandlePicker->AddPickList(this->ArrowsActors[axis]);
   }
   this->HandlePicker->SetTolerance(0.001);
   this->HandlePicker->PickFromListOn();
@@ -141,13 +159,13 @@ void vtkOrientationRepresentation::WidgetInteraction(double e[2])
   switch (this->InteractionState)
   {
     case vtkOrientationRepresentation::RotatingX:
-      this->Rotate(prevPickPoint, pickPoint, X_VECTOR);
+      this->Rotate(prevPickPoint, pickPoint, ::X_VECTOR);
       break;
     case vtkOrientationRepresentation::RotatingY:
-      this->Rotate(prevPickPoint, pickPoint, Y_VECTOR);
+      this->Rotate(prevPickPoint, pickPoint, ::Y_VECTOR);
       break;
     case vtkOrientationRepresentation::RotatingZ:
-      this->Rotate(prevPickPoint, pickPoint, Z_VECTOR);
+      this->Rotate(prevPickPoint, pickPoint, ::Z_VECTOR);
       break;
     case vtkOrientationRepresentation::Outside:
     default:
@@ -176,22 +194,22 @@ void vtkOrientationRepresentation::Rotate(
 //------------------------------------------------------------------------------
 void vtkOrientationRepresentation::CreateDefaultProperties()
 {
-  this->TorusProperties[Axis::X_AXIS] = vtkSmartPointer<vtkProperty>::New();
-  this->TorusProperties[Axis::Y_AXIS] = vtkSmartPointer<vtkProperty>::New();
-  this->TorusProperties[Axis::Z_AXIS] = vtkSmartPointer<vtkProperty>::New();
-  this->SelectedTorusProperties[Axis::X_AXIS] = vtkSmartPointer<vtkProperty>::New();
-  this->SelectedTorusProperties[Axis::Y_AXIS] = vtkSmartPointer<vtkProperty>::New();
-  this->SelectedTorusProperties[Axis::Z_AXIS] = vtkSmartPointer<vtkProperty>::New();
+  this->Properties[Axis::X_AXIS] = vtkSmartPointer<vtkProperty>::New();
+  this->Properties[Axis::Y_AXIS] = vtkSmartPointer<vtkProperty>::New();
+  this->Properties[Axis::Z_AXIS] = vtkSmartPointer<vtkProperty>::New();
+  this->SelectedProperties[Axis::X_AXIS] = vtkSmartPointer<vtkProperty>::New();
+  this->SelectedProperties[Axis::Y_AXIS] = vtkSmartPointer<vtkProperty>::New();
+  this->SelectedProperties[Axis::Z_AXIS] = vtkSmartPointer<vtkProperty>::New();
 
-  this->TorusProperties[Axis::X_AXIS]->SetColor(1, 0, 0);
-  this->TorusProperties[Axis::Y_AXIS]->SetColor(0, 1, 0);
-  this->TorusProperties[Axis::Z_AXIS]->SetColor(0, 0, 1);
-  this->SelectedTorusProperties[Axis::X_AXIS]->SetColor(1, 0, 0);
-  this->SelectedTorusProperties[Axis::Y_AXIS]->SetColor(0, 1, 0);
-  this->SelectedTorusProperties[Axis::Z_AXIS]->SetColor(0, 0, 1);
-  this->SelectedTorusProperties[Axis::X_AXIS]->SetAmbient(1.0);
-  this->SelectedTorusProperties[Axis::Y_AXIS]->SetAmbient(1.0);
-  this->SelectedTorusProperties[Axis::Z_AXIS]->SetAmbient(1.0);
+  this->Properties[Axis::X_AXIS]->SetColor(1.0, 0.0, 0.0);
+  this->Properties[Axis::Y_AXIS]->SetColor(0.0, 1.0, 0.0);
+  this->Properties[Axis::Z_AXIS]->SetColor(0.0, 0.0, 1.0);
+  this->SelectedProperties[Axis::X_AXIS]->SetColor(1.0, 0.0, 0.0);
+  this->SelectedProperties[Axis::Y_AXIS]->SetColor(0.0, 1.0, 0.0);
+  this->SelectedProperties[Axis::Z_AXIS]->SetColor(0.0, 0.0, 1.0);
+  this->SelectedProperties[Axis::X_AXIS]->SetAmbient(1.0);
+  this->SelectedProperties[Axis::Y_AXIS]->SetAmbient(1.0);
+  this->SelectedProperties[Axis::Z_AXIS]->SetAmbient(1.0);
 }
 
 //------------------------------------------------------------------------------
@@ -215,7 +233,7 @@ void vtkOrientationRepresentation::PlaceWidget(double bds[6])
 }
 
 //------------------------------------------------------------------------------
-int vtkOrientationRepresentation::ComputeInteractionState(int X, int Y, int modify)
+int vtkOrientationRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   if (!this->Renderer || !this->Renderer->IsInViewport(X, Y))
   {
@@ -226,22 +244,30 @@ int vtkOrientationRepresentation::ComputeInteractionState(int X, int Y, int modi
   this->CurrentHandle = nullptr;
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if (path != nullptr)
+  if (path)
   {
     this->ValidPick = 1;
     this->CurrentHandle = path->GetFirstNode()->GetViewProp();
-    if (this->CurrentHandle == this->TorusActors[Axis::X_AXIS])
-    {
-      return this->InteractionState = vtkOrientationRepresentation::RotatingX;
-    }
-    else if (this->CurrentHandle == this->TorusActors[Axis::Y_AXIS])
-    {
-      return this->InteractionState = vtkOrientationRepresentation::RotatingY;
-    }
-    else if (this->CurrentHandle == this->TorusActors[Axis::Z_AXIS])
-    {
-      return this->InteractionState = vtkOrientationRepresentation::RotatingZ;
-    }
+  }
+  if (!this->CurrentHandle)
+  {
+    return this->InteractionState = vtkOrientationRepresentation::Outside;
+  }
+
+  if (this->CurrentHandle.Get() == this->TorusActors[Axis::X_AXIS] ||
+    this->CurrentHandle.Get() == this->ArrowsActors[Axis::X_AXIS])
+  {
+    return this->InteractionState = vtkOrientationRepresentation::RotatingX;
+  }
+  else if (this->CurrentHandle.Get() == this->TorusActors[Axis::Y_AXIS] ||
+    this->CurrentHandle.Get() == this->ArrowsActors[Axis::Y_AXIS])
+  {
+    return this->InteractionState = vtkOrientationRepresentation::RotatingY;
+  }
+  else if (this->CurrentHandle.Get() == this->TorusActors[Axis::Z_AXIS] ||
+    this->CurrentHandle.Get() == this->ArrowsActors[Axis::Z_AXIS])
+  {
+    return this->InteractionState = vtkOrientationRepresentation::RotatingZ;
   }
 
   return this->InteractionState = vtkOrientationRepresentation::Outside;
@@ -257,14 +283,7 @@ void vtkOrientationRepresentation::SetInteractionState(int state)
                                                          : state));
 
   this->InteractionState = state;
-  if (state != vtkOrientationRepresentation::Outside)
-  {
-    this->HighlightHandle(this->CurrentHandle);
-  }
-  else
-  {
-    this->HighlightHandle(nullptr);
-  }
+  this->HighlightHandle();
 }
 
 //------------------------------------------------------------------------------
@@ -274,6 +293,12 @@ double* vtkOrientationRepresentation::GetBounds()
   this->BoundingBox->SetBounds(this->TorusActors[Axis::X_AXIS]->GetBounds());
   this->BoundingBox->AddBounds(this->TorusActors[Axis::Y_AXIS]->GetBounds());
   this->BoundingBox->AddBounds(this->TorusActors[Axis::Z_AXIS]->GetBounds());
+  if (this->ShowArrows)
+  {
+    this->BoundingBox->AddBounds(this->ArrowsActors[Axis::X_AXIS]->GetBounds());
+    this->BoundingBox->AddBounds(this->ArrowsActors[Axis::Y_AXIS]->GetBounds());
+    this->BoundingBox->AddBounds(this->ArrowsActors[Axis::Z_AXIS]->GetBounds());
+  }
   return this->BoundingBox->GetBounds();
 }
 
@@ -354,15 +379,15 @@ void vtkOrientationRepresentation::SetProperty(int axis, bool selected, vtkPrope
     : (axis > Axis::Z_AXIS ? Axis::Z_AXIS : static_cast<Axis>(axis));
   if (selected)
   {
-    if (this->SelectedTorusProperties[clampedAxis] != property)
+    if (this->SelectedProperties[clampedAxis] != property)
     {
-      this->SelectedTorusProperties[clampedAxis] = property;
+      this->SelectedProperties[clampedAxis] = property;
       this->Modified();
     }
   }
-  else if (this->TorusProperties[clampedAxis] != property)
+  else if (this->Properties[clampedAxis] != property)
   {
-    this->TorusProperties[clampedAxis] = property;
+    this->Properties[clampedAxis] = property;
     this->Modified();
   }
 }
@@ -373,51 +398,16 @@ vtkProperty* vtkOrientationRepresentation::GetProperty(int axis, bool selected)
   Axis clampedAxis = axis < Axis::X_AXIS
     ? Axis::X_AXIS
     : (axis > Axis::Z_AXIS ? Axis::Z_AXIS : static_cast<Axis>(axis));
-  return selected ? this->SelectedTorusProperties[clampedAxis] : this->TorusProperties[clampedAxis];
-}
-
-//------------------------------------------------------------------------------
-void vtkOrientationRepresentation::SetLength(double length)
-{
-  length =
-    length < MINIMUM_LENGTH ? MINIMUM_LENGTH : (length > MAXIMUM_LENGTH ? MAXIMUM_LENGTH : length);
-  if (this->Length != length)
-  {
-    this->Length = length;
-    for (int i = Axis::X_AXIS; i <= Axis::Z_AXIS; ++i)
-    {
-      this->TorusSources[static_cast<Axis>(i)]->SetScale(1.0, 1.0, this->Length);
-    }
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOrientationRepresentation::SetThickness(double thickness)
-{
-  thickness = thickness < MINIMUM_THICKNESS
-    ? MINIMUM_THICKNESS
-    : (thickness > MAXIMUM_THICKNESS ? MAXIMUM_THICKNESS : thickness);
-  if (this->Thickness != thickness)
-  {
-    this->Thickness = thickness;
-    for (int i = Axis::X_AXIS; i <= Axis::Z_AXIS; ++i)
-    {
-      this->TorusSources[static_cast<Axis>(i)]->SetThickness(this->Thickness);
-    }
-    this->Modified();
-  }
+  return selected ? this->SelectedProperties[clampedAxis] : this->Properties[clampedAxis];
 }
 
 //------------------------------------------------------------------------------
 void vtkOrientationRepresentation::BuildRepresentation()
 {
   // Rebuild only if necessary
-  if (this->GetMTime() > this->BuildTime ||
-    (this->Renderer && this->Renderer->GetVTKWindow() &&
-      (this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime ||
-        this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime)))
+  if (this->GetMTime() > this->BuildTime)
   {
+    this->UpdateGeometry();
     this->BuildTime.Modified();
   }
 }
@@ -428,6 +418,10 @@ void vtkOrientationRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   for (const auto& torusActor : this->TorusActors)
   {
     torusActor.second->ReleaseGraphicsResources(w);
+  }
+  for (const auto& arrowsActor : this->ArrowsActors)
+  {
+    arrowsActor.second->ReleaseGraphicsResources(w);
   }
 }
 
@@ -440,6 +434,13 @@ int vtkOrientationRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   for (const auto& torusActor : this->TorusActors)
   {
     count += torusActor.second->RenderOpaqueGeometry(v);
+  }
+  if (this->ShowArrows)
+  {
+    for (const auto& arrowsActor : this->ArrowsActors)
+    {
+      count += arrowsActor.second->RenderOpaqueGeometry(v);
+    }
   }
 
   return count;
@@ -455,6 +456,13 @@ int vtkOrientationRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport
   {
     count += torusActor.second->RenderTranslucentPolygonalGeometry(v);
   }
+  if (this->ShowArrows)
+  {
+    for (const auto& arrowsActor : this->ArrowsActors)
+    {
+      count += arrowsActor.second->RenderTranslucentPolygonalGeometry(v);
+    }
+  }
 
   return count;
 }
@@ -469,45 +477,177 @@ vtkTypeBool vtkOrientationRepresentation::HasTranslucentPolygonalGeometry()
   {
     result |= torusActor.second->HasTranslucentPolygonalGeometry();
   }
+  if (this->ShowArrows)
+  {
+    for (const auto& arrowsActor : this->ArrowsActors)
+    {
+      result |= arrowsActor.second->HasTranslucentPolygonalGeometry();
+    }
+  }
 
   return result;
 }
 
 //------------------------------------------------------------------------------
-void vtkOrientationRepresentation::HighlightHandle(vtkProp* prop)
+void vtkOrientationRepresentation::UpdateGeometry()
 {
-  // first unhighlight anything picked
+  for (const auto& torus : this->TorusSources)
+  {
+    torus->SetThickness(this->TorusThickness);
+    torus->SetScale(1.0, 1.0, this->TorusLength);
+  }
+  for (const auto& arrow : this->ArrowSources)
+  {
+    arrow->SetTipLength(this->ArrowTipLength);
+    arrow->SetTipRadius(this->ArrowTipRadius);
+    arrow->SetShaftRadius(this->ArrowShaftRadius);
+  }
+
+  this->InitTransforms();
+}
+
+//------------------------------------------------------------------------------
+void vtkOrientationRepresentation::HighlightHandle()
+{
   if (vtkActor* actor = vtkActor::SafeDownCast(this->LastHandle))
   {
-    if (actor == this->TorusActors[X_AXIS])
+    if (actor == this->TorusActors[Axis::X_AXIS] || actor == this->ArrowsActors[Axis::X_AXIS])
     {
-      actor->SetProperty(this->TorusProperties[X_AXIS]);
+      this->TorusActors[Axis::X_AXIS]->SetProperty(this->Properties[Axis::X_AXIS]);
+      this->ArrowsActors[Axis::X_AXIS]->SetProperty(this->Properties[Axis::X_AXIS]);
     }
-    else if (actor == this->TorusActors[Y_AXIS])
+    else if (actor == this->TorusActors[Axis::Y_AXIS] || actor == this->ArrowsActors[Axis::Y_AXIS])
     {
-      actor->SetProperty(this->TorusProperties[Y_AXIS]);
+      this->TorusActors[Axis::Y_AXIS]->SetProperty(this->Properties[Axis::Y_AXIS]);
+      this->ArrowsActors[Axis::Y_AXIS]->SetProperty(this->Properties[Axis::Y_AXIS]);
     }
-    else if (actor == this->TorusActors[Z_AXIS])
+    else if (actor == this->TorusActors[Axis::Z_AXIS] || actor == this->ArrowsActors[Axis::Z_AXIS])
     {
-      actor->SetProperty(this->TorusProperties[Z_AXIS]);
+      this->TorusActors[Axis::Z_AXIS]->SetProperty(this->Properties[Axis::Z_AXIS]);
+      this->ArrowsActors[Axis::Z_AXIS]->SetProperty(this->Properties[Axis::Z_AXIS]);
     }
   }
 
   if (vtkActor* actor = vtkActor::SafeDownCast(this->CurrentHandle))
   {
-    if (actor == this->TorusActors[X_AXIS])
+    if (actor == this->TorusActors[Axis::X_AXIS] || actor == this->ArrowsActors[Axis::X_AXIS])
     {
-      actor->SetProperty(this->SelectedTorusProperties[X_AXIS]);
+      this->TorusActors[Axis::X_AXIS]->SetProperty(this->SelectedProperties[Axis::X_AXIS]);
+      this->ArrowsActors[Axis::X_AXIS]->SetProperty(this->SelectedProperties[Axis::X_AXIS]);
     }
-    else if (actor == this->TorusActors[Y_AXIS])
+    else if (actor == this->TorusActors[Axis::Y_AXIS] || actor == this->ArrowsActors[Axis::Y_AXIS])
     {
-      actor->SetProperty(this->SelectedTorusProperties[Y_AXIS]);
+      this->TorusActors[Axis::Y_AXIS]->SetProperty(this->SelectedProperties[Axis::Y_AXIS]);
+      this->ArrowsActors[Axis::Y_AXIS]->SetProperty(this->SelectedProperties[Axis::Y_AXIS]);
     }
-    else if (actor == this->TorusActors[Z_AXIS])
+    else if (actor == this->TorusActors[Axis::Z_AXIS] || actor == this->ArrowsActors[Axis::Z_AXIS])
     {
-      actor->SetProperty(this->SelectedTorusProperties[Z_AXIS]);
+      this->TorusActors[Axis::Z_AXIS]->SetProperty(this->SelectedProperties[Axis::Z_AXIS]);
+      this->ArrowsActors[Axis::Z_AXIS]->SetProperty(this->SelectedProperties[Axis::Z_AXIS]);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkPolyDataNormals> vtkOrientationRepresentation::GetArrowsOutput(int axisIndex)
+{
+  int arrowIndex = 4 * axisIndex;
+
+  vtkNew<vtkTransform> arrowTransform;
+  arrowTransform->Identity();
+  arrowTransform->RotateX(::ARROW_ROTATION_X[axisIndex][0]);
+  arrowTransform->RotateY(::ARROW_ROTATION_Y[axisIndex][0]);
+  arrowTransform->RotateZ(::ARROW_ROTATION_Z[axisIndex][0]);
+
+  vtkNew<vtkTransformFilter> arrowUFTransformFilter;
+  vtkNew<vtkTransformFilter> arrowUFTransformFilterBase;
+  arrowUFTransformFilterBase->SetTransform(this->ArrowPosTransform);
+  arrowUFTransformFilterBase->SetInputConnection(this->ArrowSources[arrowIndex++]->GetOutputPort());
+  arrowUFTransformFilter->SetTransform(arrowTransform);
+  arrowUFTransformFilter->SetInputConnection(arrowUFTransformFilterBase->GetOutputPort());
+
+  vtkNew<vtkTransformFilter> arrowUBTransformFilter;
+  vtkNew<vtkTransformFilter> arrowUBTransformFilterBase;
+  arrowUBTransformFilterBase->SetTransform(this->ArrowPosInvTransform);
+  arrowUBTransformFilterBase->SetInputConnection(this->ArrowSources[arrowIndex++]->GetOutputPort());
+  arrowUBTransformFilter->SetTransform(arrowTransform);
+  arrowUBTransformFilter->SetInputConnection(arrowUBTransformFilterBase->GetOutputPort());
+
+  vtkNew<vtkTransform> arrowInvTransform;
+  arrowInvTransform->Identity();
+  arrowInvTransform->RotateX(::ARROW_ROTATION_X[axisIndex][1]);
+  arrowInvTransform->RotateY(::ARROW_ROTATION_Y[axisIndex][1]);
+  arrowInvTransform->RotateZ(::ARROW_ROTATION_Z[axisIndex][1]);
+
+  vtkNew<vtkTransformFilter> arrowDFTransformFilter;
+  vtkNew<vtkTransformFilter> arrowDFTransformFilterBase;
+  arrowDFTransformFilterBase->SetTransform(this->ArrowPosTransform);
+  arrowDFTransformFilterBase->SetInputConnection(this->ArrowSources[arrowIndex++]->GetOutputPort());
+  arrowDFTransformFilter->SetTransform(arrowInvTransform);
+  arrowDFTransformFilter->SetInputConnection(arrowDFTransformFilterBase->GetOutputPort());
+
+  vtkNew<vtkTransformFilter> arrowDBTransformFilter;
+  vtkNew<vtkTransformFilter> arrowDBTransformFilterBase;
+  arrowDBTransformFilterBase->SetTransform(this->ArrowPosInvTransform);
+  arrowDBTransformFilterBase->SetInputConnection(this->ArrowSources[arrowIndex++]->GetOutputPort());
+  arrowDBTransformFilter->SetTransform(arrowInvTransform);
+  arrowDBTransformFilter->SetInputConnection(arrowDBTransformFilterBase->GetOutputPort());
+
+  vtkSmartPointer<vtkAppendPolyData> appendArrows = vtkSmartPointer<vtkAppendPolyData>::New();
+  appendArrows->AddInputConnection(arrowUFTransformFilter->GetOutputPort());
+  appendArrows->AddInputConnection(arrowUBTransformFilter->GetOutputPort());
+  appendArrows->AddInputConnection(arrowDFTransformFilter->GetOutputPort());
+  appendArrows->AddInputConnection(arrowDBTransformFilter->GetOutputPort());
+
+  // For a better rendering, generate normals (torus already generates its own)
+  vtkSmartPointer<vtkPolyDataNormals> arrowNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
+  arrowNormals->SetInputConnection(appendArrows->GetOutputPort());
+
+  return arrowNormals;
+}
+
+//------------------------------------------------------------------------------
+void vtkOrientationRepresentation::InitSources()
+{
+  this->TorusSources.clear();
+  this->ArrowSources.clear();
+  this->TorusSources.reserve(::NUMBER_OF_TORUS);
+  this->ArrowSources.reserve(::NUMBER_OF_ARROWS);
+
+  for (int i = 0; i < ::NUMBER_OF_TORUS; ++i)
+  {
+    vtkSmartPointer<vtkSuperquadricSource> torus = vtkSmartPointer<vtkSuperquadricSource>::New();
+    torus->SetToroidal(1);
+    torus->SetAxisOfSymmetry(i);
+    torus->SetThetaResolution(::TORUS_RESOLUTION);
+    torus->SetPhiRoundness(::TORUS_PHI_ROUNDNESS);
+    torus->SetThickness(this->TorusThickness);
+    torus->SetScale(1.0, 1.0, this->TorusLength);
+    torus->SetCenter(::TORUS_CENTERS[i]);
+    this->TorusSources.push_back(torus);
+  }
+  for (int i = 0; i < ::NUMBER_OF_ARROWS; ++i)
+  {
+    vtkSmartPointer<vtkArrowSource> arrow = vtkSmartPointer<vtkArrowSource>::New();
+    arrow->SetTipResolution(::ARROW_RESOLUTION);
+    arrow->SetShaftResolution(::ARROW_RESOLUTION);
+    arrow->SetTipLength(this->ArrowTipLength);
+    arrow->SetTipRadius(this->ArrowTipRadius);
+    arrow->SetShaftRadius(this->ArrowShaftRadius);
+    this->ArrowSources.push_back(arrow);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOrientationRepresentation::InitTransforms()
+{
+  this->ArrowPosTransform->Identity();
+  this->ArrowPosTransform->Translate(0.0, 0.5 + this->ArrowDistance, 0.0);
+  this->ArrowPosTransform->Scale(this->ArrowLength, 1.0, 1.0);
+
+  this->ArrowPosInvTransform->Identity();
+  this->ArrowPosInvTransform->Translate(0.0, -0.5 - this->ArrowDistance, 0.0);
+  this->ArrowPosInvTransform->Scale(this->ArrowLength, 1.0, 1.0);
 }
 
 //------------------------------------------------------------------------------
@@ -530,6 +670,13 @@ void vtkOrientationRepresentation::GetActors(vtkPropCollection* pc)
     {
       torusActor.second->GetActors(pc);
     }
+    if (this->ShowArrows)
+    {
+      for (const auto& arrowsActor : this->ArrowsActors)
+      {
+        arrowsActor.second->GetActors(pc);
+      }
+    }
   }
   this->Superclass::GetActors(pc);
 }
@@ -539,13 +686,25 @@ void vtkOrientationRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Initial Bounds: "
-     << "(" << this->InitialBounds[0] << "," << this->InitialBounds[1] << ") "
-     << "(" << this->InitialBounds[2] << "," << this->InitialBounds[3] << ") "
-     << "(" << this->InitialBounds[4] << "," << this->InitialBounds[5] << ")\n";
   os << indent << "Bounding Box: "
      << "(" << this->BoundingBox[0] << "," << this->BoundingBox[1] << ") "
      << "(" << this->BoundingBox[2] << "," << this->BoundingBox[3] << ") "
      << "(" << this->BoundingBox[4] << "," << this->BoundingBox[5] << ")\n";
+  os << indent << "Initial Bounds: "
+     << "(" << this->InitialBounds[0] << "," << this->InitialBounds[1] << ") "
+     << "(" << this->InitialBounds[2] << "," << this->InitialBounds[3] << ") "
+     << "(" << this->InitialBounds[4] << "," << this->InitialBounds[5] << ")\n";
+  os << indent << "Initial Length: " << this->InitialLength << std::endl;
+  os << indent << "Torus Thickness: " << this->TorusThickness << std::endl;
+  os << indent << "Torus Length: " << this->TorusLength << std::endl;
+  os << indent << "Show Arrows: " << (this->ShowArrows ? "On" : "Off") << std::endl;
+  if (this->ShowArrows)
+  {
+    os << indent << "Arrow Length: " << this->ArrowLength << std::endl;
+    os << indent << "Arrow Tip Length: " << this->ArrowTipLength << std::endl;
+    os << indent << "Arrow Tip Radius: " << this->ArrowTipRadius << std::endl;
+    os << indent << "Arrow Shaft Radius: " << this->ArrowShaftRadius << std::endl;
+    os << indent << "Arrow Distance: " << this->ArrowDistance << std::endl;
+  }
 }
 VTK_ABI_NAMESPACE_END

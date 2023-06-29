@@ -32,9 +32,8 @@
  * By default, the widget responds to the following VTK events (i.e., it
  * watches the vtkRenderWindowInteractor for these events):
  * <pre>
- * Select and move the camera box to change the camera position.
- * Select and move the camera cone to change the camera view angle.
- * Select and move the sphere handles to change the target and view up.
+ * Select and move a torus to update the associated orientation.
+ * Select and move an arrow to update the associated orientation.
  * </pre>
  *
  * @warning
@@ -81,14 +80,14 @@ protected:
   vtkOrientationWidget();
   ~vtkOrientationWidget() override;
 
-  bool Active = false;
-
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
 
 private:
+  bool Active = false;
+
   vtkOrientationWidget(const vtkOrientationWidget&) = delete;
   void operator=(const vtkOrientationWidget&) = delete;
 };
