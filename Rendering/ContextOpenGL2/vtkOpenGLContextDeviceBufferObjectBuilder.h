@@ -31,7 +31,8 @@
 #include "vtkRenderingContextOpenGL2Module.h" // for export macro
 #include "vtkUnsignedCharArray.h"
 
-#include <unordered_map>
+#include <cstdint>       // for std::uintptr_t
+#include <unordered_map> // for std::unordered_map
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCONTEXTOPENGL2_NO_EXPORT vtkOpenGLContextDeviceBufferObjectBuilder

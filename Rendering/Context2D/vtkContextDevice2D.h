@@ -32,6 +32,8 @@
 #include "vtkRenderingCoreEnums.h"       // For marker enum
 #include "vtkVector.h"                   // For vtkVector2i ivar
 
+#include <cstdint> // For std::uintptr_t
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 class vtkViewport;
