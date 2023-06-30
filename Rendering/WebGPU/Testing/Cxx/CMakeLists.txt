@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestConesBenchmark.cxx,NO_DATA,NO_VALID
   TestLineRendering.cxx,NO_DATA,NO_VALID
   TestPointScalarMappedColors.cxx,NO_DATA,NO_VALID
+  TestScalarModeToggle.cxx,NO_DATA,NO_VALID
   TestSurfacePlusEdges.cxx,NO_DATA,NO_VALID
   TestTheQuad.cxx,NO_DATA,NO_VALID
   TestTheQuadPointRepresentation.cxx,NO_DATA,NO_VALID
