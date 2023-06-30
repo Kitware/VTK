@@ -19,14 +19,6 @@ PURPOSE.  See the above copyright notice for more information.
  * vtkOpenXRRenderWindow is a concrete implementation of the abstract
  * class vtkRenderWindow.
  *
- * This class and its similar classes are designed to be drop in
- * replacements for VTK. If you link to this module and turn on
- * the CMake option VTK_OPENXR_OBJECT_FACTORY, the object
- * factory mechanism should replace the core rendering classes such as
- * RenderWindow with OpenXR specialized versions. The goal is for VTK
- * programs to be able to use the OpenXR library with little to no
- * changes.
- *
  * This class handles the bulk of interfacing to OpenXR. It supports one
  * renderer currently. The renderer is assumed to cover the entire window
  * which is what makes sense to VR. Overlay renderers can probably be
