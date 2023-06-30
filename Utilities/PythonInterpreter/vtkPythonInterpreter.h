@@ -175,8 +175,9 @@ public:
    * If programName is set, use it as the interpreter's program name. Otherwise, it
    * will be set to "<path to python lib>/vtkpython"
    */
-  static bool InitializeWithArgs(
-    int initsigs, int argc, char* argv[], const char* programName = nullptr);
+  static bool InitializeWithArgs(int initsigs, int argc, char* argv[],
+    const char* programName = nullptr, const char* libraryPath = nullptr,
+    const char* landmark = nullptr);
 
 protected:
   vtkPythonInterpreter();
