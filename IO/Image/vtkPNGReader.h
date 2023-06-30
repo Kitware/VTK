@@ -71,7 +71,7 @@ public:
    * Returns the text key stored at 'index'.
    */
   const char* GetTextKey(int index);
-  vtkSmartPointer<vtkStringArray> GetTextKeys();
+  vtkStringArray* GetTextKeys();
   ///@}
 
   ///@{
@@ -81,7 +81,7 @@ public:
    * GetTextChunks.
    */
   const char* GetTextValue(int index);
-  vtkSmartPointer<vtkStringArray> GetTextValues();
+  vtkStringArray* GetTextValues();
   ///@}
 
   /**
