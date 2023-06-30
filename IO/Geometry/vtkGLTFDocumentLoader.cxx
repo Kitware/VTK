@@ -919,7 +919,10 @@ bool vtkGLTFDocumentLoader::LoadModelData(const std::vector<char>& glbBuffer)
     this->InternalModel->Buffers.push_back(glbBuffer);
   }
 
-  impl.LoadBuffers(!glbBuffer.empty());
+  if (!impl.LoadBuffers(!glbBuffer.empty()))
+  {
+    return false;
+  }
 
   // Read primitive attributes from buffers
   size_t numberOfMeshes = this->InternalModel->Meshes.size();

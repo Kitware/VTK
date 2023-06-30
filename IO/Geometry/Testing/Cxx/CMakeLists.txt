@@ -98,6 +98,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGeometryNoBin,TestGLTFReaderGeometryNoBin.cxx DATA{../Data/glTF/Triangle/IncorrectDataNoBinFile.gltf} NO_VALID NO_OUTPUT
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFReaderEmbeddedGeometry,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/Triangle/EmbeddedTriangle.gltf}
 )
 

@@ -91,6 +91,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
         }
         this->Self->GetInternalModel()->Buffers.emplace_back(std::move(buffer));
       }
+      else
+      {
+        vtkErrorWithObjectMacro(this->Self, "Could not load Buffer from JSON.");
+        return false;
+      }
     }
   }
   catch (nlohmann::json::parse_error& e)
