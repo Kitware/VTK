@@ -617,7 +617,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
     vtkShaderProgram::Substitute(FSSource, "//VTK::Edges::Dec",
       "in vec4 edgeEqn[3];\n"
       "uniform float lineWidth;\n"
-      "uniform vec3 edgeColor;\n");
+      "uniform vec3 edgeColor;\n"
+      "uniform float edgeOpacity;\n");
 
     std::string fsimpl =
       // distance gets larger as you go inside the polygon
@@ -644,15 +645,16 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
       actor->GetProperty()->GetRenderLinesAsTubes() && ren->GetLights()->GetNumberOfItems() > 0;
     if (canRenderLinesAsTube)
     {
-      fsimpl += "  diffuseColor = mix(diffuseColor, diffuseIntensity*edgeColor, emix);\n"
-                "  ambientColor = mix(ambientColor, ambientIntensity*edgeColor, emix);\n"
+      fsimpl +=
+        "  diffuseColor = mix(diffuseColor, diffuseIntensity*edgeColor, emix * edgeOpacity);\n"
+        "  ambientColor = mix(ambientColor, ambientIntensity*edgeColor, emix * edgeOpacity);\n"
         // " else { discard; }\n" // this yields wireframe only
         ;
     }
     else
     {
-      fsimpl += "  diffuseColor = mix(diffuseColor, vec3(0.0), emix);\n"
-                "  ambientColor = mix( ambientColor, edgeColor, emix);\n"
+      fsimpl += "  diffuseColor = mix(diffuseColor, vec3(0.0), emix * edgeOpacity);\n"
+                "  ambientColor = mix( ambientColor, edgeColor, emix * edgeOpacity);\n"
         // " else { discard; }\n" // this yields wireframe only
         ;
     }
@@ -2736,6 +2738,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
     dims[3] = vp[3];
     cellBO.Program->SetUniform4f("vpDims", dims);
     cellBO.Program->SetUniform3f("edgeColor", actor->GetProperty()->GetEdgeColor());
+    cellBO.Program->SetUniformf("edgeOpacity", actor->GetProperty()->GetEdgeOpacity());
   }
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 
