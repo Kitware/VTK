@@ -736,7 +736,7 @@ function (vtk_module_scan)
       if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe} STREQUAL "DEFAULT")
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "${VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}}")
         set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
-          "via `VTK_MDDULE_ENABLE_${_vtk_scan_module_name_safe}`")
+          "via `VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}`")
         _vtk_module_debug(enable "@_vtk_scan_module_name@ is `${_vtk_scan_enable_${_vtk_scan_module_name}}` by cache value")
       endif ()
 
