@@ -94,6 +94,8 @@ class vtkPNGReader::vtkInternals
 public:
   std::vector<std::pair<std::string, std::string>> TextKeyValue;
   typedef std::vector<std::pair<std::string, std::string>>::iterator TextKeyValueIterator;
+  vtkNew<vtkStringArray> TextKeys;
+  vtkNew<vtkStringArray> TextValues;
   void ReadTextChunks(png_structp png_ptr, png_infop info_ptr)
   {
     png_textp text_ptr;
@@ -619,9 +621,10 @@ const char* vtkPNGReader::GetTextKey(int index)
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkStringArray> vtkPNGReader::GetTextKeys()
+vtkStringArray* vtkPNGReader::GetTextKeys()
 {
-  vtkSmartPointer<vtkStringArray> keys = vtkSmartPointer<vtkStringArray>::New();
+  auto keys = this->Internals->TextKeys.GetPointer();
+  keys->Initialize();
   keys->Allocate(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
   for (auto& key : this->Internals->TextKeyValue)
   {
@@ -637,9 +640,10 @@ const char* vtkPNGReader::GetTextValue(int index)
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkStringArray> vtkPNGReader::GetTextValues()
+vtkStringArray* vtkPNGReader::GetTextValues()
 {
-  vtkSmartPointer<vtkStringArray> values = vtkSmartPointer<vtkStringArray>::New();
+  auto values = this->Internals->TextValues.GetPointer();
+  values->Initialize();
   values->Allocate(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
   for (auto& value : this->Internals->TextKeyValue)
   {
