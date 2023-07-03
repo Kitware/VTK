@@ -21,10 +21,65 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+#include <set>
+
 namespace
 {
 int mpiTag = 5678;
 int data = -1;
+
+int PROBE_TAG = 4244;
+
+bool CheckProbing(vtkMPIController* controller)
+{
+  int rank = controller->GetLocalProcessId();
+  int numRanks = controller->GetNumberOfProcesses();
+  if (rank != 0)
+  {
+    controller->Send(&rank, 1, 0, PROBE_TAG);
+  }
+  else
+  {
+    std::set<int> other_ranks;
+    for (int iR = 1; iR < numRanks; ++iR)
+    {
+      other_ranks.insert(iR);
+    }
+
+    for (int iR = 1; iR < numRanks; ++iR)
+    {
+      int sendingRank = -1;
+      if (controller->Probe(vtkMultiProcessController::ANY_SOURCE, PROBE_TAG, &sendingRank) == 0)
+      {
+        std::cerr << "Probe operation failed." << std::endl;
+        return false;
+      }
+      if (sendingRank < 0)
+      {
+        std::cerr << "Probe returned negative rank." << std::endl;
+        return false;
+      }
+      auto it = other_ranks.find(sendingRank);
+      if (it == other_ranks.end())
+      {
+        std::cerr << "Probe already received from rank " << sendingRank << std::endl;
+        return false;
+      }
+      other_ranks.erase(it);
+
+      int other_rank = -1;
+      controller->Receive(&other_rank, 1, sendingRank, PROBE_TAG);
+    }
+
+    if (!other_ranks.empty())
+    {
+      std::cerr << "Did not probe all messages" << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
 }
 
 // returns 0 for success
@@ -174,6 +229,8 @@ int MPIController(int argc, char* argv[])
   {
     retval = ExerciseMultiProcessController(genericController);
   }
+
+  retval = retval | (::CheckProbing(controller) ? 0 : 1);
 
   controller->Finalize();
 
