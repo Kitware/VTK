@@ -28,7 +28,9 @@
 #include "vtkContextDevice3D.h"
 #include "vtkNew.h"                           // For ivars.
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
-#include <vector>                             // STL Header
+
+#include <cstdint> // For std::uintptr_t
+#include <vector>  // STL Header
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBrush;

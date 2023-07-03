@@ -33,8 +33,9 @@
 #include "vtkContextDevice2D.h"
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
-#include <list>   // for std::list
-#include <vector> // STL Header
+#include <cstdint> // For std::uintptr_t
+#include <list>    // For std::list
+#include <vector>  // For std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;

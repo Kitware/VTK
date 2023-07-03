@@ -33,6 +33,8 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkVector.h"                   // For the vector coordinates.
 
+#include <cstdint> // For std::uintptr_t
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkViewport;

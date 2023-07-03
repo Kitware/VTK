@@ -30,6 +30,8 @@
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 
+#include <cstdint> // For std::uintptr_t
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 

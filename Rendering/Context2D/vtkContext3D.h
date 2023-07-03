@@ -32,6 +32,8 @@
 #include "vtkSmartPointer.h"             // For SP ivars.
 #include "vtkVector.h"                   // For the vector coordinates.
 
+#include <cstdint> // For std::uintptr_t
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContextDevice3D;
 class vtkPen;
