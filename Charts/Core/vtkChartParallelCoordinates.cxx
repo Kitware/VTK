@@ -271,6 +271,8 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D* painter)
 //------------------------------------------------------------------------------
 bool vtkChartParallelCoordinates::PaintRect(vtkContext2D* painter, int axis, float min, float max)
 {
+  if (axis < 0)
+    return false;
   painter->GetBrush()->SetColor(200, 20, 20, 220);
   float x = this->Storage->Axes[axis]->GetPoint1()[0] - 5;
   float y = min;
@@ -559,6 +561,8 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent& mou
   }
   else if (mouse.GetButton() == this->Actions.Pan())
   {
+    if (this->Storage->CurrentAxis < 0) // can be -1
+      return false;
     vtkAxis* axis = this->Storage->Axes[this->Storage->CurrentAxis];
     if (this->Storage->AxisResize == 0)
     {
