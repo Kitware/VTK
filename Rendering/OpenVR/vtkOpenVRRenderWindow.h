@@ -21,14 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
  * class vtkVRRenderWindow. vtkOpenVRRenderer interfaces to the
  * OpenVR graphics library
  *
- * This class and its similar classes are designed to be drop in
- * replacements for VTK. If you link to this module and turn on
- * the CMake option VTK_OPENVR_OBJECT_FACTORY, the object
- * factory mechanism should replace the core rendering classes such as
- * RenderWindow with OpenVR specialized versions. The goal is for VTK
- * programs to be able to use the OpenVR library with little to no
- * changes.
- *
  * This class handles the bulk of interfacing to OpenVR. It supports one
  * renderer currently. The renderer is assumed to cover the entire window
  * which is what makes sense to VR. Overlay renderers can probably be
