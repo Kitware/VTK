@@ -1,7 +1,17 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtklzma/COPYING"
-    VERSION       "5.2.5"
+    LICENSE_FILES 
+      "vtklzma/COPYING"
+    SPDX_LICENSE_IDENTIFIER
+      "LicenseRef-PublicDomain-lzma"
+    SPDX_COPYRIGHT_TEXT
+      "NONE"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/lzma.git@for/vtk-20210728-5.2.5"
+    SPDX_CUSTOM_LICENSE
+      "PublicDomain-lzma"
+    VERSION       
+      "5.2.5"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LZMA
