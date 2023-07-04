@@ -71,7 +71,8 @@ event of you doing this procedure multiple times and inadvertently using the sam
 (All this requires a Git 2.5 or higher due the `worktree` tool being used to
 simplify the availability of the commits to the main checkout.)
 
-Do not forget to update the `SPDX_DOWNLOAD_LOCATION` accordingly in `CMakeLists.txt`.
+Make sure to update the `SPDX_DOWNLOAD_LOCATION` in `CMakeLists.txt` to reflect
+the changes made to the project.
 
 Now you can review the change and make a merge request from the branch as normal.
 

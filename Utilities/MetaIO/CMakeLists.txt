@@ -23,7 +23,7 @@ vtk_module_third_party_internal(
     "Copyright 2000-2014 Insight Software Consortium"
     "Copyright (c) 1999-2007 Insight Software Consortium"
   SPDX_DOWNLOAD_LOCATION
-    "git+https://github.com/Kitware/MetaIO.git"
+    "git+https://github.com/Kitware/MetaIO.git@ea2bb780"
   VERSION
     "master"
   STANDARD_INCLUDE_DIRS)
