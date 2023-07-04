@@ -997,6 +997,20 @@ to all files that are not parsed during generation, it is used to generate `Pack
 this in `vtk_module_build`) and expected field for [third parties](/developers_guide/git/thirdparty.md).
 If provided, it is used as is for the `PackageDownloadLocation` SPDX field.
 
+#### Custom license support
+
+If the VTK module contains a custom license that is not part of the [SPDX license list](https://spdx.org/licenses/)
+then adding a custom license may be needed.
+
+The SPDX generation system support to specify exactly one custom license, supplemental to standard licenses.
+The text of this license should be added in a file named with the name of this license (eg: `licenseName`) and
+the `SPDX_LICENSE_IDENTIFIER` for this license should be `LicenseRef-` followed by the name (eg: `LicenseRef-licenseName`).
+
+:::{note}
+If this custom license is to be added to VTK proper, it must be compatible with the BSD-3-CLAUSE license of VTK and
+not add more restriction to the code.
+:::
+
 #### SPDX Tags in the sources files
 
 For VTK modules (except the one declared as `THIRD_PARTY`), [sources files](#source-listing)

@@ -46,6 +46,7 @@ def generate_spdx_file(
     download_location: str,
     declared_license: str,
     module_copyright: str,
+    custom_license_file: str,
     output_file: str,
     source_dir: str,
     input_files: List[str],
@@ -57,6 +58,7 @@ def generate_spdx_file(
     :param download_location: VTK module download location.
     :param declared_license: VTK module declared license identifier.
     :param module_copyright: VTK module copyright.
+    :param custom_license_file: A custom license file to include.
     :param output_file: SPDX output file.
     :param source_dir: Directory containing source files.
     :param input_files: List of source files.
@@ -135,6 +137,15 @@ def generate_spdx_file(
     timestamp = datetime.now(timezone.utc)
     timestamp = timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    custom_license_string = ""
+    if custom_license_file:
+      with open(source_dir / Path(custom_license_file), "r") as file:
+        custom_license = file.read()
+      custom_license_string = """
+
+LicenseID: LicenseRef-%(custom_license_name)s
+ExtractedText: <text>%(custom_license)s</text>""" % { "custom_license_name": custom_license_file , "custom_license": custom_license }
+
     spdx_string = """SPDXVersion: SPDX-2.2
 DataLicense: CC0-1.0
 SPDXID: SPDXRef-DOCUMENT
@@ -151,7 +162,7 @@ PackageDownloadLocation: %(download)s
 FilesAnalyzed: %(files_analyzed)s
 PackageLicenseConcluded: %(lic_concluded)s
 PackageLicenseDeclared: %(lic_declared)s
-%(lic_from_files)s%(cpy_from_files)s
+%(lic_from_files)s%(cpy_from_files)s%(custom_license_string)s
 
 Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package-%(module)s
 """
@@ -169,6 +180,7 @@ Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package-%(module)s
                 "lic_declared": args.license,
                 "lic_from_files": licenses_from_files,
                 "cpy_from_files": copyrights_from_files,
+                "custom_license_string": custom_license_string,
             }
         )
 
@@ -185,6 +197,7 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--download", help="VTK module download location", required=True)
     parser.add_argument("-l", "--license", help="VTK module declared license identifier", required=True)
     parser.add_argument("-c", "--copyright", help="VTK module copyright", required=True)
+    parser.add_argument("-x", "--custom", help="VTK module custom license file", required=True)
     parser.add_argument("-o", "--output", help="SPDX output file", required=True)
     parser.add_argument("-s", "--source", help="Directory containing source files", required=True)
     parser.add_argument("input_files", metavar="N", nargs="*")
@@ -196,6 +209,7 @@ if __name__ == "__main__":
         args.download,
         args.license,
         args.copyright,
+        args.custom,
         args.output,
         args.source,
         args.input_files,
