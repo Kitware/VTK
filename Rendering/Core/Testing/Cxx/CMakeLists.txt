@@ -55,6 +55,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestDiscretizableColorTransferFunctionStringArray.cxx,NO_VALID
   TestDragEvent.cxx
   TestEdgeFlags.cxx
+  TestEdgeOpacity.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
   TestGlyph3DMapper2.cxx,NO_VALID,NO_RT,NO_DATA

@@ -374,6 +374,15 @@ public:
 
   ///@{
   /**
+   * Set/Get the line opacity. 1.0 is totally opaque and 0.0 is completely
+   * transparent.
+   */
+  vtkSetClampMacro(EdgeOpacity, double, 0.0, 1.0);
+  vtkGetMacro(EdgeOpacity, double);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the ambient surface color. Not all renderers support separate
    * ambient and diffuse colors. From a physical standpoint it really
    * doesn't make too much sense to have both. For the rendering
@@ -780,6 +789,7 @@ protected:
   double Specular;
   double SpecularPower;
   double Opacity;
+  double EdgeOpacity = 1.0;
   double EdgeTint[3];
   float PointSize;
   float LineWidth;
