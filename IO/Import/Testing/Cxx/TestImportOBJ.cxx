@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include <vtkNamedColors.h>
 #include <vtkOBJImporter.h>
 #include <vtkPolyData.h>

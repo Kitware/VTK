@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkChacoReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkChacoReader.h"
 
 #include "vtkCellArray.h"
@@ -860,7 +843,7 @@ int vtkChacoReader::OpenCurrentFile()
 // Code to read Chaco files.
 // This software was developed by Bruce Hendrickson and Robert Leland
 // at Sandia National Laboratories under US Department of Energy
-// contract DE-AC04-76DP00789 and is copyrighted by Sandia Corporation.
+// contract DE-AC04-76DP00789.
 
 void vtkChacoReader::ResetInputBuffers()
 {

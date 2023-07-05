@@ -2,6 +2,10 @@ NAME
   VTK::RenderingOpenVR
 LIBRARY_NAME
   vtkRenderingOpenVR
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::RenderingVR
   VTK::CommonCore

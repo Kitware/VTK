@@ -4,4 +4,8 @@ LIBRARY_NAME
   vtkTestingIOSQL
 PRIVATE_DEPENDS
   VTK::IOSQL
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 EXCLUDE_WRAP

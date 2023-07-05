@@ -8,6 +8,11 @@ KIT
   VTK::IO
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause AND MIT
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) 1994 The Board of Trustees of The Leland Stanford
 DEPENDS
   VTK::CommonCore
   VTK::IOCore

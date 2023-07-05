@@ -1,17 +1,7 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVRMLInternal_Yacc.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (C) 1984, 1989, 1990 Free Software Foundation, Inc.
+// SPDX-FileCopyrightText: Copyright (C) 1996 Silicon Graphics, Inc.
+// SPDX-License-Identifier: BSD-3-Clause AND GPL-3.0 WITH Bison-exception-2.2
 /**
  * @class   vtkVRMLImporter_Yacc
  *
@@ -847,29 +837,6 @@ static const short yycheck[] = {    66,
                                     -1,    -1,    -1,    -1,    -1,    26,    -1,    26
 };
 /* -*-C-*-  Note some compilers choke on comments on `#line' lines.  */
-
-
-/* Skeleton output parser for bison,
-   Copyright (C) 1984, 1989, 1990 Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
-
-/* As a special exception, when this file is copied by Bison into a
-   Bison output file, you may use that output file without restriction.
-   This special exception was added by the Free Software Foundation
-   in version 1.24 of Bison.  */
 
 //extern int yylex(vtkVRMLImporter* self);
 //extern void yyerror();
@@ -4054,7 +4021,6 @@ static const short int yy_rule_linenum[49] =
 //char *yytext;
 /**************************************************
  * VRML 2.0 Parser
- * Copyright (C) 1996 Silicon Graphics, Inc.
  *
  * Author(s)    : Gavin Bell
  *                Daniel Woods (first port)

@@ -1,17 +1,6 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkValueFromString.cxx
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) 2017 Elias Kosunen
+// SPDX-License-Identifier: BSD-3-Clause AND Apache-2.0
 #include "vtkValueFromString.h"
 
 #include <array>
@@ -26,8 +15,6 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * This integer parsing algorithm was inspired by scnlib.
  * https://github.com/eliaskosunen/scnlib
- * scnlib is licensed under the Apache License, version 2.0.
- * Copyright (c) 2017 Elias Kosunen
  */
 
 VTK_ABI_NAMESPACE_BEGIN

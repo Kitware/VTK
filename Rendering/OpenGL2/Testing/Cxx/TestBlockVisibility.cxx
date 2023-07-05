@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
 #define VTK_DEPRECATION_LEVEL 0
 

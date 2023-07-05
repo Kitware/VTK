@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) Bitstream (XFree86)
+// SPDX-License-Identifier: Bitstream-Vera
+
 #include "vtkEmbeddedFonts.h"
 
 // VTK: Courier Italic

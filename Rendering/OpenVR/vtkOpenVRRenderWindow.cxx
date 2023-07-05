@@ -1,21 +1,6 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkOpenVRRenderWindow.cxx
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-Parts Copyright Valve Corporation from hellovr_opengl_main.cpp
-under their BSD license found here:
-https://github.com/ValveSoftware/openvr/blob/master/LICENSE
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) 2015, Valve Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenVRRenderWindow.h"
 
 #include "vtkMatrix4x4.h"

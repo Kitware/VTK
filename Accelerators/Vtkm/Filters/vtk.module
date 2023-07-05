@@ -4,6 +4,18 @@ LIBRARY_NAME
   vtkAcceleratorsVTKmFilters
 DESCRIPTION
   VTKm filters and algorithms
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-Sandia-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Kitware, Inc.
+  Copyright 2012 Sandia Corporation.
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-Sandia-USGov
+LICENSE_FILES
+  LICENSE
 DEPENDS
   VTK::AcceleratorsVTKmCore
   VTK::AcceleratorsVTKmDataModel

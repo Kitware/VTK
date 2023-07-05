@@ -1,29 +1,7 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*=========================================================================
-
-F3D project
-BSD 3-Clause License
-See LICENSE
-
-Copyright 2019-2021 Kitware SAS
-Copyright 2021-2022 Michael Migliore, Mathieu Westphal
-All rights reserved.
-
-=========================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2019-2021 Kitware SAS
+// SPDX-FileCopyrightText: Copyright 2021-2022 Michael Migliore, Mathieu Westphal
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOCCTReader.h"
 
 #include <Standard_Version.hxx>

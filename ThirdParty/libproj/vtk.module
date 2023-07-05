@@ -2,6 +2,10 @@ NAME
   VTK::libproj
 LIBRARY_NAME
   vtklibproj
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::nlohmannjson
 PRIVATE_DEPENDS

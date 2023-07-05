@@ -27,7 +27,7 @@
 
     <licenses>
         <license>
-            <name>BSD license</name>
+            <name>BSD-3-Clause license</name>
             <url>http://en.wikipedia.org/wiki/BSD_licenses</url>
             <comments>
                 VTK is an open-source toolkit licensed under the BSD license.

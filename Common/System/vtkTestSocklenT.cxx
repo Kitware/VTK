@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include <cstdio>
 #include <cstdlib>
 #if !defined(_WIN32) || defined(__CYGWIN__)

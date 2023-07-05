@@ -2,6 +2,10 @@ NAME
   VTK::ImagingOpenGL2
 LIBRARY_NAME
   vtkImagingOpenGL2
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::ImagingGeneral
   VTK::RenderingOpenGL2

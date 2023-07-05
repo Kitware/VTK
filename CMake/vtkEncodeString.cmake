@@ -175,8 +175,9 @@ if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
   set(output_header "${binary_dir}/${output_name}.h")
   set(output_source "${binary_dir}/${output_name}.cxx")
 
-  file(WRITE "${output_header}" "")
-  file(WRITE "${output_source}" "")
+  set(license_topfile "// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen\n// SPDX-License-Identifier: BSD-3-Clause\n")
+  file(WRITE "${output_header}" ${license_topfile})
+  file(WRITE "${output_source}" ${license_topfile})
 
   file(APPEND "${output_header}"
     "#ifndef ${output_name}_h\n#define ${output_name}_h\n\n")

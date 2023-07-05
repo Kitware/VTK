@@ -1,19 +1,5 @@
 #!/usr/bin/env python
 
-## /*=========================================================================
-
-##   Program:   Visualization Toolkit
-##   Module:    WindowsMangleList.py
-
-##   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-##   All rights reserved.
-##   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-##      This software is distributed WITHOUT ANY WARRANTY; without even
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-##      PURPOSE.  See the above copyright notice for more information.
-
-## =========================================================================*/
 ## .NAME WindowsMangleList - List of method names mangled by windows.h.
 ## .SECTION Description
 ## WindowsMangleList is a script imported by HeaderTesting to get a regular

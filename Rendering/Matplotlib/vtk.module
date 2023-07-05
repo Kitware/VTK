@@ -4,6 +4,10 @@ LIBRARY_NAME
   vtkRenderingMatplotlib
 IMPLEMENTS
   VTK::RenderingFreeType
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::RenderingFreeType
 PRIVATE_DEPENDS

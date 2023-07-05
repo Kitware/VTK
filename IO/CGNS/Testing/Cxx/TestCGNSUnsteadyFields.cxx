@@ -1,16 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestCGNSUnsteadyFields.cxx
-
-  Copyright (c) Jakub Benda, CFD support, Czech Republic
-  All rights reserved.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Jakub Benda, CFD support, Czech Republic
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCGNSReader.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"

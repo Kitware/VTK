@@ -28,7 +28,7 @@ as follows:
 
 ```
 SPDX_LICENSE_IDENTIFIER
-  BSD-3-CLAUSE
+  BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 ```
@@ -38,7 +38,7 @@ Then add SPDX tags on top of all source files in the module, as follows:
 ```
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) Awesome contributor
-// SPDX-License-Identifier: BSD-3-CLAUSE
+// SPDX-License-Identifier: BSD-3-Clause
 ```
 
 :::{tip}
@@ -55,7 +55,7 @@ In the third party `CMakeLists.txt`, make sure to specify, in the `vtk_module_th
 ```
  vtk_module_third_party(
     SPDX_LICENSE_IDENTIFIER
-      "BSD-3-CLAUSE"
+      "BSD-3-Clause"
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen"
     SPDX_DOWNLOAD_LOCATION
@@ -115,9 +115,9 @@ PackageName: IOPLY
 SPDXID: SPDXRef-Package-IOPLY
 PackageDownloadLocation: https://gitlab.kitware.com/vtk/vtk/-/tree/master/IO/PLY
 FilesAnalyzed: true
-PackageLicenseConcluded: BSD-3-CLAUSE
-PackageLicenseDeclared: BSD-3-CLAUSE
-PackageLicenseInfoFromFiles: BSD-3-CLAUSE
+PackageLicenseConcluded: BSD-3-Clause
+PackageLicenseDeclared: BSD-3-Clause
+PackageLicenseInfoFromFiles: BSD-3-Clause
 PackageCopyrightText: <text>
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 </text>
@@ -200,9 +200,9 @@ PackageName: MyModule
 SPDXID: SPDXRef-Package-MyModule
 PackageDownloadLocation: https://github/myorg/mymodule
 FilesAnalyzed: true
-PackageLicenseConcluded: BSD-3-CLAUSE AND MIT
-PackageLicenseDeclared: BSD-3-CLAUSE
-PackageLicenseInfoFromFiles: BSD-3-CLAUSE AND MIT
+PackageLicenseConcluded: BSD-3-Clause AND MIT
+PackageLicenseDeclared: BSD-3-Clause
+PackageLicenseInfoFromFiles: BSD-3-Clause AND MIT
 PackageCopyrightText: <text>
 Copyright (c) 2023 Popeye
 Copyright (c) 2023 Wayne "The Dock" Sonjhon
@@ -230,9 +230,9 @@ PackageName: CustomModule
 SPDXID: SPDXRef-Package-CustomModule
 PackageDownloadLocation: https://gitlab.kitware.com/vtk/vtk/-/tree/master/Custom/Module
 FilesAnalyzed: true
-PackageLicenseConcluded: BSD-3-CLAUSE
-PackageLicenseDeclared: BSD-3-CLAUSE AND LicenseRef-CustomLicense
-PackageLicenseInfoFromFiles: BSD-3-CLAUSE
+PackageLicenseConcluded: BSD-3-Clause
+PackageLicenseDeclared: BSD-3-Clause AND LicenseRef-CustomLicense
+PackageLicenseInfoFromFiles: BSD-3-Clause
 PackageCopyrightText: <text>
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 </text>

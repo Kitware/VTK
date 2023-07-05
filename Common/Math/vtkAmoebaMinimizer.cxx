@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAmoebaMinimizer.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 1993,1994,1995 David MacDonald, McConnell Brain Imaging Centre
+// SPDX-License-Identifier: BSD-3-Clause AND MIT
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
@@ -410,20 +399,6 @@ void vtkAmoebaMinimizer::Minimize()
 
   this->GetAmoebaParameterValues();
 }
-
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
-              Copyright 1993,1994,1995 David MacDonald,
-              McConnell Brain Imaging Centre,
-              Montreal Neurological Institute, McGill University.
-              Permission to use, copy, modify, and distribute this
-              software and its documentation for any purpose and without
-              fee is hereby granted, provided that the above copyright
-              notice appear in all copies.  The author and McGill University
-              make no representations about the suitability of this
-              software for any purpose.  It is provided "as is" without
-              express or implied warranty.
----------------------------------------------------------------------------- */
 
 /* ------------------------------------------------
   This code has been modified from the original.  Several macros

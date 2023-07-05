@@ -2,6 +2,10 @@ NAME
   VTK::libxml2
 LIBRARY_NAME
   vtklibxml2
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::zlib
 THIRD_PARTY

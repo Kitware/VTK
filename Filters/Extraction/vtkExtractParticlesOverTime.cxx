@@ -1,14 +1,6 @@
-/*=========================================================================
-
-  Project:   Visualization Toolkit
-  Module:    vtkExtractParticlesOverTime.cxx
-
-  Copyright (c) Kitware, Inc.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even the
-  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExtractParticlesOverTime.h"
 
 #include "vtkDataSet.h"

@@ -4,6 +4,10 @@ LIBRARY_NAME
   vtkDICOMParser
 LICENSE_FILES
   Copyright.txt
+SPDX_LICENSE_IDENTIFIER
+  BSD-4-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) 2003 Matt Turek
 PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::vtksys

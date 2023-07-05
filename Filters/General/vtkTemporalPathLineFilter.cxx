@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Project:   vtkCSCS
-  Module:    vtkTemporalPathLineFilter.cxx
-
-  Copyright (c) CSCS - Swiss National Supercomputing Centre.
-  You may use modify and and distribute this code freely providing this
-  copyright notice appears on all copies of source code and an
-  acknowledgment appears with any substantial usage of the code.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even the
-  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) CSCS - Swiss National Supercomputing Centre
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTemporalPathLineFilter.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
