@@ -638,7 +638,8 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderPicking(
 //------------------------------------------------------------------------------
 bool vtkOpenGLES30PolyDataMapper::DrawingPoints(vtkActor* actor)
 {
-  return (this->LastBoundBO->PrimitiveType == PrimitivePoints || this->PointPicking ||
+  return (this->LastBoundBO->PrimitiveType == PrimitivePoints ||
+    this->LastBoundBO->PrimitiveType == PrimitiveVertices || this->PointPicking ||
     actor->GetProperty()->GetRepresentation() == VTK_POINTS);
 }
 
