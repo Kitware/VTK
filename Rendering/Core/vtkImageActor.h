@@ -111,7 +111,7 @@ public:
    * identity matrix, this will return the same value as
    * GetBounds.
    */
-  double* GetDisplayBounds();
+  double* GetDisplayBounds() VTK_SIZEHINT(6);
   void GetDisplayBounds(double bounds[6]);
   ///@}
 
