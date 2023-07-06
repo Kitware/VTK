@@ -22,6 +22,7 @@
 #include "vtkWindow.h"
 
 #include <algorithm>
+#include <type_traits>
 
 //------------------------------------------------------------------------------
 // Create a vtkViewport with a black background, a white ambient light,
@@ -390,6 +391,24 @@ int vtkViewport::IsInViewport(int x, int y)
   return 0;
 }
 
+namespace
+{
+const char* gradModeEnum2str_data[] = {
+  // clang-format off
+  "VTK_GRADIENT_VERTICAL", // 0
+  "VTK_GRADIENT_HORIZONTAL", // 1
+  "VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE", // 2
+  "VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_CORNER", // 3
+  // clang-format on
+};
+const char* gradModeEnum2Str(vtkViewport::GradientModes& mode)
+{
+  using ul_type = std::underlying_type<vtkViewport::GradientModes>::type;
+  static_assert(std::is_integral<ul_type>::value, "GradientModes is integral.");
+  return gradModeEnum2str_data[static_cast<ul_type>(mode)];
+}
+}
+
 //------------------------------------------------------------------------------
 void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -408,6 +427,7 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BackgroundAlpha: " << this->BackgroundAlpha << "\n";
 
   os << indent << "GradientBackground: " << (this->GradientBackground ? "On" : "Off") << "\n";
+  os << indent << "GradientMode: " << gradModeEnum2Str(this->GradientMode) << "\n";
 
   os << indent << "Viewport: (" << this->Viewport[0] << ", " << this->Viewport[1] << ", "
      << this->Viewport[2] << ", " << this->Viewport[3] << ")\n";
