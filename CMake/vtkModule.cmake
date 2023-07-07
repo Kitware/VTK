@@ -208,6 +208,7 @@ supported:
 * ``SPDX_LICENSE_IDENTIFIER``: A license identifier for SPDX file generation.
 * ``SPDX_DOWNLOAD_LOCATION``: A download location for the SPDX file generation.
 * ``SPDX_COPYRIGHT_TEXT``: A copyright text for the SPDX file generation.
+* ``SPDX_CUSTOM_LICENSE``: A single custom license file to include in generated SPDX file.
 
 #]==]
 
@@ -259,7 +260,7 @@ macro (_vtk_module_parse_module_args name_output)
 
   cmake_parse_arguments("${_name_NAME}"
     "IMPLEMENTABLE;EXCLUDE_WRAP;THIRD_PARTY"
-    "LIBRARY_NAME;NAME;KIT;SPDX_DOWNLOAD_LOCATION"
+    "LIBRARY_NAME;NAME;KIT;SPDX_DOWNLOAD_LOCATION;SPDX_CUSTOM_LICENSE"
     "GROUPS;DEPENDS;PRIVATE_DEPENDS;OPTIONAL_DEPENDS;ORDER_DEPENDS;TEST_DEPENDS;TEST_OPTIONAL_DEPENDS;TEST_LABELS;DESCRIPTION;CONDITION;IMPLEMENTS;LICENSE_FILES;SPDX_LICENSE_IDENTIFIER;SPDX_COPYRIGHT_TEXT"
     ${ARGN})
 
@@ -895,6 +896,10 @@ function (vtk_module_scan)
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_spdx_download_location" "${${_vtk_scan_module_name}_SPDX_DOWNLOAD_LOCATION}")
+
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_module_${_vtk_scan_module_name}_spdx_custom_license" "${${_vtk_scan_module_name}_SPDX_CUSTOM_LICENSE}")
 
     if (_vtk_scan_ENABLE_TESTS STREQUAL "WANT")
       set_property(GLOBAL
@@ -5590,6 +5595,7 @@ endfunction ()
   * ``SPDX_LICENSE_IDENTIFIER``: A license identifier for SPDX file generation
   * ``SPDX_DOWNLOAD_LOCATION``: A download location for SPDX file generation
   * ``SPDX_COPYRIGHT_TEXT``: A copyright text for SPDX file generation
+  * ``SPDX_CUSTOM_LICENSE``: A single custom license to include in generated SPDX files
   * ``VERSION``: The version of the library that is included.
   * ``HEADER_ONLY``: The dependency is header only and will not create a target.
   * ``INTERFACE``: The dependency is an ``INTERFACE`` library.
@@ -5602,7 +5608,7 @@ function (vtk_module_third_party_internal)
 
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_third_party_internal
     "INTERFACE;HEADER_ONLY;STANDARD_INCLUDE_DIRS"
-    "SUBDIRECTORY;HEADERS_SUBDIR;VERSION;SPDX_DOWNLOAD_LOCATION"
+    "SUBDIRECTORY;HEADERS_SUBDIR;VERSION;SPDX_DOWNLOAD_LOCATION;SPDX_CUSTOM_LICENSE"
     "LICENSE_FILES;SPDX_LICENSE_IDENTIFIER;SPDX_COPYRIGHT_TEXT")
 
   if (_vtk_third_party_internal_UNPARSED_ARGUMENTS)
@@ -5702,6 +5708,9 @@ function (vtk_module_third_party_internal)
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_build_module}_spdx_download_location" "${_vtk_third_party_internal_SPDX_DOWNLOAD_LOCATION}")
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_module_${_vtk_build_module}_spdx_custom_license" "${_vtk_third_party_internal_SPDX_CUSTOM_LICENSE}")
 
     _vtk_module_generate_spdx(
       MODULE_NAME "${_vtk_third_party_internal_target_name}"
@@ -5801,6 +5810,8 @@ function (_vtk_module_generate_spdx)
     set(_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT "NOASSERTION")
   endif ()
 
+  get_property(_vtk_module_generate_spdx_SPDX_CUSTOM_LICENSE GLOBAL PROPERTY "_vtk_module_${_vtk_build_module}_spdx_custom_license")
+
   if (NOT _vtk_build_SPDX_DOCUMENT_NAMESPACE)
     message(AUTHOR_WARNING
       "_vtk_build_SPDX_DOCUMENT_NAMESPACE variable is not defined, defaulting to https://vtk.org/spdx")
@@ -5838,6 +5849,7 @@ function (_vtk_module_generate_spdx)
       -m "${_vtk_module_generate_spdx_MODULE_NAME}"
       -l "${_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER}"
       -c "${_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT}"
+      -x "${_vtk_module_generate_spdx_SPDX_CUSTOM_LICENSE}"
       -o "${_vtk_module_generate_spdx_output_file}"
       -s "${CMAKE_CURRENT_SOURCE_DIR}"
       -n "${_vtk_module_generate_spdx_namespace}"

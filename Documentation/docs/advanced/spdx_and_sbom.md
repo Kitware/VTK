@@ -69,6 +69,26 @@ information on any potential issues that may arise when updating your module to 
 a valid SPDX file.
 :::
 
+### How to correctly specify custom license for a module ?
+
+In the module, create a file named by the name of the license (eg: `CustomLicense`) and put the content of the license into it.
+Then in `vtk.module` file, make sure to specify `SPDX_CUSTOM_LICENSE` with the name of the license,
+and `SPDX_LICENSE_IDENTIFIER` with a valid SPDX LicenseRef, as follows:
+
+```
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-CustomLicense
+SPDX_CUSTOM_LICENSE
+  CustomLicense
+```
+
+If needed, you can add SPDX tags on top of all source file specifically concerned by this license
+
+```
+// SPDX-FileCopyrightText: Copyright (c) Awesome contributor
+// SPDX-License-Identifier: LicenseRef-CustomLicense
+```
+
 ## Examples
 
 This section lists examples of generated SPDX files for different type of VTK modules.
@@ -186,6 +206,42 @@ Copyright (c) 2023 Wayne "The Dock" Sonjhon
 </text>
 
 Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package-MyModule
+```
+
+### VTK Module with custom license
+
+Example of a complete SPDX file for a VTK module with a custom license:
+
+```
+SPDXVersion: SPDX-2.2
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: IOPLY
+DocumentNamespace: https://vtk.org/vtkCustomModule
+Creator: Tool: CMake
+Created: 2023-05-16T16:08:29Z
+
+##### Package: CustomModule
+
+PackageName: CustomModule
+SPDXID: SPDXRef-Package-CustomModule
+PackageDownloadLocation: https://gitlab.kitware.com/vtk/vtk/-/tree/master/Custom/Module
+FilesAnalyzed: true
+PackageLicenseConcluded: BSD-3-CLAUSE
+PackageLicenseDeclared: BSD-3-CLAUSE AND LicenseRef-CustomLicense
+PackageLicenseInfoFromFiles: BSD-3-CLAUSE
+PackageCopyrightText: <text>
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+</text>
+
+LicenseID: LicenseRef-CustomLicense
+ExtractedText: <text>My License
+
+This is a custom license that is not more restrictive
+than BSD license.
+</text>
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package-IOPLY
 ```
 
 ## Resources
