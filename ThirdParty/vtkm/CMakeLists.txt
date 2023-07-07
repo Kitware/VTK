@@ -2,7 +2,7 @@ vtk_module_third_party_internal(
   LICENSE_FILES
     "vtkvtkm/vtk-m/LICENSE.txt"
   SPDX_LICENSE_IDENTIFIER
-    "BSD-3-CLAUSE"
+    "BSD-3-Clause"
   SPDX_COPYRIGHT_TEXT
     "Copyright (c) 2014-2023 Kitware Inc., National Technology & Engineering Solutions of Sandia, LLC (NTESS),"
     "UT-Battelle, LLC., Los Alamos National Security, LLC."

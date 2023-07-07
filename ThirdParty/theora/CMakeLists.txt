@@ -10,7 +10,7 @@ vtk_module_third_party(
     LICENSE_FILES
       "vtktheora/COPYING"
     SPDX_LICENSE_IDENTIFIER
-      "BSD-3-CLAUSE"
+      "BSD-3-Clause"
     SPDX_COPYRIGHT_TEXT
       "Copyright (C) 2002-2009 Xiph.org Foundation"
     SPDX_DOWNLOAD_LOCATION

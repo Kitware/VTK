@@ -3,7 +3,7 @@ vtk_module_third_party(
     LICENSE_FILES
       "vtkverdict/LICENSE"
     SPDX_LICENSE_IDENTIFIER
-      "BSD-3-CLAUSE"
+      "BSD-3-Clause"
     SPDX_COPYRIGHT_TEXT
       "Copyright 2003,2006,2019 National Technology & Engineering Solutions of Sandia, LLC (NTESS)."
     SPDX_DOWNLOAD_LOCATION

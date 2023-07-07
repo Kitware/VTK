@@ -2,7 +2,7 @@ vtk_module_third_party_internal(
   LICENSE_FILES
     "vtkzfp/LICENSE"
   SPDX_LICENSE_IDENTIFIER
-    "BSD-3-CLAUSE"
+    "BSD-3-Clause"
   SPDX_COPYRIGHT_TEXT
     "Copyright (c) 2014-2019, Lawrence Livermore National Security, LLC."
   SPDX_DOWNLOAD_LOCATION

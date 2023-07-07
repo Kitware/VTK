@@ -3,7 +3,7 @@ vtk_module_third_party(
     LICENSE_FILES
       "vtknetcdf/COPYRIGHT"
     SPDX_LICENSE_IDENTIFIER
-      "BSD-3-CLAUSE"
+      "BSD-3-Clause"
     SPDX_COPYRIGHT_TEXT
       "Copyright 2018 Unidata"
     SPDX_DOWNLOAD_LOCATION
