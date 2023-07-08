@@ -13,10 +13,10 @@ if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
   return ()
 endif ()
 
-set(date "20230103")
+set(date "20230709")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "x86_64")
   set(arch "x86_64")
-  set(sha256sum "c5f2b1327c1b26982346b6b90c9a852cbf52cf0c906ac35936646b00a2b5fbe8")
+  set(sha256sum "88712deb82dac88811e61ec2d72135b294cfb36be142c39a97e73d717331f1ea")
 else ()
   message(FATAL_ERROR
     "Unknown platform for OSMesa")
