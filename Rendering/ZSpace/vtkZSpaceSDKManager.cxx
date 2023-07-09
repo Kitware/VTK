@@ -41,11 +41,11 @@ vtkZSpaceSDKManager* vtkZSpaceSDKManager::GetInstance()
   if (instance.GetPointer() == nullptr)
   {
 #if VTK_ZSPACE_USE_COMPAT_SDK
-    cout << "USING CORE COMPATIBILITY ZSPACE SDK" << endl;
     instance = vtkSmartPointer<vtkZSpaceCoreCompatibilitySDKManager>::New();
+    vtkDebugWithObjectMacro(instance, "USING CORE COMPATIBILITY ZSPACE SDK");
 #else
-    cout << "USING LEGACY ZSPACE SDK" << endl;
     instance = vtkSmartPointer<vtkZSpaceCoreSDKManager>::New();
+    vtkDebugWithObjectMacro(instance, "USING LEGACY ZSPACE SDK");
 #endif
   }
 
