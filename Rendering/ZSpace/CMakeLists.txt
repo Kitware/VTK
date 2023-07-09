@@ -9,10 +9,7 @@ set(classes
 
 set(private_classes)
 
-set(VTK_ZSPACE_USE_COMPAT_SDK "ON" CACHE BOOL
-  "Set to \"ON\" to use the newer version of the zSpace SDK
-  (\"Core Compatibility SDK\") instead of the legacy one
-  (\"Core SDK\")")
+option(VTK_ZSPACE_USE_COMPAT_SDK "Set to \"ON\" to use the newer version of the zSpace SDK (\"Core Compatibility SDK\") instead of the legacy one (\"Core SDK\")" ON)
 mark_as_advanced(VTK_ZSPACE_USE_COMPAT_SDK)
 
 if (VTK_ZSPACE_USE_COMPAT_SDK)
