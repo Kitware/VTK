@@ -19,9 +19,11 @@ if(ZSPACE_USE_COMPAT_SDK)
   # No need to search for specific package in that case.
   # Headers are included in the zSpaceCompat subfolder,
   # and there is no static library to link at compile time.
-  list(APPEND private_classes vtkZSpaceCoreCompatibilitySDKManager)
+  list(APPEND private_classes
+    vtkZSpaceCoreCompatibilitySDKManager)
 else()
-  list(APPEND private_classes vtkZSpaceCoreSDKManager)
+  list(APPEND private_classes
+    vtkZSpaceCoreSDKManager)
   vtk_module_find_package(PACKAGE zSpace)
 endif()
 
