@@ -1,6 +1,9 @@
 find_package(OpenTURNS 1.8 REQUIRED)
-# XXX(fixme)
-include(${OPENTURNS_USE_FILE})
+
+if (EXISTS "${OPENTURNS_USE_FILE}")
+  # removed in 1.21
+  include (${OPENTURNS_USE_FILE})
+endif ()
 
 set(classes
   vtkOTDensityMap
