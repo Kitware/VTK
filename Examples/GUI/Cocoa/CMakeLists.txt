@@ -9,10 +9,10 @@ project(SimpleCocoaVTK)
 
 if(NOT VTK_BINARY_DIR)
   find_package(VTK COMPONENTS
-    RenderingOpenGL2 
-    InteractionStyle 
-    RenderingFreeType 
-    FiltersSources 
+    RenderingOpenGL2
+    InteractionStyle
+    RenderingFreeType
+    FiltersSources
     RenderingGL2PSOpenGL2
   )
   if(NOT VTK_DIR)

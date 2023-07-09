@@ -207,7 +207,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       cxx_std_14
   )
   vtk_module_include(VTK::RenderingWebGPU
-    INTERFACE 
+    INTERFACE
       "${EMSCRIPTEN_ROOT_PATH}/cache/sysroot/include/webgpu"
   )
   vtk_module_link_options(VTK::RenderingWebGPU
@@ -246,7 +246,7 @@ else()
   vtk_module_find_package(PACKAGE Dawn)
   vtk_module_compile_features(VTK::RenderingWebGPU
     PUBLIC
-      cxx_std_14  
+      cxx_std_14
   )
   # Must include these source files here.
   vtk_module_sources(VTK::RenderingWebGPU PRIVATE

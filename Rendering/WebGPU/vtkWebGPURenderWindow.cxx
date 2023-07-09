@@ -357,7 +357,7 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
       output.uv = output.position.xy * 0.5 + 0.5;
       // fip y for texture coordinate.
       output.uv.y = 1.0 - output.uv.y;
-      return output; 
+      return output;
     }
 
     struct FragmentInput {

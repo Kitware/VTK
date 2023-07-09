@@ -9,15 +9,15 @@ set(classes
 
 set(private_classes)
 
-set(ZSPACE_USE_COMPAT_SDK "ON" CACHE BOOL 
-  "Set to \"ON\" to use the newer version of the zSpace SDK 
-  (\"Core Compatibility SDK\") instead of the legacy one 
+set(ZSPACE_USE_COMPAT_SDK "ON" CACHE BOOL
+  "Set to \"ON\" to use the newer version of the zSpace SDK
+  (\"Core Compatibility SDK\") instead of the legacy one
   (\"Core SDK\")")
 mark_as_advanced(ZSPACE_USE_COMPAT_SDK)
 
 if(ZSPACE_USE_COMPAT_SDK)
   # No need to search for specific package in that case.
-  # Headers are included in the zSpaceCompat subfolder, 
+  # Headers are included in the zSpaceCompat subfolder,
   # and there is no static library to link at compile time.
   list(APPEND private_classes vtkZSpaceCoreCompatibilitySDKManager)
 else()

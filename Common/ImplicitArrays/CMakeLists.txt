@@ -33,7 +33,7 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatchImplicit_all_types)
   endif ()
   # create a file suffix from the type
   string(REPLACE " " "_" _suffix "${INSTANTIATION_VALUE_TYPE}")
-  
+
   list(APPEND _list "vtkAffineArrayInstantiate")
   list(APPEND _list "vtkCompositeArrayInstantiate")
   list(APPEND _list "vtkCompositeImplicitBackendInstantiate")

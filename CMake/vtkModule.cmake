@@ -156,7 +156,7 @@ Example:
   LICENSE_FILES
     Copyright.txt
   SPDX_COPYRIGHT_TEXT
-    Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+    Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   SPDX_LICENSE_IDENTIFIER
     BSD-3-CLAUSE
   GROUPS
@@ -871,7 +871,7 @@ function (vtk_module_scan)
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_license_files" "${_license_files}")
-    
+
     # Revert argument splitting done in vtk_module_scan() just before calling _vtk_module_parse_module_args()
     # For example, it converts
     #   "MIT;AND;(LGPL-2.1-or-later;OR;BSD-3-Clause)"
@@ -2436,9 +2436,9 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
     SPDX file for each modules and third parties.
   * ``SPDX_COMPONENT``: (Defaults to ``spdx``) The install component to use
     for SPDX files.
-  * ``SPDX_DOCUMENT_NAMESPACE``: (Defaults to ``""``) Document namespace to use when 
+  * ``SPDX_DOCUMENT_NAMESPACE``: (Defaults to ``""``) Document namespace to use when
     generating SPDX files.
-  * ``SPDX_DOWNLOAD_LOCATION``: (Defaults to ``""``) Download location to use when 
+  * ``SPDX_DOWNLOAD_LOCATION``: (Defaults to ``""``) Download location to use when
     generating SPDX files.
 
   The remaining arguments control where to install files related to the build.

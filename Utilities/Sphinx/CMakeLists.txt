@@ -1,7 +1,7 @@
 # Build the sphinx documentation hosted at docs.vtk.org
 # Make sure sphinx is installed as well as the packages listed in /Documentation/docs/requirements.txt
 
-find_program(SPHINX_BUILD_EXECUTABLE 
+find_program(SPHINX_BUILD_EXECUTABLE
   NAMES sphinx-build
   DOC "Sphinx Documentation Builder (sphinx-doc.org)"
 )

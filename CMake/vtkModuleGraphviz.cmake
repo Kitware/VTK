@@ -7,7 +7,7 @@ vtkModuleGraphviz
 .. cmake:command:: _vtk_module_graphviz_module_node
 
   Output a node in the graph |module-impl|
-  
+
   Queries the properties for modules and generates the node for it in the graph
   and its outgoing dependency edges.
 #]==]

@@ -1,14 +1,14 @@
 # The runtime tests requires an OpenVR runtime and a HMD to pass
 # Do not turn on controllers to avoid any issue with the image comparison
 # Tested with :
-# - Valve Index on Windows 
+# - Valve Index on Windows
 # - Windows Mixed Reality within SteamVR
 option(VTK_OPENVR_TESTING_ENABLE_RUNTIME_TESTS "Enable OpenVR tests that require an OpenVR runtime" OFF)
 mark_as_advanced(VTK_OPENVR_TESTING_ENABLE_RUNTIME_TESTS)
 
 # The interactive tests require an OpenVR runtime and a HMD and will just run interactively.
 # To make it pass, just exit the VR environment using the menu inside VR.
-option(VTK_OPENVR_TESTING_ENABLE_INTERACTIVE_TESTS "Enable OpenVR tests that are interactive" OFF) 
+option(VTK_OPENVR_TESTING_ENABLE_INTERACTIVE_TESTS "Enable OpenVR tests that are interactive" OFF)
 mark_as_advanced(VTK_OPENVR_TESTING_ENABLE_INTERACTIVE_TESTS)
 
 set(OpenVR_tests
