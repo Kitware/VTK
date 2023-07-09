@@ -25,6 +25,10 @@ else()
   vtk_module_find_package(PACKAGE zSpace)
 endif()
 
+set_property(SOURCE vtkZSpaceSDKManager.cxx APPEND
+  PROPERTY
+    COMPILE_DEFINITIONS "VTK_ZSPACE_USE_COMPAT_SDK=$<BOOL:${ZSPACE_USE_COMPAT_SDK}>")
+
 vtk_module_add_module(VTK::RenderingZSpace
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes})
@@ -38,7 +42,3 @@ else()
   vtk_module_link(VTK::RenderingZSpace
     PUBLIC zSpace::zSpace)
 endif()
-
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkZSpaceSDKVersion.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkZSpaceSDKVersion.h")

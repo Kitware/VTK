@@ -19,9 +19,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform.h"
-#include "vtkZSpaceSDKVersion.h"
 
-#ifdef ZSPACE_USE_COMPAT_SDK
+#if VTK_ZSPACE_USE_COMPAT_SDK
 #include "vtkZSpaceCoreCompatibilitySDKManager.h"
 #else
 #include "vtkZSpaceCoreSDKManager.h"
@@ -41,7 +40,7 @@ vtkZSpaceSDKManager* vtkZSpaceSDKManager::GetInstance()
   static vtkSmartPointer<vtkZSpaceSDKManager> instance = nullptr;
   if (instance.GetPointer() == nullptr)
   {
-#ifdef ZSPACE_USE_COMPAT_SDK
+#if VTK_ZSPACE_USE_COMPAT_SDK
     cout << "USING CORE COMPATIBILITY ZSPACE SDK" << endl;
     instance = vtkSmartPointer<vtkZSpaceCoreCompatibilitySDKManager>::New();
 #else
