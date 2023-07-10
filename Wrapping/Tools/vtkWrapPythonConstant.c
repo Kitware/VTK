@@ -248,7 +248,7 @@ void vtkWrapPython_AddPublicConstants(
       /* check to make sure that the enum type is wrapped */
       for (i = 0; i < data->NumberOfEnums && !found; i++)
       {
-        EnumInfo* info = data->Enums[i];
+        const EnumInfo* info = data->Enums[i];
         found = (info->IsExcluded && info->Name && strcmp(typeName, info->Name) == 0);
       }
       if (found)

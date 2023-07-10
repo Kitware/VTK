@@ -170,7 +170,7 @@ extern "C"
    */
   VTKWRAPPINGTOOLS_EXPORT
   const char* vtkParseHierarchy_QualifiedEnumName(
-    HierarchyInfo* hinfo, ClassInfo* data, StringCache* cache, const char* name);
+    const HierarchyInfo* hinfo, ClassInfo* data, StringCache* cache, const char* name);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -760,7 +760,7 @@ int DoneOne(void)
   return 0;
 }
 
-void HandleDataReader(FILE* fp, ClassInfo* data)
+void HandleDataReader(FILE* fp, const ClassInfo* data)
 {
   fprintf(fp, "\n");
   fprintf(fp, "extern \"C\" JNIEXPORT void");
@@ -776,7 +776,7 @@ void HandleDataReader(FILE* fp, ClassInfo* data)
   fprintf(fp, "}\n");
 }
 
-void HandleDataArray(FILE* fp, ClassInfo* data)
+void HandleDataArray(FILE* fp, const ClassInfo* data)
 {
   const char* type = 0;
   const char* jtype = 0;

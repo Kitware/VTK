@@ -184,7 +184,7 @@ static void system_file_add(SystemInfo* info, const char* name, system_filetype_
  * VTK_PARSE_ISDIR, VTK_PARSE_ISFILE, or VTK_PARSE_NOFILE if not found.
  * The filename length must be provided (the name need not be terminated).
  */
-static system_filetype_t system_file_cached(SystemInfo* info, const char* name, size_t l)
+static system_filetype_t system_file_cached(const SystemInfo* info, const char* name, size_t l)
 {
   const char*** htable = info->DirHashTable;
   const char** hptr;

@@ -9,14 +9,14 @@
 #include "vtkParseHierarchy.h"
 
 /* check whether an enum type will be wrapped */
-int vtkWrapPython_IsEnumWrapped(HierarchyInfo* hinfo, const char* enumname);
+int vtkWrapPython_IsEnumWrapped(const HierarchyInfo* hinfo, const char* enumname);
 
 /* find and mark all enum parameters by setting IsEnum=1 */
-void vtkWrapPython_MarkAllEnums(NamespaceInfo* contents, HierarchyInfo* hinfo);
+void vtkWrapPython_MarkAllEnums(NamespaceInfo* contents, const HierarchyInfo* hinfo);
 
 /* write out an enum type wrapped in python */
 void vtkWrapPython_GenerateEnumType(
-  FILE* fp, const char* module, const char* classname, EnumInfo* data);
+  FILE* fp, const char* module, const char* classname, const EnumInfo* data);
 
 /* generate code that adds an enum type to a python dict */
 void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar,

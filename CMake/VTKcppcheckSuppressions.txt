@@ -1,12 +1,12 @@
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 2.10 with the flags below.
+// at least on macOS with cppcheck 2.11 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
-// cppcheck --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8 -I Common/Core .
+// cppcheck --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --check-level=exhaustive --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8 -I Common/Core .
 // or
 // cd /path/to/VTK-bin/
-// cppcheck --project=compile_commands.json --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --suppressions-list=../VTK/CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8
+// cppcheck --project=compile_commands.json --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --check-level=exhaustive --suppressions-list=../VTK/CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8
 
 // Suppress everything from ThirdParty.
 *:*/ThirdParty/*
@@ -61,8 +61,6 @@ assertWithSideEffect
 argumentSize
 
 // There are many of these.  Can we assume C99 now?
-variableScope:*/Wrapping/Tools/lex.yy.c
-variableScope:*/Wrapping/Tools/vtkParse.tab.c
 variableScope:*/Wrapping/Tools/vtkParseData.c
 variableScope:*/Wrapping/Tools/vtkParseExtras.c
 variableScope:*/Wrapping/Tools/vtkParseHierarchy.c
@@ -481,26 +479,35 @@ noOperatorEq
 
 // This is a generated file.
 constParameter:*/Wrapping/Tools/vtkParse.tab.c
-redundantContinue:*/Wrapping/Tools/vtkParse.tab.c
-uselessAssignmentPtrArg:*/Wrapping/Tools/vtkParse.tab.c
+constParameterPointer:*/vtkParse.tab.c
+constVariablePointer:*/Wrapping/Tools/vtkParse.tab.c
 duplicateCondition:*/Wrapping/Tools/vtkParse.tab.c
-unreadVariable:*/Wrapping/Tools/vtkParse.tab.c
+knownConditionTrueFalse:*/Wrapping/Tools/vtkParse.tab.c
+knownConditionTrueFalse:*Wrapping/Tools/lex.yy.c
+nullPointer:*/Wrapping/Tools/lex.yy.c
+redundantContinue:*/Wrapping/Tools/vtkParse.tab.c
+redundantInitialization:*/Wrapping/Tools/lex.yy.c
 unreachableCode:*/Wrapping/Tools/vtkParse.tab.c
+unreadVariable:*/Wrapping/Tools/lex.yy.c
+unreadVariable:*/Wrapping/Tools/vtkParse.tab.c
+uselessAssignmentPtrArg:*/Wrapping/Tools/vtkParse.tab.c
+variableScope:*/Wrapping/Tools/lex.yy.c
+variableScope:*/Wrapping/Tools/vtkParse.tab.c
 
 // 18 warnings
 redundantAssignment:*/Filters/General/vtkBoxClipDataSet.cxx
 
 // intentional use of std::move for Testing
-knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestNew.cxx
 accessMoved:*/Common/Core/Testing/Cxx/TestNew.cxx
 accessMoved:*/Common/Core/Testing/Cxx/TestSmartPointer.cxx
-knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestWeakPointer.cxx
 accessMoved:*/Common/Core/Testing/Cxx/TestWeakPointer.cxx
+knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestNew.cxx
+knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestWeakPointer.cxx
 
 // simplified testing code
 knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestObserversPerformance.cxx
 
-// intentional comparison of diff containers
+// intentional comparison of different container types
 mismatchingContainerExpression:*/Common/Core/Testing/Cxx/TestDataArrayTupleRange.cxx
 
 // lots of placeholder code for future tests
@@ -510,19 +517,9 @@ knownConditionTrueFalse:*/Common/Core/Testing/Cxx/UnitTestMath.cxx
 // and preventing bugs should the vars be used in future changes
 uselessAssignmentArg:*/Common/DataModel/vtkReebGraph.cxx
 
-// False positive: Condition '*((unsigned char*)&a)==18' is always false.
-knownConditionTrueFalse:*/IO/SegY/vtkSegYIOUtils.h
-
-// False positive: Either the condition 'm+1>outputsize' is redundant or the array 'output[16]' is accessed at index 16, which is out of bounds.
-arrayIndexOutOfBoundsCond:*/Wrapping/Tools/vtkParsePreprocess.c
-
-// False positives
-nullPointer:*/Wrapping/Tools/lex.yy.c
-uninitvar:*/Wrapping/Tools/vtkParseHierarchy.c
-
 // Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
-redundantInitialization:*/Wrapping/Tools/lex.yy.c
-unreadVariable:*/Wrapping/Tools/lex.yy.c
+constParameter:*/vtkWrapHierarchy.c
+knownConditionTrueFalse:*/IO/SegY/vtkSegYIOUtils.h
 unreadVariable:*/Wrapping/Tools/vtkParseExtras.c
 unreadVariable:*/Wrapping/Tools/vtkParseHierarchy.c
 unreadVariable:*/Wrapping/Tools/vtkParseMain.c

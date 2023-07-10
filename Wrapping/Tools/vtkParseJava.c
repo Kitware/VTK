@@ -378,7 +378,7 @@ void HandleDataReader(FILE* fp)
   fprintf(fp, "    { %s_%i(id0,id1); }\n", thisFunction->Name, numberOfWrappedFunctions);
 }
 
-void HandleDataArray(FILE* fp, ClassInfo* data)
+void HandleDataArray(FILE* fp, const ClassInfo* data)
 {
   const char* type = 0;
 
@@ -934,7 +934,7 @@ void WriteDummyClass(FILE* fp, ClassInfo* data, const char* filename)
   if (data == NULL)
   {
     char* last_slash = strrchr(filename, '/');
-    char* first_dot = strchr(last_slash, '.');
+    const char* first_dot = strchr(last_slash, '.');
     size_t size = first_dot - last_slash;
     class_name = malloc(size * sizeof(char));
     strncpy(class_name, last_slash + 1, size);

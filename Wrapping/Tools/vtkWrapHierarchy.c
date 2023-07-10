@@ -176,7 +176,7 @@ static char* append_class_to_line(char* line, size_t* m, size_t* maxlen, ClassIn
 /**
  * Append enum info
  */
-static char* append_enum_to_line(char* line, size_t* m, size_t* maxlen, EnumInfo* enum_info)
+static char* append_enum_to_line(char* line, size_t* m, size_t* maxlen, const EnumInfo* enum_info)
 {
   line = append_to_line(line, enum_info->Name, m, maxlen);
   line = append_to_line(line, " : enum ", m, maxlen);
@@ -455,7 +455,7 @@ static char** append_namespace_contents(char** lines, size_t* np, NamespaceInfo*
     }
     else if (data->Items[i].Type == VTK_ENUM_INFO)
     {
-      EnumInfo* enum_info = data->Enums[data->Items[i].Index];
+      const EnumInfo* enum_info = data->Enums[data->Items[i].Index];
       if (enum_info->IsExcluded || new_scope)
       {
         tmpflags = "WRAPEXCLUDE";
@@ -647,7 +647,7 @@ static char** vtkWrapHierarchy_ReadHierarchyFile(FILE* fp, char** lines)
 /**
  * Compare a file to "lines", return 0 if they are different
  */
-static int vtkWrapHierarchy_CompareHierarchyFile(FILE* fp, char* lines[])
+static int vtkWrapHierarchy_CompareHierarchyFile(FILE* fp, char* const lines[])
 {
   unsigned char* matched;
   char* line;
@@ -738,7 +738,7 @@ static int vtkWrapHierarchy_CompareHierarchyFile(FILE* fp, char* lines[])
 /**
  * Write "lines" to a hierarchy file
  */
-static int vtkWrapHierarchy_WriteHierarchyFile(FILE* fp, char* lines[])
+static int vtkWrapHierarchy_WriteHierarchyFile(FILE* fp, char* const lines[])
 {
   size_t i;
 
@@ -810,7 +810,7 @@ static char** vtkWrapHierarchy_TryReadHierarchyFile(const char* file_name, char*
 /**
  * Try to write a file, print error and exit if fail
  */
-static int vtkWrapHierarchy_TryWriteHierarchyFile(const char* file_name, char* lines[])
+static int vtkWrapHierarchy_TryWriteHierarchyFile(const char* file_name, char* const lines[])
 {
   FILE* output_file;
   int matched = 0;

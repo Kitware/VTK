@@ -8930,7 +8930,7 @@ static unsigned int guess_constant_type(const char* valstring)
   /* check for preprocessor macros */
   if (is_name)
   {
-    MacroInfo* macro = vtkParsePreprocess_GetMacro(preprocessor, valstring);
+    const MacroInfo* macro = vtkParsePreprocess_GetMacro(preprocessor, valstring);
 
     if (macro && !macro->IsFunction)
     {

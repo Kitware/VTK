@@ -146,7 +146,7 @@ int vtkParseMerge_PushOverride(MergeInfo* info, int i, int depth)
 }
 
 /* return an initialized MergeInfo */
-MergeInfo* vtkParseMerge_CreateMergeInfo(ClassInfo* classInfo)
+MergeInfo* vtkParseMerge_CreateMergeInfo(const ClassInfo* classInfo)
 {
   int i, n;
   MergeInfo* info = (MergeInfo*)malloc(sizeof(MergeInfo));
@@ -222,7 +222,7 @@ static void merge_function(FileInfo* finfo, FunctionInfo* merge, const FunctionI
           /* check if the unqualified identifier is a parameter name */
           for (j = 0; j < func->NumberOfParameters; j++)
           {
-            ValueInfo* arg = func->Parameters[j];
+            const ValueInfo* arg = func->Parameters[j];
             const char* name = arg->Name;
             if (name && strlen(name) == t.len && strncmp(name, t.text, t.len) == 0)
             {
@@ -812,7 +812,7 @@ void vtkParseMerge_MergeHelper(FileInfo* finfo, const NamespaceInfo* data,
 
 /* Merge the methods from the superclasses */
 MergeInfo* vtkParseMerge_MergeSuperClasses(
-  FileInfo* finfo, NamespaceInfo* data, ClassInfo* classInfo)
+  FileInfo* finfo, const NamespaceInfo* data, ClassInfo* classInfo)
 {
   HierarchyInfo* hinfo = NULL;
   MergeInfo* info = NULL;
