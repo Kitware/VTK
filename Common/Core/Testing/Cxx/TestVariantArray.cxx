@@ -125,7 +125,6 @@ int TestVariantArray(int, char*[])
   double prob = 1.0 - 1.0 / size;
 
   vtkVariantArray* arr = vtkVariantArray::New();
-  vector<double> vec;
 
   // Resizing
   // * vtkTypeBool Allocate(vtkIdType sz);
@@ -226,6 +225,7 @@ int TestVariantArray(int, char*[])
   cerr << "Performing insert operations." << endl;
   vtkIdType id = 0;
   bool empty = true;
+  vector<double> vec;
   while (empty || vtkMath::Random() < prob)
   {
     empty = false;

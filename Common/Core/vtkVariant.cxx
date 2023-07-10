@@ -940,20 +940,29 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
       //       We convert the first value to double, then
       //       cast it back to the appropriate numeric type.
       vtkDataArray* da = vtkDataArray::SafeDownCast(this->Data.VTKObject);
-      return static_cast<T>(da->GetTuple1(0));
+      if (da->GetNumberOfTuples() > 0)
+      {
+        return static_cast<T>(da->GetTuple1(0));
+      }
     }
-    if (this->Data.VTKObject->IsA("vtkVariantArray"))
+    else if (this->Data.VTKObject->IsA("vtkVariantArray"))
     {
       // Note: This are not the best conversion.
       //       We convert the first value to double, then
       //       cast it back to the appropriate numeric type.
       vtkVariantArray* va = vtkVariantArray::SafeDownCast(this->Data.VTKObject);
-      return static_cast<T>(va->GetValue(0).ToDouble());
+      if (va->GetNumberOfValues() > 0)
+      {
+        return static_cast<T>(va->GetValue(0).ToDouble());
+      }
     }
-    if (this->Data.VTKObject->IsA("vtkStringArray"))
+    else if (this->Data.VTKObject->IsA("vtkStringArray"))
     {
       vtkStringArray* sa = vtkStringArray::SafeDownCast(this->Data.VTKObject);
-      return vtkVariantStringToNumeric<T>(sa->GetValue(0), valid);
+      if (sa->GetNumberOfValues() > 0)
+      {
+        return vtkVariantStringToNumeric<T>(sa->GetValue(0), valid);
+      }
     }
   }
   if (valid)
