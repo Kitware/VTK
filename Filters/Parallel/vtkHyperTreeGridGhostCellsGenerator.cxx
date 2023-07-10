@@ -34,6 +34,39 @@
 #include <utility>
 #include <vector>
 
+namespace
+{
+
+template <typename MapType>
+typename MapType::iterator ProbeFind(
+  vtkMultiProcessController* controller, int tag, MapType& recvMap)
+{
+  int processBuff = -1;
+  auto targetRecv = recvMap.end();
+  if (controller->Probe(vtkMultiProcessController::ANY_SOURCE, tag, &processBuff) != 1)
+  {
+    vtkErrorWithObjectMacro(nullptr, "Probe failed on reception of tag " << tag);
+    return targetRecv;
+  }
+  if (processBuff < 0)
+  {
+    vtkErrorWithObjectMacro(
+      nullptr, "Probe returned erroneous process ID " << processBuff << "reception of tag " << tag);
+    return targetRecv;
+  }
+  targetRecv = recvMap.find(processBuff);
+  if (targetRecv == recvMap.end())
+  {
+    vtkErrorWithObjectMacro(nullptr,
+      "Receiving unexpected communication from " << processBuff << " process on tag " << tag
+                                                 << ".");
+    return targetRecv;
+  }
+  return targetRecv;
+}
+
+}
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridGhostCellsGenerator);
 
@@ -308,10 +341,22 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     else
     {
       // Receiving size info from my neighbors
-      for (auto&& recvTreeMapPair : recvBuffer)
+      std::size_t iRecv = 0;
+      for (auto itRecvBuffer = recvBuffer.begin(); itRecvBuffer != recvBuffer.end(); ++itRecvBuffer)
       {
-        unsigned process = recvTreeMapPair.first;
-        auto&& recvTreeMap = recvTreeMapPair.second;
+        auto targetRecvBuffer = itRecvBuffer;
+        if (controller->CanProbe())
+        {
+          targetRecvBuffer = ::ProbeFind(controller, HTGGCG_SIZE_EXCHANGE_TAG, recvBuffer);
+          if (targetRecvBuffer == recvBuffer.end())
+          {
+            vtkErrorMacro("Reception probe on process " << processId << " failed on " << iRecv
+                                                        << "th iteration.");
+            return 0;
+          }
+        }
+        int process = targetRecvBuffer->first;
+        auto&& recvTreeMap = targetRecvBuffer->second;
         std::vector<vtkIdType> counts(recvTreeMap.size());
         vtkDebugMacro("Receive: data size from " << process);
         controller->Receive(counts.data(), static_cast<vtkIdType>(recvTreeMap.size()), process,
@@ -321,6 +366,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
         {
           recvBufferPair.second.count = counts[cpt++];
         }
+        iRecv++;
       }
     }
   }
@@ -382,10 +428,22 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     else
     {
       // Receiving masks
-      for (auto&& recvTreeMapPair : recvBuffer)
+      std::size_t iRecv = 0;
+      for (auto itRecvBuffer = recvBuffer.begin(); itRecvBuffer != recvBuffer.end(); ++itRecvBuffer)
       {
-        unsigned process = recvTreeMapPair.first;
-        auto&& recvTreeMap = recvTreeMapPair.second;
+        auto targetRecvBuffer = itRecvBuffer;
+        if (controller->CanProbe())
+        {
+          targetRecvBuffer = ::ProbeFind(controller, HTGGCG_DATA_EXCHANGE_TAG, recvBuffer);
+          if (targetRecvBuffer == recvBuffer.end())
+          {
+            vtkErrorMacro("Reception probe on process " << processId << " failed on " << iRecv
+                                                        << "th iteration.");
+            return 0;
+          }
+        }
+        int process = targetRecvBuffer->first;
+        auto&& recvTreeMap = targetRecvBuffer->second;
 
         // If we have not dealt with process yet,
         // we prepare for receiving with appropriate length
@@ -474,6 +532,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
           }
           flags[process] = INITIALIZE_TREE;
         }
+        iRecv++;
       }
     }
   }
@@ -521,10 +580,22 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     else
     {
       // We receive the data
-      for (auto&& recvTreeMapPair : recvBuffer)
+      std::size_t iRecv = 0;
+      for (auto itRecvBuffer = recvBuffer.begin(); itRecvBuffer != recvBuffer.end(); ++itRecvBuffer)
       {
-        unsigned process = recvTreeMapPair.first;
-        auto&& recvTreeMap = recvTreeMapPair.second;
+        auto targetRecvBuffer = itRecvBuffer;
+        if (controller->CanProbe())
+        {
+          targetRecvBuffer = ::ProbeFind(controller, HTGGCG_DATA2_EXCHANGE_TAG, recvBuffer);
+          if (targetRecvBuffer == recvBuffer.end())
+          {
+            vtkErrorMacro("Reception probe on process " << processId << " failed on " << iRecv
+                                                        << "th iteration.");
+            return 0;
+          }
+        }
+        int process = targetRecvBuffer->first;
+        auto&& recvTreeMap = targetRecvBuffer->second;
         if (flags[process] == INITIALIZE_TREE)
         {
           unsigned long len = 0;
@@ -560,6 +631,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
           }
           flags[process] = INITIALIZE_FIELD;
         }
+        iRecv++;
       }
     }
   }

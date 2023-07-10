@@ -1249,6 +1249,31 @@ public:
     const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, Operation* operation);
   ///@}
 
+  /**
+   * Check if this communicator implements a probe operation
+   *
+   * This method is implemented for the probing operation for now so as to not have to implement it
+   * for all the subclasses of vtkCommunicator. In the future, one could imagine making the Probe
+   * methode a pure virtual method and having it implemented everwhere so as to no longer need the
+   * CanProbe method.
+   */
+  virtual bool CanProbe() { return false; };
+
+  /**
+   * Blocking test for checking for a message tagged with tag from source process (if
+   * source == ANY_SOURCE check for any message). Rank in actualSource is rank sending
+   * a message.
+   *
+   * Check if implemented in this communicator using the CanProbe method before using.
+   *
+   * Returns 1 on success and 0 on failure.
+   */
+  virtual int Probe(int vtkNotUsed(source), int vtkNotUsed(tag), int* vtkNotUsed(actualSource))
+  {
+    vtkErrorMacro("Probe not implemented for this controller.");
+    return 0;
+  }
+
   static void SetUseCopy(int useCopy);
 
   /**

@@ -1410,6 +1410,26 @@ public:
   int AllReduce(vtkDataArraySelection* sendBuffer, vtkDataArraySelection* recvBuffer);
   ///@}
 
+  /**
+   * Check if this controller implements a probe operation
+   */
+  virtual bool CanProbe() { return this->Communicator->CanProbe(); };
+
+  /**
+   * Blocking test for checking for a message tagged with tag from source process (if
+   * source == ANY_SOURCE check for any message). Rank in actualSource is rank sending
+   * a message.
+   *
+   * Check if implemented in the current communicator using the CanProbe method before
+   * using.
+   *
+   * Returns 1 on success and 0 on failure.
+   */
+  virtual int Probe(int source, int tag, int* actualSource)
+  {
+    return this->Communicator->Probe(source, tag, actualSource);
+  }
+
   // Internally implemented RMI to break the process loop.
 
 protected:

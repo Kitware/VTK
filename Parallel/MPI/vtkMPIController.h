@@ -333,6 +333,7 @@ public:
   }
   ///@}
 
+  ///@{
   /**
    * Nonblocking test for a message.  Inputs are: source -- the source rank
    * or ANY_SOURCE; tag -- the tag value.  Outputs are:
@@ -372,6 +373,48 @@ public:
     return ((vtkMPICommunicator*)this->Communicator)
       ->Iprobe(source, tag, flag, actualSource, type, size);
   }
+  ///@}
+
+  /**
+   * This controller does have probing capability
+   */
+  bool CanProbe() override { return ((vtkMPICommunicator*)this->Communicator)->CanProbe(); }
+
+  ///@{
+  /**
+   * Blocking test for a message.  Inputs are: source -- the source rank
+   * or ANY_SOURCE; tag -- the tag value.  Outputs are:
+   * actualSource -- the rank sending the message (useful if ANY_SOURCE is used)
+   * if actualSource isn't nullptr; size -- the length of the message in
+   * bytes if flag is true (only set if size isn't nullptr). The return
+   * value is 1 for success and 0 otherwise.
+   * Note: These methods delegate to the communicator
+   */
+  int Probe(int source, int tag, int* actualSource) override
+  {
+    return ((vtkMPICommunicator*)this->Communicator)->Probe(source, tag, actualSource);
+  }
+  int Probe(int source, int tag, int* actualSource, int* type, int* size)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)->Probe(source, tag, actualSource, type, size);
+  }
+  int Probe(int source, int tag, int* actualSource, unsigned long* type, int* size)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)->Probe(source, tag, actualSource, type, size);
+  }
+  int Probe(int source, int tag, int* actualSource, const char* type, int* size)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)->Probe(source, tag, actualSource, type, size);
+  }
+  int Probe(int source, int tag, int* actualSource, float* type, int* size)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)->Probe(source, tag, actualSource, type, size);
+  }
+  int Probe(int source, int tag, int* actualSource, double* type, int* size)
+  {
+    return ((vtkMPICommunicator*)this->Communicator)->Probe(source, tag, actualSource, type, size);
+  }
+  ///@}
 
   /**
    * Given the request objects of a set of non-blocking operations
