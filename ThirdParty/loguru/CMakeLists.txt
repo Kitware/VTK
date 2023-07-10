@@ -7,7 +7,9 @@ vtk_module_third_party_internal(
       "NONE"
     SPDX_DOWNLOAD_LOCATION
       "git+https://gitlab.kitware.com/third-party/loguru.git@for/vtk-20230518-2.1.0"
-    SPDX_CUSTOM_LICENSE
+    SPDX_CUSTOM_LICENSE_FILE
+      "vtkloguru/LICENSE"
+    SPDX_CUSTOM_LICENSE_NAME
       "PublicDomain-loguru"
     VERSION
       "2.1"

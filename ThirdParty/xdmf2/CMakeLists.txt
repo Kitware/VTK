@@ -11,7 +11,9 @@ vtk_module_third_party_internal(
     "Copyright (c) 2002 U.S. Army Research Laboratory"
   SPDX_DOWNLOAD_LOCATION
     "git+https://gitlab.kitware.com/xdmf/xdmf.git"
-  SPDX_CUSTOM_LICENSE
+  SPDX_CUSTOM_LICENSE_FILE
+    "vtkxdmf2/Copyright.txt"
+  SPDX_CUSTOM_LICENSE_NAME
     "BSD-4-Clause-Modif"
   VERSION
     "1.2.11"

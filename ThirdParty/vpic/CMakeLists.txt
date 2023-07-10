@@ -7,7 +7,9 @@ vtk_module_third_party_internal(
     "Copyright (c) 2007, Los Alamos National Security, LLC"
   SPDX_DOWNLOAD_LOCATION
     "git+https://github.com/lanl/vpic.git"
-  SPDX_CUSTOM_LICENSE
+  SPDX_CUSTOM_LICENSE_FILE
+    "vtkvpic/LICENSE"
+  SPDX_CUSTOM_LICENSE_NAME
     "BSD-3-Clause-USGov"
   VERSION
     "unknown"
