@@ -25,6 +25,8 @@ set(classes
   vtkSortFileNames
   vtkTextCodec
   vtkTextCodecFactory
+  vtkURI
+  vtkURILoader
   vtkUTF16TextCodec
   vtkUTF8TextCodec
   vtkWriter
