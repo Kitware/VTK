@@ -31,6 +31,7 @@
 #include <vector> // For vector
 
 VTK_ABI_NAMESPACE_BEGIN
+
 class vtkGLTFDocumentLoaderInternals
 {
 public:
@@ -41,13 +42,14 @@ public:
    * Fill usedExtensions vector with the list of used and supported extensions in the glTF file.
    * To load buffers, use LoadModelData
    */
-  bool LoadModelMetaDataFromFile(std::string& FileName, std::vector<std::string>& usedExtensions);
-  vtkGLTFDocumentLoader* Self = nullptr;
+  bool LoadModelMetaData(std::vector<std::string>& extensionsUsedByLoader);
 
   /**
    * Reads the model's buffer metadata, then uses it to load all buffers into the model.
    */
   bool LoadBuffers(bool firstBufferIsGLB);
+
+  vtkGLTFDocumentLoader* Self = nullptr;
 
   static const unsigned short GL_POINTS = 0x0000;
   static const unsigned short GL_LINES = 0x0001;
@@ -74,14 +76,13 @@ private:
    * corresponding binary buffer into an std::vector<char> array.
    * Needs to know the .glTF file's location in order to interpret relative paths.
    */
-  bool LoadBuffer(
-    const nlohmann::json& root, std::vector<char>& buffer, const std::string& glTFFileName);
+  bool LoadBuffer(const nlohmann::json& root, std::vector<char>& buffer);
 
   /**
    * Load a glTF file and parse it into a Json value. File extension can be either .gltf
    * or .glb. In case of a binary glTF file, only the Json part will be read.
    */
-  bool LoadFileMetaData(const std::string& fileName, nlohmann::json& gltfRoot);
+  bool LoadFileMetaData(nlohmann::json& gltfRoot);
 
   /**
    * Populate a Skin struct with data from a Json variable describing the object.

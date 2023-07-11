@@ -46,6 +46,8 @@
  *
  * This reader only supports assets that use the 2.x version of the glTF specification.
  *
+ * If Stream is not nullptr, it will have priority against FileName.
+ *
  * For the full glTF specification, see:
  * https://github.com/KhronosGroup/glTF/tree/master/specification/2.0
  *
@@ -61,7 +63,9 @@
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
-#include "vtkSmartPointer.h" // For SmartPointer
+#include "vtkResourceStream.h" // For vtkResourceStream
+#include "vtkSmartPointer.h"   // For vtkSmartPointer
+#include "vtkURILoader.h"      // For vtkURILoader
 
 #include <string> // For std::string
 #include <vector> // For std::vector
@@ -105,6 +109,25 @@ public:
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the stream from which to read the glTF.
+   * If Stream is not nullptr, it will have priority against FileName
+   */
+  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
+  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the URI loader to use when reading from a Stream.
+   * `URILoader` will be used to locate and load other files referenced in the glTF file.
+   * If no URI loader is set when reading through a stream, only single file glTF can be read.
+   */
+  vtkSetSmartPointerMacro(URILoader, vtkURILoader);
+  vtkGetSmartPointerMacro(URILoader, vtkURILoader);
   ///@}
 
   ///@{
@@ -202,6 +225,9 @@ protected:
   void StoreTextureData();
 
   char* FileName = nullptr;
+  vtkSmartPointer<vtkResourceStream> Stream;
+  vtkMTimeType LastStreamTimeStamp = 0;
+  vtkSmartPointer<vtkURILoader> URILoader;
 
   vtkIdType CurrentScene = 0;
   unsigned int FrameRate = 60;

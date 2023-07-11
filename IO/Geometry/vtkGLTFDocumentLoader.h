@@ -39,7 +39,9 @@
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkSmartPointer.h" // For SmartPointer
+#include "vtkResourceStream.h" // For "vtkResourceStream"
+#include "vtkSmartPointer.h"   // For "vtkSmartPointer"
+#include "vtkURILoader.h"      // For "vtkURILoader"
 
 #include <map>    // For std::map
 #include <memory> // For std::shared_ptr
@@ -523,6 +525,8 @@ public:
     std::string BufferMetaData;
     int DefaultScene;
     std::string FileName;
+    vtkSmartPointer<vtkResourceStream> Stream;
+    vtkSmartPointer<vtkURILoader> URILoader;
   };
 
   /**
@@ -536,17 +540,28 @@ public:
    */
   void ResetAnimation(int animationId);
 
+  ///@{
   /**
-   * Load the binary part of a binary glTF (.glb) file. Returns false if no valid binary part was
-   * found.
+   * @brief Load the binary part of a binary glTF (.glb) file.
+   * Input can either be a file (LoadFileBuffer) or a stream (LoadStreamBuffer).
+   * @return false if no valid binary part was found.
    */
   bool LoadFileBuffer(VTK_FILEPATH const std::string& fileName, std::vector<char>& glbBuffer);
+  bool LoadStreamBuffer(vtkResourceStream* stream, std::vector<char>& glbBuffer);
+  ///@}
 
+  ///@{
   /**
-   * Reset internal Model struct, and serialize glTF metadata (all json information) into it.
-   * To load buffers, use LoadModelData
+   * @brief Reset internal Model struct, and serialize glTF metadata (all json information) into it.
+   *
+   * To load buffers, use LoadModelData.
+   * Input can either be a file (LoadModelMetaDataFromFile) or a stream + optional URI loader.
+   *
+   * @return `true` if internal model is correctly filled, `false` otherwise.
    */
-  bool LoadModelMetaDataFromFile(std::string FileName);
+  bool LoadModelMetaDataFromFile(VTK_FILEPATH const std::string& FileName);
+  bool LoadModelMetaDataFromStream(vtkResourceStream* stream, vtkURILoader* loader = nullptr);
+  ///@}
 
   /**
    * Load buffer data into the internal Model.

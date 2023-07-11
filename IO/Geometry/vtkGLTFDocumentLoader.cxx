@@ -19,6 +19,7 @@
 #include "vtkAssume.h"
 #include "vtkBase64Utilities.h"
 #include "vtkCommand.h"
+#include "vtkFileResourceStream.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoaderInternals.h"
 #include "vtkGLTFUtils.h"
@@ -158,23 +159,61 @@ vtkStandardNewMacro(vtkGLTFDocumentLoader);
 
 /** Metadata loading **/
 //------------------------------------------------------------------------------
-bool vtkGLTFDocumentLoader::LoadModelMetaDataFromFile(std::string fileName)
+bool vtkGLTFDocumentLoader::LoadModelMetaDataFromFile(const std::string& fileName)
 {
-  vtkGLTFDocumentLoaderInternals impl;
-
-  impl.Self = this;
-  // Create new Model and delete previous one
-  this->InternalModel = std::make_shared<Model>();
-  if (this->InternalModel == nullptr)
+  // Setup file resource and URI loader
+  auto fullPath = vtksys::SystemTools::CollapseFullPath(fileName);
+  auto file = vtkSmartPointer<vtkFileResourceStream>::New();
+  if (!file->Open(fullPath.c_str()))
   {
-    vtkErrorMacro("Could not allocate InternalModel");
+    vtkErrorMacro("Failed to open file " << fullPath);
     return false;
   }
 
-  fileName = vtksys::SystemTools::CollapseFullPath(fileName);
-  this->InternalModel->FileName = fileName;
+  vtkNew<vtkURILoader> loader;
+  if (!loader->SetBaseFileName(fullPath))
+  {
+    vtkErrorMacro("Failed to set " << fullPath << " as base URI");
+    return false;
+  }
 
-  return impl.LoadModelMetaDataFromFile(fileName, this->UsedExtensions);
+  if (!this->LoadModelMetaDataFromStream(file, loader))
+  {
+    return false;
+  }
+
+  this->InternalModel->FileName = std::move(fullPath); // store filename
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkGLTFDocumentLoader::LoadModelMetaDataFromStream(
+  vtkResourceStream* stream, vtkURILoader* loader)
+{
+  // Create new Model and delete previous one
+  this->InternalModel = std::make_shared<Model>();
+  this->InternalModel->Stream = stream;
+
+  if (loader)
+  {
+    this->InternalModel->URILoader = loader;
+  }
+  else
+  {
+    // Use a default URI loader if user doesn't provide one, so we can still load data URIs.
+    this->InternalModel->URILoader = vtkSmartPointer<vtkURILoader>::New();
+  }
+
+  vtkGLTFDocumentLoaderInternals impl;
+  impl.Self = this;
+
+  if (!impl.LoadModelMetaData(this->UsedExtensions))
+  {
+    this->InternalModel = nullptr;
+    return false;
+  }
+
+  return true;
 }
 
 /** Data loading **/
@@ -779,7 +818,7 @@ bool vtkGLTFDocumentLoader::LoadImageData()
   {
     vtkSmartPointer<vtkImageReader2> reader = nullptr;
     image.ImageData = vtkSmartPointer<vtkImageData>::New();
-    std::vector<char> buffer;
+    std::vector<std::uint8_t> buffer;
 
     // If mime-type is defined, get appropriate reader here (only two possible values)
     if (image.MimeType == "image/jpeg")
@@ -809,48 +848,46 @@ bool vtkGLTFDocumentLoader::LoadImageData()
     }
     else // If image is defined via uri
     {
-      // Check for data-uri
-      if (vtksys::SystemTools::StringStartsWith(image.Uri, "data:"))
+      auto stream = this->InternalModel->URILoader->Load(image.Uri);
+
+      // Magic numbers used to detect image format
+      static constexpr std::array<std::uint8_t, 4> jpegMagic = { 0xFF, 0xD8, 0xFF, 0xE0 };
+      static constexpr std::array<std::uint8_t, 4> pngMagic = { 0x89, 0x50, 0x4E, 0x47 };
+
+      buffer.resize(4);
+      if (stream->Read(buffer.data(), buffer.size()) != buffer.size())
       {
-        vtkGLTFUtils::GetBinaryBufferFromUri(
-          image.Uri, this->InternalModel->FileName, buffer, image.Uri.size());
-        // If mime-type is defined, get appropriate reader here (only two possible values)
-        std::string type = vtkGLTFUtils::GetDataUriMimeType(image.Uri);
-        if (type == "image/jpeg")
-        {
-          reader = vtkSmartPointer<vtkJPEGReader>::New();
-        }
-        else if (type == "image/png")
-        {
-          reader = vtkSmartPointer<vtkPNGReader>::New();
-        }
-        else
-        {
-          vtkErrorMacro("Invalid MIME-Type for image");
-          return false;
-        }
-        reader->SetMemoryBufferLength(static_cast<vtkIdType>(image.Uri.size()));
-        reader->SetMemoryBuffer(buffer.data());
+        vtkErrorMacro("Invalid file");
+        return false;
       }
-      // Read from file
+
+      if (std::equal(buffer.begin(), buffer.end(), jpegMagic.begin()))
+      {
+        reader = vtkSmartPointer<vtkJPEGReader>::New();
+      }
+      else if (std::equal(buffer.begin(), buffer.end(), pngMagic.begin()))
+      {
+        reader = vtkSmartPointer<vtkPNGReader>::New();
+      }
       else
       {
-        std::string imageFilePath(
-          vtkGLTFUtils::GetResourceFullPath(image.Uri, this->InternalModel->FileName));
-        reader.TakeReference(factory->CreateImageReader2(imageFilePath.c_str()));
-        if (reader == nullptr)
-        {
-          vtkErrorMacro("Invalid format for image " << image.Uri);
-          return false;
-        }
-        reader->SetFileName(imageFilePath.c_str());
+        vtkErrorMacro("Invalid image format");
+        return false;
       }
+
+      stream->Seek(0, vtkResourceStream::SeekDirection::End);
+      const auto size = stream->Tell();
+      stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+      buffer.resize(size);
+      if (stream->Read(buffer.data(), buffer.size()) != buffer.size())
+      {
+        vtkErrorMacro("Failed to read image file data");
+      }
+
+      reader->SetMemoryBufferLength(buffer.size());
+      reader->SetMemoryBuffer(buffer.data());
     }
-    if (reader == nullptr)
-    {
-      vtkErrorMacro("Invalid image object");
-      return false;
-    }
+
     reader->Update();
     image.ImageData = reader->GetOutput();
   }
@@ -1354,43 +1391,69 @@ void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float t,
 bool vtkGLTFDocumentLoader::LoadFileBuffer(
   const std::string& fileName, std::vector<char>& glbBuffer)
 {
-  // Get base information
-  std::string magic;
-  uint32_t version;
-  uint32_t fileLength;
-  std::vector<vtkGLTFUtils::ChunkInfoType> chunkInfo;
-  if (!vtkGLTFUtils::ExtractGLBFileInformation(fileName, magic, version, fileLength, chunkInfo))
+  vtkNew<vtkFileResourceStream> file;
+  if (!file->Open(fileName.c_str()))
   {
-    vtkErrorMacro("Invalid .glb file " << fileName);
     return false;
   }
 
-  // Open the file in binary mode
-  vtksys::ifstream fin;
-  fin.open(fileName.c_str(), std::ios::binary | std::ios::in);
-  if (!fin.is_open())
+  return this->LoadStreamBuffer(file, glbBuffer);
+}
+
+//------------------------------------------------------------------------------
+bool vtkGLTFDocumentLoader::LoadStreamBuffer(
+  vtkResourceStream* stream, std::vector<char>& glbBuffer)
+{
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+
+  // Get base information
+  std::array<char, 4> magic;
+  if (stream->Read(magic.data(), magic.size()) != magic.size())
   {
-    vtkErrorMacro("Error opening file " << fileName);
+    return false;
+  }
+
+  if (std::strncmp(magic.data(), "glTF", 4) != 0)
+  {
+    return false;
+  }
+
+  std::uint32_t version;
+  std::uint32_t fileLength;
+  std::vector<vtkGLTFUtils::ChunkInfoType> chunkInfo;
+  if (!vtkGLTFUtils::ExtractGLBFileInformation(stream, version, fileLength, chunkInfo))
+  {
+    vtkErrorMacro("Invalid .glb file");
     return false;
   }
 
   // Look for BIN chunk while updating fstream position
-  fin.seekg(vtkGLTFUtils::GLBHeaderSize + vtkGLTFUtils::GLBChunkHeaderSize);
-  const std::string binaryHeader("BIN\0", 4);
+  stream->Seek(vtkGLTFUtils::GLBHeaderSize + vtkGLTFUtils::GLBChunkHeaderSize,
+    vtkResourceStream::SeekDirection::Begin);
   for (auto& chunk : chunkInfo)
   {
-    if (chunk.first == binaryHeader)
+    if (std::memcmp(chunk.first.data(), "BIN\0", 4) == 0)
     {
       // Read chunk data into output vector
-      std::vector<char> BINData(chunk.second);
-      fin.read(BINData.data(), chunk.second);
-      glbBuffer.insert(glbBuffer.end(), BINData.begin(), BINData.begin() + chunk.second);
+      std::vector<char> binData;
+      binData.resize(chunk.second);
+      if (stream->Read(binData.data(), chunk.second) != chunk.second)
+      {
+        vtkErrorMacro("Failed to read BIN chunk from .glb file");
+        return false;
+      }
+
+      glbBuffer.insert(glbBuffer.end(), binData.begin(), binData.begin() + chunk.second);
+
       return true;
     }
+
     // Jump to next chunk
-    fin.seekg(chunk.second + vtkGLTFUtils::GLBChunkHeaderSize, std::ios::cur);
+    stream->Seek(
+      chunk.second + vtkGLTFUtils::GLBChunkHeaderSize, vtkResourceStream::SeekDirection::Current);
   }
-  vtkErrorMacro("Could not find any valid BIN chunks in file " << fileName);
+
+  vtkErrorMacro("Could not find any valid BIN chunks in file");
   return false;
 }
 
