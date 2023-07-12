@@ -84,7 +84,6 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
     RTW::Backend* backend = orn->GetBackend();
     if (backend == nullptr)
       return;
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
 
     vtkUnstructuredGrid* dataSet = vtkUnstructuredGrid::SafeDownCast(mapper->GetDataSetInput());
     if (!dataSet)

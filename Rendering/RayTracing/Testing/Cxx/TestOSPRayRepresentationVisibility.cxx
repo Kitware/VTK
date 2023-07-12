@@ -132,7 +132,7 @@ class vtkOSPRayRVCallbackT : public vtkCommand
 public:
   static vtkOSPRayRVCallbackT* New() { return new vtkOSPRayRVCallbackT; }
 
-  void Execute(vtkObject* caller, unsigned long, void*) override { this->Repr->SetVisibility(0); }
+  void Execute(vtkObject*, unsigned long, void*) override { this->Repr->SetVisibility(0); }
 
   vtkOSPRayRVCallbackT()
     : Repr(nullptr)

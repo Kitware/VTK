@@ -330,7 +330,8 @@ void vtkOSPRayPointGaussianMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 void vtkOSPRayPointGaussianMapperNode::InternalRender(void* vtkNotUsed(renderer),
-  vtkOSPRayActorNode* aNode, vtkPolyData* poly, double opacity, std::string materialName)
+  vtkOSPRayActorNode* aNode, vtkPolyData* poly, double vtkNotUsed(opacity),
+  std::string vtkNotUsed(materialName))
 {
   vtkOSPRayRendererNode* orn =
     static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));

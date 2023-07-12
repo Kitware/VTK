@@ -353,7 +353,6 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON(
       for (const std::string& vname : textures.getMemberNames())
       {
         const Json::Value nexttext = textures[vname];
-        const char* tfname = nexttext.asCString();
         vtkNew<vtkTexture> textr;
         std::string textureName, textureFilename;
         if (!this->ReadTextureFileOrData(
