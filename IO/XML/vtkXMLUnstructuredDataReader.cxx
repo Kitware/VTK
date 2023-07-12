@@ -413,7 +413,7 @@ void vtkXMLUnstructuredDataReader::SetupOutputData()
   }
   else
   {
-    vtkErrorMacro(
+    vtkWarningMacro(
       "No Points element available in first piece found in file. Reading file may fail.");
   }
 
