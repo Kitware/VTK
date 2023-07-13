@@ -10,7 +10,8 @@ set(headers
   lib/lz4.h
   lib/lz4hc.h
   lib/lz4frame.h
-  lib/lz4frame_static.h)
+  lib/lz4frame_static.h
+  lib/vtk_lz4_mangle.h)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
