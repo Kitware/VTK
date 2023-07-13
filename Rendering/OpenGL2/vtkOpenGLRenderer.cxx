@@ -668,7 +668,7 @@ void vtkOpenGLRenderer::Clear()
     std::string fs = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
     ostate->vtkglDisable(GL_DEPTH_TEST);
     // Generate VS, FS code.
-    if (this->TexturedBackground)
+    if (this->TexturedBackground && texture)
     {
       vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl",
         "uniform sampler2D backgroundImage;\n"
@@ -724,18 +724,18 @@ void vtkOpenGLRenderer::Clear()
         "value, 1.0);");
     }
 
-    // create vtkOpenGLQuadHelper.
-    if (!this->BackgroundRenderer)
-    {
-      this->BackgroundRenderer.reset(
-        new vtkOpenGLQuadHelper(oglRenWin, nullptr, fs.c_str(), nullptr, false));
-    }
+    // re-create vtkOpenGLQuadHelper, because fragment shader code might have changed from the last
+    // frame. Such change occurs when the render switches from GradientBackground to
+    // TexturedBackground.
+    this->BackgroundRenderer.reset(
+      new vtkOpenGLQuadHelper(oglRenWin, nullptr, fs.c_str(), nullptr, false));
     // prep shader program.
     oglRenWin->GetShaderCache()->ReadyShaderProgram(this->BackgroundRenderer->Program);
     // apply uniforms.
-    if (this->TexturedBackground)
+    if (this->TexturedBackground && texture)
     {
       // load the texture if needed.
+      texture->InterpolateOn();
       texture->Render(this);
       this->BackgroundRenderer->Program->SetUniformi("backgroundImage", texture->GetTextureUnit());
     }
@@ -754,7 +754,7 @@ void vtkOpenGLRenderer::Clear()
     // draw the background.
     this->BackgroundRenderer->Render();
     // unload texture.
-    if (this->TexturedBackground)
+    if (this->TexturedBackground && texture)
     {
       texture->PostRender(this);
     }
