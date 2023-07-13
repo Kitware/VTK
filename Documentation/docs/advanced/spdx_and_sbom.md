@@ -71,14 +71,17 @@ a valid SPDX file.
 
 ### How to correctly specify custom license for a module ?
 
-In the module, create a file named by the name of the license (eg: `CustomLicense`) and put the content of the license into it.
-Then in `vtk.module` file, make sure to specify `SPDX_CUSTOM_LICENSE` with the name of the license,
-and `SPDX_LICENSE_IDENTIFIER` with a valid SPDX LicenseRef, as follows:
+In the module, provide a file containing the license.
+Then in `vtk.module` file, make sure to specify `SPDX_CUSTOM_LICENSE_FILE` with the path of the license file,
+`SPDX_CUSTOM_LICENSE_NAME` with the name of the license and `SPDX_LICENSE_IDENTIFIER`
+ with a valid SPDX LicenseRef, as follows:
 
 ```
 SPDX_LICENSE_IDENTIFIER
   LicenseRef-CustomLicense
-SPDX_CUSTOM_LICENSE
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
   CustomLicense
 ```
 
