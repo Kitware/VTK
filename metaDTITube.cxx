@@ -84,7 +84,6 @@ DTITubePnt::GetField(const char * name) const
 
 /** MetaDTITube Constructors */
 MetaDTITube::MetaDTITube()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaDTITube()" );
   MetaDTITube::Clear();
@@ -92,7 +91,6 @@ MetaDTITube::MetaDTITube()
 
 
 MetaDTITube::MetaDTITube(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaDTITube()" );
   MetaDTITube::Clear();
@@ -101,7 +99,6 @@ MetaDTITube::MetaDTITube(const char * _headerName)
 
 
 MetaDTITube::MetaDTITube(const MetaDTITube * _dtiTube)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaDTITube()" );
   MetaDTITube::Clear();

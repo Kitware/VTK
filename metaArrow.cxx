@@ -24,7 +24,6 @@ namespace METAIO_NAMESPACE
 // Constructors
 //
 MetaArrow::MetaArrow()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaArrow()" );
   MetaArrow::Clear();
@@ -32,7 +31,6 @@ MetaArrow::MetaArrow()
 
 //
 MetaArrow::MetaArrow(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaArrow()" );
   MetaArrow::Clear();
@@ -41,7 +39,6 @@ MetaArrow::MetaArrow(const char * _headerName)
 
 //
 MetaArrow::MetaArrow(const MetaArrow * _arrow)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaArrow()" );
   MetaArrow::Clear();

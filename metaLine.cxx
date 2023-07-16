@@ -59,7 +59,6 @@ LinePnt::~LinePnt()
 // MetaLine Constructors
 //
 MetaLine::MetaLine()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaLine()" );
   MetaLine::Clear();
@@ -76,7 +75,6 @@ MetaLine::MetaLine(const char * _headerName)
 
 //
 MetaLine::MetaLine(const MetaLine * _line)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaLine()" );
   MetaLine::Clear();

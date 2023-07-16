@@ -30,7 +30,6 @@ namespace METAIO_NAMESPACE
 // MedImage Constructors
 //
 MetaEllipse::MetaEllipse()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaEllipse()" );
   MetaEllipse::Clear();
@@ -38,7 +37,6 @@ MetaEllipse::MetaEllipse()
 
 //
 MetaEllipse::MetaEllipse(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaEllipse()" );
   MetaEllipse::Clear();
@@ -47,7 +45,6 @@ MetaEllipse::MetaEllipse(const char * _headerName)
 
 //
 MetaEllipse::MetaEllipse(const MetaEllipse * _ellipse)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaEllipse()" );
   MetaEllipse::Clear();

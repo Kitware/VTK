@@ -24,7 +24,6 @@ namespace METAIO_NAMESPACE
 // MedImage Constructors
 //
 MetaGaussian::MetaGaussian()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaGaussian()" );
   MetaGaussian::Clear();
@@ -32,7 +31,6 @@ MetaGaussian::MetaGaussian()
 
 //
 MetaGaussian::MetaGaussian(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaGaussian()" );
   MetaGaussian::Clear();
@@ -41,7 +39,6 @@ MetaGaussian::MetaGaussian(const char * _headerName)
 
 //
 MetaGaussian::MetaGaussian(const MetaGaussian * _gaussian)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaGaussian()" );
   MetaGaussian::Clear();

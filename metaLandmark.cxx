@@ -46,7 +46,6 @@ LandmarkPnt::~LandmarkPnt()
 // MedImage Constructors
 //
 MetaLandmark::MetaLandmark()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaLandmark()" );
   m_NPoints = 0;
@@ -55,7 +54,6 @@ MetaLandmark::MetaLandmark()
 
 //
 MetaLandmark::MetaLandmark(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaLandmark()" );
   m_NPoints = 0;
@@ -65,7 +63,6 @@ MetaLandmark::MetaLandmark(const char * _headerName)
 
 //
 MetaLandmark::MetaLandmark(const MetaLandmark * _tube)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaLandmark()" );
   m_NPoints = 0;

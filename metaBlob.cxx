@@ -46,7 +46,6 @@ BlobPnt::~BlobPnt()
 // MedImage Constructors
 //
 MetaBlob::MetaBlob()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaBlob()" );
   m_NPoints = 0;
@@ -55,7 +54,6 @@ MetaBlob::MetaBlob()
 
 //
 MetaBlob::MetaBlob(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaBlob()" );
   m_NPoints = 0;
@@ -65,7 +63,6 @@ MetaBlob::MetaBlob(const char * _headerName)
 
 //
 MetaBlob::MetaBlob(const MetaBlob * _blob)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaBlob()" );
   m_NPoints = 0;

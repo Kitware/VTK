@@ -23,7 +23,6 @@ namespace METAIO_NAMESPACE
 
 /** MetaTransform constructors */
 MetaTransform::MetaTransform()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaTransform()" );
   MetaTransform::Clear();
@@ -31,7 +30,6 @@ MetaTransform::MetaTransform()
 
 //
 MetaTransform::MetaTransform(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaTransform()" );
   MetaTransform::Clear();
@@ -40,7 +38,6 @@ MetaTransform::MetaTransform(const char * _headerName)
 
 //
 MetaTransform::MetaTransform(const MetaTransform * _group)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaTransform()" );
   MetaTransform::Clear();
