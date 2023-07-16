@@ -413,6 +413,22 @@ public:
   /**
    * SetGet how to handle blits at the end of a Frame() call.
    * Only happens when SwapBuffers is true.
+   *
+   * The “blit” operation means copying something (pixels) from one region
+   * in memory to another. This is a common OpenGL operation: check out the
+   * glBlitFramebuffer OpenGL method. VTK OpenGL rasterizes 3D/2D geometry
+   * into color/depth attachments of an in-memory framebuffer: in the graphics
+   * world, this is called offscreen rendering.
+   *
+   * - BlitToHardware: the FrameBlitMode tells VTK where to copy the offscreen
+   *   buffer. Either the default hardware framebuffer or the currently bound
+   *   framebuffer. When VTK is used through one of the platform renderwindows
+   *   (with vtkRenderWindow), the default blit mode is BlitToHardware.
+   * - BlitToCurrent: the currently bound framebuffer is basically when an external
+   *   framebuffer is bound just before the vtkRenderWindow::Frame() call. You’ll
+   *   need this when integrating VTK with other UI frameworks because these UI
+   *   frameworks create/have their own framebuffers.
+   * - NoBlit: no blit. The GUI or external code will handle the blit.
    */
   vtkSetClampMacro(FrameBlitMode, FrameBlitModes, BlitToHardware, NoBlit);
   vtkGetMacro(FrameBlitMode, FrameBlitModes);
