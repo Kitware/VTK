@@ -80,13 +80,12 @@ void vtkImplicitSum::AddFunction(vtkImplicitFunction* f, double scale)
 //------------------------------------------------------------------------------
 void vtkImplicitSum::SetFunctionWeight(vtkImplicitFunction* f, double scale)
 {
-  int loc = this->FunctionList->IsItemPresent(f);
-  if (!loc)
+  int loc = this->FunctionList->IndexOfFirstOccurence(f);
+  if (loc < 0)
   {
     vtkWarningMacro("Function not found in function list");
     return;
   }
-  loc--; // IsItemPresent returns index+1.
 
   if (this->Weights->GetValue(loc) != scale)
   {

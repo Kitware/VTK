@@ -89,7 +89,7 @@ public:
    * Check whether this algorithm has an assigned executive.  This
    * will NOT create a default executive.
    */
-  int HasExecutive();
+  vtkTypeBool HasExecutive();
 
   /**
    * Get this algorithm's executive.  If it has none, a default
@@ -668,8 +668,8 @@ public:
   /**
    * Turn release data flag on or off for all output ports.
    */
-  virtual void SetReleaseDataFlag(int);
-  virtual int GetReleaseDataFlag();
+  virtual void SetReleaseDataFlag(vtkTypeBool);
+  virtual vtkTypeBool GetReleaseDataFlag();
   void ReleaseDataFlagOn();
   void ReleaseDataFlagOff();
   ///@}

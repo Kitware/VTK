@@ -270,10 +270,10 @@ void ContourImage(vtkSynchronizedTemplates3D* self, int* exExt, vtkImageData* da
   int i, j, k;
   vtkIdType zstep, yisectstep;
   vtkIdType offsets[12];
-  int ComputeNormals = self->GetComputeNormals();
-  int ComputeGradients = self->GetComputeGradients();
-  int ComputeScalars = self->GetComputeScalars();
-  int NeedGradients = ComputeGradients || ComputeNormals;
+  vtkTypeBool ComputeNormals = self->GetComputeNormals();
+  vtkTypeBool ComputeGradients = self->GetComputeGradients();
+  vtkTypeBool ComputeScalars = self->GetComputeScalars();
+  bool NeedGradients = ComputeGradients || ComputeNormals;
   double n[3], n0[3], n1[3];
   vtkIdType jj, g0;
   int* tablePtr;

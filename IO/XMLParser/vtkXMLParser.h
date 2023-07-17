@@ -104,8 +104,8 @@ public:
    * process text within XML Elements. If this is on, the text will be
    * ignored.
    */
-  vtkSetMacro(IgnoreCharacterData, int);
-  vtkGetMacro(IgnoreCharacterData, int);
+  vtkSetMacro(IgnoreCharacterData, vtkTypeBool);
+  vtkGetMacro(IgnoreCharacterData, vtkTypeBool);
   ///@}
 
   ///@{
@@ -202,7 +202,7 @@ protected:
   friend void vtkXMLParserEndElement(void*, const char*);
   friend void vtkXMLParserCharacterDataHandler(void*, const char*, int);
 
-  int IgnoreCharacterData;
+  vtkTypeBool IgnoreCharacterData;
 
 private:
   vtkXMLParser(const vtkXMLParser&) = delete;

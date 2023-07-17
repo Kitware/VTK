@@ -93,7 +93,10 @@ public:
   /**
    * Returns true if meta-data is available for a given block.
    */
-  int HasMetaData(unsigned int blockno) { return this->Superclass::HasChildMetaData(blockno); }
+  vtkTypeBool HasMetaData(unsigned int blockno)
+  {
+    return this->Superclass::HasChildMetaData(blockno);
+  }
 
   /**
    * Returns the meta-data for the block. If none is already present, a new
@@ -124,7 +127,7 @@ public:
   /**
    * Unhiding superclass method.
    */
-  int HasMetaData(vtkCompositeDataIterator* iter) override
+  vtkTypeBool HasMetaData(vtkCompositeDataIterator* iter) override
   {
     return this->Superclass::HasMetaData(iter);
   }

@@ -35,8 +35,14 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBaseToGarbageCollectorFriendship
 {
 public:
-  static int GiveReference(vtkObjectBase* obj) { return vtkGarbageCollector::GiveReference(obj); }
-  static int TakeReference(vtkObjectBase* obj) { return vtkGarbageCollector::TakeReference(obj); }
+  static vtkTypeBool GiveReference(vtkObjectBase* obj)
+  {
+    return vtkGarbageCollector::GiveReference(obj);
+  }
+  static vtkTypeBool TakeReference(vtkObjectBase* obj)
+  {
+    return vtkGarbageCollector::TakeReference(obj);
+  }
 };
 
 class vtkObjectBaseToWeakPointerBaseFriendship

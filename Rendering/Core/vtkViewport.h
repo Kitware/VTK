@@ -68,7 +68,7 @@ public:
   /**
    * Query if a prop is in the list of props.
    */
-  int HasViewProp(vtkProp*);
+  vtkTypeBool HasViewProp(vtkProp*);
 
   /**
    * Remove a prop from the list of props. Does nothing if the prop
@@ -224,7 +224,7 @@ public:
   /**
    * Is a given display point in this Viewport's viewport.
    */
-  virtual int IsInViewport(int x, int y);
+  virtual vtkTypeBool IsInViewport(int x, int y);
 
   /**
    * Return the vtkWindow that owns this vtkViewport.

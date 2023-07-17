@@ -177,7 +177,7 @@ public:
   /**
    * Check to see if a particular attribute exists.
    */
-  virtual int HasAttribute(const char* variable, const char* attribute);
+  virtual vtkTypeBool HasAttribute(const char* variable, const char* attribute);
 
   ///@{
   /**

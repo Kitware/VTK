@@ -76,7 +76,7 @@ public:
    * Returns if the a meta-data information object is present for the current
    * item. Return 1 on success, 0 otherwise.
    */
-  int HasCurrentMetaData() override;
+  vtkTypeBool HasCurrentMetaData() override;
 
   /**
    * Flat index is an index obtained by traversing the tree in preorder.

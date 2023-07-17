@@ -50,7 +50,7 @@ vtkProgrammableAttributeDataFilter::~vtkProgrammableAttributeDataFilter()
 // Add a dataset to the list of data to process.
 void vtkProgrammableAttributeDataFilter::AddInput(vtkDataSet* ds)
 {
-  if (!this->InputList->IsItemPresent(ds))
+  if (this->InputList->IndexOfFirstOccurence(ds) < 0)
   {
     this->Modified();
     this->InputList->AddItem(ds);
@@ -60,7 +60,7 @@ void vtkProgrammableAttributeDataFilter::AddInput(vtkDataSet* ds)
 // Remove a dataset from the list of data to process.
 void vtkProgrammableAttributeDataFilter::RemoveInput(vtkDataSet* ds)
 {
-  if (this->InputList->IsItemPresent(ds))
+  if (this->InputList->IndexOfFirstOccurence(ds) >= 0)
   {
     this->Modified();
     this->InputList->RemoveItem(ds);

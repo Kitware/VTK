@@ -154,7 +154,7 @@ private:
    * garbage collection is disabled, or when the collector has decided
    * it is time to do a check.
    */
-  static int GiveReference(vtkObjectBase* obj);
+  static vtkTypeBool GiveReference(vtkObjectBase* obj);
 
   /**
    * Called by Register method of an object that supports garbage
@@ -164,7 +164,7 @@ private:
    * hands it back to the caller by returning 1.  If no reference is
    * available, returns 0.
    */
-  static int TakeReference(vtkObjectBase* obj);
+  static vtkTypeBool TakeReference(vtkObjectBase* obj);
 
   // Singleton management functions.
   static void ClassInitialize();

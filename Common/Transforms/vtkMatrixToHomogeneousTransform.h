@@ -70,7 +70,7 @@ protected:
   void InternalUpdate() override;
   void InternalDeepCopy(vtkAbstractTransform* transform) override;
 
-  int InverseFlag;
+  vtkTypeBool InverseFlag;
   vtkMatrix4x4* Input;
 
 private:

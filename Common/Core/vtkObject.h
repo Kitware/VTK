@@ -120,10 +120,10 @@ public:
    * This is a global flag that controls whether any debug, warning
    * or error messages are displayed.
    */
-  static void SetGlobalWarningDisplay(int val);
+  static void SetGlobalWarningDisplay(vtkTypeBool val);
   static void GlobalWarningDisplayOn() { vtkObject::SetGlobalWarningDisplay(1); }
   static void GlobalWarningDisplayOff() { vtkObject::SetGlobalWarningDisplay(0); }
-  static int GetGlobalWarningDisplay();
+  static vtkTypeBool GetGlobalWarningDisplay();
   ///@}
 
   ///@{
@@ -224,12 +224,12 @@ public:
    * aborted or not. If the event was aborted, the return value is 1,
    * otherwise it is 0.
    */
-  int InvokeEvent(unsigned long event, void* callData);
-  int InvokeEvent(const char* event, void* callData);
+  vtkTypeBool InvokeEvent(unsigned long event, void* callData);
+  vtkTypeBool InvokeEvent(const char* event, void* callData);
   ///@}
 
-  int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, nullptr); }
-  int InvokeEvent(const char* event) { return this->InvokeEvent(event, nullptr); }
+  vtkTypeBool InvokeEvent(unsigned long event) { return this->InvokeEvent(event, nullptr); }
+  vtkTypeBool InvokeEvent(const char* event) { return this->InvokeEvent(event, nullptr); }
 
   ///@{
   /**

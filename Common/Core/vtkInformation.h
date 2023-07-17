@@ -101,7 +101,7 @@ public:
    * instances of any contained vtkInformation and vtkInformationVector
    * objects are created).
    */
-  void Copy(vtkInformation* from, int deep = 0);
+  void Copy(vtkInformation* from, vtkTypeBool deep = 0);
 
   /**
    * Append all information entries from the given vtkInformation
@@ -109,7 +109,7 @@ public:
    * (new instances of any contained vtkInformation and vtkInformationVector
    * objects are created).
    */
-  void Append(vtkInformation* from, int deep = 0);
+  void Append(vtkInformation* from, vtkTypeBool deep = 0);
 
   ///@{
   /**
@@ -118,20 +118,22 @@ public:
    * structure is performed (new instances of any contained vtkInformation and
    * vtkInformationVector objects are created).
    */
-  void CopyEntry(vtkInformation* from, vtkInformationKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationVariantKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationVariantVectorKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationObjectBaseVectorKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationStringVectorKey* key, int deep = 0);
-  void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationVariantKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationVariantVectorKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(
+    vtkInformation* from, vtkInformationInformationVectorKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(
+    vtkInformation* from, vtkInformationObjectBaseVectorKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationStringVectorKey* key, vtkTypeBool deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, vtkTypeBool deep = 0);
   ///@}
 
   /**
@@ -140,7 +142,7 @@ public:
    * other keys will be copied.  If deep==1, a deep copy of the
    * information structure is performed.
    */
-  void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, int deep = 0);
+  void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, vtkTypeBool deep = 0);
 
   /**
    * Check whether the given key appears in this information object.

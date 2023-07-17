@@ -139,7 +139,7 @@ protected:
   // Default implementation does nothing.
   virtual void WriteAdditionalNodes(vtkX3DExporterWriter* vtkNotUsed(writer)) {}
 
-  int HasHeadLight(vtkRenderer* ren);
+  vtkTypeBool HasHeadLight(vtkRenderer* ren);
 
   char* FileName;
   double Speed;

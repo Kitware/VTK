@@ -519,7 +519,7 @@ void vtkObjectFactory::Disable(const char* className)
 }
 
 // 1,0 is the class overridden by className
-int vtkObjectFactory::HasOverride(const char* className)
+vtkTypeBool vtkObjectFactory::HasOverride(const char* className)
 {
   for (int i = 0; i < this->OverrideArrayLength; i++)
   {
@@ -532,7 +532,7 @@ int vtkObjectFactory::HasOverride(const char* className)
 }
 
 // 1,0 is the class overridden by className/subclassName pair
-int vtkObjectFactory::HasOverride(const char* className, const char* subclassName)
+vtkTypeBool vtkObjectFactory::HasOverride(const char* className, const char* subclassName)
 {
   for (int i = 0; i < this->OverrideArrayLength; i++)
   {
@@ -558,7 +558,7 @@ vtkObjectFactoryCollection* vtkObjectFactory::GetRegisteredFactories()
 }
 
 // 1,0 is the className overridden by any registered factories
-int vtkObjectFactory::HasOverrideAny(const char* className)
+vtkTypeBool vtkObjectFactory::HasOverrideAny(const char* className)
 {
   vtkObjectFactory* factory;
   vtkCollectionSimpleIterator osit;

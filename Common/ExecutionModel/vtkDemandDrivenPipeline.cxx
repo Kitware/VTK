@@ -1048,7 +1048,7 @@ int vtkDemandDrivenPipeline ::NeedToExecuteData(
 }
 
 //------------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::SetReleaseDataFlag(int port, int n)
+int vtkDemandDrivenPipeline::SetReleaseDataFlag(int port, vtkTypeBool n)
 {
   if (!this->OutputPortIndexInRange(port, "set release data flag on"))
   {
@@ -1064,7 +1064,7 @@ int vtkDemandDrivenPipeline::SetReleaseDataFlag(int port, int n)
 }
 
 //------------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::GetReleaseDataFlag(int port)
+vtkTypeBool vtkDemandDrivenPipeline::GetReleaseDataFlag(int port)
 {
   if (!this->OutputPortIndexInRange(port, "get release data flag from"))
   {

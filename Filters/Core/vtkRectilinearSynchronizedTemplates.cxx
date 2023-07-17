@@ -271,10 +271,10 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates* self, int* exEx
   int i, j, k;
   int zstep, yisectstep;
   int offsets[12];
-  int ComputeNormals = self->GetComputeNormals();
-  int ComputeGradients = self->GetComputeGradients();
-  int ComputeScalars = self->GetComputeScalars();
-  int NeedGradients = ComputeGradients || ComputeNormals;
+  vtkTypeBool ComputeNormals = self->GetComputeNormals();
+  vtkTypeBool ComputeGradients = self->GetComputeGradients();
+  vtkTypeBool ComputeScalars = self->GetComputeScalars();
+  bool NeedGradients = ComputeGradients || ComputeNormals;
   double n[3], n0[3], n1[3];
   int jj, g0;
   int* tablePtr;

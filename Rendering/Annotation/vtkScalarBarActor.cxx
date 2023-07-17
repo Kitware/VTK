@@ -1235,7 +1235,7 @@ void vtkScalarBarActor::LayoutTicks()
   this->P->TextActorAnchors.resize(this->NumberOfLabelsBuilt);
 
   // Does this map have its scale set to log?
-  int isLogTable = this->LookupTable->UsingLogScale();
+  vtkTypeBool isLogTable = this->LookupTable->UsingLogScale();
   if (isLogTable)
   {
     offset = log10(range[0]);

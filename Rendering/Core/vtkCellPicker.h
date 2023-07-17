@@ -298,7 +298,7 @@ protected:
   static int ComputeSurfaceTCoord(
     vtkDataSet* data, vtkCell* cell, const double* weights, double tcoord[3]);
 
-  static int HasSubCells(int cellType);
+  static vtkTypeBool HasSubCells(int cellType);
 
   static int GetNumberOfSubCells(vtkIdList* pointIds, int cellType);
 

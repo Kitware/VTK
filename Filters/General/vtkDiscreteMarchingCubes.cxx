@@ -80,7 +80,7 @@ void vtkDiscreteMarchingCubesComputeGradient(vtkDiscreteMarchingCubes* self, T* 
   vtkIdType jOffset, kOffset, idx;
   vtkIdType ptIds[3];
   int extent[6];
-  int ComputeScalars = newCellScalars != nullptr;
+  vtkTypeBool ComputeScalars = newCellScalars != nullptr;
   int ComputeAdjacentScalars = newPointScalars != nullptr;
   double t, x[3], min, max;
   static int edges[12][2] = { { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, { 4, 5 }, { 5, 6 }, { 7, 6 },

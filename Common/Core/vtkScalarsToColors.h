@@ -71,9 +71,9 @@ public:
    * equal to 1. Default implementation returns true. The more complex
    * signature will yield more accurate results.
    */
-  virtual int IsOpaque();
-  virtual int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component);
-  virtual int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
+  virtual vtkTypeBool IsOpaque();
+  virtual vtkTypeBool IsOpaque(vtkAbstractArray* scalars, int colorMode, int component);
+  virtual vtkTypeBool IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
     vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip = 0xff);
   ///@}
 
@@ -264,7 +264,7 @@ public:
    * This should return 1 is the subclass is using log scale for mapping scalars
    * to colors. Default implementation always returns 0.
    */
-  virtual int UsingLogScale() { return 0; }
+  virtual vtkTypeBool UsingLogScale() { return 0; }
 
   /**
    * Get the number of available colors for mapping to.
@@ -453,8 +453,10 @@ protected:
   int VectorComponent;
   int VectorSize;
 
+#if !defined(VTK_LEGACY_REMOVE)
   // Obsolete, kept so subclasses will still compile
   int UseMagnitude;
+#endif
 
   unsigned char RGBABytes[4];
 

@@ -65,7 +65,7 @@ public:
   virtual void AddProp(vtkProp*);
   virtual void RemoveViewProp(vtkProp* prop);
   virtual void RemoveAllProps();
-  int HasProp(vtkProp*);
+  vtkTypeBool HasProp(vtkProp*);
   int GetNumberOfProps();
 
   /**

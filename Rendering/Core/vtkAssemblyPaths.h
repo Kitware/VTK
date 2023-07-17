@@ -53,8 +53,9 @@ public:
   void RemoveItem(vtkAssemblyPath* p);
 
   /**
-   * Determine whether a particular path is present. Returns its position
-   * in the list.
+   * Determine whether a particular path is present. If the return value is
+   * 0, the object was not found. If the object was found, the location is
+   * the return value-1.
    */
   int IsItemPresent(vtkAssemblyPath* p);
 

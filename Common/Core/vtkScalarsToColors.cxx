@@ -57,8 +57,10 @@ vtkScalarsToColors::vtkScalarsToColors()
   this->AnnotatedValueList = new vtkInternalAnnotatedValueList;
   this->IndexedLookup = 0;
 
+#if !defined(VTK_LEGACY_REMOVE)
   // obsolete, kept for backwards compatibility
   this->UseMagnitude = 0;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -79,7 +81,7 @@ vtkScalarsToColors::~vtkScalarsToColors()
 // Description:
 // Return true if all of the values defining the mapping have an opacity
 // equal to 1. Default implementation return true.
-int vtkScalarsToColors::IsOpaque()
+vtkTypeBool vtkScalarsToColors::IsOpaque()
 {
   return 1;
 }
@@ -88,7 +90,7 @@ int vtkScalarsToColors::IsOpaque()
 // Description:
 // Return true if all of the values defining the mapping have an opacity
 // equal to 1. Default implementation return true.
-int vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component)
+vtkTypeBool vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component)
 {
   return this->IsOpaque(scalars, colorMode, component, nullptr);
 }
@@ -97,7 +99,7 @@ int vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int c
 // Description:
 // Return true if all of the values defining the mapping have an opacity
 // equal to 1. Default implementation return true.
-int vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int,
+vtkTypeBool vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int,
   vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
 {
   if (!scalars)

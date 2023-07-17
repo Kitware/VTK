@@ -106,6 +106,13 @@ public:
   int IsItemPresent(vtkObject* a);
 
   /**
+   * Search for an object and return location in list. If the return value is
+   * -1, the object was not found. If the object was found, the location is
+   * at the returned (0-based) index.
+   */
+  int IndexOfFirstOccurence(vtkObject* a);
+
+  /**
    * Return the number of objects in the list.
    */
   int GetNumberOfItems() { return this->NumberOfItems; }

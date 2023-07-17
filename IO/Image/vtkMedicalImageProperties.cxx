@@ -447,7 +447,7 @@ int vtkMedicalImageProperties::GetWindowLevelPresetIndex(double w, double l)
 }
 
 //------------------------------------------------------------------------------
-int vtkMedicalImageProperties::HasWindowLevelPreset(double w, double l)
+vtkTypeBool vtkMedicalImageProperties::HasWindowLevelPreset(double w, double l)
 {
   return this->GetWindowLevelPresetIndex(w, l) >= 0 ? 1 : 0;
 }

@@ -127,7 +127,7 @@ int vtkRenderedAreaPicker::AreaPick(
       {
         propCandidate = path->GetLastNode()->GetViewProp();
         pickable = this->TypeDecipher(propCandidate, &mapper);
-        if (pickable && !this->Prop3Ds->IsItemPresent(prop))
+        if (pickable && this->Prop3Ds->IndexOfFirstOccurence(prop) < 0)
         {
           this->Prop3Ds->AddItem(static_cast<vtkProp3D*>(prop));
         }

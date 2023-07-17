@@ -369,10 +369,10 @@ protected:
   // can be smaller than user values when input numb er of points is small.
   int NumberOfDivisions[3];
 
-  // Since there are two was of specifying the grid, we have this flag
+  // Since there are two ways of specifying the grid, we have this flag
   // to indicate which the user has set.  When this flag is on,
   // the bin sizes are computed from the DivisionOrigin and DivisionSpacing.
-  int ComputeNumberOfDivisions;
+  vtkTypeBool ComputeNumberOfDivisions;
 
   double DivisionOrigin[3];
   double DivisionSpacing[3];

@@ -68,12 +68,14 @@ void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange(vtkTypeBool valu
     return;
   }
 
+#if !VTK_USE_FUTURE_BOOL
   if (value < 0 || value > 1)
   {
     vtkErrorMacro("Value must be between 0 and 1 for"
       << " SetAutoAdjustCameraClippingRange");
     return;
   }
+#endif
 
   this->AutoAdjustCameraClippingRange = value;
   this->JoystickActor->SetAutoAdjustCameraClippingRange(value);

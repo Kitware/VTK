@@ -44,6 +44,8 @@
 #ifndef vtkABI_h
 #define vtkABI_h
 
+#include "vtkOptions.h" // for VTK_USE_FUTURE_BOOL
+
 #if defined(_WIN32)
 #define VTK_ABI_IMPORT __declspec(dllimport)
 #define VTK_ABI_EXPORT __declspec(dllexport)
@@ -67,12 +69,12 @@
 /* Eventually vtkTypeBool will switch to real bool.                         */
 #ifndef VTK_TYPE_BOOL_TYPEDEFED
 #define VTK_TYPE_BOOL_TYPEDEFED
-#if 1
-typedef int vtkTypeBool;
-typedef unsigned int vtkTypeUBool;
-#else
+#if VTK_USE_FUTURE_BOOL
 typedef bool vtkTypeBool;
 typedef bool vtkTypeUBool;
+#else
+typedef int vtkTypeBool;
+typedef unsigned int vtkTypeUBool;
 #endif
 #endif
 

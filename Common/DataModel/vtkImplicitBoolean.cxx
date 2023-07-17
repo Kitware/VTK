@@ -56,7 +56,7 @@ vtkMTimeType vtkImplicitBoolean::GetMTime()
 // Add another implicit function to the list of functions.
 void vtkImplicitBoolean::AddFunction(vtkImplicitFunction* f)
 {
-  if (!this->FunctionList->IsItemPresent(f))
+  if (this->FunctionList->IndexOfFirstOccurence(f) < 0)
   {
     this->Modified();
     this->FunctionList->AddItem(f);
@@ -66,7 +66,7 @@ void vtkImplicitBoolean::AddFunction(vtkImplicitFunction* f)
 // Remove a function from the list of implicit functions to boolean.
 void vtkImplicitBoolean::RemoveFunction(vtkImplicitFunction* f)
 {
-  if (this->FunctionList->IsItemPresent(f))
+  if (this->FunctionList->IndexOfFirstOccurence(f) >= 0)
   {
     this->Modified();
     this->FunctionList->RemoveItem(f);

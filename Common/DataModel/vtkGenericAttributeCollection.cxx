@@ -454,7 +454,7 @@ int* vtkGenericAttributeCollection::GetAttributesToInterpolate()
 //------------------------------------------------------------------------------
 // Description
 // Does the array `attributes' of size `size' have `attribute'?
-int vtkGenericAttributeCollection::HasAttribute(int size, int* attributes, int attribute)
+vtkTypeBool vtkGenericAttributeCollection::HasAttribute(int size, int* attributes, int attribute)
 {
   assert("pre: positive_size" && size >= 0);
   assert("pre: valid_attributes" &&

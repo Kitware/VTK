@@ -1570,7 +1570,7 @@ double vtkDataArray::GetMaxNorm()
 }
 
 //------------------------------------------------------------------------------
-int vtkDataArray::CopyInformation(vtkInformation* infoFrom, int deep)
+int vtkDataArray::CopyInformation(vtkInformation* infoFrom, vtkTypeBool deep)
 {
   // Copy everything + give base classes a chance to
   // Exclude keys which they don't want copied.

@@ -648,7 +648,7 @@ int vtkCoordinateFrameRepresentation::RenderTranslucentPolygonalGeometry(vtkView
 }
 
 //------------------------------------------------------------------------------
-int vtkCoordinateFrameRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCoordinateFrameRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
   if (!this->LockNormalToCamera)

@@ -96,9 +96,9 @@ public:
    * Return true if all of the values defining the mapping have an opacity
    * equal to 1.
    */
-  int IsOpaque() override;
-  int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component) override;
-  int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
+  vtkTypeBool IsOpaque() override;
+  vtkTypeBool IsOpaque(vtkAbstractArray* scalars, int colorMode, int component) override;
+  vtkTypeBool IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
     vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip = 0xff) override;
   ///@}
 
@@ -407,7 +407,7 @@ public:
    * This should return 1 if the subclass is using log scale for mapping scalars
    * to colors. Returns 1 is scale == VTK_SCALE_LOG10.
    */
-  int UsingLogScale() override { return (this->GetScale() == VTK_SCALE_LOG10) ? 1 : 0; }
+  vtkTypeBool UsingLogScale() override { return (this->GetScale() == VTK_SCALE_LOG10) ? 1 : 0; }
 
   /**
    * Get the number of available colors for mapping to.
@@ -447,7 +447,7 @@ protected:
   double RGBA[4]; // used during conversion process
   unsigned char NanColorChar[4];
 
-  int OpaqueFlag;
+  vtkTypeBool OpaqueFlag;
   vtkTimeStamp OpaqueFlagBuildTime;
   vtkTimeStamp SpecialColorsBuildTime;
 

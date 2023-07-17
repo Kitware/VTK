@@ -345,7 +345,7 @@ public:
   /**
    * Is the matrix for this actor identity
    */
-  vtkGetMacro(IsIdentity, int);
+  vtkGetMacro(IsIdentity, vtkTypeBool);
   ///@}
 
   ///@{
@@ -405,7 +405,7 @@ protected:
   vtkTransform* Transform;
   double Bounds[6];
   vtkProp3D* CachedProp3D; // support the PokeMatrix() method
-  int IsIdentity;
+  vtkTypeBool IsIdentity;
 
   int CoordinateSystemDevice;
   CoordinateSystems CoordinateSystem = WORLD;

@@ -529,7 +529,7 @@ public:
    * Returns a boolean indicating if this renderer is transparent.  It is
    * transparent if it is not in the deepest layer of its render window.
    */
-  int Transparent();
+  vtkTypeBool Transparent();
 
   /**
    * Convert world point coordinates to view coordinates.

@@ -95,7 +95,7 @@ public:
   /**
    * Get the flag indicating the data has been released.
    */
-  vtkGetMacro(DataReleased, int);
+  vtkGetMacro(DataReleased, vtkTypeBool);
   ///@}
 
   ///@{
@@ -103,10 +103,10 @@ public:
    * Turn on/off flag to control whether every object releases its data
    * after being used by a filter.
    */
-  static void SetGlobalReleaseDataFlag(int val);
+  static void SetGlobalReleaseDataFlag(vtkTypeBool val);
   void GlobalReleaseDataFlagOn() { vtkDataObject::SetGlobalReleaseDataFlag(1); }
   void GlobalReleaseDataFlagOff() { vtkDataObject::SetGlobalReleaseDataFlag(0); }
-  static int GetGlobalReleaseDataFlag();
+  static vtkTypeBool GetGlobalReleaseDataFlag();
   ///@}
 
   ///@{
@@ -434,7 +434,7 @@ protected:
   vtkFieldData* FieldData;
 
   // Keep track of data release during network execution
-  int DataReleased;
+  vtkTypeBool DataReleased;
 
   // When was this data last generated?
   vtkTimeStamp UpdateTime;

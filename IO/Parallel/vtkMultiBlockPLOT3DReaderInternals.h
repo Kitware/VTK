@@ -44,7 +44,7 @@ struct vtkMultiBlockPLOT3DReaderInternals
   {
     int BinaryFile;
     int ByteOrder;
-    int HasByteCount;
+    vtkTypeBool HasByteCount;
     int MultiGrid;
     int NumberOfDimensions;
     int Precision; // in bytes

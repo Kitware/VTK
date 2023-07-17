@@ -70,8 +70,8 @@ public:
   /**
    * Set & Get macro for the TransferToNodes flag
    */
-  vtkSetMacro(TransferToNodes, int);
-  vtkGetMacro(TransferToNodes, int);
+  vtkSetMacro(TransferToNodes, vtkTypeBool);
+  vtkGetMacro(TransferToNodes, vtkTypeBool);
   ///@}
 
   ///@{
@@ -165,7 +165,7 @@ protected:
   double GridMax[3];
   int LevelOfResolution;
   int NumberOfPartitions;
-  int TransferToNodes;
+  vtkTypeBool TransferToNodes;
   int DemandDrivenMode;
   vtkMultiProcessController* Controller;
   bool UseBiasVector;

@@ -377,8 +377,8 @@ public:
   /**
    * set/get the PreMultiply flag
    */
-  void SetPreMultiplyFlag(int flag) { this->PreMultiplyFlag = flag; }
-  int GetPreMultiplyFlag() { return this->PreMultiplyFlag; }
+  void SetPreMultiplyFlag(vtkTypeBool flag) { this->PreMultiplyFlag = flag; }
+  vtkTypeBool GetPreMultiplyFlag() { return this->PreMultiplyFlag; }
   ///@}
 
   ///@{
@@ -398,7 +398,7 @@ public:
   /**
    * get the inverse flag
    */
-  int GetInverseFlag() { return this->InverseFlag; }
+  vtkTypeBool GetInverseFlag() { return this->InverseFlag; }
 
   /**
    * identity simply clears the transform list
@@ -441,8 +441,8 @@ protected:
   vtkTransformConcatenation();
   ~vtkTransformConcatenation();
 
-  int InverseFlag;
-  int PreMultiplyFlag;
+  vtkTypeBool InverseFlag;
+  vtkTypeBool PreMultiplyFlag;
 
   vtkMatrix4x4* PreMatrix;
   vtkMatrix4x4* PostMatrix;

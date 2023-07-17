@@ -143,9 +143,9 @@ void vtkViewport::RemoveActor2D(vtkProp* p)
 }
 
 //------------------------------------------------------------------------------
-int vtkViewport::HasViewProp(vtkProp* p)
+vtkTypeBool vtkViewport::HasViewProp(vtkProp* p)
 {
-  return (p && this->Props->IsItemPresent(p));
+  return (p && this->Props->IndexOfFirstOccurence(p) >= 0);
 }
 
 //------------------------------------------------------------------------------
@@ -372,7 +372,7 @@ double* vtkViewport::GetCenter()
 
 //------------------------------------------------------------------------------
 // Is a given display point in this Viewport's viewport.
-int vtkViewport::IsInViewport(int x, int y)
+vtkTypeBool vtkViewport::IsInViewport(int x, int y)
 {
   if (this->VTKWindow)
   {

@@ -102,7 +102,7 @@ public:
    * return 1 if one of the registered factories
    * overrides the given class name
    */
-  static int HasOverrideAny(const char* className);
+  static vtkTypeBool HasOverrideAny(const char* className);
 
   /**
    * Fill the given collection with all the overrides for
@@ -183,11 +183,11 @@ public:
   /**
    * Return 1 if this factory overrides the given class name, 0 otherwise.
    */
-  virtual int HasOverride(const char* className);
+  virtual vtkTypeBool HasOverride(const char* className);
   /**
    * Return 1 if this factory overrides the given class name, 0 otherwise.
    */
-  virtual int HasOverride(const char* className, const char* subclassName);
+  virtual vtkTypeBool HasOverride(const char* className, const char* subclassName);
 
   /**
    * Set all enable flags for the given class to 0.  This will

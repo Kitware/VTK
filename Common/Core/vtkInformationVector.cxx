@@ -196,7 +196,7 @@ void vtkInformationVector::Remove(int i)
 }
 
 //------------------------------------------------------------------------------
-void vtkInformationVector::Copy(vtkInformationVector* from, int deep)
+void vtkInformationVector::Copy(vtkInformationVector* from, vtkTypeBool deep)
 {
   // if deep we can reuse existing info objects
   if (deep)

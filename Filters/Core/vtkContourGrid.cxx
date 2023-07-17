@@ -111,7 +111,7 @@ vtkMTimeType vtkContourGrid::GetMTime()
 
 //------------------------------------------------------------------------------
 void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData* output,
-  vtkDataArray* inScalars, vtkIdType numContours, double* values, int computeScalars,
+  vtkDataArray* inScalars, vtkIdType numContours, double* values, vtkTypeBool computeScalars,
   int useScalarTree, vtkScalarTree* scalarTree, bool generateTriangles)
 {
   vtkIdType i;
@@ -392,7 +392,7 @@ int vtkContourGrid::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType numCells;
   vtkIdType numContours = this->ContourValues->GetNumberOfContours();
   double* values = this->ContourValues->GetValues();
-  int computeScalars = this->ComputeScalars;
+  vtkTypeBool computeScalars = this->ComputeScalars;
 
   vtkDebugMacro(<< "Executing contour filter");
 

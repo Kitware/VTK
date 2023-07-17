@@ -540,7 +540,7 @@ public:
    * others must be. NOTE: Up to the implmenter to make sure that
    * keys not intended to be copied are excluded here.
    */
-  int CopyInformation(vtkInformation* infoFrom, int deep = 1) override;
+  int CopyInformation(vtkInformation* infoFrom, vtkTypeBool deep = 1) override;
 
   /**
    * Method for type-checking in FastDownCast implementations.
