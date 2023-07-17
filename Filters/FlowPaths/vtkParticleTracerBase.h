@@ -158,8 +158,8 @@ public:
    * redundant as the particles will be reinjected whenever the source changes
    * anyway
    */
-  vtkGetMacro(ForceReinjectionEveryNSteps, vtkTypeBool);
-  void SetForceReinjectionEveryNSteps(vtkTypeBool);
+  vtkGetMacro(ForceReinjectionEveryNSteps, int);
+  void SetForceReinjectionEveryNSteps(int);
   ///@}
 
   ///@{
@@ -605,7 +605,7 @@ private:
   bool FirstIteration;
 
   // Innjection parameters
-  vtkTypeBool ForceReinjectionEveryNSteps;
+  int ForceReinjectionEveryNSteps;
   vtkTimeStamp ParticleInjectionTime;
   bool HasCache;
 
