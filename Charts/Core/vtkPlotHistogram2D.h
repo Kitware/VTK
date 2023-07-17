@@ -18,6 +18,8 @@
 #include "vtkSmartPointer.h" // Needed for SP ivars
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkDataArray;
 class vtkImageData;
 class vtkScalarsToColors;
 
@@ -127,6 +129,30 @@ protected:
 private:
   vtkPlotHistogram2D(const vtkPlotHistogram2D&) = delete;
   void operator=(const vtkPlotHistogram2D&) = delete;
+
+  /**
+   * Returns whether the number of component of an array is
+   * compatible with magnitude computation.
+   */
+  static inline bool CanComputeMagnitude(int nbComponents);
+
+  /**
+   * Returns the void pointer to the selected array. If the transfer
+   * function is set to magnitude mode, it will return the cached
+   * magnitude array. Also sets the number of components of the
+   * selected array in parameter, to take the magnitude array into
+   * account.
+   */
+  void* GetInputScalarPointer(int& nbComponents);
+  /**
+   * Returns the value of the selected array at the coordinates given
+   * in parameters. The value is casted to double. It takes magnitude
+   * array into account, so as component, for n-components arrays.
+   * Returns NaN when something goes wrong.
+   */
+  double GetInputScalarValue(int x, int y, int z);
+
+  vtkSmartPointer<vtkDataArray> MagnitudeArray;
 };
 
 VTK_ABI_NAMESPACE_END
