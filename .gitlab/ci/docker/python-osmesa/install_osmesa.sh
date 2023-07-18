@@ -16,6 +16,7 @@ readonly mesa_url="https://archive.mesa3d.org/$mesa_filename"
 
 readonly osmesa_root="$HOME/osmesa"
 readonly osmesa_prefix="/opt/osmesa"
+readonly llvm_prefix="/opt/osmesa-llvm"
 
 readonly llvm_src="$osmesa_root/llvm/src"
 readonly llvm_build="$osmesa_root/llvm/build"
@@ -69,12 +70,15 @@ ls "$llvm_src"
 
 cmake -GNinja "$llvm_src/llvm" \
   -DCMAKE_BUILD_TYPE=Release \
-  -DLLVM_BUILD_LLVM_DYLIB=ON \
-  "-DCMAKE_INSTALL_PREFIX=$osmesa_prefix" \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DLLVM_BUILD_LLVM_DYLIB=OFF \
+  "-DCMAKE_INSTALL_PREFIX=$llvm_prefix" \
   -DLLVM_ENABLE_RTTI=ON \
   -DLLVM_INSTALL_UTILS=ON \
   -DLLVM_ENABLE_LIBXML2=OFF \
   -DLLVM_ENABLE_BINDINGS=OFF \
+  -DBENCHMARK_ENABLE_ASSEMBLY_TEST=OFF \
+  -DLLVM_INSTALL_DOCS=OFF \
   "-DLLVM_TARGETS_TO_BUILD=$llvm_targets"
 ninja
 ninja install
@@ -87,7 +91,7 @@ venv/bin/pip install mako
 
 cat >llvm.ini <<EOF
 [binaries]
-llvm-config = '$osmesa_prefix/bin/llvm-config'
+llvm-config = '$llvm_prefix/bin/llvm-config'
 EOF
 
 meson \
@@ -102,7 +106,7 @@ meson \
   -Dshared-glapi=enabled \
   -Degl=disabled \
   -Dllvm=enabled \
-  -Dshared-llvm=enabled \
+  -Dshared-llvm=disabled \
   -Dgles1=disabled \
   -Dgles2=disabled \
   -Dglx=disabled \
