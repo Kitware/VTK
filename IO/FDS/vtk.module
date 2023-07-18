@@ -1,0 +1,12 @@
+NAME
+  VTK::IOFDS
+LIBRARY_NAME
+  vtkIOFDS
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
