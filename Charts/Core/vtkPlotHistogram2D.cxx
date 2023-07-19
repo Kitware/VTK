@@ -185,25 +185,24 @@ vtkRectf vtkPlotHistogram2D::GetPosition()
 
 //------------------------------------------------------------------------------
 vtkIdType vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
-  const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
+  const vtkVector2f& vtkNotUsed(tolerance), vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
   if (!this->Input)
   {
     return -1;
   }
 
-  (void)tolerance;
   double bounds[4];
   this->GetBounds(bounds);
-  double spacing[3];
 
-  this->Input->GetSpacing(spacing);
-
-  if (point.GetX() < bounds[0] || point.GetX() > bounds[1] + spacing[0] ||
-    point.GetY() < bounds[2] || point.GetY() > bounds[3] + spacing[1])
+  if (point.GetX() < bounds[0] || point.GetX() > bounds[1] || point.GetY() < bounds[2] ||
+    point.GetY() > bounds[3])
   {
     return -1;
   }
+
+  double spacing[3];
+  this->Input->GetSpacing(spacing);
 
   // Can't use vtkImageData::FindPoint() / GetPoint(), as ImageData points are
   // rendered as the bottom left corner of a histogram cell, not the center
