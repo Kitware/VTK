@@ -9,7 +9,7 @@ mark_as_advanced(VTK_OPENXR_TESTING_ENABLE_RUNTIME_TESTS)
 
 # The interactive tests require an OpenXR runtime and a HMD and will just run interactively.
 # To make it pass, just exit the VR environment using the menu inside VR.
-option(VTK_OPENXR_TESTING_ENABLE_INTERACTIVE_TESTS "Enable OpenXR tests that are interactive" OFF) 
+option(VTK_OPENXR_TESTING_ENABLE_INTERACTIVE_TESTS "Enable OpenXR tests that are interactive" OFF)
 mark_as_advanced(VTK_OPENXR_TESTING_ENABLE_INTERACTIVE_TESTS)
 
 set(openxr_tests

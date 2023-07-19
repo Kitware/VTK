@@ -22,22 +22,22 @@ Loading data
 .. cmake:command:: vtk_module_test_data
 
   Download test data. |module|
-  
+
   Data may be downloaded manually using this function:
-  
+
   .. code-block:: cmake
-  
+
     vtk_module_test_data(<PATHSPEC>...)
-  
+
   This will download data inside of the input data directory for the modules
   being built at that time (see the ``TEST_INPUT_DATA_DIRECTORY`` argument of
   ``vtk_module_build``).
-  
+
   For supported `PATHSPEC` syntax, see the
   associated documentation in ref:`ExternalData`. These
   arguments are already wrapped in the ``DATA{}`` syntax and are assumed to be
   relative paths from the input data directory.
-  
+
 #]==]
 function (vtk_module_test_data)
   set(data_args)
@@ -57,17 +57,17 @@ endfunction ()
 #[==[.rst:
 Creating test executables
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-  
+
 .. cmake:command:: vtk_module_test_executable
 
   This function creates an executable from the list of sources passed to it. It
   is automatically linked to the module the tests are intended for as well as any
   declared test dependencies of the module.
-  
+
   .. code-block:: cmake
 
     vtk_module_test_executable(<NAME> <SOURCE>...)
-  
+
   This function is not usually used directly, but instead through the other
   convenience functions.
 #]==]
@@ -130,13 +130,13 @@ setting ``vtk_test_prefix``, the test name will instead be
 
 #[==[.rst :
  .. cmake:command:: _vtk_test_parse_name
- 
- 
+
+
  This function parses the name from a testspec.|module-internal| The calling scope has
  `test_name`, `test_arg`, and `test_file` variables set in it.
- 
+
  .. code-block:: cmake
- 
+
    _vtk_test_parse_name(<TESTSPEC>)
 
 #]==]
@@ -175,22 +175,22 @@ test function.
 #[==[.rst:
 
 .. cmake:command:: _vtk_test_parse_args
-  
+
   |module-internal|
   Given a list of valid "options", this function will parse out a the following
   variables:
-  
+
   - ``args``: Unrecognized arguments. These should be interpreted as arguments
     that should be passed on the command line to all tests in this parse group.
   - ``options``: Options specified globally (for all tests in this group).
   - ``names``: A list containing all named tests. These should be parsed by
     ``_vtk_test_parse_name``.
   - ``_<NAME>_options``: Options specific to a certain test.
-  
+
   .. code-block:: cmake
-  
+
     _vtk_test_parse_args(<OPTIONS> <SOURCE_EXT> <ARG>...)
-  
+
   In order to be recognized as a source file, the ``SOURCE_EXT`` must be used.
   Without it, all non-option arguments are placed into ``args``. Each test is
   parsed out matching these:
@@ -238,11 +238,11 @@ endfunction ()
   For handling global option settings |module-internal|, this function sets variables in the
   calling scoped named `<PREFIX><OPTION>` to either `0` or `1` if the option is
   present in the remaining argument list.
-  
+
   .. code-block:: cmake
-  
+
     _vtk_test_set_options(<OPTIONS> <PREFIX> <ARG>...)
-  
+
   Additionally, a non-`0` default for a given option may be specified by a
   variable with the same name as the option and specifying a prefix for the
   output variables.
@@ -292,9 +292,9 @@ C++ tests
   Each argument should be either an option, a test specification, or it is passed
   as flags to all tests declared in the group. The list of tests is set in the
   ``<VARNAME>`` variable in the calling scope.
-  
+
   Options:
-  
+
   - ``NO_DATA``: The test does not need to know the test input data directory. If
     it does, it is passed on the command line via the ``-D`` flag.
   - ``NO_VALID``: The test does not have a valid baseline image. If it does, the
@@ -305,7 +305,7 @@ C++ tests
   - ``NO_OUTPUT``: The test does not need to write out any data to the
     filesystem. If it does, a directory which may be written to is passed via
     the ``-T`` flag.
-  
+
   Additional flags may be passed to tests using the ``${_vtk_build_test}_ARGS``
   variable or the ``<NAME>_ARGS`` variable.
 #]==]
@@ -395,31 +395,31 @@ MPI tests
 
   This function declares C++ tests which should be run under an MPI environment. |module|
   Source files are required to use the `cxx` extension.
-  
+
   .. code-block:: cmake
-  
+
     vtk_add_test_mpi(<EXENAME> <VARNAME> <ARG>...)
-  
+
   Each argument should be either an option, a test specification, or it is passed
   as flags to all tests declared in the group. The list of tests is set in the
   ``<VARNAME>`` variable in the calling scope.
-  
+
   Options:
-  
+
   - ``TESTING_DATA``
   - ``NO_VALID``: The test does not have a valid baseline image. If it does, the
     baseline is assumed to be in ``../Data/Baseline/<NAME>.png`` relative to the
     current source directory. If alternate baseline images are required,
     ``<NAME>`` may be suffixed by ``_1``, ``_2``, etc. The valid image is passed via
     the ``-V`` flag.
-  
+
   Each test is run using the number of processors specified by the following
   variables (using the first one which is set):
-  
+
   - ``<NAME>_NUMPROCS``
   - ``<EXENAME>_NUMPROCS``
   - ``VTK_MPI_NUMPROCS`` (defaults to ``2``)
-  
+
   Additional flags may be passed to tests using the ``${_vtk_build_test}_ARGS``
   variable or the `<NAME>_ARGS` variable.
 #]==]
@@ -508,21 +508,21 @@ C++ test executable
 .. cmake:command:: vtk_test_cxx_executable
 
   .. code-block:: cmake
-  
+
     vtk_test_cxx_executable(<EXENAME> <VARNAME> [RENDERING_FACTORY] [<SRC>...])
-  
+
   Creates an executable named ``EXENAME`` which contains the tests listed in the
   variable named in the ``VARNAME`` argument. The ``EXENAME`` must match the
   ``EXENAME`` passed to the test declarations when building the list of tests.
-  
+
   If ``RENDERING_FACTORY`` is provided, VTK's rendering factories are initialized
   during the test.
-  
+
   By default, VTK's rendering tests enable FP exceptions to find floating point
   errors in debug builds. If ``DISABLE_FLOATING_POINT_EXCEPTIONS`` is provided,
   FP exceptions are not enabled for the test. This is useful when testing against
   external libraries to ignore exceptions in third-party code.
-  
+
   Any additional arguments are added as additional sources for the executable.
 #]==]
 function (vtk_test_cxx_executable exename _tests)
@@ -582,9 +582,9 @@ Python tests
 
   This function declares Python tests.|module| Test files are required to use the `py`
   extension.
-  
+
   .. code-block:: cmake
-  
+
     vtk_add_test_python(<EXENAME> <VARNAME> <ARG>...)
 #]==]
 
@@ -754,10 +754,10 @@ MPI tests
 
   A small wrapper around ``vtk_add_test_python`` which adds support for running
   MPI-aware tests written in Python.
-  
+
   The ``$<module library name>_NUMPROCS`` variable may be used to use a non-default
   number of processors for a test.
-  
+
   This forces running with the ``pvtkpython`` executable.
 #]==]
 function (vtk_add_test_python_mpi)

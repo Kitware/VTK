@@ -127,6 +127,6 @@ set_source_files_properties(
 if (VTK_USE_X)
   set_tests_properties(VTK::RenderingCoreCxx-TestInteractorTimers
      PROPERTIES RUN_SERIAL ON)
-endif ()  
+endif ()
 
 vtk_test_cxx_executable(vtkRenderingCoreCxxTests tests)

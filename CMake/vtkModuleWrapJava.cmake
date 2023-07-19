@@ -13,13 +13,13 @@ APIs for wrapping modules for Java
 .. cmake:command:: _vtk_module_wrap_java_sources
 
   Generate sources for using a module's classes from Java. |module-impl|
-  
+
   This function generates the wrapped sources for a module. It places the list of
   generated source files and Java source files in variables named in the second
   and third arguments, respectively.
-  
+
   .. code-block:: cmake
-  
+
     _vtk_module_wrap_java_sources(<module> <sources> <classes>)
 #]==]
 
@@ -210,18 +210,18 @@ endfunction ()
 .. cmake:command:: _vtk_module_wrap_java_library
 
   Generate a JNI library for a set of modules. |module-impl|
-  
+
   A single JNI library may consist of the Java wrappings of multiple modules.
   This is useful for kit-based builds where the modules part of the same kit
   belong to the same JNI library as well.
-  
+
   .. code-block:: cmake
-  
+
     _vtk_module_wrap_java_library(<name> <module>...)
-  
+
   The first argument is the name of the JNI library. The remaining arguments are
   modules to include in the JNI library.
-  
+
   The remaining information it uses is assumed to be provided by the
   :cmake:command:`vtk_module_wrap_java` function.
 #]==]
@@ -338,21 +338,21 @@ endfunction ()
 .. cmake:command:: vtk_module_wrap_java
 
   Wrap a set of modules for use in Java. |module-wrapping-java|
-  
+
   .. code-block:: cmake
-  
+
     vtk_module_wrap_java(
       MODULES <module>...
       [WRAPPED_MODULES <varname>]
-    
+
       [UTILITY_TARGET <target>]
-    
+
       [JAVA_OUTPUT <destination>]
-    
+
       [LIBRARY_DESTINATION <destination>]
       [JNILIB_DESTINATION <destination>]
       [JNILIB_COMPONENT <component>])
-  
+
   * ``MODULES``: (Required) The list of modules to wrap.
   * ``WRAPPED_MODULES``: (Recommended) Not all modules are wrappable. This
     variable will be set to contain the list of modules which were wrapped.
@@ -368,11 +368,11 @@ endfunction ()
   * ``JNILIB_DESTINATION``: Where to install JNI libraries.
   * ``JNILIB_COMPONENT``: Defaults to ``jni``. The install component to use for JNI
     libraries.
-  
+
   For each wrapped module, a ``<module>Java`` target will be created. These targets
   will have a ``_vtk_module_java_files`` property which is the list of generated
   Java source files for that target.
-  
+
   For dependency purposes, the ``<module>Java-java-sources`` target may also be
   used.
 #]==]

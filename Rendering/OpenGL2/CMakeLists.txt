@@ -228,7 +228,7 @@ if (VTK_OPENGL_USE_GLES)
   set(opengles_overrides
     PolyDataMapper
     PolyDataMapper2D)
-  list(APPEND classes 
+  list(APPEND classes
     vtkOpenGLES30PolyDataMapper
     vtkOpenGLES30PolyDataMapper2D)
   foreach (opengles_override IN LISTS opengles_overrides)

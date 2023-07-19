@@ -82,8 +82,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
 
     # Syntax error in generated shader program.
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
-    
-    # Flaky timeouts 
+
+    # Flaky timeouts
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18984
     "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
     )

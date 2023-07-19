@@ -73,7 +73,7 @@
 #     ExtraArray2<char>
 #   >
 # >::Result ReadOnlyArrays;
-# 
+#
 # typedef vtkTypeList::Unique< vtkTypeList::TypeList<Arrays, ReadOnlyArrays> >::Result AllArrays;
 #
 # VTK_ABI_NAMESPACE_END

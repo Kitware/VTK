@@ -608,9 +608,9 @@ public:
             const double& y = p[1];
             const double& z = p[2];
             return std::vector<std::array<double, 3>>({
-              { x,       y - 1.0, z }, 
-              { x,       y,       z }, 
-              { x - 1.0, y, z       }, 
+              { x,       y - 1.0, z },
+              { x,       y,       z },
+              { x - 1.0, y, z       },
               { x,       y, z - 1.0 }
            });
           };
