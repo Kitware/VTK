@@ -20,12 +20,16 @@
 #include "vtkIOFDSModule.h"  // For export macro
 #include "vtkNew.h"          // For vtkNew
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
+#include "vtkResourceStream.h" // For vtkResourceStream
+#include "vtkSmartPointer.h"   // For vtkSmartPointer
 
 #include <memory> // For std::unique_ptr
 #include <set>    // For std::set
 #include <string> // For std::string
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkFDSDeviceVisitor;
 
 /**
  * @class vtkFDSReader
@@ -45,6 +49,15 @@ public:
    */
   vtkSetMacro(FileName, std::string);
   vtkGetMacro(FileName, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the stream from which to read the .smv file.
+   * If Stream is not nullptr, it will be used in priority from FileName
+   */
+  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
+  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
   ///@}
 
   /**
@@ -87,14 +100,20 @@ private:
   vtkFDSReader(const vtkFDSReader&) = delete;
   void operator=(const vtkFDSReader&) = delete;
 
+  vtkSmartPointer<vtkResourceStream> Open();
+
   int AssemblyTag = 0;
   std::string FileName;
   std::set<std::string> Selectors;
 
   vtkNew<vtkDataAssembly> Assembly;
 
+  vtkSmartPointer<vtkResourceStream> Stream;
+
   struct vtkInternals;
-  std::unique_ptr<vtkInternals> Internals;
+  std::shared_ptr<vtkInternals> Internals;
+
+  friend class vtkFDSDeviceVisitor;
 };
 
 VTK_ABI_NAMESPACE_END

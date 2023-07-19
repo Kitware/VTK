@@ -14,50 +14,87 @@
 =========================================================================*/
 
 #include "vtkFDSReader.h"
+#include "vtkDataAssemblyVisitor.h"
+#include "vtkFileResourceStream.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkResourceParser.h"
 
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
+#include <fstream>
+#include <limits>
+
+#include <sstream>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
-// ----------------------------------------------------------------------------
-struct vtkFDSReader::vtkInternals
+namespace
 {
-  bool OpenFile(const std::string& fileName);
-
-  vtksys::ifstream File;
+enum BaseNodes
+{
+  DEVICES = 0,
+  HRR = 1,
+  SLICES = 2,
+  BOUNDARIES = 3
 };
 
-//-----------------------------------------------------------------------------
-bool vtkFDSReader::vtkInternals::OpenFile(const std::string& fileName)
-{
-  vtksys::SystemTools::Stat_t fs;
-  if (!vtksys::SystemTools::Stat(fileName.c_str(), &fs))
-  {
-    this->File.open(fileName.c_str(), ios::in);
-  }
-
-  if (this->File.fail())
-  {
-    vtkErrorWithObjectMacro(nullptr, "Could not open file: " << fileName);
-    return false;
-  }
-
-  return true;
+const std::vector<std::string> BASE_NODES = { "Devices", "HRR", "Slices", "Boundaries" };
 }
+
+struct vtkFDSReader::vtkInternals
+{
+  // Maps used to retrieve filename(s) relative to
+  // a given "leaf" in the data assembly
+  std::map<int, std::string> HRRFiles;
+  std::map<int, std::string> DevcFiles;
+  std::map<int, std::set<std::string>> SliceFiles;
+  std::map<int, std::set<std::string>> BoundaryFiles;
+};
+
+// TODO : find the right place for this
+// TODO : on visitor by task ? or give it a function to execute ?
+class vtkFDSDeviceVisitor : public vtkDataAssemblyVisitor
+{
+public:
+  static vtkFDSDeviceVisitor* New();
+  vtkTypeMacro(vtkFDSDeviceVisitor, vtkDataAssemblyVisitor);
+
+  void Visit(int nodeId) override
+  {
+    if (this->Internals->DevcFiles.count(nodeId) == 0)
+    {
+      return;
+    }
+
+    // Is a valid leaf
+    std::string fileName = this->Internals->DevcFiles.at(nodeId);
+    cout << "Node " << nodeId << " : " << fileName << endl;
+  }
+
+  // TODO : is it relevant to store it like this ?
+  std::shared_ptr<vtkFDSReader::vtkInternals> Internals;
+
+protected:
+  vtkFDSDeviceVisitor() = default;
+  ~vtkFDSDeviceVisitor() override = default;
+
+private:
+  vtkFDSDeviceVisitor(const vtkFDSDeviceVisitor&) = delete;
+  void operator=(const vtkFDSDeviceVisitor&) = delete;
+};
+vtkStandardNewMacro(vtkFDSDeviceVisitor);
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFDSReader)
 
   //------------------------------------------------------------------------------
   vtkFDSReader::vtkFDSReader()
-  : Internals(new vtkFDSReader::vtkInternals())
+  : Internals(new vtkInternals())
 {
   this->SetNumberOfInputPorts(0);
 }
@@ -97,32 +134,182 @@ void vtkFDSReader::ClearSelectors()
 int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
-  if (this->FileName.empty())
+  cout << "REQUEST INFO" << endl;
+
+  vtkSmartPointer<vtkResourceStream> stream = this->Open();
+  if (!stream)
   {
-    vtkErrorMacro("Requires valid input file name.");
+    vtkErrorMacro(<< "Request information : failed to open stream");
     return 0;
   }
 
-  if (!this->Internals->OpenFile(this->FileName))
+  // Fill base structure
+  this->Assembly->Initialize();
+  const auto baseNodes = this->Assembly->AddNodes(BASE_NODES);
+
+  if (!this->FileName.empty())
   {
-    return 0;
+    std::string rootNodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName);
+    this->Assembly->SetNodeName(vtkDataAssembly::GetRootNode(), rootNodeName.c_str());
   }
 
-  std::string rootNodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName);
+  vtkNew<vtkResourceParser> parser;
+  parser->SetStream(stream);
+  parser->StopOnNewLineOn();
 
-  // Setup dummy assembly
-  this->Assembly->SetNodeName(vtkDataAssembly::GetRootNode(), rootNodeName.c_str());
+  int lineNumber = 0;  // current line
+  std::string keyWord; // storage for parsed "keyWord"
 
-  // Level 0
-  const auto base = this->Assembly->AddNodes({ "Devices", "Slices", "Boundaries" });
-  // Level 1
-  const auto devices = this->Assembly->AddNodes({ "device_1", "device_2" }, base[0]);
-  const auto slices =
-    this->Assembly->AddNodes({ "slice_3D_1", "slice_3D_2", "Slices_1D", "Slices_2D" }, base[1]);
-  const auto boundaries = this->Assembly->AddNodes({ "boundary_1", "boundary_2" }, base[2]);
-  // Level 2
-  const auto slices1D = this->Assembly->AddNodes({ "slice_1D_1", "slice_1D_2" }, slices[2]);
-  const auto slices2D = this->Assembly->AddNodes({ "slice_2D_1", "slice_2D_2" }, slices[3]);
+  // Main parsing loop
+  vtkParseResult result = vtkParseResult::EndOfLine;
+  while (result == vtkParseResult::EndOfLine)
+  {
+    lineNumber++;
+
+    result = parser->Parse(keyWord);
+    if (result != vtkParseResult::Ok)
+    {
+      continue;
+    }
+
+    if (keyWord == "CSVF")
+    {
+      result = parser->DiscardLine();
+      if (result != vtkParseResult::EndOfLine)
+      {
+        continue;
+      }
+      lineNumber++;
+
+      // Parse CSV file type
+      // Possible values are : hrr, devc
+      std::string fileType;
+      result = parser->Parse(fileType);
+      if (result != vtkParseResult::Ok)
+      {
+        vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse CSV file type.");
+        continue;
+      }
+      if (fileType == "devc")
+      {
+        result = parser->DiscardLine();
+        if (result != vtkParseResult::EndOfLine)
+        {
+          continue;
+        }
+        lineNumber++;
+
+        // Parse devc file path
+        std::string fileName;
+        result = parser->Parse(fileName);
+        if (result != vtkParseResult::Ok)
+        {
+          vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse devc file path.");
+          continue;
+        }
+
+        // TODO : check validity of file path
+        std::string nodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
+
+        // Register file path and fill assembly
+        const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[DEVICES]);
+        this->Internals->DevcFiles.emplace(idx, fileName);
+      }
+      else if (fileType == "hrr")
+      {
+        result = parser->DiscardLine();
+        if (result != vtkParseResult::EndOfLine)
+        {
+          continue;
+        }
+        lineNumber++;
+
+        // Parse hrr file path
+        std::string fileName;
+        result = parser->Parse(fileName);
+        if (result != vtkParseResult::Ok)
+        {
+          vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse hrr file path.");
+          continue;
+        }
+
+        // TODO : check validity of file path
+        std::string nodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
+
+        // Register file path and fill assembly
+        const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[HRR]);
+        this->Internals->HRRFiles.emplace(idx, fileName);
+      }
+      else
+      {
+        vtkWarningMacro(<< "Line " << lineNumber << " : unknown CSV file type.");
+      }
+    }
+    else if (keyWord == "SLCF" || keyWord == "SLCC")
+    {
+      // TODO : check dimension
+
+      result = parser->DiscardLine();
+      if (result != vtkParseResult::EndOfLine)
+      {
+        continue;
+      }
+      lineNumber++;
+
+      // Parse sf file path
+      std::string fileName;
+      result = parser->Parse(fileName);
+      if (result != vtkParseResult::Ok)
+      {
+        vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse sf file path.");
+        continue;
+      }
+
+      // TODO : check validity of file path
+      std::string nodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
+
+      // TODO : take account of dimension
+      // TODO : find a good way to store slices
+
+      const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[SLICES]);
+      std::set<std::string>& filesAtIdx = this->Internals->SliceFiles[idx];
+      filesAtIdx.emplace(fileName);
+    }
+    else if (keyWord == "BNDF")
+    {
+      result = parser->DiscardLine();
+      if (result != vtkParseResult::EndOfLine)
+      {
+        continue;
+      }
+      lineNumber++;
+
+      // Parse sf file path
+      std::string fileName;
+      result = parser->Parse(fileName);
+      if (result != vtkParseResult::Ok)
+      {
+        vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse sf file path.");
+        continue;
+      }
+
+      // TODO : check validity of file path
+      std::string nodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
+
+      const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[BOUNDARIES]);
+      std::set<std::string>& filesAtIdx = this->Internals->BoundaryFiles[idx];
+      filesAtIdx.emplace(fileName);
+    }
+
+    result = parser->DiscardLine();
+  }
+
+  // The last result that ended the loop
+  if (result != vtkParseResult::EndOfStream)
+  {
+    vtkErrorMacro(<< "Error during parsing of SMV file at line" << lineNumber);
+    return 0;
+  }
 
   // Update Assembly widget
   this->AssemblyTag += 1;
@@ -134,6 +321,8 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
+  cout << "REQUEST DATA" << endl;
+
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkPartitionedDataSetCollection* output = vtkPartitionedDataSetCollection::GetData(outInfo);
 
@@ -143,6 +332,64 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
+  vtkSmartPointer<vtkResourceStream> stream = this->Open();
+  if (!stream)
+  {
+    vtkErrorMacro(<< "Request data: failed to open stream");
+    return 0;
+  }
+
+  // vtkNew<vtkResourceParser> parser;
+  // parser->SetStream(stream);
+  // parser->StopOnNewLineOn();
+
+  // int lineNumber = 0; // current line
+  // std::string keyWord; // the keyWord
+
+  // const auto flushLine = [this, &parser, &lineNumber]() {
+  //   std::string remaining;
+
+  //   auto result = parser->Parse(remaining);
+  //   if (result != vtkParseResult::EndOfLine)
+  //   {
+  //     vtkWarningMacro(<< "unexpected data at end of line in .smv file at line " << lineNumber);
+  //     result = parser->DiscardLine();
+  //   }
+
+  //   return result;
+  // };
+
+  // vtkParseResult result = vtkParseResult::Ok;
+  // while (result == vtkParseResult::Ok || result == vtkParseResult::EndOfLine)
+  // {
+  //   ++lineNumber;
+
+  //   result = parser->Parse(keyWord);
+  //   if (keyWord == "GRID")
+  //   {
+  //     cout << lineNumber << " : " << keyWord << " encountered" << endl;
+  //     result = flushLine();
+
+  //     // Parse grid dimensions
+  //     std::array<double, 3> dims;
+  //     for (std::size_t i = 0; i < 3; ++i)
+  //     {
+  //       result = parser->Parse(dims[i]);
+  //       if (result != vtkParseResult::Ok)
+  //       {
+  //         vtkErrorMacro(<< "Failed to parse " << i << "th grid dimension at line " <<
+  //         lineNumber); return 0;
+  //       }
+  //       else
+  //       {
+  //         cout << dims[i] << endl;
+  //       }
+  //     }
+
+  //     result = flushLine();
+  //   }
+  // }
+
   const std::vector<std::string> selectors(this->Selectors.begin(), this->Selectors.end());
   const auto selectedNodes = this->Assembly->SelectNodes(selectors);
 
@@ -150,7 +397,41 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
   outAssembly->SubsetCopy(this->Assembly, selectedNodes);
   output->SetDataAssembly(outAssembly);
 
+  int devicesIdx =
+    outAssembly->FindFirstNodeWithName("Devices", vtkDataAssembly::TraversalOrder::BreadthFirst);
+  if (devicesIdx != -1)
+  {
+    cout << "Devices found" << endl;
+    vtkNew<vtkFDSDeviceVisitor> visitor;
+    visitor->Internals = this->Internals;
+    outAssembly->Visit(devicesIdx, visitor);
+  }
+
   return 1;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkResourceStream> vtkFDSReader::Open()
+{
+  if (this->Stream)
+  {
+    if (this->Stream->SupportSeek())
+    {
+      this->Stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+    }
+
+    return this->Stream;
+  }
+
+  auto fileStream = vtkSmartPointer<vtkFileResourceStream>::New();
+  if (this->FileName.empty() || !fileStream->Open(this->FileName.c_str()))
+  {
+    vtkErrorMacro(<< "Failed to open file: "
+                  << (this->FileName.empty() ? this->FileName : "No file name set"));
+    return nullptr;
+  }
+
+  return fileStream;
 }
 
 VTK_ABI_NAMESPACE_END

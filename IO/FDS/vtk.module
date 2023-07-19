@@ -10,3 +10,6 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::IOCore
+TEST_DEPENDS
+  VTK::TestingCore
