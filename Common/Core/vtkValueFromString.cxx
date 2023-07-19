@@ -29,6 +29,8 @@ PURPOSE.  See the above copyright notice for more information.
  * scnlib is licensed under the Apache License, version 2.0.
  * Copyright (c) 2017 Elias Kosunen
  */
+
+VTK_ABI_NAMESPACE_BEGIN
 namespace Impl
 {
 // clang-format off
