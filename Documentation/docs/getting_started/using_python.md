@@ -1,6 +1,6 @@
 # Using Python
 
-VTK is available on [PyPi](https://pypi.org/) for Windows, macOS and Linux.
+VTK is available on [PyPI](https://pypi.org/) for Windows, macOS and Linux.
 ```
 pip install vtk
 ```
@@ -56,3 +56,7 @@ That's it ! You may now try some of the
 [tutorials](https://kitware.github.io/vtk-examples/site/Python/#tutorial),
 [how to guides](https://kitware.github.io/vtk-examples/site/PythonHowTo) or
 [examples](https://kitware.github.io/vtk-examples/site/Python).
+
+If you are looking for a higher-level interface to VTK in Python, you may want
+to explore using [PyVista](https://docs.pyvista.org) as it exposes VTK in a
+"Pythonic" manner.
