@@ -42,7 +42,6 @@
 #include "vtkUnsignedIntArray.h"
 #include <sstream>
 
-VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 template <typename T>
@@ -63,6 +62,8 @@ private:
 };
 
 } // end anonymous namespace
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLBatchedPolyDataMapper);
@@ -1643,3 +1644,5 @@ int vtkOpenGLBatchedPolyDataMapper::CanUseTextureMapForColoring(vtkDataObject*)
 
   return 1;
 }
+
+VTK_ABI_NAMESPACE_END
