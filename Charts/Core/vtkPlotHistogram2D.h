@@ -17,6 +17,8 @@
 #include "vtkRect.h"         // Needed for vtkRectf
 #include "vtkSmartPointer.h" // Needed for SP ivars
 
+#include <string> // Needed for std::string
+
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkDataArray;
@@ -47,9 +49,8 @@ public:
   bool Paint(vtkContext2D* painter) override;
 
   /**
-   * Set the input, we are expecting a vtkImageData with just one component,
-   * this would normally be a float or a double. It will be passed to the other
-   * functions as a double to generate a color.
+   * Set the input. The image data is supposed to have scalars attribute set,
+   * if no array name is set.
    */
   virtual void SetInputData(vtkImageData* data, vtkIdType z = 0);
   void SetInputData(vtkTable*) override {}
@@ -75,6 +76,16 @@ public:
 
   virtual void SetPosition(const vtkRectf& pos);
   virtual vtkRectf GetPosition();
+
+  ///@{
+  /**
+   * Set/get the selected array name.
+   * When empty, plot using SCALARS attribute.
+   * Default: empty string (use SCALARS).
+   */
+  vtkSetMacro(ArrayName, std::string);
+  vtkGetMacro(ArrayName, std::string);
+  ///@}
 
   /**
    * Generate and return the tooltip label string for this plot
@@ -137,21 +148,27 @@ private:
   static inline bool CanComputeMagnitude(int nbComponents);
 
   /**
+   * Returns the selected data array. Does not return magnitude
+   * array, but the associated array of the input.
+   */
+  inline vtkDataArray* GetSelectedArray();
+  /**
    * Returns the void pointer to the selected array. If the transfer
    * function is set to magnitude mode, it will return the cached
    * magnitude array. Also sets the number of components of the
    * selected array in parameter, to take the magnitude array into
    * account.
    */
-  void* GetInputScalarPointer(int& nbComponents);
+  void* GetInputArrayPointer(int& nbComponents);
   /**
    * Returns the value of the selected array at the coordinates given
    * in parameters. The value is casted to double. It takes magnitude
    * array into account, so as component, for n-components arrays.
    * Returns NaN when something goes wrong.
    */
-  double GetInputScalarValue(int x, int y, int z);
+  double GetInputArrayValue(int x, int y, int z);
 
+  std::string ArrayName;
   vtkSmartPointer<vtkDataArray> MagnitudeArray;
 };
 
