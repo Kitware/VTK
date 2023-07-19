@@ -98,8 +98,6 @@ public:
    * '%x' The X position of the histogram cell
    * '%y' The Y position of the histogram cell
    * '%v' The scalar value of the histogram cell
-   * Note: the %i and %j tags are valid only if there is a 1:1 correspondence
-   * between individual histogram cells and axis tick marks
    * '%i' The X axis tick label for the histogram cell
    * '%j' The Y axis tick label for the histogram cell
    * Any other characters or unrecognized format tags are printed in the
@@ -141,6 +139,11 @@ private:
   vtkPlotHistogram2D(const vtkPlotHistogram2D&) = delete;
   void operator=(const vtkPlotHistogram2D&) = delete;
 
+  /**
+   * Returns the index of the label of an axis, depending on a
+   * position on the axis.
+   */
+  static vtkIdType GetLabelIndexFromValue(double value, vtkAxis* axis);
   /**
    * Returns whether the number of component of an array is
    * compatible with magnitude computation.

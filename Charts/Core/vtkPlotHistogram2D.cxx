@@ -232,12 +232,12 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(
     return tooltipLabel;
   }
 
-  double bounds[4];
-  this->GetBounds(bounds);
-  int width = this->Input->GetExtent()[1] - this->Input->GetExtent()[0] + 1;
-  int height = this->Input->GetExtent()[3] - this->Input->GetExtent()[2] + 1;
-  int pointX = seriesIndex % width + this->Input->GetExtent()[0];
-  int pointY = seriesIndex / width + this->Input->GetExtent()[2];
+  int extent[6];
+  this->Input->GetExtent(extent);
+
+  int width = extent[1] - extent[0] + 1;
+  int pointX = seriesIndex % width + extent[0];
+  int pointY = seriesIndex / width + extent[2];
 
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
@@ -254,24 +254,29 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(
           tooltipLabel += this->GetNumber(plotPos.GetY(), this->YAxis);
           break;
         case 'i':
-          if (this->XAxis->GetTickLabels() && pointX >= 0 &&
-            pointX < this->XAxis->GetTickLabels()->GetNumberOfTuples())
+          if (this->XAxis->GetTickLabels() && this->XAxis->GetTickLabels()->GetNumberOfTuples() > 0)
           {
-            tooltipLabel += this->XAxis->GetTickLabels()->GetValue(pointX);
+            vtkIdType labelIndex =
+              vtkPlotHistogram2D::GetLabelIndexFromValue(plotPos.GetX(), this->XAxis);
+            if (labelIndex >= 0)
+            {
+              tooltipLabel += this->XAxis->GetTickLabels()->GetValue(labelIndex);
+            }
           }
           break;
         case 'j':
-          if (this->YAxis->GetTickLabels() && pointY >= 0 &&
-            pointY < this->YAxis->GetTickLabels()->GetNumberOfTuples())
+          if (this->YAxis->GetTickLabels() && this->YAxis->GetTickLabels()->GetNumberOfTuples())
           {
-            tooltipLabel += this->YAxis->GetTickLabels()->GetValue(pointY);
+            vtkIdType labelIndex =
+              vtkPlotHistogram2D::GetLabelIndexFromValue(plotPos.GetY(), this->YAxis);
+            if (labelIndex >= 0)
+            {
+              tooltipLabel += this->YAxis->GetTickLabels()->GetValue(labelIndex);
+            }
           }
           break;
         case 'v':
-          if (pointX >= 0 && pointX < width && pointY >= 0 && pointY < height)
-          {
-            tooltipLabel += this->GetNumber(this->GetInputArrayValue(pointX, pointY, 0), nullptr);
-          }
+          tooltipLabel += this->GetNumber(this->GetInputArrayValue(pointX, pointY, 0), nullptr);
           break;
         default: // If no match, insert the entire format tag
           tooltipLabel += "%";
@@ -419,6 +424,17 @@ vtkDataArray* vtkPlotHistogram2D::GetSelectedArray()
 {
   return this->ArrayName.empty() ? this->Input->GetPointData()->GetScalars()
                                  : this->Input->GetPointData()->GetArray(this->ArrayName.c_str());
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkPlotHistogram2D::GetLabelIndexFromValue(double value, vtkAxis* axis)
+{
+  auto tickRange = vtk::DataArrayValueRange<1>(axis->GetTickPositions());
+  const auto iterator = std::find_if(
+    tickRange.cbegin(), tickRange.cend(), [&value](const double& elem) { return value < elem; });
+
+  vtkIdType labelIndex = iterator - tickRange.cbegin();
+  return labelIndex - 1;
 }
 
 //------------------------------------------------------------------------------
