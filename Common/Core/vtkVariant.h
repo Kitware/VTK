@@ -19,9 +19,7 @@
 -------------------------------------------------------------------------*/
 /**
  * @class   vtkVariant
- * @brief   A atomic type representing the union of many types
- *
- *
+ * @brief   A type representing the union of many types.
  *
  * @par Thanks:
  * Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
@@ -65,12 +63,14 @@ class VTKCOMMONCORE_EXPORT vtkVariant
 {
 public:
   /**
-   * Create an invalid variant.
+   * Create an invalid variant. The type will be VTK_VOID and IsValid will return false.
    */
   vtkVariant();
 
   /**
    * Destruct the variant.
+   * For the VTK_STRING case, invokes delete on the string.
+   * For the VTK_OBJECT case, invokes Delete() on the object.
    */
   ~vtkVariant();
 
@@ -80,92 +80,106 @@ public:
   vtkVariant(const vtkVariant& other);
 
   /**
-   * Create a bool variant. Internally store it as char.
+   * Create a bool variant. Internally store it as char. The type will be VTK_CHAR and IsValid will
+   * return true.
    */
   vtkVariant(bool value);
 
   /**
-   * Create a char variant.
+   * Create a char variant. The type will be VTK_CHAR and IsValid will return true.
    */
   vtkVariant(char value);
 
   /**
-   * Create an unsigned char variant.
+   * Create an unsigned char variant. The type will be VTK_UNSIGNED_CHAR and IsValid will return
+   * true.
    */
   vtkVariant(unsigned char value);
 
   /**
-   * Create a signed char variant.
+   * Create a signed char variant. The type will be VTK_SIGNED_CHAR and IsValid will return true.
    */
   vtkVariant(signed char value);
 
   /**
-   * Create a short variant.
+   * Create a short variant. The type will be VTK_SHORT and IsValid will return true.
    */
   vtkVariant(short value);
 
   /**
-   * Create an unsigned short variant.
+   * Create an unsigned short variant. The type will be VTK_UNSIGNED_SHORT and IsValid will return
+   * true.
    */
   vtkVariant(unsigned short value);
 
   /**
-   * Create an integer variant.
+   * Create an integer variant. The type will be VTK_INT and IsValid will return true.
    */
   vtkVariant(int value);
 
   /**
-   * Create an unsigned integer variant.
+   * Create an unsigned integer variant. The type will be VTK_UNSIGNED_INT and IsValid will return
+   * true.
    */
   vtkVariant(unsigned int value);
 
   /**
-   * Create an long variant.
+   * Create an long variant. The type will be VTK_LONG and IsValid will return true.
    */
   vtkVariant(long value);
 
   /**
-   * Create an unsigned long variant.
+   * Create an unsigned long variant. The type will be VTK_UNSIGNED_LONG and IsValid will return
+   * true.
    */
   vtkVariant(unsigned long value);
 
   /**
-   * Create a long long variant.
+   * Create a long long variant. The type will be VTK_LONG_LONG and IsValid will return true.
    */
   vtkVariant(long long value);
 
   /**
-   * Create an unsigned long long variant.
+   * Create an unsigned long long variant. The type will be VTK_UNSIGNED_LONG_LONG and IsValid will
+   * return true.
    */
   vtkVariant(unsigned long long value);
 
   /**
-   * Create a float variant.
+   * Create a float variant. The type will be VTK_FLOAT and IsValid will return true.
    */
   vtkVariant(float value);
 
   /**
-   * Create a double variant.
+   * Create a double variant. The type will be VTK_DOUBLE and IsValid will return true.
    */
   vtkVariant(double value);
 
   /**
    * Create a string variant from a const char*.
+   * If nullptr is passed, the type will be VTK_VOID and IsValid will return false;
+   * else the type will be VTK_STRING and IsValid will return true.
    */
   vtkVariant(const char* value);
 
   /**
    * Create a string variant from a std string.
+   * The type will be VTK_STRING and IsValid will return true.
    */
   vtkVariant(vtkStdString value);
 
   /**
    * Create a vtkObjectBase variant.
+   * If nullptr is passed, the type will be VTK_VOID and IsValid will return false;
+   * else the type will be VTK_OBJECT and IsValid will return true.
    */
   vtkVariant(vtkObjectBase* value);
 
   /**
-   * Create a variant of a specific type.
+   * Create a new variant by copying the given variant but converting it to the given type.
+   * \p type must be one of: VTK_STRING, VTK_OBJECT, VTK_CHAR, VTK_SIGNED_CHAR, VTK_UNSIGNED_CHAR,
+   * VTK_SHORT, VTK_UNSIGNED_SHORT, VTK_INT, VTK_UNSIGNED_INT, VTK_LONG, VTK_UNSIGNED_LONG,
+   * VTK_LONG_LONG, VTK_UNSIGNED_LONG_LONG, VTK_FLOAT, VTK_DOUBLE.
    */
   vtkVariant(const vtkVariant& other, unsigned int type);
 
@@ -175,7 +189,8 @@ public:
   vtkVariant& operator=(const vtkVariant& other);
 
   /**
-   * Get whether the variant value is valid.
+   * Get whether the variant value is valid. Simple scalar types are always considered valid.
+   * Strings and pointers are considered valid only if non-nullptr.
    */
   bool IsValid() const;
 
@@ -255,12 +270,12 @@ public:
   bool IsUnsignedLongLong() const;
 
   /**
-   * Get whether the variant is a VTK object pointer.
+   * Get whether the variant is a VTK object pointer (i.e. vtkObjectBase or a subclass thereof).
    */
   bool IsVTKObject() const;
 
   /**
-   * Get whether the variant is a VTK array (i.e. a subclass of vtkAbstractArray).
+   * Get whether the variant is a VTK array (i.e. vtkAbstractArray or a subclass thereof).
    */
   bool IsArray() const;
 
@@ -418,8 +433,8 @@ private:
     vtkObjectBase* VTKObject;
   } Data;
 
-  unsigned char Valid;
-  unsigned char Type;
+  bool Valid;
+  unsigned int Type;
 
   friend struct vtkVariantLessThan;
   friend struct vtkVariantEqual;

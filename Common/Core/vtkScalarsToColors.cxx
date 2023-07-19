@@ -23,13 +23,12 @@
 #include "vtkVariantArray.h"
 
 #include <algorithm>
-#include <list>
-
 #include <cmath>
+#include <list>
 
 // A helper list lookups of annotated values.
 // Note you cannot use a map or sort etc as the
-// comparison operator for vtkVarient is not suitable
+// comparison operator for vtkVariant is not suitable
 // for strict sorting.
 VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors::vtkInternalAnnotatedValueList : public std::list<vtkVariant>
@@ -89,7 +88,7 @@ vtkTypeBool vtkScalarsToColors::IsOpaque()
 //------------------------------------------------------------------------------
 // Description:
 // Return true if all of the values defining the mapping have an opacity
-// equal to 1. Default implementation return true.
+// equal to 1.
 vtkTypeBool vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component)
 {
   return this->IsOpaque(scalars, colorMode, component, nullptr);
@@ -98,7 +97,7 @@ vtkTypeBool vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMod
 //------------------------------------------------------------------------------
 // Description:
 // Return true if all of the values defining the mapping have an opacity
-// equal to 1. Default implementation return true.
+// equal to 1.
 vtkTypeBool vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int,
   vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
 {
@@ -220,8 +219,8 @@ void vtkScalarsToColors::DeepCopy(vtkScalarsToColors* obj)
 inline void vtkScalarsToColorsComputeShiftScale(
   vtkScalarsToColors* self, double& shift, double& scale)
 {
-  static const double minscale = -1e17;
-  static const double maxscale = 1e17;
+  constexpr double minscale = -1e17;
+  constexpr double maxscale = 1e17;
 
   const double* range = self->GetRange();
   shift = -range[0];
@@ -239,8 +238,8 @@ inline void vtkScalarsToColorsComputeShiftScale(
 //------------------------------------------------------------------------------
 void vtkScalarsToColors::GetColor(double v, double rgb[3])
 {
-  static double minval = 0.0;
-  static double maxval = 1.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 1.0;
 
   double shift, scale;
   vtkScalarsToColorsComputeShiftScale(this, shift, scale);
@@ -420,12 +419,12 @@ void vtkScalarsToColors::MapVectorsThroughTable(void* input, unsigned char* outp
     {
       // convert to magnitude in blocks of 300 values
       int inInc = vtkDataArray::GetDataTypeSize(scalarType) * inComponents;
-      double magValues[300];
-      int blockSize = 300;
+      constexpr int blockSize = 300;
+      double magValues[blockSize];
       int numBlocks = (numValues + blockSize - 1) / blockSize;
       int lastBlockSize = numValues - blockSize * (numBlocks - 1);
 
-      for (int i = 0; i < numBlocks; i++)
+      for (int i = 0; i < numBlocks; ++i)
       {
         int numMagValues = ((i < numBlocks - 1) ? blockSize : lastBlockSize);
         this->MapVectorsToMagnitude(
@@ -707,8 +706,8 @@ template <class T>
 void vtkScalarsToColorsLuminanceToLuminance(const T* inPtr, unsigned char* outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -728,8 +727,8 @@ template <class T>
 void vtkScalarsToColorsLuminanceToRGB(const T* inPtr, unsigned char* outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -751,8 +750,8 @@ template <class T>
 void vtkScalarsToColorsRGBToLuminance(const T* inPtr, unsigned char* outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -780,8 +779,8 @@ template <class T>
 void vtkScalarsToColorsRGBToRGB(const T* inPtr, unsigned char* outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -814,8 +813,8 @@ void vtkScalarsToColorsLuminanceToLuminanceAlpha(const T* inPtr, unsigned char* 
   vtkIdType count, int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -837,8 +836,8 @@ void vtkScalarsToColorsLuminanceToRGBA(const T* inPtr, unsigned char* outPtr, vt
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -862,8 +861,8 @@ void vtkScalarsToColorsRGBToLuminanceAlpha(const T* inPtr, unsigned char* outPtr
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -893,8 +892,8 @@ void vtkScalarsToColorsRGBToRGBA(const T* inPtr, unsigned char* outPtr, vtkIdTyp
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -927,8 +926,8 @@ template <class T>
 void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(const T* inPtr, unsigned char* outPtr,
   vtkIdType count, int numComponents, double shift, double scale, double alpha)
 {
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -954,8 +953,8 @@ template <class T>
 void vtkScalarsToColorsLuminanceAlphaToRGBA(const T* inPtr, unsigned char* outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -983,8 +982,8 @@ template <class T>
 void vtkScalarsToColorsRGBAToLuminanceAlpha(const T* inPtr, unsigned char* outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -1018,8 +1017,8 @@ template <class T>
 void vtkScalarsToColorsRGBAToRGBA(const T* inPtr, unsigned char* outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static const double minval = 0;
-  static const double maxval = 255.0;
+  constexpr double minval = 0.0;
+  constexpr double maxval = 255.0;
 
   do
   {
@@ -1063,7 +1062,7 @@ unsigned char* vtkScalarsToColorsUnpackBits(void* inPtr, vtkIdType numValues)
   for (vtkIdType i = 0; i < numValues; i += 8)
   {
     unsigned char b = *bitdata++;
-    int j = std::min(static_cast<vtkIdType>(8), numValues - i);
+    vtkIdType j = std::min(static_cast<vtkIdType>(8), numValues - i);
     do
     {
       *tmpPtr++ = ((b >> (--j)) & 0x01);
@@ -1110,13 +1109,13 @@ void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, i
   scale *= 255.0;
 
   double alpha = this->Alpha;
-  if (alpha < 0)
+  if (alpha < 0.0)
   {
-    alpha = 0;
+    alpha = 0.0;
   }
-  if (alpha > 1)
+  if (alpha > 1.0)
   {
-    alpha = 1;
+    alpha = 1.0;
   }
 
   if (inputDataType == VTK_UNSIGNED_CHAR && static_cast<int>(shift * scale + 0.5) == 0 &&
@@ -1392,13 +1391,13 @@ void vtkScalarsToColors::MapScalarsThroughTable2(void* inPtr, unsigned char* out
   scale *= 255.0;
 
   double alpha = this->Alpha;
-  if (alpha < 0)
+  if (alpha < 0.0)
   {
-    alpha = 0;
+    alpha = 0.0;
   }
-  if (alpha > 1)
+  if (alpha > 1.0)
   {
-    alpha = 1;
+    alpha = 1.0;
   }
 
   if (inputDataType == VTK_UNSIGNED_CHAR && static_cast<int>(shift * scale + 0.5) == 0 &&
@@ -1522,8 +1521,8 @@ vtkUnsignedCharArray* vtkScalarsToColors::ConvertToRGBA(
   newColors->SetNumberOfTuples(numTuples);
   unsigned char* nptr = newColors->GetPointer(0);
   double alpha = this->Alpha;
-  alpha = (alpha > 0 ? alpha : 0);
-  alpha = (alpha < 1 ? alpha : 1);
+  alpha = (alpha > 0.0 ? alpha : 0.0);
+  alpha = (alpha < 1.0 ? alpha : 1.0);
 
   if (numTuples <= 0)
   {
@@ -1713,10 +1712,7 @@ vtkVariant vtkScalarsToColors::GetAnnotatedValue(vtkIdType idx)
 //------------------------------------------------------------------------------
 vtkStdString vtkScalarsToColors::GetAnnotation(vtkIdType idx)
 {
-  if (!this->Annotations)
-  /* Don't check idx as Annotations->GetValue() does:
-   * || idx < 0 || idx >= this->Annotations->GetNumberOfTuples())
-   */
+  if (!this->AnnotatedValues || idx < 0 || idx >= this->AnnotatedValues->GetNumberOfTuples())
   {
     return {};
   }
@@ -1779,7 +1775,7 @@ void vtkScalarsToColors::GetAnnotationColor(const vtkVariant& val, double rgba[4
   else
   {
     this->GetColor(val.ToDouble(), rgba);
-    rgba[3] = 1.;
+    rgba[3] = 1.0;
   }
 }
 
@@ -1829,7 +1825,7 @@ vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal(const vtkVariant& v
 //------------------------------------------------------------------------------
 void vtkScalarsToColors::GetIndexedColor(vtkIdType, double rgba[4])
 {
-  rgba[0] = rgba[1] = rgba[2] = rgba[3] = 0.;
+  rgba[0] = rgba[1] = rgba[2] = rgba[3] = 0.0;
 }
 
 //------------------------------------------------------------------------------

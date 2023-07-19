@@ -18,7 +18,10 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#include "vtkFloatArray.h"
+#include "vtkStringArray.h"
 #include "vtkVariant.h"
+#include "vtkVariantArray.h"
 
 int TestVariant(int, char*[])
 {
@@ -179,6 +182,42 @@ int TestVariant(int, char*[])
   {
     cerr << "double to string complex conversion failed with scientific formatting.\n";
     errors++;
+  }
+
+  // Regression test: ensure that empty arrays (of the 3 types) survive conversion to numeric.
+  // There used to be an incorrect assumption that arrays always had a 0th element.
+  {
+    vtkNew<vtkFloatArray> emptyArray;
+    vtkVariant arrayVariant(emptyArray);
+    bool isValid = true;
+    short numericValue = arrayVariant.ToShort(&isValid);
+    if (isValid || (numericValue != 0))
+    {
+      cerr << "empty vtkFloatArray should have failed to convert to numeric.\n";
+      errors++;
+    }
+  }
+  {
+    vtkNew<vtkStringArray> emptyArray;
+    vtkVariant arrayVariant(emptyArray);
+    bool isValid = true;
+    int numericValue = arrayVariant.ToInt(&isValid);
+    if (isValid || (numericValue != 0))
+    {
+      cerr << "empty vtkStringArray should have failed to convert to numeric.\n";
+      errors++;
+    }
+  }
+  {
+    vtkNew<vtkVariantArray> emptyArray;
+    vtkVariant arrayVariant(emptyArray);
+    bool isValid = true;
+    char numericValue = arrayVariant.ToChar(&isValid);
+    if (isValid || (numericValue != 0))
+    {
+      cerr << "empty vtkVariantArray should have failed to convert to numeric.\n";
+      errors++;
+    }
   }
 
   return errors;

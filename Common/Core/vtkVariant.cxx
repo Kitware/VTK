@@ -33,6 +33,8 @@
 #include "vtkVariantArray.h"
 
 #include "vtksys/SystemTools.hxx"
+
+#include <cassert>
 #include <locale> // C++ locale
 #include <sstream>
 
@@ -214,8 +216,11 @@ bool vtkVariantEqual::operator()(const vtkVariant& v1, const vtkVariant& v2) con
 //------------------------------------------------------------------------------
 vtkVariant::vtkVariant()
 {
-  this->Valid = 0;
-  this->Type = 0;
+  this->Valid = false;
+  this->Type = VTK_VOID;
+
+  // Zero the Data union by setting any field.
+  this->Data.UnsignedLongLong = 0;
 }
 
 vtkVariant::vtkVariant(const vtkVariant& other)
@@ -310,10 +315,15 @@ vtkVariant::vtkVariant(const vtkVariant& s2, unsigned int type)
       case VTK_DOUBLE:
         this->Data.Double = s2.ToDouble(&valid);
         break;
+
+      // Other types are not allowed.
+      default:
+        assert(0);
+        break;
     }
   }
 
-  this->Type = (valid ? type : 0);
+  this->Type = (valid ? type : VTK_VOID);
   this->Valid = valid;
 }
 
@@ -377,109 +387,109 @@ vtkVariant::~vtkVariant()
 vtkVariant::vtkVariant(bool value)
 {
   this->Data.Char = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_CHAR;
 }
 
 vtkVariant::vtkVariant(char value)
 {
   this->Data.Char = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_CHAR;
 }
 
 vtkVariant::vtkVariant(unsigned char value)
 {
   this->Data.UnsignedChar = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_UNSIGNED_CHAR;
 }
 
 vtkVariant::vtkVariant(signed char value)
 {
   this->Data.SignedChar = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_SIGNED_CHAR;
 }
 
 vtkVariant::vtkVariant(short value)
 {
   this->Data.Short = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_SHORT;
 }
 
 vtkVariant::vtkVariant(unsigned short value)
 {
   this->Data.UnsignedShort = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_UNSIGNED_SHORT;
 }
 
 vtkVariant::vtkVariant(int value)
 {
   this->Data.Int = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_INT;
 }
 
 vtkVariant::vtkVariant(unsigned int value)
 {
   this->Data.UnsignedInt = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_UNSIGNED_INT;
 }
 
 vtkVariant::vtkVariant(long value)
 {
   this->Data.Long = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_LONG;
 }
 
 vtkVariant::vtkVariant(unsigned long value)
 {
   this->Data.UnsignedLong = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_UNSIGNED_LONG;
 }
 
 vtkVariant::vtkVariant(long long value)
 {
   this->Data.LongLong = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_LONG_LONG;
 }
 
 vtkVariant::vtkVariant(unsigned long long value)
 {
   this->Data.UnsignedLongLong = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_UNSIGNED_LONG_LONG;
 }
 
 vtkVariant::vtkVariant(float value)
 {
   this->Data.Float = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_FLOAT;
 }
 
 vtkVariant::vtkVariant(double value)
 {
   this->Data.Double = value;
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_DOUBLE;
 }
 
 vtkVariant::vtkVariant(const char* value)
 {
-  this->Valid = 0;
-  this->Type = 0;
+  this->Valid = false;
+  this->Type = VTK_VOID;
   if (value)
   {
     this->Data.String = new vtkStdString(value);
-    this->Valid = 1;
+    this->Valid = true;
     this->Type = VTK_STRING;
   }
 }
@@ -487,26 +497,26 @@ vtkVariant::vtkVariant(const char* value)
 vtkVariant::vtkVariant(vtkStdString value)
 {
   this->Data.String = new vtkStdString(value);
-  this->Valid = 1;
+  this->Valid = true;
   this->Type = VTK_STRING;
 }
 
 vtkVariant::vtkVariant(vtkObjectBase* value)
 {
-  this->Valid = 0;
-  this->Type = 0;
+  this->Valid = false;
+  this->Type = VTK_VOID;
   if (value)
   {
     value->Register(nullptr);
     this->Data.VTKObject = value;
-    this->Valid = 1;
+    this->Valid = true;
     this->Type = VTK_OBJECT;
   }
 }
 
 bool vtkVariant::IsValid() const
 {
-  return this->Valid != 0;
+  return this->Valid;
 }
 
 bool vtkVariant::IsString() const
@@ -594,7 +604,8 @@ bool vtkVariant::IsVTKObject() const
 
 bool vtkVariant::IsArray() const
 {
-  return this->Type == VTK_OBJECT && this->Valid && this->Data.VTKObject->IsA("vtkAbstractArray");
+  return this->Type == VTK_OBJECT && this->Data.VTKObject &&
+    this->Data.VTKObject->IsA("vtkAbstractArray");
 }
 
 unsigned int vtkVariant::GetType() const
@@ -604,7 +615,7 @@ unsigned int vtkVariant::GetType() const
 
 const char* vtkVariant::GetTypeAsString() const
 {
-  if (this->Type == VTK_OBJECT && this->Valid)
+  if (this->Type == VTK_OBJECT && this->Data.VTKObject)
   {
     return this->Data.VTKObject->GetClassName();
   }
@@ -637,7 +648,7 @@ vtkStdString vtkVariantArrayToString(iterT* it, int formatting, int precision)
   SetFormattingOnStream(formatting, ostr);
   ostr << std::setprecision(precision);
 
-  for (vtkIdType i = 0; i < maxInd; i++)
+  for (vtkIdType i = 0; i < maxInd; ++i)
   {
     if (i > 0)
     {
@@ -857,44 +868,113 @@ T vtkVariantStringToNumeric(const vtkStdString& str, bool* valid, T* vtkNotUsed(
   return output;
 }
 
-//------------------------------------------------------------------------------
-// Definition of ToNumeric
-
-VTK_ABI_NAMESPACE_END
-
-#include "vtkVariantToNumeric.inl"
-
-//------------------------------------------------------------------------------
-// Explicitly instantiate the ToNumeric member template to make sure
-// the symbols are exported from this object file.
-// This explicit instantiation exists to resolve VTK issue #5791.
-
-#if !defined(VTK_VARIANT_NO_INSTANTIATE)
-
-#define vtkVariantToNumericInstantiateMacro(x) template x vtkVariant::ToNumeric<x>(bool*, x*) const
-
-VTK_ABI_NAMESPACE_BEGIN
-vtkVariantToNumericInstantiateMacro(char);
-vtkVariantToNumericInstantiateMacro(float);
-vtkVariantToNumericInstantiateMacro(double);
-vtkVariantToNumericInstantiateMacro(unsigned char);
-vtkVariantToNumericInstantiateMacro(signed char);
-vtkVariantToNumericInstantiateMacro(short);
-vtkVariantToNumericInstantiateMacro(unsigned short);
-vtkVariantToNumericInstantiateMacro(int);
-vtkVariantToNumericInstantiateMacro(unsigned int);
-vtkVariantToNumericInstantiateMacro(long);
-vtkVariantToNumericInstantiateMacro(unsigned long);
-vtkVariantToNumericInstantiateMacro(long long);
-vtkVariantToNumericInstantiateMacro(unsigned long long);
-
-VTK_ABI_NAMESPACE_END
-#endif
+template <typename T>
+T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
+{
+  if (valid)
+  {
+    *valid = true;
+  }
+  if (this->IsString())
+  {
+    return vtkVariantStringToNumeric<T>(*this->Data.String, valid);
+  }
+  if (this->IsFloat())
+  {
+    return static_cast<T>(this->Data.Float);
+  }
+  if (this->IsDouble())
+  {
+    return static_cast<T>(this->Data.Double);
+  }
+  if (this->IsChar())
+  {
+    return static_cast<T>(this->Data.Char);
+  }
+  if (this->IsUnsignedChar())
+  {
+    return static_cast<T>(this->Data.UnsignedChar);
+  }
+  if (this->IsSignedChar())
+  {
+    return static_cast<T>(this->Data.SignedChar);
+  }
+  if (this->IsShort())
+  {
+    return static_cast<T>(this->Data.Short);
+  }
+  if (this->IsUnsignedShort())
+  {
+    return static_cast<T>(this->Data.UnsignedShort);
+  }
+  if (this->IsInt())
+  {
+    return static_cast<T>(this->Data.Int);
+  }
+  if (this->IsUnsignedInt())
+  {
+    return static_cast<T>(this->Data.UnsignedInt);
+  }
+  if (this->IsLong())
+  {
+    return static_cast<T>(this->Data.Long);
+  }
+  if (this->IsUnsignedLong())
+  {
+    return static_cast<T>(this->Data.UnsignedLong);
+  }
+  if (this->IsLongLong())
+  {
+    return static_cast<T>(this->Data.LongLong);
+  }
+  if (this->IsUnsignedLongLong())
+  {
+    return static_cast<T>(this->Data.UnsignedLongLong);
+  }
+  // For arrays, convert the first value to the appropriate type.
+  if (this->IsArray())
+  {
+    if (this->Data.VTKObject->IsA("vtkDataArray"))
+    {
+      // Note: This are not the best conversion.
+      //       We convert the first value to double, then
+      //       cast it back to the appropriate numeric type.
+      vtkDataArray* da = vtkDataArray::SafeDownCast(this->Data.VTKObject);
+      if (da->GetNumberOfTuples() > 0)
+      {
+        return static_cast<T>(da->GetTuple1(0));
+      }
+    }
+    else if (this->Data.VTKObject->IsA("vtkVariantArray"))
+    {
+      // Note: This are not the best conversion.
+      //       We convert the first value to double, then
+      //       cast it back to the appropriate numeric type.
+      vtkVariantArray* va = vtkVariantArray::SafeDownCast(this->Data.VTKObject);
+      if (va->GetNumberOfValues() > 0)
+      {
+        return static_cast<T>(va->GetValue(0).ToDouble());
+      }
+    }
+    else if (this->Data.VTKObject->IsA("vtkStringArray"))
+    {
+      vtkStringArray* sa = vtkStringArray::SafeDownCast(this->Data.VTKObject);
+      if (sa->GetNumberOfValues() > 0)
+      {
+        return vtkVariantStringToNumeric<T>(sa->GetValue(0), valid);
+      }
+    }
+  }
+  if (valid)
+  {
+    *valid = false;
+  }
+  return static_cast<T>(0);
+}
 
 //------------------------------------------------------------------------------
 // Callers causing implicit instantiations of ToNumeric
 
-VTK_ABI_NAMESPACE_BEGIN
 float vtkVariant::ToFloat(bool* valid) const
 {
   return this->ToNumeric(valid, static_cast<float*>(nullptr));
