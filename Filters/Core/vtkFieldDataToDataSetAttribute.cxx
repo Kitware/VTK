@@ -28,6 +28,7 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFieldDataToDataSetAttribute);
 
 //------------------------------------------------------------------------------
