@@ -1005,7 +1005,7 @@ then adding a custom license may be needed.
 The SPDX generation system support to specify exactly one custom license by module, supplemental to standard licenses.
 The text of this license should be made available in a file and added to the module definition using `SPDX_CUSTOM_LICENSE_FILE`
 , the name of the license should be specified using `SPDX_CUSTOM_LICENSE_NAME` (eg: `LicenseName` and the `SPDX_LICENSE_IDENTIFIER` for this license
-should be `LicenseRef-` followed by the name (eg: `LicenseRef-licenseName`). See [this entry](/advanced/spdx_and_sbom.md#frequently_asked_questions) for more info.
+should be `LicenseRef-` followed by the name (eg: `LicenseRef-licenseName`). See [this entry](/advanced/spdx_and_sbom.md#frequently-asked-questions) for more info.
 
 :::{note}
 If this custom license is to be added to VTK proper, it must be compatible with the BSD-3-CLAUSE license of VTK and
