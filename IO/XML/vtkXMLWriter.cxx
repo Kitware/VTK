@@ -2937,6 +2937,24 @@ void vtkXMLWriter::WritePArray(vtkAbstractArray* a, vtkIndent indent, const char
   {
     this->WriteScalarAttribute("NumberOfComponents", a->GetNumberOfComponents());
   }
+
+  // always write out component names, even if only 1 component
+  std::ostringstream buff;
+  const char* compName = nullptr;
+  for (int i = 0; i < a->GetNumberOfComponents(); ++i)
+  {
+    // get the component names
+    buff << "ComponentName" << i;
+    compName = a->GetComponentName(i);
+    if (compName)
+    {
+      this->WriteStringAttribute(buff.str().c_str(), compName);
+      compName = nullptr;
+    }
+    buff.str("");
+    buff.clear();
+  }
+
   os << "/>\n";
 
   os.flush();
