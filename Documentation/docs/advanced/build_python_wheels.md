@@ -1,7 +1,7 @@
 # Building Python Wheels
 
 ```{tip}
-For complete build instructions see [here](build.md).
+For complete build instructions see [here](../build_instructions/build.md).
 ```
 
 VTK also supports creating a Python wheel containing its Python wrappers for

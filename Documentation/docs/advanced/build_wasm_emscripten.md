@@ -47,7 +47,7 @@ For this guide, you will need the following:
 
    Alternatively the source-code can be obtained from the repository as well.
    This is recommended only if you intent to make changes and contribute to
-   VTK. Please refer to [git/develop.md](git/develop.md) for help with `git`.
+   VTK. Please refer to [git/develop.md](../developers_guide/git/develop.md) for help with `git`.
 
 ## Build project
 

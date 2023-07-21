@@ -13,7 +13,7 @@ Here we document procedures used by the VTK development community.
 In the interest of simplicity and brevity we do *not* provide an
 explanation of why we use this approach.
 
-For a quickstart guide see [here](develop_quickstart.md)
+For a quickstart guide see [here](../develop_quickstart.md)
 
 Workflow
 --------
@@ -94,7 +94,7 @@ A reader should have a general idea of the feature or fix to be developed given 
 
     Caveats:
     * To add data follow [these instructions](test.md#add-data).
-    * If your change modifies third party code, see [Updating Third Party Projects](/ThirdParty/UPDATING.md).
+    * If your change modifies third party code, see [Updating Third Party Projects](thirdparty.md).
     * To deprecate APIs, see [Deprecation Process](deprecation.md).
 
 Guidelines for Commit logs

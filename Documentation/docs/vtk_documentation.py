@@ -146,64 +146,6 @@ def add_init_file(path):
 
 MANUAL_SUBSTITUTIONS = [
     {
-        "source": "../dev/git/test.md",
-        "destination": "./developers_guide/git/test.md",
-        "substitutions": [
-            (" /Utilities/", "../../../../Utilities/"),
-            ("/CMake/", "../../../../CMake/"),
-            ("develop_quickstart.md", "../develop_quickstart.md")
-        ],
-    },
-    {
-        "source": "../dev/git/develop.md",
-        "destination": "./developers_guide/git/develop.md",
-        "substitutions": [
-            (" /Utilities/", "../../../../Utilities/"),
-            ("/ThirdParty/UPDATING.md", "thirdparty.md"),
-            ("/Documentation/dev/build.md", "../../build_instructions/index.md"),
-            ("develop_quickstart.md", "../develop_quickstart.md")
-        ],
-    },
-    {
-        "source": "../dev/git/develop_quickstart.md",
-        "destination": "./developers_guide/develop_quickstart.md",
-        "substitutions": [
-            (" /Utilities/", "../../../Utilities/"),
-            ("/ThirdParty/UPDATING.md", "thirdparty.md"),
-            ("/Documentation/dev/build.md", "../build_instructions/index.md"),
-            ("develop.md", "./git/develop.md"),
-            ("download.md", "./git/download.md"),
-        ],
-    },
-    {
-        "source": "../dev/build_wasm_emscripten.md",
-        "destination": "./advanced/build_wasm_emscripten.md",
-        "substitutions": [
-            ("\(git/develop.md\)", "(../developers_guide/git/develop.md)"),
-        ],
-    },
-    {
-        "source": "../dev/build_for_mobile.md",
-        "destination": "./advanced/build_for_mobile.md",
-        "substitutions": [
-            ("\(build.md\)", "(../build_instructions/build.md)"),
-        ],
-    },
-    {
-        "source": "../dev/build_python_wheels.md",
-        "destination": "./advanced/build_python_wheels.md",
-        "substitutions": [
-            ("\(build.md\)", "(../build_instructions/build.md)"),
-        ],
-    },
-    {
-        "source": "../dev/build_documentation.md",
-        "destination": "./advanced/build_documentation.md",
-        "substitutions": [
-            ("\(build.md\)", "(../build_instructions/build.md)"),
-        ],
-    },
-    {
         "source": "../../ThirdParty/imported.md",
         "destination": "./developers_guide/git/thirdparty-projects.md",
         "substitutions": [

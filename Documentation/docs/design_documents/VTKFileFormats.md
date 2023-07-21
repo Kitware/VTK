@@ -1083,9 +1083,9 @@ using the following formulas:
 
 
 ```{figure} poly_data_hdf_schema.png
----
-width=640
----
+:width: 640px
+:align: center
+
 Figure 8. - Poly Data VTKHDF File Format
 ```
 
@@ -1159,9 +1159,9 @@ absence of a data set, the appropriate geometry offsetting for the time step is 
 place.
 
 ```{figure} transient_hdf_schema.png
----
-width=640
----
+:width: 640px
+:align: center
+
 Figure 10. - Transient Data VTKHDF File Format
 ```
 
