@@ -54,6 +54,40 @@ struct vtkChartParallelCoordinates::Private final
     }
   }
 
+  /**
+   * Remove all selections.
+   */
+  void ClearSelectedAxisSelection(int i) { this->AxesSelections[i].clear(); }
+
+  /**
+   * Remove all selection with a negative value.
+   *
+   * A valid selection range is normalizd between 0 and 1.
+   */
+  void ClearInvalidRangeSelection(int i)
+  {
+    this->AxesSelections[i].erase(
+      std::remove(this->AxesSelections[i].begin(), this->AxesSelections[i].end(), -1),
+      this->AxesSelections[i].end());
+  }
+
+  /**
+   * Append new range selection in the selected axis.
+   */
+  void AppendNewSelectionInAxis(int i, float min, float max)
+  {
+    this->AxesSelections[i].push_back(min);
+    this->AxesSelections[i].push_back(max);
+  }
+
+  /**
+   * Sort selected axis selections.
+   */
+  void SortAxisSelection(int i)
+  {
+    std::sort(this->AxesSelections[i].begin(), this->AxesSelections[i].end());
+  }
+
   vtkSmartPointer<vtkPlotParallelCoordinates> Plot;
   vtkNew<vtkTransform2D> Transform;
   std::vector<vtkAxis*> Axes;
@@ -67,6 +101,7 @@ struct vtkChartParallelCoordinates::Private final
 
   int CurrentAxis = -1;
   int AxisResize = -1;
+  bool ShouldClearCurrentAxeSelection = true;
 
   bool InteractiveSelection = false;
 };
@@ -645,6 +680,14 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(const vtkContextMouseEve
           axis->GetPoint1()[0] + 10 > mouse.GetScenePos()[0])
         {
           this->Storage->CurrentAxis = static_cast<int>(i);
+
+          if (this->GetSelectionMode() == vtkContextScene::SELECTION_DEFAULT &&
+            this->Storage->ShouldClearCurrentAxeSelection)
+          {
+            this->ResetAxeSelection(this->Storage->CurrentAxis);
+            this->Storage->ShouldClearCurrentAxeSelection = false;
+          }
+
           // This is a manual interactive selection
           this->Storage->InteractiveSelection = true;
 
@@ -731,11 +774,16 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
 
       // Update all range stored based on the new selection
       UpdateCurrentAxisSelection(this->Storage->CurrentAxis);
+
+      // To support multiple selection, we need to recalculate all the selection
+      this->ResetSelection();
+
       this->Storage->CurrentSelection[0] = 0;
       this->Storage->CurrentSelection[1] = 0;
 
       // This is a manual interactive selection
       this->Storage->InteractiveSelection = true;
+      this->Storage->ShouldClearCurrentAxeSelection = true;
 
       if (this->AnnotationLink)
       {
@@ -841,6 +889,16 @@ void vtkChartParallelCoordinates::UpdateCurrentAxisSelection(int axisId)
   std::array<float, 2> currentSelection = this->Storage->CurrentSelection;
   float minCurrentSelection = std::min(currentSelection[0], currentSelection[1]);
   float maxCurrentSelection = std::max(currentSelection[0], currentSelection[1]);
+
+  if (this->GetSelectionMode() == vtkContextScene::SELECTION_DEFAULT)
+  {
+    // in this context, only single selection should be done, clear the previous one.
+    this->Storage->ClearSelectedAxisSelection(axisId);
+
+    this->Storage->ClearInvalidRangeSelection(axisId);
+    this->Storage->AppendNewSelectionInAxis(axisId, minCurrentSelection, maxCurrentSelection);
+    return;
+  }
 
   bool isANewRange = true;
   bool startAMerge = false;
@@ -954,21 +1012,12 @@ void vtkChartParallelCoordinates::UpdateCurrentAxisSelection(int axisId)
   }
 
   // Remove invalidated ranges
-  this->Storage->AxesSelections[axisId].erase(
-    std::remove(this->Storage->AxesSelections[axisId].begin(),
-      this->Storage->AxesSelections[axisId].end(), -1),
-    this->Storage->AxesSelections[axisId].end());
-
+  this->Storage->ClearInvalidRangeSelection(axisId);
   if (isANewRange)
   {
-    this->Storage->AxesSelections[axisId].push_back(minCurrentSelection);
-    this->Storage->AxesSelections[axisId].push_back(maxCurrentSelection);
+    this->Storage->AppendNewSelectionInAxis(axisId, minCurrentSelection, maxCurrentSelection);
   }
 
-  std::sort(
-    this->Storage->AxesSelections[axisId].begin(), this->Storage->AxesSelections[axisId].end());
-
-  // To support multiple selection, we need to recalculate all the selection
-  this->ResetSelection();
+  this->Storage->SortAxisSelection(axisId);
 }
 VTK_ABI_NAMESPACE_END
