@@ -54,6 +54,8 @@
 
 #include "vtkSurfaceLICInterface.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+
 vtkStandardNewMacro(vtkCompositeSurfaceLICMapper);
 //------------------------------------------------------------------------------
 vtkCompositeSurfaceLICMapper::vtkCompositeSurfaceLICMapper() = default;
