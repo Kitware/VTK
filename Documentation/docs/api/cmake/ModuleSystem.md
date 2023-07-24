@@ -1008,7 +1008,7 @@ The text of this license should be made available in a file and added to the mod
 should be `LicenseRef-` followed by the name (eg: `LicenseRef-licenseName`). See [this entry](/advanced/spdx_and_sbom.md#frequently-asked-questions) for more info.
 
 :::{note}
-If this custom license is to be added to VTK proper, it must be compatible with the BSD-3-CLAUSE license of VTK and
+If this custom license is to be added to VTK proper, it must be compatible with the BSD-3-Clause license of VTK and
 not add more restriction to the code.
 :::
 
@@ -1023,7 +1023,7 @@ the `SPDX-License-Identifier` tag. Like this:
 ```
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) Awesome contributor
-// SPDX-License-Identifier: BSD-3-CLAUSE
+// SPDX-License-Identifier: BSD-3-Clause
 ```
 
 If a source file does not contain both `SPDX-FileCopyrightText` and `SPDX-License-Identifier`
