@@ -65,6 +65,12 @@ private:
 
 VTK_ABI_NAMESPACE_BEGIN
 
+#define SCOPED_ROLLBACK(type, varName)                                                             \
+  ScopedValueRollback<type> saver_##varName(this->varName, batchElement.varName)
+
+#define SCOPED_ROLLBACK_CUSTOM_VARIABLE(type, varName, newVarName)                                 \
+  ScopedValueRollback<type> saver_##varName(this->varName, newVarName)
+
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLBatchedPolyDataMapper);
 
@@ -835,14 +841,13 @@ void vtkOpenGLBatchedPolyDataMapper::SetShaderValues(
     return;
   }
 
-  ScopedValueRollback<int> scalarModeSaver(this->ScalarMode, batchElement.ScalarMode);
-  ScopedValueRollback<int> accessModeSaver(this->ArrayAccessMode, batchElement.ArrayAccessMode);
-  ScopedValueRollback<int> arrayComponentSaver(this->ArrayComponent, batchElement.ArrayComponent);
-  ScopedValueRollback<int> arrayIdSaver(this->ArrayId, batchElement.ArrayId);
-  char* newArrayName = batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front();
-  ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, newArrayName);
-  ScopedValueRollback<vtkIdType> fieldDataTupleIdSaver(
-    this->FieldDataTupleId, batchElement.FieldDataTupleId);
+  SCOPED_ROLLBACK(int, ScalarMode);
+  SCOPED_ROLLBACK(int, ArrayAccessMode);
+  SCOPED_ROLLBACK(int, ArrayComponent);
+  SCOPED_ROLLBACK(int, ArrayId);
+  SCOPED_ROLLBACK_CUSTOM_VARIABLE(char*, ArrayName,
+    static_cast<char*>(batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front()));
+  SCOPED_ROLLBACK(vtkIdType, FieldDataTupleId);
   // If requested, color partial / missing arrays with NaN color.
   bool useNanColor = false;
   double nanColor[4] = { -1., -1., -1., -1 };
@@ -1010,16 +1015,14 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
         glBatchElement->StartIndex[i] = static_cast<unsigned int>(this->IndexArray[i].size());
       }
 
-      ScopedValueRollback<int> scalarModeSaver(this->ScalarMode, batchElement.ScalarMode);
-      ScopedValueRollback<int> accessModeSaver(this->ArrayAccessMode, batchElement.ArrayAccessMode);
-      ScopedValueRollback<int> arrayComponentSaver(
-        this->ArrayComponent, batchElement.ArrayComponent);
-      ScopedValueRollback<int> arrayIdSaver(this->ArrayId, batchElement.ArrayId);
-      char* newArrayName =
-        batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front();
-      ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, newArrayName);
-      ScopedValueRollback<vtkIdType> fieldDataTupleIdSaver(
-        this->FieldDataTupleId, batchElement.FieldDataTupleId);
+      SCOPED_ROLLBACK(int, ScalarMode);
+      SCOPED_ROLLBACK(int, ArrayAccessMode);
+      SCOPED_ROLLBACK(int, ArrayComponent);
+      SCOPED_ROLLBACK(int, ArrayId);
+      SCOPED_ROLLBACK_CUSTOM_VARIABLE(char*, ArrayName,
+        static_cast<char*>(
+          batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front()));
+      SCOPED_ROLLBACK(vtkIdType, FieldDataTupleId);
       vtkIdType vertexOffset = 0;
       // vert cell offset starts at the end of the last block
       glBatchElement->CellCellMap->SetStartOffset(
@@ -1211,16 +1214,14 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
         glBatchElement->StartIndex[i] = this->PrimitiveIndexArrays[i].size();
       }
 
-      ScopedValueRollback<int> scalarModeSaver(this->ScalarMode, batchElement.ScalarMode);
-      ScopedValueRollback<int> accessModeSaver(this->ArrayAccessMode, batchElement.ArrayAccessMode);
-      ScopedValueRollback<int> arrayComponentSaver(
-        this->ArrayComponent, batchElement.ArrayComponent);
-      ScopedValueRollback<int> arrayIdSaver(this->ArrayId, batchElement.ArrayId);
-      char* newArrayName =
-        batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front();
-      ScopedValueRollback<char*> arrayNameSaver(this->ArrayName, newArrayName);
-      ScopedValueRollback<vtkIdType> fieldDataTupleIdSaver(
-        this->FieldDataTupleId, batchElement.FieldDataTupleId);
+      SCOPED_ROLLBACK(int, ScalarMode);
+      SCOPED_ROLLBACK(int, ArrayAccessMode);
+      SCOPED_ROLLBACK(int, ArrayComponent);
+      SCOPED_ROLLBACK(int, ArrayId);
+      SCOPED_ROLLBACK_CUSTOM_VARIABLE(char*, ArrayName,
+        static_cast<char*>(
+          batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front()));
+      SCOPED_ROLLBACK(vtkIdType, FieldDataTupleId);
       glBatchElement->StartVertex = 0;
       glBatchElement->CellCellMap->SetStartOffset(
         prevGLBatchElement ? prevGLBatchElement->CellCellMap->GetFinalOffset() : 0);
