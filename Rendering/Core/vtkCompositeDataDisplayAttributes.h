@@ -32,10 +32,13 @@
 #include "vtkColor.h" // for vtkColor3d
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // for export macro
+#include "vtkSmartPointer.h"        // for arg
+#include "vtkVector.h"              // for vtkVector2d
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkDataObject;
+class vtkScalarsToColors;
 
 class VTKRENDERINGCORE_EXPORT vtkCompositeDataDisplayAttributes : public vtkObject
 {
@@ -103,6 +106,42 @@ public:
    * for all blocks to true.
    */
   void RemoveBlockPickabilities();
+
+  ///@{
+  /**
+   * @see vtkMapper::SetScalarVisibility
+   */
+  void SetBlockScalarVisibility(vtkDataObject* data_object, bool value);
+  bool GetBlockScalarVisibility(vtkDataObject* data_object) const;
+  bool HasBlockScalarVisibility(vtkDataObject* data_object) const;
+  bool HasBlockScalarVisibilities() const;
+  void RemoveBlockScalarVisibility(vtkDataObject* data_object);
+  void RemoveBlockScalarVisibilities();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetUseLookupTableScalarRange
+   */
+  void SetBlockUseLookupTableScalarRange(vtkDataObject* data_object, bool value);
+  bool GetBlockUseLookupTableScalarRange(vtkDataObject* data_object) const;
+  bool HasBlockUseLookupTableScalarRange(vtkDataObject* data_object) const;
+  bool HasBlockUseLookupTableScalarRanges() const;
+  void RemoveBlockUseLookupTableScalarRange(vtkDataObject* data_object);
+  void RemoveBlockUseLookupTableScalarRanges();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetInterpolateScalarsBeforeMapping
+   */
+  void SetBlockInterpolateScalarsBeforeMapping(vtkDataObject* data_object, bool value);
+  bool GetBlockInterpolateScalarsBeforeMapping(vtkDataObject* data_object) const;
+  bool HasBlockInterpolateScalarsBeforeMapping(vtkDataObject* data_object) const;
+  bool HasBlockInterpolateScalarsBeforeMappings() const;
+  void RemoveBlockInterpolateScalarsBeforeMapping(vtkDataObject* data_object);
+  void RemoveBlockInterpolateScalarsBeforeMappings();
+  ///@}
 
   ///@{
   /**
@@ -192,6 +231,18 @@ public:
 
   ///@{
   /**
+   * @see vtkMapper::SetColorMode
+   */
+  void SetBlockColorMode(vtkDataObject* data_object, int value);
+  int GetBlockColorMode(vtkDataObject* data_object) const;
+  bool HasBlockColorMode(vtkDataObject* data_object) const;
+  bool HasBlockColorModes() const;
+  void RemoveBlockColorMode(vtkDataObject* data_object);
+  void RemoveBlockColorModes();
+  ///@}
+
+  ///@{
+  /**
    * @see vtkMapper::SetScalarMode
    */
   void SetBlockScalarMode(vtkDataObject* data_object, int value);
@@ -240,6 +291,18 @@ public:
 
   ///@{
   /**
+   * @see vtkMapper::SetScalarRange
+   */
+  void SetBlockScalarRange(vtkDataObject* data_object, const vtkVector2d& value);
+  vtkVector2d GetBlockScalarRange(vtkDataObject* data_object) const;
+  bool HasBlockScalarRange(vtkDataObject* data_object) const;
+  bool HasBlockScalarRanges() const;
+  void RemoveBlockScalarRange(vtkDataObject* data_object);
+  void RemoveBlockScalarRanges();
+  ///@}
+
+  ///@{
+  /**
    * @see vtkMapper::SetArrayName
    */
   void SetBlockArrayName(vtkDataObject* data_object, const std::string& value);
@@ -260,6 +323,18 @@ public:
   bool HasBlockFieldDataTupleIds() const;
   void RemoveBlockFieldDataTupleId(vtkDataObject* data_object);
   void RemoveBlockFieldDataTupleIds();
+  ///@}
+
+  ///@{
+  /**
+   * @see vtkMapper::SetLookupTable
+   */
+  void SetBlockLookupTable(vtkDataObject* data_object, vtkSmartPointer<vtkScalarsToColors> lut);
+  vtkSmartPointer<vtkScalarsToColors> GetBlockLookupTable(vtkDataObject* data_object) const;
+  bool HasBlockLookupTable(vtkDataObject* data_object) const;
+  bool HasBlockLookupTables() const;
+  void RemoveBlockLookupTable(vtkDataObject* data_object);
+  void RemoveBlockLookupTables();
   ///@}
 
   /**
@@ -313,18 +388,26 @@ private:
   using IntMap = std::unordered_map<vtkDataObject*, int>;
   using VtkIdTypeMap = std::unordered_map<vtkDataObject*, vtkIdType>;
   using ColorMap = std::unordered_map<vtkDataObject*, vtkColor3d>;
+  using RangeMap = std::unordered_map<vtkDataObject*, vtkVector2d>;
   using StringMap = std::unordered_map<vtkDataObject*, std::string>;
+  using LookupTableMap = std::unordered_map<vtkDataObject*, vtkSmartPointer<vtkScalarsToColors>>;
 
   BoolMap BlockVisibilities;
   ColorMap BlockColors;
   DoubleMap BlockOpacities;
   StringMap BlockMaterials;
   BoolMap BlockPickabilities;
+  BoolMap BlockScalarVisibilities;
+  BoolMap BlockUseLookupTableScalarRanges;
+  BoolMap BlockInterpolateScalarsBeforeMappings;
+  IntMap BlockColorModes;
   IntMap BlockScalarModes;
   IntMap BlockArrayAccessModes;
   IntMap BlockArrayComponents;
   IntMap BlockArrayIds;
+  RangeMap BlockScalarRanges;
   StringMap BlockArrayNames;
+  LookupTableMap BlockLookupTables;
   VtkIdTypeMap BlockFieldDataTupleIds;
 };
 

@@ -24,6 +24,7 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkScalarsToColors.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -144,6 +145,177 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockPickabilities()
     return;
   }
   this->BlockPickabilities.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockScalarVisibility(
+  vtkDataObject* data_object, bool value)
+{
+  if (this->HasBlockScalarVisibility(data_object) &&
+    this->GetBlockScalarVisibility(data_object) == value)
+  {
+    return;
+  }
+  this->BlockScalarVisibilities[data_object] = value;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::GetBlockScalarVisibility(vtkDataObject* data_object) const
+{
+  BoolMap::const_iterator iter = this->BlockScalarVisibilities.find(data_object);
+  if (iter != this->BlockScalarVisibilities.end())
+  {
+    return iter->second;
+  }
+  else
+  {
+    // default to true
+    return true;
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockScalarVisibility(vtkDataObject* data_object) const
+{
+  return this->BlockScalarVisibilities.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockScalarVisibilities() const
+{
+  return !this->BlockScalarVisibilities.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockScalarVisibility(vtkDataObject* data_object)
+{
+  this->BlockScalarVisibilities.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockScalarVisibilities()
+{
+  if (!this->HasBlockScalarVisibilities())
+  {
+    return;
+  }
+  this->BlockScalarVisibilities.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockUseLookupTableScalarRange(
+  vtkDataObject* data_object, bool value)
+{
+  if (this->HasBlockUseLookupTableScalarRange(data_object) &&
+    this->GetBlockUseLookupTableScalarRange(data_object) == value)
+  {
+    return;
+  }
+  this->BlockUseLookupTableScalarRanges[data_object] = value;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::GetBlockUseLookupTableScalarRange(
+  vtkDataObject* data_object) const
+{
+  BoolMap::const_iterator iter = this->BlockUseLookupTableScalarRanges.find(data_object);
+  if (iter != this->BlockUseLookupTableScalarRanges.end())
+  {
+    return iter->second;
+  }
+  // default to false. Agrees with defaults in vtkMapper::vtkMapper()
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockUseLookupTableScalarRange(
+  vtkDataObject* data_object) const
+{
+  return this->BlockUseLookupTableScalarRanges.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockUseLookupTableScalarRanges() const
+{
+  return !this->BlockUseLookupTableScalarRanges.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockUseLookupTableScalarRange(
+  vtkDataObject* data_object)
+{
+  this->BlockUseLookupTableScalarRanges.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockUseLookupTableScalarRanges()
+{
+  if (!this->HasBlockUseLookupTableScalarRanges())
+  {
+    return;
+  }
+  this->BlockUseLookupTableScalarRanges.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockInterpolateScalarsBeforeMapping(
+  vtkDataObject* data_object, bool value)
+{
+  if (this->HasBlockInterpolateScalarsBeforeMapping(data_object) &&
+    this->GetBlockInterpolateScalarsBeforeMapping(data_object) == value)
+  {
+    return;
+  }
+  this->BlockInterpolateScalarsBeforeMappings[data_object] = value;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::GetBlockInterpolateScalarsBeforeMapping(
+  vtkDataObject* data_object) const
+{
+  BoolMap::const_iterator iter = this->BlockInterpolateScalarsBeforeMappings.find(data_object);
+  if (iter != this->BlockInterpolateScalarsBeforeMappings.end())
+  {
+    return iter->second;
+  }
+  // default to false. Agrees with defaults in vtkMapper::vtkMapper()
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockInterpolateScalarsBeforeMapping(
+  vtkDataObject* data_object) const
+{
+  return this->BlockInterpolateScalarsBeforeMappings.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockInterpolateScalarsBeforeMappings() const
+{
+  return !this->BlockInterpolateScalarsBeforeMappings.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockInterpolateScalarsBeforeMapping(
+  vtkDataObject* data_object)
+{
+  this->BlockInterpolateScalarsBeforeMappings.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockInterpolateScalarsBeforeMappings()
+{
+  if (!this->HasBlockInterpolateScalarsBeforeMappings())
+  {
+    return;
+  }
+  this->BlockInterpolateScalarsBeforeMappings.clear();
   this->Modified();
 }
 
@@ -327,6 +499,59 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockMaterials()
     return;
   }
   this->BlockMaterials.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockColorMode(vtkDataObject* data_object, int value)
+{
+  const auto result = this->BlockColorModes.emplace(data_object, value);
+  const auto& iter = result.first;
+  const auto& inserted = result.second;
+  if (inserted || iter->second != value)
+  {
+    iter->second = value;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataDisplayAttributes::GetBlockColorMode(vtkDataObject* data_object) const
+{
+  const auto iter = this->BlockColorModes.find(data_object);
+  if (iter != this->BlockColorModes.end())
+  {
+    return iter->second;
+  }
+  return VTK_COLOR_MODE_DEFAULT;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockColorMode(vtkDataObject* data_object) const
+{
+  return this->BlockColorModes.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockColorModes() const
+{
+  return !this->BlockColorModes.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockColorMode(vtkDataObject* data_object)
+{
+  this->BlockColorModes.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockColorModes()
+{
+  if (!this->HasBlockColorModes())
+  {
+    return;
+  }
+  this->BlockColorModes.clear();
   this->Modified();
 }
 
@@ -546,6 +771,61 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockArrayIds()
 }
 
 //----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockScalarRange(
+  vtkDataObject* data_object, const vtkVector2d& value)
+{
+  const auto result = this->BlockScalarRanges.emplace(data_object, value);
+  const auto& iter = result.first;
+  const auto& inserted = result.second;
+  if (inserted || iter->second != value)
+  {
+    iter->second = value;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkVector2d vtkCompositeDataDisplayAttributes::GetBlockScalarRange(vtkDataObject* data_object) const
+{
+  const auto iter = this->BlockScalarRanges.find(data_object);
+  if (iter != this->BlockScalarRanges.end())
+  {
+    return iter->second;
+  }
+  // Agrees with defaults in vtkMapper::vtkMapper()
+  return { 0.0, 1.0 };
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockScalarRange(vtkDataObject* data_object) const
+{
+  return this->BlockScalarRanges.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockScalarRanges() const
+{
+  return !this->BlockScalarRanges.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockScalarRange(vtkDataObject* data_object)
+{
+  this->BlockScalarRanges.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockScalarRanges()
+{
+  if (!this->HasBlockScalarRanges())
+  {
+    return;
+  }
+  this->BlockScalarRanges.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::SetBlockArrayName(
   vtkDataObject* data_object, const std::string& value)
 {
@@ -651,6 +931,61 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockFieldDataTupleIds()
     return;
   }
   this->BlockFieldDataTupleIds.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockLookupTable(
+  vtkDataObject* data_object, vtkSmartPointer<vtkScalarsToColors> value)
+{
+  const auto result = this->BlockLookupTables.emplace(data_object, value);
+  const auto& iter = result.first;
+  const auto& inserted = result.second;
+  if (inserted || iter->second != value)
+  {
+    iter->second = value;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkScalarsToColors> vtkCompositeDataDisplayAttributes::GetBlockLookupTable(
+  vtkDataObject* data_object) const
+{
+  const auto iter = this->BlockLookupTables.find(data_object);
+  if (iter != this->BlockLookupTables.end())
+  {
+    return iter->second;
+  }
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockLookupTable(vtkDataObject* data_object) const
+{
+  return this->BlockLookupTables.count(data_object) == std::size_t(1);
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockLookupTables() const
+{
+  return !this->BlockLookupTables.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockLookupTable(vtkDataObject* data_object)
+{
+  this->BlockLookupTables.erase(data_object);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockLookupTables()
+{
+  if (!this->HasBlockLookupTables())
+  {
+    return;
+  }
+  this->BlockLookupTables.clear();
   this->Modified();
 }
 
