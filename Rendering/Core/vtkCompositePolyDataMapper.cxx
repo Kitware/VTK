@@ -474,13 +474,13 @@ vtkCompositePolyDataMapper::MapperHashType vtkCompositePolyDataMapper::InsertPol
   {
     vtkDebugMacro(<< "DataObject at flatIndex=" << flatIndex
                   << " is not a vtkPolyData or a vtkPolyData derived instance!");
-    return VTK_TYPE_UINT64_MAX;
+    return std::numeric_limits<MapperHashType>::max();
   }
   if (polydata->GetPoints() == nullptr || !polydata->GetNumberOfPoints())
   {
     vtkDebugMacro(<< "vtkPolyData at flatIndex=" << flatIndex
                   << " does not have points. It will not be rendered.");
-    return VTK_TYPE_UINT64_MAX;
+    return std::numeric_limits<MapperHashType>::max();
   }
   auto& internals = (*this->Internals);
   const auto hash = this->GenerateHash(polydata);
@@ -667,7 +667,7 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
     this->PrototypeMapper->SetLookupTable(internals.BlockState.LookupTable.top());
 
     const auto hash = this->InsertPolyData(polydata, originalFlatIndex);
-    if (hash == VTK_TYPE_UINT64_MAX)
+    if (hash == std::numeric_limits<MapperHashType>::max())
     {
       return;
     }
