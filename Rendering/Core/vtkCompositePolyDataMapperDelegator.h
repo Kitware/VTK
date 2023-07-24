@@ -31,6 +31,7 @@
 #include "vtkColor.h"               // for ivar
 #include "vtkRenderingCoreModule.h" // for export macro
 #include "vtkSmartPointer.h"        // for ivar
+#include "vtkVector.h"              // for ivar
 
 #include <memory> // for shared_ptr
 
@@ -39,6 +40,8 @@ class vtkAbstractMapper;
 class vtkCompositePolyDataMapper;
 class vtkPolyData;
 class vtkPolyDataMapper;
+class vtkScalarsToColors;
+class vtkImageData;
 
 class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapperDelegator : public vtkObject
 {
@@ -65,7 +68,11 @@ public:
     bool Visibility;
     bool Pickability;
     bool OverridesColor;
+    bool ScalarVisibility;
+    bool UseLookupTableScalarRange;
+    bool InterpolateScalarsBeforeMapping;
 
+    int ColorMode;
     int ScalarMode;
     int ArrayAccessMode;
     int ArrayComponent;
@@ -81,9 +88,11 @@ public:
 
     double Opacity;
     double SelectionOpacity;
+    vtkVector2d ScalarRange;
 
     std::string ArrayName;
-    vtkPolyData* PolyData;
+    vtkScalarsToColors* LookupTable = nullptr;
+    vtkPolyData* PolyData = nullptr;
   };
 
   ///@{
