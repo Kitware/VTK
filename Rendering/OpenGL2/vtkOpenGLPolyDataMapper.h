@@ -63,26 +63,9 @@ public:
   void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
 
   /**
-   * Unique hash based on availability of scalars, normals and tcoords.
-   * The maximum value of the hash is 15 and the minimum is 0.
-   *
-   * HasTCoords | HasNormals | HasCellScalars | HasPointScalars
-   *     0      |      0     |       0        |        0
-   *     0      |      0     |       0        |        1
-   *     0      |      0     |       1        |        0
-   *     0      |      0     |       1        |        1
-   *     0      |      1     |       0        |        0
-   *     0      |      1     |       0        |        1
-   *     0      |      1     |       1        |        0
-   *     0      |      1     |       1        |        1
-   *     1      |      0     |       0        |        0
-   *     1      |      0     |       0        |        1
-   *     1      |      0     |       1        |        0
-   *     1      |      0     |       1        |        1
-   *     1      |      1     |       0        |        0
-   *     1      |      1     |       0        |        1
-   *     1      |      1     |       1        |        0
-   *     1      |      1     |       1        |        1
+   * Unique hash based on availability of scalars, normals, tcoords, lookup tables
+   * and related attributes that distinguish the rendering requirements of different
+   * polydata.
    */
   MapperHashType GenerateHash(vtkPolyData* polydata) override;
 
