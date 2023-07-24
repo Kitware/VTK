@@ -42,6 +42,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestCompositePolyDataMapperMixedGeometryEdges.cxx,NO_DATA
   TestCompositePolyDataMapperNaNPartial.cxx,NO_DATA
   TestCompositePolyDataMapperOverrideScalarArray.cxx,NO_DATA
+  TestCompositePolyDataMapperOverrideLUT.cxx,NO_DATA
   TestCompositePolyDataMapperPickability.cxx,NO_DATA
   TestCompositePolyDataMapperPicking.cxx,NO_DATA
   TestCompositePolyDataMapperScalars.cxx,NO_DATA
