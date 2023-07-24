@@ -71,6 +71,9 @@ VTK_ABI_NAMESPACE_BEGIN
 #define SCOPED_ROLLBACK_CUSTOM_VARIABLE(type, varName, newVarName)                                 \
   ScopedValueRollback<type> saver_##varName(this->varName, newVarName)
 
+#define SCOPED_ROLLBACK_ARRAY_ELEMENT(type, varName, idx)                                          \
+  ScopedValueRollback<type> saver_##varName##idx(this->varName[idx], batchElement.varName[idx])
+
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLBatchedPolyDataMapper);
 
@@ -687,32 +690,6 @@ void vtkOpenGLBatchedPolyDataMapper::ProcessCompositePixelBuffers(vtkHardwareSel
 }
 
 //------------------------------------------------------------------------------
-vtkUnsignedCharArray* vtkOpenGLBatchedPolyDataMapper::MapScalars(vtkDataSet* input, double alpha)
-{
-  int cellFlag = 0;
-  bool restoreLookupTable = false;
-  // Can't use ScopedValueRollback here because vtkMapper::SetLookupTable affects the refcount.
-  auto oldLut = this->LookupTable;
-  auto scalars = vtkAbstractMapper::GetAbstractScalars(
-    input, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
-  // Get the lookup table.
-  vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
-  if (dataArray && dataArray->GetLookupTable())
-  {
-    this->SetLookupTable(dataArray->GetLookupTable());
-    restoreLookupTable = true;
-  }
-  // let superclass use the new lookup table specified on the array.
-  auto result = this->Superclass::MapScalars(input, alpha, cellFlag);
-  // restore original lookup table.
-  if (restoreLookupTable)
-  {
-    this->SetLookupTable(oldLut);
-  }
-  return result;
-}
-
-//------------------------------------------------------------------------------
 void vtkOpenGLBatchedPolyDataMapper::UpdateCameraShiftScale(vtkRenderer* renderer, vtkActor* actor)
 {
   if (this->PauseShiftScale)
@@ -841,6 +818,7 @@ void vtkOpenGLBatchedPolyDataMapper::SetShaderValues(
     return;
   }
 
+  SCOPED_ROLLBACK(int, ColorMode);
   SCOPED_ROLLBACK(int, ScalarMode);
   SCOPED_ROLLBACK(int, ArrayAccessMode);
   SCOPED_ROLLBACK(int, ArrayComponent);
@@ -848,6 +826,12 @@ void vtkOpenGLBatchedPolyDataMapper::SetShaderValues(
   SCOPED_ROLLBACK_CUSTOM_VARIABLE(char*, ArrayName,
     static_cast<char*>(batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front()));
   SCOPED_ROLLBACK(vtkIdType, FieldDataTupleId);
+  SCOPED_ROLLBACK(vtkTypeBool, ScalarVisibility);
+  SCOPED_ROLLBACK(vtkTypeBool, UseLookupTableScalarRange);
+  SCOPED_ROLLBACK(vtkTypeBool, InterpolateScalarsBeforeMapping);
+  SCOPED_ROLLBACK_ARRAY_ELEMENT(double, ScalarRange, 0);
+  SCOPED_ROLLBACK_ARRAY_ELEMENT(double, ScalarRange, 1);
+
   // If requested, color partial / missing arrays with NaN color.
   bool useNanColor = false;
   double nanColor[4] = { -1., -1., -1., -1 };
@@ -1015,6 +999,7 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
         glBatchElement->StartIndex[i] = static_cast<unsigned int>(this->IndexArray[i].size());
       }
 
+      SCOPED_ROLLBACK(int, ColorMode);
       SCOPED_ROLLBACK(int, ScalarMode);
       SCOPED_ROLLBACK(int, ArrayAccessMode);
       SCOPED_ROLLBACK(int, ArrayComponent);
@@ -1023,6 +1008,12 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
         static_cast<char*>(
           batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front()));
       SCOPED_ROLLBACK(vtkIdType, FieldDataTupleId);
+      SCOPED_ROLLBACK(vtkTypeBool, ScalarVisibility);
+      SCOPED_ROLLBACK(vtkTypeBool, UseLookupTableScalarRange);
+      SCOPED_ROLLBACK(vtkTypeBool, InterpolateScalarsBeforeMapping);
+      SCOPED_ROLLBACK_ARRAY_ELEMENT(double, ScalarRange, 0);
+      SCOPED_ROLLBACK_ARRAY_ELEMENT(double, ScalarRange, 1);
+
       vtkIdType vertexOffset = 0;
       // vert cell offset starts at the end of the last block
       glBatchElement->CellCellMap->SetStartOffset(
@@ -1214,6 +1205,7 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
         glBatchElement->StartIndex[i] = this->PrimitiveIndexArrays[i].size();
       }
 
+      SCOPED_ROLLBACK(int, ColorMode);
       SCOPED_ROLLBACK(int, ScalarMode);
       SCOPED_ROLLBACK(int, ArrayAccessMode);
       SCOPED_ROLLBACK(int, ArrayComponent);
@@ -1222,6 +1214,11 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
         static_cast<char*>(
           batchElement.ArrayName.empty() ? nullptr : &batchElement.ArrayName.front()));
       SCOPED_ROLLBACK(vtkIdType, FieldDataTupleId);
+      SCOPED_ROLLBACK(vtkTypeBool, ScalarVisibility);
+      SCOPED_ROLLBACK(vtkTypeBool, UseLookupTableScalarRange);
+      SCOPED_ROLLBACK(vtkTypeBool, InterpolateScalarsBeforeMapping);
+      SCOPED_ROLLBACK_ARRAY_ELEMENT(double, ScalarRange, 0);
+      SCOPED_ROLLBACK_ARRAY_ELEMENT(double, ScalarRange, 1);
       glBatchElement->StartVertex = 0;
       glBatchElement->CellCellMap->SetStartOffset(
         prevGLBatchElement ? prevGLBatchElement->CellCellMap->GetFinalOffset() : 0);
@@ -1341,13 +1338,7 @@ void vtkOpenGLBatchedPolyDataMapper::AppendOneBufferObject(vtkRenderer* renderer
     this->Colors = nullptr;
   }
 
-  // For vertex coloring, this sets this->Colors as side effect.
-  // For texture map coloring, this sets ColorCoordinates
-  // and ColorTextureMap as a side effect.
-  // I moved this out of the conditional because it is fast.
-  // Color arrays are cached. If nothing has changed,
-  // then the scalars do not have to be regenerted.
-  this->MapScalars(poly, 1.0);
+  this->MapScalars(batchElement.PolyData, 1.0);
 
   // If we are coloring by texture, then load the texture map.
   if (this->ColorTextureMap)
@@ -1614,6 +1605,7 @@ int vtkOpenGLBatchedPolyDataMapper::CanUseTextureMapForColoring(vtkDataObject*)
       {
         return 0;
       }
+      // Don't use texture if direct coloring using RGB unsigned chars was requested.
       if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
             vtkArrayDownCast<vtkUnsignedCharArray>(scalars)) ||
         this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
