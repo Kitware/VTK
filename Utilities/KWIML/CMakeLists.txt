@@ -16,8 +16,11 @@ endif ()
 
 vtk_module_third_party_internal(
   HEADER_ONLY
-  LICENSE_FILES "vtkkwiml/Copyright.txt"
-  VERSION       "1.0.0")
+  LICENSE_FILES           "vtkkwiml/Copyright.txt"
+  SPDX_LICENSE_IDENTIFIER "BSD-3-Clause"
+  SPDX_COPYRIGHT_TEXT     "Copyright 2000-2016 Kitware, Inc. and Contributors"
+  SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/utils/kwiml@a079afc6"
+  VERSION                 "1.0.0")
 
 vtk_module_install_headers(
   FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtk_kwiml.h")

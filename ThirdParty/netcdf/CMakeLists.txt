@@ -1,7 +1,15 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtknetcdf/COPYRIGHT"
-    VERSION       "4.9.2"
+    LICENSE_FILES
+      "vtknetcdf/COPYRIGHT"
+    SPDX_LICENSE_IDENTIFIER
+      "BSD-3-Clause"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright 2018 Unidata"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/netcdf.git@for/vtk-20230505-4.9.2"
+    VERSION
+      "4.9.2"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE NetCDF

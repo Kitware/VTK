@@ -1,7 +1,15 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkpugixml/LICENSE.md"
-    VERSION       "1.11.4"
+    LICENSE_FILES 
+      "vtkpugixml/LICENSE.md"
+    SPDX_LICENSE_IDENTIFIER
+      "MIT"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright (c) 2006-2020 Arseny Kapoulkine"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/pugixml.git@for/vtk-20210727-1.11.4"
+    VERSION       
+      "1.11.4"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE pugixml

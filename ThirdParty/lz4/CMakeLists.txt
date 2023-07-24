@@ -1,7 +1,15 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtklz4/lib/LICENSE"
-    VERSION       "1.9.3"
+    LICENSE_FILES 
+      "vtklz4/lib/LICENSE"
+    SPDX_LICENSE_IDENTIFIER
+      "BSD-2-Clause"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright (c) 2011-2016, Yann Collet"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/lz4.git@for/vtk-20210727-1.9.3"
+    VERSION       
+      "1.9.3"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LZ4

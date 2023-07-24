@@ -15,6 +15,15 @@ unset(CMAKE_CXX_VISIBILITY_PRESET)
 unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
 
 vtk_module_third_party_internal(
-  LICENSE_FILES "vtkmetaio/License.txt"
-  VERSION       "master"
+  LICENSE_FILES
+    "vtkmetaio/License.txt"
+  SPDX_LICENSE_IDENTIFIER
+    "BSD-3-Clause AND BSD-4-Clause"
+  SPDX_COPYRIGHT_TEXT
+    "Copyright 2000-2014 Insight Software Consortium"
+    "Copyright (c) 1999-2007 Insight Software Consortium"
+  SPDX_DOWNLOAD_LOCATION
+    "git+https://github.com/Kitware/MetaIO.git@ea2bb780"
+  VERSION
+    "master"
   STANDARD_INCLUDE_DIRS)

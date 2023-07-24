@@ -33,5 +33,8 @@ endif()
 
 vtk_module_third_party_internal(
   STANDARD_INCLUDE_DIRS
-  LICENSE_FILES "vtksys/Copyright.txt"
-  VERSION       "master")
+  LICENSE_FILES           "vtksys/Copyright.txt"
+  SPDX_LICENSE_IDENTIFIER "BSD-3-Clause"
+  SPDX_COPYRIGHT_TEXT     "Copyright 2000-2016 Kitware, Inc. and Contributors"
+  SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/utils/kwsys.git"
+  VERSION                 "master")

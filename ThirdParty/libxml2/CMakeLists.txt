@@ -1,7 +1,15 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtklibxml2/Copyright"
-    VERSION       "2.9.12"
+    LICENSE_FILES
+      "vtklibxml2/Copyright"
+    SPDX_LICENSE_IDENTIFIER
+      "MIT"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright (C) 1998-2012 Daniel Veillard"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/libxml2.git@for/vtk-20220827-2.10.1"
+    VERSION
+      "2.9.12"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LibXml2

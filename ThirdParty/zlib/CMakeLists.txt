@@ -1,7 +1,15 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkzlib/LICENSE"
-    VERSION       "1.2.13"
+    LICENSE_FILES
+      "vtkzlib/LICENSE"
+    SPDX_LICENSE_IDENTIFIER
+      "Zlib"
+    SPDX_COPYRIGHT_TEXT
+      "(C) 1995-2022 Jean-loup Gailly and Mark Adler"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/tiff.git@for/vtk-20230510-1.2.13"
+    VERSION
+      "1.2.13"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE ZLIB
