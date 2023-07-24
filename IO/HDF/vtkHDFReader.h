@@ -12,6 +12,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkIOHDFModule.h" // For export macro
 #include <array>            // For storing the time range
+#include <memory>           // For std::unique_ptr
 #include <vector>           // For storing list of values
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -116,6 +117,18 @@ public:
   vtkSetMacro(Step, vtkIdType);
   vtkGetMacro(TimeValue, double);
   const std::array<double, 2>& GetTimeRange() const { return this->TimeRange; }
+  ///@}
+
+  ///@{
+  /**
+   * Boolean property determining whether to use the internal cache or not (default is false).
+   *
+   * Internal cache is useful when reading transient data to never re-read something that has
+   * already been cached.
+   */
+  vtkGetMacro(UseCache, bool);
+  vtkSetMacro(UseCache, bool);
+  vtkBooleanMacro(UseCache, bool);
   ///@}
 
   vtkSetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
@@ -230,6 +243,10 @@ protected:
 
   class Implementation;
   Implementation* Impl;
+
+  bool UseCache = false;
+  struct DataCache;
+  std::unique_ptr<DataCache> Cache;
 };
 
 VTK_ABI_NAMESPACE_END
