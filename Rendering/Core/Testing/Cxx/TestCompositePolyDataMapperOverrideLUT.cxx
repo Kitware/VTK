@@ -85,6 +85,8 @@ int TestCompositePolyDataMapperOverrideLUT(int argc, char* argv[])
   auto polydata7 = vtk::TakeSmartPointer(::createAQuad(/*center=*/{ 4., -1., 0. }));
   // colored by default color map (rainbow) with scalars interpolated before mapping
   auto polydata8 = vtk::TakeSmartPointer(::createAQuad(/*center=*/{ 4., 0., 1. }));
+  // colored by red -> blue -> green -> orange with scalars interpolated before mapping
+  auto polydata9 = vtk::TakeSmartPointer(::createAQuad(/*center=*/{ 3., 0., 0. }));
 
   vtkNew<vtkFloatArray> scalars;
   scalars->SetName("scalars");
@@ -103,6 +105,7 @@ int TestCompositePolyDataMapperOverrideLUT(int argc, char* argv[])
   polydata6->GetPointData()->SetScalars(scalars);
   polydata7->GetPointData()->SetScalars(scalars);
   polydata8->GetPointData()->SetScalars(scalars);
+  polydata9->GetPointData()->SetScalars(scalars);
 
   vtkNew<vtkFloatArray> cellScalars;
   cellScalars->SetName("cellScalars");
@@ -124,6 +127,7 @@ int TestCompositePolyDataMapperOverrideLUT(int argc, char* argv[])
   pdsc->SetPartition(6, 0, polydata6);
   pdsc->SetPartition(7, 0, polydata7);
   pdsc->SetPartition(8, 0, polydata8);
+  pdsc->SetPartition(9, 0, polydata9);
 
   pdsc->DebugOn();
   vtkDebugWithObjectMacro(pdsc, << "polydata0 " << vtkLogIdentifier(polydata0));
@@ -135,6 +139,7 @@ int TestCompositePolyDataMapperOverrideLUT(int argc, char* argv[])
   vtkDebugWithObjectMacro(pdsc, << "polydata6 " << vtkLogIdentifier(polydata6));
   vtkDebugWithObjectMacro(pdsc, << "polydata7 " << vtkLogIdentifier(polydata7));
   vtkDebugWithObjectMacro(pdsc, << "polydata8 " << vtkLogIdentifier(polydata8));
+  vtkDebugWithObjectMacro(pdsc, << "polydata9 " << vtkLogIdentifier(polydata9));
   pdsc->DebugOff();
 
   vtkNew<vtkTrivialProducer> source;
@@ -183,6 +188,14 @@ int TestCompositePolyDataMapperOverrideLUT(int argc, char* argv[])
   lutD->SetTableValue(0, 0.0, 1.0, 0.0);
   lutD->SetTableValue(1, 1.0, 0.5, 0.0);
 
+  // red -> green -> blue -> orange
+  // a color transfer function is used for smooth interpolation
+  vtkNew<vtkColorTransferFunction> lutE;
+  lutE->AddRGBPoint(0, 1.0, 0.0, 0.0);
+  lutE->AddRGBPoint(1, 0.0, 1.0, 0.0);
+  lutE->AddRGBPoint(2, 0.0, 0.0, 1.0);
+  lutE->AddRGBPoint(3, 1.0, 0.5, 0.0);
+
   vtkNew<vtkCompositeDataDisplayAttributes> attributes;
   attributes->SetBlockLookupTable(polydata0, lutA);
   attributes->SetBlockLookupTable(polydata1, lutB);
@@ -200,6 +213,9 @@ int TestCompositePolyDataMapperOverrideLUT(int argc, char* argv[])
   attributes->SetBlockScalarVisibility(polydata7, false);
   // polydata8: interpolate scalars before mapping. shows rainbow colors.
   attributes->SetBlockInterpolateScalarsBeforeMapping(polydata8, true);
+  // polydata8: interpolate scalars before mapping. uses overriden lookup table.
+  attributes->SetBlockLookupTable(polydata9, lutE);
+  attributes->SetBlockInterpolateScalarsBeforeMapping(polydata9, true);
 
   vtkNew<vtkCompositePolyDataMapper> mapper;
   // setup base scalar mapping parameters to map the first array from PointData
