@@ -58,6 +58,10 @@ QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(
   this->setUpdateBehavior(QOpenGLWidget::NoPartialUpdate);
   this->setMouseTracking(true);
 
+  // See https://gitlab.kitware.com/paraview/paraview/-/issues/18285
+  // This ensure that kde will not grab the window
+  this->setProperty("_kde_no_window_grab", true);
+
   // we use `QOpenGLWidget::resized` instead of `resizeEvent` or `resizeGL` as
   // an indicator to resize our internal buffer size. This is done, since in
   // addition to widget resize,  `resized` gets fired when screen is changed
