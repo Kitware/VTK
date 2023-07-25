@@ -189,7 +189,7 @@ void vtkAMRVolumeMapper::SetBlendMode(int mode)
   this->InternalMapper->SetBlendMode(mode);
 }
 //------------------------------------------------------------------------------
-int vtkAMRVolumeMapper::GetBlendMode()
+int vtkAMRVolumeMapper::GetBlendMode() VTK_FUTURE_CONST
 {
   return this->InternalMapper->GetBlendMode();
 }
@@ -199,7 +199,7 @@ void vtkAMRVolumeMapper::SetCropping(vtkTypeBool mode)
   this->InternalMapper->SetCropping(mode);
 }
 //------------------------------------------------------------------------------
-vtkTypeBool vtkAMRVolumeMapper::GetCropping()
+vtkTypeBool vtkAMRVolumeMapper::GetCropping() VTK_FUTURE_CONST
 {
   return this->InternalMapper->GetCropping();
 }
@@ -209,7 +209,7 @@ void vtkAMRVolumeMapper::SetCroppingRegionFlags(int mode)
   this->InternalMapper->SetCroppingRegionFlags(mode);
 }
 //------------------------------------------------------------------------------
-int vtkAMRVolumeMapper::GetCroppingRegionFlags()
+int vtkAMRVolumeMapper::GetCroppingRegionFlags() VTK_FUTURE_CONST
 {
   return this->InternalMapper->GetCroppingRegionFlags();
 }

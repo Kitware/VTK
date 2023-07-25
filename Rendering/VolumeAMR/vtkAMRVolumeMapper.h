@@ -77,7 +77,7 @@ public:
    * their opacity mapping value.
    */
   void SetBlendMode(int mode) override;
-  int GetBlendMode() override;
+  int GetBlendMode() VTK_FUTURE_CONST override;
   ///@}
 
   ///@{
@@ -110,7 +110,7 @@ public:
    * perpendicular to the coordinate axes.)
    */
   void SetCropping(vtkTypeBool) override;
-  vtkTypeBool GetCropping() override;
+  vtkTypeBool GetCropping() VTK_FUTURE_CONST override;
   ///@}
 
   ///@{
@@ -141,7 +141,7 @@ public:
    * clip plane pairs) and inverted cross.
    */
   void SetCroppingRegionFlags(int mode) override;
-  int GetCroppingRegionFlags() override;
+  int GetCroppingRegionFlags() VTK_FUTURE_CONST override;
   ///@}
 
   // The possible values for the default and current render mode ivars
