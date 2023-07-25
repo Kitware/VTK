@@ -7,6 +7,11 @@ DESCRIPTION
 IMPLEMENTABLE
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause AND MIT
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (C) 2006-2008,2010 The Blue Obelisk Project (http://www.blueobelisk.org/)
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel

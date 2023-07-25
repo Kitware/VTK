@@ -12,7 +12,7 @@ directory is exempt from most of the following rules except for the
 rules that say "All code".
 
 1. All code that is compiled into VTK by default must be compatible with VTK's BSD- style license.
-1. Copyright notices  should appear at the top of header and implementation files.
+1. Copyright notices should appear at the top of C++ header and implementation files using SPDX syntax.
 1. All C++ code must be valid C++11 code.
 1. The Java and Python wrappers must work on new code, or it should be excluded from wrapping.
 1. Multiple inheritance is not allowed in VTK classes.

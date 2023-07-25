@@ -1,37 +1,7 @@
-/*=========================================================================
-
-  Program:   ParaView
-  Module:    vtkH5PartReader.cxx
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*=========================================================================
-
-  Project                 : vtkCSCS
-  Module                  : vtkH5PartReader.h
-  Revision of last commit : $Rev: 793 $
-  Author of last commit   : $Author: utkarsh $
-  Date of last commit     : $Date: 2010-04-05 14:20:00 $
-
-  Copyright (C) CSCS - Swiss National Supercomputing Centre.
-  You may use modify and and distribute this code freely providing
-  1) This copyright notice appears on all copies of source code
-  2) An acknowledgment appears with any substantial usage of the code
-  3) If this code is contributed to any other open source project, it
-  must not be reformatted such that the indentation, bracketing or
-  overall style is modified significantly.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even the
-  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (C) CSCS - Swiss National Supercomputing Centre
+// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkH5PartReader.h"
 //
 #include "vtkDataArray.h"

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkEncodeExecutable.c
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include <stdio.h>
 
 int main(int argc, char* argv[])
@@ -46,20 +34,6 @@ int main(int argc, char* argv[])
   }
 
   /* Prepend header comment.  */
-  fprintf(ofp, "/*=========================================================================\n");
-  fprintf(ofp, "\n");
-  fprintf(ofp, "  Program:   Visualization Toolkit\n");
-  fprintf(ofp, "  Module:    vtkEncodeExecutable.c\n");
-  fprintf(ofp, "\n");
-  fprintf(ofp, "  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen\n");
-  fprintf(ofp, "  All rights reserved.\n");
-  fprintf(ofp, "  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.\n");
-  fprintf(ofp, "\n");
-  fprintf(ofp, "     This software is distributed WITHOUT ANY WARRANTY; without even\n");
-  fprintf(ofp, "     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n");
-  fprintf(ofp, "     PURPOSE.  See the above copyright notice for more information.\n");
-  fprintf(ofp, "\n");
-  fprintf(ofp, "=========================================================================*/\n");
   fprintf(ofp, "/*\n");
   fprintf(ofp, "\n");
   fprintf(ofp, "DO NOT EDIT\n");

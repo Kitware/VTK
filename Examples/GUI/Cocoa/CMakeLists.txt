@@ -1,8 +1,6 @@
-#--////////////////////////////////////////////////////////////////////////////
-#--  Copyright (c) 2010-2019, Michael A. Jackson. BlueQuartz Software
-#--  All rights reserved.
-#--  BSD License: https://www.opensource.org/licenses/bsd-license.html
-#--////////////////////////////////////////////////////////////////////////////
+# SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+# SPDX-FileCopyrightText: Copyright (c) 2010-2019, Michael A. Jackson. BlueQuartz Software
+# SPDX-License-Identifier: BSD-2-Clause
 cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
 
 project(SimpleCocoaVTK)

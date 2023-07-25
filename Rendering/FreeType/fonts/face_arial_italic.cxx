@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) URW
+// SPDX-License-Identifier: Aladdin
+
 #include "vtkEmbeddedFonts.h"
 
 // VTK: Arial Italic

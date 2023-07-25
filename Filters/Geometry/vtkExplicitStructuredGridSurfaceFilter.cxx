@@ -1,8 +1,6 @@
-/*=========================================================================
- Copyright (c) Kitware SAS 2014
- All rights reserved.
- More information http://www.kitware.fr
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware SAS 2014
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExplicitStructuredGridSurfaceFilter.h"
 
 #include "vtkCellData.h"

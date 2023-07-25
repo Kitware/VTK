@@ -1,25 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    cgio_helpers.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-  =========================================================================*/
-//  Copyright 2013-2014 Mickael Philit.
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2013-2014 Mickael Philit
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * This file defines functions used by vtkCGNSReader and vtkCGNSReaderInternal.
  * These functions are provided to simplify CGNS file reading through the low
  * level CGIO interface.
  */
-
 #ifndef cgio_helpers_h
 #define cgio_helpers_h
 

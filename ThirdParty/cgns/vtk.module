@@ -2,6 +2,10 @@ NAME
   VTK::cgns
 LIBRARY_NAME
   vtkcgns
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::hdf5
 THIRD_PARTY

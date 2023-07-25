@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // Included by octree.h
 
 /**\var  template<typename T_, int d_=3, class A_> typedef octree<T_,d_,A_>*

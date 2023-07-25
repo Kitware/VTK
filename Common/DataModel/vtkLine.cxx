@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLine.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2001, softSurfer (www.softsurfer.com)
+// SPDX-License-Identifier: BSD-3-Clause AND MIT
 #include "vtkLine.h"
 
 #include "vtkCellArray.h"
@@ -330,14 +319,6 @@ double vtkLine::DistanceBetweenLines(double l0[3], double l1[3], // line 1
   double& t1, double& t2) // parametric coords of the closest points
 {
   // Part of this function was adapted from "GeometryAlgorithms.com"
-  //
-  // Copyright 2001, softSurfer (www.softsurfer.com)
-  // This code may be freely used and modified for any purpose
-  // providing that this copyright notice is included with it.
-  // SoftSurfer makes no warranty for this code, and cannot be held
-  // liable for any real or imagined damage resulting from its use.
-  // Users of this code must verify correctness for their application.
-
   const double u[3] = { l1[0] - l0[0], l1[1] - l0[1], l1[2] - l0[2] };
   const double v[3] = { m1[0] - m0[0], m1[1] - m0[1], m1[2] - m0[2] };
   const double w[3] = { l0[0] - m0[0], l0[1] - m0[1], l0[2] - m0[2] };
@@ -380,14 +361,6 @@ double vtkLine::DistanceBetweenLineSegments(double l0[3], double l1[3], // line 
                                                                         // of the closest points
 {
   // Part of this function was adapted from "GeometryAlgorithms.com"
-  //
-  // Copyright 2001, softSurfer (www.softsurfer.com)
-  // This code may be freely used and modified for any purpose
-  // providing that this copyright notice is included with it.
-  // SoftSurfer makes no warranty for this code, and cannot be held
-  // liable for any real or imagined damage resulting from its use.
-  // Users of this code must verify correctness for their application.
-
   const double u[3] = { l1[0] - l0[0], l1[1] - l0[1], l1[2] - l0[2] };
   const double v[3] = { m1[0] - m0[0], m1[1] - m0[1], m1[2] - m0[2] };
   const double w[3] = { l0[0] - m0[0], l0[1] - m0[1], l0[2] - m0[2] };

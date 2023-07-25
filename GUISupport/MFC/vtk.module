@@ -4,6 +4,10 @@ LIBRARY_NAME
   vtkGUISupportMFC
 CONDITION
   MSVC
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   # If dependencies are added, update the list in the `CMakeLists.txt`.
   VTK::RenderingOpenGL2

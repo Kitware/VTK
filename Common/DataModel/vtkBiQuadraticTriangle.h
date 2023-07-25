@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBiQuadraticTriangle.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) EDF - www.edf.fr
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBiQuadraticTriangle
  * @brief   cell represents a parabolic, isoparametric triangle
@@ -31,7 +20,6 @@
  * @par Thanks:
  * @verbatim
  * This file has been developed by Oxalya - www.oxalya.com
- * Copyright (c) EDF - www.edf.fr
  * @endverbatim
  */
 

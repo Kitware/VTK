@@ -5,6 +5,17 @@ LIBRARY_NAME
 IMPLEMENTABLE
 GROUPS
   Rendering
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-LANL-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) 2007, Los Alamos National Security, LLC
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-LANL-USGov
+LICENSE_FILES
+  LICENSE
 DEPENDS
   VTK::CommonCore
   VTK::IOCore

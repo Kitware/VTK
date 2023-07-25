@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /*
 This test does a read write cycle of a known good hypertree grid file,
 comparing the shape of read and written trees, to exercise the reader

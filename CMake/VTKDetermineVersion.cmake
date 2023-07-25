@@ -1,17 +1,3 @@
-#=========================================================================
-#
-#  Program:   VTK
-#
-#  Copyright (c) Kitware, Inc.
-#  All rights reserved.
-#  See Copyright.txt or http://www.VTK.org/HTML/Copyright.html for details.
-#
-#     This software is distributed WITHOUT ANY WARRANTY; without even
-#     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-#     PURPOSE.  See the above copyright notice for more information.
-#
-#=========================================================================
-
 # Used to determine the version for VTK source using "git describe", if git
 # is found. On success sets following variables in caller's scope:
 #   ${var_prefix}_VERSION

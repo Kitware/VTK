@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME TestAMRRefinedGhostFlag.cxx -- Regression test for AMR Ghost Zones with REFINEDCELL flag.
 //
 // .SECTION Description

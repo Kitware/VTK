@@ -2,10 +2,16 @@ NAME
   VTK::IOMINC
 LIBRARY_NAME
   vtkIOMINC
-LICENSE_FILES
-  Copyright.txt
 GROUPS
   StandAlone
+LICENSE_FILES
+  Copyright.txt
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause AND MIT
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) 2006 Atamai, Inc.
+  Copyright 1993-2000 Peter Neelin and David MacDonald, McConnell Brain
 DEPENDS
   VTK::CommonCore
   VTK::CommonExecutionModel

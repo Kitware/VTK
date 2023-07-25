@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestSEPReader.cxx
-
-  Copyright (c) GeometryFactory
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) GeometryFactory
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkSEPReader
 // .SECTION Description
 // Load a SEP file, check the grid and render it.

@@ -1,15 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:  vtkDijkstraGraphGeodesicPath.cxx
-  Language:  C++
-
-  Made by Rasmus Paulsen
-  email:  rrp(at)imm.dtu.dk
-  web:    www.imm.dtu.dk/~rrp/VTK
-
-  This class is not mature enough to enter the official VTK release.
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDijkstraGraphGeodesicPath.h"
 
 #include "vtkCellArray.h"

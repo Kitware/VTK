@@ -1,22 +1,16 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAMREnzoReaderInternal.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) 2000 - 2009, Lawrence Livermore National Security, LLC
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAMREnzoReaderInternal
  *
  *
  * Consists of the low-level Enzo Reader used by the vtkAMREnzoReader.
+ *
+ * This file was adapted from the VisIt Enzo reader (avtEnzoFileFormat). For
+ * details, see https://visit.llnl.gov/. The full copyright notice is contained
+ * in the file LICENSE located at the root of the VisIt distribution or at
+ * https://github.com/visit-dav/visit/blob/develop/LICENSE.
  *
  * @sa
  * vtkAMREnzoReader vtkAMREnzoParticlesReader
@@ -36,21 +30,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkDataSet;
-
-/*****************************************************************************
- *
- * Copyright (c) 2000 - 2009, Lawrence Livermore National Security, LLC
- * Produced at the Lawrence Livermore National Laboratory
- * LLNL-CODE-400124
- * All rights reserved.
- *
- * This file was adapted from the VisIt Enzo reader (avtEnzoFileFormat). For
- * details, see https://visit.llnl.gov/.  The full copyright notice is contained
- * in the file COPYRIGHT located at the root of the VisIt distribution or at
- * http://www.llnl.gov/visit/copyright.html.
- *
- *****************************************************************************/
-
 static std::string GetEnzoDirectory(const char* path)
 {
   return (vtksys::SystemTools::GetFilenamePath(std::string(path)));

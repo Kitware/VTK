@@ -1,23 +1,9 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleUnicam.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * This work was produced under a grant from the Department of Energy to Brown
- * University.  Neither Brown University nor the authors assert any copyright
- * with respect to this work and it may be used, reproduced, and distributed
- * without permission.
+ * University.
  */
 
 #include "vtkInteractorStyleUnicam.h"

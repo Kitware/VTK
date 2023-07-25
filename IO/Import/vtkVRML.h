@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVRML.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (C) 1996 Silicon Graphics, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 /* ======================================================================
 
    Importer based on BNF Yacc and Lex parser definition from:
 
     **************************************************
         * VRML 2.0 Parser
-        * Copyright (C) 1996 Silicon Graphics, Inc.
         *
         * Author(s) :    Gavin Bell
         *                Daniel Woods (first port)

@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifdef __INTEL_COMPILER
 // If -i_dynamic is required (i.e. icc v7.1 on Redhat 9 or similar glibc version),
 // this simple program will fail to compile.

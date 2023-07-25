@@ -1,26 +1,6 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*=========================================================================
-
-ParaView project
-BSD 3-Clause License
-See LICENSE
-
-Copyright 2008-2023 Kitware, Inc.
-All rights reserved.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008-2023 Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAttributeDataToTableFilter.h"
 
 #include "vtkCellData.h"

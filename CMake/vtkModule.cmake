@@ -158,7 +158,7 @@ Example:
   SPDX_COPYRIGHT_TEXT
     Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   SPDX_LICENSE_IDENTIFIER
-    BSD-3-CLAUSE
+    BSD-3-Clause
   GROUPS
     StandAlone
   DEPENDS

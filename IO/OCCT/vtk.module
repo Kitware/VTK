@@ -6,6 +6,12 @@ DESCRIPTION
   OCCT bridge for VTK, see README for more info
 LICENSE_FILES
   LICENSE
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright 2019-2021 Kitware SAS
+  Copyright 2021-2022 Michael Migliore, Mathieu Westphal
 DEPENDS
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS

@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+# SPDX-FileCopyrightText: Copyright (c) 2006, 2007 Montel Laurent, <montel@kde.org>
+# SPDX-FileCopyrightText: Copyright (c) 2008, 2009 Gael Guennebaud, <g.gael@free.fr>
+# SPDX-FileCopyrightText: Copyright (c) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause 
+
 # - Try to find PEGTL lib
 #
 # This module supports requiring a minimum version, e.g. you can do
@@ -13,11 +19,6 @@
 # And the following imported target:
 #
 #  PEGTL::PEGTL
-
-# Copyright (c) 2006, 2007 Montel Laurent, <montel@kde.org>
-# Copyright (c) 2008, 2009 Gael Guennebaud, <g.gael@free.fr>
-# Copyright (c) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
-# Redistribution and use is allowed according to the terms of the 2-clause BSD license.
 
 find_path(PEGTL_INCLUDE_DIR
   NAMES pegtl/version.hpp

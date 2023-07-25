@@ -2,6 +2,10 @@ NAME
   VTK::TestingDataModel
 LIBRARY_NAME
   vtkTestingDataModel
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel

@@ -2,6 +2,10 @@ NAME
   VTK::TestingCore
 LIBRARY_NAME
   vtkTestingCore
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::vtksys
