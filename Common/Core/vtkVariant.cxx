@@ -19,6 +19,7 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <cassert>
+#include <cctype> // std::isspace
 #include <locale> // C++ locale
 #include <sstream>
 
