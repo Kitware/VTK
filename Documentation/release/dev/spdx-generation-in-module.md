@@ -19,3 +19,7 @@ It's worth noting that there are some [limitations](/api/cmake/ModuleSystem.md#l
 the generated SPDX files.
 
 See [these examples](/advanced/spdx_and_sbom.md#examples) of generated files.
+
+SPDX information have been added and replace all previous copyright declaration in all VTK
+files. This was done in a mix of automated command and manual processes, more info can be found
+in this [commit description](https://gitlab.kitware.com/vtk/vtk/-/commit/987d39ac31203df75281f0ab4be135dfc3c42d89).
