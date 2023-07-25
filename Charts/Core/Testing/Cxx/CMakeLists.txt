@@ -81,6 +81,8 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestDiagram.cxx
   TestFunctionalBagPlot.cxx
   TestHistogram2D.cxx
+  TestHistogram2DComponent.cxx
+  TestHistogram2DMagnitude.cxx
   TestInteractiveChartXYZ.cxx
   TestLegendHiddenPlots.cxx
   TestLinePlot.cxx
