@@ -503,9 +503,8 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
     return 0;
   }
 
-  // in the same order as vtkDataObject::AttributeTypes: POINT, CELL, FIELD
-  for (int attributeType = 0; attributeType < vtkHDFReader::GetNumberOfAttributeTypes();
-       ++attributeType)
+  // in the same order as vtkDataObject::AttributeTypes: POINT, CELL
+  for (int attributeType = 0; attributeType < vtkDataObject::FIELD; ++attributeType)
   {
     const hsize_t pointModifier = (attributeType == vtkDataObject::POINT) ? 1 : 0;
     std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
