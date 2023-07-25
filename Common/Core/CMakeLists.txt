@@ -559,10 +559,9 @@ set_property(SOURCE vtkLogger.cxx
     COMPILE_DEFINITIONS "LOGURU_SCOPE_TIME_PRECISION=${VTK_LOGGING_TIME_PRECISION}")
 
 if (MSVC)
-  set_source_files_properties(
-    vtkDataArray.cxx
-    PROPERTIES
-      COMPILE_FLAGS /bigobj)
+  set_property(SOURCE vtkDataArray.cxx APPEND
+    PROPERTY
+      COMPILE_OPTIONS /bigobj)
 elseif (MINGW)
   check_cxx_compiler_flag("-Wa,-mbig-obj" VTK_HAS_MBIG_OBJ)
   mark_as_advanced(VTK_HAS_MBIG_OBJ)
