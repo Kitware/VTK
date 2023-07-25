@@ -37,6 +37,7 @@ struct CheckerWorklet;
 int TestUGTransient(const std::string& dataRoot);
 int TestImageDataTransient(const std::string& dataRoot);
 int TestPolyDataTransient(const std::string& dataRoot);
+int TestImageDataTransientWithCache(const std::string& dataRoot);
 }
 
 int TestHDFReaderTransient(int argc, char* argv[])
@@ -47,6 +48,7 @@ int TestHDFReaderTransient(int argc, char* argv[])
   int res = ::TestUGTransient(dataRoot);
   res |= ::TestImageDataTransient(dataRoot);
   res |= ::TestPolyDataTransient(dataRoot);
+  res |= ::TestImageDataTransientWithCache(dataRoot);
   return res;
 }
 
@@ -341,10 +343,8 @@ int TestUGTransient(const std::string& dataRoot)
   return EXIT_SUCCESS;
 }
 
-int TestImageDataTransient(const std::string& dataRoot)
+int TestImageDataTransientBase(OpenerWorklet& opener)
 {
-  OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
-
   // Generic Time data checks
   if (opener.GetReader()->GetNumberOfSteps() != 10)
   {
@@ -434,6 +434,19 @@ int TestImageDataTransient(const std::string& dataRoot)
   }
 
   return EXIT_SUCCESS;
+}
+
+int TestImageDataTransient(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
+  return TestImageDataTransientBase(opener);
+}
+
+int TestImageDataTransientWithCache(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
+  opener.GetReader()->UseCacheOn();
+  return TestImageDataTransientBase(opener);
 }
 
 int TestPolyDataTransient(const std::string& dataRoot)
