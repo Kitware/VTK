@@ -558,12 +558,19 @@ set_property(SOURCE vtkLogger.cxx
   PROPERTY
     COMPILE_DEFINITIONS "LOGURU_SCOPE_TIME_PRECISION=${VTK_LOGGING_TIME_PRECISION}")
 
-if(MSVC)
-  set_source_files_properties(
-    vtkDataArray.cxx
-    PROPERTIES
-      COMPILE_FLAGS /bigobj)
-endif()
+if (MSVC)
+  set_property(SOURCE vtkDataArray.cxx APPEND
+    PROPERTY
+      COMPILE_OPTIONS /bigobj)
+elseif (MINGW)
+  check_cxx_compiler_flag("-Wa,-mbig-obj" VTK_HAS_MBIG_OBJ)
+  mark_as_advanced(VTK_HAS_MBIG_OBJ)
+  if (VTK_HAS_MBIG_OBJ)
+    set_property(SOURCE vtkDataArray.cxx APPEND
+      PROPERTY
+        COMPILE_OPTIONS "-Wa,-mbig-obj")
+  endif ()
+endif ()
 
 vtk_module_add_module(VTK::CommonCore
   HEADER_DIRECTORIES
