@@ -74,15 +74,17 @@
 #include "vtkBoundingBox.h"         // For ComputeLinkMap
 #include "vtkDIYExplicitAssigner.h" // For DIY assigner
 #include "vtkDIYUtilities.h"        // For Block
+#include "vtkNew.h"                 // For vtkNew
 #include "vtkObject.h"
 #include "vtkParallelDIYModule.h" // For export macros
 #include "vtkQuaternion.h"        // For vtkImageData
 #include "vtkSmartPointer.h"      // For vtkSmartPointer
 
-#include <array>  // For VectorType and ExtentType
-#include <map>    // For BlockMapType
-#include <set>    // For Link
-#include <vector> // For LinkMap
+#include <array>         // For VectorType and ExtentType
+#include <map>           // For BlockMapType
+#include <set>           // For Link
+#include <unordered_map> // For BlockMapType
+#include <vector>        // For LinkMap
 
 // clang-format off
 #include "vtk_diy2.h" // Third party include
@@ -722,6 +724,17 @@ protected:
     ///@}
   };
 
+private:
+  struct DataSetBlock
+  {
+    std::unordered_map<int, std::unordered_map<vtkIdType, vtkIdType>>
+      GlobalToLocalIds; //  Per attribute
+    std::unordered_map<int, std::unordered_map<vtkIdType, vtkNew<vtkIdTypeArray>>>
+      NeededGidsForBlocks; // Ghosts of this block per process id (per attribute)
+    std::unordered_map<int, std::unordered_map<vtkIdType, vtkNew<vtkIdTypeArray>>>
+      GhostGidsFromBlocks; // Ghosts of other blocks per partition id (per attribute)
+  };
+
 public:
   /**
    * Block structure to be used for diy communication.
@@ -774,6 +787,17 @@ public:
   ///@}
 
   /**
+   * Synchronize ghost data to match non-ghost data.
+   * Please see `vtkGhostCellsGenerator` for a finer description of what this method does, as it is
+   * being used as a backend for this filter.
+   *
+   * `outputs` need to be already allocated and be of same size as `inputs`.
+   */
+  static int SynchronizeGhostData(std::vector<vtkDataSet*>& inputsDS,
+    std::vector<vtkDataSet*>& outputsDS, vtkMultiProcessController* controller, bool syncCell,
+    bool SyncPoint);
+
+  /**
    * Main pipeline generating ghosts. It takes as parameters a list of `DataSetT` for the `inputs`
    * and the `outputs`.
    * Please see `vtkGhostCellsGenerator` for a finer description of what this method does, as it is
@@ -811,6 +835,58 @@ public:
 protected:
   vtkDIYGhostUtilities();
   ~vtkDIYGhostUtilities() override;
+
+  ///@{
+  /**
+   * Clone input data into output. The ghost array and the attributes GlobalIds and ProcessIds
+   * are shallow copied as they're not updated. Others are deep copied.
+   */
+  static void CloneInputData(std::vector<vtkDataSet*>& inputs, std::vector<vtkDataSet*>& outputs,
+    bool syncCell, bool syncPoint);
+  static void CloneInputData(vtkDataSet* input, vtkDataSet* output, int fieldType);
+  ///@}
+
+  ///@{
+  /**
+   * Initialize vtkDataSet blocks for synchronizing ghost data.
+   */
+  static void InitializeBlocks(
+    diy::Master& master, std::vector<vtkDataSet*>& inputs, bool syncCell, bool syncPoint);
+  static void InitializeBlocks(
+    diy::Master& master, std::vector<vtkDataSet*>& inputs, int fieldType, unsigned char ghostFlag);
+  ///@}
+
+  ///@{
+  /**
+   * Exchange global ids of data that needs to be synced to
+   * owners of the data.
+   */
+  static void ExchangeNeededIds(
+    diy::Master& master, const vtkDIYExplicitAssigner& assigner, bool syncCell, bool syncPoint);
+  static void ExchangeNeededIds(
+    diy::Master& master, const vtkDIYExplicitAssigner& assigner, int fieldType);
+  ///@}
+
+  ///@{
+  /**
+   * Compute link map using known information from blocks, eg. to whom it needs
+   * to send data, and from whom it needs to receive data.
+   */
+  static LinkMap ComputeLinkMapUsingNeededIds(
+    const diy::Master& master, bool syncCell, bool syncPoint);
+  static void ComputeLinksUsingNeededIds(
+    Links& links, vtkDIYGhostUtilities::DataSetBlock* block, int fieldType);
+  ///@}
+
+  ///@{
+  /**
+   * This method exchanges ghost data across partitions.
+   */
+  static void ExchangeFieldData(diy::Master& master, std::vector<vtkDataSet*>& inputs,
+    std::vector<vtkDataSet*>& outputs, bool syncCell, bool syncPoint);
+  static void ExchangeFieldData(diy::Master& master, std::vector<vtkDataSet*>& inputs,
+    std::vector<vtkDataSet*>& outputs, int fieldType);
+  ///@}
 
   /**
    * Reinitializes the bits that match the input bit mask in the input array to zero.

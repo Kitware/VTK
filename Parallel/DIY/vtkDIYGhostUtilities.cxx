@@ -20,6 +20,7 @@
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkFeatureEdges.h"
 #include "vtkIdList.h"
@@ -5777,6 +5778,394 @@ vtkDIYGhostUtilities::StructuredGridBlockStructure::StructuredGridBlockStructure
       info.OuterPointLayers[2].Points, info.OuterPointLayers[3].Points,
       info.OuterPointLayers[4].Points, info.OuterPointLayers[5].Points }
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::CloneInputData(std::vector<vtkDataSet*>& inputs, std::vector<vtkDataSet*>& outputs, bool syncCell, bool syncPoint)
+{
+  auto outputIter = outputs.begin();
+  for (const auto& input : inputs)
+  {
+    vtkDataSet* output = *outputIter;
+    output->CopyStructure(input);
+    outputIter++;
+
+    if (syncCell)
+    {
+      CloneInputData(input, output, vtkDataSet::AttributeTypes::CELL);
+    }
+    if (syncPoint)
+    {
+      CloneInputData(input, output, vtkDataSet::AttributeTypes::POINT);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::CloneInputData(vtkDataSet* input, vtkDataSet* output, int fieldType)
+{
+  vtkDataSetAttributes* inFieldData = input->GetAttributes(fieldType);
+  vtkDataSetAttributes* outFieldData = output->GetAttributes(fieldType);
+
+  vtkSmartPointer<vtkDataArray> ghostArray = inFieldData->GetGhostArray();
+  vtkSmartPointer<vtkDataArray> globalIdsArray = inFieldData->GetGlobalIds();
+  vtkSmartPointer<vtkDataArray> processIdsArray = inFieldData->GetProcessIds();
+
+  inFieldData->RemoveArray(ghostArray->GetName());
+  inFieldData->RemoveArray(globalIdsArray->GetName());
+  inFieldData->RemoveArray(processIdsArray->GetName());
+
+  outFieldData->CopyAllOn();
+  outFieldData->CopyAllocate(inFieldData, input->GetNumberOfElements(fieldType));
+  outFieldData->SetNumberOfTuples(input->GetNumberOfElements(fieldType));
+
+  // Copy input data (including bad ghost data)
+  for (int arrayId = 0; arrayId < inFieldData->GetNumberOfArrays(); ++arrayId)
+  {
+    vtkAbstractArray* sourceArray = inFieldData->GetAbstractArray(arrayId);
+    sourceArray->GetTuples(0, sourceArray->GetNumberOfTuples() - 1,
+        outFieldData->GetAbstractArray(arrayId));
+  }
+
+  inFieldData->AddArray(ghostArray);
+  inFieldData->SetGlobalIds(globalIdsArray);
+  inFieldData->SetProcessIds(processIdsArray);
+  
+  outFieldData->AddArray(ghostArray);
+  outFieldData->SetGlobalIds(globalIdsArray);
+  outFieldData->SetProcessIds(processIdsArray);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master, std::vector<vtkDataSet*>& inputs, bool syncCell, bool syncPoint)
+{
+  if (syncCell)
+  {
+    InitializeBlocks(master, inputs, vtkDataSet::AttributeTypes::CELL, 
+      vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
+  }
+  if (syncPoint)
+  {
+    InitializeBlocks(master, inputs, vtkDataSet::AttributeTypes::POINT, 
+      vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master, std::vector<vtkDataSet*>& inputs,
+  int fieldType, unsigned char ghostFlag)
+{
+  for (int blockLid = 0; blockLid < static_cast<int>(inputs.size()); ++blockLid)
+  {
+    vtkDataSet* input = inputs[blockLid];
+    DataSetBlock* block = master.block<DataSetBlock>(blockLid);
+    block->GlobalToLocalIds[fieldType].clear();
+    block->NeededGidsForBlocks[fieldType].clear();
+    block->GhostGidsFromBlocks[fieldType].clear();
+
+    vtkDataSetAttributes* fieldData = input->GetAttributes(fieldType);
+    const auto ghostRange = vtk::DataArrayValueRange<1>(fieldData->GetGhostArray());
+    const auto gidRange = vtk::DataArrayValueRange<1>(vtkArrayDownCast<vtkIdTypeArray>(fieldData->GetGlobalIds()));
+    const auto pidRange = vtk::DataArrayValueRange<1>(vtkArrayDownCast<vtkIdTypeArray>(fieldData->GetProcessIds()));
+
+    const vtkIdType nbElements = input->GetNumberOfElements(fieldType);
+    for (vtkIdType localId = 0; localId < nbElements; ++localId)
+    {
+      const vtkIdType& gid = gidRange[localId];
+      block->GlobalToLocalIds[fieldType][gid] = localId;
+
+      if (ghostRange[localId] & ghostFlag)
+      {
+        const vtkIdType& pid = pidRange[localId];
+        block->NeededGidsForBlocks[fieldType][pid]->InsertNextValue(gid);
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::ExchangeNeededIds(
+  diy::Master& master, const vtkDIYExplicitAssigner& assigner, bool syncCell, bool syncPoint)
+{
+  if (syncCell)
+  {
+    ExchangeNeededIds(master, assigner, vtkDataSet::AttributeTypes::CELL);
+  }
+  if (syncPoint)
+  {
+    ExchangeNeededIds(master, assigner, vtkDataSet::AttributeTypes::POINT);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::ExchangeNeededIds(
+  diy::Master& master, const vtkDIYExplicitAssigner& assigner, int fieldType)
+{
+  diy::all_to_all(master, assigner,
+    [fieldType](DataSetBlock* block, const diy::ReduceProxy& srp)
+    {
+      if (srp.round() == 0)
+      {
+        for (int i = 0; i < srp.out_link().size(); ++i)
+        {
+          const diy::BlockID& blockId = srp.out_link().target(i);
+          if (block->NeededGidsForBlocks[fieldType].find(blockId.proc) != block->NeededGidsForBlocks[fieldType].end())
+          {
+            srp.enqueue<vtkDataArray*>(blockId, block->NeededGidsForBlocks[fieldType][blockId.proc]);
+          }
+        }
+      }
+      else
+      {
+        vtkDataArray* tmpGids = nullptr;
+        for (int i = 0; i < srp.in_link().size(); ++i)
+        {
+          const diy::BlockID& blockId = srp.in_link().target(i);
+          if (srp.incoming(blockId.gid).empty())
+          {
+            continue;
+          }
+
+          srp.dequeue<vtkDataArray*>(blockId, tmpGids);
+          vtkSmartPointer<vtkIdTypeArray> receivedGids = vtkSmartPointer<vtkIdTypeArray>::Take(vtkArrayDownCast<vtkIdTypeArray>(tmpGids));
+
+          // Make sure to keep only gids of this partition
+          const auto gidsRange = vtk::DataArrayValueRange<1>(receivedGids);
+          for (const auto& receivedGid : gidsRange)
+          {
+            if (block->GlobalToLocalIds[fieldType].find(receivedGid) != block->GlobalToLocalIds[fieldType].cend())
+            {
+              block->GhostGidsFromBlocks[fieldType][blockId.gid]->InsertNextValue(receivedGid);
+            }
+          }
+        }
+      }
+    });
+}
+
+//----------------------------------------------------------------------------
+LinkMap vtkDIYGhostUtilities::ComputeLinkMapUsingNeededIds(const diy::Master& master, bool syncCell, bool syncPoint)
+{
+  LinkMap linkMap(master.size());
+
+  for (int blockLid = 0; blockLid < static_cast<int>(master.size()); ++blockLid)
+  {
+    Links& links = linkMap[blockLid];
+    DataSetBlock* block = master.block<DataSetBlock>(blockLid);
+
+    if (syncCell)
+    {
+      ComputeLinksUsingNeededIds(links, block, vtkDataSet::AttributeTypes::CELL);
+    }
+    if (syncPoint)
+    {
+      ComputeLinksUsingNeededIds(links, block, vtkDataSet::AttributeTypes::POINT);
+    }
+  }
+  return linkMap;
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::ComputeLinksUsingNeededIds(Links& links, vtkDIYGhostUtilities::DataSetBlock* block, int fieldType)
+{
+  for (const auto& item : block->GhostGidsFromBlocks[fieldType])
+  {
+    if (links.find(item.first) == links.end())
+    {
+      links.insert(item.first);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::ExchangeFieldData(
+  diy::Master& master, std::vector<vtkDataSet*>& inputs, std::vector<vtkDataSet*>& outputs, bool syncCell, bool syncPoint)
+{
+  if (syncCell)
+  {
+    ExchangeFieldData(master, inputs, outputs, vtkDataSet::AttributeTypes::CELL);
+  }
+  if (syncPoint)
+  {
+    ExchangeFieldData(master, inputs, outputs, vtkDataSet::AttributeTypes::POINT);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::ExchangeFieldData(
+  diy::Master& master, std::vector<vtkDataSet*>& inputs, std::vector<vtkDataSet*>& outputs, int fieldType)
+{
+  master.foreach ([&master, &inputs, fieldType](DataSetBlock* block, const diy::Master::ProxyWithLink& cp) {
+    int myBlockGid = cp.gid();
+    int myBlockLid = master.lid(myBlockGid);
+    auto& input = inputs[myBlockLid];
+
+    diy::Link* link = cp.link();
+    for (int id = 0; id < link->size(); ++id)
+    {
+      const diy::BlockID& blockId = link->target(id);
+      if (block->GhostGidsFromBlocks[fieldType].find(blockId.gid) == block->GhostGidsFromBlocks[fieldType].end())
+      {
+        continue;
+      }
+      
+      vtkNew<vtkIdList> lids;
+      const auto gidsRange = vtk::DataArrayValueRange<1>(block->GhostGidsFromBlocks[fieldType][blockId.gid]);
+      for (const auto& gid : gidsRange)
+      {
+        lids->InsertNextId(block->GlobalToLocalIds[fieldType][gid]);
+      }
+
+      vtkNew<vtkFieldData> fieldData;
+      vtkDataSetAttributes* inputFieldData = input->GetAttributes(fieldType);
+      fieldData->CopyStructure(inputFieldData);
+      fieldData->SetNumberOfTuples(lids->GetNumberOfIds());
+      
+      // Do not send ids info
+      if (inputFieldData->GetGlobalIds())
+      {
+        fieldData->RemoveArray(inputFieldData->GetGlobalIds()->GetName());
+      }
+      if (inputFieldData->GetProcessIds())
+      {
+        fieldData->RemoveArray(inputFieldData->GetProcessIds()->GetName());
+      }
+      if (inputFieldData->GetPedigreeIds())
+      {
+        fieldData->RemoveArray(inputFieldData->GetPedigreeIds()->GetName());
+      }
+      // Do not send ghost info
+      if (inputFieldData->GetGhostArray())
+      {
+        fieldData->RemoveArray(inputFieldData->GetGhostArray()->GetName());
+      }
+
+      // Copy needed tuples
+      for (int arrayId = 0; arrayId < fieldData->GetNumberOfArrays(); ++arrayId)
+      {
+        vtkAbstractArray* array = fieldData->GetAbstractArray(arrayId);
+        inputFieldData->GetAbstractArray(array->GetName())->GetTuples(lids, array);
+      }
+
+      // Must send non-empty field data
+      if (fieldData->GetNumberOfArrays() > 0)
+      {
+        cp.enqueue<vtkFieldData*>(blockId, fieldData);
+      }
+    }
+  });
+
+  master.exchange();
+
+  master.foreach ([&master, &outputs, fieldType](DataSetBlock* block, const diy::Master::ProxyWithLink& cp) {
+    int myBlockGid = cp.gid();
+    int myBlockLid = master.lid(myBlockGid);
+    auto& output = outputs[myBlockLid];
+
+    vtkFieldData* tmpFieldData = nullptr;
+    
+    diy::Link* link = cp.link();
+    for (int id = 0; id < link->size(); ++id)
+    {
+      const diy::BlockID& blockId = link->target(id);;
+      // we need this extra check because incoming is not empty when using only one block
+      // also because attributes may have no data to transfer (no transferable array)
+      if (cp.incoming(blockId.gid).empty())
+      {
+        continue;
+      }
+
+      cp.dequeue<vtkFieldData*>(blockId.gid, tmpFieldData);
+      vtkSmartPointer<vtkFieldData> fieldData = vtkSmartPointer<vtkFieldData>::Take(tmpFieldData);
+      vtkDataSetAttributes* outputFieldData = output->GetAttributes(fieldType);
+
+      const auto gidsRange = vtk::DataArrayValueRange<1>(block->NeededGidsForBlocks[fieldType][blockId.proc]);
+      const vtkIdType nbElements = block->NeededGidsForBlocks[fieldType][blockId.proc]->GetNumberOfTuples();
+
+      for (int arrayId = 0; arrayId < fieldData->GetNumberOfArrays(); ++arrayId)
+      {
+        vtkAbstractArray* inputArray = fieldData->GetAbstractArray(arrayId);
+        vtkAbstractArray* outputArray = outputFieldData->GetAbstractArray(inputArray->GetName());
+
+        for (vtkIdType i = 0; i < nbElements; ++i)
+        {
+          vtkIdType gid = gidsRange[i];
+          vtkIdType lid = block->GlobalToLocalIds[fieldType][gid];
+          outputArray->SetTuple(lid, i , inputArray);
+        }
+      }
+    }
+  });
+}
+
+//----------------------------------------------------------------------------
+int vtkDIYGhostUtilities::SynchronizeGhostData(std::vector<vtkDataSet*>& inputs,
+  std::vector<vtkDataSet*>& outputs, vtkMultiProcessController* controller, bool syncCell, bool syncPoint)
+{
+  const int size = static_cast<int>(inputs.size());
+  if (size != static_cast<int>(outputs.size()))
+  {
+    return 0;
+  }
+
+  std::string logMessage = size
+    ? std::string("Synchronizing ghosts for ") + std::string(outputs[0]->GetClassName())
+    : std::string("No ghosts to synchronize for empty rank");
+  vtkLogStartScope(TRACE, logMessage.c_str());
+
+  vtkDIYGhostUtilities::CloneInputData(inputs, outputs, syncCell, syncPoint);
+
+  vtkLogStartScope(TRACE, "Instantiating diy communicator");
+  diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(controller);
+  vtkLogEndScope("Instantiating diy communicator");
+
+  vtkLogStartScope(TRACE, "Instantiating master");
+  diy::Master master(
+    comm, 1, -1, []() { return static_cast<void*>(new DataSetBlock()); },
+    [](void* b) -> void { delete static_cast<DataSetBlock*>(b); });
+  vtkLogEndScope("Instantiating master");
+
+  vtkLogStartScope(TRACE, "Instantiating assigner");
+  vtkDIYExplicitAssigner assigner(comm, size);
+  vtkLogEndScope("Instantiating assigner");
+
+  if (!size)
+  {
+    // In such instance, we can just terminate. We are empty an finished communicating with other
+    // ranks.
+    vtkLogEndScope(logMessage.c_str());
+    return 1;
+  }
+
+  vtkLogStartScope(TRACE, "Decomposing master");
+  diy::RegularDecomposer<diy::DiscreteBounds> decomposer(
+    /*dim*/ 1, diy::interval(0, assigner.nblocks() - 1), assigner.nblocks());
+  decomposer.decompose(comm.rank(), assigner, master);
+  vtkLogEndScope("Decomposing master");
+
+  // At this step, we gather data from the inputs and store it inside the local blocks
+  // so we don't have to carry extra parameters later.
+  vtkLogStartScope(TRACE, "Setup block self information.");
+  vtkDIYGhostUtilities::InitializeBlocks(master, inputs, syncCell, syncPoint);
+  vtkLogEndScope("Setup block self information.");
+
+  vtkLogStartScope(TRACE, "Exchanging needed ids");
+  vtkDIYGhostUtilities::ExchangeNeededIds(master, assigner, syncCell, syncPoint);
+  vtkLogEndScope("Exchanging needed ids");
+
+  vtkLogStartScope(TRACE, "Computing link map using needed ids.");
+  LinkMap linkMap = vtkDIYGhostUtilities::ComputeLinkMapUsingNeededIds(master, syncCell, syncPoint);
+  vtkLogEndScope("Computing link map using needed ids.");
+
+  vtkLogStartScope(TRACE, "Relinking blocks using link map");
+  vtkDIYUtilities::Link(master, assigner, linkMap);
+  vtkLogEndScope("Relinking blocks using link map");
+
+  vtkLogStartScope(TRACE, "Exchanging field data");
+  vtkDIYGhostUtilities::ExchangeFieldData(master, inputs, outputs, syncCell, syncPoint);
+  vtkLogEndScope("Exchanging field data");
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
