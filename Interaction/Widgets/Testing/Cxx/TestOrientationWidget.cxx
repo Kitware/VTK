@@ -733,6 +733,12 @@ int TestOrientationWidget(int, char*[])
   orientationRepresentation->SetArrowTipRadius(0.03);
   orientationRepresentation->SetArrowShaftRadius(0.01);
 
+  orientationRepresentation->GetPropertyX(false)->SetColor(1.0, 0.0, 1.0);
+  orientationRepresentation->GetPropertyY(true)->SetColor(1.0, 1.0, 0.0);
+  vtkNew<vtkProperty> propertyZ;
+  propertyZ->SetColor(0.0, 1.0, 1.0);
+  orientationRepresentation->SetPropertyZ(false, propertyZ);
+
   // Render
   renderWindowInteractor->Initialize();
   renderWindow->Render();
