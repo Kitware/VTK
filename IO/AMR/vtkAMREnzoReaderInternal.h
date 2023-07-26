@@ -8,9 +8,7 @@
  * Consists of the low-level Enzo Reader used by the vtkAMREnzoReader.
  *
  * This file was adapted from the VisIt Enzo reader (avtEnzoFileFormat). For
- * details, see https://visit.llnl.gov/. The full copyright notice is contained
- * in the file LICENSE located at the root of the VisIt distribution or at
- * https://github.com/visit-dav/visit/blob/develop/LICENSE.
+ * details, see https://visit.llnl.gov/.
  *
  * @sa
  * vtkAMREnzoReader vtkAMREnzoParticlesReader

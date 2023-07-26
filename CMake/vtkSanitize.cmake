@@ -1,11 +1,3 @@
-#=========================================================================
-#
-#  This software is distributed WITHOUT ANY WARRANTY; without even
-#  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-#  PURPOSE.  See the above copyright notice for more information.
-#
-#=========================================================================
-
 # This code has been adapted from smtk (https://gitlab.kitware.com/cmb/smtk)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
