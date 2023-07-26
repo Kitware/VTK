@@ -1866,29 +1866,44 @@ inline std::string ComputeColorMultiDeclaration(
   }
   else
   {
+    std::ostringstream colorDec;
+    colorDec << "  vec3 color = ";
+    if (lastComponentMode == vtkVolumeInputHelper::RGBA)
+    {
+      // Use RGB components without mapping through the color transfer function.
+      colorDec << "scalar.xyz;\n";
+    }
+    else // vtkVolumeInputHelper::INDEPENDENT
+    {
+      // MultiVolume assumes input is 1-component, see ShadingMultipleInputs.
+      // To support multiple independent components, each component should be mapped through the
+      // transfer function as done in ComputeColorDeclaration for single volumes.
+      colorDec << "texture2D(colorTF, vec2(scalar.w, 0.0)).xyz;\n";
+    }
+
     if (useGradientTF)
     {
       ss
         << "vec4 computeColor(vec3 texPos, vec4 scalar, float opacity, const in sampler2D colorTF, "
            "const in sampler2D gradientTF, const in sampler3D volume, const in sampler2D "
            "opacityTF, const int volIdx)\n\n"
-           "{\n"
-           "  return clamp(computeLighting(texPos, vec4(texture2D(colorTF,\n"
-           "                         vec2(scalar.w, 0.0)).xyz, opacity), gradientTF, volume, "
-           "opacityTF,"
-           "volIdx, 0), 0.0, 1.0);\n"
-           "}\n";
+           "{\n";
+      ss << colorDec.str()
+         << "  return clamp(computeLighting(texPos, vec4(color, opacity), gradientTF, volume, "
+            "opacityTF,"
+            "volIdx, 0), 0.0, 1.0);\n"
+            "}\n";
     }
     else
     {
       ss
         << "vec4 computeColor(vec3 texPos, vec4 scalar, float opacity, const in sampler2D colorTF, "
            "const in sampler3D volume, const in sampler2D opacityTF, const int volIdx)\n\n"
-           "{\n"
-           "  return clamp(computeLighting(texPos, vec4(texture2D(colorTF,\n"
-           "                         vec2(scalar.w, 0.0)).xyz, opacity), volume, opacityTF,"
-           "volIdx, 0), 0.0, 1.0);\n"
-           "}\n";
+           "{\n";
+      ss << colorDec.str()
+         << "  return clamp(computeLighting(texPos, vec4(color, opacity), volume, opacityTF,"
+            "volIdx, 0), 0.0, 1.0);\n"
+            "}\n";
     }
   }
 
@@ -2527,10 +2542,15 @@ inline std::string ShadingMultipleInputs(
                     << i
                     << "], texPos);\n"
                        "        scalar = scalar * in_volume_scale["
-                    << i << "] + in_volume_bias[" << i
-                    << "];\n"
-                       "        scalar = vec4(scalar.r);\n"
-                       "        g_srcColor = vec4(0.0);\n";
+                    << i << "] + in_volume_bias[" << i << "];\n";
+
+        // MultiVolume considers input has one component when independent component is on.
+        if (property->GetIndependentComponents())
+        {
+          toShaderStr << "        scalar = vec4(scalar.r);\n";
+        }
+
+        toShaderStr << "        g_srcColor = vec4(0.0);\n";
 
         if (property->GetTransferFunctionMode() == vtkVolumeProperty::TF_1D)
         {
