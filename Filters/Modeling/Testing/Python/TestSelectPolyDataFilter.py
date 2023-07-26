@@ -151,6 +151,13 @@ testArray = selectionFilter.GetOutput().GetPointData().GetArray("SelectionArray"
 if testArray is None:
     raise ValueError("Selection scalar array failed to generate using Dijkstra edge search.")
 
+# Selection array range (signed distance from the loop) is expected to be about (-0.421, 8.379).
+# If minimum or maximum of the range is near zero on one side then it means that the algorithm failed to split the surface.
+if testArray.GetRange()[0] > -0.1:
+    raise ValueError("Selection scalar array failed to generate using Dijkstra edge search: larger negative range is expected.")
+if testArray.GetRange()[1] < 0.1:
+    raise ValueError("Selection scalar array failed to generate using Dijkstra edge search: larger positive range is expected.")
+
 testPtScalarArray = selectionFilter.GetOutput().GetPointData().GetArray("ScalarArray")
 if testPtScalarArray is None:
     raise ValueError("Point scalar array did not pass through using Dijkstra edge search.")
