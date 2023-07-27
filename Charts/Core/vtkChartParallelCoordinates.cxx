@@ -883,6 +883,11 @@ void vtkChartParallelCoordinates::UpdateCurrentAxisSelection(int axisId)
     // in this context, only single selection should be done, clear the previous one.
     this->Storage->ClearSelectedAxisSelection(axisId);
 
+    if (minCurrentSelection == maxCurrentSelection)
+    {
+      return;
+    }
+
     this->Storage->ClearInvalidRangeSelection(axisId);
     this->Storage->AppendNewSelectionInAxis(axisId, minCurrentSelection, maxCurrentSelection);
     return;
