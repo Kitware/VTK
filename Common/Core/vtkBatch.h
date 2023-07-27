@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-License-Identifier: BSD-3-CLAUSE
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBatch
  * @brief   vtkBatch is a simple structure that holds a begin and end id.

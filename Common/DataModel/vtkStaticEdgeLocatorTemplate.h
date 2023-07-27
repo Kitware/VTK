@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-License-Identifier: BSD-3-CLAUSE
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkStaticEdgeLocatorTemplate
  * @brief   templated locator for managing edges and associated data on edges
