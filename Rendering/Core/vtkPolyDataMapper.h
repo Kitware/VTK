@@ -39,7 +39,7 @@ public:
    */
   void Render(vtkRenderer* ren, vtkActor* act) override;
 
-  using MapperHashType = vtkTypeUInt64;
+  using MapperHashType = std::uintptr_t;
   /**
    * This hash integer is computed by concrete graphics implementation of this class.
    * For two different polydata instances, concrete implementations MUST return identical value,

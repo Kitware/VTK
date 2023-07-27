@@ -82,8 +82,6 @@ public:
   virtual void ProcessCompositePixelBuffers(vtkHardwareSelector* sel, vtkProp* prop,
     GLBatchElement* glBatchElement, std::vector<unsigned int>& mypixels);
 
-  vtkUnsignedCharArray* MapScalars(vtkDataSet* input, double alpha) override;
-
 protected:
   vtkOpenGLBatchedPolyDataMapper();
   ~vtkOpenGLBatchedPolyDataMapper() override;

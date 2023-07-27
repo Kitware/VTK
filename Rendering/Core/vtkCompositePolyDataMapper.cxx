@@ -53,12 +53,18 @@ public:
     std::stack<vtkColor3d> SpecularColor;
     std::stack<vtkColor3d> SelectionColor;
     std::stack<double> SelectionOpacity;
+    std::stack<bool> ScalarVisibility;
+    std::stack<bool> UseLookupTableScalarRange;
+    std::stack<bool> InterpolateScalarsBeforeMapping;
+    std::stack<int> ColorMode;
     std::stack<int> ScalarMode;
     std::stack<int> ArrayAccessMode;
     std::stack<int> ArrayComponent;
     std::stack<int> ArrayId;
     std::stack<std::string> ArrayName;
     std::stack<vtkIdType> FieldDataTupleId;
+    std::stack<vtkVector2d> ScalarRange;
+    std::stack<vtkSmartPointer<vtkScalarsToColors>> LookupTable;
   };
   RenderBlockState BlockState;
 
@@ -376,12 +382,20 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     internals.BlockState.ArrayId.push(this->ArrayId);
     internals.BlockState.ArrayName.emplace(this->ArrayName);
     internals.BlockState.FieldDataTupleId.push(this->FieldDataTupleId);
+    internals.BlockState.ScalarVisibility.push(this->ScalarVisibility);
+    internals.BlockState.UseLookupTableScalarRange.push(this->UseLookupTableScalarRange);
+    internals.BlockState.InterpolateScalarsBeforeMapping.push(
+      this->InterpolateScalarsBeforeMapping);
+    internals.BlockState.ColorMode.push(this->ColorMode);
+    internals.BlockState.ScalarRange.emplace(this->ScalarRange[0], this->ScalarRange[1]);
+    internals.BlockState.LookupTable.push(this->GetLookupTable());
 
     {
       unsigned int flatIndex = 0;
       this->BuildRenderValues(renderer, actor, input, flatIndex);
     }
 
+    // Pop base-values from the state stack.
     internals.BlockState.Visibility.pop();
     internals.BlockState.Pickability.pop();
     internals.BlockState.Opacity.pop();
@@ -396,6 +410,12 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     internals.BlockState.ArrayId.pop();
     internals.BlockState.ArrayName.pop();
     internals.BlockState.FieldDataTupleId.pop();
+    internals.BlockState.ScalarVisibility.pop();
+    internals.BlockState.UseLookupTableScalarRange.pop();
+    internals.BlockState.InterpolateScalarsBeforeMapping.pop();
+    internals.BlockState.ColorMode.pop();
+    internals.BlockState.ScalarRange.pop();
+    internals.BlockState.LookupTable.pop();
 
     // delete unused old helpers/data
     for (auto iter = internals.BatchedDelegators.begin();
@@ -442,13 +462,13 @@ vtkCompositePolyDataMapper::MapperHashType vtkCompositePolyDataMapper::InsertPol
   {
     vtkDebugMacro(<< "DataObject at flatIndex=" << flatIndex
                   << " is not a vtkPolyData or a vtkPolyData derived instance!");
-    return VTK_TYPE_UINT64_MAX;
+    return std::numeric_limits<MapperHashType>::max();
   }
   if (polydata->GetPoints() == nullptr || !polydata->GetNumberOfPoints())
   {
     vtkDebugMacro(<< "vtkPolyData at flatIndex=" << flatIndex
                   << " does not have points. It will not be rendered.");
-    return VTK_TYPE_UINT64_MAX;
+    return std::numeric_limits<MapperHashType>::max();
   }
   auto& internals = (*this->Internals);
   const auto hash = this->GenerateHash(polydata);
@@ -481,6 +501,9 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
   vtkRenderer* renderer, vtkActor* actor, vtkDataObject* dobj, unsigned int& flatIndex)
 {
   auto& internals = (*this->Internals);
+  // Push overridden attributes onto the stack.
+  // Keep track of attributes that were pushed so that they can be popped after they're applied to
+  // the batch element.
   vtkCompositeDataDisplayAttributes* cda = this->GetCompositeDataDisplayAttributes();
   bool overrides_visibility = (cda && cda->HasBlockVisibility(dobj));
   if (overrides_visibility)
@@ -544,6 +567,46 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
     internals.BlockState.ArrayName.push(cda->GetBlockArrayName(dobj));
   }
 
+  bool overrides_scalar_visibility = (cda && cda->HasBlockScalarVisibility(dobj));
+  if (overrides_scalar_visibility)
+  {
+    internals.BlockState.ScalarVisibility.push(cda->GetBlockScalarVisibility(dobj));
+  }
+
+  bool overrides_use_lookup_table_scalar_range =
+    (cda && cda->HasBlockUseLookupTableScalarRange(dobj));
+  if (overrides_use_lookup_table_scalar_range)
+  {
+    internals.BlockState.UseLookupTableScalarRange.push(
+      cda->GetBlockUseLookupTableScalarRange(dobj));
+  }
+
+  bool overrides_interpolate_scalars_before_mapping =
+    (cda && cda->HasBlockInterpolateScalarsBeforeMapping(dobj));
+  if (overrides_interpolate_scalars_before_mapping)
+  {
+    internals.BlockState.InterpolateScalarsBeforeMapping.push(
+      cda->GetBlockInterpolateScalarsBeforeMapping(dobj));
+  }
+
+  bool overrides_color_mode = (cda && cda->HasBlockColorMode(dobj));
+  if (overrides_color_mode)
+  {
+    internals.BlockState.ColorMode.push(cda->GetBlockColorMode(dobj));
+  }
+
+  bool overrides_scalar_range = (cda && cda->HasBlockScalarRange(dobj));
+  if (overrides_scalar_range)
+  {
+    internals.BlockState.ScalarRange.push(cda->GetBlockScalarRange(dobj));
+  }
+
+  bool overrides_lookup_table = (cda && cda->HasBlockLookupTable(dobj));
+  if (overrides_lookup_table)
+  {
+    internals.BlockState.LookupTable.push(cda->GetBlockLookupTable(dobj));
+  }
+
   // Advance flat-index. After this point, flatIndex no longer points to this
   // block.
   const auto originalFlatIndex = flatIndex;
@@ -572,22 +635,36 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
   }
   else if (auto polydata = vtkPolyData::SafeDownCast(dobj))
   {
+    // The prototype mapper is a placeholder mapper that doesn't have inputs. It relies on object
+    // factory overrides to facilitate hash computation using the underlying graphics implementation
+    // of vtkPolydataMapper. Prepare the prototype mapper with exact scalar mapping attributes, so
+    // that hash computation is as accurate as possible.
     this->PrototypeMapper->SetScalarMode(internals.BlockState.ScalarMode.top());
     this->PrototypeMapper->SetArrayAccessMode(internals.BlockState.ArrayAccessMode.top());
     this->PrototypeMapper->SetArrayComponent(internals.BlockState.ArrayComponent.top());
     this->PrototypeMapper->SetArrayId(internals.BlockState.ArrayId.top());
     this->PrototypeMapper->SetArrayName(internals.BlockState.ArrayName.top().c_str());
     this->PrototypeMapper->SetFieldDataTupleId(internals.BlockState.FieldDataTupleId.top());
+    this->PrototypeMapper->SetScalarVisibility(internals.BlockState.ScalarVisibility.top());
+    this->PrototypeMapper->SetColorMode(internals.BlockState.ColorMode.top());
+    this->PrototypeMapper->SetUseLookupTableScalarRange(
+      internals.BlockState.UseLookupTableScalarRange.top());
+    this->PrototypeMapper->SetInterpolateScalarsBeforeMapping(
+      internals.BlockState.InterpolateScalarsBeforeMapping.top());
+    this->PrototypeMapper->SetScalarRange(internals.BlockState.ScalarRange.top().GetData());
+    this->PrototypeMapper->SetLookupTable(internals.BlockState.LookupTable.top());
 
     const auto hash = this->InsertPolyData(polydata, originalFlatIndex);
-    if (hash == VTK_TYPE_UINT64_MAX)
+    if (hash == std::numeric_limits<MapperHashType>::max())
     {
       return;
     }
+    vtkDebugMacro(<< "Inserted " << polydata << " at " << hash);
     const auto& delegator = internals.BatchedDelegators[hash];
     // because it was incremented few lines above.
     if (auto inputItem = delegator->Get(polydata))
     {
+      // Capture the display attributes in the batch element.
       inputItem->Opacity = internals.BlockState.Opacity.top();
       inputItem->Visibility = internals.BlockState.Visibility.top();
       inputItem->Pickability = internals.BlockState.Pickability.top();
@@ -603,10 +680,26 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
       inputItem->ArrayId = internals.BlockState.ArrayId.top();
       inputItem->ArrayName = internals.BlockState.ArrayName.top();
       inputItem->FieldDataTupleId = internals.BlockState.FieldDataTupleId.top();
+      inputItem->ScalarVisibility = internals.BlockState.ScalarVisibility.top();
+      inputItem->ColorMode = internals.BlockState.ColorMode.top();
+      inputItem->UseLookupTableScalarRange = internals.BlockState.UseLookupTableScalarRange.top();
+      inputItem->InterpolateScalarsBeforeMapping =
+        internals.BlockState.InterpolateScalarsBeforeMapping.top();
+      inputItem->ScalarRange.Set(
+        internals.BlockState.ScalarRange.top()[0], internals.BlockState.ScalarRange.top()[1]);
+      inputItem->LookupTable = internals.BlockState.LookupTable.top();
+
+      // Apply these on the delegate. These attributes are batch invariants.
+      auto delegate = delegator->GetDelegate();
+      delegate->SetInterpolateScalarsBeforeMapping(inputItem->InterpolateScalarsBeforeMapping);
+      delegate->SetLookupTable(inputItem->LookupTable);
+
       // if we think it is opaque check the scalars
-      if (inputItem->IsOpaque && this->ScalarVisibility)
+      if (inputItem->IsOpaque && inputItem->ScalarVisibility) // inputItem->ScalarVisibility
       {
-        vtkScalarsToColors* lut = this->GetLookupTable();
+        vtkScalarsToColors* lut = inputItem->LookupTable; // inputItem->LookupTable
+        // ensure table is built
+        lut->Build();
         int cellFlag;
         vtkDataArray* scalars =
           vtkCompositePolyDataMapper::GetScalars(polydata, inputItem->ScalarMode,
@@ -616,8 +709,8 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
         vtkUnsignedCharArray* ghosts =
           vtkAbstractMapper::GetGhostArray(polydata, inputItem->ScalarMode, ghostsToSkip);
 
-        if (!lut->IsOpaque(
-              scalars, this->ColorMode, inputItem->ArrayComponent, ghosts, ghostsToSkip))
+        if (!lut->IsOpaque(scalars, inputItem->ColorMode, inputItem->ArrayComponent, ghosts,
+              ghostsToSkip)) // inputItem->ColorMode
         {
           inputItem->IsOpaque = false;
         }
@@ -629,6 +722,7 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
     vtkErrorMacro(<< "Expected a vtkDataObjectTree or vtkPolyData input. Got "
                   << dobj->GetClassName());
   }
+  // Pop overridden attributes from the stack.
   if (overrides_scalar_mode)
   {
     internals.BlockState.ScalarMode.pop();
@@ -670,6 +764,30 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
   if (overrides_visibility)
   {
     internals.BlockState.Visibility.pop();
+  }
+  if (overrides_scalar_visibility)
+  {
+    internals.BlockState.ScalarVisibility.pop();
+  }
+  if (overrides_color_mode)
+  {
+    internals.BlockState.ColorMode.pop();
+  }
+  if (overrides_use_lookup_table_scalar_range)
+  {
+    internals.BlockState.UseLookupTableScalarRange.pop();
+  }
+  if (overrides_interpolate_scalars_before_mapping)
+  {
+    internals.BlockState.InterpolateScalarsBeforeMapping.pop();
+  }
+  if (overrides_scalar_range)
+  {
+    internals.BlockState.ScalarRange.pop();
+  }
+  if (overrides_lookup_table)
+  {
+    internals.BlockState.LookupTable.pop();
   }
 }
 
@@ -725,6 +843,9 @@ bool vtkCompositePolyDataMapper::RecursiveHasTranslucentGeometry(
     int arrayComponent = this->ArrayComponent;
     int arrayId = this->ArrayId;
     std::string arrayName = this->ArrayName;
+    bool scalarVisibility = this->ScalarVisibility;
+    int colorMode = this->ColorMode;
+    vtkScalarsToColors* lut = this->GetLookupTable();
 
     bool overrides_scalar_mode = (cda && cda->HasBlockArrayAccessMode(dobj));
     if (overrides_scalar_mode)
@@ -756,12 +877,30 @@ bool vtkCompositePolyDataMapper::RecursiveHasTranslucentGeometry(
       arrayName = cda->GetBlockArrayName(dobj);
     }
 
+    bool overrides_scalar_visibility = (cda && cda->HasBlockScalarVisibility(dobj));
+    if (overrides_scalar_visibility)
+    {
+      scalarVisibility = cda->GetBlockScalarVisibility(dobj);
+    }
+
+    bool overrides_color_mode = (cda && cda->HasBlockColorMode(dobj));
+    if (overrides_color_mode)
+    {
+      colorMode = cda->GetBlockColorMode(dobj);
+    }
+
+    bool overrides_lookup_table = (cda && cda->HasBlockLookupTable(dobj));
+    if (overrides_lookup_table)
+    {
+      lut = cda->GetBlockLookupTable(dobj);
+      lut->Build();
+    }
+
     vtkPolyData* pd = vtkPolyData::SafeDownCast(dobj);
 
     // if we think it is opaque check the scalars
-    if (this->ScalarVisibility)
+    if (scalarVisibility)
     {
-      vtkScalarsToColors* lut = this->GetLookupTable();
       int cellFlag;
       vtkDataArray* scalars = vtkCompositePolyDataMapper::GetScalars(
         pd, scalarMode, arrayAccessMode, arrayId, arrayName.c_str(), cellFlag);
@@ -769,7 +908,7 @@ bool vtkCompositePolyDataMapper::RecursiveHasTranslucentGeometry(
       unsigned char ghostsToSkip;
       vtkUnsignedCharArray* ghosts = vtkAbstractMapper::GetGhostArray(pd, scalarMode, ghostsToSkip);
 
-      if (lut->IsOpaque(scalars, this->ColorMode, arrayComponent, ghosts, ghostsToSkip) == 0)
+      if (lut->IsOpaque(scalars, colorMode, arrayComponent, ghosts, ghostsToSkip) == 0)
       {
         return true;
       }

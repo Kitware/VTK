@@ -135,12 +135,14 @@ int TestCompositePolyDataMapperOverrideScalarArray(int argc, char* argv[])
   pdsc->SetPartition(4, 0, polydata4);
   pdsc->SetPartition(5, 0, polydata5);
 
-  vtkDebugWithObjectMacro(pdsc, << "polydata0" << vtkLogIdentifier(polydata0));
-  vtkDebugWithObjectMacro(pdsc, << "polydata1" << vtkLogIdentifier(polydata1));
-  vtkDebugWithObjectMacro(pdsc, << "polydata2" << vtkLogIdentifier(polydata2));
-  vtkDebugWithObjectMacro(pdsc, << "polydata3" << vtkLogIdentifier(polydata3));
-  vtkDebugWithObjectMacro(pdsc, << "polydata4" << vtkLogIdentifier(polydata4));
-  vtkDebugWithObjectMacro(pdsc, << "polydata5" << vtkLogIdentifier(polydata5));
+  pdsc->DebugOn();
+  vtkDebugWithObjectMacro(pdsc, << "polydata0 " << vtkLogIdentifier(polydata0));
+  vtkDebugWithObjectMacro(pdsc, << "polydata1 " << vtkLogIdentifier(polydata1));
+  vtkDebugWithObjectMacro(pdsc, << "polydata2 " << vtkLogIdentifier(polydata2));
+  vtkDebugWithObjectMacro(pdsc, << "polydata3 " << vtkLogIdentifier(polydata3));
+  vtkDebugWithObjectMacro(pdsc, << "polydata4 " << vtkLogIdentifier(polydata4));
+  vtkDebugWithObjectMacro(pdsc, << "polydata5 " << vtkLogIdentifier(polydata5));
+  pdsc->DebugOff();
 
   vtkNew<vtkTrivialProducer> source;
   source->SetOutput(pdsc);

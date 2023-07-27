@@ -19,6 +19,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 
+#include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLBufferObject.h"
@@ -242,16 +243,44 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 vtkPolyDataMapper::MapperHashType vtkOpenGLPolyDataMapper::GenerateHash(vtkPolyData* polydata)
 {
   int cellFlag = 0;
-  bool hasScalars = this->ScalarVisibility &&
-    (vtkAbstractMapper::GetAbstractScalars(polydata, this->ScalarMode, this->ArrayAccessMode,
-       this->ArrayId, this->ArrayName, cellFlag) != nullptr);
+  vtkAbstractArray* scalars = this->GetAbstractScalars(
+    polydata, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+  bool hasScalars = this->ScalarVisibility && (scalars != nullptr);
   bool hasPointScalars = hasScalars && !cellFlag;
   bool hasCellScalars = hasScalars && cellFlag == 1;
-  bool hasNormals =
-    (polydata->GetPointData()->GetNormals() || polydata->GetCellData()->GetNormals());
-  bool hasTCoords = (polydata->GetPointData()->GetTCoords() != nullptr);
 
-  return (hasPointScalars << 0) + (hasCellScalars << 1) + (hasNormals << 2) + (hasTCoords << 3);
+  bool usesPointNormals = polydata->GetPointData()->GetNormals() != nullptr;
+  bool usesPointTexCoords = polydata->GetPointData()->GetTCoords() != nullptr;
+  bool usesPointColorsWithTextureMaps =
+    this->CanUseTextureMapForColoring(polydata) && hasPointScalars;
+  bool usesPointColors = !usesPointColorsWithTextureMaps && hasPointScalars;
+  bool usesCellColorTexture = !usesPointColorsWithTextureMaps && !usesPointColors && hasCellScalars;
+  bool usesCellNormalTexture =
+    !usesPointNormals && (polydata->GetCellData()->GetNormals() != nullptr);
+
+  // The hash is seeded from the address of the lookup table.
+  // WARNING: Technically, hash will overflow when
+  //  &(lut) >= max_n_bit_ptr_address - 126, where n == 32 or n == 64
+  MapperHashType hash = 0;
+  // Get the lookup table.
+  vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
+  vtkScalarsToColors* lut = nullptr;
+  if (dataArray && dataArray->GetLookupTable())
+  {
+    lut = vtkScalarsToColors::SafeDownCast(dataArray->GetLookupTable());
+  }
+  else
+  {
+    lut = this->LookupTable;
+  }
+  hash = std::hash<MapperHashType>{}(reinterpret_cast<std::uintptr_t>(lut));
+  hash += (usesPointColors << 1);
+  hash += (usesPointNormals << 2);
+  hash += (usesPointTexCoords << 3);
+  hash += (usesPointColorsWithTextureMaps << 4);
+  hash += (usesCellColorTexture << 5);
+  hash += (usesCellNormalTexture << 6);
+  return hash;
 }
 
 //------------------------------------------------------------------------------
