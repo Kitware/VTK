@@ -93,13 +93,15 @@ public:
    * processed by filters that modify topology or geometry, it may be
    * wise to turn Normals and Gradients off.
    * This setting defaults to On for vtkImageData, vtkRectilinearGrid,
-   * vtkStructuredGrid, and vtkUnstructuredGrid inputs, and Off for all others.
-   * This default behavior is to preserve the behavior of an older version of
-   * this filter, which would ignore this setting for certain inputs.
+   * vtkStructuredGrid, and vtkUnstructuredGrid inputs.
+   * For others, it defaults to the special value -1 which indicates
+   * that the caller has made no explicit choice and will result in
+   * the normals being computed. This behaviour is a holdover for
+   * backwards compatibility and you really should set this to 0 or 1.
    */
-  vtkSetMacro(ComputeNormals, vtkTypeBool);
-  vtkGetMacro(ComputeNormals, vtkTypeBool);
-  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
+  vtkSetMacro(ComputeNormals, int);
+  vtkGetMacro(ComputeNormals, int);
+  vtkBooleanMacro(ComputeNormals, int);
   ///@}
 
   ///@{
@@ -216,7 +218,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkNew<vtkContourValues> ContourValues;
-  vtkTypeBool ComputeNormals;
+  int ComputeNormals;
   vtkTypeBool ComputeGradients;
   vtkTypeBool ComputeScalars;
   vtkIncrementalPointLocator* Locator;
