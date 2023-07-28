@@ -15,7 +15,8 @@
 
 #include "vtkMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
-//#include "vtkTexture.h" // used to include texture unit enum.
+
+#include <cstdint> // For uintptr_t
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
