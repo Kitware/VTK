@@ -199,7 +199,7 @@ fedora34-mpi-ospray-python-qt-tbb:build:
 
 fedora34-mpi-ospray-python-qt-tbb:test:
     extends:
-        - .fedora34_mpi_python_qt_tbb
+        - .fedora34_mpi_ospray_python_qt_tbb
         - .cmake_test_linux
         - .linux_tester_tags
         - .cmake_test_artifacts
