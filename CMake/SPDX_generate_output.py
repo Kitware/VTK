@@ -7,11 +7,11 @@ See https://spdx.github.io/spdx-spec/v2.2.2/.
 """
 
 import argparse
+import re
 
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
-
 
 EPILOG = """
 
@@ -39,7 +39,6 @@ Example of standalone usage
         source1.cxx source2.cxx source1.h source2.h
 """
 
-
 def generate_spdx_file(
     module_name: str,
     namespace: str,
@@ -50,6 +49,7 @@ def generate_spdx_file(
     custom_license_name: str,
     output_file: str,
     source_dir: str,
+    skip_regex: str,
     input_files: List[str],
 ):
     """Generate a SPDX file for a VTK module.
@@ -63,10 +63,14 @@ def generate_spdx_file(
     :param custom_license_name: SPDX name of the custom license to include.
     :param output_file: SPDX output file.
     :param source_dir: Directory containing source files.
+    :param skip_regex: On regex match of a filename with this pattern, skip the parsing of the file.
     :param input_files: List of source files.
     """
-    spdx_cpy_expr = "// SPDX-FileCopyrightText: "
-    spdx_lic_expr = "// SPDX-License-Identifier: "
+    spdx_comment_regex_begin = "^(?:#|\/\/|<!--|!)"
+    spdx_comment_regex_end = "(?= -->|$)"
+    spdx_lic_regex = spdx_comment_regex_begin + " SPDX-License-Identifier: (.+?)" + spdx_comment_regex_end
+    spdx_cpy_regex = spdx_comment_regex_begin + " SPDX-FileCopyrightText: (.+?)" + spdx_comment_regex_end
+
     copyrights = set()
     licenses = set()
     files_analyzed = bool(input_files)
@@ -84,16 +88,23 @@ def generate_spdx_file(
             # Skip module file, eg: vtkIOPLYModule.h
             continue
 
+        if skip_regex and re.match(skip_regex, path.name):
+            continue
+
         # Parse copyrights and licenses in all files
         read_cpy = True
         found_cpy = False
+        number_of_allowed_line_skips = 1
         for line in path.open("r"):
             if read_cpy:
-                index = line.find(spdx_cpy_expr)
-                if index == 0:
-                    copyrights.add(line[len(spdx_cpy_expr) : -1])
+                match = re.search(spdx_cpy_regex, line)
+                if match:
+                    copyrights.add(match.group(1))
                     found_cpy = True
                 elif not found_cpy:
+                    number_of_allowed_line_skips -= 1
+                    if number_of_allowed_line_skips >= 0:
+                      continue
                     print(
                         "Warning: File %s does not contain expected SPDX copyright text but contains instead: %s"
                         % (filename, line)
@@ -104,9 +115,9 @@ def generate_spdx_file(
 
             # This is not an else
             if not read_cpy:
-                index = line.find(spdx_lic_expr)
-                if index == 0:
-                    licenses.add(line[len(spdx_lic_expr) : -1])
+                match = re.search(spdx_lic_regex, line)
+                if match:
+                    licenses.add(match.group(1))
                     break
                 else:
                     print(
@@ -191,7 +202,6 @@ Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package-%(module)s
             }
         )
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=__doc__ + "\nArguments\n---------\n",
@@ -208,6 +218,7 @@ if __name__ == "__main__":
     parser.add_argument("-y", "--custom_license_name", help="VTK module custom license name", required=True)
     parser.add_argument("-o", "--output", help="SPDX output file", required=True)
     parser.add_argument("-s", "--source", help="Directory containing source files", required=True)
+    parser.add_argument("-k", "--skip_regex", help="A regex to skip certain source files, using the file name", required=True)
     parser.add_argument("input_files", metavar="N", nargs="*")
     args = parser.parse_args()
 
@@ -221,5 +232,6 @@ if __name__ == "__main__":
         args.custom_license_name,
         args.output,
         args.source,
+        args.skip_regex,
         args.input_files,
     )
