@@ -5793,11 +5793,11 @@ function (_vtk_module_generate_spdx)
   endif ()
 
   if (NOT TARGET "Python3::Interpreter")
-    find_package(Python3 QUIET COMPONENTS Interpreter)
+    find_package(Python3 3.7.0 QUIET COMPONENTS Interpreter)
   endif ()
   if (NOT TARGET "Python3::Interpreter")
-    message(WARNING
-      "Python not found, could not generate a SPDX file for ${_vtk_module_generate_spdx_MODULE_NAME}")
+    message(FATAL_ERROR
+      "Python (>= 3.7.0) not found, could not generate a SPDX file for ${_vtk_module_generate_spdx_MODULE_NAME}")
     return ()
   endif ()
 
@@ -5854,7 +5854,7 @@ function (_vtk_module_generate_spdx)
   endif()
 
   add_custom_command(OUTPUT ${_vtk_module_generate_spdx_output_file}
-    COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${_vtkModule_dir}/SPDX_generate_output.py"
+    COMMAND "$<TARGET_FILE:Python3::Interpreter>" -Xutf8 "${_vtkModule_dir}/SPDX_generate_output.py"
       -m "${_vtk_module_generate_spdx_MODULE_NAME}"
       -l "${_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER}"
       -c "${_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT}"

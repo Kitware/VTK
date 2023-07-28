@@ -3,4 +3,7 @@
 set(VTK_JAVA_SOURCE_VERSION 11 CACHE STRING "")
 set(VTK_JAVA_TARGET_VERSION 11 CACHE STRING "")
 
+# Enable SPDX generation
+set(VTK_GENERATE_SPDX ON CACHE BOOL "")
+
 include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora_common.cmake")

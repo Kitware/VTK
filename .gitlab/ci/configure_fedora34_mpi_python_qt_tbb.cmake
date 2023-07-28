@@ -1,8 +1,5 @@
 set(VTK_USE_EXTERNAL ON CACHE STRING "")
 
-# Enable SPDX generation
-set(VTK_GENERATE_SPDX ON CACHE BOOL "")
-
 # These libraries are not supported right now.
 set(VTK_MODULE_USE_EXTERNAL_VTK_libharu OFF CACHE BOOL "")
 set(VTK_MODULE_USE_EXTERNAL_VTK_exprtk OFF CACHE BOOL "")

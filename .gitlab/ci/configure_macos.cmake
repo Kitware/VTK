@@ -25,7 +25,6 @@ set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # adios
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # boost
 set(VTK_MODULE_ENABLE_VTK_IOOCCT NO CACHE STRING "") # occt
 set(VTK_ENABLE_CATALYST OFF CACHE BOOL "") # catalyst
-set(VTK_GENERATE_SPDX ON CACHE BOOL "") # SPDX generation
 
 # Add rpath entries for Xcode frameworks.
 set(CMAKE_BUILD_RPATH "$ENV{DEVELOPER_DIR}/Library/Frameworks" CACHE STRING "")
