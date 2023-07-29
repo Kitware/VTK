@@ -5802,8 +5802,9 @@ function (_vtk_module_generate_spdx)
     find_package(Python3 3.7.0 QUIET COMPONENTS Interpreter)
   endif ()
   if (NOT TARGET "Python3::Interpreter")
-    message(FATAL_ERROR
-      "Python (>= 3.7.0) not found, could not generate a SPDX file for ${_vtk_module_generate_spdx_MODULE_NAME}")
+    message(WARNING
+      "Python (>= 3.7.0) not found, could not generate a SPDX file for "
+      "${_vtk_module_generate_spdx_MODULE_NAME}")
     return ()
   endif ()
 
