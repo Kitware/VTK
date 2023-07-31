@@ -5,7 +5,7 @@
 #include "vtkObjectFactory.h"
 
 #include <algorithm> // std::min
-#include <cstring>
+#include <cstring>   // std::memcpy
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -18,7 +18,7 @@ vtkMemoryResourceStream::vtkMemoryResourceStream()
 }
 
 //------------------------------------------------------------------------------
-void vtkMemoryResourceStream::SetBuffer(const void* buffer, std::size_t size)
+void vtkMemoryResourceStream::SetBuffer(const void* buffer, std::size_t size, bool copy)
 {
   if (buffer == nullptr && size != 0)
   {
@@ -26,10 +26,23 @@ void vtkMemoryResourceStream::SetBuffer(const void* buffer, std::size_t size)
     return;
   }
 
-  this->Buffer = static_cast<const unsigned char*>(buffer);
   this->Size = size;
   this->Pos = 0;
   this->Eos = (this->Size == 0);
+  this->Holder.reset();
+
+  if (copy && size > 0)
+  {
+    std::unique_ptr<unsigned char[]> ptr{ new unsigned char[size] };
+    std::memcpy(ptr.get(), buffer, size);
+
+    this->Buffer = ptr.get();
+    this->Holder = MakeHolder(std::move(ptr));
+  }
+  else
+  {
+    this->Buffer = static_cast<const unsigned char*>(buffer);
+  }
 
   this->Modified();
 }

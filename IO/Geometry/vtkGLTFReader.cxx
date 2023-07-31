@@ -15,6 +15,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
+#include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
@@ -674,47 +675,28 @@ int vtkGLTFReader::RequestInformation(
   }
 
   // Read file metadata
-  // Make sure we have a file to read.
-  if (!this->FileName)
-  {
-    vtkErrorMacro("A FileName must be specified.");
-    return 0;
-  }
+  // Make sure we have a file to read
 
-  std::string fileNameAsString(this->FileName);
-
-  if (fileNameAsString.find('\\') != std::string::npos)
+  if (this->Stream)
   {
-    vtksys::SystemTools::ConvertToUnixSlashes(fileNameAsString);
-  }
-
-  if (!vtksys::SystemTools::FileIsFullPath(fileNameAsString))
-  {
-    fileNameAsString = vtksys::SystemTools::CollapseFullPath(fileNameAsString);
-  }
-
-  if (this->FileName != fileNameAsString)
-  {
-    this->SetFileName(fileNameAsString.c_str());
-  }
-
-  // Check for filename change in case the loader was already created
-  if (this->Loader != nullptr && this->Loader->GetInternalModel()->FileName != this->FileName)
-  {
-    this->IsMetaDataLoaded = false;
-    this->IsModelLoaded = false;
-    this->Textures.clear();
-  }
-
-  // Load model metadata if not done previously
-  if (!this->IsMetaDataLoaded)
-  {
-    this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
-    if (!this->Loader->LoadModelMetaDataFromFile(this->FileName))
+    // Check for stream change in case the loader was already created
+    if (this->Loader != nullptr && this->Loader->GetInternalModel() &&
+      (this->Loader->GetInternalModel()->Stream != this->Stream ||
+        this->Stream->GetMTime() != this->LastStreamTimeStamp))
     {
-      vtkErrorMacro("Error loading model metadata from file " << this->FileName);
+      this->IsMetaDataLoaded = false;
+      this->IsModelLoaded = false;
+      this->Textures.clear();
+    }
+
+    this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+    if (!this->Loader->LoadModelMetaDataFromStream(this->Stream, this->URILoader))
+    {
+      vtkErrorMacro("Error loading model metadata from stream");
       return 0;
     }
+
+    this->LastStreamTimeStamp = this->Stream->GetMTime();
 
     vtkNew<vtkEventForwarderCommand> forwarder;
     forwarder->SetTarget(this);
@@ -724,6 +706,59 @@ int vtkGLTFReader::RequestInformation(
     this->CreateSceneNamesArray();
     this->SetCurrentScene(this->Loader->GetInternalModel()->DefaultScene);
     this->IsMetaDataLoaded = true;
+  }
+  else if (this->FileName)
+  {
+    std::string fileNameAsString(this->FileName);
+
+    if (fileNameAsString.find('\\') != std::string::npos)
+    {
+      vtksys::SystemTools::ConvertToUnixSlashes(fileNameAsString);
+    }
+
+    if (!vtksys::SystemTools::FileIsFullPath(fileNameAsString))
+    {
+      fileNameAsString = vtksys::SystemTools::CollapseFullPath(fileNameAsString);
+    }
+
+    if (this->FileName != fileNameAsString)
+    {
+      this->SetFileName(fileNameAsString.c_str());
+    }
+
+    // Check for filename change in case the loader was already created
+    if (this->Loader != nullptr && this->Loader->GetInternalModel() &&
+      this->Loader->GetInternalModel()->FileName != this->FileName)
+    {
+      this->IsMetaDataLoaded = false;
+      this->IsModelLoaded = false;
+      this->Textures.clear();
+    }
+
+    // Load model metadata if not done previously
+    if (!this->IsMetaDataLoaded)
+    {
+      this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+      if (!this->Loader->LoadModelMetaDataFromFile(this->FileName))
+      {
+        vtkErrorMacro("Error loading model metadata from file " << this->FileName);
+        return 0;
+      }
+
+      vtkNew<vtkEventForwarderCommand> forwarder;
+      forwarder->SetTarget(this);
+      this->Loader->AddObserver(vtkCommand::ProgressEvent, forwarder);
+
+      this->CreateAnimationSelection();
+      this->CreateSceneNamesArray();
+      this->SetCurrentScene(this->Loader->GetInternalModel()->DefaultScene);
+      this->IsMetaDataLoaded = true;
+    }
+  }
+  else
+  {
+    vtkErrorMacro("A FileName or a Stream must be specified.");
+    return 0;
   }
 
   // Get model information (numbers and names of animations and scenes, time range of animations)
@@ -801,23 +836,20 @@ int vtkGLTFReader::RequestData(
   auto model = this->Loader->GetInternalModel();
   if (!this->IsModelLoaded)
   {
-    // Make sure we have a file to read.
-    if (!this->FileName)
-    {
-      vtkErrorMacro("A FileName must be specified.");
-      return 0;
-    }
-    // Attempt to load binary buffer in case the file is binary-glTF
-    // Check extension
-    std::string extension = vtksys::SystemTools::GetFilenameLastExtension(this->FileName);
     std::vector<char> glbBuffer;
-    if (extension == ".glb")
+
+    if (this->Stream)
     {
-      if (!this->Loader->LoadFileBuffer(this->FileName, glbBuffer))
-      {
-        vtkErrorMacro("Error loading binary data");
-        return 0;
-      }
+      this->Loader->LoadStreamBuffer(this->Stream, glbBuffer);
+    }
+    else if (this->FileName)
+    {
+      this->Loader->LoadFileBuffer(this->FileName, glbBuffer);
+    }
+    else
+    {
+      vtkErrorMacro("A FileName or a Stream must be specified.");
+      return 0;
     }
 
     // Load buffer data

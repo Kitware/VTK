@@ -11,68 +11,74 @@
 #include <cstring>
 #include <iostream>
 
-#define check(expr, message)                                                                       \
-  if (!(expr))                                                                                     \
+#define Check(expr, message)                                                                       \
+  do                                                                                               \
   {                                                                                                \
-    vtkErrorWithObjectMacro(nullptr, "Test failed: \n" << message);                                \
-    return false;                                                                                  \
-  }
+    if (!(expr))                                                                                   \
+    {                                                                                              \
+      vtkErrorWithObjectMacro(nullptr, "Test failed: \n" << message);                              \
+      return false;                                                                                \
+    }                                                                                              \
+  } while (false)
 
-bool testStream(vtkResourceStream* stream)
+namespace
 {
-  check(!stream->EndOfStream(), "Invalid stream");
+
+bool TestStream(vtkResourceStream* stream)
+{
+  Check(!stream->EndOfStream(), "Invalid stream");
 
   std::array<char, 5> buffer;
 
-  check(stream->Read(buffer.data(), buffer.size()) == 5, "Read wrong size");
-  check(!stream->EndOfStream(), "Reach end of file too early");
-  check(std::strncmp(buffer.data(), "Hello", 5) == 0, "Read wrong data");
+  Check(stream->Read(buffer.data(), buffer.size()) == 5, "Read wrong size");
+  Check(!stream->EndOfStream(), "Reach end of file too early");
+  Check(std::strncmp(buffer.data(), "Hello", 5) == 0, "Read wrong data");
 
   if (stream->SupportSeek())
   {
-    check(stream->Tell() == 5, "Tell wrong position");
+    Check(stream->Tell() == 5, "Tell wrong position");
 
-    check(stream->Seek(2, vtkResourceStream::SeekDirection::Current) == 7, "Seek wrong position");
-    check(!stream->EndOfStream(), "Seek must not modify EndOfStream value");
-    check(stream->Tell() == 7, "Tell wrong position");
+    Check(stream->Seek(2, vtkResourceStream::SeekDirection::Current) == 7, "Seek wrong position");
+    Check(!stream->EndOfStream(), "Seek must not modify EndOfStream value");
+    Check(stream->Tell() == 7, "Tell wrong position");
 
-    check(stream->Seek(10, vtkResourceStream::SeekDirection::Current) == 17, "Seek wrong position");
-    check(!stream->EndOfStream(), "Seek must not modify EndOfStream value");
-    check(stream->Read(nullptr, 0) == 0, "Read wrong size");
-    check(!stream->EndOfStream(), "Last zero byte read must not set EOS");
+    Check(stream->Seek(10, vtkResourceStream::SeekDirection::Current) == 17, "Seek wrong position");
+    Check(!stream->EndOfStream(), "Seek must not modify EndOfStream value");
+    Check(stream->Read(nullptr, 0) == 0, "Read wrong size");
+    Check(!stream->EndOfStream(), "Last zero byte read must not set EOS");
 
-    check(stream->Seek(10, vtkResourceStream::SeekDirection::Current) == 27, "Seek wrong position");
-    check(!stream->EndOfStream(), "EndOfStream must be false after Seek");
-    check(stream->Read(buffer.data(), 0) == 0, "Read wrong size");
-    check(!stream->EndOfStream(), "Last zero byte read must not set EOS");
+    Check(stream->Seek(10, vtkResourceStream::SeekDirection::Current) == 27, "Seek wrong position");
+    Check(!stream->EndOfStream(), "EndOfStream must be false after Seek");
+    Check(stream->Read(buffer.data(), 0) == 0, "Read wrong size");
+    Check(!stream->EndOfStream(), "Last zero byte read must not set EOS");
 
-    check(stream->Seek(10, vtkResourceStream::SeekDirection::Current) == 37, "Seek wrong position");
-    check(!stream->EndOfStream(), "EndOfStream must be false after Seek");
-    check(stream->Read(buffer.data(), buffer.size()) == 0, "Read wrong size");
-    check(stream->EndOfStream(), "Last read must lead the stream to EOS");
+    Check(stream->Seek(10, vtkResourceStream::SeekDirection::Current) == 37, "Seek wrong position");
+    Check(!stream->EndOfStream(), "EndOfStream must be false after Seek");
+    Check(stream->Read(buffer.data(), buffer.size()) == 0, "Read wrong size");
+    Check(stream->EndOfStream(), "Last read must lead the stream to EOS");
 
-    check(stream->Seek(2, vtkResourceStream::SeekDirection::Begin) == 2, "Seek wrong position");
-    check(!stream->EndOfStream(), "EndOfStream must be false after Seek");
-    check(stream->Seek(-6, vtkResourceStream::SeekDirection::End) == 6, "Seek wrong position");
-    check(!stream->EndOfStream(), "EndOfStream must be false after Seek");
+    Check(stream->Seek(2, vtkResourceStream::SeekDirection::Begin) == 2, "Seek wrong position");
+    Check(!stream->EndOfStream(), "EndOfStream must be false after Seek");
+    Check(stream->Seek(-6, vtkResourceStream::SeekDirection::End) == 6, "Seek wrong position");
+    Check(!stream->EndOfStream(), "EndOfStream must be false after Seek");
   }
   else
   {
-    check(!stream->EndOfStream(), "Reach end of file too early");
+    Check(!stream->EndOfStream(), "Reach end of file too early");
   }
 
-  check(stream->Read(buffer.data(), buffer.size()) == 5, "Read wrong size");
-  check(!stream->EndOfStream(), "Reach end of file too early");
-  check(std::strncmp(buffer.data(), "world", 5) == 0, "Read wrong data");
+  Check(stream->Read(buffer.data(), buffer.size()) == 5, "Read wrong size");
+  Check(!stream->EndOfStream(), "Reach end of file too early");
+  Check(std::strncmp(buffer.data(), "world", 5) == 0, "Read wrong data");
 
-  check(stream->Read(buffer.data(), buffer.size()) == 1, "Read wrong size");
-  check(std::strncmp(buffer.data(), "!", 1) == 0, "Read wrong data");
-  check(stream->EndOfStream(), "Last read must lead the stream to EOS");
+  Check(stream->Read(buffer.data(), buffer.size()) == 1, "Read wrong size");
+  Check(std::strncmp(buffer.data(), "!", 1) == 0, "Read wrong data");
+  Check(stream->EndOfStream(), "Last read must lead the stream to EOS");
 
   return true;
 }
 
-bool testFileResource(const std::string& temp_dir)
+bool TestFileResource(const std::string& temp_dir)
 {
   const auto file_path = temp_dir + "/restmp.txt";
 
@@ -94,29 +100,73 @@ bool testFileResource(const std::string& temp_dir)
     return false;
   }
 
-  return testStream(file);
+  return TestStream(file);
 }
 
-bool testMemoryResource()
+bool TestMemoryResource()
 {
   const std::string str{ "Hello world!" };
   vtkNew<vtkMemoryResourceStream> memory;
   memory->SetBuffer(str.data(), str.size());
 
-  return testStream(memory);
+  return TestStream(memory);
+}
+
+bool TestOwnedMemoryResource()
+{
+  const std::string str{ "Hello world!" };
+  vtkNew<vtkMemoryResourceStream> memory;
+  memory->SetBuffer(str.data(), str.size(), true); // copied
+
+  Check(TestStream(memory), "Basic checks failed");
+  Check(memory->OwnsBuffer(), "OwnsBuffer must return true");
+  memory->SetBuffer(nullptr, 0);
+  Check(!memory->OwnsBuffer(), "OwnsBuffer must return false");
+  Check(memory->EndOfStream(), "EndOfStream must return true");
+
+  memory->SetBuffer(str.data(), str.size(), true); // copied
+  Check(memory->OwnsBuffer(), "OwnsBuffer must return true");
+  memory->SetBuffer(nullptr, 0, true); // must have same effect
+  Check(!memory->OwnsBuffer(), "OwnsBuffer must return false");
+  Check(memory->EndOfStream(), "EndOfStream must return true");
+
+  std::vector<char> vec{ 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!' };
+  memory->SetBuffer(vec);
+  Check(TestStream(memory), "Basic checks failed");
+  Check(memory->OwnsBuffer(), "OwnsBuffer must return true");
+  memory->SetBuffer(std::move(vec));
+  Check(TestStream(memory), "Basic checks failed");
+  Check(memory->OwnsBuffer(), "OwnsBuffer must return true");
+
+  std::string tmpstr{ "Hello world!" };
+  memory->SetBuffer(tmpstr);
+  Check(TestStream(memory), "Basic checks failed");
+  Check(memory->OwnsBuffer(), "OwnsBuffer must return true");
+  memory->SetBuffer(std::move(tmpstr));
+  Check(TestStream(memory), "Basic checks failed");
+  Check(memory->OwnsBuffer(), "OwnsBuffer must return true");
+
+  return true;
+}
+
 }
 
 int TestResourceStreams(int argc, char* argv[])
 {
   char* tempDir =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
-  if (!testFileResource(tempDir))
+  if (!TestFileResource(tempDir))
   {
     return 1;
   }
   delete[] tempDir;
 
-  if (!testMemoryResource())
+  if (!TestMemoryResource())
+  {
+    return 1;
+  }
+
+  if (!TestOwnedMemoryResource())
   {
     return 1;
   }

@@ -15,6 +15,8 @@ vtk_add_test_cxx(vtkIOCoreCxxTests tests
   TestCompressLZMA.cxx
   TestResourceParser.cxx
   TestResourceStreams.cxx
+  TestURI.cxx
+  TestURILoader.cxx
   ${extra_tests}
   )
 vtk_test_cxx_executable(vtkIOCoreCxxTests tests)

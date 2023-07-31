@@ -7,6 +7,7 @@
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkMatrix4x4.h"
+#include "vtkResourceStream.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -16,7 +17,7 @@
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 bool vtkGLTFDocumentLoaderInternals::LoadBuffer(
-  const nlohmann::json& root, std::vector<char>& buffer, const std::string& glTFFileName)
+  const nlohmann::json& root, std::vector<char>& buffer)
 {
   if (root.empty() || !root.is_object())
   {
@@ -24,30 +25,38 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffer(
     return false;
   }
 
-  int byteLength = 0;
-  vtksys::ifstream fin;
-
-  std::string name;
-  vtkGLTFUtils::GetStringValue(root, "name", name);
-
-  if (!vtkGLTFUtils::GetIntValue(root, "byteLength", byteLength))
-  {
-    vtkErrorWithObjectMacro(this->Self, "Invalid buffer.byteLength value for buffer " << name);
-    return false;
-  }
   auto rootUriIt = root.find("uri");
   if (rootUriIt == root.end())
   {
     return true;
   }
-  std::string uri = rootUriIt.value();
+
+  if (!this->Self->GetInternalModel()->URILoader)
+  {
+    vtkErrorWithObjectMacro(this->Self, "Trying to load data using URI without an URI loader");
+    return false;
+  }
+
+  int byteLength = 0;
+  if (!vtkGLTFUtils::GetIntValue(root, "byteLength", byteLength))
+  {
+    std::string name;
+    vtkGLTFUtils::GetStringValue(root, "name", name);
+    vtkErrorWithObjectMacro(this->Self, "Invalid buffer.byteLength value for buffer " << name);
+    return false;
+  }
 
   // Load buffer data
-  if (!vtkGLTFUtils::GetBinaryBufferFromUri(uri, glTFFileName, buffer, byteLength))
+  std::string uri = rootUriIt.value();
+  if (!vtkGLTFUtils::GetBinaryBufferFromUri(
+        uri, this->Self->GetInternalModel()->URILoader, buffer, byteLength))
   {
+    std::string name;
+    vtkGLTFUtils::GetStringValue(root, "name", name);
     vtkErrorWithObjectMacro(this->Self, "Invalid buffer.uri value for buffer " << name);
     return false;
   }
+
   return true;
 }
 
@@ -62,7 +71,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
     for (const auto& glTFBuffer : bufferRoot)
     {
       std::vector<char> buffer;
-      if (this->LoadBuffer(glTFBuffer, buffer, this->Self->GetInternalModel()->FileName))
+      if (this->LoadBuffer(glTFBuffer, buffer))
       {
         if (buffer.empty() && this->Self->GetInternalModel()->Buffers.empty() && !firstBufferIsGLB)
         {
@@ -91,77 +100,78 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
     vtkErrorWithObjectMacro(this->Self, "Could not parse JSON: " << e.what());
     return false;
   }
+
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(
-  const std::string& fileName, nlohmann::json& gltfRoot)
+bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(nlohmann::json& gltfRoot)
 {
   try
   {
-    // Expect extension to be either .gltf or .glb
-    std::string extension = vtksys::SystemTools::GetFilenameLastExtension(fileName);
-    if (extension != ".gltf" && extension != ".glb")
-    {
-      vtkErrorWithObjectMacro(
-        this->Self, "Invalid file extension: " << extension << ". Expected '.gltf' or '.glb'");
-      return false;
-    }
+    const auto& stream = this->Self->GetInternalModel()->Stream;
+    stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
 
-    std::stringstream JSONstream;
-    vtksys::ifstream fin;
-    if (extension == ".glb")
+    // Determine the format
+    std::string magic;
+    magic.resize(4);
+    stream->Read(&magic[0], magic.size());
+
+    if (magic == "glTF")
     {
-      // Get base information
-      std::string magic;
-      uint32_t version;
-      uint32_t fileLength;
+      std::uint32_t version;
+      std::uint32_t fileLength;
       std::vector<vtkGLTFUtils::ChunkInfoType> chunkInfo;
-      if (!vtkGLTFUtils::ExtractGLBFileInformation(fileName, magic, version, fileLength, chunkInfo))
+      if (vtkGLTFUtils::ExtractGLBFileInformation(stream, version, fileLength, chunkInfo))
       {
-        vtkErrorWithObjectMacro(this->Self, "Invalid binary glTF file");
-        return false;
-      }
-      if (!vtkGLTFUtils::ValidateGLBFile(magic, version, fileLength, chunkInfo))
-      {
-        vtkErrorWithObjectMacro(this->Self, "Invalid binary glTF file");
-        return false;
-      }
+        if (!vtkGLTFUtils::ValidateGLBFile(magic, version, fileLength, chunkInfo))
+        {
+          vtkErrorWithObjectMacro(this->Self, "Invalid binary glTF file");
+          return false;
+        }
 
-      // Open the file in binary mode
-      fin.open(fileName.c_str(), std::ios::binary | std::ios::in);
-      if (!fin.is_open())
-      {
-        vtkErrorWithObjectMacro(this->Self, "Error opening file " << fileName);
-        return false;
+        // Get JSON chunk's information (we know it exists and it's the first chunk)
+        vtkGLTFUtils::ChunkInfoType& JSONChunkInfo = chunkInfo[0];
+
+        // Jump to chunk data start
+        stream->Seek(vtkGLTFUtils::GLBHeaderSize + vtkGLTFUtils::GLBChunkHeaderSize,
+          vtkResourceStream::SeekDirection::Begin);
+        // Read chunk data
+        std::vector<char> JSONDataBuffer;
+        JSONDataBuffer.resize(JSONChunkInfo.second);
+        if (stream->Read(JSONDataBuffer.data(), JSONChunkInfo.second) != JSONChunkInfo.second)
+        {
+          vtkErrorWithObjectMacro(this->Self, "Failed to read chunk 0.");
+          return false;
+        }
+
+        gltfRoot = nlohmann::json::parse(JSONDataBuffer);
       }
-      // Get JSON chunk's information (we know it exists and it's the first chunk)
-      vtkGLTFUtils::ChunkInfoType& JSONChunkInfo = chunkInfo[0];
-      // Jump to chunk data start
-      fin.seekg(vtkGLTFUtils::GLBHeaderSize + vtkGLTFUtils::GLBChunkHeaderSize);
-      // Read chunk data
-      std::vector<char> JSONDataBuffer(JSONChunkInfo.second);
-      fin.read(JSONDataBuffer.data(), JSONChunkInfo.second);
-      JSONstream.write(JSONDataBuffer.data(), JSONChunkInfo.second);
     }
     else
     {
-      // Copy whole file into string
-      fin.open(fileName.c_str());
-      if (!fin.is_open())
+      // Text gltf
+      stream->Seek(0, vtkResourceStream::SeekDirection::End);
+      const auto fileSize = static_cast<std::size_t>(stream->Tell());
+      stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+
+      std::vector<char> fileData;
+      fileData.resize(fileSize);
+      if (stream->Read(fileData.data(), fileData.size()) != fileData.size())
       {
-        vtkErrorWithObjectMacro(this->Self, "Error opening file " << fileName);
+        vtkErrorWithObjectMacro(this->Self, "Failed to read GLTF file");
         return false;
       }
-      JSONstream << fin.rdbuf();
+
+      gltfRoot = nlohmann::json::parse(fileData);
     }
-    JSONstream >> gltfRoot;
   }
   catch (nlohmann::json::parse_error& e)
   {
     vtkErrorWithObjectMacro(this->Self, << e.what());
+    return false;
   }
+
   return true;
 }
 
@@ -1249,17 +1259,17 @@ bool vtkGLTFDocumentLoaderInternals::LoadTextureInfo(
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
-  std::string& fileName, std::vector<std::string>& extensionsUsedByLoader)
+bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
+  std::vector<std::string>& extensionsUsedByLoader)
 {
-  extensionsUsedByLoader.clear();
-
   nlohmann::json root;
-  if (!this->LoadFileMetaData(fileName, root))
+  if (!this->LoadFileMetaData(root))
   {
-    vtkErrorWithObjectMacro(this->Self, "Failed to load file: " << fileName);
+    vtkErrorWithObjectMacro(this->Self, "Failed to load file from stream");
     return false;
   }
+
+  extensionsUsedByLoader.clear();
 
   // Load asset
   nlohmann::json glTFAsset = root["asset"];
