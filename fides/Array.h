@@ -34,11 +34,19 @@ struct ArrayBase : public DataModelBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) = 0;
 
-  /// Returns the number of blocks in the underlying variable.
+  /// Returns the number of blocks in the underlying variable inside the given group.
   /// Used by the reader to provide meta-data on blocks.
   /// Has to be implemented by subclasses.
   virtual size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                                   DataSourcesType& sources) = 0;
+                                   DataSourcesType& sources,
+                                   const std::string& groupName = "") = 0;
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  /// Has to be implemented by subclasses.
+  virtual std::set<std::string> GetGroupNames(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources) = 0;
 
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
@@ -76,7 +84,13 @@ struct ArrayPlaceholder : public ArrayBase
   /// arrays belonging to wildcard fields that will eventually
   /// be expanded
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>&,
-                           DataSourcesType&) override;
+                           DataSourcesType&,
+                           const std::string& = "") override;
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override;
 
 private:
   std::string ArrayType;
@@ -114,11 +128,17 @@ struct Array : public DataModelBase
   void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
                 const fides::metadata::MetaData& selections);
 
-  /// Returns the number of blocks in the underlying variable.
+  /// Returns the number of blocks in the underlying variable inside the given group.
   /// Used by the reader to provide meta-data on blocks.
   /// Handled by the internal ArrayBase subclass.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources);
+                           DataSourcesType& sources,
+                           const std::string& groupName = "");
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&);
 
 private:
   std::unique_ptr<ArrayBase> ArrayImpl = nullptr;
@@ -142,10 +162,16 @@ struct ArrayBasic : public ArrayBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
-  /// Returns the number of blocks in the underlying variable.
+  /// Returns the number of blocks in the underlying variable inside the given group.
   /// Used by the reader to provide meta-data on blocks.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources) override;
+                           DataSourcesType& sources,
+                           const std::string& groupName = "") override;
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override;
 
 private:
   fides::io::IsVector IsVector = fides::io::IsVector::Auto;
@@ -179,10 +205,16 @@ struct ArrayUniformPointCoordinates : public ArrayBase
   void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
                 const fides::metadata::MetaData& selections) override;
 
-  /// Returns the number of blocks in the underlying variable.
+  /// Returns the number of blocks in the underlying variable inside the given group.
   /// Used by the reader to provide meta-data on blocks.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources) override;
+                           DataSourcesType& sources,
+                           const std::string& groupName = "") override;
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override;
 
 private:
   std::unique_ptr<Value> Dimensions = nullptr;
@@ -207,11 +239,17 @@ struct ArrayCartesianProduct : public ArrayBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
-  /// Returns the number of blocks in the underlying variable.
+  /// Returns the number of blocks in the underlying variable inside the given group.
   /// Used by the reader to provide meta-data on blocks.
   /// Uses the number of blocks in the first (x) array.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources) override;
+                           DataSourcesType& sources,
+                           const std::string& groupName = "") override;
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override;
 
 protected:
   std::unique_ptr<Array> XArray = nullptr;
@@ -236,10 +274,19 @@ struct ArrayXGC : public ArrayBase
 {
   ArrayXGC();
 
-  /// Returns the number of blocks in the underlying variable.
+  /// Returns the number of blocks in the underlying variable inside the given group.
   /// Used by the reader to provide meta-data on blocks.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources) override;
+                           DataSourcesType& sources,
+                           const std::string& groupName = "") override;
+
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override
+  {
+    /// No groups.
+    return {};
+  }
 
 protected:
   std::unique_ptr<XGCCommon> CommonImpl;
@@ -254,7 +301,8 @@ protected:
 
   /// Gets the shape of the variable
   std::vector<size_t> GetShape(const std::unordered_map<std::string, std::string>& paths,
-                               DataSourcesType& sources);
+                               DataSourcesType& sources,
+                               const std::string& groupName = "");
 };
 
 /// \brief Class to read \c ArrayXGCCoordinates objects.
@@ -312,11 +360,17 @@ struct ArrayGTCCoordinates : public ArrayBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
-  /// Returns the number of blocks in the underlying variable.
+  /// Returns the number of blocks in the underlying variable inside the given group.
   /// Used by the reader to provide meta-data on blocks.
   /// Uses the number of blocks in the first (x) array.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources) override;
+                           DataSourcesType& sources,
+                           const std::string& groupName = "") override;
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override;
 
   void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
                 const fides::metadata::MetaData& metaData) override;
@@ -345,14 +399,20 @@ struct ArrayGTCField : public ArrayBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
-  /// Returns the number of blocks in the underlying variable.
+  /// Returns the number of blocks in the underlying variable inside the given group
   /// Used by the reader to provide meta-data on blocks.
   /// For GTC, there are always only 1 block.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>&,
-                           DataSourcesType&) override
+                           DataSourcesType&,
+                           const std::string& = "") override
   {
     return 1;
   }
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override;
 
   void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
                 const fides::metadata::MetaData& metaData) override;

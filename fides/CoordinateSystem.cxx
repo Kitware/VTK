@@ -29,16 +29,24 @@ void CoordinateSystem::ProcessJSON(const rapidjson::Value& json, DataSourcesType
 
 size_t CoordinateSystem::GetNumberOfBlocks(
   const std::unordered_map<std::string, std::string>& paths,
-  DataSourcesType& sources)
+  DataSourcesType& sources,
+  const std::string& groupName /*=""*/)
 {
   // blocks can change per timestep, but it's also possible that the
   // mesh is written once, so we have to handle both situations
-  auto nBlocks = this->Array->GetNumberOfBlocks(paths, sources);
+  auto nBlocks = this->Array->GetNumberOfBlocks(paths, sources, groupName);
   if (nBlocks > 0)
   {
     this->NumberOfBlocks = nBlocks;
   }
   return this->NumberOfBlocks;
+}
+
+std::set<std::string> CoordinateSystem::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources)
+{
+  return this->Array->GetGroupNames(paths, sources);
 }
 
 std::vector<vtkm::cont::CoordinateSystem> CoordinateSystem::Read(
