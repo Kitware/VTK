@@ -18,4 +18,5 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::IOImage
   VTK::ImagingCore
+  VTK::ParallelCore
   VTK::vtksys

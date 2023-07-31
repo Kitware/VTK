@@ -17,9 +17,12 @@
 
 #include "vtkObjectFactoryCollection.h" // Generated object overrides
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"           // For vtkSmartPointer
 #include "vtkTestingRenderingModule.h" // For export macro
 
 #include <string> // STL Header; Required for string
+
+class vtkMultiProcessController;
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKTESTINGRENDERING_EXPORT vtkTestingInteractor : public vtkRenderWindowInteractor
@@ -46,8 +49,21 @@ public:
   static std::string TempDirectory; // Location of Testing/Temporary
   static std::string DataDirectory; // Location of VTKData
 
+  ///@{
+  /**
+   * Get/Set the controller in an MPI environment.
+   */
+  vtkMultiProcessController* GetController() const;
+  void SetController(vtkMultiProcessController* controller);
+  ///@}
+
 protected:
-  vtkTestingInteractor() = default;
+  /**
+   * The constructor sets up the `Controller` if MPI has been initialized.
+   */
+  vtkTestingInteractor();
+
+  vtkSmartPointer<vtkMultiProcessController> Controller;
 
 private:
   vtkTestingInteractor(const vtkTestingInteractor&) = delete;
