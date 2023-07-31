@@ -101,7 +101,7 @@ struct ArrayTypeTester
   bool ArraysArePointerCompatible;
 };
 
-int TestDataSet(vtkDataSet* data, vtkDataSet* expectedData)
+int TestDataSet(vtkDataSet* data, vtkDataSet* expectedData, bool includeFieldData = false)
 {
   if (data == nullptr || expectedData == nullptr)
   {
@@ -122,7 +122,8 @@ int TestDataSet(vtkDataSet* data, vtkDataSet* expectedData)
               << " cells but got: " << data->GetNumberOfCells() << std::endl;
     return EXIT_FAILURE;
   }
-  for (int attributeType = 0; attributeType < vtkDataObject::FIELD; ++attributeType)
+  for (int attributeType = 0; attributeType < vtkDataObject::FIELD + (includeFieldData ? 1 : 0);
+       ++attributeType)
   {
     int numberRead = data->GetAttributesAsFieldData(attributeType)->GetNumberOfArrays();
     int numberExpected = expectedData->GetAttributesAsFieldData(attributeType)->GetNumberOfArrays();
@@ -206,7 +207,7 @@ int TestImageData(const std::string& dataRoot)
     return EXIT_FAILURE;
   }
 
-  return TestDataSet(data, expectedData);
+  return TestDataSet(data, expectedData, true);
 }
 
 int TestImageCellData(const std::string& dataRoot)
