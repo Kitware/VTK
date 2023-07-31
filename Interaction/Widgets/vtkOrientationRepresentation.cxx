@@ -374,6 +374,11 @@ void vtkOrientationRepresentation::SetProperty(int axis, bool selected, vtkPrope
   }
   else if (this->Properties[clampedAxis] != property)
   {
+    // Overwrite actors current property to avoid having to
+    // highlight them for the property to update
+    this->TorusActors[clampedAxis]->SetProperty(property);
+    this->ArrowsActors[clampedAxis]->SetProperty(property);
+
     this->Properties[clampedAxis] = property;
     this->Modified();
   }

@@ -100,8 +100,8 @@ public:
   }
   vtkProperty* GetProperty(int axis, bool selected);
   vtkProperty* GetPropertyX(bool selected) { return this->GetProperty(Axis::X_AXIS, selected); }
-  vtkProperty* GetPropertyY(bool selected) { return this->GetProperty(Axis::X_AXIS, selected); }
-  vtkProperty* GetPropertyZ(bool selected) { return this->GetProperty(Axis::X_AXIS, selected); }
+  vtkProperty* GetPropertyY(bool selected) { return this->GetProperty(Axis::Y_AXIS, selected); }
+  vtkProperty* GetPropertyZ(bool selected) { return this->GetProperty(Axis::Z_AXIS, selected); }
   ///@}
 
   ///@{
