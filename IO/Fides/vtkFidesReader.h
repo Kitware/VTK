@@ -10,7 +10,7 @@
  * (https://gitlab.kitware.com/vtk/fides/)
  * See the Fides documentation for the details of the schema used to
  * represent VTK/VTK-m data models.
- * The reader can create partitioned datasets containing
+ * The reader can create partitioned dataset collection containing
  * native VTK dataset or  VTK VTK-m datasets.
  * Time and time streaming is supported. Note that the interface for
  * time streaming is different. It requires calling PrepareNextStep()
@@ -29,7 +29,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
-class vtkInformationIntegerKey;
 
 class VTKIOFIDES_EXPORT vtkFidesReader : public vtkAlgorithm
 {
@@ -177,8 +176,6 @@ protected:
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
   vtkDataArraySelection* FieldDataArraySelection;
-
-  static vtkInformationIntegerKey* NUMBER_OF_BLOCKS();
 
   int ADIOSAttributeCheck(const std::string& name);
 

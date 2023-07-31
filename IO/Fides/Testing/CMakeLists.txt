@@ -4,6 +4,7 @@ if (VTK_WRAP_PYTHON)
     Data/tris-blocks-time.bp
     Data/tris-blocks-time.bp.dir/,REGEX:.*
     Data/cartesian-attr.bp
-    Data/cartesian-attr.bp.dir/,REGEX:.*)
+    Data/cartesian-attr.bp.dir/,REGEX:.*
+    Data/groups.bp/,REGEX:.*)
   add_subdirectory(Python)
 endif ()
