@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cctype>
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
