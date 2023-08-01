@@ -106,7 +106,9 @@ public:
   /// number of blocks, available fields etc.
   /// \param paths a map that provides
   /// the paths (filenames usually) corresponding to each data source.
-  fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths);
+  /// \param groupName looks for metadata on variables inside the given group.
+  fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths,
+                                         const std::string& groupName = "");
 
   /// Read and return heavy-data.
   /// \param paths a map that provides
@@ -148,6 +150,8 @@ public:
 
   /// Get std::vector of DataSource names.
   std::vector<std::string> GetDataSourceNames();
+  /// Get all available group names.
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>& paths);
 
 private:
   class DataSetReaderImpl;

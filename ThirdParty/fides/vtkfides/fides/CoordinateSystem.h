@@ -49,10 +49,16 @@ struct CoordinateSystem : public DataModelBase
   void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
                 const fides::metadata::MetaData& selections);
 
-  /// Returns the number of blocks in the underlying Array variable.
+  /// Returns the number of blocks in the underlying Array variable inside the given group.
   /// Used by the reader to provide meta-data on blocks.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources);
+                           DataSourcesType& sources,
+                           const std::string& groupName = "");
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>& paths,
+                                      DataSourcesType& sources);
 
 private:
   std::shared_ptr<fides::datamodel::Array> Array;

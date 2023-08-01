@@ -462,8 +462,8 @@ public:
       time = static_cast<double>(array.ReadPortal().Get(0));
     }
   };
-
-  fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths)
+  fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths,
+                                         const std::string& groupName)
   {
     if (!this->StreamingMode)
     {
@@ -478,7 +478,7 @@ public:
     {
       throw std::runtime_error("Cannot read missing coordinate system.");
     }
-    size_t nBlocks = this->CoordinateSystem->GetNumberOfBlocks(paths, this->DataSources);
+    size_t nBlocks = this->CoordinateSystem->GetNumberOfBlocks(paths, this->DataSources, groupName);
     fides::metadata::MetaData metaData;
     fides::metadata::Size nBlocksM(nBlocks);
     metaData.Set(fides::keys::NUMBER_OF_BLOCKS(), nBlocksM);
@@ -514,6 +514,9 @@ public:
       // for streaming PrepareNextStep has to be called before ReadMetaData anyway
       if (this->StreamingMode)
       {
+        // assumes time value is defined globally in this step, i.e for all groups.
+        // if the time value is defined inside the group, then metadata::MetaData() will
+        // need to set GROUP_SELECTION
         auto timeVec = ds->GetScalarVariable(this->TimeVariable, metadata::MetaData());
         if (!timeVec.empty())
         {
@@ -531,6 +534,9 @@ public:
       }
       else
       {
+        // assumes time array is defined globally, i.e for all groups.
+        // if the time array is defined inside the group, then metadata::MetaData() will
+        // need to set GROUP_SELECTION
         auto timeVec = ds->GetTimeArray(this->TimeVariable, metadata::MetaData());
         if (!timeVec.empty())
         {
@@ -558,6 +564,38 @@ public:
     }
 
     return metaData;
+  }
+
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>& paths)
+  {
+    if (!this->StreamingMode)
+    {
+      // for bp5, if we're reading random access, we have to specify it now
+      // otherwise we won't be able to read any variables or attributes
+      for (const auto& source : this->DataSources)
+      {
+        source.second->StreamingMode = false;
+      }
+    }
+    if (!this->CoordinateSystem)
+    {
+      throw std::runtime_error("Cannot read missing coordinate system.");
+    }
+    auto it = this->DataSources.find(this->StepSource);
+    if (it != this->DataSources.end())
+    {
+      auto ds = it->second;
+      auto itr = paths.find(this->StepSource);
+      if (itr == paths.end())
+      {
+        throw std::runtime_error("Could not find data_source with name " + this->StepSource +
+                                 " among the input paths.");
+      }
+      std::string path = itr->second + ds->FileName;
+      ds->OpenSource(path);
+      return this->CoordinateSystem->GetGroupNames(paths, this->DataSources);
+    }
+    return {};
   }
 
   void PostRead(std::vector<vtkm::cont::DataSet>& pds, const fides::metadata::MetaData& selections)
@@ -732,9 +770,10 @@ DataSetReader::DataSetReader(const std::string& dataModel,
 DataSetReader::~DataSetReader() = default;
 
 fides::metadata::MetaData DataSetReader::ReadMetaData(
-  const std::unordered_map<std::string, std::string>& paths)
+  const std::unordered_map<std::string, std::string>& paths,
+  const std::string& groupName /*=""*/)
 {
-  return this->Impl->ReadMetaData(paths);
+  return this->Impl->ReadMetaData(paths, groupName);
 }
 
 vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
@@ -760,6 +799,12 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
   // }
 
   return vtkm::cont::PartitionedDataSet(ds);
+}
+
+std::set<std::string> DataSetReader::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths)
+{
+  return this->Impl->GetGroupNames(paths);
 }
 
 StepStatus DataSetReader::PrepareNextStep(const std::unordered_map<std::string, std::string>& paths)

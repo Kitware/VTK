@@ -30,7 +30,15 @@ struct ValueBase : public DataModelBase
     const fides::metadata::MetaData& selections) = 0;
 
   virtual size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                                   DataSourcesType& sources) = 0;
+                                   DataSourcesType& sources,
+                                   const std::string& groupName = "") = 0;
+
+  /// Returns the groups that have the underlying value
+  /// Used by the reader to provide group names
+  /// Has to be implemented by subclasses.
+  virtual std::set<std::string> GetGroupNames(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources) = 0;
 
   virtual ~ValueBase(){};
 };
@@ -57,10 +65,16 @@ struct Value : public DataModelBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
 
-  /// Returns the number of blocks in the underlying variable (if any).
+  /// Returns the number of blocks in the underlying variable inside the group (if any).
   /// Used by the reader to provide meta-data on blocks.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources);
+                           DataSourcesType& sources,
+                           const std::string& groupName = "");
+
+  /// Returns the groups that have the underlying value
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&);
 
 private:
   std::unique_ptr<ValueBase> ValueImpl = nullptr;
@@ -81,9 +95,15 @@ struct ValueVariableDimensions : public ValueBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
-  /// Returns the number of blocks in the underlying variable.
+  /// Returns the number of blocks in the underlying variable inside the group
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources) override;
+                           DataSourcesType& sources,
+                           const std::string& groupName = "") override;
+
+  /// Returns the groups that have the underlying value
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override;
 };
 
 /// \brief \c ValueBase subclass that provides values from an array
@@ -99,7 +119,13 @@ struct ValueArrayVariable : public ValueBase
     const fides::metadata::MetaData& selections) override;
 
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources) override;
+                           DataSourcesType& sources,
+                           const std::string& groupName = "") override;
+
+  /// Returns the groups that have the underlying value
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override;
 };
 
 /// \brief \c ValueBase subclass that provides array of values from json.
@@ -110,9 +136,18 @@ struct ValueArray : public ValueBase
 {
   /// These values are assumed to be global so always returns 1.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>&,
-                           DataSourcesType&) override
+                           DataSourcesType&,
+                           const std::string& = "") override
   {
     return 1;
+  }
+
+  /// Returns the groups that have the underlying value
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override
+  {
+    return {};
   }
 
   /// Overridden to parse the value array.
@@ -133,10 +168,16 @@ struct ValueScalar : public ValueBase
 {
   /// Always a single value, so always returns 1.
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>&,
-                           DataSourcesType&) override
+                           DataSourcesType&,
+                           const std::string& = "") override
   {
     return 1;
   }
+
+  /// Returns the groups that have the underlying value
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override;
 
   /// Reads the variable
   std::vector<vtkm::cont::UnknownArrayHandle> Read(

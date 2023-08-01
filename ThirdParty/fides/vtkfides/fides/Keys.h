@@ -42,6 +42,10 @@ FIDES_EXPORT KeyType FIELDS();
 /// Uses fides::metadata::Index
 FIDES_EXPORT KeyType STEP_SELECTION();
 
+/// Key used for selecting a group.
+/// Uses fides::metadata::String
+FIDES_EXPORT KeyType GROUP_SELECTION();
+
 /// Key used for retrieving the time value of a step.
 /// Should only be used when streaming.
 /// Uses fides::metadata::Time
