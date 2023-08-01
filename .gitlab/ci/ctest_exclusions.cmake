@@ -63,6 +63,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
 
     # Flaky timeouts https://gitlab.kitware.com/vtk/vtk/-/issues/18861
     "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget$"
+
+    # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19040
+    "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
+    "^VTK::ViewsInfovisCxx-TestRenderView$"
     )
 endif ()
 
