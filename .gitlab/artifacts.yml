@@ -53,6 +53,9 @@
             - build/CMakeFiles/CMakeOutput.log
             - build/CMakeFiles/rules.ninja
 
+            # SPDX files
+            - build/**/*.spdx
+
 .cmake_junit_artifacts:
     artifacts:
         expire_in: 1d
