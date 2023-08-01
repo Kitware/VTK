@@ -3594,7 +3594,8 @@ include(GenerateExportHeader)
        [PRIVATE_CLASSES          <class>...]
        [PRIVATE_TEMPLATE_CLASSES <template class>...]
        [PRIVATE_HEADERS          <header>...]
-       [PRIVATE_TEMPLATES        <template>...])
+       [PRIVATE_TEMPLATES        <template>...]
+       [SPDX_SKIP_REGEX          <regex>])
 
   The ``PRIVATE_`` arguments are analogous to their non-``PRIVATE_`` arguments, but
   the associated files are not installed or available for wrapping (``SOURCES`` are
@@ -3637,6 +3638,8 @@ include(GenerateExportHeader)
   * ``NOWRAP_HEADERS``: A list of header files which will not be available for
     wrapping but installed.
   * ``TEMPLATES``: A list of template files which will be installed.
+  * ``SPDX_SKIP_REGEX``: A python regex to skip a file based on its name
+      when parsing for SPDX headers.
 #]==]
 function (vtk_module_add_module name)
   if (NOT name STREQUAL _vtk_build_module)
@@ -3653,7 +3656,7 @@ function (vtk_module_add_module name)
 
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_module
     "NO_INSTALL;FORCE_STATIC;HEADER_ONLY;HEADER_DIRECTORIES;EXCLUDE_HEADER_TEST"
-    "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX"
+    "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX;SPDX_SKIP_REGEX"
     "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_CLASSES;NOWRAP_TEMPLATE_CLASSES;NOWRAP_HEADERS")
 
   if (_vtk_add_module_UNPARSED_ARGUMENTS)
@@ -4174,6 +4177,7 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
       MODULE_NAME "${_vtk_add_module_library_name}"
       TARGET "${_vtk_add_module_target_name}-spdx"
       OUTPUT "${_vtk_add_module_library_name}.spdx"
+      SKIP_REGEX "${_vtk_add_module_SPDX_SKIP_REGEX}"
       INPUT_FILES
         ${_vtk_add_module_SOURCES}
         ${_vtk_add_module_TEMPLATES}
@@ -5756,6 +5760,7 @@ endfunction ()
       [MODULE_NAME <name>]
       [TARGET      <target>]
       [OUTPUT      <file>]
+      [SKIP_REGEX  <regex>]
       [INPUT_FILES <file>...]
 
   All arguments are required except for ``INPUT_FILES``.
@@ -5764,6 +5769,7 @@ endfunction ()
     in the SPDX file.
   * ``TARGET``: A CMake target for the generation of the SPDX file at build time
   * ``OUTPUT``: Path to the SPDX file to generate
+  * ``SKIP_REGEX``: A python regex to exclude certain source files from SPDX parsing
   * ``INPUT_FILES``: A list of input files to parse for SPDX copyrights and license identifiers,
     some files are automatically excluded from parsing.
 #]==]
@@ -5772,7 +5778,7 @@ function (_vtk_module_generate_spdx)
 
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_module_generate_spdx
     ""
-    "MODULE_NAME;TARGET;OUTPUT"
+    "MODULE_NAME;TARGET;OUTPUT;SKIP_REGEX"
     "INPUT_FILES")
   if (_vtk_module_generate_spdx_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -5864,6 +5870,7 @@ function (_vtk_module_generate_spdx)
       -s "${CMAKE_CURRENT_SOURCE_DIR}"
       -n "${_vtk_module_generate_spdx_namespace}"
       -d "${_vtk_module_generate_spdx_download_location}"
+      -k "${_vtk_module_generate_spdx_SKIP_REGEX}"
       ${_vtk_module_generate_spdx_response_arg}
       VERBATIM)
   add_custom_target(${_vtk_module_generate_spdx_TARGET}
