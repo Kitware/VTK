@@ -9,6 +9,17 @@ this module. For a list of todos and development issues please see
 
 https://gitlab.kitware.com/vtk/vtk/-/issues/18302
 
+### Supported Devices
+
+The VR module aims to support runtimes that implement the OpenXR or OpenVR
+standards.
+
+See [`VTK::RenderingOpenXR` documentation](../OpenXR/README.md) for information on
+rendering with the modern OpenXR specification.
+
+See [`VTK::RenderingOpenVR` documentation](../OpenVR/README.md) for information on
+rendering with the legacy OpenVR specification.
+
 ### Coordinate Systems
 
 With VR the transformations between coordinate systems can quickly become

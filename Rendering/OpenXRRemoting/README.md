@@ -6,6 +6,8 @@ The remote application receives camera information and rendering resources from 
 This way we avoid the need to build VTK for Universal Windows Platform (UWP), and we can also keep using VTK's OpenGL-based rendering pipeline.<br/>
 Still, DirectX must be used to fill the texture to be streamed back to the Hololens. This is possible by creating a texture shared by both a DirectX and an OpenGL context, thanks to the NV_DX_interop extension available on almost every recent GPU.
 
+At this time holographic remoting is supported only for the Microsoft HoloLens 2 virtual reality headset.
+
 ### Player application
 
 - Download the Microsoft MixedReality HolographicRemoting [samples](https://github.com/microsoft/MixedReality-HolographicRemoting-Samples) and follow the instruction to build the player application.<br/>
@@ -52,3 +54,7 @@ If you have both an Intel and NVidia GPU in your laptop, try disabling the NVidi
 > When building the player application from VisualStudio, the Hololens emulator does not appear in the list of machine to deploy to.
 
 Add a new x64 solution platform within VisualStudio and switch the current platform from ARM64 to x64. When building, if you now get the error `module machine type 'x64' conflicts with target machine type 'ARM64'`, then edit the project file to remove all occurrence of `/machine:ARM64`.
+
+## Additional Notes
+
+See [VTK `OpenXR` documentation](../OpenXR/README.md) for information on virtual reality rendering with OpenGL.
