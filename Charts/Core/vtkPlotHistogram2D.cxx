@@ -3,17 +3,73 @@
 
 #include "vtkPlotHistogram2D.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkAxis.h"
 #include "vtkContext2D.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkPointData.h"
+#include "vtkSMPTools.h"
 #include "vtkScalarsToColors.h"
 #include "vtkStringArray.h"
 
 #include "vtkObjectFactory.h"
 
 #include <algorithm>
+
+namespace
+{
+using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+using Dispatcher2 = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>;
+
+/**
+ * Worker to compute magnitude of vector array.
+ */
+struct MagnitudeWorker
+{
+  template <typename ArrayT1, typename ArrayT2>
+  void operator()(ArrayT1* vecs, ArrayT2* mags)
+  {
+    const auto vecRange = vtk::DataArrayTupleRange(vecs);
+    auto magRange = vtk::DataArrayValueRange<1>(mags);
+
+    using VecTuple = typename decltype(vecRange)::const_reference;
+    using MagType = typename decltype(magRange)::ValueType;
+
+    auto computeMag = [](const VecTuple& tuple) -> MagType {
+      MagType mag = 0;
+      for (const auto& comp : tuple)
+      {
+        mag += (comp * comp);
+      }
+      return std::sqrt(mag);
+    };
+
+    vtkSMPTools::Transform(vecRange.cbegin(), vecRange.cend(), magRange.begin(), computeMag);
+  }
+};
+
+/**
+ * Worker to return void pointer with the right offset.
+ */
+struct OffsetWorker
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* input, void*& output, int offset)
+  {
+    const auto inputRange = vtk::DataArrayTupleRange(input);
+    using ValueType = typename decltype(inputRange)::ComponentType;
+
+    ValueType* offsetOutput = static_cast<ValueType*>(output);
+    offsetOutput += offset;
+
+    output = static_cast<void*>(offsetOutput);
+  }
+};
+
+}
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -129,25 +185,24 @@ vtkRectf vtkPlotHistogram2D::GetPosition()
 
 //------------------------------------------------------------------------------
 vtkIdType vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
-  const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
+  const vtkVector2f& vtkNotUsed(tolerance), vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
   if (!this->Input)
   {
     return -1;
   }
 
-  (void)tolerance;
   double bounds[4];
   this->GetBounds(bounds);
-  double spacing[3];
 
-  this->Input->GetSpacing(spacing);
-
-  if (point.GetX() < bounds[0] || point.GetX() > bounds[1] + spacing[0] ||
-    point.GetY() < bounds[2] || point.GetY() > bounds[3] + spacing[1])
+  if (point.GetX() < bounds[0] || point.GetX() > bounds[1] || point.GetY() < bounds[2] ||
+    point.GetY() > bounds[3])
   {
     return -1;
   }
+
+  double spacing[3];
+  this->Input->GetSpacing(spacing);
 
   // Can't use vtkImageData::FindPoint() / GetPoint(), as ImageData points are
   // rendered as the bottom left corner of a histogram cell, not the center
@@ -177,12 +232,12 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(
     return tooltipLabel;
   }
 
-  double bounds[4];
-  this->GetBounds(bounds);
-  int width = this->Input->GetExtent()[1] - this->Input->GetExtent()[0] + 1;
-  int height = this->Input->GetExtent()[3] - this->Input->GetExtent()[2] + 1;
-  int pointX = seriesIndex % width + this->Input->GetExtent()[0];
-  int pointY = seriesIndex / width + this->Input->GetExtent()[2];
+  int extent[6];
+  this->Input->GetExtent(extent);
+
+  int width = extent[1] - extent[0] + 1;
+  int pointX = seriesIndex % width + extent[0];
+  int pointY = seriesIndex / width + extent[2];
 
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
@@ -199,25 +254,29 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(
           tooltipLabel += this->GetNumber(plotPos.GetY(), this->YAxis);
           break;
         case 'i':
-          if (this->XAxis->GetTickLabels() && pointX >= 0 &&
-            pointX < this->XAxis->GetTickLabels()->GetNumberOfTuples())
+          if (this->XAxis->GetTickLabels() && this->XAxis->GetTickLabels()->GetNumberOfTuples() > 0)
           {
-            tooltipLabel += this->XAxis->GetTickLabels()->GetValue(pointX);
+            vtkIdType labelIndex =
+              vtkPlotHistogram2D::GetLabelIndexFromValue(plotPos.GetX(), this->XAxis);
+            if (labelIndex >= 0)
+            {
+              tooltipLabel += this->XAxis->GetTickLabels()->GetValue(labelIndex);
+            }
           }
           break;
         case 'j':
-          if (this->YAxis->GetTickLabels() && pointY >= 0 &&
-            pointY < this->YAxis->GetTickLabels()->GetNumberOfTuples())
+          if (this->YAxis->GetTickLabels() && this->YAxis->GetTickLabels()->GetNumberOfTuples())
           {
-            tooltipLabel += this->YAxis->GetTickLabels()->GetValue(pointY);
+            vtkIdType labelIndex =
+              vtkPlotHistogram2D::GetLabelIndexFromValue(plotPos.GetY(), this->YAxis);
+            if (labelIndex >= 0)
+            {
+              tooltipLabel += this->YAxis->GetTickLabels()->GetValue(labelIndex);
+            }
           }
           break;
         case 'v':
-          if (pointX >= 0 && pointX < width && pointY >= 0 && pointY < height)
-          {
-            tooltipLabel += this->GetNumber(
-              this->Input->GetScalarComponentAsDouble(pointX, pointY, 0, 0), nullptr);
-          }
+          tooltipLabel += this->GetNumber(this->GetInputArrayValue(pointX, pointY, 0), nullptr);
           break;
         default: // If no match, insert the entire format tag
           tooltipLabel += "%";
@@ -255,17 +314,127 @@ bool vtkPlotHistogram2D::UpdateCache()
   this->Output->SetExtent(this->Input->GetExtent());
   this->Output->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
-  int dimension = this->Input->GetDimensions()[0] * this->Input->GetDimensions()[1];
-  void* const input = this->Input->GetScalarPointer();
-  const int inputType = this->Input->GetScalarType();
-  unsigned char* output = reinterpret_cast<unsigned char*>(this->Output->GetScalarPointer());
-
   if (this->TransferFunction)
   {
-    this->TransferFunction->MapScalarsThroughTable2(input, output, inputType, dimension, 1, 4);
+    int nbComponents = 0;
+    void* const input = this->GetInputArrayPointer(nbComponents);
+
+    if (!input)
+    {
+      return false;
+    }
+
+    const int inputType = this->GetSelectedArray()->GetDataType();
+    int dimension = this->Input->GetDimensions()[0] * this->Input->GetDimensions()[1];
+    unsigned char* output = reinterpret_cast<unsigned char*>(this->Output->GetScalarPointer());
+
+    this->TransferFunction->MapScalarsThroughTable2(
+      input, output, inputType, dimension, nbComponents, 4);
   }
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+void* vtkPlotHistogram2D::GetInputArrayPointer(int& nbComponents)
+{
+  vtkDataArray* selectedArray = this->GetSelectedArray();
+  if (selectedArray)
+  {
+    nbComponents = selectedArray->GetNumberOfComponents();
+  }
+  else
+  {
+    nbComponents = 0;
+    return nullptr;
+  }
+
+  int vectorMode = this->TransferFunction->GetVectorMode();
+  if (vtkPlotHistogram2D::CanComputeMagnitude(nbComponents) &&
+    vectorMode == vtkScalarsToColors::VectorModes::MAGNITUDE)
+  {
+    nbComponents = 1;
+    MagnitudeWorker worker;
+    this->MagnitudeArray.TakeReference(selectedArray->NewInstance());
+    this->MagnitudeArray->SetNumberOfComponents(nbComponents);
+    this->MagnitudeArray->SetNumberOfTuples(selectedArray->GetNumberOfTuples());
+
+    if (!Dispatcher2::Execute(selectedArray, this->MagnitudeArray.Get(), worker))
+    {
+      // Otherwise fallback to using the vtkDataArray API.
+      worker(selectedArray, this->MagnitudeArray.Get());
+    }
+
+    return this->MagnitudeArray->GetVoidPointer(0);
+  }
+
+  OffsetWorker worker;
+  void* array = selectedArray->GetVoidPointer(0);
+  int vectorComponent = this->TransferFunction->GetVectorComponent();
+
+  if (!Dispatcher::Execute(selectedArray, worker, array, vectorComponent))
+  {
+    // Otherwise fallback to using the vtkDataArray API.
+    worker(selectedArray, array, vectorComponent);
+  }
+
+  return array;
+}
+
+//------------------------------------------------------------------------------
+double vtkPlotHistogram2D::GetInputArrayValue(int x, int y, int z)
+{
+  vtkDataArray* selectedArray = this->GetSelectedArray();
+  if (!selectedArray)
+  {
+    vtkErrorMacro("Trying to get value while no array was selected.");
+    return std::nan("");
+  }
+
+  int coordinates[3] = { x, y, z };
+  vtkIdType index = this->Input->GetTupleIndex(selectedArray, coordinates);
+
+  if (index < 0)
+  {
+    // An error message was already generated by GetTupleIndex.
+    return std::nan("");
+  }
+
+  int nbComponents = selectedArray->GetNumberOfComponents();
+  int vectorMode = this->TransferFunction->GetVectorMode();
+
+  if (vtkPlotHistogram2D::CanComputeMagnitude(nbComponents) &&
+    vectorMode == vtkScalarsToColors::VectorModes::MAGNITUDE)
+  {
+    return this->MagnitudeArray->GetTuple1(index);
+  }
+
+  int vectorComponent = this->TransferFunction->GetVectorComponent();
+  return selectedArray->GetComponent(index, vectorComponent);
+}
+
+//------------------------------------------------------------------------------
+bool vtkPlotHistogram2D::CanComputeMagnitude(const int nbComponents)
+{
+  return nbComponents == 2 || nbComponents == 3;
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray* vtkPlotHistogram2D::GetSelectedArray()
+{
+  return this->ArrayName.empty() ? this->Input->GetPointData()->GetScalars()
+                                 : this->Input->GetPointData()->GetArray(this->ArrayName.c_str());
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkPlotHistogram2D::GetLabelIndexFromValue(double value, vtkAxis* axis)
+{
+  auto tickRange = vtk::DataArrayValueRange<1>(axis->GetTickPositions());
+  const auto iterator = std::find_if(
+    tickRange.cbegin(), tickRange.cend(), [&value](const double& elem) { return value < elem; });
+
+  vtkIdType labelIndex = iterator - tickRange.cbegin();
+  return labelIndex - 1;
 }
 
 //------------------------------------------------------------------------------
