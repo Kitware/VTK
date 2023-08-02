@@ -1,312 +1,312 @@
 {
-    "latest-master": [
+    "latest-release": [
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[el7_mindeps_python_qt5]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[el8_icc_python]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_doxygen_mpi_python_qt_tbb]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_cuda_mpi_offscreen_osmesa]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_cuda_mpi_offscreen_osmesa_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_offscreen_osmesa_python]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_offscreen_osmesa_python_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_renderless]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_renderless_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_python_qt_tbb]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_python_qt_tbb_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_python_qt_stdthread]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_python_qt_tbb_tidy]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_python_vtkmoverride]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[macos_arm64_kits_python_qt]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[macos_x86_64_kits_python_qt]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[macos_x86_64_kits_python_qt_stdthread]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[webassembly]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux36_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux37_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux38_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux39_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux310_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux311_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos36_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos37_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos38_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos39_arm64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos39_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos310_arm64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos310_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos311_arm64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos311_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows36_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows37_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows38_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows39_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows310_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows311_x86_64]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux37_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux38_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux39_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux310_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_linux311_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos37_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos38_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos39_arm64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos39_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos310_arm64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos310_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos311_arm64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos311_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows37_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows38_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows39_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows310_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows311_x86_64_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[windows_vs2022_kits_mpi_python_qt]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[windows_vs2022_kits_mpi_python_qt_stdthread]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[windows_vs2022_kits_mpi_python_qt_ext_vtk]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[windows_vs2022_mpi_python_qt]"
         },
         {
-            "group": "master",
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[windows_vs2022_mpi_python_qt_static]"
         }
