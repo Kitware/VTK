@@ -16,6 +16,7 @@
 
 #include <adios2.h>
 #include <map>
+#include <set>
 #include <vector>
 #include <vtkm/cont/UnknownArrayHandle.h>
 
@@ -115,6 +116,13 @@ struct DataSource
   /// data source for the given variable name.
   size_t GetNumberOfBlocks(const std::string& varName);
 
+  /// Returns the number of blocks (partitions) available from the
+  /// data source for the given variable name inside the given path.
+  size_t GetNumberOfBlocks(const std::string& varName, const std::string& group);
+
+  /// Returns all paths that contain a variable or attribute with the given name.
+  std::set<std::string> GetGroupNames(const std::string& name) const;
+
   /// Prepares for reading the requested variable.
   /// Applies the provided set of selections to potentially restricted
   /// what is loaded. Actual reading happens when \c DoAllReads() or
@@ -156,6 +164,9 @@ struct DataSource
   /// Get the shape (dimensions) of a variable
   std::vector<size_t> GetVariableShape(std::string& varName);
 
+  /// Get the shape (dimensions) of a variable inside the given group.
+  std::vector<size_t> GetVariableShape(std::string& varName, const std::string& group);
+
   /// Perform all scheduled reads for this data source. This can be one
   /// or more variables.
   void DoAllReads();
@@ -180,6 +191,10 @@ struct DataSource
   /// returns an empty string.
   std::string GetAttributeType(const std::string& attrName);
 
+  /// Returns the type of attribute inside the given group as a string.
+  /// If attribute isn't found, returns an empty string.
+  std::string GetAttributeType(const std::string& attrName, const std::string& group);
+
   /// Reads an attribute from ADIOS and returns in an std::vector.
   /// If an attribute is not found, returns an empty std::vector<AttributeType>.
   template <typename AttributeType>
@@ -201,8 +216,24 @@ private:
   };
   std::map<std::string, adios2::Params> AvailVars;
   std::map<std::string, adios2::Params> AvailAtts;
+  std::map<std::string, std::set<std::string>> AvailGroups;
 
   void SetupEngine();
+  /// Finds a variable with the given name.
+  /// If a path selection is provided, then this function looks up a variable with name "groupSelection/name"
+  /// Example: FindVariable(name="points", groupSelection="Right/Top/Mesh")
+  ///          In this case, the iterator points to a variable named "Right/Top/Mesh/points" (if exists)
+  std::map<std::string, adios2::Params>::iterator FindVariable(
+    const std::string& name,
+    const fides::metadata::MetaData& groupSelection);
+
+  /// Finds an attribute with the given name.
+  /// If a path selection is provided, then this function looks up an attribute with name "groupSelection/name"
+  /// Example: FindAttribute(name="dims", groupSelection="Right/Top/Mesh")
+  ///          In this case, the iterator points to an attribute named "Right/Top/Mesh/dims" (if exists)
+  std::map<std::string, adios2::Params>::iterator FindAttribute(
+    const std::string& name,
+    const fides::metadata::MetaData& groupSelection);
 };
 
 template <typename AttributeType>

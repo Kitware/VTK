@@ -115,9 +115,17 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayPlaceholder::Read(
 }
 
 size_t ArrayPlaceholder::GetNumberOfBlocks(const std::unordered_map<std::string, std::string>&,
-                                           DataSourcesType&)
+                                           DataSourcesType&,
+                                           const std::string&)
 {
   throw std::runtime_error("ArrayPlaceholder::GetNumberOfBlocks should not be called");
+}
+
+std::set<std::string> ArrayPlaceholder::GetGroupNames(
+  const std::unordered_map<std::string, std::string>&,
+  DataSourcesType&)
+{
+  throw std::runtime_error("ArrayPlaceholder::GetGroupNames should not be called");
 }
 
 std::vector<vtkm::cont::UnknownArrayHandle> Array::Read(
@@ -135,9 +143,17 @@ void Array::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
 }
 
 size_t Array::GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                                DataSourcesType& sources)
+                                DataSourcesType& sources,
+                                const std::string& groupName /*=""*/)
 {
-  return this->ArrayImpl->GetNumberOfBlocks(paths, sources);
+  return this->ArrayImpl->GetNumberOfBlocks(paths, sources, groupName);
+}
+
+std::set<std::string> Array::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources)
+{
+  return this->ArrayImpl->GetGroupNames(paths, sources);
 }
 
 void Array::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
@@ -231,7 +247,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayBasic::Read(
 }
 
 size_t ArrayBasic::GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                                     DataSourcesType& sources)
+                                     DataSourcesType& sources,
+                                     const std::string& groupName /*=""*/)
 {
   auto itr = paths.find(this->DataSourceName);
   if (itr == paths.end())
@@ -242,7 +259,23 @@ size_t ArrayBasic::GetNumberOfBlocks(const std::unordered_map<std::string, std::
   const auto& ds = sources[this->DataSourceName];
   std::string path = itr->second + ds->FileName;
   ds->OpenSource(path);
-  return ds->GetNumberOfBlocks(this->VariableName);
+  return ds->GetNumberOfBlocks(this->VariableName, groupName);
+}
+
+std::set<std::string> ArrayBasic::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources)
+{
+  auto itr = paths.find(this->DataSourceName);
+  if (itr == paths.end())
+  {
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
+  }
+  const auto& ds = sources[this->DataSourceName];
+  std::string path = itr->second + ds->FileName;
+  ds->OpenSource(path);
+  return ds->GetGroupNames(this->VariableName);
 }
 
 void ArrayUniformPointCoordinates::ProcessJSON(const rapidjson::Value& json,
@@ -416,9 +449,17 @@ void ArrayUniformPointCoordinates::PostRead(
 
 size_t ArrayUniformPointCoordinates::GetNumberOfBlocks(
   const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources,
+  const std::string& groupName /*=""*/)
+{
+  return this->Dimensions->GetNumberOfBlocks(paths, sources, groupName);
+}
+
+std::set<std::string> ArrayUniformPointCoordinates::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
-  return this->Dimensions->GetNumberOfBlocks(paths, sources);
+  return this->Dimensions->GetGroupNames(paths, sources);
 }
 
 void ArrayCartesianProduct::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
@@ -493,9 +534,17 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayCartesianProduct::Read(
 
 size_t ArrayCartesianProduct::GetNumberOfBlocks(
   const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources,
+  const std::string& groupName /*=""*/)
+{
+  return this->XArray->GetNumberOfBlocks(paths, sources, groupName);
+}
+
+std::set<std::string> ArrayCartesianProduct::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
-  return this->XArray->GetNumberOfBlocks(paths, sources);
+  return this->XArray->GetGroupNames(paths, sources);
 }
 
 std::vector<vtkm::cont::UnknownArrayHandle> ArrayComposite::Read(
@@ -549,7 +598,8 @@ ArrayXGC::ArrayXGC()
 }
 
 size_t ArrayXGC::GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                                   DataSourcesType& sources)
+                                   DataSourcesType& sources,
+                                   const std::string& /*groupName*/ /*=""*/)
 {
   if (this->NumberOfPlanes < 0)
   {
@@ -579,7 +629,8 @@ void ArrayXGC::CheckEngineType(const std::unordered_map<std::string, std::string
 }
 
 std::vector<size_t> ArrayXGC::GetShape(const std::unordered_map<std::string, std::string>& paths,
-                                       DataSourcesType& sources)
+                                       DataSourcesType& sources,
+                                       const std::string& groupName /*=""*/)
 {
   auto itr = paths.find(this->DataSourceName);
   if (itr == paths.end())
@@ -590,7 +641,7 @@ std::vector<size_t> ArrayXGC::GetShape(const std::unordered_map<std::string, std
   const auto& ds = sources[this->DataSourceName];
   std::string path = itr->second + ds->FileName;
   ds->OpenSource(path);
-  return ds->GetVariableShape(this->VariableName);
+  return ds->GetVariableShape(this->VariableName, groupName);
 }
 
 /// Functor created so that UnknownArrayHandle's CastAndCall() will handle making the
@@ -738,7 +789,12 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCField::Read(
 
   if (!this->FieldDimsChecked)
   {
-    auto shape = this->GetShape(paths, sources);
+    std::string groupName;
+    if (selections.Has(fides::keys::GROUP_SELECTION()))
+    {
+      groupName = selections.Get<fides::metadata::String>(fides::keys::GROUP_SELECTION()).Data;
+    }
+    auto shape = this->GetShape(paths, sources, groupName);
     if (shape.size() == 1 || shape.size() == 2)
     {
       // shape.size() is 2 for 3d variables
@@ -957,9 +1013,17 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCCoordinates::Read(
 }
 
 size_t ArrayGTCCoordinates::GetNumberOfBlocks(const std::unordered_map<std::string, std::string>&,
-                                              DataSourcesType&)
+                                              DataSourcesType&,
+                                              const std::string& /*=""*/)
 {
   return 1;
+}
+
+std::set<std::string> ArrayGTCCoordinates::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources)
+{
+  return this->XArray->GetGroupNames(paths, sources);
 }
 
 class ArrayGTCCoordinates::PlaneInserter : public vtkm::worklet::WorkletMapField
@@ -1142,6 +1206,23 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCField::Read(
 
   return this->ReadSelf(paths, sources, newSelections);
 }
+
+std::set<std::string> ArrayGTCField::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources)
+{
+  auto itr = paths.find(this->DataSourceName);
+  if (itr == paths.end())
+  {
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
+  }
+  const auto& ds = sources[this->DataSourceName];
+  std::string path = itr->second + ds->FileName;
+  ds->OpenSource(path);
+  return ds->GetGroupNames(this->VariableName);
+}
+
 
 void ArrayGTCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
                              const fides::metadata::MetaData& metaData)

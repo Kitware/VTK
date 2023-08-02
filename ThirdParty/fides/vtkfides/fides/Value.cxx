@@ -54,9 +54,17 @@ std::vector<vtkm::cont::UnknownArrayHandle> Value::Read(
 }
 
 size_t Value::GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                                DataSourcesType& sources)
+                                DataSourcesType& sources,
+                                const std::string& groupName /*=""*/)
 {
-  return this->ValueImpl->GetNumberOfBlocks(paths, sources);
+  return this->ValueImpl->GetNumberOfBlocks(paths, sources, groupName);
+}
+
+std::set<std::string> Value::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources)
+{
+  return this->ValueImpl->GetGroupNames(paths, sources);
 }
 
 std::vector<vtkm::cont::UnknownArrayHandle> ValueVariableDimensions::Read(
@@ -78,6 +86,23 @@ std::vector<vtkm::cont::UnknownArrayHandle> ValueVariableDimensions::Read(
 
 size_t ValueVariableDimensions::GetNumberOfBlocks(
   const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources,
+  const std::string& groupName /*=""*/)
+{
+  auto itr = paths.find(this->DataSourceName);
+  if (itr == paths.end())
+  {
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
+  }
+  const auto& ds = sources[this->DataSourceName];
+  std::string path = itr->second + ds->FileName;
+  ds->OpenSource(path);
+  return ds->GetNumberOfBlocks(this->VariableName, groupName);
+}
+
+std::set<std::string> ValueVariableDimensions::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
   auto itr = paths.find(this->DataSourceName);
@@ -89,7 +114,7 @@ size_t ValueVariableDimensions::GetNumberOfBlocks(
   const auto& ds = sources[this->DataSourceName];
   std::string path = itr->second + ds->FileName;
   ds->OpenSource(path);
-  return ds->GetNumberOfBlocks(this->VariableName);
+  return ds->GetGroupNames(this->VariableName);
 }
 
 void ValueArray::ProcessJSON(const rapidjson::Value& json, DataSourcesType& fidesNotUsed(sources))
@@ -114,6 +139,22 @@ std::vector<vtkm::cont::UnknownArrayHandle> ValueArray::Read(
   std::vector<vtkm::cont::UnknownArrayHandle> retVal;
   retVal.push_back(vtkm::cont::make_ArrayHandle(this->Values, vtkm::CopyFlag::On));
   return retVal;
+}
+
+std::set<std::string> ValueScalar::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources)
+{
+  auto itr = paths.find(this->DataSourceName);
+  if (itr == paths.end())
+  {
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
+  }
+  const auto& ds = sources[this->DataSourceName];
+  std::string path = itr->second + ds->FileName;
+  ds->OpenSource(path);
+  return ds->GetGroupNames(this->VariableName);
 }
 
 std::vector<vtkm::cont::UnknownArrayHandle> ValueScalar::Read(
@@ -154,6 +195,23 @@ std::vector<vtkm::cont::UnknownArrayHandle> ValueArrayVariable::Read(
 
 size_t ValueArrayVariable::GetNumberOfBlocks(
   const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources,
+  const std::string& groupName /*=""*/)
+{
+  auto itr = paths.find(this->DataSourceName);
+  if (itr == paths.end())
+  {
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
+  }
+  const auto& ds = sources[this->DataSourceName];
+  std::string path = itr->second + ds->FileName;
+  ds->OpenSource(path);
+  return ds->GetNumberOfBlocks(this->VariableName, groupName);
+}
+
+std::set<std::string> ValueArrayVariable::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
   auto itr = paths.find(this->DataSourceName);
@@ -165,7 +223,7 @@ size_t ValueArrayVariable::GetNumberOfBlocks(
   const auto& ds = sources[this->DataSourceName];
   std::string path = itr->second + ds->FileName;
   ds->OpenSource(path);
-  return ds->GetNumberOfBlocks(this->VariableName);
+  return ds->GetGroupNames(this->VariableName);
 }
 
 }

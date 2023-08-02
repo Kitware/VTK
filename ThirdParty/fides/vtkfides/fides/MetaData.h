@@ -158,6 +158,20 @@ protected:
   Set* CloneImpl() const override { return new Set(*this); }
 };
 
+/// \brief Meta-data item to store a string.
+struct FIDES_EXPORT String : public MetaDataItem
+{
+  String(std::string data)
+    : Data(data)
+  {
+  }
+  String() = default;
+  std::string Data;
+
+protected:
+  String* CloneImpl() const override { return new String(*this); }
+};
+
 /// \brief Container of meta-data items.
 /// This class is a simple wrapper around an std::map that
 /// makes setting/getting a bit easier. Internally, it stores

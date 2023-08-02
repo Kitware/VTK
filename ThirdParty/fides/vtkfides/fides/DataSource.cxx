@@ -35,6 +35,42 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v)
   return out;
 }
 
+namespace
+{
+std::vector<std::string> SplitString(const std::string& input, char sep)
+{
+  std::vector<std::string> result;
+  if (input.empty())
+  {
+    return result;
+  }
+  std::string::size_type pos1 = 0;
+  std::string::size_type pos2 = input.find(sep, pos1);
+  while (pos2 != std::string::npos)
+  {
+    result.push_back(input.substr(pos1, pos2 - pos1));
+    pos1 = pos2 + 1;
+    pos2 = input.find(sep, pos1 + 1);
+  }
+  result.push_back(input.substr(pos1, pos2 - pos1));
+
+  return result;
+}
+
+std::string JoinString(const std::vector<std::string>& words, char sep)
+{
+  std::string result;
+  std::size_t i = 0;
+  for (; i < words.size() - 1; ++i)
+  {
+    result += words[i];
+    result += sep;
+  }
+  result += words[i];
+  return result;
+}
+}
+
 namespace fides
 {
 namespace io
@@ -105,6 +141,40 @@ void DataSource::SetupEngine()
   }
 }
 
+std::map<std::string, adios2::Params>::iterator DataSource::FindVariable(
+  const std::string& name,
+  const fides::metadata::MetaData& selections)
+{
+  std::string fullVarName = name;
+  if (selections.Has(fides::keys::GROUP_SELECTION()))
+  {
+    const auto& group =
+      selections.Get<fides::metadata::String>(fides::keys::GROUP_SELECTION()).Data;
+    if (!group.empty())
+    {
+      fullVarName = group + "/" + name;
+    }
+  }
+  return this->AvailVars.find(fullVarName);
+}
+
+std::map<std::string, adios2::Params>::iterator DataSource::FindAttribute(
+  const std::string& name,
+  const fides::metadata::MetaData& selections)
+{
+  std::string fullAttrName = name;
+  if (selections.Has(fides::keys::GROUP_SELECTION()))
+  {
+    const auto& group =
+      selections.Get<fides::metadata::String>(fides::keys::GROUP_SELECTION()).Data;
+    if (!group.empty())
+    {
+      fullAttrName = group + "/" + name;
+    }
+  }
+  return this->AvailAtts.find(fullAttrName);
+}
+
 void DataSource::OpenSource(const std::string& fname, bool useMPI /* = true */)
 {
   //if the reader (ADIOS engine) is already been set, do nothing
@@ -156,6 +226,23 @@ void DataSource::Refresh()
 {
   this->AvailVars = this->AdiosIO.AvailableVariables();
   this->AvailAtts = this->AdiosIO.AvailableAttributes();
+  // refresh available groups
+  this->AvailGroups.clear();
+  for (const auto& availItems : { this->AvailAtts, this->AvailVars })
+  {
+    for (const auto& item : availItems)
+    {
+      const auto& fullName = item.first;
+      auto pieces = SplitString(fullName, '/');
+      if (pieces.size() < 2)
+      {
+        continue;
+      }
+      const auto lastPiece = pieces.back();
+      pieces.pop_back();
+      this->AvailGroups[lastPiece].insert(JoinString(pieces, '/'));
+    }
+  }
 }
 
 template <typename VariableType, typename VecType>
@@ -690,7 +777,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetVariableDimensions(
   {
     throw std::runtime_error("Cannot read variable without setting the adios engine.");
   }
-  auto itr = this->AvailVars.find(varName);
+  auto itr = this->FindVariable(varName, selections);
   if (itr == this->AvailVars.end())
   {
     // previously we were throwing an error if the variable could not be found,
@@ -705,7 +792,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetVariableDimensions(
   }
 
   fidesTemplateMacro(
-    GetDimensionsInternal<fides_TT>(this->AdiosIO, this->Reader, varName, selections));
+    GetDimensionsInternal<fides_TT>(this->AdiosIO, this->Reader, itr->first, selections));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
@@ -718,7 +805,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetScalarVariable(
   {
     throw std::runtime_error("Cannot read variable without setting the adios engine.");
   }
-  auto itr = this->AvailVars.find(varName);
+  auto itr = this->FindVariable(varName, selections);
   if (itr == this->AvailVars.end())
   {
     // previously we were throwing an error if the variable could not be found,
@@ -733,7 +820,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetScalarVariable(
   }
 
   fidesTemplateMacro(
-    GetScalarVariableInternal<fides_TT>(this->AdiosIO, this->Reader, varName, selections));
+    GetScalarVariableInternal<fides_TT>(this->AdiosIO, this->Reader, itr->first, selections));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
@@ -752,7 +839,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetTimeArray(
     throw std::runtime_error("A full time array can only be read when using BP files");
   }
 
-  auto itr = this->AvailVars.find(varName);
+  auto itr = this->FindVariable(varName, selections);
   if (itr == this->AvailVars.end())
   {
     // previously we were throwing an error if the variable could not be found,
@@ -767,7 +854,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetTimeArray(
   }
 
   fidesTemplateMacro(
-    GetTimeArrayInternal<fides_TT>(this->AdiosIO, this->Reader, varName, selections));
+    GetTimeArrayInternal<fides_TT>(this->AdiosIO, this->Reader, itr->first, selections));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
@@ -781,7 +868,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::ReadVariable(
   {
     throw std::runtime_error("Cannot read variable without setting the adios engine.");
   }
-  auto itr = this->AvailVars.find(varName);
+  auto itr = this->FindVariable(varName, selections);
   if (itr == this->AvailVars.end())
   {
     // previously we were throwing an error if the variable could not be found,
@@ -795,7 +882,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::ReadVariable(
   }
 
   fidesTemplateMacro(ReadVariableBlocksInternal<fides_TT>(
-    this->AdiosIO, this->Reader, varName, selections, this->AdiosEngineType, isit));
+    this->AdiosIO, this->Reader, itr->first, selections, this->AdiosEngineType, isit));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
@@ -808,7 +895,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::ReadMultiBlockVariable(
   {
     throw std::runtime_error("Cannot read variable without setting the adios engine.");
   }
-  auto itr = this->AvailVars.find(varName);
+  auto itr = this->FindVariable(varName, selections);
   if (itr == this->AvailVars.end())
   {
     // previously we were throwing an error if the variable could not be found,
@@ -821,28 +908,57 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::ReadMultiBlockVariable(
     throw std::runtime_error("Variable type unavailable.");
   }
 
-  fidesTemplateMacro(ReadVariableBlocksInternal<fides_TT>(
-    this->AdiosIO, this->Reader, varName, selections, this->AdiosEngineType, IsVector::No, true));
+  fidesTemplateMacro(ReadVariableBlocksInternal<fides_TT>(this->AdiosIO,
+                                                          this->Reader,
+                                                          itr->first,
+                                                          selections,
+                                                          this->AdiosEngineType,
+                                                          IsVector::No,
+                                                          true));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
 
 size_t DataSource::GetNumberOfBlocks(const std::string& varName)
 {
+  return this->GetNumberOfBlocks(varName, "");
+}
+
+size_t DataSource::GetNumberOfBlocks(const std::string& varName, const std::string& group)
+{
   if (!this->Reader)
   {
     throw std::runtime_error("Cannot read variable without setting the adios engine.");
   }
-  auto itr = this->AvailVars.find(varName);
+  fides::metadata::MetaData selections;
+  selections.Set<fides::metadata::String>(fides::keys::GROUP_SELECTION(), group);
+  auto itr = this->FindVariable(varName, selections);
   if (itr == this->AvailVars.end())
   {
     return 0;
   }
   const std::string& type = itr->second["Type"];
 
-  fidesTemplateMacro(GetNumberOfBlocksInternal<fides_TT>(this->AdiosIO, this->Reader, varName));
+  fidesTemplateMacro(GetNumberOfBlocksInternal<fides_TT>(this->AdiosIO, this->Reader, itr->first));
 
   throw std::runtime_error("Unsupported variable type " + type);
+}
+
+std::set<std::string> DataSource::GetGroupNames(const std::string& name) const
+{
+  if (!this->Reader)
+  {
+    throw std::runtime_error("Cannot retrieve groups without setting the adios engine.");
+  }
+  auto itr = this->AvailGroups.find(name);
+  if (itr != this->AvailGroups.end())
+  {
+    return itr->second;
+  }
+  else
+  {
+    return {};
+  }
 }
 
 size_t DataSource::GetNumberOfSteps()
@@ -932,25 +1048,39 @@ void DataSource::EndStep()
 
 std::vector<size_t> DataSource::GetVariableShape(std::string& varName)
 {
+  return this->GetVariableShape(varName, "");
+}
+
+std::vector<size_t> DataSource::GetVariableShape(std::string& varName, const std::string& group)
+{
   if (!this->Reader)
   {
     throw std::runtime_error("Cannot get variable size without setting the adios engine.");
   }
-  auto itr = this->AvailVars.find(varName);
+  fides::metadata::MetaData selections;
+  selections.Set<fides::metadata::String>(fides::keys::GROUP_SELECTION(), group);
+  auto itr = this->FindVariable(varName, selections);
   if (itr == this->AvailVars.end())
   {
     throw std::runtime_error("Variable " + varName + " was not found.");
   }
   const std::string& type = itr->second["Type"];
 
-  fidesTemplateMacro(GetVariableShapeInternal<fides_TT>(this->AdiosIO, this->Reader, varName));
+  fidesTemplateMacro(GetVariableShapeInternal<fides_TT>(this->AdiosIO, this->Reader, itr->first));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
 
 std::string DataSource::GetAttributeType(const std::string& attrName)
 {
-  auto itr = this->AvailAtts.find(attrName);
+  return this->GetAttributeType(attrName, "");
+}
+
+std::string DataSource::GetAttributeType(const std::string& attrName, const std::string& group)
+{
+  fides::metadata::MetaData selections;
+  selections.Set<fides::metadata::String>(fides::keys::GROUP_SELECTION(), group);
+  auto itr = this->FindAttribute(attrName, selections);
   if (itr == this->AvailAtts.end())
   {
     // Attributes can be optional so just return empty string if it isn't found

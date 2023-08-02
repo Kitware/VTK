@@ -39,6 +39,11 @@ KeyType STEP_SELECTION()
   return reinterpret_cast<KeyType>(&STEP_SELECTION);
 }
 
+KeyType GROUP_SELECTION()
+{
+  return reinterpret_cast<KeyType>(&GROUP_SELECTION);
+}
+
 KeyType TIME_VALUE()
 {
   return reinterpret_cast<KeyType>(&TIME_VALUE);
