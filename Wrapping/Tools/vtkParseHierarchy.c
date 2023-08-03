@@ -124,7 +124,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(HierarchyInfo* info, const char* f
 /* Find an entry with a binary search */
 HierarchyEntry* vtkParseHierarchy_FindEntry(const HierarchyInfo* info, const char* classname)
 {
-  HierarchyEntry key;
+  HierarchyEntry key = { NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, 0, 0 };
   HierarchyEntry* entry;
   size_t i, n, m, l;
   char name[32];
