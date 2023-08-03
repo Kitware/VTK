@@ -1,26 +1,17 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFDSReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkFDSReader.h"
 #include "vtkDataAssemblyVisitor.h"
+#include "vtkDoubleArray.h"
 #include "vtkFileResourceStream.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkResourceParser.h"
+#include "vtkWeakPointer.h"
 
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
@@ -37,24 +28,124 @@ namespace
 {
 enum BaseNodes
 {
-  DEVICES = 0,
-  HRR = 1,
-  SLICES = 2,
-  BOUNDARIES = 3
+  GRIDS = 0,
+  DEVICES = 1,
+  HRR = 2,
+  SLICES = 3,
+  BOUNDARIES = 4
 };
 
-const std::vector<std::string> BASE_NODES = { "Devices", "HRR", "Slices", "Boundaries" };
+const std::vector<std::string> BASE_NODES = { "Grids", "Devices", "HRR", "Slices", "Boundaries" };
+const std::vector<std::string> DIM_KEYWORDS = { "TRNX", "TRNY", "TRNZ" };
+
+struct FDSParser
+{
+  void Init(vtkResourceStream* stream)
+  {
+    this->Parser->Reset();
+    this->Parser->SetStream(stream);
+    this->Parser->StopOnNewLineOn();
+    this->LineNumber = 0;
+    this->Result = vtkParseResult::EndOfLine;
+  }
+
+  bool Parse(std::string& output)
+  {
+    this->Result = this->Parser->Parse(output);
+    if (this->Result != vtkParseResult::Ok)
+    {
+      return false;
+    }
+    return true;
+  }
+
+  // TODO : template
+  bool Parse(int& output)
+  {
+    this->Result = this->Parser->Parse(output);
+    if (this->Result != vtkParseResult::Ok)
+    {
+      // TODO: increment line number for EOL ?
+      return false;
+    }
+    return true;
+  }
+
+  // TODO : template
+  bool Parse(double& output)
+  {
+    this->Result = this->Parser->Parse(output);
+    if (this->Result != vtkParseResult::Ok)
+    {
+      // TODO: increment line number for EOL ?
+      return false;
+    }
+    return true;
+  }
+
+  // TODO: add ParseKeyWord
+
+  bool DiscardLine()
+  {
+    this->Result = this->Parser->DiscardLine();
+    if (this->Result != vtkParseResult::EndOfLine)
+    {
+      return false;
+    }
+    this->LineNumber++;
+    return true;
+  }
+
+  vtkNew<vtkResourceParser> Parser;
+  vtkParseResult Result = vtkParseResult::EndOfLine;
+  int LineNumber = 0; // current line
+};
 }
 
 struct vtkFDSReader::vtkInternals
 {
   // Maps used to retrieve filename(s) relative to
   // a given "leaf" in the data assembly
+  std::map<int, vtkSmartPointer<vtkRectilinearGrid>> Grids;
   std::map<int, std::string> HRRFiles;
   std::map<int, std::string> DevcFiles;
   std::map<int, std::set<std::string>> SliceFiles;
   std::map<int, std::set<std::string>> BoundaryFiles;
 };
+
+// TODO : find the right place for this
+// TODO : on visitor by task ? or give it a function to execute ?
+class vtkFDSGridVisitor : public vtkDataAssemblyVisitor
+{
+public:
+  static vtkFDSGridVisitor* New();
+  vtkTypeMacro(vtkFDSGridVisitor, vtkDataAssemblyVisitor);
+
+  void Visit(int nodeId) override
+  {
+    if (this->Internals->Grids.count(nodeId) == 0)
+    {
+      return;
+    }
+
+    vtkNew<vtkPartitionedDataSet> pds;
+    pds->SetPartition(0, this->Internals->Grids.at(nodeId));
+    this->OutputPDSC->SetPartitionedDataSet(nodeId, pds);
+  }
+
+  // TODO : is it relevant to store it like this ?
+  std::shared_ptr<vtkFDSReader::vtkInternals> Internals;
+  vtkWeakPointer<vtkPartitionedDataSetCollection> OutputPDSC;
+
+protected:
+  vtkFDSGridVisitor() = default;
+  ~vtkFDSGridVisitor() override = default;
+
+private:
+  vtkFDSGridVisitor(const vtkFDSGridVisitor&) = delete;
+  void operator=(const vtkFDSGridVisitor&) = delete;
+};
+vtkStandardNewMacro(vtkFDSGridVisitor);
 
 // TODO : find the right place for this
 // TODO : on visitor by task ? or give it a function to execute ?
@@ -153,58 +244,213 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     this->Assembly->SetNodeName(vtkDataAssembly::GetRootNode(), rootNodeName.c_str());
   }
 
-  vtkNew<vtkResourceParser> parser;
-  parser->SetStream(stream);
-  parser->StopOnNewLineOn();
-
-  int lineNumber = 0;  // current line
-  std::string keyWord; // storage for parsed "keyWord"
+  FDSParser parser;
+  parser.Init(stream);
 
   // Main parsing loop
-  vtkParseResult result = vtkParseResult::EndOfLine;
-  while (result == vtkParseResult::EndOfLine)
+  do
   {
-    lineNumber++;
-
-    result = parser->Parse(keyWord);
-    if (result != vtkParseResult::Ok)
+    std::string keyWord;
+    if (!parser.Parse(keyWord))
     {
+      // Let the loop handle the parsing result
       continue;
     }
 
-    if (keyWord == "CSVF")
+    if (keyWord == "GRID")
     {
-      result = parser->DiscardLine();
-      if (result != vtkParseResult::EndOfLine)
+      // Retrieve grid name
+      std::string gridName;
+      if (!parser.Parse(gridName))
       {
         continue;
       }
-      lineNumber++;
+
+      // Skip the rest of the line
+      if (!parser.DiscardLine())
+      {
+        continue;
+      }
+
+      vtkNew<vtkRectilinearGrid> grid;
+
+      // Parse grid dimensions
+      int dimensions[3] = { 0, 0, 0 };
+      for (std::size_t i = 0; i < 3; ++i)
+      {
+        if (!parser.Parse(dimensions[i]))
+        {
+          vtkErrorMacro(<< "Failed to parse the grid dimension " << i << " at line "
+                        << parser.LineNumber);
+          return 0;
+        }
+        dimensions[i] += 1;
+      }
+
+      grid->SetDimensions(dimensions);
+
+      // Discard the rest of the line
+      if (!parser.DiscardLine())
+      {
+        continue;
+      }
+
+      // Discard empty line
+      if (!parser.DiscardLine())
+      {
+        continue;
+      }
+
+      // Expected : PDIM keyword
+      if (!parser.Parse(keyWord))
+      {
+        continue;
+      }
+
+      if (keyWord != "PDIM")
+      {
+        vtkErrorMacro(<< "Expected a PDIM keyword at line " << parser.LineNumber
+                      << ", but none was found.");
+        return 0;
+      }
+
+      // Discard the rest of the line
+      if (!parser.DiscardLine())
+      {
+        continue;
+      }
+
+      // TODO retrieve data (grid extent)
+      if (!parser.DiscardLine())
+      {
+        continue;
+      }
+
+      // Discard empty line
+      if (!parser.DiscardLine())
+      {
+        continue;
+      }
+
+      // Parse X/Y/Z coordinates
+      for (int dim = 0; dim < 3; dim++)
+      {
+        if (!parser.Parse(keyWord))
+        {
+          return 0; // TODO
+        }
+
+        // We should have TRNX, TRNY or TRNZ
+        if (keyWord != ::DIM_KEYWORDS[dim])
+        {
+          vtkErrorMacro(<< "Expected a " << ::DIM_KEYWORDS[dim] << " keyword at line "
+                        << parser.LineNumber << ", but none was found.");
+          return 0;
+        }
+
+        // Discard the rest of the line
+        if (!parser.DiscardLine())
+        {
+          continue;
+        }
+
+        // Discard line (contains unused info)
+        if (!parser.DiscardLine())
+        {
+          continue;
+        }
+
+        vtkNew<vtkDoubleArray> coordArray;
+        coordArray->SetNumberOfComponents(1);
+        coordArray->SetNumberOfTuples(dimensions[dim]);
+
+        // Iterate over all coordinates along current axis
+        for (int id = 0; id < dimensions[dim]; id++)
+        {
+          // Parse X/Y/Z index
+          int i = 0;
+          if (!parser.Parse(i))
+          {
+            return 0; // TODO
+          }
+
+          if (i != id)
+          {
+            vtkErrorMacro(<< "Wrong dimention found. Expected " << id << ", got " << i << ".");
+            return 0;
+          }
+
+          // Parse X/Y/Z coordinates value
+          double d = 0.;
+          if (!parser.Parse(d))
+          {
+            return 0; // TODO
+          }
+
+          coordArray->SetValue(id, d);
+
+          // Discard the rest of the line
+          if (!parser.DiscardLine())
+          {
+            continue;
+          }
+        }
+
+        // TODO : need keep pointer
+        switch (dim)
+        {
+          case 0:
+            grid->SetXCoordinates(coordArray);
+            break;
+          case 1:
+            grid->SetYCoordinates(coordArray);
+            break;
+          case 2:
+            grid->SetZCoordinates(coordArray);
+            break;
+          default:
+            break;
+        }
+
+        // Discard empty line
+        if (!parser.DiscardLine())
+        {
+          continue;
+        }
+      }
+
+      // Register grid and fill assembly
+      const int idx = this->Assembly->AddNode(gridName.c_str(), baseNodes[GRIDS]);
+      this->Assembly->AddDataSetIndex(idx, idx); // TODO : change ?
+      this->Internals->Grids.emplace(idx, grid);
+    }
+    else if (keyWord == "CSVF")
+    {
+      if (!parser.DiscardLine())
+      {
+        continue;
+      }
 
       // Parse CSV file type
       // Possible values are : hrr, devc
       std::string fileType;
-      result = parser->Parse(fileType);
-      if (result != vtkParseResult::Ok)
+      if (!parser.Parse(fileType))
       {
-        vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse CSV file type.");
+        vtkWarningMacro(<< "Line " << parser.LineNumber << " : unable to parse CSV file type.");
         continue;
       }
       if (fileType == "devc")
       {
-        result = parser->DiscardLine();
-        if (result != vtkParseResult::EndOfLine)
+        if (!parser.DiscardLine())
         {
           continue;
         }
-        lineNumber++;
 
         // Parse devc file path
         std::string fileName;
-        result = parser->Parse(fileName);
-        if (result != vtkParseResult::Ok)
+        if (!parser.Parse(fileName))
         {
-          vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse devc file path.");
+          vtkWarningMacro(<< "Line " << parser.LineNumber << " : unable to parse devc file path.");
           continue;
         }
 
@@ -217,19 +463,16 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       }
       else if (fileType == "hrr")
       {
-        result = parser->DiscardLine();
-        if (result != vtkParseResult::EndOfLine)
+        if (!parser.DiscardLine())
         {
           continue;
         }
-        lineNumber++;
 
         // Parse hrr file path
         std::string fileName;
-        result = parser->Parse(fileName);
-        if (result != vtkParseResult::Ok)
+        if (!parser.Parse(fileName))
         {
-          vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse hrr file path.");
+          vtkWarningMacro(<< "Line " << parser.LineNumber << " : unable to parse hrr file path.");
           continue;
         }
 
@@ -238,30 +481,28 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
         // Register file path and fill assembly
         const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[HRR]);
+        this->Assembly->AddDataSetIndex(idx, idx); // TODO : change ?
         this->Internals->HRRFiles.emplace(idx, fileName);
       }
       else
       {
-        vtkWarningMacro(<< "Line " << lineNumber << " : unknown CSV file type.");
+        vtkWarningMacro(<< "Line " << parser.LineNumber << " : unknown CSV file type.");
       }
     }
     else if (keyWord == "SLCF" || keyWord == "SLCC")
     {
       // TODO : check dimension
 
-      result = parser->DiscardLine();
-      if (result != vtkParseResult::EndOfLine)
+      if (!parser.DiscardLine())
       {
         continue;
       }
-      lineNumber++;
 
       // Parse sf file path
       std::string fileName;
-      result = parser->Parse(fileName);
-      if (result != vtkParseResult::Ok)
+      if (!parser.Parse(fileName))
       {
-        vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse sf file path.");
+        vtkWarningMacro(<< "Line " << parser.LineNumber << " : unable to parse sf file path.");
         continue;
       }
 
@@ -272,24 +513,22 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       // TODO : find a good way to store slices
 
       const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[SLICES]);
+      this->Assembly->AddDataSetIndex(idx, idx); // TODO : change ?
       std::set<std::string>& filesAtIdx = this->Internals->SliceFiles[idx];
       filesAtIdx.emplace(fileName);
     }
     else if (keyWord == "BNDF")
     {
-      result = parser->DiscardLine();
-      if (result != vtkParseResult::EndOfLine)
+      if (!parser.DiscardLine())
       {
         continue;
       }
-      lineNumber++;
 
       // Parse sf file path
       std::string fileName;
-      result = parser->Parse(fileName);
-      if (result != vtkParseResult::Ok)
+      if (!parser.Parse(fileName))
       {
-        vtkWarningMacro(<< "Line " << lineNumber << " : unable to parse sf file path.");
+        vtkWarningMacro(<< "Line " << parser.LineNumber << " : unable to parse sf file path.");
         continue;
       }
 
@@ -297,17 +536,22 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       std::string nodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
 
       const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[BOUNDARIES]);
+      this->Assembly->AddDataSetIndex(idx, idx); // TODO : change ?
       std::set<std::string>& filesAtIdx = this->Internals->BoundaryFiles[idx];
       filesAtIdx.emplace(fileName);
     }
 
-    result = parser->DiscardLine();
-  }
+    if (!parser.DiscardLine())
+    {
+      continue;
+    }
+  } while (parser.Result == vtkParseResult::EndOfLine);
 
   // The last result that ended the loop
-  if (result != vtkParseResult::EndOfStream)
+  if (parser.Result != vtkParseResult::EndOfStream)
   {
-    vtkErrorMacro(<< "Error during parsing of SMV file at line" << lineNumber);
+    cout << static_cast<int>(parser.Result) << endl;
+    vtkErrorMacro(<< "Error during parsing of SMV file at line " << parser.LineNumber);
     return 0;
   }
 
@@ -321,8 +565,6 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  cout << "REQUEST DATA" << endl;
-
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkPartitionedDataSetCollection* output = vtkPartitionedDataSetCollection::GetData(outInfo);
 
@@ -339,57 +581,6 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  // vtkNew<vtkResourceParser> parser;
-  // parser->SetStream(stream);
-  // parser->StopOnNewLineOn();
-
-  // int lineNumber = 0; // current line
-  // std::string keyWord; // the keyWord
-
-  // const auto flushLine = [this, &parser, &lineNumber]() {
-  //   std::string remaining;
-
-  //   auto result = parser->Parse(remaining);
-  //   if (result != vtkParseResult::EndOfLine)
-  //   {
-  //     vtkWarningMacro(<< "unexpected data at end of line in .smv file at line " << lineNumber);
-  //     result = parser->DiscardLine();
-  //   }
-
-  //   return result;
-  // };
-
-  // vtkParseResult result = vtkParseResult::Ok;
-  // while (result == vtkParseResult::Ok || result == vtkParseResult::EndOfLine)
-  // {
-  //   ++lineNumber;
-
-  //   result = parser->Parse(keyWord);
-  //   if (keyWord == "GRID")
-  //   {
-  //     cout << lineNumber << " : " << keyWord << " encountered" << endl;
-  //     result = flushLine();
-
-  //     // Parse grid dimensions
-  //     std::array<double, 3> dims;
-  //     for (std::size_t i = 0; i < 3; ++i)
-  //     {
-  //       result = parser->Parse(dims[i]);
-  //       if (result != vtkParseResult::Ok)
-  //       {
-  //         vtkErrorMacro(<< "Failed to parse " << i << "th grid dimension at line " <<
-  //         lineNumber); return 0;
-  //       }
-  //       else
-  //       {
-  //         cout << dims[i] << endl;
-  //       }
-  //     }
-
-  //     result = flushLine();
-  //   }
-  // }
-
   const std::vector<std::string> selectors(this->Selectors.begin(), this->Selectors.end());
   const auto selectedNodes = this->Assembly->SelectNodes(selectors);
 
@@ -397,14 +588,23 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
   outAssembly->SubsetCopy(this->Assembly, selectedNodes);
   output->SetDataAssembly(outAssembly);
 
+  int gridIdx =
+    outAssembly->FindFirstNodeWithName("Grids", vtkDataAssembly::TraversalOrder::BreadthFirst);
+  if (gridIdx != -1)
+  {
+    vtkNew<vtkFDSGridVisitor> gridVisitor;
+    gridVisitor->Internals = this->Internals;
+    gridVisitor->OutputPDSC = output;
+    outAssembly->Visit(gridIdx, gridVisitor);
+  }
+
   int devicesIdx =
     outAssembly->FindFirstNodeWithName("Devices", vtkDataAssembly::TraversalOrder::BreadthFirst);
   if (devicesIdx != -1)
   {
-    cout << "Devices found" << endl;
-    vtkNew<vtkFDSDeviceVisitor> visitor;
-    visitor->Internals = this->Internals;
-    outAssembly->Visit(devicesIdx, visitor);
+    vtkNew<vtkFDSDeviceVisitor> deviceVisitor;
+    deviceVisitor->Internals = this->Internals;
+    outAssembly->Visit(devicesIdx, deviceVisitor);
   }
 
   return 1;
