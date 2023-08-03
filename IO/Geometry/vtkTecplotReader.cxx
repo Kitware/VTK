@@ -2108,7 +2108,7 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
         }
         else
         {
-          vtkWarningMacro(<< " ZONETYPE '" << zoneType << "' is currently supported.");
+          vtkWarningMacro(<< " ZONETYPE '" << zoneType << "' is currently unsupported.");
         }
       }
 
