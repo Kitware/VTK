@@ -240,13 +240,10 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 /* This is the main entry point for the python wrappers.  When called,
  * it will print the vtkXXPython.c file contents to "fp".  */
 
-// NOLINTNEXTLINE(modernize-macro-to-enum)
-#define MAX_WRAPPED_CLASSES 256
-
 int VTK_PARSE_MAIN(int argc, char* argv[])
 {
-  ClassInfo* wrappedClasses[MAX_WRAPPED_CLASSES];
-  unsigned char wrapAsVTKObject[MAX_WRAPPED_CLASSES];
+  ClassInfo** wrappedClasses;
+  unsigned char* wrapAsVTKObject;
   ClassInfo* data = NULL;
   NamespaceInfo* contents;
   OptionInfo* options;
@@ -427,6 +424,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   }
 
   /* Check for all special classes before any classes are wrapped */
+  wrapAsVTKObject = (unsigned char*)malloc(sizeof(unsigned char) * contents->NumberOfClasses);
   for (i = 0; i < contents->NumberOfClasses; i++)
   {
     data = contents->Classes[i];
@@ -458,6 +456,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   }
 
   /* Wrap all of the classes in the file */
+  wrappedClasses = (ClassInfo**)malloc(sizeof(ClassInfo*) * contents->NumberOfClasses);
   for (i = 0; i < contents->NumberOfClasses; i++)
   {
     data = contents->Classes[i];
@@ -582,6 +581,8 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   fclose(fp);
 
   free(name_from_file);
+  free(wrapAsVTKObject);
+  free(wrappedClasses);
 
   if (hinfo)
   {
