@@ -997,6 +997,12 @@ to all files that are not parsed during generation, it is used to generate `Pack
 this in `vtk_module_build`) and expected field for [third parties](/developers_guide/git/thirdparty.md).
 If provided, it is used as is for the `PackageDownloadLocation` SPDX field.
 
+#### SPDX arguments in `vtk_module_add_module`
+
+It is possible to specify a `SPDX_SKIP_REGEX` when adding a module in order
+to skip specific file during [SPDX tags parsing](#spdx-tags-in-the-sources-files).
+It is a python regex which is used to match with the filename of the source files.
+
 #### Custom license support
 
 If the VTK module contains a custom license that is not part of the [SPDX license list](https://spdx.org/licenses/)
@@ -1027,10 +1033,7 @@ the `SPDX-License-Identifier` tag. Like this:
 ```
 
 If a source file does not contain both `SPDX-FileCopyrightText` and `SPDX-License-Identifier`
-tags, a CMake warning is reported.
-
-TODO: It would be possible to add a dedicated tag to identify that a file should NOT be parsed for SPDX tags,
-but it is not needed yet.
+tags, a warning at build time is reported.
 
 #### Limitations
 
@@ -1049,4 +1052,4 @@ but it is not needed yet.
 * Adding empty lines between `// SPDX-FileCopyrightText` and `// SPDX-License-Identifier`
   tags is not supported.
 
-* Only comments starting with `//` are considered.
+* Certain files are not parsed at all, eg: cmake files, python files, test files, ...
