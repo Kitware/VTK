@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
 GCC_PREFIX_HEADER = PrefixHeader.pch
 INFOPLIST_FILE = Info-Xcode.plist
 PRODUCT_NAME = SimpleCocoaVTK
