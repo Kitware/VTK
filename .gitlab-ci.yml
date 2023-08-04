@@ -192,7 +192,7 @@ fedora34-mpi-ospray-python-qt-tbb:build:
     extends:
         - .fedora34_mpi_ospray_python_qt_tbb
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_fast_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
@@ -201,7 +201,7 @@ fedora34-mpi-ospray-python-qt-tbb:test:
     extends:
         - .fedora34_mpi_ospray_python_qt_tbb
         - .cmake_test_linux
-        - .linux_tester_tags
+        - .linux_fast_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:

@@ -355,6 +355,13 @@
         - x11
         - vtk
 
+.linux_fast_tester_tags:
+    tags:
+        - docker
+        - linux-x86_64-v3
+        - x11
+        - vtk
+
 .linux_cuda_tester_tags:
     tags:
         - cuda-rt
