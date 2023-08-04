@@ -40,6 +40,10 @@
  *   - With the limitation that all of the inputs are assumed to share the same
  *     name/id.
  *
+ * - Inputs
+ *   - 1-component inputs with vtkVolumeProperty::IndependentComponentsOn()
+ *   - 4-component inputs with vtkVolumeProperty::IndependentComponentsOff()
+ *
  * @sa vtkGPUVolumeRayCastMapper vtkVolumeInputHelper vtkVolumeTexture
  * vtkMultiVolume
  *
