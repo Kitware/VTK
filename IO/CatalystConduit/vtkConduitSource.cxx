@@ -817,7 +817,7 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
     {
       const int level = child["state/level"].to_int32();
       const int domain_id = child["state/domain_id"].to_int32();
-      if (level >= blocksPerLevelLocal.size())
+      if (size_t(level) >= blocksPerLevelLocal.size())
       {
         blocksPerLevelLocal.resize(level + 1);
         blocksPerLevelLocal[level] = 0;
@@ -912,7 +912,6 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
     if (child.has_path("state"))
     {
       int pdims[3] = { 0, 0, 0 };
-      int cdims[3] = { 0, 0, 0 };
       const int domain_id = child["state/domain_id"].to_int32();
       const int level = child["state/level"].to_int32();
 
