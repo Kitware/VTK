@@ -139,6 +139,27 @@ int TestGPURayCastMultiVolumeRGBA(int argc, char* argv[])
   cam->SetPosition(275.0, 275.0, 75.0);
   cam->SetViewUp(0.0, 0.0, 1.0);
 
+  // Test code path using gradient opcity function.
+  // The baseline image does not use gradient opacity but the test fails on the render call
+  // below if the shader fails to compile when using both IndependentComponents and gradient
+  // opacity mapping.
+  vtkNew<vtkPiecewiseFunction> gf;
+  gf->AddPoint(0, 1.0);
+  gf->AddPoint(255, 1.0);
+
+  vtkNew<vtkPiecewiseFunction> gf1;
+  gf1->AddPoint(0, 0.5);
+  gf1->AddPoint(255, 0.5);
+
+  volume->GetProperty()->SetGradientOpacity(gf);
+  volume1->GetProperty()->SetGradientOpacity(gf1);
+
+  renWin->Render();
+
+  // Test code path using scalar opacity only (no gradient)
+  volume->GetProperty()->SetGradientOpacity(nullptr);
+  volume1->GetProperty()->SetGradientOpacity(nullptr);
+
   int retVal = vtkTesting::Test(argc, argv, renWin, 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
