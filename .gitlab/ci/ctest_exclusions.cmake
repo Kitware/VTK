@@ -218,6 +218,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt" AND
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "ospray")
+  list(APPEND test_exclusions
+    # Cache segfaults on docker
+    "^VTK::RenderingRayTracing-TestOSPRayCache$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
