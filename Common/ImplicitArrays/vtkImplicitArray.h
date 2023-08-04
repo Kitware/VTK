@@ -139,12 +139,12 @@
 // AOS arrays instead of empty implicit arrays
 #define vtkImplicitArrayTypeMacro(thisClass, superclass)                                           \
   vtkAbstractTypeMacroWithNewInstanceType(thisClass, superclass,                                   \
-    vtkAOSDataArrayTemplate<thisClass::ValueTypeT>, typeid(thisClass).name());                     \
+    vtkAOSDataArrayTemplate<typename thisClass::ValueType>, typeid(thisClass).name());             \
                                                                                                    \
 protected:                                                                                         \
   vtkObjectBase* NewInstanceInternal() const override                                              \
   {                                                                                                \
-    return vtkAOSDataArrayTemplate<thisClass::ValueTypeT>::New();                                  \
+    return vtkAOSDataArrayTemplate<typename thisClass::ValueType>::New();                          \
   }                                                                                                \
                                                                                                    \
 public:
