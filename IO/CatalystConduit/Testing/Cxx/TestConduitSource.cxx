@@ -1,19 +1,24 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <vtkXMLUniformGridAMRWriter.h>
+
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
 #include "vtkConduitSource.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
 
+#include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
 #define VERIFY(x, ...)                                                                             \
@@ -381,6 +386,42 @@ bool CheckFieldDataMeshConversion(conduit_cpp::Node& mesh_node, int expected_num
       VERIFY(field_array->GetVariantValue(i) == expected_values[i], "wrong value");
     }
   }
+
+  return true;
+}
+
+bool ValidateMeshTypeAMR(const std::string& file)
+{
+  conduit_cpp::Node mesh;
+  // read in an example mesh dataset
+  conduit_node_load(conduit_cpp::c_node(&mesh), file.c_str(), "");
+
+  mesh.print();
+
+  const auto& meshdata = mesh["data"];
+  // run vtk conduit source
+  vtkNew<vtkConduitSource> source;
+  source->SetUseAMRMeshProtocol(true);
+  source->SetNode(conduit_cpp::c_node(&meshdata));
+  source->Update();
+  auto data = source->GetOutputDataObject(0);
+
+  VERIFY(vtkOverlappingAMR::SafeDownCast(data) != nullptr,
+    "Incorrect data type, expected vtkOverlappingAMR, got %s", vtkLogIdentifier(data));
+
+  auto amr = vtkOverlappingAMR::SafeDownCast(data);
+
+  std::vector<double> bounds(6);
+  std::vector<double> origin(3);
+
+  amr->GetBounds(bounds.data());
+  amr->GetOrigin(0, 0, origin.data());
+
+  VERIFY(bounds[0] == 0 && bounds[1] == 1 && bounds[2] == 0 && bounds[3] == 1 && bounds[4] == 0 &&
+      bounds[5] == 1,
+    "Incorrect AMR bounds");
+
+  VERIFY(origin[0] == 0 && origin[1] == 0 && origin[2] == 0, "Incorrect AMR origin");
 
   return true;
 }
@@ -901,12 +942,15 @@ bool ValidateMeshTypeMixed()
 
 } // end namespace
 
-int TestConduitSource(int, char*[])
+int TestConduitSource(int argc, char** argv)
 {
+  std::string amrFile =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Conduit/bp_amr_example.json");
+
   return ValidateMeshTypeUniform() && ValidateMeshTypeRectilinear() &&
       ValidateMeshTypeStructured() && ValidateMeshTypeUnstructured() && ValidateFieldData() &&
       ValidateRectlinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
-      ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D()
+      ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile)
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 }
