@@ -47,6 +47,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestPassThrough.cxx,NO_VALID
   TestRectilinearGridToPointSet.cxx,NO_VALID
   TestReflectionFilter.cxx,NO_VALID
+  TestSpatioTemporalHarmonicsAttribute.cxx
   TestSplitByCellScalarFilter.cxx,NO_VALID
   TestTableFFT.cxx,NO_VALID
   TestTableSplitColumnComponents.cxx,NO_VALID
