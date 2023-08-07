@@ -4694,7 +4694,7 @@ endfunction ()
   .. code-block:: cmake
 
     vtk_module_find_package(
-      [PRIVATE] [CONFIG_MODE]
+      [PRIVATE] [PRIVATE_IF_SHARED] [CONFIG_MODE]
       PACKAGE               <package>
       [VERSION              <version>]
       [COMPONENTS           <component>...]
@@ -4715,6 +4715,8 @@ endfunction ()
   * ``CONFIG_MODE``: If present, pass ``CONFIG`` to the underlying ``find_package``
     call.
   * ``PRIVATE``: The dependency should not be exported to the install.
+  * ``PRIVATE_IF_SHARED``: The dependency should not be exported to the install
+    if the module is built as a ``SHARED`` library.
 
   The ``PACKAGE`` argument is the only required argument. The rest are optional.
 
@@ -4741,7 +4743,7 @@ macro (vtk_module_find_package)
   # Note: when adding arguments here, add them to the `unset` block at the end
   # of the function.
   cmake_parse_arguments(_vtk_find_package
-    "PRIVATE;CONFIG_MODE"
+    "PRIVATE;PRIVATE_IF_SHARED;CONFIG_MODE"
     "PACKAGE;VERSION;FORWARD_VERSION_REQ;VERSION_VAR"
     "COMPONENTS;OPTIONAL_COMPONENTS"
     ${ARGN})
@@ -4755,6 +4757,12 @@ macro (vtk_module_find_package)
   if (NOT DEFINED _vtk_find_package_PACKAGE)
     message(FATAL_ERROR
       "The `PACKAGE` argument is required.")
+  endif ()
+
+  if (_vtk_find_package_PRIVATE AND _vtk_find_package_PRIVATE_IF_SHARED)
+    message(FATAL_ERROR
+      "The `PRIVATE` and `PRIVATE_IF_SHARED` arguments are mutually "
+      "exclusive.")
   endif ()
 
   if (DEFINED _vtk_find_package_FORWARD_VERSION_REQ)
@@ -4814,6 +4822,9 @@ macro (vtk_module_find_package)
   set_property(GLOBAL
     PROPERTY
       "${_vtk_find_package_base_package}_private" "${_vtk_find_package_PRIVATE}")
+  set_property(GLOBAL
+    PROPERTY
+      "${_vtk_find_package_base_package}_private_if_shared" "${_vtk_find_package_PRIVATE_IF_SHARED}")
   set_property(GLOBAL
     PROPERTY
       "${_vtk_find_package_base_package}_version" "${_vtk_find_package_VERSION}")
@@ -5085,6 +5096,33 @@ if (_vtk_module_find_package_enabled)
       set(_vtk_export_base_package "${_vtk_export_base}_${_vtk_export_package}")
       get_property(_vtk_export_private GLOBAL
         PROPERTY "${_vtk_export_base_package}_private")
+      get_property(_vtk_export_private_if_shared GLOBAL
+        PROPERTY "${_vtk_export_base_package}_private_if_shared")
+      if (_vtk_export_private_if_shared)
+        get_property(_vtk_export_kit_name GLOBAL
+          PROPERTY "_vtk_module_${_vtk_export_module}_kit")
+        if (_vtk_export_kit_name AND TARGET "${_vtk_export_kit_name}")
+          get_property(_vtk_export_kit_is_alias
+            TARGET    "${_vtk_export_kit_name}"
+            PROPERTY  ALIASED_TARGET
+            SET)
+          if (_vtk_export_kit_is_alias)
+            get_property(_vtk_export_kit_name
+              TARGET    "${_vtk_export_kit_name}"
+              PROPERTY  ALIASED_TARGET)
+          endif ()
+          get_property(_vtk_export_module_type 
+            TARGET "${_vtk_export_kit_name}"
+            PROPERTY  TYPE)
+        else ()
+          vtk_module_get_property("${_vtk_export_module}"
+            PROPERTY  TYPE
+            VARIABLE  _vtk_export_module_type)
+        endif ()
+        if (_vtk_export_module_type STREQUAL "SHARED_LIBRARY")
+          set(_vtk_export_private 1)
+        endif ()
+      endif ()
       get_property(_vtk_export_version GLOBAL
         PROPERTY "${_vtk_export_base_package}_version")
       get_property(_vtk_export_config GLOBAL
