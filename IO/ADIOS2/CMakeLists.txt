@@ -1,4 +1,4 @@
-vtk_module_find_package(
+vtk_module_find_package(PRIVATE_IF_SHARED
   PACKAGE ADIOS2
   VERSION 2.4)
 if (VTK_USE_MPI AND NOT ADIOS2_HAVE_MPI)

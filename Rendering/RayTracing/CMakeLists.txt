@@ -56,7 +56,7 @@ vtk_module_add_module(VTK::RenderingRayTracing
   PRIVATE_HEADERS ${vtk_object_factory_header})
 
 if (VTK_ENABLE_OSPRAY)
-  vtk_module_find_package(
+  vtk_module_find_package(PRIVATE_IF_SHARED
     PACKAGE ospray
     VERSION 2.1)
 
@@ -65,7 +65,7 @@ if (VTK_ENABLE_OSPRAY)
       ospray::ospray
       )
   if (VTKOSPRAY_ENABLE_DENOISER)
-    vtk_module_find_package(
+    vtk_module_find_package(PRIVATE_IF_SHARED
       PACKAGE OpenImageDenoise
       FORWARD_VERSION_REQ MINOR)
     vtk_module_definitions(VTK::RenderingRayTracing

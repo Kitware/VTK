@@ -156,7 +156,8 @@ vtk_module_add_module(VTK::RenderingUI
   )
 
 if (VTK_USE_SDL2 OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  vtk_module_find_package(PACKAGE SDL2)
+  vtk_module_find_package(PRIVATE_IF_SHARED
+    PACKAGE SDL2)
   vtk_module_link(VTK::RenderingUI
     PRIVATE
       SDL2::SDL2)
