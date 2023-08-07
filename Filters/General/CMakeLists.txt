@@ -101,6 +101,7 @@ set(classes
   vtkShrinkFilter
   vtkShrinkPolyData
   vtkSpatialRepresentationFilter
+  vtkSpatioTemporalHarmonicsAttribute
   vtkSphericalHarmonics
   vtkSplineFilter
   vtkSplitByCellScalarFilter
