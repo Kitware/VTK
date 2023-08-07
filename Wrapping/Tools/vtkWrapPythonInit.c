@@ -133,7 +133,7 @@ static void CreateImplFile(
   fprintf(fout, "}\n\n");
 }
 
-int VTK_PARSE_MAIN(int argc, char* argv[])
+int VTK_PARSE_MAIN(int argc, const char* argv[])
 {
   FILE* file;
   FILE* fout_init;

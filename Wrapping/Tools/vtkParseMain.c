@@ -511,7 +511,7 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
     int ifunc;
     for (ifunc = 0; ifunc < nfunc; ifunc++)
     {
-      FunctionInfo* func = data->MainClass->Functions[ifunc];
+      const FunctionInfo* func = data->MainClass->Functions[ifunc];
       if (func && func->Access == VTK_ACCESS_PUBLIC && func->Name &&
         strcmp(func->Name, "New") == 0 && func->NumberOfParameters == 0)
       {

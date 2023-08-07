@@ -204,7 +204,7 @@ extern "C"
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParsePreprocess_FreeMacroExpansion(
-    const PreprocessInfo* info, MacroInfo* macro, const char* text);
+    const PreprocessInfo* info, const MacroInfo* macro, const char* text);
 
   /**
    * Fully process a string with the preprocessor, and

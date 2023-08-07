@@ -31,7 +31,7 @@ private:
   bool checkIfBigEndian()
   {
     unsigned short a = 0x1234;
-    if (*((unsigned char*)&a) == 0x12)
+    if (*(reinterpret_cast<unsigned char*>(&a)) == 0x12)
       return true;
     return false;
   }

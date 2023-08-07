@@ -13,7 +13,7 @@
 
 /* -------------------------------------------------------------------- */
 /* check whether an enum type will be wrapped */
-int vtkWrapPython_IsEnumWrapped(HierarchyInfo* hinfo, const char* enumname)
+int vtkWrapPython_IsEnumWrapped(const HierarchyInfo* hinfo, const char* enumname)
 {
   int rval = 0;
   HierarchyEntry* entry;
@@ -32,7 +32,7 @@ int vtkWrapPython_IsEnumWrapped(HierarchyInfo* hinfo, const char* enumname)
 
 /* -------------------------------------------------------------------- */
 /* find and mark all enum parameters by setting IsEnum=1 */
-void vtkWrapPython_MarkAllEnums(NamespaceInfo* contents, HierarchyInfo* hinfo)
+void vtkWrapPython_MarkAllEnums(NamespaceInfo* contents, const HierarchyInfo* hinfo)
 {
   FunctionInfo* currentFunction;
   int i, j, n, m, ii, nn;
@@ -157,7 +157,7 @@ void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar
 /* -------------------------------------------------------------------- */
 /* write out an enum type object */
 void vtkWrapPython_GenerateEnumType(
-  FILE* fp, const char* module, const char* classname, EnumInfo* data)
+  FILE* fp, const char* module, const char* classname, const EnumInfo* data)
 {
   char enumname[512];
   char tpname[512];

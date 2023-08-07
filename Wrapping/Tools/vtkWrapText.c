@@ -159,7 +159,7 @@ static void vtkWPString_PushChar(struct vtkWPString* str, char c)
 static void vtkWPString_Strip(struct vtkWPString* str, const char* trailers)
 {
   size_t k = str->len;
-  char* cp = str->str;
+  const char* cp = str->str;
   size_t j = 0;
   size_t n;
 
@@ -853,7 +853,7 @@ static void vtkWrapText_PythonPODSignature(
   struct vtkWPString* result, const char* classname, const char* braces[2]);
 
 static void vtkWrapText_PythonStdVectorSignature(
-  struct vtkWPString* result, ValueInfo* arg, const char* braces[2]);
+  struct vtkWPString* result, const ValueInfo* arg, const char* braces[2]);
 
 static void vtkWrapText_PythonValueSignature(struct vtkWPString* result, ValueInfo* arg);
 
@@ -1098,7 +1098,7 @@ static void vtkWrapText_PythonPODSignature(
 }
 
 static void vtkWrapText_PythonStdVectorSignature(
-  struct vtkWPString* result, ValueInfo* arg, const char* braces[2])
+  struct vtkWPString* result, const ValueInfo* arg, const char* braces[2])
 {
   StringCache cache = { 0, 0, 0, 0 };
   ValueInfo val;

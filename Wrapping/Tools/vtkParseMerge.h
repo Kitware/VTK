@@ -40,13 +40,13 @@ extern "C"
    */
   VTKWRAPPINGTOOLS_EXPORT
   MergeInfo* vtkParseMerge_MergeSuperClasses(
-    FileInfo* finfo, NamespaceInfo* data, ClassInfo* classInfo);
+    FileInfo* finfo, const NamespaceInfo* data, ClassInfo* classInfo);
 
   /**
    * Create an initialized MergeInfo object.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  MergeInfo* vtkParseMerge_CreateMergeInfo(ClassInfo* classInfo);
+  MergeInfo* vtkParseMerge_CreateMergeInfo(const ClassInfo* classInfo);
 
   /**
    * Free the MergeInfo object.

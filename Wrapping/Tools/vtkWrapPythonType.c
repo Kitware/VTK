@@ -36,7 +36,7 @@ typedef struct
 /* -------------------------------------------------------------------- */
 /* check if class has a wrapped constructor, and return its name if so */
 static const char* vtkWrapPython_WrappedConstructor(
-  ClassInfo* data, HierarchyInfo* hinfo, size_t* np)
+  ClassInfo* data, const HierarchyInfo* hinfo, size_t* np)
 {
   const char* constructor = data->Name;
   size_t n, m;
@@ -77,7 +77,7 @@ static const char* vtkWrapPython_WrappedConstructor(
 /* -------------------------------------------------------------------- */
 /* generate function for printing a special object */
 static void vtkWrapPython_NewDeleteProtocol(
-  FILE* fp, const char* classname, ClassInfo* data, HierarchyInfo* hinfo)
+  FILE* fp, const char* classname, ClassInfo* data, const HierarchyInfo* hinfo)
 {
   size_t n = 0;
   const char* constructor = NULL;
@@ -149,7 +149,7 @@ static void vtkWrapPython_NewDeleteProtocol(
 /* -------------------------------------------------------------------- */
 /* generate function for printing a special object */
 static void vtkWrapPython_PrintProtocol(
-  FILE* fp, const char* classname, ClassInfo* data, FileInfo* finfo, SpecialTypeInfo* info)
+  FILE* fp, const char* classname, const ClassInfo* data, FileInfo* finfo, SpecialTypeInfo* info)
 {
   int i;
   FunctionInfo* func;
@@ -360,8 +360,8 @@ static void vtkWrapPython_RichCompareProtocol(
 
 /* -------------------------------------------------------------------- */
 /* generate functions for indexing into special objects */
-static void vtkWrapPython_SequenceProtocol(
-  FILE* fp, const char* classname, ClassInfo* data, HierarchyInfo* hinfo, SpecialTypeInfo* info)
+static void vtkWrapPython_SequenceProtocol(FILE* fp, const char* classname, ClassInfo* data,
+  const HierarchyInfo* hinfo, SpecialTypeInfo* info)
 {
   int i;
   FunctionInfo* func;
@@ -520,7 +520,7 @@ static void vtkWrapPython_SequenceProtocol(
 
 /* -------------------------------------------------------------------- */
 /* generate function for hashing special objects */
-static void vtkWrapPython_HashProtocol(FILE* fp, const char* classname, ClassInfo* data)
+static void vtkWrapPython_HashProtocol(FILE* fp, const char* classname, const ClassInfo* data)
 {
   /* the hash function, defined only for specific types */
   fprintf(fp, "static Py_hash_t Py%s_Hash(PyObject *self)\n", classname);
@@ -573,7 +573,7 @@ static void vtkWrapPython_HashProtocol(FILE* fp, const char* classname, ClassInf
 /* -------------------------------------------------------------------- */
 /* generate extra functions for a special object */
 static void vtkWrapPython_SpecialTypeProtocols(FILE* fp, const char* classname, ClassInfo* data,
-  FileInfo* finfo, HierarchyInfo* hinfo, SpecialTypeInfo* info)
+  FileInfo* finfo, const HierarchyInfo* hinfo, SpecialTypeInfo* info)
 {
   /* clear all info about the type */
   info->has_print = 0;
@@ -590,7 +590,7 @@ static void vtkWrapPython_SpecialTypeProtocols(FILE* fp, const char* classname, 
 /* -------------------------------------------------------------------- */
 /* For classes that aren't derived from vtkObjectBase, check to see if
  * they are wrappable */
-int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo* data)
+int vtkWrapPython_IsSpecialTypeWrappable(const ClassInfo* data)
 {
   /* wrapping templates is only possible after template instantiation */
   if (data->Template)
@@ -610,7 +610,7 @@ int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo* data)
 /* -------------------------------------------------------------------- */
 /* write out a special type object */
 void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char* classname,
-  ClassInfo* data, FileInfo* finfo, HierarchyInfo* hinfo)
+  ClassInfo* data, FileInfo* finfo, const HierarchyInfo* hinfo)
 {
   char supername[1024];
   const char* supermodule;

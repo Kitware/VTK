@@ -22,16 +22,16 @@
 /* prototypes for the methods used by the python wrappers */
 
 /* declare the exports and imports for a VTK/Python class */
-static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, HierarchyInfo* hinfo);
+static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, const HierarchyInfo* hinfo);
 
 /* generate the New method for a vtkObjectBase object */
 static void vtkWrapPython_GenerateObjectNew(
-  FILE* fp, const char* classname, ClassInfo* data, HierarchyInfo* hinfo, int class_has_new);
+  FILE* fp, const char* classname, ClassInfo* data, const HierarchyInfo* hinfo, int class_has_new);
 
 /* -------------------------------------------------------------------- */
 /* get the true superclass */
 const char* vtkWrapPython_GetSuperClass(
-  ClassInfo* data, HierarchyInfo* hinfo, const char** supermodule)
+  ClassInfo* data, const HierarchyInfo* hinfo, const char** supermodule)
 {
   const char* supername = NULL;
   const char* module = NULL;
@@ -88,7 +88,7 @@ const char* vtkWrapPython_GetSuperClass(
 /* -------------------------------------------------------------------- */
 /* Create the docstring for a class, and print it to fp */
 void vtkWrapPython_ClassDoc(
-  FILE* fp, FileInfo* file_info, ClassInfo* data, HierarchyInfo* hinfo, int is_vtkobject)
+  FILE* fp, FileInfo* file_info, ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject)
 {
   char pythonname[1024];
   const char* supername;
@@ -275,7 +275,7 @@ void vtkWrapPython_ClassDoc(
 
 /* -------------------------------------------------------------------- */
 /* Declare the exports and imports for a VTK/Python class */
-static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, HierarchyInfo* hinfo)
+static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, const HierarchyInfo* hinfo)
 {
   char classname[1024];
   const char* supername;
@@ -304,7 +304,7 @@ static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, HierarchyInf
 /* -------------------------------------------------------------------- */
 /* generate the New method for a vtkObjectBase object */
 static void vtkWrapPython_GenerateObjectNew(
-  FILE* fp, const char* classname, ClassInfo* data, HierarchyInfo* hinfo, int class_has_new)
+  FILE* fp, const char* classname, ClassInfo* data, const HierarchyInfo* hinfo, int class_has_new)
 {
   char superclassname[1024];
   const char* name;
@@ -565,7 +565,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
   /* check for New() function */
   for (i = 0; i < data->NumberOfFunctions; i++)
   {
-    FunctionInfo* func = data->Functions[i];
+    const FunctionInfo* func = data->Functions[i];
 
     if (func->Name && !func->IsExcluded && func->Access == VTK_ACCESS_PUBLIC &&
       strcmp("New", func->Name) == 0 && func->NumberOfParameters == 0 &&

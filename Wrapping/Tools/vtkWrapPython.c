@@ -31,18 +31,18 @@ void vtkParseOutput(FILE* fp, FileInfo* data);
 /* prototypes for the methods used by the python wrappers */
 
 /* get the header file for the named VTK class */
-static const char* vtkWrapPython_ClassHeader(HierarchyInfo* hinfo, const char* classname);
+static const char* vtkWrapPython_ClassHeader(const HierarchyInfo* hinfo, const char* classname);
 
 /* get the module for the named VTK class */
-static const char* vtkWrapPython_ClassModule(HierarchyInfo* hinfo, const char* classname);
+static const char* vtkWrapPython_ClassModule(const HierarchyInfo* hinfo, const char* classname);
 
 /* print out headers for any special types used by methods */
 static void vtkWrapPython_GenerateSpecialHeaders(
-  FILE* fp, FileInfo* file_info, HierarchyInfo* hinfo);
+  FILE* fp, FileInfo* file_info, const HierarchyInfo* hinfo);
 
 /* -------------------------------------------------------------------- */
 /* Get the header file for the specified class */
-static const char* vtkWrapPython_ClassHeader(HierarchyInfo* hinfo, const char* classname)
+static const char* vtkWrapPython_ClassHeader(const HierarchyInfo* hinfo, const char* classname)
 {
   HierarchyEntry* entry;
 
@@ -61,7 +61,7 @@ static const char* vtkWrapPython_ClassHeader(HierarchyInfo* hinfo, const char* c
 
 /* -------------------------------------------------------------------- */
 /* Get the module for the specified class */
-static const char* vtkWrapPython_ClassModule(HierarchyInfo* hinfo, const char* classname)
+static const char* vtkWrapPython_ClassModule(const HierarchyInfo* hinfo, const char* classname)
 {
   HierarchyEntry* entry;
 
@@ -81,7 +81,7 @@ static const char* vtkWrapPython_ClassModule(HierarchyInfo* hinfo, const char* c
 /* -------------------------------------------------------------------- */
 /* generate includes for any special types that are used */
 static void vtkWrapPython_GenerateSpecialHeaders(
-  FILE* fp, FileInfo* file_info, HierarchyInfo* hinfo)
+  FILE* fp, FileInfo* file_info, const HierarchyInfo* hinfo)
 {
   const char** types;
   int numTypes = 0;
@@ -443,7 +443,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
       data->IsAbstract = 0;
       for (j = 0; j < data->NumberOfFunctions; j++)
       {
-        FunctionInfo* func = data->Functions[j];
+        const FunctionInfo* func = data->Functions[j];
         if (func && func->IsPureVirtual)
         {
           data->IsAbstract = 1;

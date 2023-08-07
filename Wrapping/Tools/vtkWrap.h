@@ -33,18 +33,18 @@ extern "C"
    * IsArrayRef is for references to arrays.
    */
   /*@{*/
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVoid(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVoidFunction(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVoidPointer(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsCharPointer(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsPODPointer(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsZeroCopyPointer(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsArrayRef(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStdVector(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKObject(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKSmartPointer(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsSpecialObject(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsPythonObject(ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVoid(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVoidFunction(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVoidPointer(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsCharPointer(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsPODPointer(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsZeroCopyPointer(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsArrayRef(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStdVector(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKObject(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKSmartPointer(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsSpecialObject(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsPythonObject(const ValueInfo* val);
   /*@}*/
 
   /**
@@ -53,11 +53,11 @@ extern "C"
    * bool and char are considered to be numeric.
    */
   /*@{*/
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsObject(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsFunction(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStream(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsNumeric(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsString(ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsObject(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsFunction(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStream(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsNumeric(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsString(const ValueInfo* val);
   /*@}*/
 
   /**
@@ -65,10 +65,10 @@ extern "C"
    * bool and char are not considered to be integers.
    */
   /*@{*/
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsBool(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsChar(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsInteger(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsRealNumber(ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsBool(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsChar(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsInteger(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsRealNumber(const ValueInfo* val);
   /*@}*/
 
   /**
@@ -78,9 +78,9 @@ extern "C"
    * Arrays of pointers are not included in any of these.
    */
   /*@{*/
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsScalar(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsPointer(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsArray(ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsScalar(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsPointer(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsArray(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsNArray(ValueInfo* val);
   /*@}*/
 
@@ -88,10 +88,10 @@ extern "C"
    * Properties that can combine with other properties.
    */
   /*@{*/
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsNonConstRef(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsConstRef(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsRef(ValueInfo* val);
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsConst(ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsNonConstRef(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsConstRef(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsRef(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsConst(const ValueInfo* val);
   /*@}*/
 
   /**
@@ -99,7 +99,7 @@ extern "C"
    * NewInstance objects must be freed by the caller.
    */
   /*@{*/
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsNewInstance(ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsNewInstance(const ValueInfo* val);
   /*@}*/
 
   /**
@@ -108,14 +108,15 @@ extern "C"
    * name starts with "vtk".
    */
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKObjectBaseType(
-    HierarchyInfo* hinfo, const char* classname);
+    const HierarchyInfo* hinfo, const char* classname);
 
   /**
    * Check whether the class is not derived from vtkObjectBase.
    * If "hinfo" is NULL, it defaults to just checking if
    * the class starts with "vtk" and returns -1 if so.
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsSpecialType(HierarchyInfo* hinfo, const char* classname);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsSpecialType(
+    const HierarchyInfo* hinfo, const char* classname);
 
   /**
    * Check if the class is derived from superclass.
@@ -123,18 +124,19 @@ extern "C"
    * superclass will succeed.
    */
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsTypeOf(
-    HierarchyInfo* hinfo, const char* classname, const char* superclass);
+    const HierarchyInfo* hinfo, const char* classname, const char* superclass);
 
   /**
    * Check if the type of the value is an enum member of the class.
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsEnumMember(ClassInfo* data, ValueInfo* arg);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsEnumMember(ClassInfo* data, const ValueInfo* arg);
 
   /**
    * Check whether a class is wrapped.  If "hinfo" is NULL,
    * it just checks that the class starts with "vtk".
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsClassWrapped(HierarchyInfo* hinfo, const char* classname);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsClassWrapped(
+    const HierarchyInfo* hinfo, const char* classname);
 
   /**
    * Check whether the destructor is public
@@ -152,7 +154,7 @@ extern "C"
    * that the wrappers see the real types.
    */
   VTKWRAPPINGTOOLS_EXPORT void vtkWrap_ExpandTypedefs(
-    ClassInfo* data, FileInfo* finfo, HierarchyInfo* hinfo);
+    ClassInfo* data, FileInfo* finfo, const HierarchyInfo* hinfo);
 
   /**
    * Apply any using declarations that appear in the class.
@@ -161,26 +163,27 @@ extern "C"
    * will be brought into the class.
    */
   VTKWRAPPINGTOOLS_EXPORT void vtkWrap_ApplyUsingDeclarations(
-    ClassInfo* data, FileInfo* finfo, HierarchyInfo* hinfo);
+    ClassInfo* data, FileInfo* finfo, const HierarchyInfo* hinfo);
 
   /**
    * Merge members of all superclasses into the data structure.
    * The superclass header files will be read and parsed.
    */
   VTKWRAPPINGTOOLS_EXPORT void vtkWrap_MergeSuperClasses(
-    ClassInfo* data, FileInfo* finfo, HierarchyInfo* hinfo);
+    ClassInfo* data, FileInfo* finfo, const HierarchyInfo* hinfo);
 
   /**
    * Apply any hints about array sizes, e.g. hint that the
    * GetNumberOfComponents() method gives the tuple size.
    */
   VTKWRAPPINGTOOLS_EXPORT void vtkWrap_FindCountHints(
-    ClassInfo* data, FileInfo* finfo, HierarchyInfo* hinfo);
+    ClassInfo* data, FileInfo* finfo, const HierarchyInfo* hinfo);
 
   /**
    * Get the size of a fixed-size tuple
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_GetTupleSize(ClassInfo* data, HierarchyInfo* hinfo);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_GetTupleSize(
+    const ClassInfo* data, const HierarchyInfo* hinfo);
 
   /**
    * Apply any hints about methods that return a new object instance,
@@ -188,7 +191,7 @@ extern "C"
    * handled differently for such returned objects.
    */
   VTKWRAPPINGTOOLS_EXPORT void vtkWrap_FindNewInstanceMethods(
-    ClassInfo* data, HierarchyInfo* hinfo);
+    ClassInfo* data, const HierarchyInfo* hinfo);
 
   /**
    * Apply hints about methods that take file names or other
@@ -199,32 +202,32 @@ extern "C"
   /**
    * Get the name of a type.  The name will not include "const".
    */
-  VTKWRAPPINGTOOLS_EXPORT const char* vtkWrap_GetTypeName(ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT const char* vtkWrap_GetTypeName(const ValueInfo* val);
 
   /**
    * True if the method a constructor of the class.
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsConstructor(ClassInfo* c, FunctionInfo* f);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsConstructor(ClassInfo* c, const FunctionInfo* f);
 
   /**
    * True if the method a destructor of the class.
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsDestructor(ClassInfo* c, FunctionInfo* f);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsDestructor(const ClassInfo* c, const FunctionInfo* f);
 
   /**
    * True if the method is inherited from a base class.
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsInheritedMethod(ClassInfo* c, FunctionInfo* f);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsInheritedMethod(ClassInfo* c, const FunctionInfo* f);
 
   /**
    * Check if a method is from a SetVector method.
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsSetVectorMethod(FunctionInfo* f);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsSetVectorMethod(const FunctionInfo* f);
 
   /**
    * Check if a method is from a GetVector method.
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsGetVectorMethod(FunctionInfo* f);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsGetVectorMethod(const FunctionInfo* f);
 
   /**
    * Count the number of parameters that are wrapped.

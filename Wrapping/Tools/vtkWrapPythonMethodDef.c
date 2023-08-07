@@ -19,7 +19,7 @@
 /* prototypes for the methods used by the python wrappers */
 
 /* output the MethodDef table for this class */
-static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassInfo* data,
+static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const ClassInfo* data,
   FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum);
 
 /* print out any custom methods */
@@ -36,14 +36,14 @@ static void vtkWrapPython_ReplaceInvokeEvent(FILE* fp, const char* classname, Cl
 static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, ClassInfo* data);
 
 /* modify vtkCollection to be more Pythonic */
-static void vtkWrapPython_CollectionMethods(FILE* fp, const char* classname, ClassInfo* data);
+static void vtkWrapPython_CollectionMethods(FILE* fp, const char* classname, const ClassInfo* data);
 
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
 /* check for wrappability, flags may be VTK_WRAP_ARG or VTK_WRAP_RETURN */
 static int vtkWrapPython_IsValueWrappable(
-  ClassInfo* data, ValueInfo* val, HierarchyInfo* hinfo, int flags);
+  ClassInfo* data, ValueInfo* val, const HierarchyInfo* hinfo, int flags);
 
 /* weed out methods that will never be called */
 static void vtkWrapPython_RemovePrecededMethods(
@@ -276,7 +276,7 @@ static void vtkWrapPython_RemovePrecededMethods(
  * words, this poorly named function is "the big one". */
 
 void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* data,
-  FileInfo* finfo, HierarchyInfo* hinfo, int is_vtkobject, int do_constructors)
+  FileInfo* finfo, const HierarchyInfo* hinfo, int is_vtkobject, int do_constructors)
 {
   int i;
   int fnum;
@@ -347,7 +347,7 @@ void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* d
 
 /* -------------------------------------------------------------------- */
 /* output the MethodDef table for this class */
-static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassInfo* data,
+static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const ClassInfo* data,
   FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum)
 {
   /* output the method table, with pointers to each function defined above */
@@ -436,7 +436,7 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassI
 /* Check an arg to see if it is wrappable */
 
 static int vtkWrapPython_IsValueWrappable(
-  ClassInfo* data, ValueInfo* val, HierarchyInfo* hinfo, int flags)
+  ClassInfo* data, ValueInfo* val, const HierarchyInfo* hinfo, int flags)
 {
   static const unsigned int wrappableTypes[] = { VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT,
     VTK_PARSE_DOUBLE, VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, VTK_PARSE_INT,
@@ -573,7 +573,8 @@ static int vtkWrapPython_IsValueWrappable(
 /* -------------------------------------------------------------------- */
 /* Check a method to see if it is wrappable in python */
 
-int vtkWrapPython_MethodCheck(ClassInfo* data, FunctionInfo* currentFunction, HierarchyInfo* hinfo)
+int vtkWrapPython_MethodCheck(
+  ClassInfo* data, FunctionInfo* currentFunction, const HierarchyInfo* hinfo)
 {
   int i, n;
 
@@ -1017,7 +1018,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
 
 /* -------------------------------------------------------------------- */
 /* generate custom methods needed for vtkCollection */
-static void vtkWrapPython_CollectionMethods(FILE* fp, const char* classname, ClassInfo* data)
+static void vtkWrapPython_CollectionMethods(FILE* fp, const char* classname, const ClassInfo* data)
 {
   if (strcmp("vtkCollection", classname) == 0)
   {
