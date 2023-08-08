@@ -112,7 +112,7 @@ def docblock_from_example(example_url, label):
 
     e = decompose_exampleurl(example_url)
     if e is None:
-        logging.error("Could not decompose example url to its language, module and name. Skipping..",
+        logging.error("Could not decompose example url(%s) to its lang, module and name. Skipping..",
                       example_url)
         return None
     doc_block += " "*6 + "<a href=\"" + example_url + "\">\n"
@@ -150,11 +150,11 @@ def decompose_exampleurl(example_url):
     example_name_matcher = re.compile(example_name_matcher_str)
     example_name_match = example_name_matcher.match(example_url)
     if example_name_match is None:
-        logging.error("Could not parse example name from url:",
+        logging.error("Could not parse example name from url: %s %s",
                       example_url, example_name_matcher_str)
         return None
     if len(example_name_match.groups()) != 3:
-        logging.error("Example regex matcher could not find sufficient matches:",
+        logging.error("Example regex matcher could not find sufficient matches: %s",
                       example_name_match.groups())
         return None
     return [i for i in example_name_match.groups()]
