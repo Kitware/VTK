@@ -100,17 +100,32 @@ struct FDSParser
   vtkParseResult Result = vtkParseResult::EndOfLine;
   int LineNumber = 0; // current line
 };
+
+struct GridData
+{
+  vtkSmartPointer<vtkRectilinearGrid> Geometry;
+  unsigned int GridNb;
+};
+
+struct SliceData
+{
+  vtkSmartPointer<vtkRectilinearGrid> Geometry;
+  std::set<std::string> FileNames;
+};
 }
 
 struct vtkFDSReader::vtkInternals
 {
   // Maps used to retrieve filename(s) relative to
   // a given "leaf" in the data assembly
-  std::map<int, vtkSmartPointer<vtkRectilinearGrid>> Grids;
+  std::map<int, ::GridData> Grids;
   std::map<int, std::string> HRRFiles;
   std::map<int, std::string> DevcFiles;
-  std::map<int, std::set<std::string>> SliceFiles;
+  std::map<int, ::SliceData> Slices;
   std::map<int, std::set<std::string>> BoundaryFiles;
+
+  unsigned int MaxNbOfPartitions = 0;
+  unsigned int GridCount = 0;
 };
 
 // TODO : find the right place for this
@@ -129,7 +144,7 @@ public:
     }
 
     vtkNew<vtkPartitionedDataSet> pds;
-    pds->SetPartition(0, this->Internals->Grids.at(nodeId));
+    pds->SetPartition(0, this->Internals->Grids.at(nodeId).Geometry);
     this->OutputPDSC->SetPartitionedDataSet(nodeId, pds);
   }
 
@@ -243,6 +258,10 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     std::string rootNodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName);
     this->Assembly->SetNodeName(vtkDataAssembly::GetRootNode(), rootNodeName.c_str());
   }
+
+  // TODO : remove if we can decorellate assembly and partitionned dataset collection
+  this->Internals->MaxNbOfPartitions = 0;
+  this->Internals->GridCount = 0;
 
   FDSParser parser;
   parser.Init(stream);
@@ -422,7 +441,11 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       // Register grid and fill assembly
       const int idx = this->Assembly->AddNode(gridName.c_str(), baseNodes[GRIDS]);
       this->Assembly->AddDataSetIndex(idx, idx); // TODO : change ?
-      this->Internals->Grids.emplace(idx, grid);
+      ::GridData gridData;
+      gridData.GridNb = ++this->Internals->GridCount;
+      gridData.Geometry = grid;
+      this->Internals->Grids.emplace(idx, gridData);
+      this->Internals->MaxNbOfPartitions++;
     }
     else if (keyWord == "CSVF")
     {
@@ -460,6 +483,7 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
         // Register file path and fill assembly
         const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[DEVICES]);
         this->Internals->DevcFiles.emplace(idx, fileName);
+        this->Internals->MaxNbOfPartitions++;
       }
       else if (fileType == "hrr")
       {
@@ -483,6 +507,7 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
         const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[HRR]);
         this->Assembly->AddDataSetIndex(idx, idx); // TODO : change ?
         this->Internals->HRRFiles.emplace(idx, fileName);
+        this->Internals->MaxNbOfPartitions++;
       }
       else
       {
@@ -491,14 +516,69 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     }
     else if (keyWord == "SLCF" || keyWord == "SLCC")
     {
-      // TODO : check dimension
+      vtkNew<vtkRectilinearGrid> grid;
+
+      // Parse grid ID
+      std::string gridNb;
+      if (!parser.Parse(gridNb))
+      {
+        continue;
+      }
+
+      // Search for dimensions
+      // We can have a specified slice ID before that but it's not mandatory
+      std::string token;
+      do
+      {
+        if (!parser.Parse(token))
+        {
+          return 0;
+        }
+        cout << token << endl;
+      } while (token != "&");
+
+      int dimensions[3] = { 0, 0, 0 };
+      for (int dim = 0; dim < 3; dim++)
+      {
+        int start = 0;
+        if (!parser.Parse(start))
+        {
+          vtkErrorMacro(<< "Unable to parse slice start id at line " << parser.LineNumber);
+          return 0;
+        }
+
+        int end = 0;
+        if (!parser.Parse(end))
+        {
+          vtkErrorMacro(<< "Unable to parse slice end id at line " << parser.LineNumber);
+          return 0;
+        }
+
+        int dimension = end - start + 1;
+        if (dimension < 1)
+        {
+          vtkErrorMacro(
+            "Slice dimension " << dim << " invalid (0 or negative) at line " << parser.LineNumber);
+          return 0;
+        }
+        dimensions[dim] = dimension;
+        cout << dimension;
+      }
+      cout << endl;
+
+      grid->SetDimensions(dimensions);
+
+      // Generate X/Y/Z coordinates from associated grid
+      for (int dim = 0; dim < 3; dim++)
+      {
+      }
 
       if (!parser.DiscardLine())
       {
         continue;
       }
 
-      // Parse sf file path
+      // Parse .sf file path
       std::string fileName;
       if (!parser.Parse(fileName))
       {
@@ -514,8 +594,9 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
       const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[SLICES]);
       this->Assembly->AddDataSetIndex(idx, idx); // TODO : change ?
-      std::set<std::string>& filesAtIdx = this->Internals->SliceFiles[idx];
+      std::set<std::string>& filesAtIdx = this->Internals->Slices[idx].FileNames;
       filesAtIdx.emplace(fileName);
+      this->Internals->MaxNbOfPartitions++;
     }
     else if (keyWord == "BNDF")
     {
@@ -539,6 +620,7 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       this->Assembly->AddDataSetIndex(idx, idx); // TODO : change ?
       std::set<std::string>& filesAtIdx = this->Internals->BoundaryFiles[idx];
       filesAtIdx.emplace(fileName);
+      this->Internals->MaxNbOfPartitions++;
     }
 
     if (!parser.DiscardLine())
@@ -587,6 +669,7 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkDataAssembly> outAssembly;
   outAssembly->SubsetCopy(this->Assembly, selectedNodes);
   output->SetDataAssembly(outAssembly);
+  output->SetNumberOfPartitionedDataSets(this->Internals->MaxNbOfPartitions);
 
   int gridIdx =
     outAssembly->FindFirstNodeWithName("Grids", vtkDataAssembly::TraversalOrder::BreadthFirst);
