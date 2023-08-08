@@ -15,10 +15,10 @@ import itertools
 # -------------------------------------------------------------------------------------------------
 @dataclass(frozen=True)
 class refs:
-    raw_base_url: str = "https://raw.githubusercontent.com/sankhesh/vtk-examples/"
-    base_url: str = "https://kitware.github.io/vtk-examples/"
+    raw_base_url: str = "https://gitlab.kitware.com/sankhesh/vtk-examples/-/raw/"
+    base_url: str = "https://examples.vtk.org/"
     site_url: str = base_url + "site/"
-    hash: str = "104a1aed92827ecf58b609af4e0852a46c7ea73c"
+    hash: str = "87956c84921127b48390e72d2b222e421c786f0a"
     selectExamples: str = "src/Python/Utilities/SelectExamples.py"
     img_base: str =\
         "https://raw.githubusercontent.com/Kitware/vtk-examples/gh-pages/src/Testing/Baseline/"
