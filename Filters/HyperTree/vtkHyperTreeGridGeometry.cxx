@@ -1,19 +1,20 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridGeometryInternal1D.h"
-#include "vtkHyperTreeGridGeometryInternal2D.h"
-#include "vtkHyperTreeGridGeometryInternal3D.h"
-
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometry1DImpl.h"
+#include "vtkHyperTreeGridGeometry2DImpl.h"
+#include "vtkHyperTreeGridGeometry3DImpl.h"
+#include "vtkHyperTreeGridGeometryImpl.h"
 #include "vtkInformation.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <limits>
+#include <memory>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -22,60 +23,12 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
-{
-  // Create storage for corners of leaf cells
-  this->Points = vtkPoints::New();
-
-  // Create storage for untructured leaf cells
-  this->Cells = vtkCellArray::New();
-
-  // Default Locator is 0
-  this->Merging = false;
-
-  __trace_htg_geometry = (std::getenv("TRACE") != nullptr);
-}
-
-//------------------------------------------------------------------------------
-vtkHyperTreeGridGeometry::~vtkHyperTreeGridGeometry()
-{
-  if (this->Points)
-  {
-    this->Points->Delete();
-    this->Points = nullptr;
-  }
-  if (this->Cells)
-  {
-    this->Cells->Delete();
-    this->Cells = nullptr;
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  if (this->Points)
-  {
-    os << indent << "Points:\n";
-    this->Points->PrintSelf(os, indent.GetNextIndent());
-  }
-  else
-  {
-    os << indent << "Points: ( none )\n";
-  }
-
-  if (this->Cells)
-  {
-    os << indent << "Cells:\n";
-    this->Cells->PrintSelf(os, indent.GetNextIndent());
-  }
-  else
-  {
-    os << indent << "Cells: ( none )\n";
-  }
-
+  os << indent << "PassThroughCellIds: " << this->PassThroughCellIds << endl;
+  os << indent << "OriginalCellIdArrayName: " << this->OriginalCellIdArrayName << endl;
   os << indent << "Merging: " << this->Merging << endl;
 }
 
@@ -105,69 +58,46 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
-  // Create storage for corners of leaf cells
-  if (this->Points)
-  {
-    this->Points->Delete();
-  }
-  this->Points = vtkPoints::New();
+  vtkNew<vtkPoints> outPoints;
+  vtkNew<vtkCellArray> outCells;
 
-  // Create storage for untructured leaf cells
-  if (this->Cells)
-  {
-    this->Cells->Delete();
-  }
-  this->Cells = vtkCellArray::New();
+  std::unique_ptr<vtkHyperTreeGridGeometryImpl> implementation;
 
-  // create custom internal class
-  assert(this->Internal == nullptr);
+  // Create a custom internal class depending on the dimension of the input HTG.
   switch (dimension)
   {
     case 1:
-      this->Internal = new vtkHyperTreeGridGeometry::vtkInternal1D("vtkInternal1D", this->Merging,
-        input, this->Points, this->Cells, this->InData, this->OutData, this->PassThroughCellIds,
-        this->OriginalCellIdArrayName);
+      implementation = std::unique_ptr<vtkHyperTreeGridGeometry1DImpl>(
+        new vtkHyperTreeGridGeometry1DImpl(input, outPoints, outCells, this->InData, this->OutData,
+          this->PassThroughCellIds, this->OriginalCellIdArrayName));
       break;
     case 2:
-      this->Internal = new vtkHyperTreeGridGeometry::vtkInternal2D("vtkInternal2D", this->Merging,
-        input, this->Points, this->Cells, this->InData, this->OutData, this->PassThroughCellIds,
-        this->OriginalCellIdArrayName);
+      implementation = std::unique_ptr<vtkHyperTreeGridGeometry2DImpl>(
+        new vtkHyperTreeGridGeometry2DImpl(input, outPoints, outCells, this->InData, this->OutData,
+          this->PassThroughCellIds, this->OriginalCellIdArrayName));
       break;
     case 3:
-      this->Internal = new vtkHyperTreeGridGeometry::vtkInternal3D("vtkInternal3D", this->Merging,
-        input, output, this->Points, this->Cells, this->InData, this->OutData,
-        this->PassThroughCellIds, this->OriginalCellIdArrayName);
+      implementation = std::unique_ptr<vtkHyperTreeGridGeometry3DImpl>(
+        new vtkHyperTreeGridGeometry3DImpl(this->Merging, input, outPoints, outCells, this->InData,
+          this->OutData, this->PassThroughCellIds, this->OriginalCellIdArrayName));
       break;
     default:
       vtkErrorMacro("Incorrect dimension of input: " << dimension);
       return 0;
   } // switch ( dimension )
+
+  // Execute
+  implementation->GenerateGeometry();
+
   // Set output geometry and topology
-  output->SetPoints(this->Points);
+  output->SetPoints(outPoints);
   if (dimension == 1)
   {
-    output->SetLines(this->Cells);
+    output->SetLines(outCells);
   }
   else
   {
-    output->SetPolys(this->Cells);
-  }
-
-  if (this->Points)
-  {
-    this->Points->Delete();
-    this->Points = nullptr;
-  }
-  if (this->Cells)
-  {
-    this->Cells->Delete();
-    this->Cells = nullptr;
-  }
-
-  // clean custom internal class
-  if (this->Internal != nullptr)
-  {
-    delete this->Internal;
+    output->SetPolys(outCells);
   }
 
   return 1;

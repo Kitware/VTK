@@ -2,30 +2,18 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTreeGridGeometry
- * @brief   Hyper tree grid outer surface
+ * @brief   Generate vtkHyperTreeGrid external surface
  *
- * The value of the Orientation property associated with the HTG takes on the following meanings:
- * - in 1D:
- *   This value indicates the axis on which the HTG 1D is oriented.
- * - in 2D:
- *   This value indicates the plane on which the HTG 1D is oriented as:
- *   - value 0 describe a plane YZ (axis1=1 as Y, axis2=2 as Z);
- *   - value 1 describe a plane XZ (axis1=0 as X, axis2=2 as Z);
- *   - value 2 describe a plane XY (axis1=0 as X, axis2=1 as Y).
- * - in 3D: does not have to be, always XYZ
+ * Generate the external surface (vtkPolyData) of the input 1D/2D/3D vtkHyperTreeGrid.
+ * Delegate the work internally to different implementation classes depending on the
+ * dimension of the input HyperTreeGrid.
  *
- * The values of the coarse cell are taken into account in order to prune
- * when this coarse is masked or ghosted, this means that we ignore all
- * the child cells (coarse or leaves).
- * This is done even if one of his daughters would not have been explicitly
- * masked or ghosted.
- * Hence the importance of being consistent in terms of the value associated
- * with a coarse cell.
+ * In the HTG case the surface generated is:
+ * - 1D from a 1D HTG (segments)
+ * - 2D from a 2D and 3D HTG (faces)
  *
- * COMMENT EST CONSTRUIT LE PURE MASK ET QUEL EST SON APPORT ET UTILISATION/EXPLOITATION.
- *
- * LA NOTION D'INTERFACE PLAN PARALLELE ETC
- * mixed cell ...
+ * This filters also take account of interfaces, that will generate "cuts"
+ * over the generated segments/surfaces.
  *
  * @sa
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
@@ -36,7 +24,7 @@
  * This class was rewritten by Philippe Pebay, 2016
  * This class was modified by Jacques-Bernard Lekien and Guenole Harel, 2018
  * This class has been corrected and extended by Jacques-Bernard Lekien to fully support
- * the subcell notion of onion skin interface (mixted cell), 2023
+ * the subcell notion of onion skin interface (mixed cell), 2023
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
  */
@@ -64,9 +52,9 @@ public:
 
   ///@{
   /**
-   * Turn on/off merging of coincident points. Note that is merging is
-   * on, points with different point attributes (e.g., normals) are merged,
-   * which may cause rendering artifacts.
+   * Turn on/off merging of coincident points using a locator.
+   * Note that when merging is on, points with different point attributes
+   * (e.g., normals) are merged, which may cause rendering artifacts.
    */
   vtkSetMacro(Merging, bool);
   vtkGetMacro(Merging, bool);
@@ -99,8 +87,8 @@ public:
   //@}
 
 protected:
-  vtkHyperTreeGridGeometry();
-  ~vtkHyperTreeGridGeometry() override;
+  vtkHyperTreeGridGeometry() = default;
+  ~vtkHyperTreeGridGeometry() override = default;
 
   /**
    * For this algorithm the output is a vtkPolyData instance
@@ -113,17 +101,7 @@ protected:
   int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
-   * Storage for points of output unstructured mesh
-   */
-  vtkPoints* Points;
-
-  /**
-   * Storage for cells of output unstructured mesh
-   */
-  vtkCellArray* Cells;
-
-  /**
-   * Boolean for passing cell ids to poly data
+   * Boolean for passing input original cell ids to the output poly data
    *
    * default is false
    */
@@ -135,21 +113,16 @@ protected:
   std::string OriginalCellIdArrayName = "vtkOriginalCellIds";
 
   /**
-   *JB Un locator est utilise afin de produire un maillage avec moins
-   *JB de points. Le gain en 3D est de l'ordre d'un facteur 4 !
+   * If true, a vtkIncrementalPointLocator is used when inserting
+   * new points to the output.
+   *
+   * XXX: Only used in the 3D case.
    */
-  bool Merging;
+  bool Merging = false;
 
 private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) = delete;
   void operator=(const vtkHyperTreeGridGeometry&) = delete;
-
-public: // pas pour une bonne raison
-  class vtkInternal;
-  class vtkInternal1D;
-  class vtkInternal2D;
-  class vtkInternal3D;
-  vtkInternal* Internal = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END

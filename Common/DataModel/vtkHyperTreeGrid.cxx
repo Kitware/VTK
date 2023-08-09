@@ -120,7 +120,6 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   // Masked primal leaves
   this->Mask = nullptr;
   this->PureMask = nullptr;
-  this->InitPureMask = false;
 
   // No interface by default
   this->HasInterface = false;
@@ -368,7 +367,6 @@ void vtkHyperTreeGrid::PrintSelf(ostream& os, vtkIndent indent)
   {
     this->PureMask->PrintSelf(os, indent.GetNextIndent());
   }
-  os << indent << "InitPureMask: " << (this->InitPureMask ? "true" : "false") << endl;
 
   os << indent << "HasInterface: " << (this->HasInterface ? "true" : "false") << endl;
   if (this->WithCoordinates)
@@ -447,7 +445,6 @@ void vtkHyperTreeGrid::CopyEmptyStructure(vtkDataObject* ds)
   this->NumberOfChildren = htg->NumberOfChildren;
   this->DepthLimiter = htg->DepthLimiter;
   this->TransposedRootIndexing = htg->TransposedRootIndexing;
-  this->InitPureMask = htg->InitPureMask;
   this->HasInterface = htg->HasInterface;
   this->SetInterfaceNormalsName(htg->InterfaceNormalsName);
   this->SetInterfaceInterceptsName(htg->InterfaceInterceptsName);
@@ -489,7 +486,6 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
   this->NumberOfChildren = htg->NumberOfChildren;
   this->DepthLimiter = htg->DepthLimiter;
   this->TransposedRootIndexing = htg->TransposedRootIndexing;
-  this->InitPureMask = htg->InitPureMask;
   this->HasInterface = htg->HasInterface;
   this->SetInterfaceNormalsName(htg->InterfaceNormalsName);
   this->SetInterfaceInterceptsName(htg->InterfaceInterceptsName);
@@ -1196,7 +1192,6 @@ void vtkHyperTreeGrid::DeepCopy(vtkDataObject* src)
       this->PureMask = vtkBitArray::New();
     }
     this->PureMask->DeepCopy(htg->PureMask);
-    this->InitPureMask = htg->InitPureMask;
   }
 
   this->CellData->DeepCopy(htg->GetCellData());
@@ -1243,7 +1238,6 @@ void vtkHyperTreeGrid::DeepCopy(vtkDataObject* src)
 //------------------------------------------------------------------------------
 void vtkHyperTreeGrid::CleanPureMask()
 {
-  this->InitPureMask = false;
   if (this->PureMask)
   {
     this->PureMask->Delete();
@@ -1265,7 +1259,7 @@ bool vtkHyperTreeGrid::RecursivelyInitializePureMask(
   // Check masked
   if (mask)
   {
-    // If the masked cell then the cell is no pure material cell,
+    // If the cell is masked then the cell is not a pure material cell,
     // set PureMask to true
     this->PureMask->SetTuple1(id, true);
     return true;
@@ -1277,11 +1271,17 @@ bool vtkHyperTreeGrid::RecursivelyInitializePureMask(
     // Check exist material interface intercepts
     if (intercepts)
     {
+      if (intercepts->GetNumberOfComponents() != 3)
+      {
+        vtkErrorMacro("Intercepts array must have 3 components, but has "
+          << intercepts->GetNumberOfComponents());
+        return mask;
+      }
       double values[3];
       intercepts->GetTuple(id, values);
       // If the type value is less than 2 then the cell has
-      // an or two interface, so it is no pure material cell
-      // (this cell is mixted), set PureMask to true ;
+      // one or two interfaces, it is not a pure material cell
+      // (this cell is mixed), set PureMask to true;
       // else set PureMask to false
       mask = (values[2] < 2);
     }
@@ -1289,8 +1289,7 @@ bool vtkHyperTreeGrid::RecursivelyInitializePureMask(
     return mask;
   }
 
-  // Check is coarse (not leaf)
-  // Iterate over all children
+  // The cell is coarse, iterate over all children
   unsigned int numChildren = this->GetNumberOfChildren();
   for (unsigned int child = 0; child < numChildren; ++child)
   {
@@ -1313,17 +1312,16 @@ bool vtkHyperTreeGrid::RecursivelyInitializePureMask(
 }
 
 //------------------------------------------------------------------------------
-vtkBitArray* vtkHyperTreeGrid::GetPureMask(bool forced)
+vtkBitArray* vtkHyperTreeGrid::GetPureMask()
 {
   // Check whether a pure material mask was initialized
-  if (this->InitPureMask)
+  // If not, then create one
+  if (this->PureMask)
   {
     // Return existing pure material mask
     return this->PureMask;
   }
-
-  // If not, then create one
-  if (this->PureMask == nullptr)
+  else
   {
     this->PureMask = vtkBitArray::New();
   }
@@ -1340,16 +1338,19 @@ vtkBitArray* vtkHyperTreeGrid::GetPureMask(bool forced)
   if (this->HasInterface)
   {
     intercepts = this->GetCellData()->GetArray(this->InterfaceInterceptsName);
-    if (intercepts && intercepts->GetNumberOfComponents() != 3)
-    {
-      intercepts = nullptr;
-    }
     if (intercepts)
     {
-      vtkDataArray* normals = this->GetCellData()->GetArray(this->InterfaceNormalsName);
-      if (!normals || normals->GetNumberOfComponents() != 3)
+      if (intercepts->GetNumberOfComponents() != 3)
       {
         intercepts = nullptr;
+      }
+      else
+      {
+        vtkDataArray* normals = this->GetCellData()->GetArray(this->InterfaceNormalsName);
+        if (!normals || normals->GetNumberOfComponents() != 3)
+        {
+          intercepts = nullptr;
+        }
       }
     }
   }
@@ -1366,9 +1367,6 @@ vtkBitArray* vtkHyperTreeGrid::GetPureMask(bool forced)
     // Recursively initialize pure material mask
     this->RecursivelyInitializePureMask(cursor, intercepts);
   }
-
-  // Keep track of the fact that a pure material mask now exists
-  this->InitPureMask = true;
 
   // Return created pure material mask
   return this->PureMask;

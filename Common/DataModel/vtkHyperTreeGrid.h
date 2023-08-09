@@ -568,7 +568,7 @@ public:
    * A second call to this same method will be free because this array is stored
    * permanently in memory, as long as the CleanPureMask method is not called.
    */
-  vtkBitArray* GetPureMask(bool forced = false);
+  vtkBitArray* GetPureMask();
 
   /**
    * Return hard-coded bitcode correspondng to child mask
@@ -843,7 +843,6 @@ protected:
 
   vtkBitArray* Mask;
   vtkBitArray* PureMask;
-  bool InitPureMask;
 
   bool HasInterface;
   char* InterfaceNormalsName;

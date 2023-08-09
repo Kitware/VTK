@@ -7,10 +7,6 @@ set(classes
   vtkHyperTreeGridDepthLimiter
   vtkHyperTreeGridEvaluateCoarse
   vtkHyperTreeGridGeometry
-  vtkHyperTreeGridGeometryInternal
-  vtkHyperTreeGridGeometryInternal1D
-  vtkHyperTreeGridGeometryInternal2D
-  vtkHyperTreeGridGeometryInternal3D
   vtkHyperTreeGridGradient
   vtkHyperTreeGridPlaneCutter
   vtkHyperTreeGridThreshold
@@ -19,6 +15,15 @@ set(classes
   vtkImageDataToHyperTreeGrid
 )
 
+set(private_classes
+  vtkHyperTreeGridGeometryImpl
+  vtkHyperTreeGridGeometry1DImpl
+  vtkHyperTreeGridGeometry2DImpl
+  vtkHyperTreeGridGeometry3DImpl
+  vtkHyperTreeGridGeometrySmallDimensionsImpl
+)
+
 vtk_module_add_module(VTK::FiltersHyperTree
-  CLASSES ${classes})
+  CLASSES ${classes}
+  PRIVATE_CLASSES ${private_classes})
 vtk_add_test_mangling(VTK::FiltersHyperTree)

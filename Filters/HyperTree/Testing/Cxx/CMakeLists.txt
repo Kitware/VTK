@@ -10,6 +10,10 @@
 #   TestHyperTreeGridToDualGrid.cxx
 
 set(test_sources
+  TestHyperTreeGrid2DInterfaceShift.cxx
+  TestHyperTreeGrid3DIntercepts.cxx
+  TestHyperTreeGrid3DInterface.cxx
+  TestHyperTreeGrid3DSimpleInterface.cxx
   TestHyperTreeGridBinary2D.cxx
   TestHyperTreeGridBinary2DAxisClipBox.cxx
   TestHyperTreeGridBinary2DAxisClipEllipse.cxx
