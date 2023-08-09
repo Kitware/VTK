@@ -260,8 +260,10 @@ class TestVTKFiles:
     def CheckGuard(self):
         guardre = r"^#ifndef\s+([^ ]*)_h$"
         guardsetre = r"^#define\s+([^ ]*)_h$"
+        guardpragmare = r"^#pragma\s+once$"
         guardrex = re.compile(guardre)
         guardsetrex = re.compile(guardsetre)
+        guardpragmarex = re.compile(guardpragmare)
 
         guard = None
         guard_set = None
@@ -274,9 +276,13 @@ class TestVTKFiles:
                     guard_set = gs.group(1)
                 break
             g = guardrex.match(line)
+            gp = guardpragmarex.match(line)
             if g:
                 guard = g.group(1)
                 expect_trigger = True
+            elif gp:
+                guard = self.FileName
+                guard_set = guard
 
         if not guard or not guard_set:
             self.Print("File: %s is missing a header guard." % self.FileName)

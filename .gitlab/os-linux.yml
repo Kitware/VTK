@@ -94,7 +94,7 @@
 
 .fedora34:
     extends: .linux
-    image: "kitware/vtk:ci-fedora34-20230324"
+    image: "kitware/vtk:ci-fedora34-20230619"
 
 .el7_mindeps:
     extends: .linux
@@ -229,6 +229,14 @@
     variables:
         CMAKE_CONFIGURATION: fedora34_mpi_python_qt_tbb_ext_vtk
 
+.fedora34_mpi_ospray_python_qt_tbb:
+    extends:
+        - .fedora34
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora34_mpi_ospray_python_qt_tbb
+
 .fedora34_mpi_python_qt_stdthread:
     extends:
         - .fedora34
@@ -344,6 +352,13 @@
     tags:
         - docker
         - linux-x86_64
+        - x11
+        - vtk
+
+.linux_fast_tester_tags:
+    tags:
+        - docker
+        - linux-x86_64-v3
         - x11
         - vtk
 

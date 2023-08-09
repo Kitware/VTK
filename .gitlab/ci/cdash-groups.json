@@ -38,12 +38,7 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora34_mpi_renderless]"
-        },
-        {
-            "group": "master",
-            "site": "gitlab-ci",
-            "buildname": "[fedora34_mpi_renderless_ext_vtk]"
+            "buildname": "[fedora34_mpi_ospray_python_qt_tbb]"
         },
         {
             "group": "master",
@@ -69,6 +64,16 @@
             "group": "master",
             "site": "gitlab-ci",
             "buildname": "[fedora34_mpi_python_vtkmoverride]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora34_mpi_renderless]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora34_mpi_renderless_ext_vtk]"
         },
         {
             "group": "master",

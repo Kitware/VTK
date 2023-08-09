@@ -188,6 +188,27 @@ vtk:fedora34-mpi-offscreen-osmesa-python:test-ext:
         - fedora34-mpi-offscreen-osmesa-python:test
     timeout: 90 minutes
 
+fedora34-mpi-ospray-python-qt-tbb:build:
+    extends:
+        - .fedora34_mpi_ospray_python_qt_tbb
+        - .cmake_build_linux
+        - .linux_fast_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    timeout: 90 minutes
+
+fedora34-mpi-ospray-python-qt-tbb:test:
+    extends:
+        - .fedora34_mpi_ospray_python_qt_tbb
+        - .cmake_test_linux
+        - .linux_fast_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - fedora34-mpi-ospray-python-qt-tbb:build
+    needs:
+        - fedora34-mpi-ospray-python-qt-tbb:build
+
 # fedora34-java-mpi-qt-tbb:build:
 #     extends:
 #         - .fedora34_java_mpi_qt_tbb

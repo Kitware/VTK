@@ -92,7 +92,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       return;
     }
 
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
     RTW::Backend* backend = orn->GetBackend();
     if (backend == nullptr)
     {

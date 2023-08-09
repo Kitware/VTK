@@ -12,9 +12,9 @@
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 #include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_2_0
-#include "vtkInformation.h"
-#include "vtkOSPRayCache.h" // For common cache infrastructure
-#include "vtkRenderer.h"
+#include "vtkInformation.h"      // For deprecated function
+#include "vtkOSPRayCache.h"      // For common cache infrastructure
+#include "vtkRenderer.h"         // For deprecated function
 #include "vtkRendererNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
@@ -33,7 +33,6 @@ class vtkInformationStringKey;
 class vtkMatrix4x4;
 class vtkOSPRayRendererNodeInternals;
 class vtkOSPRayMaterialLibrary;
-class vtkRenderer;
 
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayRendererNode : public vtkRendererNode
 {
