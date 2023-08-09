@@ -1,4 +1,4 @@
-vtk_module_find_package(
+vtk_module_find_package(PRIVATE_IF_SHARED
   PACKAGE Threads)
 
 set(classes

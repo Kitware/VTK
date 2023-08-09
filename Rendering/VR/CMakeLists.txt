@@ -52,7 +52,8 @@ vtk_object_factory_configure(
   EXPORT_MACRO "VTKRENDERINGVR_EXPORT")
 
 if (VTK_ENABLE_VR_COLLABORATION)
-  vtk_module_find_package(PACKAGE ZeroMQ)
+  vtk_module_find_package(PRIVATE_IF_SHARED
+    PACKAGE ZeroMQ)
   list(APPEND classes vtkVRCollaborationClient)
 endif()
 

@@ -1,4 +1,5 @@
-vtk_module_find_package(PACKAGE GDAL)
+vtk_module_find_package(PRIVATE_IF_SHARED
+  PACKAGE GDAL)
 
 set(classes
   vtkGDAL

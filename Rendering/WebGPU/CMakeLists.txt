@@ -242,7 +242,8 @@ else()
       "utils_metal.mm"
     )
   endif()
-  vtk_module_find_package(PACKAGE SDL2)
+  vtk_module_find_package(PRIVATE_IF_SHARED
+    PACKAGE SDL2)
   vtk_module_find_package(PACKAGE Dawn)
   vtk_module_compile_features(VTK::RenderingWebGPU
     PUBLIC

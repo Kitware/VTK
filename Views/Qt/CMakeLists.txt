@@ -8,7 +8,7 @@ set(classes
   vtkQtView)
 
 include(vtkQt)
-vtk_module_find_package(
+vtk_module_find_package(PRIVATE_IF_SHARED
   PACKAGE     "Qt${vtk_qt_major_version}"
   COMPONENTS  Widgets
   FORWARD_VERSION_REQ MINOR

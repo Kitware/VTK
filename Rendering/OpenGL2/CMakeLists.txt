@@ -415,7 +415,8 @@ elseif (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework Cocoa")
 elseif (VTK_USE_WIN32_OPENGL)
   # vtkWin32OpenGLDXRenderWindow requires D3D.
-  vtk_module_find_package(PACKAGE DirectX)
+  vtk_module_find_package(PRIVATE_IF_SHARED
+    PACKAGE DirectX)
   vtk_module_link(VTK::RenderingOpenGL2 PRIVATE DirectX::d3d11 DirectX::dxgi)
 endif ()
 
