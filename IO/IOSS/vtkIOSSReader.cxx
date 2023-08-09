@@ -1453,7 +1453,7 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
       throw std::runtime_error(
         "Failed to open database " + this->GetRawFileName(DatabaseHandle{ dbasename, fileid }));
     }
-    dbase->set_surface_split_type(Ioss::SPLIT_BY_TOPOLOGIES);
+    dbase->set_surface_split_type(Ioss::SPLIT_BY_ELEMENT_BLOCK);
 
     // note: `Ioss::Region` constructor may throw exception.
     auto region = std::make_shared<Ioss::Region>(dbase.get());
