@@ -17,12 +17,19 @@ int TestSpatioTemporalHarmonicsSource(int, char*[])
   vtkNew<vtkSpatioTemporalHarmonicsSource> source;
   source->SetWholeExtent(-MAX_EXTENT, MAX_EXTENT, -MAX_EXTENT, MAX_EXTENT, -MAX_EXTENT, MAX_EXTENT);
 
-  source->AddHarmonic(1.0, 1.0, 1.0, 1.0, 1.0, 0.0);
   source->ClearHarmonics();
-
   source->AddHarmonic(1.0, 1.0, 1.0, 0.0, 0.0, 0.0);
   source->AddHarmonic(2.0, 1.0, 0.0, 1.0, 0.0, 0.0);
   source->AddHarmonic(4.0, 1.0, 0.0, 0.0, 1.0, 0.0);
+
+  source->ClearTimeStepValues();
+  source->AddTimeStepValue(0.0);
+  source->AddTimeStepValue(1.0);
+  source->AddTimeStepValue(2.0);
+
+  source->Update();
+  source->UpdateTimeStep(1.0);
+  source->Update();
 
   // Create mapper and actor
   vtkNew<vtkDataSetMapper> mapper;
