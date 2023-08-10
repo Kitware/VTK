@@ -28,6 +28,7 @@ vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestRandomHyperTreeGridSource.cxx
   TestRectangularButtonSource.cxx,NO_VALID
   TestRegularPolygonSource.cxx,NO_VALID
+  TestSpatioTemporalHarmonicsSource.cxx
   TestSphereSource.cxx,NO_VALID
   TestSuperquadricSource.cxx,NO_VALID
   TestTessellatedBoxSource.cxx,NO_VALID

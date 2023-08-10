@@ -36,6 +36,7 @@ set(classes
   vtkRectangularButtonSource
   vtkRegularPolygonSource
   vtkSelectionSource
+  vtkSpatioTemporalHarmonicsSource
   vtkSphereSource
   vtkSuperquadricSource
   vtkTessellatedBoxSource
