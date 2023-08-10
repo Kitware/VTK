@@ -5,6 +5,7 @@
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkImageData.h"
 #include "vtkIntArray.h"
 #include "vtkLogger.h"
@@ -12,6 +13,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkRandomHyperTreeGridSource.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
@@ -188,6 +190,19 @@ void TestMultiBlock()
     vtkLog(ERROR, "Test fails for vtkMultiBlockDataSet");
   }
 }
+
+void TestHyperTreeGrid()
+{
+  vtkNew<vtkRandomHyperTreeGridSource> htgSource;
+  htgSource->SetSeed(1);
+  htgSource->SetMaxDepth(3);
+  htgSource->SetDimensions(3, 3, 3);
+  htgSource->Update();
+
+  vtkHyperTreeGrid* htg = htgSource->GetHyperTreeGridOutput();
+  TestDataObject(htg, vtkDataObject::CELL);
+}
+
 };
 
 int TestFieldDataToDataSetAttribute(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -196,5 +211,6 @@ int TestFieldDataToDataSetAttribute(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   FieldDataToAttributeDataUtils::TestRowData();
   FieldDataToAttributeDataUtils::TestVertexEdgeData();
   FieldDataToAttributeDataUtils::TestMultiBlock();
+  FieldDataToAttributeDataUtils::TestHyperTreeGrid();
   return EXIT_SUCCESS;
 }
