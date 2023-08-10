@@ -1,4 +1,0 @@
-## Make QML item fully compatible with QT
-
-The existing QML integration is not fully compatible with all the features Qt provides to QML developers.
-Rework the QML integration to behave similarly to QQuickFrameBufferObject
