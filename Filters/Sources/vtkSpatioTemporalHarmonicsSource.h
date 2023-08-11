@@ -9,9 +9,9 @@
  * a vtkSpatioTemporalHarmonicsAttributes on the generated image.
  * It also allows generation of time steps.
  *
- * Note that if no harmonics is set, the source will apply the
- * filter with default harmonics. Also, if no time values are set,
- * the source will create 20 time steps.
+ * Note that default harmonics and time step values are set for
+ * common usage. Make sure to clear them before adding your own
+ * values.
  *
  * @sa vtkImageData vtkSpatioTemporalHarmonicsAttribute
  */

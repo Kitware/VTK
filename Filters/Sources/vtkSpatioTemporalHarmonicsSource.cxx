@@ -178,11 +178,6 @@ int vtkSpatioTemporalHarmonicsSource::RequestData(vtkInformation* vtkNotUsed(req
   vtkImageData* output = vtkImageData::GetData(outInfo);
   output->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 
-  if (!this->Internals->HarmonicsFilter->HasHarmonics())
-  {
-    this->ResetHarmonics();
-  }
-
   this->Internals->HarmonicsFilter->SetInputData(output);
   this->Internals->HarmonicsFilter->UpdateTimeStep(timeValue);
   this->Internals->HarmonicsFilter->Update();
