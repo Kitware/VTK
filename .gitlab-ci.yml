@@ -1513,7 +1513,7 @@ wheel-windows-python37-x86_64:test:
 
 wheel-windows-python37-x86_64-osmesa:build:
     extends:
-        - .wheel_windows37_x86_64
+        - .wheel_windows37_x86_64_osmesa
         - .cmake_build_wheel_windows
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
@@ -1521,7 +1521,7 @@ wheel-windows-python37-x86_64-osmesa:build:
 
 wheel-windows-python37-x86_64-osmesa:test:
     extends:
-        - .wheel_windows37_x86_64
+        - .wheel_windows37_x86_64_osmesa
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .merged_only
