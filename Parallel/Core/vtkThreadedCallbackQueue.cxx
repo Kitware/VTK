@@ -171,7 +171,10 @@ void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
         }
       }
 
-      this->NumberOfThreads = numberOfThreads;
+      {
+        std::lock_guard<std::mutex> lock(this->Mutex);
+        this->NumberOfThreads = numberOfThreads;
+      }
       this->ConditionVariable.notify_all();
       this->Sync(this->NumberOfThreads);
 
