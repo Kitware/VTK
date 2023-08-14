@@ -633,7 +633,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::Edges::Dec",
-      "in vec4 edgeEqn[3];\n"
+      "noperspective in vec4 edgeEqn[3];\n"
       "uniform float lineWidth;\n"
       "uniform vec3 edgeColor;\n"
       "uniform float edgeOpacity;\n");
