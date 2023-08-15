@@ -4,7 +4,6 @@ cmake_minimum_required(VERSION 3.12)
 set(python_url_root "https://www.paraview.org/files/dependencies/python-for-wheels")
 
 # Python version specifics.
-set(python37_version "3.7.9") # Source-only releases after this.
 set(python38_version "3.8.10") # Source-only releases after this.
 set(python39_version "3.9.13") # Source-only releases after this.
 set(python310_version "3.10.11") # Source-only releases after this.
@@ -12,14 +11,12 @@ set(python311_version "3.11.6")
 set(python312_version "3.12.0")
 
 # Hashes for various deployments.
-set(python37_windows_x86_64_hash "edd1b8c491635939f7b7e538650607db8307d6dfd3fef043ec5bc21ce4035700")
 set(python38_windows_x86_64_hash "d4e7e83de0db659697eea034dd2b1620ff26ac7062709b60d723307a68aa5d81")
 set(python39_windows_x86_64_hash "004683810c0e0b4ff10025392ac95e699e99d8c3566f415aa7fa35c6d4882f88")
 set(python310_windows_x86_64_hash "b02692c7905dea2829e4204eab2343b226f0c9f244df89502ba8d483d5f8f9d3")
 set(python311_windows_x86_64_hash "2a8393087e0cac9e3c0eeb69a3a34f3b01734266a0bb276621aec7a159b576b6")
 set(python312_windows_x86_64_hash "782f1b9db7e8ff78c928ea94861549820c8abc70cde76a3dfb7ef9e54a06e326")
 
-set(python37_macos_x86_64_hash "1d31a228ac921c13787f74e0b9e7a04ae5806e70c5226e23711840bf0f0c9e90")
 set(python38_macos_x86_64_hash "8c49fa50d34529e58769d3901e9e079554424d59bc1aa7dceb82c8c63f09cbc1")
 set(python39_macos_arm64_hash "e6b95bb926feff99e38bcd4986feb8897b36170a6c6c01b36da7d8e3daac5b6b")
 set(python39_macos_x86_64_hash "357fffe2efe80eef7136362db2e6616341c046dac5e26614478c7c0248c16709")
@@ -42,9 +39,7 @@ else ()
     "Unknown platform for Python")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "37_")
-  set(python_version 37)
-elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "38_")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "38_")
   set(python_version 38)
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "39_")
   set(python_version 39)
