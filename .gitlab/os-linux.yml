@@ -26,33 +26,11 @@
     extends: .manylinux2014_x86_64
     image: "quay.io/pypa/manylinux_2_28_x86_64"
 
-.wheel_linux36_x86_64:
-    extends: .manylinux2014_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_linux36_x86_64
-        PYTHON_PREFIX: /opt/python/cp36-cp36m
-
-.wheel_linux36_x86_64_osmesa:
-    extends: .wheel_linux36_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_linux36_x86_64_osmesa
-
 .wheel_linux_egl_addon:
     variables:
         # Exclude the built development EGL libraries from the wheel; the user
         # must provide them.
         WHEEL_EXCLUSIONS: "--exclude libEGL.so.1 --exclude libglapi.so.0 --exclude libgbm.so.1"
-
-.wheel_linux36_x86_64_egl:
-    extends:
-        - .wheel_linux36_x86_64
-        - .manylinux_2_28_x86_64
-        - .wheel_linux_egl_addon
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_linux36_x86_64_egl
 
 .wheel_linux37_x86_64:
     extends: .manylinux2014_x86_64

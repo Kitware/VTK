@@ -53,13 +53,6 @@
     variables:
         VTK_INSTALL: 1
 
-.wheel_macos36_x86_64:
-    extends: .wheel_macos_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_macos36_x86_64
-        PYTHON_VERSION_SUFFIX: "3.6"
-
 .wheel_macos37_x86_64:
     extends: .wheel_macos_x86_64
 
