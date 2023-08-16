@@ -606,49 +606,45 @@ bool vtkSelectPolyData::IsBoundaryEdge(
   vtkIdType pointId1, vtkIdType pointId2, vtkIdList* edgePointIds)
 {
   vtkIdType numMeshLoopPts = edgePointIds->GetNumberOfIds();
-  for (vtkIdType edgePointIndex = 0; edgePointIndex < numMeshLoopPts; edgePointIndex++)
+  for (vtkIdType edgePointIndex = 0; edgePointIndex < numMeshLoopPts; ++edgePointIndex)
   {
     vtkIdType edgePointId = edgePointIds->GetId(edgePointIndex);
     if (edgePointId == pointId1)
     {
-      if (edgePointIndex < numMeshLoopPts - 1)
+      vtkIdType wrappedEdgePointIndex = (edgePointIndex + 1) % numMeshLoopPts;
+      vtkIdType edgePointIdAfter = edgePointIds->GetId(wrappedEdgePointIndex);
+      if (edgePointIdAfter == pointId2)
       {
-        vtkIdType edgePointIdAfter = edgePointIds->GetId(edgePointIndex + 1);
-        if (edgePointIdAfter == pointId2)
-        {
-          // boundary edge
-          return true;
-        }
+        // boundary edge
+        return true;
       }
-      if (edgePointIndex > 0)
+
+      // Conceptually (edgePointIndex - 1) % numMeshLoopPts, but avoiding negatives.
+      wrappedEdgePointIndex = (edgePointIndex > 0) ? (edgePointIndex - 1) : (numMeshLoopPts - 1);
+      vtkIdType edgePointIdBefore = edgePointIds->GetId(wrappedEdgePointIndex);
+      if (edgePointIdBefore == pointId2)
       {
-        vtkIdType edgePointIdBefore = edgePointIds->GetId(edgePointIndex - 1);
-        if (edgePointIdBefore == pointId2)
-        {
-          // boundary edge
-          return true;
-        }
+        // boundary edge
+        return true;
       }
     }
     if (edgePointId == pointId2)
     {
-      if (edgePointIndex < numMeshLoopPts - 1)
+      vtkIdType wrappedEdgePointIndex = (edgePointIndex + 1) % numMeshLoopPts;
+      vtkIdType edgePointIdAfter = edgePointIds->GetId(wrappedEdgePointIndex);
+      if (edgePointIdAfter == pointId1)
       {
-        vtkIdType edgePointIdAfter = edgePointIds->GetId(edgePointIndex + 1);
-        if (edgePointIdAfter == pointId1)
-        {
-          // boundary edge
-          return true;
-        }
+        // boundary edge
+        return true;
       }
-      if (edgePointIndex > 0)
+
+      // Conceptually (edgePointIndex - 1) % numMeshLoopPts, but avoiding negatives.
+      wrappedEdgePointIndex = (edgePointIndex > 0) ? (edgePointIndex - 1) : (numMeshLoopPts - 1);
+      vtkIdType edgePointIdBefore = edgePointIds->GetId(wrappedEdgePointIndex);
+      if (edgePointIdBefore == pointId1)
       {
-        vtkIdType edgePointIdBefore = edgePointIds->GetId(edgePointIndex - 1);
-        if (edgePointIdBefore == pointId1)
-        {
-          // boundary edge
-          return true;
-        }
+        // boundary edge
+        return true;
       }
     }
   }
