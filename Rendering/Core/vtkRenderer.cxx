@@ -1479,19 +1479,37 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow* renwin)
 // Given a pixel location, return the Z value
 double vtkRenderer::GetZ(int x, int y)
 {
-  float* zPtr;
-  double z;
+  double z = 1.0;
 
-  zPtr = this->RenderWindow->GetZbufferData(x, y, x, y);
-  if (zPtr)
+  // use a hardware selector beacuse calling this->RenderWindow->
+  // GetZbufferData(int,int,int,int) directly from here always
+  // results in a z-buffer value of 1.0, meaning it is using a
+  // cleared depth buffer.
   {
-    z = *zPtr;
-    delete[] zPtr;
+    vtkNew<vtkHardwareSelector> hsel;
+    hsel->SetActorPassOnly(true);
+    hsel->SetCaptureZValues(true);
+    hsel->SetRenderer(this);
+    hsel->SetArea(x, y, x, y);
+    vtkSmartPointer<vtkSelection> sel;
+    sel.TakeReference(hsel->Select());
+
+    // find the closest z-buffer value
+    if (sel && sel->GetNode(0))
+    {
+      double closestDepth = 1.0;
+      unsigned int numPicked = sel->GetNumberOfNodes();
+      for (unsigned int pIdx = 0; pIdx < numPicked; pIdx++)
+      {
+        vtkSelectionNode* selnode = sel->GetNode(pIdx);
+        double adepth = selnode->GetProperties()->Get(vtkSelectionNode::ZBUFFER_VALUE());
+        if (adepth < closestDepth)
+          closestDepth = adepth;
+      }
+      z = closestDepth;
+    }
   }
-  else
-  {
-    z = 1.0;
-  }
+
   return z;
 }
 
