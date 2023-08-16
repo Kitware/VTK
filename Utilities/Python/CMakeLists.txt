@@ -47,13 +47,6 @@ if (NOT VTK_LEGACY_SILENT AND vtk_python_version VERSION_LESS vtk_python_version
     "Python ${vtk_python_version} support is deprecated, use Python ${vtk_python_version_support}+")
 endif ()
 
-# Check Python is compatible with SPDX generation if needed
-if (VTK_GENERATE_SPDX AND ${Python3_VERSION} VERSION_LESS "3.7.0")
-   message(FATAL_ERROR
-    "Python version: ${Python_VERSION} is less than 3.7.0, which is required to support UTF8 and SPDX generation. ")
-  return ()
-endif ()
-
 # Export location of python module dirs in install and build tree for every vtkpython module to use
 # As long as those modules depend on vtkpython, they can retrieve and use these
 if (NOT VTK_PYTHON_SITE_PACKAGES_SUFFIX)

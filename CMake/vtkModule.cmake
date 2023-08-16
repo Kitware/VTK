@@ -5838,10 +5838,20 @@ function (_vtk_module_generate_spdx)
 
   if (NOT TARGET "Python3::Interpreter")
     find_package(Python3 3.7.0 QUIET COMPONENTS Interpreter)
+    if (NOT Python3_FOUND)
+      message(WARNING
+        "Python (>= 3.7.0) not found, skipping SPDX generation for "
+        "${_vtk_module_generate_spdx_MODULE_NAME}")
+      return ()
+    endif ()
   endif ()
-  if (NOT TARGET "Python3::Interpreter")
-    message(FATAL_ERROR
-      "Python (>= 3.7.0) not found, could not generate a SPDX file for ${_vtk_module_generate_spdx_MODULE_NAME}")
+  if (NOT DEFINED Python3_VERSION)
+    message(WARNING
+      "Unknown Python3 version; SPDX generation requires at least 3.7.")
+  elseif (Python3_VERSION VERSION_LESS "3.7.0")
+    message(WARNING
+      "SPDX generation for '${_vtk_module_generate_spdx_MODULE_NAME}' "
+      "requires at least Python 3.7 (found ${Python3_VERSION}). Skipping.")
     return ()
   endif ()
 
