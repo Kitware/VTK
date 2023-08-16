@@ -726,6 +726,27 @@ public:
   vtkGetObjectMacro(ProgressObserver, vtkProgressObserver);
   ///@}
 
+  ///@{
+  /**
+   * Set to all output ports of this algorithm the information key
+   * `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()`. This should
+   * be set on sources of pipelines for which all timesteps are not necessarily
+   * all available at once. This is typically the case for visualization in situ.
+   *
+   * @note Default value in `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET`.
+   * `vtkStreamingDemandDrivenPipeline` will set it to `NO_PRIOR_TEMPORAL_ACCESS_CONTINUE' after
+   * execution of the first time step.
+   */
+  void SetNoPriorTemporalAccessInformationKey(int key);
+  void SetNoPriorTemporalAccessInformationKey();
+  ///@}
+
+  /**
+   * Removes any information key `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()`
+   * to all output ports of this `vtkAlgorithm`.
+   */
+  void RemoveNoPriorTemporalAccessInformationKey();
+
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm() override;

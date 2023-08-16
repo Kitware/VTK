@@ -123,6 +123,8 @@ protected:
    */
   virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
+  virtual int RequestUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+
   /**
    * Main routine to process individual trees in the grid
    * This is pure virtual method to be implemented by concrete algorithms

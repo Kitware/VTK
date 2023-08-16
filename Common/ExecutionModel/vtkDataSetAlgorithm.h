@@ -154,6 +154,11 @@ protected:
     return 1;
   }
 
+  virtual int RequestUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+  {
+    return 1;
+  }
+
   /**
    * This is called within ProcessRequest when a request asks the algorithm
    * to do its work. This is the method you should override to do whatever the

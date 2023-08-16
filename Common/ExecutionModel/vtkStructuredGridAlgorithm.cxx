@@ -81,6 +81,11 @@ vtkTypeBool vtkStructuredGridAlgorithm::ProcessRequest(
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
+  {
+    return this->RequestUpdateTime(request, inputVector, outputVector);
+  }
+
   // execute information
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {

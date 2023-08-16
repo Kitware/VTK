@@ -167,6 +167,12 @@ vtkTypeBool vtkDataSetAlgorithm::ProcessRequest(
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
+
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
+  {
+    return this->RequestUpdateTime(request, inputVector, outputVector);
+  }
+
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 

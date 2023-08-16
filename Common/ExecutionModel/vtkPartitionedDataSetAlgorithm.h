@@ -58,6 +58,10 @@ protected:
   {
     return 1;
   }
+  virtual int RequestUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+  {
+    return 1;
+  }
   ///@}
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;

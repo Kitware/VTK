@@ -250,6 +250,49 @@ bool vtkAlgorithm::CheckUpstreamAbort()
 }
 
 //------------------------------------------------------------------------------
+void vtkAlgorithm::SetNoPriorTemporalAccessInformationKey()
+{
+  this->SetNoPriorTemporalAccessInformationKey(
+    vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET);
+}
+
+//------------------------------------------------------------------------------
+void vtkAlgorithm::SetNoPriorTemporalAccessInformationKey(int key)
+{
+  using vtkSDDP = vtkStreamingDemandDrivenPipeline;
+
+  if (key != vtkSDDP::NO_PRIOR_TEMPORAL_ACCESS_CONTINUE &&
+    key != vtkSDDP::NO_PRIOR_TEMPORAL_ACCESS_RESET)
+  {
+    vtkWarningMacro("Setting vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS() with"
+                    " unsupported value, setting it to"
+                    " vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET by default");
+    key = vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET;
+  }
+
+  for (int port = 0; port < this->GetNumberOfOutputPorts(); ++port)
+  {
+    if (vtkInformation* outputInfo = this->GetOutputInformation(port))
+    {
+      outputInfo->Set(vtkSDDP::NO_PRIOR_TEMPORAL_ACCESS(), key);
+    }
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkAlgorithm::RemoveNoPriorTemporalAccessInformationKey()
+{
+  for (int port = 0; this->GetNumberOfOutputPorts(); ++port)
+  {
+    if (vtkInformation* outputInfo = this->GetOutputInformation(port))
+    {
+      outputInfo->Remove(vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS());
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkInformation* vtkAlgorithm ::GetInputArrayFieldInformation(
   int idx, vtkInformationVector** inputVector)
 {

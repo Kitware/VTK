@@ -76,6 +76,11 @@ vtkTypeBool vtkPolyDataAlgorithm::ProcessRequest(
     return this->RequestData(request, inputVector, outputVector);
   }
 
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
+  {
+    return this->RequestUpdateTime(request, inputVector, outputVector);
+  }
+
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
@@ -107,6 +112,14 @@ int vtkPolyDataAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInfo
 
 //------------------------------------------------------------------------------
 int vtkPolyDataAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
+{
+  // do nothing let subclasses handle it
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkPolyDataAlgorithm::RequestUpdateTime(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it

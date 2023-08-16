@@ -69,6 +69,11 @@ vtkTypeBool vtkUnstructuredGridBaseAlgorithm::ProcessRequest(
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
+  {
+    return this->RequestUpdateTime(request, inputVector, outputVector);
+  }
+
   // execute information
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
@@ -97,6 +102,14 @@ int vtkUnstructuredGridBaseAlgorithm::FillInputPortInformation(
 
 //------------------------------------------------------------------------------
 int vtkUnstructuredGridBaseAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
+{
+  // do nothing let subclasses handle it
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkUnstructuredGridBaseAlgorithm::RequestUpdateTime(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it

@@ -40,6 +40,11 @@ vtkTypeBool vtkAnnotationLayersAlgorithm::ProcessRequest(
     return this->RequestData(request, inputVector, outputVector);
   }
 
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
+  {
+    return this->RequestUpdateTime(request, inputVector, outputVector);
+  }
+
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
@@ -105,6 +110,13 @@ int vtkAnnotationLayersAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed
       inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
     }
   }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkAnnotationLayersAlgorithm::RequestUpdateTime(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+{
   return 1;
 }
 

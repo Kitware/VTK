@@ -134,6 +134,11 @@ protected:
   }
   ///@}
 
+  virtual int ComputeInputUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+  {
+    return 1;
+  }
+
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;

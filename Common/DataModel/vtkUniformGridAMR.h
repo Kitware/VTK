@@ -156,10 +156,13 @@ protected:
 
   double Bounds[6];
 
+  ///@{
   /**
-   * Get the meta AMR meta data
+   * Get/Set the meta AMR meta data
    */
   vtkGetObjectMacro(AMRData, vtkAMRDataInternals);
+  virtual void SetAMRData(vtkAMRDataInternals*);
+  ///@}
 
   vtkAMRDataInternals* AMRData;
 

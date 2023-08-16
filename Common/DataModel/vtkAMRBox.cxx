@@ -77,8 +77,6 @@ vtkAMRBox::vtkAMRBox(const vtkAMRBox& other)
 //------------------------------------------------------------------------------
 vtkAMRBox& vtkAMRBox::operator=(const vtkAMRBox& other)
 {
-  assert("pre: AMR Box instance is invalid" && !other.IsInvalid());
-
   if (this == &other)
     return *this;
   for (int i = 0; i < 3; i++)

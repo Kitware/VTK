@@ -46,6 +46,11 @@ vtkTypeBool vtkGraphAlgorithm::ProcessRequest(
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
+  {
+    return this->RequestUpdateTime(request, inputVector, outputVector);
+  }
+
   // create the output
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
@@ -90,6 +95,14 @@ void vtkGraphAlgorithm::SetInputData(int index, vtkDataObject* input)
 
 //------------------------------------------------------------------------------
 int vtkGraphAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
+{
+  // do nothing let subclasses handle it
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkGraphAlgorithm::RequestUpdateTime(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it

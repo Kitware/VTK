@@ -13,9 +13,16 @@
  * point or cell variable changes over time.  For example, vtkTemporalStatistics
  * can compute the average value of "pressure" over time of each point.
  *
- * Note that this filter will require the upstream filter to be run on every
- * time step that it reports that it can compute.  This may be a time consuming
- * operation.
+ * If the key `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()` is set, typically
+ * when running this filter in situ,
+ * then the filter runs the time steps one at a time. It requires causing the execution
+ * of the filter multiple times externally, by calling `UpdateTimeStep()` in a loop
+ * or using another filter that iterates over time downstream, for example.
+ * When the key is not set, the filter will execute itself by setting the key
+ * `vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING()`.
+ *
+ * This filter will produce an array called `"time_steps"` in the output's `FieldData`.
+ * It contains all the time steps ahta have been processed so far.
  *
  * vtkTemporalStatistics ignores the temporal spacing.  Each timestep will be
  * weighted the same regardless of how long of an interval it is to the next
@@ -33,12 +40,18 @@
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkTemporalAlgorithm.h" // For temporal algorithm
+
+#ifndef __VTK_WRAP__
+#define vtkPassInputTypeAlgorithm vtkTemporalAlgorithm<vtkPassInputTypeAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataSet;
 class vtkFieldData;
 class vtkGraph;
+struct vtkTemporalStatisticsInternal;
 
 class VTKFILTERSGENERAL_EXPORT vtkTemporalStatistics : public vtkPassInputTypeAlgorithm
 {
@@ -48,9 +61,16 @@ public:
    * Standard methods for instantiation, type information, and printing.
    */
   vtkTypeMacro(vtkTemporalStatistics, vtkPassInputTypeAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkPassInputTypeAlgorithm
+#endif
   static vtkTemporalStatistics* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
+
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML)
+  vtkCreateWrappedTemporalAlgorithmInterface();
+#endif
 
   ///@{
   /**
@@ -82,13 +102,16 @@ public:
   vtkBooleanMacro(ComputeMaximum, vtkTypeBool);
   ///@}
 
-  // Definition:
-  // Turn on/off the computation of the standard deviation of the values over
-  // time.  On by default.  The resulting array names have "_stddev" appended to
-  // them.
+  ///@{
+  /**
+   * Turn on/off the computation of the standard deviation of the values over
+   * time.  On by default.  The resulting array names have "_stddev" appended to
+   * them.
+   */
   vtkGetMacro(ComputeStandardDeviation, vtkTypeBool);
   vtkSetMacro(ComputeStandardDeviation, vtkTypeBool);
   vtkBooleanMacro(ComputeStandardDeviation, vtkTypeBool);
+  ///@}
 
 protected:
   vtkTemporalStatistics();
@@ -99,38 +122,40 @@ protected:
   vtkTypeBool ComputeMinimum;
   vtkTypeBool ComputeStandardDeviation;
 
-  // Used when iterating the pipeline to keep track of which timestep we are on.
-  int CurrentTimeIndex;
-
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+
+  int Initialize(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+  int Execute(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+  int Finalize(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  virtual void InitializeStatistics(vtkDataObject* input, vtkDataObject* output);
-  virtual void InitializeStatistics(vtkDataSet* input, vtkDataSet* output);
-  virtual void InitializeStatistics(vtkGraph* input, vtkGraph* output);
-  virtual void InitializeStatistics(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
+  virtual void InitializeStatistics(
+    vtkDataObject* input, vtkDataObject* output, vtkDataObject* cache);
+  virtual void InitializeStatistics(vtkDataSet* input, vtkDataSet* output, vtkDataSet* cache);
+  virtual void InitializeStatistics(vtkGraph* input, vtkGraph* output, vtkGraph* cache);
+  virtual void InitializeStatistics(
+    vtkCompositeDataSet* input, vtkCompositeDataSet* output, vtkCompositeDataSet* cache);
   virtual void InitializeArrays(vtkFieldData* inFd, vtkFieldData* outFd);
   virtual void InitializeArray(vtkDataArray* array, vtkFieldData* outFd);
 
-  virtual void AccumulateStatistics(vtkDataObject* input, vtkDataObject* output);
-  virtual void AccumulateStatistics(vtkDataSet* input, vtkDataSet* output);
-  virtual void AccumulateStatistics(vtkGraph* input, vtkGraph* output);
-  virtual void AccumulateStatistics(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
-  virtual void AccumulateArrays(vtkFieldData* inFd, vtkFieldData* outFd);
+  virtual void AccumulateStatistics(
+    vtkDataObject* input, vtkDataObject* output, int currentTimeIndex);
+  virtual void AccumulateStatistics(vtkDataSet* input, vtkDataSet* output, int currentTimeIndex);
+  virtual void AccumulateStatistics(vtkGraph* input, vtkGraph* output, int currentTimeIndex);
+  virtual void AccumulateStatistics(
+    vtkCompositeDataSet* input, vtkCompositeDataSet* output, int currentTimeIndex);
+  virtual void AccumulateArrays(vtkFieldData* inFd, vtkFieldData* outFd, int currentTimeIndex);
 
-  virtual void PostExecute(vtkDataObject* input, vtkDataObject* output);
-  virtual void PostExecute(vtkDataSet* input, vtkDataSet* output);
-  virtual void PostExecute(vtkGraph* input, vtkGraph* output);
-  virtual void PostExecute(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
-  virtual void FinishArrays(vtkFieldData* inFd, vtkFieldData* outFd);
+  virtual void PostExecute(vtkDataObject* input, vtkDataObject* output, int numSteps);
+  virtual void PostExecute(vtkDataSet* input, vtkDataSet* output, int numSteps);
+  virtual void PostExecute(vtkGraph* input, vtkGraph* output, int numSteps);
+  virtual void PostExecute(vtkCompositeDataSet* input, vtkCompositeDataSet* output, int numSteps);
+  virtual void FinishArrays(vtkFieldData* inFd, vtkFieldData* outFd, int numSteps);
 
   virtual vtkDataArray* GetArray(
     vtkFieldData* fieldData, vtkDataArray* inArray, const char* nameSuffix);
@@ -138,6 +163,8 @@ protected:
 private:
   vtkTemporalStatistics(const vtkTemporalStatistics&) = delete;
   void operator=(const vtkTemporalStatistics&) = delete;
+
+  vtkTemporalStatisticsInternal* Internal;
 
   ///@{
   /**
