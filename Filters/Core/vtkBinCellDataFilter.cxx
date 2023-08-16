@@ -376,10 +376,13 @@ int vtkBinCellDataFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
   }
 
+#if !VTK_USE_FUTURE_BOOL
   // Use the whole input in all processes, and use the requested update
   // extent of the output to divide up the source.
   if (this->SpatialMatch == 2)
   {
+    vtkErrorMacro("SpatialMatch should be boolean, don't pass other than 0 or 1.");
+
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
@@ -390,6 +393,8 @@ int vtkBinCellDataFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request
     sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   }
+#endif
+
   return 1;
 }
 
