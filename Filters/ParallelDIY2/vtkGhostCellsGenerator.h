@@ -30,6 +30,15 @@
  * Similarly, each generated ghost cells from this filter is tagged with `CELLDUPLICATE`, in
  * addition of other tags that could be set (`HIDDENCELL` for instance).
  *
+ * However, if `Sync` is On, ghost data will be synchronized between processes and ghost array
+ * won't be recomputed. This parameter assumes that the ghost layer remains unchanged. For
+ * this feature to work, the input must already have GlobalIds and ProcessIds arrays. Otherwise,
+ * the filter will fallback on its default behavior.
+ *
+ * To ease the subsequent use of the synchronization mechanism, two other options can be enabled
+ * to generate GlobalIds and ProcessIds on points/cells, via `GenerateGlobalIds` and
+ * `GenerateProcessIds`.
+ *
  * If the input is a `vtkUnstructuredGrid`, if the input `vtkPointData` has global ids, then the
  * values of those global ids are used instead of point position in 3D to connect 2 partitions.
  * If not, point position of the outer surface are used to connect them. The precision of such
@@ -64,8 +73,10 @@
 #ifndef vtkGhostCellsGenerator_h
 #define vtkGhostCellsGenerator_h
 
-#include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkPassInputTypeAlgorithm.h"
+
+#include "vtkFiltersParallelDIY2Module.h" // for export macros
+#include "vtkWeakPointer.h"               // for vtkWeakPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
@@ -82,8 +93,8 @@ public:
    * Get/Set the controller to use. By default
    * vtkMultiProcessController::GlobalController will be used.
    */
-  void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController*);
+  vtkMultiProcessController* GetController();
   ///@}
 
   ///@{
@@ -117,6 +128,38 @@ public:
   vtkSetClampMacro(NumberOfGhostLayers, int, 0, VTK_INT_MAX);
   ///@}
 
+  ///@{
+  /**
+   * Specify if the filter should generate GlobalsIds.
+   * Default is FALSE.
+   */
+  vtkSetMacro(GenerateGlobalIds, bool);
+  vtkGetMacro(GenerateGlobalIds, bool);
+  vtkBooleanMacro(GenerateGlobalIds, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Specify if the filter should generate ProcessIds.
+   * Default is FALSE.
+   */
+  vtkSetMacro(GenerateProcessIds, bool);
+  vtkGetMacro(GenerateProcessIds, bool);
+  vtkBooleanMacro(GenerateProcessIds, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Specify if the filter should try to sync ghost
+   * instead of regenerating ghosts. This assumes
+   * that the ghost layer stays the same.
+   * Default is FALSE.
+   */
+  vtkSetMacro(Sync, bool);
+  vtkGetMacro(Sync, bool);
+  vtkBooleanMacro(Sync, bool);
+  ///@}
+
 protected:
   vtkGhostCellsGenerator();
   ~vtkGhostCellsGenerator() override;
@@ -129,14 +172,22 @@ protected:
   /**
    * Local controller.
    */
-  vtkMultiProcessController* Controller;
+  vtkWeakPointer<vtkMultiProcessController> Controller;
 
-  int NumberOfGhostLayers;
-  bool BuildIfRequired;
+  int NumberOfGhostLayers = 1;
+  bool BuildIfRequired = true;
+  bool GenerateGlobalIds = false;
+  bool GenerateProcessIds = false;
+  bool Sync = false;
 
 private:
   vtkGhostCellsGenerator(const vtkGhostCellsGenerator&) = delete;
   void operator=(const vtkGhostCellsGenerator&) = delete;
+
+  /**
+   *
+   */
+  bool CanSynchronize(vtkDataObject* input, bool& canSyncCell, bool& canSyncPoint);
 };
 
 VTK_ABI_NAMESPACE_END
