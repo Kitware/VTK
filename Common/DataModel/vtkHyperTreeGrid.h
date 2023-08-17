@@ -532,14 +532,41 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
+private:
   /**
    * Recursively initialize pure material mask
    */
-  bool RecursivelyInitializePureMask(
-    vtkHyperTreeGridNonOrientedCursor* cursor, vtkDataArray* normale);
+  bool RecursivelyInitializePureMask(vtkHyperTreeGridNonOrientedCursor*, vtkDataArray*);
 
   /**
+   * Clean pure material mask
+   *
+   * Filters modifying the mask will call SetMask which will call CleanPureMask
+   * in order to allow an update during the next GetPureMask
+   */
+  void CleanPureMask();
+
+public:
+  /**
    * Get or create pure material mask
+   *
+   * PureMask is a boolean array size to the number of cells which describes,
+   * for each cell, if it is pure material mask (PMM), a mask which is true if
+   * the cell is not pure.
+   * The PMM of a cell is true:
+   * - if the cell is hidden; we do not take into account if the cell is leaf or coarse;
+   * - if the fine/leaf cell is mixed (HasInterface is true, InterfaceInterceptsName and
+   *   InterfaceNormalsName are the vector value field names with 3 components);
+   *   the description of its type at the interface (the third component of the field
+   *   named InterfaceInterceptsName) is < 2
+   *   (2 indicates that this cell contains only one material, cell is pure);
+   * - if the coarse cell has at least one of its child cells which has set PMM to true.
+   *
+   * The PureMask array is deleted during a call to the SetMask method (which itself
+   * calls the CleanPureMask method).
+   * It will be (re)built during the first call to this GetPureMask method.
+   * A second call to this same method will be free because this array is stored
+   * permanently in memory, as long as the CleanPureMask method is not called.
    */
   vtkBitArray* GetPureMask();
 
@@ -816,7 +843,6 @@ protected:
 
   vtkBitArray* Mask;
   vtkBitArray* PureMask;
-  bool InitPureMask;
 
   bool HasInterface;
   char* InterfaceNormalsName;
