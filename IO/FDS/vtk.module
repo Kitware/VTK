@@ -17,3 +17,4 @@ DEPENDS
   VTK::IOCore
 TEST_DEPENDS
   VTK::TestingCore
+  VTK::TestingRendering
