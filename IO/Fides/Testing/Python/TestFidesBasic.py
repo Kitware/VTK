@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from vtkmodules import vtkIOFides
+from vtkmodules.vtkCommonDataModel import vtkPartitionedDataSetCollection
 from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
 from vtkmodules.util.misc import vtkGetDataRoot
 try:
@@ -34,7 +35,9 @@ class TestFidesBasic(Testing.vtkTest):
         r.ConvertToVTKOn()
         r.Update()
 
-        pds = r.GetOutputDataObject(0)
+        pdsc = r.GetOutputDataObject(0)
+        self.assertTrue(isinstance(pdsc, vtkPartitionedDataSetCollection))
+        pds = pdsc.GetPartitionedDataSet(0)
         nParts = pds.GetNumberOfPartitions()
         self.assertEqual(nParts, 4)
 
@@ -63,7 +66,9 @@ class TestFidesBasic(Testing.vtkTest):
         pds.EnableArray("dpot2")
         r.Update()
 
-        pds = r.GetOutputDataObject(0)
+        pdsc = r.GetOutputDataObject(0)
+        self.assertTrue(isinstance(pdsc, vtkPartitionedDataSetCollection))
+        pds = pdsc.GetPartitionedDataSet(0)
         nParts = pds.GetNumberOfPartitions()
         self.assertEqual(nParts, 4)
 
@@ -88,7 +93,9 @@ class TestFidesBasic(Testing.vtkTest):
         r.PrepareNextStep()
         r.Update()
 
-        pds = r.GetOutputDataObject(0)
+        pdsc = r.GetOutputDataObject(0)
+        self.assertTrue(isinstance(pdsc, vtkPartitionedDataSetCollection))
+        pds = pdsc.GetPartitionedDataSet(0)
         nParts = pds.GetNumberOfPartitions()
         self.assertEqual(nParts, 4)
 
@@ -119,7 +126,9 @@ class TestFidesBasic(Testing.vtkTest):
         r.ConvertToVTKOn()
         r.Update()
 
-        pds = r.GetOutputDataObject(0)
+        pdsc = r.GetOutputDataObject(0)
+        self.assertTrue(isinstance(pdsc, vtkPartitionedDataSetCollection))
+        pds = pdsc.GetPartitionedDataSet(0)
         nParts = pds.GetNumberOfPartitions()
         self.assertEqual(nParts, 1)
 
@@ -128,6 +137,49 @@ class TestFidesBasic(Testing.vtkTest):
         self.assertEqual(ds.GetNumberOfPoints(), 648)
         self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 1)
         self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "density")
+        return
+
+    def testFifth(self):
+        # This test is based on selecting a BP file that contains a group of meshes.
+        r = vtkIOFides.vtkFidesReader()
+        r.SetFileName(VTK_DATA_ROOT + "/Data/groups.bp")
+        r.UpdateInformation()
+        self.assertTrue(r.GetOutputInformation(0).Has(
+            vtkStreamingDemandDrivenPipeline.TIME_STEPS()))
+        nsteps = r.GetOutputInformation(0).Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+        self.assertEqual(nsteps, 11)
+        for i in range(nsteps):
+            self.assertEqual(r.GetOutputInformation(0).Get(
+                vtkStreamingDemandDrivenPipeline.TIME_STEPS(),i), i)
+        pds = r.GetPointDataArraySelection()
+        pds.DisableAllArrays()
+        pds.EnableArray("accel")
+        pds.EnableArray("disp")
+        pds.EnableArray("force")
+        cds = r.GetCellDataArraySelection()
+        cds.DisableAllArrays()
+        cds.EnableArray("eqps")
+        cds.EnableArray("mises")
+        r.ConvertToVTKOn()
+        r.Update()
+
+        pdsc = r.GetOutputDataObject(0)
+        self.assertTrue(isinstance(pdsc, vtkPartitionedDataSetCollection))
+        self.assertEqual(pdsc.GetNumberOfPartitionedDataSets(), 4)
+        pds = pdsc.GetPartitionedDataSet(0)
+        nParts = pds.GetNumberOfPartitions()
+        self.assertEqual(nParts, 1)
+
+        ds = pds.GetPartition(0)
+        self.assertEqual(ds.GetNumberOfCells(), 8)
+        self.assertEqual(ds.GetNumberOfPoints(), 27)
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 3)
+        self.assertEqual(ds.GetCellData().GetNumberOfArrays(), 2)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "accel")
+        self.assertEqual(ds.GetPointData().GetArray(1).GetName(), "disp")
+        self.assertEqual(ds.GetPointData().GetArray(2).GetName(), "force")
+        self.assertEqual(ds.GetCellData().GetArray(0).GetName(), "eqps")
+        self.assertEqual(ds.GetCellData().GetArray(1).GetName(), "mises")
         return
 
 if __name__ == "__main__":
