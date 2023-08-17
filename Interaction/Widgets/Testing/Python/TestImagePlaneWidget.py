@@ -29,7 +29,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
     def testBug(self):
         # Uncomment the next line if you want to run this via
         # `gdb python`.
-        #raw_input('Hit Ctrl-C')
+        #input('Hit Ctrl-C')
 
         # Load some data.
         v16 = vtkVolume16Reader()

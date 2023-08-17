@@ -279,7 +279,7 @@ def interact():
     """Interacts with the user if necessary. """
     global _INTERACT
     if _INTERACT:
-        raw_input("\nPress Enter/Return to continue with the testing. --> ")
+        input("\nPress Enter/Return to continue with the testing. --> ")
 
 def isInteractive():
     """Returns if the currently chosen mode is interactive or not
