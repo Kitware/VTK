@@ -383,10 +383,19 @@ void vtkTemporalStatistics::InitializeArrays(vtkFieldData* inFd, vtkFieldData* o
   {
     vtkDataArray* globalIds = inDsa->GetGlobalIds();
     vtkAbstractArray* pedigreeIds = inDsa->GetPedigreeIds();
+    vtkDataArray* processIds = inDsa->GetProcessIds();
     if (globalIds)
+    {
       outDsa->SetGlobalIds(globalIds);
+    }
     if (pedigreeIds)
+    {
       outDsa->SetPedigreeIds(pedigreeIds);
+    }
+    if (processIds)
+    {
+      outDsa->SetProcessIds(processIds);
+    }
   }
 
   int numArrays = inFd->GetNumberOfArrays();
@@ -398,9 +407,13 @@ void vtkTemporalStatistics::InitializeArrays(vtkFieldData* inFd, vtkFieldData* o
     }
     vtkDataArray* array = inFd->GetArray(i);
     if (!array)
-      continue; // Array not numeric.
+    {
+      continue; // Array is not numeric.
+    }
     if (outFd->HasArray(array->GetName()))
-      continue; // Must be Ids.
+    {
+      continue; // Array is ids attribute.
+    }
 
     this->InitializeArray(array, outFd);
   }
