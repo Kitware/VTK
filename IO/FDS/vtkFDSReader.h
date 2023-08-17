@@ -10,18 +10,23 @@
 #include "vtkResourceStream.h" // For vtkResourceStream
 #include "vtkSmartPointer.h"   // For vtkSmartPointer
 
+#include <array>  // For std::array
 #include <memory> // For std::unique_ptr
 #include <set>    // For std::set
 #include <string> // For std::string
+#include <vector> // for std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
-
-class vtkFDSDeviceVisitor;
 
 /**
  * @class vtkFDSReader
  *
- * TODO
+ * A reader for the Fire Dynamics Simulator (FDS) output data.
+ *
+ * This class reads in the `.smv` file and uses the meta-data to identify the other
+ * files to read automatically. It outputs a `vtkPartitionedDataSetCollection`
+ * containing 5 groups: Grids, Devices, HRR, Slices and Boundaries. Each group
+ * contains data sets with the expected values for users of the FDS code.
  */
 class VTKIOFDS_EXPORT vtkFDSReader : public vtkPartitionedDataSetCollectionAlgorithm
 {
@@ -48,7 +53,7 @@ public:
   ///@}
 
   /**
-   * TODO
+   * Get the data full data assembly associated with the input
    */
   vtkGetNewMacro(Assembly, vtkDataAssembly);
 
@@ -76,6 +81,14 @@ public:
   void ClearSelectors();
   ///@}
 
+  ///@{
+  /**
+   * Set the absolute tolerance under which two time values are considered identical
+   */
+  vtkGetMacro(TimeTolerance, double);
+  vtkSetMacro(TimeTolerance, double);
+  ///@}
+
 protected:
   vtkFDSReader();
   ~vtkFDSReader() override;
@@ -97,11 +110,10 @@ private:
 
   vtkSmartPointer<vtkResourceStream> Stream;
 
+  double TimeTolerance = 1e-5;
+
   struct vtkInternals;
   std::shared_ptr<vtkInternals> Internals;
-
-  friend class vtkFDSDeviceVisitor;
-  friend class vtkFDSGridVisitor;
 };
 
 VTK_ABI_NAMESPACE_END

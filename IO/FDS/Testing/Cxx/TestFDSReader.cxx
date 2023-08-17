@@ -37,7 +37,7 @@ int TestFDSReader(int argc, char* argv[])
   // Test RequestInformation
   vtkNew<vtkFDSReader> reader;
   std::string fileName = dataRoot + "/Data/FDSExample/exemple_kitware.smv";
-  reader->SetFileName(fileName.c_str());
+  reader->SetFileName(fileName);
   reader->UpdateInformation();
 
   vtkDataAssembly* assembly = reader->GetAssembly();
