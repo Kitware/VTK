@@ -176,6 +176,9 @@ int vtkSpatioTemporalHarmonicsAttribute::RequestData(
     return 1;
   }
 
+  // Copy all the input geometry and data to the output.
+  output->ShallowCopy(input);
+
   if (this->Amplitudes.empty())
   {
     vtkWarningMacro("No harmonics specified.");
@@ -241,9 +244,6 @@ int vtkSpatioTemporalHarmonicsAttribute::RequestData(
       }
     });
   }
-
-  // Copy all the input geometry and data to the output.
-  output->ShallowCopy(input);
 
   // Add the new scalars array to the output.
   newScalars->SetName(ARRAY_NAME);
