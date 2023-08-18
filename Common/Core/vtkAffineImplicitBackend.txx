@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 // Funded by CEA, DAM, DIF, F-91297 Arpajon, France
-#ifndef vtkAffineImplicitBackend_h
-#define vtkAffineImplicitBackend_h
+#ifndef vtkAffineImplicitBackend_txx
+#define vtkAffineImplicitBackend_txx
 
-#include "vtkCommonCoreModule.h"
+#include "vtkAffineImplicitBackend.h"
 
 /**
  * \struct vtkAffineImplicitBackend
@@ -32,33 +32,23 @@
  */
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
-struct VTKCOMMONCORE_EXPORT vtkAffineImplicitBackend final
+vtkAffineImplicitBackend<ValueType>::vtkAffineImplicitBackend(ValueType slope, ValueType intercept)
+  : Slope(slope)
+  , Intercept(intercept)
 {
-  /**
-   * A non-trivially constructible constructor
-   *
-   * \param slope the slope of the affine function
-   * \param intercept the intercept value at the origin (i.e. the value at 0)
-   */
-  vtkAffineImplicitBackend(ValueType slope, ValueType intercept);
+}
 
-  /**
-   * The main call method for the backend
-   *
-   * \param index the index at which one wished to evaluate the backend
-   * \return the affinely computed value
-   */
-  ValueType operator()(int index) const;
+template <typename ValueType>
+ValueType vtkAffineImplicitBackend<ValueType>::operator()(int index) const
+{
+  return this->Slope * static_cast<ValueType>(index) + this->Intercept;
+}
 
-  /**
-   * The slope of the affine function on the indeces
-   */
-  ValueType Slope;
-  /**
-   * The value of the affine function at index 0
-   */
-  ValueType Intercept;
-};
-VTK_ABI_NAMESPACE_END
+#endif // vtkAffineImplicitBackend_txx
 
-#endif // vtkAffineImplicitBackend_h
+#ifdef VTK_AFFINE_BACKEND_INSTANTIATING
+#define VTK_INSTANTIATE_AFFINE_BACKEND(ValueType)                                                  \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  template struct VTKCOMMONCORE_EXPORT vtkAffineImplicitBackend<ValueType>;                        \
+  VTK_ABI_NAMESPACE_END
+#endif

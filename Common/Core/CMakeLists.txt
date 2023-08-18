@@ -401,6 +401,7 @@ set(templates
   ${vtk_smp_templates})
 
 set(private_templates
+  vtkAffineImplicitBackend.txx
   vtkDataArrayPrivate.txx)
 
 set(vtk_include_dirs)
