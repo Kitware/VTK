@@ -1129,14 +1129,14 @@ int vtkConduitSource::RequestData(
   else if (this->UseMultiMeshProtocol)
   {
     vtkNew<vtkPartitionedDataSetCollection> pdc_output;
-    const auto& node = internals.Node;
-    const auto count = node.number_of_children();
+    const auto& pdc_node = internals.Node;
+    const auto count = pdc_node.number_of_children();
     pdc_output->SetNumberOfPartitionedDataSets(static_cast<unsigned int>(count));
 
     std::map<std::string, unsigned int> name_map;
     for (conduit_index_t cc = 0; cc < count; ++cc)
     {
-      const auto child = node.child(cc);
+      const auto child = pdc_node.child(cc);
       auto pd = pdc_output->GetPartitionedDataSet(static_cast<unsigned int>(cc));
       assert(pd != nullptr);
       if (!detail::RequestMesh(pd, child))
