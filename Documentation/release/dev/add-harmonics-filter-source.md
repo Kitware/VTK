@@ -18,7 +18,15 @@ this function.
 You can now generate an image data with harmonics data.
 This new source allows you to specify the uniform grid
 extent. It also lets you choose the harmonics you want,
-the same way as in the filter (it is embedded).
+the same way as in the filter (it is embedded). Finally,
+it can generate time steps by specifying time values.
 
-If no harmonic is specified, the source will generate an
-image data with default harmonics values.
+If no harmonic is specified, the source will not generate
+harmonics and warn you. You can generate default ones
+with the `ResetHarmonics` function though.
+
+If no time value is specifed, the source will not
+generate time steps. You can generate default ones with
+the reset `ResetTimeStepValues` function though.
+
+![Default Harmonics Source](harmonics-source.gif)
