@@ -80,6 +80,16 @@ protected:
   std::vector<vtkm::cont::UnknownArrayHandle> Cache;
 };
 
+/// Utility function that returns an ArrayHandle with the data from `uah`.
+/// However, the returned ArrayHandle does not own data. The deleter of the Buffer is a no-op.
+vtkm::cont::UnknownArrayHandle make_ArrayHandleWithoutDataOwnership(
+  const vtkm::cont::UnknownArrayHandle& uah);
+
+/// Convenience function that returns a vector of ownerless ArrayHandle objects for
+/// each ArrayHandle in the input vector.
+std::vector<vtkm::cont::UnknownArrayHandle> make_ArrayHandlesWithoutDataOwnership(
+  const std::vector<vtkm::cont::UnknownArrayHandle>& uahs);
+
 }
 }
 
