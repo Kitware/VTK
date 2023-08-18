@@ -684,39 +684,6 @@ bool RequestMesh(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
   return true;
 }
 
-bool AddGlobalData(vtkDataObject* output, const conduit_cpp::Node& globalFields)
-{
-  auto fd = output->GetFieldData();
-
-  const conduit_index_t nchildren = globalFields.number_of_children();
-  for (conduit_index_t idx = 0; idx < nchildren; idx++)
-  {
-    const auto child = globalFields.child(idx);
-    std::string fieldName = child.name();
-
-    if (child.dtype().is_string())
-    {
-      vtkNew<vtkStringArray> stringArray;
-      stringArray->SetName(fieldName.c_str());
-      stringArray->InsertNextValue(child.as_string().c_str());
-      fd->AddArray(stringArray);
-      continue;
-    }
-
-    auto array =
-      vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&child), fieldName);
-    fd->AddArray(array);
-
-    if ((fieldName == "time" || fieldName == "TimeValue") && child.dtype().is_float())
-    {
-      // let's also set DATA_TIME_STEP.
-      output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), child.to_float64());
-    }
-  }
-
-  return true;
-}
-
 bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, bool isAMReX = false)
 {
   auto field_data = output->GetFieldData();
@@ -766,6 +733,12 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
           {
             field_data->AddArray(dataArray);
           }
+        }
+
+        if ((field_name == "time" || field_name == "TimeValue") && field_node.dtype().is_float())
+        {
+          // let's also set DATA_TIME_STEP.
+          output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), field_node.to_float64());
         }
       }
     }
@@ -1233,7 +1206,7 @@ int vtkConduitSource::RequestData(
 
   if (internals.GlobalFieldsNodeValid)
   {
-    detail::AddGlobalData(real_output, internals.GlobalFieldsNode);
+    detail::AddFieldData(real_output, internals.GlobalFieldsNode);
   }
 
   if (internals.Node.has_path("state/fields"))
