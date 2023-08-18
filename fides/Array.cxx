@@ -1188,8 +1188,16 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     this->IsCached = true;
   }
 
-  //Set coords to cached coordinates.
-  cs = vtkm::cont::CoordinateSystem("coords", this->CachedCoords);
+  if (this->IsCached)
+  {
+    //Set coords to cached coordinates.
+    cs = vtkm::cont::CoordinateSystem("coords",
+                                      make_ArrayHandleWithoutDataOwnership(this->CachedCoords));
+  }
+  else
+  {
+    throw std::runtime_error("No coordinates were cached!");
+  }
 }
 
 /// Reads and returns array handles.
