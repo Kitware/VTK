@@ -2108,9 +2108,9 @@ std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>> vtkIOSSReader::vtkInt
   if (ioss_entity_type == Ioss::EntityType::SIDESET)
   {
     // for side set, the topology is stored in nested elements called
-    // SideBlocks. Since we split side sets by topologies, each sideblock can be
+    // SideBlocks. Since we split side sets by element block, each sideblock can be
     // treated as a regular entity block.
-    assert(group_entity->get_database()->get_surface_split_type() == Ioss::SPLIT_BY_TOPOLOGIES);
+    assert(group_entity->get_database()->get_surface_split_type() == Ioss::SPLIT_BY_ELEMENT_BLOCK);
     auto sideSet = static_cast<Ioss::SideSet*>(group_entity);
     for (auto sideBlock : sideSet->get_side_blocks())
     {
