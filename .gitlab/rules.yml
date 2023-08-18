@@ -1,30 +1,47 @@
 # Rules for where jobs can run
 
+.run_on_code_change:
+  rules:
+      changes: &code_change
+        - '[a-zA-CE-Z]*' # any path starting with anything but 'D'
+        - 'Domains/*'    # any path under Domains directory is touched
+        - '.*'           # any hidden file is touched
+      when: on_success
+
+
 .run_automatically:
     rules:
         - if: '$CI_MERGE_REQUEST_ID'
+          changes: *code_change
           when: on_success
         - if: '$CI_PROJECT_PATH == "vtk/vtk"'
+          changes: *code_change
           when: on_success
         - when: never
 
 .run_scheduled:
     rules:
         - if: '$CI_MERGE_REQUEST_ID'
+          changes: *code_change
           when: manual
         - if: '$CI_COMMIT_TAG && $CI_PROJECT_PATH == "vtk/vtk"'
+          changes: *code_change
           when: on_success
         - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_PATH == "vtk/vtk"'
+          changes: *code_change
           when: on_success
         - when: never
 
 .run_manually:
     rules:
         - if: '$CI_MERGE_REQUEST_ID'
+          changes: *code_change
           when: manual
         - if: '$CI_PROJECT_PATH == "vtk/vtk" && $CI_PIPELINE_SOURCE == "schedule"'
+          changes: *code_change
           when: on_success
         - if: '$CI_PROJECT_PATH == "vtk/vtk"'
+          changes: *code_change
           when: delayed
           start_in: 30 minutes
         - when: never
