@@ -10,7 +10,7 @@
  * streaming or distributed pipelines.
  *
  * @sa
- * vtkPolyDataStreamer
+ * vtkPolyDataStreamer vtkGenerateProcessIds
  */
 
 #ifndef vtkProcessIdScalars_h
@@ -25,10 +25,11 @@ class vtkFloatArray;
 class vtkIntArray;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLEL_EXPORT vtkProcessIdScalars : public vtkDataSetAlgorithm
+class VTK_DEPRECATED_IN_9_3_0(
+  "Use `vtkGenerateProcessIds` instead") VTKFILTERSPARALLEL_EXPORT vtkProcessIdScalars
+  : public vtkDataSetAlgorithm
 {
 public:
-  VTK_DEPRECATED_IN_9_3_0("Use `vtkGenerateProcessIds` instead")
   static vtkProcessIdScalars* New();
 
   vtkTypeMacro(vtkProcessIdScalars, vtkDataSetAlgorithm);
