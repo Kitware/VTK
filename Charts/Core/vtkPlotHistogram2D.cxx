@@ -22,32 +22,32 @@
 namespace
 {
 using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
-using Dispatcher2 = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>;
 
 /**
  * Worker to compute magnitude of vector array.
  */
 struct MagnitudeWorker
 {
-  template <typename ArrayT1, typename ArrayT2>
-  void operator()(ArrayT1* vecs, ArrayT2* mags)
+  template <typename ArrayT>
+  void operator()(ArrayT* vecs, vtkDoubleArray* mags)
   {
+    VTK_ASSUME(vecs->GetNumberOfComponents() == 2 || vecs->GetNumberOfComponents() == 3);
+
     const auto vecRange = vtk::DataArrayTupleRange(vecs);
     auto magRange = vtk::DataArrayValueRange<1>(mags);
 
-    using VecTuple = typename decltype(vecRange)::const_reference;
-    using MagType = typename decltype(magRange)::ValueType;
+    using VecTuple = typename decltype(vecRange)::ConstTupleReferenceType;
 
-    auto computeMag = [](const VecTuple& tuple) -> MagType {
-      MagType mag = 0;
-      for (const auto& comp : tuple)
-      {
-        mag += (comp * comp);
-      }
-      return std::sqrt(mag);
-    };
-
-    vtkSMPTools::Transform(vecRange.cbegin(), vecRange.cend(), magRange.begin(), computeMag);
+    vtkSMPTools::Transform(
+      vecRange.cbegin(), vecRange.cend(), magRange.begin(), [](const VecTuple& tuple) {
+        double mag = 0.0;
+        for (const auto& comp : tuple)
+        {
+          const double castedValue = static_cast<double>(comp); // Needed to avoid value overflow
+          mag += castedValue * castedValue;
+        }
+        return std::sqrt(mag);
+      });
   }
 };
 
@@ -316,55 +316,50 @@ bool vtkPlotHistogram2D::UpdateCache()
 
   if (this->TransferFunction)
   {
-    int nbComponents = 0;
-    void* const input = this->GetInputArrayPointer(nbComponents);
+    vtkDataArray* inputDataArray = nullptr;
+    void* const inputVoidArray = this->GetInputArrayPointer(inputDataArray);
 
-    if (!input)
+    if (!inputVoidArray || !inputDataArray)
     {
       return false;
     }
 
-    const int inputType = this->GetSelectedArray()->GetDataType();
-    int dimension = this->Input->GetDimensions()[0] * this->Input->GetDimensions()[1];
+    const int inputType = inputDataArray->GetDataType();
+    const int nbComponents = inputDataArray->GetNumberOfComponents();
+    const int dimension = this->Input->GetDimensions()[0] * this->Input->GetDimensions()[1];
     unsigned char* output = reinterpret_cast<unsigned char*>(this->Output->GetScalarPointer());
 
     this->TransferFunction->MapScalarsThroughTable2(
-      input, output, inputType, dimension, nbComponents, 4);
+      inputVoidArray, output, inputType, dimension, nbComponents, 4);
   }
 
   return true;
 }
 
 //------------------------------------------------------------------------------
-void* vtkPlotHistogram2D::GetInputArrayPointer(int& nbComponents)
+void* vtkPlotHistogram2D::GetInputArrayPointer(vtkDataArray*& inputArray)
 {
   vtkDataArray* selectedArray = this->GetSelectedArray();
-  if (selectedArray)
+  if (!selectedArray)
   {
-    nbComponents = selectedArray->GetNumberOfComponents();
-  }
-  else
-  {
-    nbComponents = 0;
+    inputArray = nullptr;
     return nullptr;
   }
 
   int vectorMode = this->TransferFunction->GetVectorMode();
-  if (vtkPlotHistogram2D::CanComputeMagnitude(nbComponents) &&
+  if (vtkPlotHistogram2D::CanComputeMagnitude(selectedArray) &&
     vectorMode == vtkScalarsToColors::VectorModes::MAGNITUDE)
   {
-    nbComponents = 1;
     MagnitudeWorker worker;
-    this->MagnitudeArray.TakeReference(selectedArray->NewInstance());
-    this->MagnitudeArray->SetNumberOfComponents(nbComponents);
     this->MagnitudeArray->SetNumberOfTuples(selectedArray->GetNumberOfTuples());
 
-    if (!Dispatcher2::Execute(selectedArray, this->MagnitudeArray.Get(), worker))
+    if (!Dispatcher::Execute(selectedArray, worker, this->MagnitudeArray))
     {
       // Otherwise fallback to using the vtkDataArray API.
-      worker(selectedArray, this->MagnitudeArray.Get());
+      worker(selectedArray, this->MagnitudeArray);
     }
 
+    inputArray = this->MagnitudeArray;
     return this->MagnitudeArray->GetVoidPointer(0);
   }
 
@@ -378,6 +373,7 @@ void* vtkPlotHistogram2D::GetInputArrayPointer(int& nbComponents)
     worker(selectedArray, array, vectorComponent);
   }
 
+  inputArray = selectedArray;
   return array;
 }
 
@@ -400,10 +396,8 @@ double vtkPlotHistogram2D::GetInputArrayValue(int x, int y, int z)
     return std::nan("");
   }
 
-  int nbComponents = selectedArray->GetNumberOfComponents();
   int vectorMode = this->TransferFunction->GetVectorMode();
-
-  if (vtkPlotHistogram2D::CanComputeMagnitude(nbComponents) &&
+  if (vtkPlotHistogram2D::CanComputeMagnitude(selectedArray) &&
     vectorMode == vtkScalarsToColors::VectorModes::MAGNITUDE)
   {
     return this->MagnitudeArray->GetTuple1(index);
@@ -414,8 +408,9 @@ double vtkPlotHistogram2D::GetInputArrayValue(int x, int y, int z)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotHistogram2D::CanComputeMagnitude(const int nbComponents)
+bool vtkPlotHistogram2D::CanComputeMagnitude(vtkDataArray* array)
 {
+  const int nbComponents = array ? array->GetNumberOfComponents() : 0;
   return nbComponents == 2 || nbComponents == 3;
 }
 

@@ -13,15 +13,15 @@
 #define vtkPlotHistogram2D_h
 
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkNew.h"              // For vtkNew
 #include "vtkPlot.h"
-#include "vtkRect.h"         // Needed for vtkRectf
-#include "vtkSmartPointer.h" // Needed for SP ivars
+#include "vtkRect.h" // Needed for vtkRectf
 
 #include <string> // Needed for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkDataArray;
+class vtkDoubleArray;
 class vtkImageData;
 class vtkScalarsToColors;
 
@@ -145,10 +145,10 @@ private:
    */
   static vtkIdType GetLabelIndexFromValue(double value, vtkAxis* axis);
   /**
-   * Returns whether the number of component of an array is
-   * compatible with magnitude computation.
+   * Returns whether an array is compatible with magnitude computation,
+   * ie. its number of component is 2 or 3.
    */
-  static inline bool CanComputeMagnitude(int nbComponents);
+  static inline bool CanComputeMagnitude(vtkDataArray* array);
 
   /**
    * Returns the selected data array. Does not return magnitude
@@ -158,11 +158,9 @@ private:
   /**
    * Returns the void pointer to the selected array. If the transfer
    * function is set to magnitude mode, it will return the cached
-   * magnitude array. Also sets the number of components of the
-   * selected array in parameter, to take the magnitude array into
-   * account.
+   * magnitude array. Also set the vtkDataArray pointer in parameter.
    */
-  void* GetInputArrayPointer(int& nbComponents);
+  void* GetInputArrayPointer(vtkDataArray*& inputArray);
   /**
    * Returns the value of the selected array at the coordinates given
    * in parameters. The value is casted to double. It takes magnitude
@@ -172,7 +170,7 @@ private:
   double GetInputArrayValue(int x, int y, int z);
 
   std::string ArrayName;
-  vtkSmartPointer<vtkDataArray> MagnitudeArray;
+  vtkNew<vtkDoubleArray> MagnitudeArray;
 };
 
 VTK_ABI_NAMESPACE_END
