@@ -2,6 +2,7 @@
 from vtkmodules.vtkCommonDataModel import (
     VTK_HEXAHEDRON,
     VTK_LINE,
+    VTK_POLYHEDRON,
     VTK_QUAD,
     VTK_TETRA,
     VTK_TRIANGLE_STRIP,
@@ -10,6 +11,7 @@ from vtkmodules.vtkCommonDataModel import (
     VTK_WEDGE,
     vtkQuadric,
 )
+from vtkmodules.vtkCommonCore import vtkIdList
 from vtkmodules.vtkFiltersCore import (
     vtkAppendFilter,
     vtkAppendPolyData,
@@ -108,11 +110,26 @@ print("Number of wedges: {0}".format(extr.GetOutput().GetNumberOfCells()))
 if extr.GetOutput().GetNumberOfCells() != 0:
     error = 1
 
-# Now construct unstructured grid as conglomerate of tets and voxels. Should
-# produce res*res*res + 5*res*res*res cells
+# Now construct unstructured grid as conglomerate of tets and voxels.
 appendU = vtkAppendFilter()
 appendU.AddInputConnection(sample.GetOutputPort())
 appendU.AddInputConnection(clip.GetOutputPort())
+appendU.Update()
+
+# Add one Polyhedron to the conglomerate. Should
+# produce res*res*res + 5*res*res*res + 1 cells
+d1 = res+1
+d2 = (res+1)*(res+1)
+faces = [6,
+         4, 0+0*d1+0*d2, 0+0*d1+1*d2, 0+1*d1+1*d2, 0+1*d1+0*d2,
+         4, 1+0*d1+0*d2, 1+1*d1+0*d2, 1+1*d1+1*d2, 1+0*d1+1*d2,
+         4, 0+0*d1+0*d2, 1+0*d1+0*d2, 1+0*d1+1*d2, 0+0*d1+1*d2,
+         4, 0+1*d1+0*d2, 0+1*d1+1*d2, 1+1*d1+1*d2, 1+1*d1+0*d2,
+         4, 0+0*d1+0*d2, 0+1*d1+0*d2, 1+1*d1+0*d2, 1+0*d1+0*d2,
+         4, 0+0*d1+1*d2, 1+0*d2+1*d2, 1+1*d1+1*d2, 0+1*d1+1*d2]
+faceIds = vtkIdList()
+[faceIds.InsertNextId(i) for i in faces]
+appendU.GetOutput().InsertNextCell(VTK_POLYHEDRON, faceIds)
 
 extr.SetInputConnection(appendU.GetOutputPort())
 extr.AddAllCellTypes()
@@ -133,6 +150,13 @@ extr.AddCellType(VTK_VOXEL)
 extr.Update()
 print("\tNumber of voxels: {0}".format(extr.GetOutput().GetNumberOfCells()))
 if extr.GetOutput().GetNumberOfCells() != res*res*res:
+    error = 1
+
+extr.RemoveAllCellTypes()
+extr.AddCellType(VTK_POLYHEDRON)
+extr.Update()
+print("\tNumber of polyhedrons: {0}".format(extr.GetOutput().GetNumberOfCells()))
+if extr.GetOutput().GetNumberOfCells() != 1:
     error = 1
 
 # Now construct polydata as a conglomerate of verts, lines, polys
