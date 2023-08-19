@@ -135,7 +135,7 @@ extr.SetInputConnection(appendU.GetOutputPort())
 extr.AddAllCellTypes()
 extr.Update()
 print("Number of unstructured cells: {0}".format(extr.GetOutput().GetNumberOfCells()))
-if extr.GetOutput().GetNumberOfCells() != 6*res*res*res:
+if extr.GetOutput().GetNumberOfCells() != 6*res*res*res + 1:
     error = 1
 
 extr.RemoveAllCellTypes()
