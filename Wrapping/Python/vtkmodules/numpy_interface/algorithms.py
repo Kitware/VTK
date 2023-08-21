@@ -86,6 +86,8 @@ def apply_dfunc(dfunc, array1, val2):
         return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
     elif array1 is dsa.NoneArray:
         return dsa.NoneArray
+    elif isinstance(val2, numpy.ndarray):
+        return dfunc(array1, val2)
     else:
         l = dsa.reshape_append_ones(array1, val2)
         return dfunc(l[0], l[1])
@@ -1177,6 +1179,9 @@ max_angle.__doc__ = "Returns the maximum angle of each cell in a dataset. See Ve
 
 mag = _make_ufunc(algs.mag)
 mag.__doc__ = "Returns the magnitude of vectors."
+
+matmul = _make_dfunc(algs.matmul)
+matmul.__doc__ = "Return the product of the inputs. Inputs can be vectors/tensors."
 
 min_angle = _make_dsfunc2(algs.min_angle)
 min_angle.__doc__ = "Returns the minimum angle of each cell in a dataset."
