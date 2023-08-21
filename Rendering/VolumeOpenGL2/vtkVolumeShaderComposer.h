@@ -1683,7 +1683,9 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
         \n                   in_specular[component] *\
         \n                   in_lightSpecularColor[0];\
         \n     }\
-        \n  finalColor.xyz = in_ambient[component] * color.rgb * in_lightAmbientColor[0] +\
+        \n  // For the headlight, ignore the light's ambient color\
+        \n  // for now as it is causing the old mapper tests to fail\
+        \n  finalColor.xyz = in_ambient[component] * color.rgb +\
         \n                   diffuse + specular;\
         \n");
   }

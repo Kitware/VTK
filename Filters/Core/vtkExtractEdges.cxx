@@ -127,7 +127,8 @@ struct ExtractEdges
     {
       ArrayList cellArrays;
       this->OutCD->CopyAllocate(this->InCD, totalEdges);
-      cellArrays.AddArrays(totalEdges, this->InCD, this->OutCD);
+      cellArrays.AddArrays(
+        totalEdges, this->InCD, this->OutCD, /*nullValue*/ 0.0, /*promote*/ false);
 
       vtkSMPTools::For(
         0, totalEdges, [&edgeOffsets, &edges, &cellArrays](vtkIdType edgeId, vtkIdType endEdgeId) {

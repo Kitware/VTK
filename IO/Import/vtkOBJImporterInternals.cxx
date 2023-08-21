@@ -231,7 +231,7 @@ bool tokenGetTexture(size_t& t, std::vector<Token>& tokens, vtkOBJImportedMateri
     // with spaces in them
     current_mtl->texture_filename += tokens[tt].StringValue;
     ++tt;
-    while (tokens[tt].Type != Token::LineEnd)
+    while (tt < tokens.size() && tokens[tt].Type != Token::LineEnd)
     {
       current_mtl->texture_filename += tokens[tt].StringValue;
       ++tt;

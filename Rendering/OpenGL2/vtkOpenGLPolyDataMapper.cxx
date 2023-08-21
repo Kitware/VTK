@@ -2236,7 +2236,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       // the camera view and the line, result is (lineVec.y, -lineVec.x, 0).
       // Cross this vector with the line vector again to get a normal that
       // is orthogonal to the line and maximally aligned with the camera.
-      toString << "  float addOrSubtract = (dot(fdx, fdy) >= 0) ? 1.0 : -1.0;\n"
+      toString << "  float addOrSubtract = (dot(fdx, fdy) >= 0.0) ? 1.0 : -1.0;\n"
                   "  vec3 lineVec = addOrSubtract*fdy + fdx;\n"
                   "  vec3 normalVCVSOutput = normalize(cross(vec3(lineVec.y, -lineVec.x, 0.0), "
                   "lineVec));\n";
@@ -4008,6 +4008,10 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer* ren, vtkActor* act, vtkPolyD
       {
         if (draw_surface_with_edges)
         {
+          // insert placeholder values for points and lines
+          const vtkIdType& offset =
+            this->CellCellMap->GetPrimitiveOffsets()[PrimitiveTypes::PrimitiveTris];
+          this->EdgeValues.resize(offset, 0);
           this->Primitives[PrimitiveTris].IBO->CreateTriangleIndexBuffer(
             prims[2], poly->GetPoints(), &this->EdgeValues, ef);
           if (!this->EdgeValues.empty())
