@@ -221,7 +221,7 @@ endif ()
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "ospray")
   list(APPEND test_exclusions
     # Cache segfaults on docker
-    "^VTK::RenderingRayTracing-TestOSPRayCache$")
+    "^VTK::RenderingRayTracingCxx-TestOSPRayCache$")
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
