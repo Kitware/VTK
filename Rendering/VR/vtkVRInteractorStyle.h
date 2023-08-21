@@ -275,6 +275,14 @@ protected:
   // Store movement style
   MovementStyle Style = vtkVRInteractorStyle::FLY_STYLE;
 
+  // Interaction timers
+  vtkNew<vtkTimerLog> LastGroundMovement3DEventTime;
+  vtkNew<vtkTimerLog> LastElevation3DEventTime;
+
+  // Interaction trackpad position
+  double LastGroundMovementTrackPadPosition[2] = { 0, 0 };
+  double LastElevationTrackPadPosition[2] = { 0, 0 };
+
 private:
   vtkVRInteractorStyle(const vtkVRInteractorStyle&) = delete;
   void operator=(const vtkVRInteractorStyle&) = delete;
