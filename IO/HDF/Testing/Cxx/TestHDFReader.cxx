@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkAppendDataSets.h"
 #include "vtkArrayDispatch.h"
 #include "vtkFloatArray.h"
 #include "vtkHDFReader.h"
@@ -9,6 +10,7 @@
 #include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTesting.h"
@@ -278,6 +280,57 @@ int TestUnstructuredGrid(const std::string& dataRoot)
   return TestDataSet(data, expectedData);
 }
 
+template <bool parallel>
+int TestPartitionedUnstructuredGrid(const std::string& dataRoot)
+{
+  std::string fileName, expectedName;
+  vtkNew<vtkHDFReader> reader;
+  vtkNew<vtkXMLUnstructuredGridReader> expectedReader;
+  vtkNew<vtkXMLPUnstructuredGridReader> expectedPReader;
+  vtkXMLReader* oreader;
+  if (parallel)
+  {
+    fileName = dataRoot + "/Data/can-pvtu.hdf";
+    expectedName = dataRoot + "/Data/can.pvtu";
+    oreader = expectedPReader;
+  }
+  else
+  {
+    fileName = dataRoot + "/Data/can-vtu.hdf";
+    expectedName = dataRoot + "/Data/can.vtu";
+    oreader = expectedReader;
+  }
+  std::cout << "Testing: " << fileName << std::endl;
+  if (!reader->CanReadFile(fileName.c_str()))
+  {
+    return EXIT_FAILURE;
+  }
+  reader->SetFileName(fileName.c_str());
+  reader->SetMergeParts(false);
+  reader->Update();
+
+  auto pds = vtkPartitionedDataSet::SafeDownCast(reader->GetOutput());
+  if (!pds)
+  {
+    return EXIT_FAILURE;
+  }
+  vtkNew<vtkAppendDataSets> appender;
+  for (unsigned int iPiece = 0; iPiece < pds->GetNumberOfPartitions(); ++iPiece)
+  {
+    auto piece = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(iPiece));
+    appender->AddInputData(piece);
+  }
+  appender->Update();
+
+  auto data = vtkUnstructuredGrid::SafeDownCast(appender->GetOutput());
+
+  oreader->SetFileName(expectedName.c_str());
+  oreader->Update();
+  vtkUnstructuredGrid* expectedData =
+    vtkUnstructuredGrid::SafeDownCast(oreader->GetOutputAsDataSet());
+  return TestDataSet(data, expectedData);
+}
+
 int TestPolyData(const std::string& dataRoot)
 {
   const std::string expectedName = dataRoot + "/Data/hdf_poly_data_twin.vtp";
@@ -291,6 +344,39 @@ int TestPolyData(const std::string& dataRoot)
   reader->SetFileName(fileName.c_str());
   reader->Update();
   auto data = vtkPolyData::SafeDownCast(reader->GetOutputAsDataSet());
+
+  return TestDataSet(data, expectedData);
+}
+
+int TestPartitionedPolyData(const std::string& dataRoot)
+{
+  const std::string expectedName = dataRoot + "/Data/hdf_poly_data_twin.vtp";
+  vtkNew<vtkXMLPolyDataReader> expectedReader;
+  expectedReader->SetFileName(expectedName.c_str());
+  expectedReader->Update();
+  auto expectedData = vtkPolyData::SafeDownCast(expectedReader->GetOutput());
+
+  const std::string fileName = dataRoot + "/Data/test_poly_data.hdf";
+  vtkNew<vtkHDFReader> reader;
+  reader->SetMergeParts(false);
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+
+  auto pds = vtkPartitionedDataSet::SafeDownCast(reader->GetOutput());
+  if (!pds)
+  {
+    return EXIT_FAILURE;
+  }
+  vtkNew<vtkAppendDataSets> appender;
+  appender->SetOutputDataSetType(VTK_POLY_DATA);
+  for (unsigned int iPiece = 0; iPiece < pds->GetNumberOfPartitions(); ++iPiece)
+  {
+    auto piece = vtkPolyData::SafeDownCast(pds->GetPartition(iPiece));
+    appender->AddInputData(piece);
+  }
+  appender->Update();
+
+  auto data = vtkPolyData::SafeDownCast(appender->GetOutput());
 
   return TestDataSet(data, expectedData);
 }
@@ -378,13 +464,31 @@ int TestHDFReader(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
+
   if (TestPolyData(dataRoot))
   {
     return EXIT_FAILURE;
   }
+
   if (TestOverlappingAMR(dataRoot))
   {
     return EXIT_FAILURE;
   }
+
+  if (TestPartitionedPolyData(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (TestPartitionedUnstructuredGrid<false /*parallel*/>(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (TestPartitionedUnstructuredGrid<true /*parallel*/>(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }
