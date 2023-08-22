@@ -182,6 +182,7 @@ bool ReadPolyDataPiece(T* impl, vtkIdType pointOffset, vtkIdType numberOfPoints,
 struct vtkHDFReader::DataCache
 {
   using KeyT = std::pair<int, std::string>;
+  using ValueT = std::pair<std::vector<vtkIdType>, vtkSmartPointer<vtkAbstractArray>>;
   bool Has(int attribute, const std::string& key)
   {
     return (this->Map.find(KeyT{ attribute, key }) != this->Map.end());
@@ -195,13 +196,13 @@ struct vtkHDFReader::DataCache
       return false;
     }
     const auto& lastOffsets = this->Map.find(KeyT{ attribute, name })->second;
-    if (lastOffsets.size() != currentOffset.size())
+    if (lastOffsets.first.size() != currentOffset.size())
     {
       return false;
     }
-    for (std::size_t iO = 0; iO < lastOffsets.size(); ++iO)
+    for (std::size_t iO = 0; iO < lastOffsets.first.size(); ++iO)
     {
-      if (lastOffsets[iO] != static_cast<vtkIdType>(currentOffset[iO]))
+      if (lastOffsets.first[iO] != static_cast<vtkIdType>(currentOffset[iO]))
       {
         return false;
       }
@@ -209,13 +210,13 @@ struct vtkHDFReader::DataCache
     return true;
   }
 
-  template <typename T>
-  void Set(int attribute, const std::string& name, const T& offset)
+  template <typename T, typename ArrayT>
+  void Set(int attribute, const std::string& name, const T& offset, vtkSmartPointer<ArrayT> array)
   {
-    auto key = KeyT{ attribute, name };
     std::vector<vtkIdType> buff(offset.size());
     std::copy(offset.begin(), offset.end(), buff.begin());
-    this->Map.emplace(key, buff);
+    this->Map.emplace(KeyT{ attribute, name },
+      ValueT{ buff, static_cast<vtkSmartPointer<vtkAbstractArray>>(array) });
   }
 
   template <typename OffT>
@@ -227,18 +228,27 @@ struct vtkHDFReader::DataCache
     return this->CheckExistsAndEqual(attribute, name, buff);
   }
 
-  template <typename OffT>
-  void Set(int attribute, const std::string& name, const OffT& offset, const OffT& size)
+  template <typename OffT, typename ArrayT>
+  void Set(int attribute, const std::string& name, const OffT& offset, const OffT& size,
+    vtkSmartPointer<ArrayT> array)
   {
     auto key = KeyT{ attribute, name };
     std::vector<vtkIdType> buff{ static_cast<vtkIdType>(offset), static_cast<vtkIdType>(size) };
-    this->Map.emplace(key, buff);
+    this->Map.emplace(key, ValueT{ buff, static_cast<vtkSmartPointer<vtkAbstractArray>>(array) });
   }
 
-  vtkSmartPointer<vtkDataObject> DataObject;
+  vtkSmartPointer<vtkAbstractArray> Get(int attribute, const std::string& name)
+  {
+    auto it = this->Map.find(KeyT{ attribute, name });
+    if (it == this->Map.end())
+    {
+      return nullptr;
+    }
+    return it->second.second;
+  }
 
 private:
-  std::map<KeyT, std::vector<vtkIdType>> Map;
+  std::map<KeyT, ValueT> Map;
 };
 
 //----------------------------------------------------------------------------
@@ -633,13 +643,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
         }
         if (this->UseCache && this->Cache->CheckExistsAndEqual(attributeType, name, fileExtent))
         {
-          auto imageData = vtkImageData::SafeDownCast(this->Cache->DataObject);
-          if (!imageData)
-          {
-            vtkErrorMacro("Cache issue: cached data object is not vtkImageData");
-            return 0;
-          }
-          array = imageData->GetAttributesAsFieldData(attributeType)->GetArray(name.c_str());
+          array = vtkDataArray::SafeDownCast(this->Cache->Get(attributeType, name));
           if (!array)
           {
             vtkErrorMacro("Error retrieving array " + name + " from cache.");
@@ -659,7 +663,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
         data->GetAttributesAsFieldData(attributeType)->AddArray(array);
         if (this->UseCache)
         {
-          this->Cache->Set(attributeType, name, fileExtent);
+          this->Cache->Set(attributeType, name, fileExtent, array);
         }
       }
     }
@@ -686,8 +690,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
     if (this->UseCache &&
       this->Cache->CheckExistsAndEqual(vtkDataObject::FIELD, name, offset, size))
     {
-      array = this->Cache->DataObject->GetAttributesAsFieldData(vtkDataObject::FIELD)
-                ->GetArray(name.c_str());
+      array = this->Cache->Get(vtkDataObject::FIELD, name);
       if (!array)
       {
         vtkErrorMacro("Error retrieving array " + name + " from cache.");
@@ -713,7 +716,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
     data->GetAttributesAsFieldData(vtkDataObject::FIELD)->AddArray(array);
     if (this->UseCache)
     {
-      this->Cache->Set(vtkDataObject::FIELD, name, offset, size);
+      this->Cache->Set(vtkDataObject::FIELD, name, offset, size, array);
     }
   }
   if (this->HasTransientData)
@@ -1137,11 +1140,6 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkImageData* data = vtkImageData::SafeDownCast(output);
     ok = this->Read(outInfo, data);
-    if (this->UseCache)
-    {
-      this->Cache->DataObject.TakeReference(data->NewInstance());
-      this->Cache->DataObject->ShallowCopy(data);
-    }
   }
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {
