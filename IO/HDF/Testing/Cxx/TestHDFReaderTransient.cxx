@@ -37,6 +37,8 @@ struct CheckerWorklet;
 int TestUGTransient(const std::string& dataRoot);
 int TestImageDataTransient(const std::string& dataRoot);
 int TestPolyDataTransient(const std::string& dataRoot);
+
+int TestUGTransientWithCache(const std::string& dataRoot);
 int TestImageDataTransientWithCache(const std::string& dataRoot);
 }
 
@@ -48,6 +50,7 @@ int TestHDFReaderTransient(int argc, char* argv[])
   int res = ::TestUGTransient(dataRoot);
   res |= ::TestImageDataTransient(dataRoot);
   res |= ::TestPolyDataTransient(dataRoot);
+  res |= ::TestUGTransientWithCache(dataRoot);
   res |= ::TestImageDataTransientWithCache(dataRoot);
   return res;
 }
@@ -246,10 +249,8 @@ bool GeometryCheckerWorklet::operator()(vtkPolyData* lhs, vtkPolyData* rhs)
   return true;
 }
 
-int TestUGTransient(const std::string& dataRoot)
+int TestUGTransientBase(OpenerWorklet& opener)
 {
-  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
-
   // Generic Time data checks
   if (opener.GetReader()->GetNumberOfSteps() != 10)
   {
@@ -341,6 +342,19 @@ int TestUGTransient(const std::string& dataRoot)
   }
 
   return EXIT_SUCCESS;
+}
+
+int TestUGTransient(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
+  return TestUGTransientBase(opener);
+}
+
+int TestUGTransientWithCache(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
+  opener.GetReader()->UseCacheOn();
+  return TestUGTransientBase(opener);
 }
 
 int TestImageDataTransientBase(OpenerWorklet& opener)
