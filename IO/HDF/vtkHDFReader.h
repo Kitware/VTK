@@ -269,7 +269,7 @@ protected:
 
   bool UseCache = false;
   struct DataCache;
-  std::unique_ptr<DataCache> Cache;
+  std::shared_ptr<DataCache> Cache;
 };
 
 VTK_ABI_NAMESPACE_END

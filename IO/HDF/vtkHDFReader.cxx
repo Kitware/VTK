@@ -131,16 +131,53 @@ public:
   }
 };
 
-template <class T>
-bool ReadPolyDataPiece(T* impl, vtkIdType pointOffset, vtkIdType numberOfPoints,
-  std::vector<vtkIdType>& cellOffsets, std::vector<vtkIdType>& numberOfCells,
-  std::vector<vtkIdType>& connectivityOffsets, std::vector<vtkIdType>& numberOfConnectivityIds,
-  vtkPolyData* pieceData)
+template <typename ImplT, typename CacheT>
+vtkSmartPointer<vtkDataArray> ReadFromFileOrCache(ImplT* impl, std::shared_ptr<CacheT> cache,
+  int tag, std::string name, std::string name_modifier, vtkIdType offset, vtkIdType size,
+  bool mData = true)
 {
+  vtkSmartPointer<vtkDataArray> array;
+  std::string cacheName = name + name_modifier;
+  if (cache && cache->CheckExistsAndEqual(tag, cacheName, offset, size))
+  {
+    array = vtkDataArray::SafeDownCast(cache->Get(tag, cacheName));
+    if (!array)
+    {
+      vtkErrorWithObjectMacro(nullptr, "Cannot read the " << cacheName << " array from cache");
+      return nullptr;
+    }
+  }
+  else
+  {
+    array = vtk::TakeSmartPointer(mData ? impl->NewMetadataArray(name.c_str(), offset, size)
+                                        : impl->NewArray(tag, name.c_str(), offset, size));
+    if (!array)
+    {
+      vtkErrorWithObjectMacro(nullptr, "Cannot read the " + cacheName + " array from file");
+      return nullptr;
+    }
+  }
+  if (cache)
+  {
+    cache->Set(tag, name, offset, size, array);
+  }
+  return array;
+}
+
+template <class T, class CacheT>
+bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOffset,
+  vtkIdType numberOfPoints, std::vector<vtkIdType>& cellOffsets,
+  std::vector<vtkIdType>& numberOfCells, std::vector<vtkIdType>& connectivityOffsets,
+  std::vector<vtkIdType>& numberOfConnectivityIds, int filePiece, vtkPolyData* pieceData)
+{
+  auto readFromFileOrCache = [&](int tag, std::string name, vtkIdType offset, vtkIdType size) {
+    std::string modifier = "_" + std::to_string(filePiece);
+    return ReadFromFileOrCache(impl, cache, tag, name, modifier, offset, size);
+  };
   vtkNew<vtkPoints> points;
   vtkSmartPointer<vtkDataArray> pointArray;
-  if ((pointArray = vtk::TakeSmartPointer(
-         impl->NewMetadataArray("Points", pointOffset, numberOfPoints))) == nullptr)
+  if ((pointArray = readFromFileOrCache(
+         ::GEOMETRY_ATTRIBUTE_TAG, "Points", pointOffset, numberOfPoints)) == nullptr)
   {
     vtkErrorWithObjectMacro(nullptr, "Cannot read the Points array");
     return false;
@@ -153,16 +190,15 @@ bool ReadPolyDataPiece(T* impl, vtkIdType pointOffset, vtkIdType numberOfPoints,
   {
     const auto& name = ::POLY_DATA_TOPOS[iTopo];
     vtkSmartPointer<vtkDataArray> offsetsArray;
-    if ((offsetsArray = vtk::TakeSmartPointer(impl->NewMetadataArray(
-           (name + "/Offsets").c_str(), cellOffsets[iTopo], numberOfCells[iTopo] + 1))) == nullptr)
+    if ((offsetsArray = readFromFileOrCache(::GEOMETRY_ATTRIBUTE_TAG, (name + "/Offsets"),
+           cellOffsets[iTopo], numberOfCells[iTopo] + 1)) == nullptr)
     {
       vtkErrorWithObjectMacro(nullptr, "Cannot read the Offsets array for " + name);
       return false;
     }
     vtkSmartPointer<vtkDataArray> connectivityArray;
-    if ((connectivityArray =
-            vtk::TakeSmartPointer(impl->NewMetadataArray((name + "/Connectivity").c_str(),
-              connectivityOffsets[iTopo], numberOfConnectivityIds[iTopo]))) == nullptr)
+    if ((connectivityArray = readFromFileOrCache(::GEOMETRY_ATTRIBUTE_TAG, (name + "/Connectivity"),
+           connectivityOffsets[iTopo], numberOfConnectivityIds[iTopo])) == nullptr)
     {
       vtkErrorWithObjectMacro(nullptr, "Cannot read the Connectivity array for " + name);
       return false;
@@ -254,7 +290,7 @@ private:
 
 //----------------------------------------------------------------------------
 vtkHDFReader::vtkHDFReader()
-  : Cache(new DataCache)
+  : Cache(std::make_shared<DataCache>())
 {
   this->FileName = nullptr;
   // Setup the selection callback to modify this object when an array
@@ -1111,8 +1147,9 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     // populate the poly data piece
     vtkNew<vtkPolyData> pieceData;
     pieceData->Initialize();
-    if (!::ReadPolyDataPiece(this->Impl, pointOffset, numberOfPoints[filePiece], cellOffsets,
-          pieceNumberOfCells, connectivityOffsets, pieceNumberOfConnectivityIds, pieceData))
+    if (!::ReadPolyDataPiece(this->Impl, this->UseCache ? this->Cache : nullptr, pointOffset,
+          numberOfPoints[filePiece], cellOffsets, pieceNumberOfCells, connectivityOffsets,
+          pieceNumberOfConnectivityIds, filePiece, pieceData))
     {
       vtkErrorMacro(
         "There was an error in reading the " << filePiece << " piece of the poly data file.");
@@ -1149,8 +1186,9 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
             }
           }
           vtkSmartPointer<vtkDataArray> array;
-          if ((array = vtk::TakeSmartPointer(this->Impl->NewArray(
-                 attributeType, name.c_str(), arrayOffset, numberOf[attributeType]))) == nullptr)
+          if ((array = ::ReadFromFileOrCache(this->Impl, this->UseCache ? this->Cache : nullptr,
+                 attributeType, name, "_" + std::to_string(filePiece), arrayOffset,
+                 numberOf[attributeType], false)) == nullptr)
           {
             vtkErrorMacro("Error reading array " << name);
             return 0;
