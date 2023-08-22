@@ -200,6 +200,8 @@ namespace loguru
 	static std::thread* s_flush_thread   = nullptr;
 	static bool         s_needs_flushing = false;
 
+	static SignalOptions s_signal_options = SignalOptions::none();
+
 	static const bool s_terminal_has_color = [](){
 		#ifdef _WIN32
 			#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
@@ -486,7 +488,7 @@ namespace loguru
 		flush();
 	}
 
-	static void install_signal_handlers(bool unsafe_signal_handler);
+	static void install_signal_handlers(const SignalOptions& signal_options);
 
 	static void write_hex_digit(std::string& out, unsigned num)
 	{
@@ -611,7 +613,7 @@ namespace loguru
 		VLOG_F(g_internal_verbosity, "stderr verbosity: " LOGURU_FMT(d) "", g_stderr_verbosity);
 		VLOG_F(g_internal_verbosity, "-----------------------------------");
 
-		install_signal_handlers(options.unsafe_signal_handler);
+		install_signal_handlers(options.signal_options);
 
 		atexit(on_atexit);
 	}
@@ -1310,9 +1312,11 @@ namespace loguru
 			}
 
 			if (abort_if_fatal) {
-#if LOGURU_CATCH_SIGABRT && !defined(_WIN32)
-				// Make sure we don't catch our own abort:
-				signal(SIGABRT, SIG_DFL);
+#if !defined(_WIN32)
+				if (s_signal_options.sigabrt) {
+					// Make sure we don't catch our own abort:
+					signal(SIGABRT, SIG_DFL);
+				}
 #endif
 				abort();
 			}
@@ -1713,9 +1717,9 @@ namespace loguru
 
 #ifdef _WIN32
 namespace loguru {
-	void install_signal_handlers(bool unsafe_signal_handler)
+	void install_signal_handlers(const SignalOptions& signal_options)
 	{
-		(void)unsafe_signal_handler;
+		(void)signal_options;
 		// TODO: implement signal handlers on windows
 	}
 } // namespace loguru
@@ -1724,23 +1728,6 @@ namespace loguru {
 
 namespace loguru
 {
-	struct Signal
-	{
-		int         number;
-		const char* name;
-	};
-	const Signal ALL_SIGNALS[] = {
-#if LOGURU_CATCH_SIGABRT
-		{ SIGABRT, "SIGABRT" },
-#endif
-		{ SIGBUS,  "SIGBUS"  },
-		{ SIGFPE,  "SIGFPE"  },
-		{ SIGILL,  "SIGILL"  },
-		{ SIGINT,  "SIGINT"  },
-		{ SIGSEGV, "SIGSEGV" },
-		{ SIGTERM, "SIGTERM" },
-	};
-
 	void write_to_stderr(const char* data, size_t size)
 	{
 		auto result = write(STDERR_FILENO, data, size);
@@ -1762,18 +1749,17 @@ namespace loguru
 		kill(getpid(), signal_number);
 	}
 
-	static bool s_unsafe_signal_handler = false;
-
 	void signal_handler(int signal_number, siginfo_t*, void*)
 	{
 		const char* signal_name = "UNKNOWN SIGNAL";
 
-		for (const auto& s : ALL_SIGNALS) {
-			if (s.number == signal_number) {
-				signal_name = s.name;
-				break;
-			}
-		}
+		if (signal_number == SIGABRT) { signal_name = "SIGABRT"; }
+		if (signal_number == SIGBUS)  { signal_name = "SIGBUS";  }
+		if (signal_number == SIGFPE)  { signal_name = "SIGFPE";  }
+		if (signal_number == SIGILL)  { signal_name = "SIGILL";  }
+		if (signal_number == SIGINT)  { signal_name = "SIGINT";  }
+		if (signal_number == SIGSEGV) { signal_name = "SIGSEGV"; }
+		if (signal_number == SIGTERM) { signal_name = "SIGTERM"; }
 
 		// --------------------------------------------------------------------
 		/* There are few things that are safe to do in a signal handler,
@@ -1797,7 +1783,7 @@ namespace loguru
 
 		// --------------------------------------------------------------------
 
-		if (s_unsafe_signal_handler) {
+		if (s_signal_options.unsafe_signal_handler) {
 			// --------------------------------------------------------------------
 			/* Now we do unsafe things. This can for example lead to deadlocks if
 			   the signal was triggered from the system's memory management functions
@@ -1822,18 +1808,36 @@ namespace loguru
 		call_default_signal_handler(signal_number);
 	}
 
-	void install_signal_handlers(bool unsafe_signal_handler)
+	void install_signal_handlers(const SignalOptions& signal_options)
 	{
-		s_unsafe_signal_handler = unsafe_signal_handler;
+		s_signal_options = signal_options;
 
 		struct sigaction sig_action;
 		memset(&sig_action, 0, sizeof(sig_action));
 		sigemptyset(&sig_action.sa_mask);
 		sig_action.sa_flags |= SA_SIGINFO;
 		sig_action.sa_sigaction = &signal_handler;
-		for (const auto& s : ALL_SIGNALS) {
-			CHECK_F(sigaction(s.number, &sig_action, NULL) != -1,
-				"Failed to install handler for " LOGURU_FMT(s) "", s.name);
+
+		if (signal_options.sigabrt) {
+			CHECK_F(sigaction(SIGABRT, &sig_action, NULL) != -1, "Failed to install handler for SIGABRT");
+		}
+		if (signal_options.sigbus) {
+			CHECK_F(sigaction(SIGBUS, &sig_action, NULL) != -1, "Failed to install handler for SIGBUS");
+		}
+		if (signal_options.sigfpe) {
+			CHECK_F(sigaction(SIGFPE, &sig_action, NULL) != -1, "Failed to install handler for SIGFPE");
+		}
+		if (signal_options.sigill) {
+			CHECK_F(sigaction(SIGILL, &sig_action, NULL) != -1, "Failed to install handler for SIGILL");
+		}
+		if (signal_options.sigint) {
+			CHECK_F(sigaction(SIGINT, &sig_action, NULL) != -1, "Failed to install handler for SIGINT");
+		}
+		if (signal_options.sigsegv) {
+			CHECK_F(sigaction(SIGSEGV, &sig_action, NULL) != -1, "Failed to install handler for SIGSEGV");
+		}
+		if (signal_options.sigterm) {
+			CHECK_F(sigaction(SIGTERM, &sig_action, NULL) != -1, "Failed to install handler for SIGTERM");
 		}
 	}
 } // namespace loguru
