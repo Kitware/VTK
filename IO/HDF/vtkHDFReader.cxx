@@ -45,6 +45,7 @@ namespace
 //----------------------------------------------------------------------------
 constexpr std::size_t NUM_POLY_DATA_TOPOS = 4;
 const std::vector<std::string> POLY_DATA_TOPOS{ "Vertices", "Lines", "Polygons", "Strips" };
+constexpr int GEOMETRY_ATTRIBUTE_TAG = -42;
 
 //----------------------------------------------------------------------------
 int GetNDims(int* extent)
@@ -743,14 +744,34 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   vtkSmartPointer<vtkDataArray> pointArray;
   vtkIdType pointOffset =
     std::accumulate(numberOfPoints.data(), &numberOfPoints[filePiece], startingPointOffset);
-  if ((pointArray = vtk::TakeSmartPointer(this->Impl->NewMetadataArray(
-         "Points", pointOffset, numberOfPoints[filePiece]))) == nullptr)
+  std::string cacheName = "Points_" + std::to_string(filePiece);
+  if (this->UseCache &&
+    this->Cache->CheckExistsAndEqual(
+      ::GEOMETRY_ATTRIBUTE_TAG, cacheName, pointOffset, numberOfPoints[filePiece]))
   {
-    vtkErrorMacro("Cannot read the Points array");
-    return 0;
+    pointArray = vtkDataArray::SafeDownCast(this->Cache->Get(::GEOMETRY_ATTRIBUTE_TAG, cacheName));
+    if (!pointArray)
+    {
+      vtkErrorMacro("Could not retrieve point array from cache for file piece " << filePiece);
+      return 0;
+    }
+  }
+  else
+  {
+    if ((pointArray = vtk::TakeSmartPointer(this->Impl->NewMetadataArray(
+           "Points", pointOffset, numberOfPoints[filePiece]))) == nullptr)
+    {
+      vtkErrorMacro("Cannot read the Points array");
+      return 0;
+    }
   }
   points->SetData(pointArray);
   pieceData->SetPoints(points);
+  if (this->UseCache)
+  {
+    this->Cache->Set(
+      ::GEOMETRY_ATTRIBUTE_TAG, cacheName, pointOffset, numberOfPoints[filePiece], pointArray);
+  }
   vtkNew<vtkCellArray> cellArray;
   vtkSmartPointer<vtkDataArray> offsetsArray;
   vtkSmartPointer<vtkDataArray> connectivityArray;
@@ -759,29 +780,91 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   // the offsets array has (numberOfCells[part] + 1) elements per part.
   vtkIdType offset = std::accumulate(
     numberOfCells.data(), &numberOfCells[filePiece], startingCellOffset + partOffset + filePiece);
-  if ((offsetsArray = vtk::TakeSmartPointer(
-         this->Impl->NewMetadataArray("Offsets", offset, numberOfCells[filePiece] + 1))) == nullptr)
+  cacheName = "Offsets_" + std::to_string(filePiece);
+  if (this->UseCache &&
+    this->Cache->CheckExistsAndEqual(
+      ::GEOMETRY_ATTRIBUTE_TAG, cacheName, offset, numberOfCells[filePiece] + 1))
   {
-    vtkErrorMacro("Cannot read the Offsets array");
-    return 0;
+    offsetsArray =
+      vtkDataArray::SafeDownCast(this->Cache->Get(::GEOMETRY_ATTRIBUTE_TAG, cacheName));
+    if (!offsetsArray)
+    {
+      vtkErrorMacro("Could not retrieve offsets array from cache for file piece " << filePiece);
+      return 0;
+    }
+  }
+  else
+  {
+    if ((offsetsArray = vtk::TakeSmartPointer(this->Impl->NewMetadataArray(
+           "Offsets", offset, numberOfCells[filePiece] + 1))) == nullptr)
+    {
+      vtkErrorMacro("Cannot read the Offsets array");
+      return 0;
+    }
+  }
+  if (this->UseCache)
+  {
+    this->Cache->Set(
+      ::GEOMETRY_ATTRIBUTE_TAG, cacheName, offset, numberOfCells[filePiece] + 1, offsetsArray);
   }
   offset = std::accumulate(numberOfConnectivityIds.data(), &numberOfConnectivityIds[filePiece],
     startingConnectivityIdOffset);
-  if ((connectivityArray = vtk::TakeSmartPointer(this->Impl->NewMetadataArray(
-         "Connectivity", offset, numberOfConnectivityIds[filePiece]))) == nullptr)
+  cacheName = "Connectivity_" + std::to_string(filePiece);
+  if (this->UseCache &&
+    this->Cache->CheckExistsAndEqual(
+      ::GEOMETRY_ATTRIBUTE_TAG, cacheName, offset, numberOfConnectivityIds[filePiece]))
   {
-    vtkErrorMacro("Cannot read the Connectivity array");
-    return 0;
+    connectivityArray =
+      vtkDataArray::SafeDownCast(this->Cache->Get(::GEOMETRY_ATTRIBUTE_TAG, cacheName));
+    if (!connectivityArray)
+    {
+      vtkErrorMacro(
+        "Could not retrieve connectivity array from cache for file piece " << filePiece);
+      return 0;
+    }
+  }
+  else
+  {
+    if ((connectivityArray = vtk::TakeSmartPointer(this->Impl->NewMetadataArray(
+           "Connectivity", offset, numberOfConnectivityIds[filePiece]))) == nullptr)
+    {
+      vtkErrorMacro("Cannot read the Connectivity array");
+      return 0;
+    }
+  }
+  if (this->UseCache)
+  {
+    this->Cache->Set(::GEOMETRY_ATTRIBUTE_TAG, cacheName, offset,
+      numberOfConnectivityIds[filePiece], connectivityArray);
   }
   cellArray->SetData(offsetsArray, connectivityArray);
 
   vtkIdType cellOffset =
     std::accumulate(numberOfCells.data(), &numberOfCells[filePiece], startingCellOffset);
-  if ((p = vtk::TakeSmartPointer(
-         this->Impl->NewMetadataArray("Types", cellOffset, numberOfCells[filePiece]))) == nullptr)
+  cacheName = "Types_" + std::to_string(filePiece);
+  if (this->UseCache &&
+    this->Cache->CheckExistsAndEqual(
+      ::GEOMETRY_ATTRIBUTE_TAG, cacheName, cellOffset, numberOfCells[filePiece]))
   {
-    vtkErrorMacro("Cannot read the Types array");
-    return 0;
+    p = vtkDataArray::SafeDownCast(this->Cache->Get(::GEOMETRY_ATTRIBUTE_TAG, cacheName));
+    if (!p)
+    {
+      vtkErrorMacro("Could not retrieve types array from cache for file piece " << filePiece);
+      return 0;
+    }
+  }
+  else
+  {
+    if ((p = vtk::TakeSmartPointer(
+           this->Impl->NewMetadataArray("Types", cellOffset, numberOfCells[filePiece]))) == nullptr)
+    {
+      vtkErrorMacro("Cannot read the Types array");
+      return 0;
+    }
+  }
+  if (this->UseCache)
+  {
+    this->Cache->Set(::GEOMETRY_ATTRIBUTE_TAG, cacheName, cellOffset, numberOfCells[filePiece], p);
   }
   if ((typesArray = vtkUnsignedCharArray::SafeDownCast(p)) == nullptr)
   {
@@ -812,13 +895,34 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
           }
         }
         vtkSmartPointer<vtkDataArray> array;
-        if ((array = vtk::TakeSmartPointer(this->Impl->NewArray(attributeType, name.c_str(),
-               arrayOffset, (*numberOf[attributeType])[filePiece]))) == nullptr)
+        cacheName = name + "_" + std::to_string(filePiece);
+        if (this->UseCache &&
+          this->Cache->CheckExistsAndEqual(
+            attributeType, cacheName, arrayOffset, (*numberOf[attributeType])[filePiece]))
         {
-          vtkErrorMacro("Error reading array " << name);
-          return 0;
+          array = vtkDataArray::SafeDownCast(this->Cache->Get(attributeType, cacheName));
+          if (!array)
+          {
+            vtkErrorMacro(
+              "Could not retrieve " << name << " array from cache for file piece " << filePiece);
+            return 0;
+          }
+        }
+        else
+        {
+          if ((array = vtk::TakeSmartPointer(this->Impl->NewArray(attributeType, name.c_str(),
+                 arrayOffset, (*numberOf[attributeType])[filePiece]))) == nullptr)
+          {
+            vtkErrorMacro("Error reading array " << name);
+            return 0;
+          }
         }
         array->SetName(name.c_str());
+        if (this->UseCache)
+        {
+          this->Cache->Set(
+            attributeType, cacheName, arrayOffset, (*numberOf[attributeType])[filePiece], array);
+        }
         pieceData->GetAttributesAsFieldData(attributeType)->AddArray(array);
       }
     }
