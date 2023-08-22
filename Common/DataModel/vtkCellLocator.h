@@ -35,7 +35,6 @@
 
 #include "vtkAbstractCellLocator.h"
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkNew.h"                   // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -160,9 +159,6 @@ public:
   void ForceBuildLocator() override;
   void GenerateRepresentation(int level, vtkPolyData* pd) override;
   ///@}
-
-  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because LazyEvaluation has been deprecated")
-  virtual void BuildLocatorIfNeeded() {}
 
   /**
    * Get the cells in a particular bucket.

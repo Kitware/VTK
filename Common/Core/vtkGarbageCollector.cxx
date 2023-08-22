@@ -185,14 +185,6 @@ public:
   vtkGarbageCollectorImpl();
   ~vtkGarbageCollectorImpl() override;
 
-  // Description:
-  // Prevent normal vtkObject reference counting behavior.
-  void Register(vtkObjectBase*) override;
-
-  // Description:
-  // Prevent normal vtkObject reference counting behavior.
-  void UnRegister(vtkObjectBase*) override;
-
   // Perform a collection check.
   void CollectInternal(vtkObjectBase* root);
 
@@ -440,12 +432,6 @@ vtkGarbageCollectorImpl::~vtkGarbageCollectorImpl()
   // Disable debugging to avoid destruction message.
   this->SetDebug(false);
 }
-
-//------------------------------------------------------------------------------
-void vtkGarbageCollectorImpl::Register(vtkObjectBase*) {}
-
-//------------------------------------------------------------------------------
-void vtkGarbageCollectorImpl::UnRegister(vtkObjectBase*) {}
 
 //------------------------------------------------------------------------------
 void vtkGarbageCollectorImpl::CollectInternal(vtkObjectBase* root)

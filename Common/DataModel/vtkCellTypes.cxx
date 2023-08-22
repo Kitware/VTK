@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Hide VTK_DEPRECATED_IN_9_2_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkCellTypes.h"
 #include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
@@ -139,35 +136,9 @@ vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, vtkIdType loc)
 
 //------------------------------------------------------------------------------
 // Specify a group of cell types.
-void vtkCellTypes::SetCellTypes(
-  vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIntArray* cellLocations)
-{
-  VTK_LEGACY_BODY(vtkCellTypes::SetCellTypes, "VTK 9.2");
-  this->TypeArray = cellTypes;
-  if (!this->LocationArray)
-  {
-    this->LocationArray = vtkSmartPointer<vtkIdTypeArray>::New();
-  }
-  this->LocationArray->DeepCopy(cellLocations);
-  this->MaxId = ncells - 1;
-}
-
-//------------------------------------------------------------------------------
-// Specify a group of cell types.
 void vtkCellTypes::SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray* cellTypes)
 {
   this->TypeArray = cellTypes;
-  this->MaxId = ncells - 1;
-}
-
-//------------------------------------------------------------------------------
-// Specify a group of cell types.
-void vtkCellTypes::SetCellTypes(
-  vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIdTypeArray* cellLocations)
-{
-  VTK_LEGACY_BODY(vtkCellTypes::SetCellTypes, "VTK 9.2");
-  this->TypeArray = cellTypes;
-  this->LocationArray = cellLocations;
   this->MaxId = ncells - 1;
 }
 

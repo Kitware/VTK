@@ -2,9 +2,6 @@
 // SPDX-FileCopyrightText: Copyright 2011 Sandia Corporation
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
-// Hide VTK_DEPRECATED_IN_9_2_0() warnings for this class
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkDescriptiveStatistics.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 
@@ -53,93 +50,6 @@ void vtkDescriptiveStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Type of statistics: "
      << (this->SampleEstimate ? "Sample Statistics" : "Population Statistics") << "\n";
   os << indent << "SignedDeviations: " << this->SignedDeviations << "\n";
-}
-
-//------------------------------------------------------------------------------
-void vtkDescriptiveStatistics::SetUnbiasedVariance(vtkTypeBool)
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::SetUnbiasedVariance, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use SetSampleEstimate instead.");
-}
-
-//------------------------------------------------------------------------------
-vtkTypeBool vtkDescriptiveStatistics::GetUnbiasedVariance()
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::GetUnbiasedVariance, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use GetSampleEstimate instead.");
-  return this->SampleEstimate;
-}
-
-//------------------------------------------------------------------------------
-void vtkDescriptiveStatistics::UnbiasedVarianceOn()
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::UnbiasedVarianceOn, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOn instead.");
-}
-
-//------------------------------------------------------------------------------
-void vtkDescriptiveStatistics::UnbiasedVarianceOff()
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::UnbiasedVarianceOff, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOff instead.");
-}
-
-//------------------------------------------------------------------------------
-void vtkDescriptiveStatistics::SetG1Skewness(vtkTypeBool)
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::SetG1Skewness, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use SetSampleEstimate instead.");
-}
-
-//------------------------------------------------------------------------------
-vtkTypeBool vtkDescriptiveStatistics::GetG1Skewness()
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::GetG1Skewness, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use GetSampleEstimate instead.");
-  return this->SampleEstimate;
-}
-
-//------------------------------------------------------------------------------
-void vtkDescriptiveStatistics::G1SkewnessOn()
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::G1SkewnessOn, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOn instead.");
-}
-
-//------------------------------------------------------------------------------
-void vtkDescriptiveStatistics::G1SkewnessOff()
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::G1SkewnessOff, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOff instead.");
-}
-
-//------------------------------------------------------------------------------
-void vtkDescriptiveStatistics::SetG2Kurtosis(vtkTypeBool)
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::SetG2Kurtosis, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use SetSampleEstimate instead.");
-}
-
-//------------------------------------------------------------------------------
-vtkTypeBool vtkDescriptiveStatistics::GetG2Kurtosis()
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::GetG2Kurtosis, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use GetSampleEstimate instead.");
-  return this->SampleEstimate;
-}
-
-//------------------------------------------------------------------------------
-void vtkDescriptiveStatistics::G2KurtosisOn()
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::G2KurtosisOn, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOn instead.");
-}
-
-//------------------------------------------------------------------------------
-void vtkDescriptiveStatistics::G2KurtosisOff()
-{
-  VTK_LEGACY_BODY(vtkDescriptiveStatistics::G2KurtosisOff, "VTK 9.2");
-  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOff instead.");
 }
 
 //------------------------------------------------------------------------------

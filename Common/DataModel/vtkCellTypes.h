@@ -28,7 +28,6 @@
 #include "vtkObject.h"
 
 #include "vtkCellType.h"          // Needed for inline methods
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkIdTypeArray.h"       // Needed for inline methods
 #include "vtkSmartPointer.h"      // Needed for internals
 #include "vtkUnsignedCharArray.h" // Needed for inline methods
@@ -60,29 +59,8 @@ public:
 
   /**
    * Specify a group of cell types.
-   *
-   * \deprecated Please use method version that doesn't use `cellLocations` instead.
-   */
-  VTK_DEPRECATED_IN_9_2_0("Please use version without cellLocations.")
-  void SetCellTypes(
-    vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIdTypeArray* cellLocations);
-
-  /**
-   * Specify a group of cell types.
    */
   void SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray* cellTypes);
-
-  VTK_DEPRECATED_IN_9_2_0("Please use version without cellLocations.")
-  void SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIntArray* cellLocations);
-
-  /**
-   * Return the location of the cell in the associated vtkCellArray.
-   *
-   * \deprecated This method will go away in future releases.
-   * Please do not rely on `CellLocation` in this class.
-   */
-  VTK_DEPRECATED_IN_9_2_0("The Location API will disappear.")
-  vtkIdType GetCellLocation(vtkIdType cellId) { return this->LocationArray->GetValue(cellId); }
 
   /**
    * Delete cell by setting to nullptr cell type.

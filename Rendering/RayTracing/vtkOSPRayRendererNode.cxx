@@ -171,7 +171,6 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_CONTRIBUTION, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_DEPTH, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MIN_CONTRIBUTION, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, ROULETTE_DEPTH, Integer);
-vtkInformationKeyMacro(vtkOSPRayRendererNode, VOLUME_ANISOTROPY, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, VARIANCE_THRESHOLD, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_FRAMES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, AMBIENT_SAMPLES, Integer);

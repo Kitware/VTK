@@ -770,19 +770,6 @@ void vtkBorderRepresentation::UpdateShowBorder()
 }
 
 //------------------------------------------------------------------------------
-void vtkBorderRepresentation::SetBWActorDisplayOverlay(bool enable)
-{
-  if (this->BWActorEdges)
-  {
-    this->BWActorEdges->SetVisibility(enable);
-  }
-  if (this->BWActorPolygon)
-  {
-    this->BWActorPolygon->SetVisibility(enable);
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkBorderRepresentation::SetBWActorDisplayOverlayEdges(bool enable)
 {
   if (this->BWActorEdges)

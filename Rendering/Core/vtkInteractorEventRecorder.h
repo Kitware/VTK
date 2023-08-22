@@ -29,7 +29,6 @@
 #ifndef vtkInteractorEventRecorder_h
 #define vtkInteractorEventRecorder_h
 
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractorObserver.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
@@ -140,10 +139,6 @@ protected:
 
   virtual void WriteEvent(const char* event, int pos[2], int modifiers, int keyCode,
     int repeatCount, char* keySym, void* callData = nullptr);
-
-  VTK_DEPRECATED_IN_9_2_0(
-    "This method was not used at all and has been replaced by ReadEvent(const std::string&)")
-  virtual void ReadEvent() {}
 
   /**
    * A method that parse a event line and invoke the corresponding event

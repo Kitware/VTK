@@ -12,11 +12,7 @@ set(classes
   vtkProteinRibbonFilter
   vtkSimpleBondPerceiver)
 
-set(headers
-  vtkChemistryConfigure.h)
-
 vtk_module_add_module(VTK::DomainsChemistry
   CLASSES ${classes}
-  NOWRAP_HEADERS ${headers}
   PRIVATE_HEADERS vtkBlueObeliskDataInternal.h)
 vtk_add_test_mangling(VTK::DomainsChemistry)

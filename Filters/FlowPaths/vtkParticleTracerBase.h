@@ -16,7 +16,6 @@
 #ifndef vtkParticleTracerBase_h
 #define vtkParticleTracerBase_h
 
-#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
@@ -230,25 +229,6 @@ public:
   void SetMeshOverTimeToLinearTransformation() { this->SetMeshOverTime(LINEAR_TRANSFORMATION); }
   void SetMeshOverTimeToSameTopology() { this->SetMeshOverTime(SAME_TOPOLOGY); }
   vtkGetMacro(MeshOverTime, int);
-  ///@}
-
-  ///@{
-  /**
-   * if StaticMesh is set, many optimizations for cell caching
-   * can be assumed. if StaticMesh is not set, the algorithm
-   * will attempt to find out if optimizations can be used, but
-   * setting it to true will force all optimizations.
-   * Do not Set StaticMesh to true if a dynamic mesh is being used
-   * as this will invalidate all results.
-   * The default is that StaticMesh is 0.
-   */
-  VTK_DEPRECATED_IN_9_2_0("Use SetMeshOverTime instead")
-  virtual void SetStaticMesh(vtkTypeBool staticMesh)
-  {
-    this->SetMeshOverTime(staticMesh ? STATIC : DIFFERENT);
-  }
-  VTK_DEPRECATED_IN_9_2_0("Use GetMeshOverTime instead")
-  virtual vtkTypeBool GetStaticMesh() { return this->MeshOverTime == STATIC; }
   ///@}
 
   enum

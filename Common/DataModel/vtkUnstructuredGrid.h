@@ -19,7 +19,6 @@
 #include "vtkAbstractCellLinks.h"     // For vtkAbstractCellLinks
 #include "vtkCellArray.h"             // inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkIdTypeArray.h"           // inline GetCellPoints()
 #include "vtkUnstructuredGridBase.h"
 

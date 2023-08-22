@@ -40,13 +40,9 @@ endif ()
 set(classes
   vtkMFCWindow
   )
-set(headers
-  vtkMFCConfigure.h
-  )
 
 vtk_module_add_module(VTK::GUISupportMFC
-  CLASSES ${classes}
-  HEADERS ${headers})
+  CLASSES ${classes})
 vtk_add_test_mangling(VTK::GUISupportMFC)
 
 if (vtk_mfc_static)

@@ -16,12 +16,7 @@ set(classes
   vtkExtractPolyDataGeometry
   vtkExtractRectilinearGrid
   vtkExtractSelectedArraysOverTime
-  vtkExtractSelectedBlock
-  vtkExtractSelectedIds
-  vtkExtractSelectedLocations
-  vtkExtractSelectedPolyDataIds
   vtkExtractSelectedRows
-  vtkExtractSelectedThresholds
   vtkExtractSelection
   vtkExtractTensorComponents
   vtkExtractTimeSteps

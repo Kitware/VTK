@@ -168,8 +168,7 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
       !array->IsA("vtkIdTypeArray"))
     {
       vtkSmartPointer<vtkDataArray> fft = this->DoFFT(dataArray);
-      std::string newArrayName =
-        this->PrefixOutputArrays ? std::string("FFT_").append(arrayName) : arrayName;
+      std::string newArrayName = arrayName;
       fft->SetName(newArrayName.c_str());
       output->AddColumn(fft);
     }

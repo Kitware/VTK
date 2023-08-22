@@ -24,10 +24,6 @@ import vtkmodules.vtkRenderingOpenGL2
 from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-# VTK_DEPRECATED_IN_9_2_0
-import warnings
-warnings.filterwarnings('ignore', category=DeprecationWarning)
-
 # Test and compare vtkGeometryFilter verus
 # vtkDataSetSurfaceFilter.
 
@@ -72,7 +68,6 @@ ele.Update()
 geomF = vtkGeometryFilter()
 geomF.SetInputConnection(ele.GetOutputPort())
 geomF.FastModeOn()
-geomF.SetDegree(4)
 geomF.MergingOn()
 
 timer = vtkTimerLog()

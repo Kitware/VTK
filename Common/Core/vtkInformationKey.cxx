@@ -59,12 +59,6 @@ void vtkInformationKey::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkInformationKey::Register(vtkObjectBase*) {}
-
-//------------------------------------------------------------------------------
-void vtkInformationKey::UnRegister(vtkObjectBase*) {}
-
-//------------------------------------------------------------------------------
 const char* vtkInformationKey::GetName()
 {
   return this->Name;

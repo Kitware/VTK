@@ -26,7 +26,6 @@
 #define vtkAbstractCellLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkLocator.h"
 #include "vtkNew.h" // For vtkNew
 
@@ -84,23 +83,6 @@ public:
   vtkSetMacro(RetainCellLists, vtkTypeBool);
   vtkGetMacro(RetainCellLists, vtkTypeBool);
   vtkBooleanMacro(RetainCellLists, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Most Locators build their search structures during BuildLocator
-   * but some may delay construction until it is actually needed.
-   * If LazyEvaluation is supported, this turns on/off the feature.
-   * if not supported, it is ignored.
-   */
-  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
-  virtual void SetLazyEvaluation(vtkTypeBool) {}
-  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
-  virtual vtkTypeBool GetLazyEvaluation() { return 0; }
-  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
-  virtual void LazyEvaluationOn() {}
-  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
-  virtual void LazyEvaluationOff() {}
   ///@}
 
   /**

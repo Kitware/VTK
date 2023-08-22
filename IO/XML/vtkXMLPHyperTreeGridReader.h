@@ -20,7 +20,6 @@
 #include "vtkXMLPDataObjectReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkHyperTreeCursor;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkXMLHyperTreeGridReader;

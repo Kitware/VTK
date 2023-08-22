@@ -98,7 +98,6 @@ set(classes
   vtkGraphInternals
   vtkHexagonalPrism
   vtkHexahedron
-  vtkHierarchicalBoxDataIterator
   vtkHierarchicalBoxDataSet
   vtkHigherOrderCurve
   vtkHigherOrderHexahedron
@@ -108,7 +107,6 @@ set(classes
   vtkHigherOrderTriangle
   vtkHigherOrderWedge
   vtkHyperTree
-  vtkHyperTreeCursor
   vtkHyperTreeGrid
   vtkHyperTreeGridLocator
   vtkHyperTreeGridGeometricLocator

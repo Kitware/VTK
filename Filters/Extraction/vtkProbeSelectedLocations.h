@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkProbeSelectedLocations
- * @brief   similar to vtkExtractSelectedLocations
+ * @brief   similar to vtkExtractSelection
  * except that it interpolates the point attributes at the probe locations.
  *
- * vtkProbeSelectedLocations is similar to vtkExtractSelectedLocations except
+ * vtkProbeSelectedLocations is similar to vtkExtractSelection except
  * that it interpolates the point attributes at the probe location. This is
  * equivalent to the vtkProbeFilter except that the probe locations are provided
  * by a vtkSelection. The FieldType of the input vtkSelection is immaterial and

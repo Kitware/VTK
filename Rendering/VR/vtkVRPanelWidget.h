@@ -14,7 +14,6 @@
 #define vtkVRPanelWidget_h
 
 #include "vtkAbstractWidget.h"
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkRenderingVRModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -59,10 +58,6 @@ protected:
     Start = 0,
     Active
   };
-#if !defined(VTK_LEGACY_REMOVE)
-  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
-  typedef WidgetStateType _WidgetState;
-#endif
 
   /**
    * callback

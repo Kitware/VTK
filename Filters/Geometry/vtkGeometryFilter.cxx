@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// VTK_DEPRECATED_IN_9_2_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkGeometryFilter.h"
 
@@ -45,7 +43,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeometryFilter);
-vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator);
 
 static constexpr unsigned char MASKED_CELL_VALUE = vtkDataSetAttributes::HIDDENCELL |
   vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::REFINEDCELL;
@@ -104,7 +101,6 @@ vtkGeometryFilter::vtkGeometryFilter()
 //------------------------------------------------------------------------------
 vtkGeometryFilter::~vtkGeometryFilter()
 {
-  this->SetLocator(nullptr);
   this->SetOriginalCellIdsName(nullptr);
   this->SetOriginalPointIdsName(nullptr);
 }
@@ -236,10 +232,6 @@ int vtkGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
     return this->DataSetExecute(input, output, excFaces);
   }
 }
-
-//------------------------------------------------------------------------------
-// Specify a spatial locator for merging points. This method is now deprecated.
-void vtkGeometryFilter::CreateDefaultLocator() {}
 
 //------------------------------------------------------------------------------
 void vtkGeometryFilter::SetExcludedFacesData(vtkPolyData* input)

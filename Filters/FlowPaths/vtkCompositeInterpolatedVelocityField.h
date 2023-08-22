@@ -16,8 +16,8 @@
  *
  * @sa
  *  vtkAbstractInterpolatedVelocityField vtkAMRInterpolatedVelocityField
- *  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
- *  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
+ *  vtkGenericInterpolatedVelocityField vtkTemporalInterpolatedVelocityField
+ *  vtkFunctionSet vtkStreamTracer
  */
 
 #ifndef vtkCompositeInterpolatedVelocityField_h

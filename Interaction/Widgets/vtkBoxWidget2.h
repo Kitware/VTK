@@ -82,9 +82,7 @@
 #define vtkBoxWidget2_h
 
 #include "vtkAbstractWidget.h"
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBoxRepresentation;
@@ -162,10 +160,6 @@ protected:
     Start = 0,
     Active
   };
-#if !defined(VTK_LEGACY_REMOVE)
-  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
-  typedef WidgetStateType _WidgetState;
-#endif
 
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);

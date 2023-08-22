@@ -52,7 +52,6 @@
 #define vtkMeshQuality_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersVerdictModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -1276,125 +1275,6 @@ public:
   vtkTypeBool GetRatio() { return this->GetSaveCellQuality(); }
   vtkBooleanMacro(Ratio, vtkTypeBool);
 
-  ///@{
-  /**
-   * These methods are deprecated. The functionality of computing cell
-   * volume is being removed until it can be computed for any 3D cell.
-   * (The previous implementation only worked for tetrahedra.)
-
-   * For now, turning on the volume computation will put this
-   * filter into "compatibility mode," where tetrahedral cell
-   * volume is stored in first component of each output tuple and
-   * the radius ratio is stored in the second component. You may
-   * also use CompatibilityModeOn()/Off() to enter this mode.
-   * In this mode, cells other than tetrahedra will have report
-   * a volume of 0.0 (if volume computation is enabled).
-
-   * By default, volume computation is disabled and compatibility
-   * mode is off, since it does not make a lot of sense for
-   * meshes with non-tetrahedral cells.
-   */
-  VTK_DEPRECATED_IN_9_2_0("Part of deprecating compatibility mode for this filter")
-  virtual void SetVolume(vtkTypeBool cv)
-  {
-    if (!((cv != 0) ^ (this->Volume != 0)))
-    {
-      return;
-    }
-    this->Modified();
-    this->Volume = cv;
-    if (this->Volume)
-    {
-      this->CompatibilityMode = 1;
-    }
-  }
-  VTK_DEPRECATED_IN_9_2_0("Part of deprecating compatibility mode for this filter")
-  vtkTypeBool GetVolume() { return this->Volume; }
-  VTK_DEPRECATED_IN_9_2_0("Part of deprecating compatibility mode for this filter")
-  void VolumeOn()
-  {
-    if (!this->Volume)
-    {
-      this->Volume = 1;
-      this->Modified();
-    }
-  }
-  VTK_DEPRECATED_IN_9_2_0("Part of deprecating compatibility mode for this filter")
-  void VolumeOff()
-  {
-    if (this->Volume)
-    {
-      this->Volume = 0;
-      this->Modified();
-    }
-  }
-  ///@}
-
-  ///@{
-  /**
-   * CompatibilityMode governs whether, when both a quality function
-   * and cell volume are to be stored as cell data, the two values
-   * are stored in a single array. When compatibility mode is off
-   * (the default), two separate arrays are used -- one labeled
-   * "Quality" and the other labeled "Volume".
-   * When compatibility mode is on, both values are stored in a
-   * single array, with volume as the first component and quality
-   * as the second component.
-
-   * Enabling CompatibilityMode changes the default tetrahedral
-   * quality function to RADIUS_RATIO and turns volume
-   * computation on. (This matches the default behavior of the
-   * initial implementation of vtkMeshQuality.) You may change
-   * quality function and volume computation without leaving
-   * compatibility mode.
-
-   * Disabling compatibility mode does not affect the current
-   * volume computation or tetrahedral quality function settings.
-
-   * The final caveat to CompatibilityMode is that regardless of
-   * its setting, the resulting array will be of type vtkDoubleArray
-   * rather than the original vtkFloatArray.
-   * This is a safety function to keep the authors from
-   * diving off of the Combinatorial Coding Cliff into
-   * Certain Insanity.
-   */
-  VTK_DEPRECATED_IN_9_2_0("Deprecating compatibility mode for this filter")
-  virtual void SetCompatibilityMode(vtkTypeBool cm)
-  {
-    if (!((cm != 0) ^ (this->CompatibilityMode != 0)))
-    {
-      return;
-    }
-    this->CompatibilityMode = cm;
-    this->Modified();
-    if (this->CompatibilityMode)
-    {
-      this->Volume = 1;
-      this->TetQualityMeasure = QualityMeasureTypes::RADIUS_RATIO;
-    }
-  }
-  VTK_DEPRECATED_IN_9_2_0("Deprecating compatibility mode for this filter")
-  vtkGetMacro(CompatibilityMode, vtkTypeBool);
-  VTK_DEPRECATED_IN_9_2_0("Deprecating compatibility mode for this filter")
-  void CompatibilityModeOn()
-  {
-    if (!this->CompatibilityMode)
-    {
-      this->CompatibilityMode = 1;
-      this->Modified();
-    }
-  }
-  VTK_DEPRECATED_IN_9_2_0("Part of deprecating compatibility mode for this filter")
-  void CompatibilityModeOff()
-  {
-    if (this->CompatibilityMode)
-    {
-      this->CompatibilityMode = 0;
-      this->Modified();
-    }
-  }
-  ///@}
-
 protected:
   vtkMeshQuality();
   ~vtkMeshQuality() override = default;
@@ -1417,11 +1297,6 @@ protected:
   CellQualityType GetPyramidQualityMeasureFunction();
   CellQualityType GetWedgeQualityMeasureFunction();
   CellQualityType GetHexQualityMeasureFunction();
-
-  // VTK_DEPRECATED_IN_9_2_0 Those 2 attributes need to be removed, and instance in the code as
-  // well.
-  vtkTypeBool CompatibilityMode;
-  vtkTypeBool Volume;
 
   // Variables used to store the average size (2D: area / 3D: volume)
   static double TriangleAverageSize;

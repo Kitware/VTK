@@ -86,7 +86,6 @@
 #ifndef vtkDescriptiveStatistics_h
 #define vtkDescriptiveStatistics_h
 
-#include "vtkDeprecation.h"             // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
 
@@ -103,55 +102,6 @@ public:
   vtkTypeMacro(vtkDescriptiveStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDescriptiveStatistics* New();
-
-  ///@{
-  /**
-   * @warning THIS METHOD DOES NOTHING AND IS DEPRECATED.
-   *
-   * To compute an unbiased variance, please set `SampleEstimate` instead. When set to true,
-   * the sample variance is computed, which is unbiased.
-   */
-  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
-  virtual void SetUnbiasedVariance(vtkTypeBool);
-  VTK_DEPRECATED_IN_9_2_0("Please use GetSampleEstimate instead")
-  virtual vtkTypeBool GetUnbiasedVariance();
-  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
-  virtual void UnbiasedVarianceOn();
-  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
-  virtual void UnbiasedVarianceOff();
-  ///@}
-
-  ///@{
-  /**
-   * @warning THIS METHOD DOES NOTHING AND IS DEPRECATED.
-   *
-   * Skewness estimator is picked depending on the state of `SampleEstimate`.
-   */
-  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
-  virtual void SetG1Skewness(vtkTypeBool);
-  VTK_DEPRECATED_IN_9_2_0("Please use GetSampleEstimate instead")
-  virtual vtkTypeBool GetG1Skewness();
-  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
-  virtual void G1SkewnessOn();
-  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
-  virtual void G1SkewnessOff();
-  ///@}
-
-  ///@{
-  /**
-   * @warning THIS METHOD DOES NOTHING AND IS DEPRECATED.
-   *
-   * Kurtosis estimator is picked depending on the state of `SampleEstimate`.
-   */
-  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
-  virtual void SetG2Kurtosis(vtkTypeBool);
-  VTK_DEPRECATED_IN_9_2_0("Please use GetSampleEstimate instead")
-  virtual vtkTypeBool GetG2Kurtosis();
-  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
-  virtual void G2KurtosisOn();
-  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
-  virtual void G2KurtosisOff();
-  ///@}
 
   ///@{
   /**
