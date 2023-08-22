@@ -408,6 +408,11 @@ int vtkGLTFImporter::ImportBegin()
 void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
 {
   auto model = this->Loader->GetInternalModel();
+  if (!model)
+  {
+    vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    return;
+  }
 
   int scene = model->DefaultScene;
 
@@ -508,6 +513,11 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
 void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
 {
   auto model = this->Loader->GetInternalModel();
+  if (!model)
+  {
+    vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    return;
+  }
 
   int scene = model->DefaultScene;
 
@@ -566,18 +576,25 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
 vtkIdType vtkGLTFImporter::GetNumberOfCameras()
 {
   auto model = this->Loader->GetInternalModel();
+  if (!model)
+  {
+    vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    return 0;
+  }
+
   return model->Cameras.size();
 }
 
 //------------------------------------------------------------------------------
 std::string vtkGLTFImporter::GetCameraName(vtkIdType camIndex)
 {
-  auto model = this->Loader->GetInternalModel();
   if (camIndex < 0 || camIndex >= this->GetNumberOfCameras())
   {
     vtkErrorMacro("Camera index invalid");
     return "";
   }
+  auto model = this->Loader->GetInternalModel();
+  assert(model);
   return model->Cameras[camIndex].Name;
 }
 
@@ -603,6 +620,12 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
   std::stack<int> nodeIdStack;
 
   const auto& model = this->Loader->GetInternalModel();
+  if (!model)
+  {
+    vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    return;
+  }
+
   const auto& lights = model->ExtensionMetaData.KHRLightsPunctualMetaData.Lights;
 
   // Add root nodes to the stack
@@ -682,6 +705,12 @@ void vtkGLTFImporter::UpdateTimeStep(double timeValue)
 void vtkGLTFImporter::ApplySkinningMorphing()
 {
   const auto& model = this->Loader->GetInternalModel();
+  if (!model)
+  {
+    vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    return;
+  }
+
   int scene = model->DefaultScene;
 
   // List of nodes to import
@@ -761,7 +790,14 @@ void vtkGLTFImporter::ApplySkinningMorphing()
 //----------------------------------------------------------------------------
 vtkIdType vtkGLTFImporter::GetNumberOfAnimations()
 {
-  return static_cast<vtkIdType>(this->Loader->GetInternalModel()->Animations.size());
+  const auto& model = this->Loader->GetInternalModel();
+  if (!model)
+  {
+    vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    return 0;
+  }
+
+  return static_cast<vtkIdType>(model->Animations.size());
 }
 
 //----------------------------------------------------------------------------
@@ -769,7 +805,9 @@ std::string vtkGLTFImporter::GetAnimationName(vtkIdType animationIndex)
 {
   if (animationIndex >= 0 && animationIndex < this->GetNumberOfAnimations())
   {
-    return this->Loader->GetInternalModel()->Animations[animationIndex].Name;
+    const auto& model = this->Loader->GetInternalModel();
+    assert(model);
+    return model->Animations[animationIndex].Name;
   }
   return "";
 }
@@ -804,8 +842,11 @@ bool vtkGLTFImporter::GetTemporalInformation(vtkIdType animationIndex, double fr
 {
   if (animationIndex < this->GetNumberOfAnimations())
   {
+    const auto& model = this->Loader->GetInternalModel();
+    assert(model);
+
     timeRange[0] = 0;
-    timeRange[1] = this->Loader->GetInternalModel()->Animations[animationIndex].Duration;
+    timeRange[1] = model->Animations[animationIndex].Duration;
 
     if (frameRate > 0)
     {
