@@ -40,6 +40,7 @@ int TestPolyDataTransient(const std::string& dataRoot);
 
 int TestUGTransientWithCache(const std::string& dataRoot);
 int TestImageDataTransientWithCache(const std::string& dataRoot);
+int TestPolyDataTransientWithCache(const std::string& dataRoot);
 }
 
 int TestHDFReaderTransient(int argc, char* argv[])
@@ -52,6 +53,7 @@ int TestHDFReaderTransient(int argc, char* argv[])
   res |= ::TestPolyDataTransient(dataRoot);
   res |= ::TestUGTransientWithCache(dataRoot);
   res |= ::TestImageDataTransientWithCache(dataRoot);
+  res |= ::TestPolyDataTransientWithCache(dataRoot);
   return res;
 }
 
@@ -463,10 +465,8 @@ int TestImageDataTransientWithCache(const std::string& dataRoot)
   return TestImageDataTransientBase(opener);
 }
 
-int TestPolyDataTransient(const std::string& dataRoot)
+int TestPolyDataTransientBase(OpenerWorklet& opener, const std::string& dataRoot)
 {
-  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
-
   // Generic Time data checks
   if (opener.GetReader()->GetNumberOfSteps() != 10)
   {
@@ -558,6 +558,19 @@ int TestPolyDataTransient(const std::string& dataRoot)
   }
 
   return EXIT_SUCCESS;
+}
+
+int TestPolyDataTransient(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
+  return TestPolyDataTransientBase(opener, dataRoot);
+}
+
+int TestPolyDataTransientWithCache(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
+  opener.GetReader()->UseCacheOn();
+  return TestPolyDataTransientBase(opener, dataRoot);
 }
 
 }
