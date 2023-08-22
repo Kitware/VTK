@@ -18,6 +18,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPolyData.h"
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -415,7 +416,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
   this->NumberOfSteps = this->Impl->GetNumberOfSteps();
   this->HasTransientData = (this->NumberOfSteps > 1);
   int dataSetType = this->Impl->GetDataSetType();
-  if (!output || !output->IsA(typeNameMap[dataSetType].c_str()))
+  if (!output || !output->IsA(typeNameMap[dataSetType].c_str()) || !this->MergeParts)
   {
     vtkSmartPointer<vtkDataObject> newOutput = nullptr;
     if (dataSetType == VTK_IMAGE_DATA)
@@ -424,7 +425,14 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     }
     else if (dataSetType == VTK_UNSTRUCTURED_GRID)
     {
-      newOutput = vtkSmartPointer<vtkUnstructuredGrid>::New();
+      if (this->MergeParts)
+      {
+        newOutput = vtkSmartPointer<vtkUnstructuredGrid>::New();
+      }
+      else
+      {
+        newOutput = vtkSmartPointer<vtkPartitionedDataSet>::New();
+      }
     }
     else if (dataSetType == VTK_OVERLAPPING_AMR)
     {
@@ -432,7 +440,14 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     }
     else if (dataSetType == VTK_POLY_DATA)
     {
-      newOutput = vtkSmartPointer<vtkPolyData>::New();
+      if (this->MergeParts)
+      {
+        newOutput = vtkSmartPointer<vtkPolyData>::New();
+      }
+      else
+      {
+        newOutput = vtkSmartPointer<vtkPartitionedDataSet>::New();
+      }
     }
     else
     {
@@ -809,7 +824,8 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
 }
 
 //------------------------------------------------------------------------------
-int vtkHDFReader::Read(vtkInformation* outInfo, vtkUnstructuredGrid* data)
+int vtkHDFReader::Read(
+  vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData)
 {
   // this->PrintPieceInformation(outInfo);
   int filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
@@ -850,12 +866,10 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkUnstructuredGrid* data)
   }
   int memoryPieceCount = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  vtkNew<vtkUnstructuredGrid> pieceData;
-  vtkNew<vtkAppendDataSets> append;
-  append->AddInputData(data);
-  append->AddInputData(pieceData);
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> pieces;
   for (int filePiece = piece; filePiece < filePieceCount; filePiece += memoryPieceCount)
   {
+    vtkNew<vtkUnstructuredGrid> pieceData;
     pieceData->Initialize();
     if (!this->Read(numberOfPoints, numberOfCells, numberOfConnectivityIds, partOffset,
           startingPointOffset, startingCellOffset, startingConnectivityIdOffset, filePiece,
@@ -863,14 +877,42 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkUnstructuredGrid* data)
     {
       return 0;
     }
-    append->Update();
-    data->ShallowCopy(append->GetOutput());
+    pieces.emplace_back(pieceData);
+  }
+  std::reverse(pieces.begin(), pieces.end());
+  unsigned int nPieces = static_cast<unsigned int>(pieces.size());
+  if (pData)
+  {
+    pData->Initialize();
+    pData->SetNumberOfPartitions(nPieces);
+    for (std::size_t iPiece = 0; iPiece < nPieces; ++iPiece)
+    {
+      pData->SetPartition(iPiece, pieces.back());
+      pieces.pop_back();
+    }
+  }
+  else if (data)
+  {
+    for (unsigned int iPiece = 0; iPiece < nPieces; ++iPiece)
+    {
+      vtkNew<vtkAppendDataSets> append;
+      append->AddInputData(data);
+      append->AddInputData(pieces.back());
+      append->Update();
+      data->ShallowCopy(append->GetOutput());
+      pieces.pop_back();
+    }
+  }
+  else
+  {
+    vtkErrorMacro("Both proposed outputs are nullptr.");
+    return 0;
   }
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data)
+int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitionedDataSet* pData)
 {
   // The number of pieces in this step
   int filePieceCount = this->Impl->GetNumberOfPieces();
@@ -935,12 +977,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data)
   // determine the initial piece number to update
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
-  // initialize the appending filter mechanism
-  vtkNew<vtkPolyData> pieceData;
-  vtkNew<vtkAppendDataSets> append;
-  append->SetOutputDataSetType(VTK_POLY_DATA);
-  append->AddInputData(data);
-  append->AddInputData(pieceData);
+  std::vector<vtkSmartPointer<vtkPolyData>> pieces;
   vtkIdType startingCellOffset =
     std::accumulate(startingCellOffsets.begin(), startingCellOffsets.end(), 0);
   for (int filePiece = piece; filePiece < filePieceCount; filePiece += memoryPieceCount)
@@ -965,6 +1002,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data)
     }
 
     // populate the poly data piece
+    vtkNew<vtkPolyData> pieceData;
     pieceData->Initialize();
     if (!::ReadPolyDataPiece(this->Impl, pointOffset, numberOfPoints[filePiece], cellOffsets,
           pieceNumberOfCells, connectivityOffsets, pieceNumberOfConnectivityIds, pieceData))
@@ -1015,8 +1053,37 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data)
         }
       }
     }
-    append->Update();
-    data->ShallowCopy(append->GetOutput());
+    pieces.emplace_back(pieceData);
+  }
+  std::reverse(pieces.begin(), pieces.end());
+  unsigned int nPieces = static_cast<unsigned int>(pieces.size());
+  if (pData)
+  {
+    pData->Initialize();
+    pData->SetNumberOfPartitions(nPieces);
+    for (std::size_t iPiece = 0; iPiece < nPieces; ++iPiece)
+    {
+      pData->SetPartition(iPiece, pieces.back());
+      pieces.pop_back();
+    }
+  }
+  else if (data)
+  {
+    for (unsigned int iPiece = 0; iPiece < nPieces; ++iPiece)
+    {
+      vtkNew<vtkAppendDataSets> append;
+      append->SetOutputDataSetType(VTK_POLY_DATA);
+      append->AddInputData(data);
+      append->AddInputData(pieces.back());
+      append->Update();
+      data->ShallowCopy(append->GetOutput());
+      pieces.pop_back();
+    }
+  }
+  else
+  {
+    vtkErrorMacro("Both proposed outputs are nullptr.");
+    return 0;
   }
   return 1;
 }
@@ -1079,12 +1146,14 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {
     vtkUnstructuredGrid* data = vtkUnstructuredGrid::SafeDownCast(output);
-    ok = this->Read(outInfo, data);
+    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(output);
+    ok = this->Read(outInfo, data, pData);
   }
   else if (dataSetType == VTK_POLY_DATA)
   {
     vtkPolyData* data = vtkPolyData::SafeDownCast(output);
-    ok = this->Read(outInfo, data);
+    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(output);
+    ok = this->Read(outInfo, data, pData);
   }
   else if (dataSetType == VTK_OVERLAPPING_AMR)
   {
