@@ -16,6 +16,7 @@ vtk_module_third_party(
     VERSION "3.9.0"
     PACKAGE FastFloat
     TARGETS FastFloat::fast_float
+    STANDARD_INCLUDE_DIRS
     )
 
 configure_file(
