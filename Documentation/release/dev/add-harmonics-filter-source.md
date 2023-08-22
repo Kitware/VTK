@@ -11,7 +11,8 @@ This filter allows you to add multiple harmonics defined
 by their amplitude, temporal frequency, wave vector, and
 phase. The sum of them will be computed using the sinus
 function for each point. Note that there is no cosinus in
-this function.
+this function. If no harmonic is specified, values will be
+null.
 
 ### Source
 
@@ -21,8 +22,8 @@ extent. It also lets you choose the harmonics you want,
 the same way as in the filter (it is embedded). Finally,
 it can generate time steps by specifying time values.
 
-If no harmonic is specified, the source will not generate
-harmonics and warn you. You can generate default ones
+If no harmonic is specified, the source will generate
+null harmonic values. You can generate default harmonics
 with the `ResetHarmonics` function though.
 
 If no time value is specifed, the source will not
