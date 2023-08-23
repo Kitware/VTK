@@ -244,8 +244,7 @@ int TestImageCellData(const std::string& dataRoot)
   return TestDataSet(data, expectedData);
 }
 
-template <bool parallel>
-int TestUnstructuredGrid(const std::string& dataRoot)
+int TestUnstructuredGrid(const std::string& dataRoot, bool parallel)
 {
   std::string fileName, expectedName;
   vtkNew<vtkHDFReader> reader;
@@ -280,8 +279,7 @@ int TestUnstructuredGrid(const std::string& dataRoot)
   return TestDataSet(data, expectedData);
 }
 
-template <bool parallel>
-int TestPartitionedUnstructuredGrid(const std::string& dataRoot)
+int TestPartitionedUnstructuredGrid(const std::string& dataRoot, bool parallel)
 {
   std::string fileName, expectedName;
   vtkNew<vtkHDFReader> reader;
@@ -456,11 +454,11 @@ int TestHDFReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  if (TestUnstructuredGrid<false /*parallel*/>(dataRoot))
+  if (TestUnstructuredGrid(dataRoot, false))
   {
     return EXIT_FAILURE;
   }
-  if (TestUnstructuredGrid<true /*parallel*/>(dataRoot))
+  if (TestUnstructuredGrid(dataRoot, true))
   {
     return EXIT_FAILURE;
   }
@@ -480,12 +478,12 @@ int TestHDFReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  if (TestPartitionedUnstructuredGrid<false /*parallel*/>(dataRoot))
+  if (TestPartitionedUnstructuredGrid(dataRoot, false))
   {
     return EXIT_FAILURE;
   }
 
-  if (TestPartitionedUnstructuredGrid<true /*parallel*/>(dataRoot))
+  if (TestPartitionedUnstructuredGrid(dataRoot, true))
   {
     return EXIT_FAILURE;
   }
