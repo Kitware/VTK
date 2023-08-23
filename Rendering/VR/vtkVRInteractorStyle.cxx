@@ -423,6 +423,36 @@ void vtkVRInteractorStyle::EndPositionProp(vtkEventDataDevice3D* edata)
   this->InteractionProps[static_cast<int>(dev)] = nullptr;
 }
 
+namespace
+{
+
+// Calls `func` for each prop in `renderer` that is not part of a widget representation
+template <typename Func>
+void ForEachNonWidgetProp(vtkRenderer* renderer, Func&& func)
+{
+  vtkCollectionSimpleIterator cookie;
+  vtkPropCollection* props = renderer->GetViewProps();
+  props->InitTraversal(cookie);
+
+  for (vtkProp* prop = props->GetNextProp(cookie); prop; prop = props->GetNextProp(cookie))
+  {
+    if (!prop->IsA("vtkWidgetRepresentation"))
+    {
+      auto* actor = vtkActor::SafeDownCast(prop);
+      if (actor)
+      {
+        actor->InitPathTraversal();
+        for (vtkAssemblyPath* path = actor->GetNextPath(); path; path = actor->GetNextPath())
+        {
+          func(path->GetLastNode()->GetViewProp());
+        }
+      }
+    }
+  }
+}
+
+}
+
 //------------------------------------------------------------------------------
 void vtkVRInteractorStyle::StartClip(vtkEventDataDevice3D* ed)
 {
@@ -439,25 +469,19 @@ void vtkVRInteractorStyle::StartClip(vtkEventDataDevice3D* ed)
     this->ClippingPlanes[static_cast<int>(dev)] = vtkSmartPointer<vtkPlane>::New();
   }
 
-  vtkActorCollection* ac;
-  vtkActor *anActor, *aPart;
-  vtkAssemblyPath* path;
   if (this->CurrentRenderer != nullptr)
   {
-    ac = this->CurrentRenderer->GetActors();
-    vtkCollectionSimpleIterator ait;
-    for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait));)
-    {
-      for (anActor->InitPathTraversal(); (path = anActor->GetNextPath());)
+    ForEachNonWidgetProp(this->CurrentRenderer, [this, dev](vtkProp* prop) {
+      auto* actor = vtkActor::SafeDownCast(prop);
+      if (actor)
       {
-        aPart = static_cast<vtkActor*>(path->GetLastNode()->GetViewProp());
-        if (aPart->GetMapper())
+        auto* mapper = actor->GetMapper();
+        if (mapper)
         {
-          aPart->GetMapper()->AddClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
-          continue;
+          mapper->AddClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
         }
       }
-    }
+    });
   }
   else
   {
@@ -471,25 +495,19 @@ void vtkVRInteractorStyle::EndClip(vtkEventDataDevice3D* ed)
   vtkEventDataDevice dev = ed->GetDevice();
   this->InteractionState[static_cast<int>(dev)] = VTKIS_NONE;
 
-  vtkActorCollection* ac;
-  vtkActor *anActor, *aPart;
-  vtkAssemblyPath* path;
   if (this->CurrentRenderer != nullptr)
   {
-    ac = this->CurrentRenderer->GetActors();
-    vtkCollectionSimpleIterator ait;
-    for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait));)
-    {
-      for (anActor->InitPathTraversal(); (path = anActor->GetNextPath());)
+    ForEachNonWidgetProp(this->CurrentRenderer, [this, dev](vtkProp* prop) {
+      auto* actor = vtkActor::SafeDownCast(prop);
+      if (actor)
       {
-        aPart = static_cast<vtkActor*>(path->GetLastNode()->GetViewProp());
-        if (aPart->GetMapper())
+        auto* mapper = actor->GetMapper();
+        if (mapper)
         {
-          aPart->GetMapper()->RemoveClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
-          continue;
+          mapper->RemoveClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
         }
       }
-    }
+    });
   }
   else
   {
