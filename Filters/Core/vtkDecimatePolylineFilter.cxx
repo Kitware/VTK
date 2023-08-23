@@ -241,7 +241,7 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
     // What's left over is now spit out as a new polyline
     vtkIdType newId = newLines->InsertNextCell(currentNumPts);
-    outCD->CopyData(inCD, firstVertexIndex, newId);
+    outCD->CopyData(inCD, lineIter->GetCurrentCellId(), newId);
 
     std::map<vtkIdType, vtkIdType>::iterator it;
 

@@ -5,7 +5,9 @@
 #include "vtkRegressionTestImage.h"
 #include <vtkActor.h>
 #include <vtkCellArray.h>
+#include <vtkCellData.h>
 #include <vtkDecimatePolylineFilter.h>
+#include <vtkDoubleArray.h>
 #include <vtkMath.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
@@ -56,9 +58,16 @@ int TestDecimatePolylineFilter(int argc, char* argv[])
   lines->InsertNextCell((numberOfPointsInCircle * 3) / 4, &lineIds[numberOfPointsInCircle + 1]);
   delete[] lineIds;
 
+  // Create cell data for each line.
+  vtkSmartPointer<vtkDoubleArray> cellDoubles = vtkSmartPointer<vtkDoubleArray>::New();
+  cellDoubles->SetName("cellDoubles");
+  cellDoubles->InsertNextValue(1.0);
+  cellDoubles->InsertNextValue(2.0);
+
   vtkSmartPointer<vtkPolyData> circles = vtkSmartPointer<vtkPolyData>::New();
   circles->SetPoints(points);
   circles->SetLines(lines);
+  circles->GetCellData()->AddArray(cellDoubles);
 
   vtkSmartPointer<vtkPolyDataMapper> circleMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   circleMapper->SetInputData(circles);
@@ -74,6 +83,15 @@ int TestDecimatePolylineFilter(int argc, char* argv[])
   decimatePolylineFilter->Update();
 
   if (decimatePolylineFilter->GetOutput()->GetPoints()->GetDataType() != VTK_FLOAT)
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkSmartPointer<vtkDoubleArray> decimatedCellDoubles = vtkDoubleArray::SafeDownCast(
+    decimatePolylineFilter->GetOutput()->GetCellData()->GetArray("cellDoubles"));
+
+  if (!decimatedCellDoubles || decimatedCellDoubles->GetValue(0) != 1.0 ||
+    decimatedCellDoubles->GetValue(1) != 2.0)
   {
     return EXIT_FAILURE;
   }
