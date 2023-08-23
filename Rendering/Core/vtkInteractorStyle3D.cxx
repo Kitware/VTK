@@ -235,12 +235,6 @@ void vtkInteractorStyle3D::Dolly3D(vtkEventData* ed)
   {
     edd->GetTrackPadPosition(this->LastTrackPadPosition);
   }
-
-  if (fabs(this->LastTrackPadPosition[0]) > fabs(this->LastTrackPadPosition[1]))
-  {
-    // do not dolly if pressed direction is not up or down but left or right
-    return;
-  }
   double speedScaleFactor = this->LastTrackPadPosition[1]; // -1 to +1 (the Y axis of the trackpad)
   double physicalScale = rwi->GetPhysicalScale();
 
