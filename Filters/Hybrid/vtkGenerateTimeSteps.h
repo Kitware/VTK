@@ -18,7 +18,7 @@
  *
  * A vtkPassInputTypeAlgorithm that add timesteps during the request information
  * pass and just shallow copy its input to its output. Input timesteps are completely
- * ignored and the first timestep will be requested if any.
+ * ignored.
  */
 
 #ifndef vtkGenerateTimeSteps_h
@@ -78,7 +78,6 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   std::vector<double> TimeStepValues;
 

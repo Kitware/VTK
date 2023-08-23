@@ -104,16 +104,6 @@ int vtkGenerateTimeSteps::RequestInformation(vtkInformation* vtkNotUsed(request)
 }
 
 //------------------------------------------------------------------------------
-int vtkGenerateTimeSteps::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
-{
-  // Completely ignore update times and always request the first one if any
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 0);
-  return 1;
-}
-
-//------------------------------------------------------------------------------
 int vtkGenerateTimeSteps::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
