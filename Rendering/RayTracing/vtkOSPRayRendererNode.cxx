@@ -486,7 +486,7 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
     RTW::Backend* backend = this->Internal->Backend;
     ospRelease(this->ORenderer);
     ospRelease(this->OFrameBuffer);
-    // DDM NO ospRelease(this->OCamera);
+    ospRelease(this->OCamera);
     this->CacheContents.clear();
     this->Cache->SetSize(0);
     this->Lights.clear();
@@ -1557,7 +1557,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     }
     else
     {
-      ospSetObject(oRenderer, "map_maxDepth", 0);
+      ospRemoveParam(oRenderer, "map_maxDepth");
     }
 
     this->AccumulateCount += this->GetSamplesPerPixel(ren);
