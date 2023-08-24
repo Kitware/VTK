@@ -1259,9 +1259,9 @@ bool vtkOpenXRManager::SuggestActions(
     actionSuggestedBindings.data()                 // .suggestedBindings
   };
 
-  this->XrCheckOutput(vtkOpenXRManager::WarningOutput,
+  this->XrCheckOutput(vtkOpenXRManager::DebugOutput,
     xrSuggestInteractionProfileBindings(this->Instance, &suggestedBindings),
-    "Failed to suggest actions");
+    "Could not suggest actions");
 
   return true;
 }
