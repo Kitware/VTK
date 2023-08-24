@@ -13,5 +13,6 @@ vtk_add_test_cxx(vtkIOCGNSReaderCxxTests tests
   TestCGNSUnsteadyFields.cxx
   TestCGNSUnsteadyGrid.cxx
   TestCGNSUnsteadyTemporalSolution.cxx
+  TestCONVERGECFDCGNSReader.cxx
   TestReadCGNSSolution.cxx)
 vtk_test_cxx_executable(vtkIOCGNSReaderCxxTests tests)
