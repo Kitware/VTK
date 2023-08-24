@@ -109,7 +109,7 @@ void vtkOpenXRManagerOpenGLGraphics::EnumerateSwapchainImages(
 
   swapchainImages.Images.resize(chainLength, { XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR });
 
-  vtkOpenXRManager::GetInstance().XrCheckError(
+  vtkOpenXRManager::GetInstance().XrCheckOutput(vtkOpenXRManager::ErrorOutput,
     xrEnumerateSwapchainImages(swapchain, (uint32_t)swapchainImages.Images.size(), &chainLength,
       reinterpret_cast<XrSwapchainImageBaseHeader*>(swapchainImages.Images.data())),
     "Failed to enumerate swapchain images");
@@ -195,7 +195,7 @@ bool vtkOpenXRManagerOpenGLGraphics::CheckGraphicsRequirements(XrInstance instan
   xr::GraphicsExtensionDispatchTable extensions;
   extensions.PopulateDispatchTable(instance);
 
-  if (!vtkOpenXRManager::GetInstance().XrCheckError(
+  if (!vtkOpenXRManager::GetInstance().XrCheckOutput(vtkOpenXRManager::ErrorOutput,
         extensions.xrGetOpenGLGraphicsRequirementsKHR(instance, id, &openGLReqs),
         "Failed to get OpenGL graphics requirements!"))
   {

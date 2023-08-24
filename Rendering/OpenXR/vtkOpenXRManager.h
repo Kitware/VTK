@@ -43,20 +43,19 @@ public:
   }
   ///@}
 
-  ///@{
-  /**
-   * Utility function to check the XrResult, print the result message
-   * and raise an error if the result failed.
-   */
-  bool XrCheckError(const XrResult&, const std::string& message);
-  ///@}
+  enum OutputLevel
+  {
+    DebugOutput = 0,
+    WarningOutput = 1,
+    ErrorOutput = 2
+  };
 
   ///@{
   /**
    * Utility function to check the XrResult, print the result message
-   * and raise a warning if the result failed.
+   * as a debug, warning or error message if the result failed.
    */
-  bool XrCheckWarn(const XrResult&, const std::string& message);
+  bool XrCheckOutput(OutputLevel level, const XrResult&, const std::string& message);
   ///@}
 
   ///@{
