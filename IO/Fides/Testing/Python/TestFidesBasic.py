@@ -182,5 +182,98 @@ class TestFidesBasic(Testing.vtkTest):
         self.assertEqual(ds.GetCellData().GetArray(1).GetName(), "mises")
         return
 
+    def testSixth(self):
+        # This test reads a uniform grid with 4 blocks. It tests the ability of fides to
+        # bridge gaps between partitions.
+        r = vtkIOFides.vtkFidesReader()
+        r.SetFileName(VTK_DATA_ROOT + "/Data/gs.bp")
+        r.UpdateInformation()
+        self.assertTrue(r.GetOutputInformation(0).Has(
+            vtkStreamingDemandDrivenPipeline.TIME_STEPS()))
+        nsteps = r.GetOutputInformation(0).Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+        self.assertEqual(nsteps, 100)
+        for i in range(nsteps):
+            self.assertEqual(r.GetOutputInformation(0).Get(
+                vtkStreamingDemandDrivenPipeline.TIME_STEPS(),i), i)
+        r.ConvertToVTKOn()
+        r.CreateSharedPointsOff()
+        r.Update()
+
+        pdsc = r.GetOutputDataObject(0)
+        self.assertTrue(isinstance(pdsc, vtkPartitionedDataSetCollection))
+        self.assertEqual(pdsc.GetNumberOfPartitionedDataSets(), 1)
+        pds = pdsc.GetPartitionedDataSet(0)
+        nParts = pds.GetNumberOfPartitions()
+        self.assertEqual(nParts, 4) # gray-scott example has 4 partitions
+
+        ds = pds.GetPartition(0)
+        self.assertEqual(ds.GetExtent(), (0, 31, 0, 31, 0, 63))
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 2)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "U")
+        self.assertEqual(ds.GetPointData().GetArray(1).GetName(), "V")
+        self.assertEqual(ds.GetPointData().GetNumberOfTuples(), 65536)
+
+        ds = pds.GetPartition(1)
+        self.assertEqual(ds.GetExtent(), (0, 31, 32, 63, 0, 63))
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 2)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "U")
+        self.assertEqual(ds.GetPointData().GetArray(1).GetName(), "V")
+        self.assertEqual(ds.GetPointData().GetNumberOfTuples(), 65536)
+
+        ds = pds.GetPartition(2)
+        self.assertEqual(ds.GetExtent(), (32, 63, 0, 31, 0, 63))
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 2)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "U")
+        self.assertEqual(ds.GetPointData().GetArray(1).GetName(), "V")
+        self.assertEqual(ds.GetPointData().GetNumberOfTuples(), 65536)
+
+        ds = pds.GetPartition(3)
+        self.assertEqual(ds.GetExtent(), (32, 63, 32, 63, 0, 63))
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 2)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "U")
+        self.assertEqual(ds.GetPointData().GetArray(1).GetName(), "V")
+        self.assertEqual(ds.GetPointData().GetNumberOfTuples(), 65536)
+
+        # Create shared points. vtkFidesReader will bridge the gaps between blocks.
+        r.CreateSharedPointsOn()
+        r.Update()
+
+        pdsc = r.GetOutputDataObject(0)
+        self.assertTrue(isinstance(pdsc, vtkPartitionedDataSetCollection))
+        self.assertEqual(pdsc.GetNumberOfPartitionedDataSets(), 1)
+        pds = pdsc.GetPartitionedDataSet(0)
+        nParts = pds.GetNumberOfPartitions()
+        self.assertEqual(nParts, 4) # gray-scott example has 4 partitions
+
+        ds = pds.GetPartition(0)
+        self.assertEqual(ds.GetExtent(), (0, 31, 0, 31, 0, 63))
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 2)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "U")
+        self.assertEqual(ds.GetPointData().GetArray(1).GetName(), "V")
+        self.assertEqual(ds.GetPointData().GetNumberOfTuples(), 65536)
+
+        ds = pds.GetPartition(1)
+        self.assertEqual(ds.GetExtent(), (0, 31, 31, 63, 0, 63))
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 2)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "U")
+        self.assertEqual(ds.GetPointData().GetArray(1).GetName(), "V")
+        self.assertEqual(ds.GetPointData().GetNumberOfTuples(), 67584)
+
+        ds = pds.GetPartition(2)
+        self.assertEqual(ds.GetExtent(), (31, 63, 0, 31, 0, 63))
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 2)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "U")
+        self.assertEqual(ds.GetPointData().GetArray(1).GetName(), "V")
+        self.assertEqual(ds.GetPointData().GetNumberOfTuples(), 67584)
+
+        ds = pds.GetPartition(3)
+        self.assertEqual(ds.GetExtent(), (31, 63, 31, 63, 0, 63))
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 2)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "U")
+        self.assertEqual(ds.GetPointData().GetArray(1).GetName(), "V")
+        self.assertEqual(ds.GetPointData().GetNumberOfTuples(), 69696)
+
+        return
+
 if __name__ == "__main__":
     Testing.main([(TestFidesBasic, 'test')])
