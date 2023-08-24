@@ -63,6 +63,10 @@ struct DataSource
   /// Used only when \c FileNameMode is set to \c Relative.
   std::string FileName = "";
 
+  /// Determines whether ghost layers should be added by Fides for distributed
+  /// field arrays.
+  int NumberOfHalos = 0;
+
   DataSource() = default;
   DataSource& operator=(const DataSource& other)
   {
