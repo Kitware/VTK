@@ -262,13 +262,54 @@ vtkm::cont::UnknownArrayHandle AllocateArrayHandle(const VariableType* vecData, 
   return vtkm::cont::make_ArrayHandleGroupVec<Dim>(arrayHandle);
 }
 
-template <typename VariableType>
-vtkm::Id GetBufferSize(adios2::Engine& reader,
-                       adios2::Variable<VariableType>& varADIOS2,
-                       size_t blockId,
-                       size_t step)
+struct FidesArrayMemoryRequirements
 {
-  auto blocksInfo = reader.BlocksInfo(varADIOS2, step);
+  /// Total number of elements.
+  vtkm::Id Size;
+  /// Location of the first element - local to the block.
+  adios2::Dims Start;
+  /// Number of elements in each dimension - local to the block.
+  adios2::Dims Count;
+  /// Does this memory describe ghost zones as well?
+  /// This is used to decide whether `SetSelection` of `SetBlockSelection` is called for global
+  /// arrays distributed across blocks.
+  bool IncludesGhostZones;
+};
+
+inline std::ostream& operator<<(std::ostream& os, const FidesArrayMemoryRequirements& memReqs)
+{
+  os << "FidesArrayMemoryRequirements: \n";
+  os << "\tSize: " << memReqs.Size << "\n";
+  for (size_t dim = 0; dim < memReqs.Start.size(); ++dim)
+  {
+    os << "\tStart[" << dim << "]: " << memReqs.Start[dim] << "\n";
+    os << "\tCount[" << dim << "]: " << memReqs.Count[dim] << "\n";
+  }
+  os << "\tIncludesGhostZones: " << memReqs.IncludesGhostZones;
+  return os;
+}
+
+size_t GetBufferSize(const adios2::Dims& shape)
+{
+  size_t size = 1;
+  for (const auto& n : shape)
+  {
+    size *= n;
+  }
+  return size;
+}
+
+// Set 1 to enable debug prints of array memory requirements.
+#define FidesArrayMemoryRequirements_DEBUG 0
+
+template <typename VariableType,
+          typename BlocksInfoType = typename adios2::Variable<VariableType>::Info>
+FidesArrayMemoryRequirements GetVariableMemoryRequirements(
+  std::vector<BlocksInfoType>& blocksInfo,
+  adios2::Variable<VariableType>& varADIOS2,
+  size_t blockId,
+  int numHalos = 0)
+{
   if (blockId >= blocksInfo.size())
   {
     std::stringstream ss;
@@ -277,13 +318,49 @@ vtkm::Id GetBufferSize(adios2::Engine& reader,
        << "; there are only " << blocksInfo.size() << " blocks.";
     throw std::invalid_argument(ss.str());
   }
-  const auto& shape = blocksInfo[blockId].Count;
-  vtkm::Id bufSize = 1;
-  for (auto n : shape)
+  const auto& blockInfo = blocksInfo[blockId];
+
+#if FidesArrayMemoryRequirements_DEBUG
+  std::cout << "GetVariableMemoryRequirements for " << varADIOS2.Name() << " in block " << blockId
+            << std::endl;
+#endif
+  FidesArrayMemoryRequirements memoryRequirements = {};
+  // sane defaults correspond to whatever the variable and block info have.
+  memoryRequirements.Start = blockInfo.Start;
+  memoryRequirements.Count = blockInfo.Count;
+  memoryRequirements.Size = GetBufferSize(blockInfo.Count);
+  memoryRequirements.IncludesGhostZones = false;
+#if FidesArrayMemoryRequirements_DEBUG
+  std::cout << "Default " << memoryRequirements << std::endl;
+#endif
+  // start and count will be adjusted depending on the value of Variable::ShapeID().
+  switch (varADIOS2.ShapeID())
   {
-    bufSize *= n;
+    case adios2::ShapeID::GlobalArray:
+    {
+      if (numHalos > 0)
+      {
+        const auto& nDims = blockInfo.Start.size();
+        for (size_t dim = 0; dim < nDims; ++dim)
+        {
+          // grow by one or more indices for all blocks whose start > 0
+          const bool extendDimensions = blockInfo.Start[dim] > 0;
+          const int indexDelta = numHalos * static_cast<int>(extendDimensions);
+          memoryRequirements.Start[dim] -= indexDelta;
+          memoryRequirements.Count[dim] += indexDelta;
+          // ghost zones are included if atleast one dimension was extended
+          memoryRequirements.IncludesGhostZones |= extendDimensions;
+        }
+        // size will include new ghost zones
+        memoryRequirements.Size = GetBufferSize(memoryRequirements.Count);
+      }
+      break;
+    }
+    default:
+      // all other types return un-modified shape and buffer size.
+      break;
   }
-  if (bufSize <= 0)
+  if (memoryRequirements.Size <= 0)
   {
     // ADIOS Dims are size_t, but vtk-m uses signed integers (32- or 64-bit
     // depending on build) for allocating storage for the arrayhandle (num values,
@@ -296,7 +373,29 @@ vtkm::Id GetBufferSize(adios2::Engine& reader,
     }
     throw std::runtime_error("Overflow in number of values being read detected.");
   }
-  return bufSize;
+#if FidesArrayMemoryRequirements_DEBUG
+  std::cout << "New " << memoryRequirements << std::endl;
+#endif
+  return memoryRequirements;
+}
+
+/// This method makes an appropriate selection on the variable.
+///  - applies an extended selection using `SetSelection` if memory requirements deem that's necessary.
+///  - otherwise, applies a block selection using `SetBlockSelection`
+template <typename VariableType>
+void PrepareVariableSelection(adios2::Variable<VariableType>& varADIOS2,
+                              const FidesArrayMemoryRequirements& memoryRequirements,
+                              const std::size_t blockId)
+{
+  if (memoryRequirements.IncludesGhostZones)
+  {
+    varADIOS2.SetSelection({ memoryRequirements.Start, memoryRequirements.Count });
+  }
+  else
+  {
+    // ADIOS2 calls `SetSelection`
+    varADIOS2.SetBlockSelection(blockId);
+  }
 }
 
 template <typename VariableType>
@@ -305,14 +404,18 @@ vtkm::cont::UnknownArrayHandle ReadVariableInternal(adios2::Engine& reader,
                                                     size_t blockId,
                                                     EngineType engineType,
                                                     size_t step,
-                                                    IsVector isit = IsVector::Auto)
+                                                    IsVector isit = IsVector::Auto,
+                                                    int numHalos = 0)
 {
-  auto bufSize = GetBufferSize(reader, varADIOS2, blockId, step);
   auto blocksInfo = reader.BlocksInfo(varADIOS2, step);
-  const auto& shape = blocksInfo[blockId].Count;
+  auto memoryRequirements = GetVariableMemoryRequirements(blocksInfo, varADIOS2, blockId, numHalos);
+  const auto& shape = memoryRequirements.Count;
+  auto& bufSize = memoryRequirements.Size;
 
   vtkm::cont::UnknownArrayHandle retVal;
   VariableType* buffer = nullptr;
+
+  PrepareVariableSelection(varADIOS2, memoryRequirements, blockId);
 
   if (engineType == EngineType::Inline)
   {
@@ -320,7 +423,6 @@ vtkm::cont::UnknownArrayHandle ReadVariableInternal(adios2::Engine& reader,
     // instead of data being copied into a buffer.
     // And this can be handled the same way whether it's a
     // vector or not
-    varADIOS2.SetBlockSelection(blockId);
     reader.Get(varADIOS2, blocksInfo[blockId]);
     reader.PerformGets();
   }
@@ -429,7 +531,8 @@ vtkm::cont::UnknownArrayHandle ReadMultiBlockVariableInternal(
   vtkm::Id bufSize = 0;
   for (const auto& blockId : blocks)
   {
-    bufSize += GetBufferSize(reader, varADIOS2, blockId, step);
+    const auto memoryRequirements = GetVariableMemoryRequirements(blocksInfo, varADIOS2, blockId);
+    bufSize += memoryRequirements.Size;
   }
 
   vtkm::cont::UnknownArrayHandle retVal;
@@ -484,7 +587,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> ReadVariableBlocksInternal(
   const fides::metadata::MetaData& selections,
   EngineType engineType,
   IsVector isit = IsVector::Auto,
-  bool isMultiBlock = false)
+  bool isMultiBlock = false,
+  int numHalos = 0)
 {
   std::vector<vtkm::cont::UnknownArrayHandle> arrays;
   if (selections.Has(fides::keys::BLOCK_SELECTION()) &&
@@ -544,9 +648,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> ReadVariableBlocksInternal(
     arrays.reserve(blocksToReallyRead.size());
     for (auto blockId : blocksToReallyRead)
     {
-      varADIOS2.SetBlockSelection(blockId);
-      arrays.push_back(
-        ReadVariableInternal<VariableType>(reader, varADIOS2, blockId, engineType, step, isit));
+      arrays.push_back(ReadVariableInternal<VariableType>(
+        reader, varADIOS2, blockId, engineType, step, isit, numHalos));
     }
   }
 
@@ -558,7 +661,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> GetDimensionsInternal(
   adios2::IO& adiosIO,
   adios2::Engine& reader,
   const std::string& varName,
-  const fides::metadata::MetaData& selections)
+  const fides::metadata::MetaData& selections,
+  int numHalos = 0)
 {
   auto varADIOS2 = adiosIO.InquireVariable<VariableType>(varName);
   size_t step = reader.CurrentStep();
@@ -593,9 +697,11 @@ std::vector<vtkm::cont::UnknownArrayHandle> GetDimensionsInternal(
 
   for (auto blockId : blocksToReallyRead)
   {
-    std::vector<size_t> shape = blocksInfo[blockId].Count;
+    const auto memoryRequirements =
+      GetVariableMemoryRequirements(blocksInfo, varADIOS2, blockId, numHalos);
+    std::vector<size_t> shape = memoryRequirements.Count;
     std::reverse(shape.begin(), shape.end());
-    std::vector<size_t> start = blocksInfo[blockId].Start;
+    std::vector<size_t> start = memoryRequirements.Start;
     std::reverse(start.begin(), start.end());
     shape.insert(shape.end(), start.begin(), start.end());
     arrays.push_back(vtkm::cont::make_ArrayHandle(shape, vtkm::CopyFlag::On));
@@ -791,8 +897,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetVariableDimensions(
     throw std::runtime_error("Variable type unavailable.");
   }
 
-  fidesTemplateMacro(
-    GetDimensionsInternal<fides_TT>(this->AdiosIO, this->Reader, itr->first, selections));
+  fidesTemplateMacro(GetDimensionsInternal<fides_TT>(
+    this->AdiosIO, this->Reader, itr->first, selections, this->NumberOfHalos));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
@@ -881,8 +987,14 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::ReadVariable(
     throw std::runtime_error("Variable type unavailable.");
   }
 
-  fidesTemplateMacro(ReadVariableBlocksInternal<fides_TT>(
-    this->AdiosIO, this->Reader, itr->first, selections, this->AdiosEngineType, isit));
+  fidesTemplateMacro(ReadVariableBlocksInternal<fides_TT>(this->AdiosIO,
+                                                          this->Reader,
+                                                          itr->first,
+                                                          selections,
+                                                          this->AdiosEngineType,
+                                                          isit,
+                                                          false,
+                                                          this->NumberOfHalos));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
