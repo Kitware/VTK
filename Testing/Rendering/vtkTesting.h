@@ -51,6 +51,7 @@
 #define vtkTesting_h
 
 #include "vtkObject.h"
+#include "vtkSmartPointer.h"           // for vtkSmartPointer
 #include "vtkTestingRenderingModule.h" // For export macro
 #include <string>                      // STL Header used for argv
 #include <vector>                      // STL Header used for argv
@@ -61,6 +62,7 @@ class vtkRenderWindow;
 class vtkImageData;
 class vtkDataArray;
 class vtkDataSet;
+class vtkMultiProcessController;
 class vtkRenderWindowInteractor;
 
 /**
@@ -311,6 +313,15 @@ public:
   vtkGetMacro(Verbose, int);
   ///@}
 
+  ///@{
+  /**
+   * Get/Set the controller in an MPI environment. If one sets the controller to `nullptr`,
+   * an instance of `vtkDummyController` is stored instead. `GetController` never returns `nullptr`.
+   */
+  vtkMultiProcessController* GetController() const;
+  void SetController(vtkMultiProcessController* controller);
+  ///@}
+
 protected:
   vtkTesting();
   ~vtkTesting() override;
@@ -331,6 +342,8 @@ protected:
   char* DataRoot;
   double StartWallTime;
   double StartCPUTime;
+
+  vtkSmartPointer<vtkMultiProcessController> Controller;
 
 private:
   vtkTesting(const vtkTesting&) = delete;

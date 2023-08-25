@@ -5,6 +5,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkDummyController.h"
 #include "vtkFloatArray.h"
 #include "vtkImageClip.h"
 #include "vtkImageData.h"
@@ -13,6 +14,7 @@
 #include "vtkImageShiftScale.h"
 #include "vtkInformation.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPNGReader.h"
@@ -120,6 +122,7 @@ vtkTesting::vtkTesting()
   this->TempDirectory = nullptr;
   this->BorderOffset = 0;
   this->Verbose = 0;
+  this->Controller = vtkSmartPointer<vtkDummyController>::New();
 
   // on construction we start the timer
   this->StartCPUTime = vtkTimerLog::GetCPUTime();
@@ -133,6 +136,22 @@ vtkTesting::~vtkTesting()
   this->SetValidImageFileName(nullptr);
   this->SetDataRoot(nullptr);
   this->SetTempDirectory(nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkMultiProcessController* vtkTesting::GetController() const
+{
+  return this->Controller;
+}
+
+//------------------------------------------------------------------------------
+void vtkTesting::SetController(vtkMultiProcessController* controller)
+{
+  vtkSetSmartPointerBodyMacro(Controller, vtkMultiProcessController, controller);
+  if (!this->Controller)
+  {
+    this->Controller = vtkSmartPointer<vtkDummyController>::New();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -412,16 +431,19 @@ int vtkTesting::RegressionTest(double thresh, ostream& os)
   rtW2if->Update();
   this->RenderWindow->SetSwapBuffers(swapBuffers); // restore swap state.
   int res = this->RegressionTest(rtW2if, thresh, out1);
-  if (res == FAILED)
+  int recvRes;
+  this->Controller->AllReduce(&res, &recvRes, 1, vtkCommunicator::MIN_OP);
+  if (recvRes == FAILED)
   {
     std::ostringstream out2;
     // tell it to read front buffer
     rtW2if->ReadFrontBufferOn();
     rtW2if->Update();
     res = this->RegressionTest(rtW2if, thresh, out2);
+    this->Controller->AllReduce(&res, &recvRes, 1, vtkCommunicator::MAX_OP);
     // If both tests fail, rerun the backbuffer tests to recreate the test
     // image. Otherwise an incorrect image will be uploaded to CDash.
-    if (res == PASSED)
+    if (recvRes == PASSED)
     {
       os << out2.str();
     }
@@ -442,7 +464,7 @@ int vtkTesting::RegressionTest(double thresh, ostream& os)
   {
     os << out1.str();
   }
-  return res;
+  return this->Controller->GetLocalProcessId() == 0 ? res : NOT_RUN;
 }
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(const string& pngFileName, double thresh)
