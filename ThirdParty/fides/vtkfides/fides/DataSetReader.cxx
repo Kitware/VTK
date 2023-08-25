@@ -49,6 +49,7 @@ public:
   DataSetReaderImpl(const std::string& dataModel,
                     DataModelInput inputType,
                     bool streamSteps,
+                    int numberOfHalos,
                     const Params& params)
   {
     this->StreamingMode = streamSteps;
@@ -66,6 +67,13 @@ public:
       rapidjson::Document doc = this->GetJSONDocument(dataModel, inputType);
       this->ParsingChecks(doc, dataModel, inputType);
       this->ReadJSON(doc);
+    }
+    if (numberOfHalos > 0)
+    {
+      for (auto it : this->DataSources)
+      {
+        it.second->NumberOfHalos = numberOfHalos;
+      }
     }
 
     this->SetDataSourceParameters(params);
@@ -710,20 +718,23 @@ bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
 
 DataSetReader::DataSetReader(const std::string& dataModel,
                              DataModelInput inputType /*=DataModelInput::JSONFile*/,
+                             int numberOfHalos /*=0*/,
                              const Params& params)
-  : DataSetReader(dataModel, inputType, false, params)
+  : DataSetReader(dataModel, inputType, false, numberOfHalos, params)
 {
 }
 
 DataSetReader::DataSetReader(const std::string& dataModel,
                              DataModelInput inputType,
                              bool streamSteps,
+                             int numberOfHalos /*=0*/,
                              const Params& params)
   : Impl(nullptr)
 {
   if (inputType != DataModelInput::BPFile)
   {
-    this->Impl.reset(new DataSetReaderImpl(dataModel, inputType, streamSteps, params));
+    this->Impl.reset(
+      new DataSetReaderImpl(dataModel, inputType, streamSteps, numberOfHalos, params));
     return;
   }
 
@@ -744,7 +755,8 @@ DataSetReader::DataSetReader(const std::string& dataModel,
     {
       if (predefined::DataModelSupported(result[0]))
       {
-        this->Impl.reset(new DataSetReaderImpl(dataModel, inputType, streamSteps, params));
+        this->Impl.reset(
+          new DataSetReaderImpl(dataModel, inputType, streamSteps, numberOfHalos, params));
         return;
       }
     }
@@ -757,8 +769,8 @@ DataSetReader::DataSetReader(const std::string& dataModel,
     auto schema = source->ReadAttribute<std::string>(schemaAttr);
     if (!schema.empty())
     {
-      this->Impl.reset(
-        new DataSetReaderImpl(schema[0], DataModelInput::JSONString, streamSteps, params));
+      this->Impl.reset(new DataSetReaderImpl(
+        schema[0], DataModelInput::JSONString, streamSteps, numberOfHalos, params));
       return;
     }
   }
