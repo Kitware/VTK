@@ -220,6 +220,16 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
 }
 
 //----------------------------------------------------------------------------
+/*
+ * A data cache for avoiding supplemental read of data that doesn't change from
+ * one time step to the next
+ *
+ * Comment: The cache could be improved to also conserve the MeshMTime of the
+ * DataSets by adding supplemental storage for the intermediate geometrical containers
+ * (i.e. vtkPoints and vtkCellArray). By also taking them from the cache and avoiding
+ * their reinitialization the MeshMTime of the data sets can be conserved and this
+ * reader could work better with static mesh mechanisms in VTK.
+ */
 struct vtkHDFReader::DataCache
 {
   /*
