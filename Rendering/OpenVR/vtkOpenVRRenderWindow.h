@@ -130,6 +130,19 @@ public:
   uint32_t GetDeviceHandleForOpenVRHandle(vr::TrackedDeviceIndex_t index);
   vtkEventDataDevice GetDeviceForOpenVRHandle(vr::TrackedDeviceIndex_t ohandle);
 
+  ///@{
+  /**
+   * Get the most recent OpenVR pose for a given  device. index is used to
+   * disambiguate when there are multiple device handles that map to a
+   * device.
+   */
+  void GetOpenVRPose(vtkEventDataDevice dev, vr::TrackedDevicePose_t** pose)
+  {
+    return this->GetOpenVRPose(dev, 0, pose);
+  }
+  void GetOpenVRPose(vtkEventDataDevice dev, uint32_t index, vr::TrackedDevicePose_t** pose);
+  ///@}
+
 protected:
   vtkOpenVRRenderWindow();
   ~vtkOpenVRRenderWindow() override;
@@ -155,6 +168,7 @@ protected:
   vtkSmartPointer<vtkOpenVROverlay> DashboardOverlay;
   vr::IVRSystem* HMD = nullptr;
   vr::IVRRenderModels* OpenVRRenderModels = nullptr;
+  vr::TrackedDevicePose_t OpenVRTrackedDevicePoses[vr::k_unMaxTrackedDeviceCount];
 
 private:
   vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&) = delete;
