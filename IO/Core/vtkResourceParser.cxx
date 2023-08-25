@@ -69,6 +69,9 @@ public:
 
         return seeked;
       }
+
+      this->Reset();
+      return this->Stream->Seek(seeked, vtkResourceStream::SeekDirection::Begin);
     }
 
     // otherwise juste reset and seek
