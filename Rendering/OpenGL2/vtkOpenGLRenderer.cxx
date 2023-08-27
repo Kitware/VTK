@@ -79,9 +79,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->LightingCount = -1;
   this->LightingComplexity = -1;
 
-  this->EnvMapLookupTable = nullptr;
-  this->EnvMapIrradiance = nullptr;
-  this->EnvMapPrefiltered = nullptr;
   this->UseSphericalHarmonics = true;
 }
 
@@ -832,24 +829,6 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
     this->TranslucentPass->Delete();
     this->TranslucentPass = nullptr;
   }
-
-  if (this->EnvMapLookupTable)
-  {
-    this->EnvMapLookupTable->Delete();
-    this->EnvMapLookupTable = nullptr;
-  }
-
-  if (this->EnvMapIrradiance)
-  {
-    this->EnvMapIrradiance->Delete();
-    this->EnvMapIrradiance = nullptr;
-  }
-
-  if (this->EnvMapPrefiltered)
-  {
-    this->EnvMapPrefiltered->Delete();
-    this->EnvMapPrefiltered = nullptr;
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -1149,7 +1128,7 @@ vtkPBRLUTTexture* vtkOpenGLRenderer::GetEnvMapLookupTable()
 {
   if (!this->EnvMapLookupTable)
   {
-    this->EnvMapLookupTable = vtkPBRLUTTexture::New();
+    this->EnvMapLookupTable = vtkSmartPointer<vtkPBRLUTTexture>::New();
   }
   return this->EnvMapLookupTable;
 }
@@ -1159,7 +1138,7 @@ vtkPBRIrradianceTexture* vtkOpenGLRenderer::GetEnvMapIrradiance()
 {
   if (!this->EnvMapIrradiance)
   {
-    this->EnvMapIrradiance = vtkPBRIrradianceTexture::New();
+    this->EnvMapIrradiance = vtkSmartPointer<vtkPBRIrradianceTexture>::New();
   }
   return this->EnvMapIrradiance;
 }
@@ -1169,7 +1148,7 @@ vtkPBRPrefilterTexture* vtkOpenGLRenderer::GetEnvMapPrefiltered()
 {
   if (!this->EnvMapPrefiltered)
   {
-    this->EnvMapPrefiltered = vtkPBRPrefilterTexture::New();
+    this->EnvMapPrefiltered = vtkSmartPointer<vtkPBRPrefilterTexture>::New();
   }
   return this->EnvMapPrefiltered;
 }

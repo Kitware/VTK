@@ -229,9 +229,9 @@ protected:
    */
   vtkSmartPointer<vtkTransform> UserLightTransform;
 
-  vtkPBRLUTTexture* EnvMapLookupTable;
-  vtkPBRIrradianceTexture* EnvMapIrradiance;
-  vtkPBRPrefilterTexture* EnvMapPrefiltered;
+  vtkSmartPointer<vtkPBRLUTTexture> EnvMapLookupTable;
+  vtkSmartPointer<vtkPBRIrradianceTexture> EnvMapIrradiance;
+  vtkSmartPointer<vtkPBRPrefilterTexture> EnvMapPrefiltered;
   vtkSmartPointer<vtkFloatArray> SphericalHarmonics;
   std::unique_ptr<vtkOpenGLQuadHelper> BackgroundRenderer;
   bool UseSphericalHarmonics;
