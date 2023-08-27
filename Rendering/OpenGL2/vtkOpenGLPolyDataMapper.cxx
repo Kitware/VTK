@@ -914,7 +914,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
 
     // IBL
-    if (oglRen && ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture())
+    if (oglRen && ren->GetUseImageBasedLighting())
     {
       hasIBL = true;
       toString << "  const float prefilterMaxLevel = float("
@@ -2535,7 +2535,8 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     (vtkOpenGLRenderer::SafeDownCast(ren)->GetUseSphericalHarmonics() ? 0x40 : 0) +
     (actor->GetProperty()->GetCoatStrength() > 0.0 ? 0x80 : 0) +
     (actor->GetProperty()->GetAnisotropy() > 0.0 ? 0x100 : 0) +
-    ((this->VBOs->GetNumberOfComponents("tcoord") % 4) << 9);
+    (vtkOpenGLRenderer::SafeDownCast(ren)->GetUseImageBasedLighting() ? 0x200 : 0) +
+    ((this->VBOs->GetNumberOfComponents("tcoord") % 4) << 10);
 
   if (cellBO.Program == nullptr || cellBO.ShaderSourceTime < this->GetMTime() ||
     cellBO.ShaderSourceTime < actor->GetProperty()->GetMTime() ||
@@ -2682,7 +2683,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 
   // Add IBL textures
-  if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture())
+  if (ren->GetUseImageBasedLighting())
   {
     vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
     if (oglRen)
@@ -3435,7 +3436,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 
 #ifndef GL_ES_VERSION_3_0
   // when using IBL, we need seamless cubemaps to avoid artifacts
-  if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture())
+  if (ren->GetUseImageBasedLighting())
   {
     ostate->vtkglEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
   }

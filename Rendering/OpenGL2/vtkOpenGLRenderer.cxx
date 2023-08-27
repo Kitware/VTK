@@ -123,7 +123,7 @@ int vtkOpenGLRenderer::UpdateLights()
     }
   }
 
-  if (this->GetUseImageBasedLighting() && this->GetEnvironmentTexture() && lightingComplexity == 0)
+  if (this->GetUseImageBasedLighting() && lightingComplexity == 0)
   {
     lightingComplexity = 1;
   }
@@ -228,8 +228,8 @@ void vtkOpenGLRenderer::DeviceRender()
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
-  bool computeIBLTextures = !(this->Pass && this->Pass->IsA("vtkOSPRayPass")) &&
-    this->UseImageBasedLighting && this->EnvironmentTexture;
+  bool computeIBLTextures =
+    !(this->Pass && this->Pass->IsA("vtkOSPRayPass")) && this->UseImageBasedLighting;
   if (computeIBLTextures)
   {
     this->GetEnvMapLookupTable()->Load(this);
@@ -237,23 +237,28 @@ void vtkOpenGLRenderer::DeviceRender()
 
     bool useSH = this->UseSphericalHarmonics;
 
-    if (useSH && this->EnvironmentTexture->GetCubeMap())
+    if (useSH && this->EnvironmentTexture && this->EnvironmentTexture->GetCubeMap())
     {
       vtkWarningMacro(
-        "Cannot compute spherical harmonics of a cubemap, fall back to irradiance texture");
+        "Cannot compute spherical harmonics of a cubemap, falling back to irradiance texture");
       useSH = false;
     }
 
-    vtkImageData* img = this->EnvironmentTexture->GetInput();
-    if (useSH && !img)
+    vtkImageData* img = nullptr;
+    if (this->EnvironmentTexture)
     {
-      vtkWarningMacro("Cannot retrieve vtkImageData, fall back to texture");
+      img = this->EnvironmentTexture->GetInput();
+    }
+    if (useSH && !this->SphericalHarmonics && !img)
+    {
+      vtkWarningMacro("Cannot retrieve vtkImageData, falling back to irradiance texture");
       useSH = false;
     }
 
     if (useSH)
     {
-      if (!this->SphericalHarmonics || img->GetMTime() > this->SphericalHarmonics->GetMTime())
+      if (img &&
+        (!this->SphericalHarmonics || img->GetMTime() > this->SphericalHarmonics->GetMTime()))
       {
         vtkNew<vtkSphericalHarmonics> sh;
         sh->SetInputData(img);

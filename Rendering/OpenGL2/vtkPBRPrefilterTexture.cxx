@@ -55,11 +55,13 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
   if (!renWin)
   {
     vtkErrorMacro("No render window.");
+    return;
   }
 
   if (!this->InputTexture)
   {
     vtkErrorMacro("No input cubemap specified.");
+    return;
   }
 
   this->InputTexture->Render(ren);
