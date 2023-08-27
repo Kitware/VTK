@@ -235,28 +235,29 @@ void vtkOpenGLRenderer::DeviceRender()
     this->GetEnvMapLookupTable()->Load(this);
     this->GetEnvMapPrefiltered()->Load(this);
 
+    // Complex logic here, different possibilities:
+    // - UseSH is ON, EnvTex is provided but is not compatible, fallback to irradiance
+    // - UseSH is ON and SH are provided, EnvTex is not, just use the SH as is
+    // - UseSH is ON, SH and EnvTex are provided and compatible, check the MTime to recompute SH
+    // - UseSH is ON, SH is not provided, EnvTex is compatible, compute SH
+    // - UseSH is ON, SH is not provided, EnvTex is compatible but empty, error out
+    // - UseSH is OFF, use irradiance
     bool useSH = this->UseSphericalHarmonics;
-
-    if (useSH && this->EnvironmentTexture && this->EnvironmentTexture->GetCubeMap())
+    if (this->EnvironmentTexture && this->EnvironmentTexture->GetCubeMap())
     {
       vtkWarningMacro(
         "Cannot compute spherical harmonics of a cubemap, falling back to irradiance texture");
       useSH = false;
     }
 
-    vtkImageData* img = nullptr;
-    if (this->EnvironmentTexture)
-    {
-      img = this->EnvironmentTexture->GetInput();
-    }
-    if (useSH && !this->SphericalHarmonics && !img)
-    {
-      vtkWarningMacro("Cannot retrieve vtkImageData, falling back to irradiance texture");
-      useSH = false;
-    }
-
     if (useSH)
     {
+      vtkImageData* img = nullptr;
+      if (this->EnvironmentTexture)
+      {
+        img = this->EnvironmentTexture->GetInput();
+      }
+
       if (img &&
         (!this->SphericalHarmonics || img->GetMTime() > this->SphericalHarmonics->GetMTime()))
       {
@@ -265,6 +266,12 @@ void vtkOpenGLRenderer::DeviceRender()
         sh->Update();
         this->SphericalHarmonics = vtkFloatArray::SafeDownCast(
           vtkTable::SafeDownCast(sh->GetOutputDataObject(0))->GetColumn(0));
+      }
+
+      if (!this->SphericalHarmonics)
+      {
+        vtkErrorMacro("Cannot compute spherical harmonics without an image data texture");
+        return;
       }
     }
     else
