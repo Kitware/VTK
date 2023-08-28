@@ -3,6 +3,9 @@ find_path(OpenXRRemoting_INCLUDE_DIR
     openxr_msft_holographic_remoting.h
     openxr_msft_remoting_frame_mirroring.h
     openxr_msft_remoting_speech.h
+  PATH_SUFFIXES
+    openxr
+    openxrremoting
   DOC "OpenXR Remoting include directory")
 mark_as_advanced(OpenXRRemoting_INCLUDE_DIR)
 
@@ -10,6 +13,9 @@ find_path(OpenXRRemoting_BIN_DIR
   NAMES
     Microsoft.Holographic.AppRemoting.OpenXr.dll
     RemotingXR.json
+  PATH_SUFFIXES
+    "x64/Desktop"
+    "bin/x64/Desktop"
   DOC "OpenXR Remoting bin directory")
 mark_as_advanced(OpenXRRemoting_BIN_DIR)
 
