@@ -37,6 +37,10 @@ struct CheckerWorklet;
 int TestUGTransient(const std::string& dataRoot);
 int TestImageDataTransient(const std::string& dataRoot);
 int TestPolyDataTransient(const std::string& dataRoot);
+
+int TestUGTransientWithCache(const std::string& dataRoot);
+int TestImageDataTransientWithCache(const std::string& dataRoot);
+int TestPolyDataTransientWithCache(const std::string& dataRoot);
 }
 
 int TestHDFReaderTransient(int argc, char* argv[])
@@ -47,6 +51,9 @@ int TestHDFReaderTransient(int argc, char* argv[])
   int res = ::TestUGTransient(dataRoot);
   res |= ::TestImageDataTransient(dataRoot);
   res |= ::TestPolyDataTransient(dataRoot);
+  res |= ::TestUGTransientWithCache(dataRoot);
+  res |= ::TestImageDataTransientWithCache(dataRoot);
+  res |= ::TestPolyDataTransientWithCache(dataRoot);
   return res;
 }
 
@@ -244,10 +251,8 @@ bool GeometryCheckerWorklet::operator()(vtkPolyData* lhs, vtkPolyData* rhs)
   return true;
 }
 
-int TestUGTransient(const std::string& dataRoot)
+int TestUGTransientBase(OpenerWorklet& opener)
 {
-  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
-
   // Generic Time data checks
   if (opener.GetReader()->GetNumberOfSteps() != 10)
   {
@@ -341,10 +346,21 @@ int TestUGTransient(const std::string& dataRoot)
   return EXIT_SUCCESS;
 }
 
-int TestImageDataTransient(const std::string& dataRoot)
+int TestUGTransient(const std::string& dataRoot)
 {
-  OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
+  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
+  return TestUGTransientBase(opener);
+}
 
+int TestUGTransientWithCache(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
+  opener.GetReader()->UseCacheOn();
+  return TestUGTransientBase(opener);
+}
+
+int TestImageDataTransientBase(OpenerWorklet& opener)
+{
   // Generic Time data checks
   if (opener.GetReader()->GetNumberOfSteps() != 10)
   {
@@ -436,10 +452,22 @@ int TestImageDataTransient(const std::string& dataRoot)
   return EXIT_SUCCESS;
 }
 
-int TestPolyDataTransient(const std::string& dataRoot)
+int TestImageDataTransient(const std::string& dataRoot)
 {
-  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
+  OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
+  return TestImageDataTransientBase(opener);
+}
 
+int TestImageDataTransientWithCache(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
+  opener.GetReader()->UseCacheOn();
+  return TestImageDataTransientBase(opener);
+}
+
+int TestPolyDataTransientBase(
+  OpenerWorklet& opener, const std::string& dataRoot, bool testMeshMTime = false)
+{
   // Generic Time data checks
   if (opener.GetReader()->GetNumberOfSteps() != 10)
   {
@@ -457,6 +485,7 @@ int TestPolyDataTransient(const std::string& dataRoot)
     return EXIT_FAILURE;
   }
 
+  std::array<vtkMTimeType, 2> meshMTime;
   for (std::size_t iStep = 0; iStep < 10; ++iStep)
   {
     // Open data at right time
@@ -503,6 +532,18 @@ int TestPolyDataTransient(const std::string& dataRoot)
       return EXIT_FAILURE;
     }
 
+    meshMTime[1] = meshMTime[0];
+    meshMTime[0] = vtkPolyData::SafeDownCast(dSet)->GetMeshMTime();
+    if (testMeshMTime && (iStep > 0 && iStep < 6))
+    {
+      if (meshMTime[0] != meshMTime[1])
+      {
+        std::cout << "MTime: Failed MeshMTime check - previous = " << meshMTime[1]
+                  << " while current = " << meshMTime[0] << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+
     CheckerWorklet checks(CHECK_TOLERANCE);
 
     // Point Data checks
@@ -531,6 +572,21 @@ int TestPolyDataTransient(const std::string& dataRoot)
   }
 
   return EXIT_SUCCESS;
+}
+
+int TestPolyDataTransient(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
+  return TestPolyDataTransientBase(opener, dataRoot);
+}
+
+int TestPolyDataTransientWithCache(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
+  opener.GetReader()->UseCacheOn();
+  // We should be able to activate the MeshMTime testing once the cache can store
+  // the intermediate vtkPoints and vtkCellArrays
+  return TestPolyDataTransientBase(opener, dataRoot, false /*testMeshMTime*/);
 }
 
 }

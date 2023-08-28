@@ -12,6 +12,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkIOHDFModule.h" // For export macro
 #include <array>            // For storing the time range
+#include <memory>           // For std::unique_ptr
 #include <vector>           // For storing list of values
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -25,6 +26,7 @@ class vtkImageData;
 class vtkInformationVector;
 class vtkInformation;
 class vtkOverlappingAMR;
+class vtkPartitionedDataSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 
@@ -118,6 +120,35 @@ public:
   const std::array<double, 2>& GetTimeRange() const { return this->TimeRange; }
   ///@}
 
+  ///@{
+  /**
+   * Boolean property determining whether to use the internal cache or not (default is false).
+   *
+   * Internal cache is useful when reading transient data to never re-read something that has
+   * already been cached.
+   */
+  vtkGetMacro(UseCache, bool);
+  vtkSetMacro(UseCache, bool);
+  vtkBooleanMacro(UseCache, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Boolean property determining whether to merge partitions when reading unstructured data.
+   *
+   * Merging partitions (true) allows the reader to return either `vtkUnstructuredGrid` or
+   * `vtkPolyData` directly while not merging (false) them returns a `vtkPartitionedDataSet`. It is
+   * advised to set this value to false when using the internal cache (UseCache == true) since the
+   * partitions are what are stored in the cache and merging them before outputing would effectively
+   * double the memory constraints.
+   *
+   * Default is true
+   */
+  vtkGetMacro(MergeParts, bool);
+  vtkSetMacro(MergeParts, bool);
+  vtkBooleanMacro(MergeParts, bool);
+  ///@}
+
   vtkSetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
   vtkGetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
 
@@ -142,8 +173,8 @@ protected:
    * pieces). Returns 1 if successful, 0 otherwise.
    */
   int Read(vtkInformation* outInfo, vtkImageData* data);
-  int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data);
-  int Read(vtkInformation* outInfo, vtkPolyData* data);
+  int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData);
+  int Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkOverlappingAMR* data);
   ///@}
   /**
@@ -226,10 +257,19 @@ protected:
   std::array<double, 2> TimeRange;
   ///@}
 
+  /**
+   * Determine whether to merge the partitions (true) or return a vtkPartitionedDataSet (false)
+   */
+  bool MergeParts = true;
+
   unsigned int MaximumLevelsToReadByDefaultForAMR = 0;
 
   class Implementation;
   Implementation* Impl;
+
+  bool UseCache = false;
+  struct DataCache;
+  std::shared_ptr<DataCache> Cache;
 };
 
 VTK_ABI_NAMESPACE_END

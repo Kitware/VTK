@@ -310,6 +310,7 @@ std::size_t vtkHDFReader::Implementation::GetNumberOfSteps()
   if (this->File < 0)
   {
     vtkErrorWithObjectMacro(this->Reader, "Cannot get number of steps if the file is not open");
+    return 0;
   }
   return this->GetNumberOfSteps(this->VTKGroup);
 }
@@ -320,6 +321,7 @@ std::size_t vtkHDFReader::Implementation::GetNumberOfSteps(hid_t vtkHDFGroup)
   if (vtkHDFGroup < 0)
   {
     vtkErrorWithObjectMacro(this->Reader, "Cannot get number of steps if the group is not open");
+    return 0;
   }
 
   if (H5Lexists(vtkHDFGroup, "Steps", H5P_DEFAULT) <= 0)
