@@ -102,6 +102,16 @@ protected:
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
+  ///@{
+  /**
+   * Generate actual output and fill the given data object with it.
+   * Return true if data is correctly generated.
+   */
+  bool GenerateAMR(vtkDataObject* output);
+  bool GeneratePartitionedDataSet(vtkDataObject* output);
+  bool GeneratePartitionedDataSetCollection(vtkDataObject* output);
+  ///@}
+
 private:
   vtkConduitSource(const vtkConduitSource&) = delete;
   void operator=(const vtkConduitSource&) = delete;
