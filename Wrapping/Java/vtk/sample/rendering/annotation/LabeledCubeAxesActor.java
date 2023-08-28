@@ -66,10 +66,10 @@ public class LabeledCubeAxesActor {
     cubeAxesActor.SetCamera(renderer.GetActiveCamera());
     cubeAxesActor.SetBounds(points.GetBounds());
     cubeAxesActor.SetXTitle("Date");
-    cubeAxesActor.SetXAxisMinorTickVisibility(0);
+    cubeAxesActor.SetXAxisMinorTickVisibility(false);
     cubeAxesActor.SetAxisLabels(0, getXLabels());
     cubeAxesActor.SetYTitle("Place");
-    cubeAxesActor.SetYAxisMinorTickVisibility(0);
+    cubeAxesActor.SetYAxisMinorTickVisibility(false);
     cubeAxesActor.SetAxisLabels(1, getYLabels());
     cubeAxesActor.SetZTitle("Value");
     renderer.AddActor(cubeAxesActor);
