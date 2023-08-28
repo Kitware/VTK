@@ -76,7 +76,7 @@ bool vtkOpenXRManagerRemoteConnection::ConnectToRemote(XrInstance instance, XrSy
   connectInfo.remotePort = 8265;
   connectInfo.secureConnection = false;
 
-  if (!vtkOpenXRManager::GetInstance().XrCheckError(
+  if (!vtkOpenXRManager::GetInstance().XrCheckOutput(vtkOpenXRManager::ErrorOutput,
         extensions.xrRemotingConnectMSFT(instance, id, &connectInfo), "Failed to connect"))
   {
     return false;
