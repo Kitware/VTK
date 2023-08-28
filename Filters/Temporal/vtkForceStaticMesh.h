@@ -1,0 +1,59 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware SAS
+// SPDX-License-Identifier: BSD-3-Clause
+
+#ifndef vtkForceStaticMesh_h
+#define vtkForceStaticMesh_h
+
+#include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersTemporalModule.h" // Export macro
+#include "vtkSmartPointer.h"          // For internal field
+
+/**
+ * @class vtkForceStaticMesh
+ * @brief Takes in input as a cache the first time it is executed then use it as a static mesh
+ *
+ * The Force Static Mesh filter create a cache the first time it is used using its input. It will
+ * then only update PointData, CellData and FieldData from the input if their dimensions are valid.
+ * This filter will keep the initial given geometry as long as its input keeps the same number of
+ * points and cells (and ForceCacheComputation is false). This may lead to inconsistent attributes
+ * if the geometry has changed its connectivity.
+ * This filter operates only on vtkPolyData, vtkUnstructuredGrid or
+ * on a vtkMultiBlockDataSet containing a single block of supported type.
+ */
+VTK_ABI_NAMESPACE_BEGIN
+class VTKFILTERSTEMPORAL_EXPORT vtkForceStaticMesh : public vtkDataSetAlgorithm
+{
+public:
+  static vtkForceStaticMesh* New();
+  vtkTypeMacro(vtkForceStaticMesh, vtkDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  //@{
+  /**
+   * When set to true, this will force this filter to recompute its cache.
+   * Default is false.
+   */
+  vtkSetMacro(ForceCacheComputation, bool);
+  vtkGetMacro(ForceCacheComputation, bool);
+  vtkBooleanMacro(ForceCacheComputation, bool);
+  //@}
+
+protected:
+  vtkForceStaticMesh() = default;
+  ~vtkForceStaticMesh() override = default;
+
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+private:
+  vtkForceStaticMesh(const vtkForceStaticMesh&) = delete;
+  void operator=(const vtkForceStaticMesh&) = delete;
+
+  bool ForceCacheComputation = false;
+  bool CacheInitialized = false;
+  vtkSmartPointer<vtkDataSet> Cache;
+};
+
+VTK_ABI_NAMESPACE_END
+#endif
