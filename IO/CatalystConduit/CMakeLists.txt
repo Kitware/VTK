@@ -1,6 +1,7 @@
 set(classes
   vtkConduitArrayUtilities
   vtkConduitSource
+  vtkConduitToDataObject
   vtkDataObjectToConduit)
 
 # SDK component is required for Catalyst implementation (see Catalyst subdir)
