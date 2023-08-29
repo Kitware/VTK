@@ -172,6 +172,16 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   ${data_array_tests}
 
   ${scale_soa_test}
+
+  TestAffineArray.cxx
+  TestCompositeArray.cxx
+  TestCompositeImplicitBackend.cxx
+  TestConstantArray.cxx
+  TestImplicitArraysBase.cxx
+  TestImplicitArrayTraits.cxx
+  TestIndexedArray.cxx
+  TestIndexedImplicitBackend.cxx
+  TestStdFunctionArray.cxx
   )
 
 if (VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" OR VTK_ABI_NAMESPACE_NAME STREQUAL "")

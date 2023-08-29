@@ -14,21 +14,10 @@ if (TARGET VTK::mpi)
     TestPUniformGridGhostDataGenerator.cxx,NO_VALID
     TestPUnstructuredGridGhostCellsGenerator.cxx,NO_VALID
     TestRedistributeDataSetFilter.cxx
+    TestRedistributeDataSetFilterImplicitArray.cxx,NO_VALID
     TestRedistributeDataSetFilterOnIOSS.cxx,NO_VALID
     TestStructuredGridGhostDataGenerator.cxx,NO_VALID
     TestUnstructuredGridGeometryFilterGhostCells.cxx,NO_VALID)
-
-  set(test_implicit_array)
-  if(TARGET VTK::CommonImplicitArrays)
-    list(APPEND test_implicit_array
-      TestRedistributeDataSetFilterImplicitArray.cxx
-    )
-  endif()
-
-  vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI imp_tests
-    NO_VALID
-    ${test_implicit_array}
-  )
 
 # We want 4 processes to test the vtkAggregateDataSetFilter
 # properly.
@@ -42,7 +31,6 @@ if (TARGET VTK::mpi)
   set(all_tests
     ${tests}
     ${no_data_tests_4_procs}
-    ${imp_tests}
     )
 
   vtk_test_cxx_executable(vtkFiltersParallelDIY2CxxTests-MPI all_tests)

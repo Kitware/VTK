@@ -48,5 +48,3 @@ TEST_DEPENDS
   VTK::RenderingVolumeOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
-TEST_OPTIONAL_DEPENDS
-  VTK::CommonImplicitArrays

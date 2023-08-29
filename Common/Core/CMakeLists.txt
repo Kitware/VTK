@@ -111,14 +111,30 @@ configure_file(vtkTypeListMacros.h.in vtkTypeListMacros.h)
 option(VTK_DISPATCH_AOS_ARRAYS "Include array-of-structs vtkDataArray subclasses in dispatcher." ON)
 option(VTK_DISPATCH_SOA_ARRAYS "Include struct-of-arrays vtkDataArray subclasses in dispatcher." OFF)
 option(VTK_DISPATCH_TYPED_ARRAYS "Include vtkTypedDataArray subclasses (e.g. old mapped arrays) in dispatcher." OFF)
+
+option(VTK_DISPATCH_AFFINE_ARRAYS "Include implicit vtkDataArray subclasses based on an affine function backend in dispatcher" OFF)
+option(VTK_DISPATCH_CONSTANT_ARRAYS "Include implicit vtkDataArray subclasses based on a constant backend in dispatcher" OFF)
+option(VTK_DISPATCH_STD_FUNCTION_ARRAYS "Include implicit vtkDataArray subclasses based on std::function in dispatcher" OFF)
+
 option(VTK_WARN_ON_DISPATCH_FAILURE "If enabled, vtkArrayDispatch will print a warning when a dispatch fails." OFF)
+
 mark_as_advanced(
   VTK_DISPATCH_AOS_ARRAYS
   VTK_DISPATCH_SOA_ARRAYS
   VTK_DISPATCH_TYPED_ARRAYS
+
+  VTK_DISPATCH_AFFINE_ARRAYS
+  VTK_DISPATCH_CONSTANT_ARRAYS
+  VTK_DISPATCH_STD_FUNCTION_ARRAYS
+
   VTK_WARN_ON_DISPATCH_FAILURE)
 
 option(VTK_BUILD_SCALED_SOA_ARRAYS "Include struct-of-arrays with scaled vtkDataArray implementation." OFF)
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
+  @ONLY)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateArrayDispatchArrayList.cmake")
 vtkArrayDispatch_default_array_setup()
@@ -140,7 +156,17 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
   # create a file suffix from the type
   string(REPLACE " " "_" _suffix "${INSTANTIATION_VALUE_TYPE}")
 
-  set(_list "vtkSOADataArrayTemplateInstantiate")
+  set(_list
+    vtkAffineArrayInstantiate
+    vtkAffineImplicitBackendInstantiate
+    vtkCompositeArrayInstantiate
+    vtkCompositeImplicitBackendInstantiate
+    vtkConstantArrayInstantiate
+    vtkConstantImplicitBackendInstantiate
+    vtkIndexedArrayInstantiate
+    vtkIndexedImplicitBackendInstantiate
+    vtkSOADataArrayTemplateInstantiate
+    vtkStdFunctionArrayInstantiate)
   if (VTK_BUILD_SCALED_SOA_ARRAYS)
     list(APPEND _list "vtkScaledSOADataArrayTemplateInstantiate")
   endif ()
@@ -297,6 +323,9 @@ set(template_classes
   vtkTypedDataArray)
 
 set(nowrap_template_classes
+  vtkCompositeImplicitBackend
+  vtkImplicitArray
+  vtkIndexedImplicitBackend
   vtkTypeList)
 
 set(sources
@@ -368,6 +397,7 @@ set(templates
   ${vtk_smp_templates})
 
 set(private_templates
+  vtkAffineImplicitBackend.txx
   vtkDataArrayPrivate.txx)
 
 set(vtk_include_dirs)
@@ -446,16 +476,25 @@ foreach (smp_backend IN LISTS smp_backends)
 endforeach ()
 
 set(nowrap_headers
+  vtkAffineArray.h
+  vtkAffineImplicitBackend.h
   vtkCollectionRange.h
+  vtkCompositeArray.h
+  vtkConstantArray.h
+  vtkConstantImplicitBackend.h
   vtkDataArrayAccessor.h
   vtkDataArrayTupleRange_AOS.h
   vtkDataArrayTupleRange_Generic.h
   vtkDataArrayValueRange_AOS.h
   vtkDataArrayValueRange_Generic.h
+  vtkImplicitArrayTraits.h
+  vtkIndexedArray.h
   vtkInherits.h
   vtkMathPrivate.hxx
+  vtkStdFunctionArray.h
   vtkTypeName.h
   ${vtk_smp_nowrap_headers}
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
 )
 set(generated_headers
   vtkBuild.h

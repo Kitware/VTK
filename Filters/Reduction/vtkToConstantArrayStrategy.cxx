@@ -3,7 +3,6 @@
 #include "vtkToConstantArrayStrategy.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchImplicitArrayList.h"
 #include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkObjectFactory.h"

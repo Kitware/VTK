@@ -1,21 +1,19 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkStdFunctionArray.h"
+#include "vtkConstantArray.h"
 
-#include "vtkArrayDispatch.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
 #include "vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
 
-#ifdef VTK_DISPATCH_STD_FUNCTION_ARRAYS
+#ifdef VTK_DISPATCH_CONSTANT_ARRAYS
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchImplicitArrayList.h"
-#endif // VTK_DISPATCH_STD_FUNCTION_ARRAYS
+#endif // VTK_DISPATCH_CONSTANT_ARRAYS
 
 #include <cstdlib>
 #include <memory>
 
-#ifdef VTK_DISPATCH_STD_FUNCTION_ARRAYS
+#ifdef VTK_DISPATCH_CONSTANT_ARRAYS
 namespace
 {
 struct ScaleWorker
@@ -43,40 +41,37 @@ struct ScaleWorker
   }
 };
 }
-#endif // VTK_DISPATCH_STD_FUNCTION_ARRAYS
+#endif // VTK_DISPATCH_CONSTANT_ARRAYS
 
-int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int res = EXIT_SUCCESS;
 
-  vtkNew<vtkStdFunctionArray<int>> identity;
-  auto identity_func = [](int idx) { return idx; };
-  identity->SetBackend(std::make_shared<std::function<int(int)>>(identity_func));
+  vtkNew<vtkConstantArray<int>> identity;
+  identity->SetBackend(std::make_shared<vtkConstantImplicitBackend<int>>(1));
   identity->SetNumberOfTuples(100);
   identity->SetNumberOfComponents(1);
 
   for (int iArr = 0; iArr < 100; iArr++)
   {
-    if (identity->GetValue(iArr) != iArr)
+    if (identity->GetValue(iArr) != 1)
     {
       res = EXIT_FAILURE;
-      std::cout << "get value failed with vtkStdFunctionArray" << std::endl;
+      std::cout << "get value failed with vtkConstantArray" << std::endl;
     }
   }
 
-  int iArr = 0;
   for (auto val : vtk::DataArrayValueRange<1>(identity))
   {
-    if (val != iArr)
+    if (val != 1)
     {
       res = EXIT_FAILURE;
-      std::cout << "range iterator failed with vtkStdFunctionArray" << std::endl;
+      std::cout << "range iterator failed with vtkConstantArray" << std::endl;
     }
-    iArr++;
   }
 
-#ifdef VTK_DISPATCH_STD_FUNCTION_ARRAYS
-  std::cout << "vtkStdFunctionArray: performing dispatch tests" << std::endl;
+#ifdef VTK_DISPATCH_CONSTANT_ARRAYS
+  std::cout << "vtkConstantArray: performing dispatch tests" << std::endl;
   vtkNew<vtkIntArray> destination;
   destination->SetNumberOfTuples(100);
   destination->SetNumberOfComponents(1);
@@ -86,19 +81,18 @@ int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (!Dispatcher::Execute(identity, destination, worker, 3.0))
   {
     res = EXIT_FAILURE;
-    std::cout << "vtkArrayDispatch failed with vtkStdFunctionArray" << std::endl;
+    std::cout << "vtkArrayDispatch failed with vtkConstantArray" << std::endl;
+    worker(identity.Get(), destination.Get(), 3.0);
   }
-  iArr = 0;
+
   for (auto val : vtk::DataArrayValueRange<1>(destination))
   {
-    if (val != 3 * iArr)
+    if (val != 3)
     {
       res = EXIT_FAILURE;
       std::cout << "dispatch failed to populate the array with the correct values" << std::endl;
-      worker(identity.Get(), destination.Get(), 3.0);
     }
-    iArr++;
   }
-#endif // VTK_DISPATCH_STD_FUNCTION_ARRAYS
+#endif // VTK_DISPATCH_CONSTANT_ARRAYS
   return res;
 };

@@ -42,7 +42,7 @@
  * vtkImplicitArray, vtkIndexedArray
  */
 
-#include "vtkCommonImplicitArraysModule.h"
+#include "vtkCommonCoreModule.h"
 
 #include <memory>
 
@@ -50,7 +50,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkIdList;
 template <typename ValueType>
-class vtkIndexedImplicitBackend final
+class VTKCOMMONCORE_EXPORT vtkIndexedImplicitBackend final
 {
 public:
   ///@{
@@ -81,6 +81,6 @@ VTK_ABI_NAMESPACE_END
 #ifdef VTK_INDEXED_BACKEND_INSTANTIATING
 #define VTK_INSTANTIATE_INDEXED_BACKEND(ValueType)                                                 \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template class VTKCOMMONIMPLICITARRAYS_EXPORT vtkIndexedImplicitBackend<ValueType>;              \
+  template class VTKCOMMONCORE_EXPORT vtkIndexedImplicitBackend<ValueType>;                        \
   VTK_ABI_NAMESPACE_END
 #endif

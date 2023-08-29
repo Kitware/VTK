@@ -26,7 +26,6 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::CommonMisc
 PRIVATE_DEPENDS
-  VTK::CommonImplicitArrays
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
@@ -54,4 +53,3 @@ TEST_DEPENDS
   VTK::TestingDataModel
 TEST_OPTIONAL_DEPENDS
   VTK::AcceleratorsVTKmFilters
-  VTK::CommonImplicitArrays

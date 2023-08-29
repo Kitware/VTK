@@ -38,7 +38,7 @@
  * > Arrays input to the backend are flattened upon use and are no longer sensitive to component
  * > information.
  */
-#include "vtkCommonImplicitArraysModule.h"
+#include "vtkCommonCoreModule.h"
 
 #include <memory>
 #include <vector>
@@ -46,7 +46,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 template <typename ValueType>
-class vtkCompositeImplicitBackend final
+class VTKCOMMONCORE_EXPORT vtkCompositeImplicitBackend final
 {
 public:
   /**
@@ -77,6 +77,6 @@ VTK_ABI_NAMESPACE_END
 #ifdef VTK_COMPOSITE_BACKEND_INSTANTIATING
 #define VTK_INSTANTIATE_COMPOSITE_BACKEND(ValueType)                                               \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template class VTKCOMMONIMPLICITARRAYS_EXPORT vtkCompositeImplicitBackend<ValueType>;            \
+  template class VTKCOMMONCORE_EXPORT vtkCompositeImplicitBackend<ValueType>;                      \
   VTK_ABI_NAMESPACE_END
 #endif

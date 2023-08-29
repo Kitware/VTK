@@ -3,7 +3,6 @@
 #include "vtkToImplicitTypeErasureStrategy.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchImplicitArrayList.h"
 #include "vtkDataArrayRange.h"
 #include "vtkImplicitArray.h"
 #include "vtkMath.h"
