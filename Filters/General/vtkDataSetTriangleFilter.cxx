@@ -68,7 +68,6 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet* input, vtkUnstructu
   vtkIdType newCellId, inId;
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
-  vtkPoints* cellPts = vtkPoints::New();
   vtkPoints* newPoints = vtkPoints::New();
   vtkIdList* cellPtIds = vtkIdList::New();
   int numSimplices, numPts, dim, type;
@@ -132,11 +131,11 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet* input, vtkUnstructu
         vtkCell* cell = input->GetCell(i, j, k);
         if ((i + j + k) % 2 == 0)
         {
-          cell->Triangulate(0, cellPtIds, cellPts);
+          cell->TriangulatePtIds(0, cellPtIds);
         }
         else
         {
-          cell->Triangulate(1, cellPtIds, cellPts);
+          cell->TriangulatePtIds(1, cellPtIds);
         }
 
         dim = cell->GetCellDimension() + 1;
@@ -182,7 +181,6 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet* input, vtkUnstructu
   output->Squeeze();
 
   newPoints->Delete();
-  cellPts->Delete();
   cellPtIds->Delete();
 }
 
@@ -200,7 +198,6 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
   int k;
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
-  vtkPoints* cellPts;
   vtkIdList* cellPtIds;
   vtkIdType ptId, numTets, ncells;
   int numPts, type;
@@ -251,7 +248,6 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
   }
 
   cell = vtkGenericCell::New();
-  cellPts = vtkPoints::New();
   cellPtIds = vtkIdList::New();
 
   // Create an array of points
@@ -282,7 +278,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
     if (cell->GetCellType() == VTK_POLYHEDRON) // polyhedron
     {
       dim = 4;
-      cell->Triangulate(0, cellPtIds, cellPts);
+      cell->TriangulatePtIds(0, cellPtIds);
       numPts = cellPtIds->GetNumberOfIds();
 
       numSimplices = numPts / dim;
@@ -348,7 +344,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
     else if (!this->TetrahedraOnly) // 2D or lower dimension
     {
       dim++;
-      cell->Triangulate(0, cellPtIds, cellPts);
+      cell->TriangulatePtIds(0, cellPtIds);
       numPts = cellPtIds->GetNumberOfIds();
 
       numSimplices = numPts / dim;
@@ -384,7 +380,6 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
 
   tempCD->Delete();
 
-  cellPts->Delete();
   cellPtIds->Delete();
   cell->Delete();
 }

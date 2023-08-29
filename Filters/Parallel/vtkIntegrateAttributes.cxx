@@ -127,7 +127,6 @@ void vtkIntegrateAttributes::ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid
   vtkIdList* cellPtIds = vtkIdList::New();
   vtkIdType numCells = input->GetNumberOfCells();
   vtkIdType cellId;
-  vtkPoints* cellPoints = nullptr; // needed if we need to split 3D cells
   int cellType;
   for (cellId = 0; cellId < numCells; ++cellId)
   {
@@ -255,14 +254,7 @@ void vtkIntegrateAttributes::ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid
           continue;
         }
 
-        // We will need a place to store points from the cell's
-        // triangulate function
-        if (!cellPoints)
-        {
-          cellPoints = vtkPoints::New();
-        }
-
-        cell->Triangulate(1, cellPtIds, cellPoints);
+        cell->TriangulatePtIds(1, cellPtIds);
         switch (cellDim)
         {
           case 1:
@@ -281,10 +273,6 @@ void vtkIntegrateAttributes::ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid
     }
   }
   cellPtIds->Delete();
-  if (cellPoints)
-  {
-    cellPoints->Delete();
-  }
 
   this->PointFieldList = nullptr;
   this->CellFieldList = nullptr;

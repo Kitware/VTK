@@ -1444,7 +1444,6 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
 
   // These are for the default case/
   vtkIdList* pts;
-  vtkPoints* coords;
   vtkCell* face;
   int flag2D = 0;
 
@@ -1455,14 +1454,10 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
   vtkIdList* outPts2;
 
   pts = vtkIdList::New();
-  coords = vtkPoints::New();
   parametricCoords = vtkDoubleArray::New();
   parametricCoords2 = vtkDoubleArray::New();
   outPts = vtkIdList::New();
   outPts2 = vtkIdList::New();
-  // might not be necessary to set the data type for coords
-  // but certainly safer to do so
-  coords->SetDataType(input->GetPoints()->GetData()->GetDataType());
   cell = vtkGenericCell::New();
   std::vector<double> weights;
 
@@ -1798,7 +1793,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
           input->SetCellOrderAndRationalWeights(cellId, cell);
           if (cell->GetCellDimension() == 1)
           {
-            cell->Triangulate(0, pts, coords);
+            cell->TriangulatePtIds(0, pts);
             for (i = 0; i < pts->GetNumberOfIds(); i += 2)
             {
               newLines->InsertNextCell(2);
@@ -1830,7 +1825,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
                 if (this->NonlinearSubdivisionLevel >= 1)
                 {
                   // TODO: Handle NonlinearSubdivisionLevel > 1 correctly.
-                  face->Triangulate(0, pts, coords);
+                  face->TriangulatePtIds(0, pts);
                   for (i = 0; i < pts->GetNumberOfIds(); i += 3)
                   {
                     this->InsertTriInHash(
@@ -1994,17 +1989,14 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
 
       input->SetCellOrderAndRationalWeights(cellId, cell);
 
-      cell->Triangulate(0, pts, coords);
+      cell->TriangulatePtIds(0, pts);
 
       // Copy the level 1 subdivision points (which also exist in the input and
       // can therefore just be copied over.  Note that the output of Triangulate
       // records triangles in pts where each 3 points defines a triangle.  We
       // will keep this invariant and also keep the same invariant in
       // parametericCoords and outPts later.
-      // Note that coords is actually not used by default, but only the pts ids are used.
-      // This is problem for Bezier cells, because the interior points are non-interpolartory,
-      // and so, cannot be used as trangulation point.
-      // For this reason, the output from Triangulate is overload in the case of Bezier cell,
+      // Note that the output from Triangulate is overload in the case of Bezier cell,
       // to get the projection of the non-interpolate points
 
       outPts->Reset();
@@ -2161,7 +2153,6 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
   // Update ourselves and release memory
   //
   cell->Delete();
-  coords->Delete();
   pts->Delete();
   parametricCoords->Delete();
   parametricCoords2->Delete();
