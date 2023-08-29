@@ -112,85 +112,124 @@ std::set<std::string> vtkIOSSFilesScanner::GetRelatedFiles(
     return -1;
   };
 
-  std::map<std::string, int> prefixes;
-  std::set<std::string> result;
-  for (const auto& fname : originalSet)
+  // get the files per directory
+  std::map<std::string /*directory*/, std::set<std::string> /* files*/> uniqueFilesPerDirectory;
+  for (const auto& filename : originalSet)
   {
-    std::string unix_fname = fname;
+    std::string unix_fname = filename;
     vtksys::SystemTools::ConvertToUnixSlashes(unix_fname);
-    result.insert(unix_fname);
 
-    // prefixes are used to find other files related to this one.
-    auto fname_wo_path = vtksys::SystemTools::GetFilenameName(unix_fname);
-    if (fname_wo_path.empty())
+    auto prefix = vtksys::SystemTools::GetFilenamePath(unix_fname);
+    if (!prefix.empty())
     {
-      // this happens if the unix_fname was not a full path.
-      fname_wo_path = unix_fname;
+      // add dir separator to make `join` easier later on.
+      prefix += "/";
     }
-
-    if (extensionRegexExodus2.find(fname_wo_path))
-    {
-      prefixes.insert(
-        std::make_pair(extensionRegexExodus2.match(1), getProcessCount(fname_wo_path)));
-    }
-    else if (extensionRegexExodus.find(fname_wo_path))
-    {
-      prefixes.insert(
-        std::make_pair(extensionRegexExodus.match(1), getProcessCount(fname_wo_path)));
-    }
-    else if (extensionRegexCGNS.find(fname_wo_path))
-    {
-      prefixes.insert(std::make_pair(extensionRegexCGNS.match(1), getProcessCount(fname_wo_path)));
-    }
+    uniqueFilesPerDirectory[prefix].emplace(unix_fname);
   }
 
-  // For now, we only can the directory for the first file. Not sure if we
-  // should scan all directories for all files in the original set.
-  auto prefix = vtksys::SystemTools::GetFilenamePath(*result.begin());
-  if (!prefix.empty())
+  // get the prefixes per directory that are used to find other files related to this one.
+  std::map<std::string /*directory*/, std::map<std::string /*prefix*/, int>> prefixesPerDirectory;
+  for (const auto& uniqueFiles : uniqueFilesPerDirectory)
   {
-    // add dir separator to make `join` easier later on.
-    prefix += "/";
+    for (const auto& unix_fname : uniqueFiles.second)
+    {
+      const auto& directoryName = uniqueFiles.first;
+      // prefixes are used to find other files related to this one.
+      auto fname_wo_path = vtksys::SystemTools::GetFilenameName(unix_fname);
+      if (fname_wo_path.empty())
+      {
+        // this happens if the unix_fname was not a full path.
+        fname_wo_path = unix_fname;
+      }
+
+      if (extensionRegexExodus2.find(fname_wo_path))
+      {
+        prefixesPerDirectory[directoryName].insert(
+          std::make_pair(extensionRegexExodus2.match(1), getProcessCount(fname_wo_path)));
+      }
+      else if (extensionRegexExodus.find(fname_wo_path))
+      {
+        prefixesPerDirectory[directoryName].insert(
+          std::make_pair(extensionRegexExodus.match(1), getProcessCount(fname_wo_path)));
+      }
+      else if (extensionRegexCGNS.find(fname_wo_path))
+      {
+        prefixesPerDirectory[directoryName].insert(
+          std::make_pair(extensionRegexCGNS.match(1), getProcessCount(fname_wo_path)));
+      }
+    }
   }
-  std::vector<std::string> dirlist;
+
+  // combine all provided unique files in all directories.
+  std::set<std::string> result;
+  for (const auto& uniqueFiles : uniqueFilesPerDirectory)
+  {
+    for (const auto& fname : uniqueFiles.second)
+    {
+      result.insert(fname);
+    }
+  }
+
+  // query the files in the directories.
+  std::map<std::string /*directory*/, std::vector<std::string> /* files*/> dirlist;
   if (directoryListing.empty())
   {
-    vtksys::Directory directory;
-    if (!directory.Load(prefix))
+    for (const auto& prefix : prefixesPerDirectory)
     {
-      return result;
-    }
-    for (unsigned long cc = 0, max = directory.GetNumberOfFiles(); cc < max; ++cc)
-    {
-      dirlist.emplace_back(directory.GetFile(cc));
+      const auto& directoryName = prefix.first;
+      vtksys::Directory directory;
+      if (!directory.Load(directoryName))
+      {
+        return result;
+      }
+      for (unsigned long cc = 0, max = directory.GetNumberOfFiles(); cc < max; ++cc)
+      {
+        dirlist[directoryName].emplace_back(directory.GetFile(cc));
+      }
     }
   }
   else
   {
-    dirlist = directoryListing;
+    if (!prefixesPerDirectory.empty())
+    {
+      // For now, we only check the directory for the first file. Not sure if we
+      // should scan all directories for all files in the original set.
+      dirlist[prefixesPerDirectory.begin()->first] = directoryListing;
+    }
   }
 
-  for (const auto& filename : dirlist)
+  // get the files in the directories that match the pattern and have the same prefix.
+  for (const auto& filesInDir : dirlist)
   {
-    std::string dbaseName;
-    if (extensionRegexExodus.find(filename))
+    const auto& directoryName = filesInDir.first;
+    const auto& prefixes = prefixesPerDirectory[directoryName];
+    for (const auto& filename : filesInDir.second)
     {
-      dbaseName = extensionRegexExodus.match(1);
-    }
-    else if (extensionRegexCGNS.find(filename))
-    {
-      dbaseName = extensionRegexCGNS.match(1);
-    }
-    else
-    {
-      continue;
-    }
+      std::string dbaseName;
+      if (extensionRegexExodus2.find(filename))
+      {
+        dbaseName = extensionRegexExodus2.match(1);
+      }
+      else if (extensionRegexExodus.find(filename))
+      {
+        dbaseName = extensionRegexExodus.match(1);
+      }
+      else if (extensionRegexCGNS.find(filename))
+      {
+        dbaseName = extensionRegexCGNS.match(1);
+      }
+      else
+      {
+        continue;
+      }
 
-    const int procCount = getProcessCount(filename);
-    auto piter = prefixes.find(dbaseName);
-    if (piter != prefixes.end() && piter->second == procCount)
-    {
-      result.insert(prefix + filename);
+      const int procCount = getProcessCount(filename);
+      auto piter = prefixes.find(dbaseName);
+      if (piter != prefixes.end() && piter->second == procCount)
+      {
+        result.insert(directoryName + filename);
+      }
     }
   }
 
