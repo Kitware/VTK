@@ -287,7 +287,7 @@ public:
   ///@}
 
   /**
-   * Generate simplices of proper dimension. If cell is 3D, tetrahedron are
+   * Generate simplices of proper dimension. If cell is 3D, tetrahedra are
    * generated; if 2D triangles; if 1D lines; if 0D points. The form of the
    * output is a sequence of points, each n+1 points (where n is topological
    * cell dimension) defining a simplex. The index is a parameter that controls
@@ -296,7 +296,32 @@ public:
    * This method does not insert new points: all the points that define the
    * simplices are the points that define the cell.
    */
-  virtual int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) = 0;
+  virtual int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts);
+
+  /**
+   * Generate simplices of proper dimension. If cell is 3D, tetrahedra are
+   * generated; if 2D triangles; if 1D lines; if 0D points. The form of the
+   * output is a sequence of points, each n+1 points (where n is topological
+   * cell dimension) defining a simplex. The index is a parameter that controls
+   * which triangulation to use (if more than one is possible). If numerical
+   * degeneracy encountered, 0 is returned, otherwise 1 is returned.
+   * This method does not insert new points: all the points that define the
+   * simplices are the points that define the cell.
+   */
+  virtual int TriangulatePtIds(int index, vtkIdList* ptIds);
+
+  /**
+   * Generate simplices of proper dimension. If cell is 3D, tetrahedra are
+   * generated; if 2D triangles; if 1D lines; if 0D points. The form of the
+   * output is a sequence of points, each n+1 points (where n is topological
+   * cell dimension) defining a simplex. The index is a parameter that controls
+   * which triangulation to use (if more than one is possible). If numerical
+   * degeneracy encountered, 0 is returned, otherwise 1 is returned.
+   * This method does not insert new points: all the points that define the
+   * simplices are the points that define the cell.
+   * ptIds are the local indices with respect to the cell
+   */
+  virtual int TriangulateLocalCellPtIds(int index, vtkIdList* ptIds) = 0;
 
   /**
    * Compute derivatives given cell subId and parametric coordinates. The

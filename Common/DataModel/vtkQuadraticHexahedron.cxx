@@ -13,6 +13,8 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
+#include <algorithm> //std::copy
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
@@ -487,235 +489,16 @@ int vtkQuadraticHexahedron::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticHexahedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkQuadraticHexahedron::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  // results in 22 tets
-  ptIds->SetNumberOfIds(22 * 4);
-  pts->SetNumberOfPoints(22 * 4);
-
-  int p[4];
-  p[0] = 8;
-  p[1] = 11;
-  p[2] = 0;
-  p[3] = 16;
-  vtkIdType counter = 0;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 1;
-  p[1] = 9;
-  p[2] = 8;
-  p[3] = 17;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 2;
-  p[1] = 10;
-  p[2] = 9;
-  p[3] = 18;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 11;
-  p[1] = 8;
-  p[2] = 10;
-  p[3] = 12;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 10;
-  p[1] = 8;
-  p[2] = 9;
-  p[3] = 12;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 11;
-  p[1] = 10;
-  p[2] = 3;
-  p[3] = 19;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 12;
-  p[1] = 9;
-  p[2] = 10;
-  p[3] = 13;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 13;
-  p[1] = 10;
-  p[2] = 12;
-  p[3] = 14;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 11;
-  p[1] = 12;
-  p[2] = 10;
-  p[3] = 14;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 14;
-  p[1] = 11;
-  p[2] = 12;
-  p[3] = 15;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 12;
-  p[1] = 11;
-  p[2] = 8;
-  p[3] = 16;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 4;
-  p[1] = 15;
-  p[2] = 12;
-  p[3] = 16;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 15;
-  p[1] = 11;
-  p[2] = 12;
-  p[3] = 16;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 9;
-  p[1] = 12;
-  p[2] = 8;
-  p[3] = 17;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 12;
-  p[1] = 13;
-  p[2] = 5;
-  p[3] = 17;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 13;
-  p[1] = 12;
-  p[2] = 9;
-  p[3] = 17;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 13;
-  p[1] = 9;
-  p[2] = 10;
-  p[3] = 18;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 13;
-  p[1] = 14;
-  p[2] = 6;
-  p[3] = 18;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 14;
-  p[1] = 13;
-  p[2] = 10;
-  p[3] = 18;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 11;
-  p[1] = 14;
-  p[2] = 10;
-  p[3] = 19;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 14;
-  p[1] = 15;
-  p[2] = 7;
-  p[3] = 19;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-  p[0] = 15;
-  p[1] = 14;
-  p[2] = 11;
-  p[3] = 19;
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
-    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
-    counter++;
-  }
-
+  ptIds->SetNumberOfIds(88);
+  constexpr vtkIdType localPtIds[22][4] = { { 8, 11, 0, 16 }, { 1, 9, 8, 17 }, { 2, 10, 9, 18 },
+    { 11, 8, 10, 12 }, { 10, 8, 9, 12 }, { 11, 10, 3, 19 }, { 12, 9, 10, 13 }, { 13, 10, 12, 14 },
+    { 11, 12, 10, 14 }, { 14, 11, 12, 15 }, { 12, 11, 8, 16 }, { 4, 15, 12, 16 },
+    { 15, 11, 12, 16 }, { 9, 12, 8, 17 }, { 12, 13, 5, 17 }, { 13, 12, 9, 17 }, { 13, 9, 10, 18 },
+    { 13, 14, 6, 18 }, { 14, 13, 10, 18 }, { 11, 14, 10, 19 }, { 14, 15, 7, 19 },
+    { 15, 14, 11, 19 } };
+  std::copy(&localPtIds[0][0], &localPtIds[0][0] + 88, ptIds->begin());
   return 1;
 }
 

@@ -16,6 +16,7 @@
 #include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
+#include <array>
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -513,18 +514,34 @@ int vtkBiQuadraticQuadraticHexahedron::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkBiQuadraticQuadraticHexahedron::Triangulate(
-  int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkBiQuadraticQuadraticHexahedron::TriangulateLocalCellPtIds(int index, vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
-  ptIds->InsertId(0, this->PointIds->GetId(0));
-  pts->InsertPoint(0, this->Points->GetPoint(0));
-
-  ptIds->InsertId(1, this->PointIds->GetId(1));
-  pts->InsertPoint(1, this->Points->GetPoint(1));
-
+  // Triangulation varies depending upon index See vtkHexahedron::TriangulateLocalCellPtIds
+  ptIds->SetNumberOfIds(8 * 20);
+  if ((index % 2))
+  {
+    constexpr std::array<vtkIdType, 20> linearHexPtIds{ 0, 1, 3, 4, 1, 4, 5, 6, 1, 4, 6, 3, 1, 3, 6,
+      2, 3, 6, 7, 4 };
+    for (int linear_hex_i = 0; linear_hex_i < 8; linear_hex_i++)
+    {
+      for (int node_i = 0; node_i < 20; node_i++)
+      {
+        ptIds->SetId(linear_hex_i * 20 + node_i, LinearHexs[linear_hex_i][linearHexPtIds[node_i]]);
+      }
+    }
+  }
+  else
+  {
+    constexpr std::array<vtkIdType, 20> linearHexPtIds{ 2, 1, 5, 0, 0, 2, 3, 7, 2, 5, 6, 7, 0, 7, 4,
+      5, 0, 2, 7, 5 };
+    for (int linear_hex_i = 0; linear_hex_i < 8; linear_hex_i++)
+    {
+      for (int node_i = 0; node_i < 20; node_i++)
+      {
+        ptIds->SetId(linear_hex_i * 20 + node_i, LinearHexs[linear_hex_i][linearHexPtIds[node_i]]);
+      }
+    }
+  }
   return 1;
 }
 

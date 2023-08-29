@@ -1754,26 +1754,15 @@ int vtkPolygon::IntersectWithLine(const double p1[3], const double p2[3], double
 }
 
 //------------------------------------------------------------------------------
-int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkPolygon::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  int i, success;
-
-  pts->Reset();
-  ptIds->Reset();
-
   this->SuccessfulTriangulation = 1;
-  success = this->EarCutTriangulation();
-
+  int success = this->EarCutTriangulation();
   if (!success) // Indicate possible failure
   {
     vtkDebugMacro(<< "Possible triangulation failure");
   }
-  for (i = 0; i < this->Tris->GetNumberOfIds(); i++)
-  {
-    ptIds->InsertId(i, this->PointIds->GetId(this->Tris->GetId(i)));
-    pts->InsertPoint(i, this->Points->GetPoint(this->Tris->GetId(i)));
-  }
-
+  ptIds->DeepCopy(this->Tris);
   return this->SuccessfulTriangulation;
 }
 

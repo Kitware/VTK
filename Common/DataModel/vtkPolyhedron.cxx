@@ -1200,10 +1200,9 @@ void vtkPolyhedron::InterpolateDerivs(const double x[3], double* derivs)
 }
 
 //------------------------------------------------------------------------------
-int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkPolyhedron::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->Reset();
-  pts->Reset();
 
   if (!this->GetPoints() || !this->GetNumberOfPoints())
   {
@@ -1226,16 +1225,7 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoint
     triangulator->InsertPoint(i, point, point, 0);
   }
   triangulator->Triangulate();
-
-  triangulator->AddTetras(0, ptIds, pts);
-
-  // convert to global Ids
-  vtkIdType* ids = ptIds->GetPointer(0);
-  for (vtkIdType i = 0; i < ptIds->GetNumberOfIds(); i++)
-  {
-    ids[i] = this->PointIds->GetId(ids[i]);
-  }
-
+  triangulator->AddTetras(0, ptIds);
   return 1;
 }
 

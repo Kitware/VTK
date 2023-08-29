@@ -13,6 +13,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkWedge.h"
+#include <algorithm> //std::copy
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticWedge);
@@ -502,31 +503,19 @@ int vtkQuadraticWedge::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticWedge::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkQuadraticWedge::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // A quadratic wedge can be divided into 4 wedges.
   // The central one is linear and is divided into 3 tets
   // Each of the 3 wedges around the central one are divided into 4 tets since each of these
   // wedges have a node in the middle of one of their edges.
   // This leads to a total of 15 tets
-  pts->SetNumberOfPoints(15 * 4);
-  ptIds->SetNumberOfIds(15 * 4);
-
-  vtkIdType ids[15][4] = { { 0, 8, 6, 12 }, { 1, 6, 7, 13 }, { 2, 7, 8, 14 }, { 3, 9, 11, 12 },
-    { 4, 10, 9, 13 }, { 5, 11, 10, 14 }, { 6, 8, 7, 9 }, { 7, 9, 11, 10 }, { 7, 8, 11, 9 },
-    { 6, 8, 9, 12 }, { 11, 9, 8, 12 }, { 6, 9, 7, 13 }, { 10, 7, 9, 13 }, { 8, 7, 11, 14 },
-    { 10, 11, 7, 14 } };
-  vtkIdType counter = 0;
-  for (int i = 0; i < 15; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ptIds->SetId(counter, this->PointIds->GetId(ids[i][j]));
-      pts->SetPoint(counter, this->Points->GetPoint(ids[i][j]));
-      counter++;
-    }
-  }
-
+  constexpr vtkIdType ids[15][4] = { { 0, 8, 6, 12 }, { 1, 6, 7, 13 }, { 2, 7, 8, 14 },
+    { 3, 9, 11, 12 }, { 4, 10, 9, 13 }, { 5, 11, 10, 14 }, { 6, 8, 7, 9 }, { 7, 9, 11, 10 },
+    { 7, 8, 11, 9 }, { 6, 8, 9, 12 }, { 11, 9, 8, 12 }, { 6, 9, 7, 13 }, { 10, 7, 9, 13 },
+    { 8, 7, 11, 14 }, { 10, 11, 7, 14 } };
+  ptIds->SetNumberOfIds(60);
+  std::copy(&ids[0][0], &ids[0][0] + 60, ptIds->begin());
   return 1;
 }
 

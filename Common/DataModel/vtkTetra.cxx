@@ -15,6 +15,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <cassert>
+#include <numeric> //std::iota
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -588,17 +589,10 @@ int vtkTetra::IntersectWithLine(const double p1[3], const double p2[3], double t
 }
 
 //------------------------------------------------------------------------------
-int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkTetra::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  ptIds->Reset();
-  pts->Reset();
-
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->InsertId(i, this->PointIds->GetId(i));
-    pts->InsertPoint(i, this->Points->GetPoint(i));
-  }
-
+  ptIds->SetNumberOfIds(4);
+  std::iota(ptIds->begin(), ptIds->end(), 0);
   return 1;
 }
 

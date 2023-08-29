@@ -15,6 +15,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkTetra.h"
 
+#include <algorithm> //std::copy
 #include <cstddef>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -593,25 +594,11 @@ int vtkTriQuadraticPyramid::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkTriQuadraticPyramid::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkTriQuadraticPyramid::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // split into 32 tetrahedra
-  static constexpr vtkIdType totalTetrahedra = 32;
-  static constexpr vtkIdType tetrahedronPoints = 4;
-  pts->SetNumberOfPoints(totalTetrahedra * tetrahedronPoints);
-  ptIds->SetNumberOfIds(totalTetrahedra * tetrahedronPoints);
-
-  vtkIdType counter = 0;
-  for (int i = 0; i < totalTetrahedra; i++)
-  {
-    for (int j = 0; j < tetrahedronPoints; j++)
-    {
-      ptIds->SetId(counter, this->PointIds->GetId(triangulationPointIds[i][j]));
-      pts->SetPoint(counter, this->Points->GetPoint(triangulationPointIds[i][j]));
-      counter++;
-    }
-  }
-
+  ptIds->SetNumberOfIds(32 * 4);
+  std::copy(&triangulationPointIds[0][0], &triangulationPointIds[0][0] + 32 * 4, ptIds->begin());
   return 1;
 }
 

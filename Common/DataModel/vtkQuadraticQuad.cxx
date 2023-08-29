@@ -10,6 +10,8 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
+#include <algorithm> //std::copy
+#include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticQuad);
@@ -354,85 +356,30 @@ int vtkQuadraticQuad::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticQuad::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkQuadraticQuad::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
   // Create six linear triangles: one at each corner and two
   // to cover the remaining quadrilateral.
-
   // First the corner vertices
-  ptIds->InsertId(0, this->PointIds->GetId(0));
-  ptIds->InsertId(1, this->PointIds->GetId(4));
-  ptIds->InsertId(2, this->PointIds->GetId(7));
-  pts->InsertPoint(0, this->Points->GetPoint(0));
-  pts->InsertPoint(1, this->Points->GetPoint(4));
-  pts->InsertPoint(2, this->Points->GetPoint(7));
-
-  ptIds->InsertId(3, this->PointIds->GetId(4));
-  ptIds->InsertId(4, this->PointIds->GetId(1));
-  ptIds->InsertId(5, this->PointIds->GetId(5));
-  pts->InsertPoint(3, this->Points->GetPoint(4));
-  pts->InsertPoint(4, this->Points->GetPoint(1));
-  pts->InsertPoint(5, this->Points->GetPoint(5));
-
-  ptIds->InsertId(6, this->PointIds->GetId(5));
-  ptIds->InsertId(7, this->PointIds->GetId(2));
-  ptIds->InsertId(8, this->PointIds->GetId(6));
-  pts->InsertPoint(6, this->Points->GetPoint(5));
-  pts->InsertPoint(7, this->Points->GetPoint(2));
-  pts->InsertPoint(8, this->Points->GetPoint(6));
-
-  ptIds->InsertId(9, this->PointIds->GetId(6));
-  ptIds->InsertId(10, this->PointIds->GetId(3));
-  ptIds->InsertId(11, this->PointIds->GetId(7));
-  pts->InsertPoint(9, this->Points->GetPoint(6));
-  pts->InsertPoint(10, this->Points->GetPoint(3));
-  pts->InsertPoint(11, this->Points->GetPoint(7));
+  ptIds->SetNumberOfIds(18);
+  constexpr std::array<vtkIdType, 12> localPtIdsCorners{ 0, 4, 7, 4, 1, 5, 5, 2, 6, 6, 3, 7 };
+  std::copy(localPtIdsCorners.begin(), localPtIdsCorners.end(), ptIds->begin());
 
   // Now the two remaining triangles
   // Choose the triangulation that minimizes the edge length
   // across the cell.
-  double x4[3], x5[3], x6[3], x7[3];
-  this->Points->GetPoint(4, x4);
-  this->Points->GetPoint(5, x5);
-  this->Points->GetPoint(6, x6);
-  this->Points->GetPoint(7, x7);
-
-  if (vtkMath::Distance2BetweenPoints(x4, x6) <= vtkMath::Distance2BetweenPoints(x5, x7))
+  double d1 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(4), this->Points->GetPoint(6));
+  double d2 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(5), this->Points->GetPoint(7));
+  if (d1 <= d2)
   {
-    ptIds->InsertId(12, this->PointIds->GetId(4));
-    ptIds->InsertId(13, this->PointIds->GetId(6));
-    ptIds->InsertId(14, this->PointIds->GetId(7));
-    pts->InsertPoint(12, this->Points->GetPoint(4));
-    pts->InsertPoint(13, this->Points->GetPoint(6));
-    pts->InsertPoint(14, this->Points->GetPoint(7));
-
-    ptIds->InsertId(15, this->PointIds->GetId(4));
-    ptIds->InsertId(16, this->PointIds->GetId(5));
-    ptIds->InsertId(17, this->PointIds->GetId(6));
-    pts->InsertPoint(15, this->Points->GetPoint(4));
-    pts->InsertPoint(16, this->Points->GetPoint(5));
-    pts->InsertPoint(17, this->Points->GetPoint(6));
+    constexpr std::array<vtkIdType, 6> localPtIds1{ 4, 6, 7, 4, 5, 6 };
+    std::copy(localPtIds1.begin(), localPtIds1.end(), ptIds->begin() + 12);
   }
   else
   {
-    ptIds->InsertId(12, this->PointIds->GetId(5));
-    ptIds->InsertId(13, this->PointIds->GetId(6));
-    ptIds->InsertId(14, this->PointIds->GetId(7));
-    pts->InsertPoint(12, this->Points->GetPoint(5));
-    pts->InsertPoint(13, this->Points->GetPoint(6));
-    pts->InsertPoint(14, this->Points->GetPoint(7));
-
-    ptIds->InsertId(15, this->PointIds->GetId(5));
-    ptIds->InsertId(16, this->PointIds->GetId(7));
-    ptIds->InsertId(17, this->PointIds->GetId(4));
-    pts->InsertPoint(15, this->Points->GetPoint(5));
-    pts->InsertPoint(16, this->Points->GetPoint(7));
-    pts->InsertPoint(17, this->Points->GetPoint(4));
+    constexpr std::array<vtkIdType, 6> localPtIds2{ 5, 6, 7, 5, 7, 4 };
+    std::copy(localPtIds2.begin(), localPtIds2.end(), ptIds->begin() + 12);
   }
-
   return 1;
 }
 

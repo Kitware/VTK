@@ -25,6 +25,7 @@
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 
+#include <algorithm> //std::copy
 #include <cassert>
 #include <vector>
 
@@ -906,99 +907,19 @@ int vtkPentagonalPrism::IntersectWithLine(const double p1[3], const double p2[3]
 }
 
 //------------------------------------------------------------------------------
-int vtkPentagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkPentagonalPrism::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  ptIds->Reset();
-  pts->Reset();
-  int i, p[4];
-
   // Create 8 tetrahedron. This might not be the minimum, but it is a simple solution.
   // The Pentagonal Prism is divided in one hexa and one wedge.
-
   // The first five tetra are for the hexahedron
-  p[0] = 0;
-  p[1] = 1;
-  p[2] = 3;
-  p[3] = 5;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
-  p[0] = 1;
-  p[1] = 5;
-  p[2] = 6;
-  p[3] = 7;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
-  p[0] = 1;
-  p[1] = 5;
-  p[2] = 7;
-  p[3] = 3;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
-  p[0] = 1;
-  p[1] = 3;
-  p[2] = 7;
-  p[3] = 2;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
-  p[0] = 3;
-  p[1] = 7;
-  p[2] = 8;
-  p[3] = 5;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
   // The last three tetra are for the wedge
-  p[0] = 0;
-  p[1] = 4;
-  p[3] = 3;
-  p[2] = 5;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
-  p[0] = 3;
-  p[1] = 5;
-  p[3] = 9;
-  p[2] = 8;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
-  p[0] = 3;
-  p[1] = 4;
-  p[3] = 9;
-  p[2] = 5;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
+  ptIds->SetNumberOfIds(32);
+  constexpr vtkIdType localPtIds[8][4] = { { 0, 1, 3, 5 }, { 1, 5, 6, 7 }, { 1, 5, 7, 3 },
+    { 1, 3, 7, 2 }, { 3, 7, 8, 5 }, { 0, 4, 5, 3 }, { 3, 5, 8, 9 }, { 3, 4, 5, 9 } };
+  std::copy(&localPtIds[0][0], &localPtIds[0][0] + 32, ptIds->begin());
   return 1;
 }
+
 //------------------------------------------------------------------------------
 //
 // Compute derivatives in x-y-z directions. Use chain rule in combination

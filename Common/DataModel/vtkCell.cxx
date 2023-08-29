@@ -437,6 +437,38 @@ int vtkCell::IntersectWithCell(vtkCell* other, double tol)
     other, vtkBoundingBox(this->GetBounds()), vtkBoundingBox(other->GetBounds()), tol);
 }
 
+//----------------------------------------------------------------------------
+int vtkCell::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
+{
+  // Convert the local ids to the global ones, plus collect the points
+  if (!this->TriangulateLocalCellPtIds(index, ptIds))
+  {
+    return 0;
+  };
+  pts->SetNumberOfPoints(ptIds->GetNumberOfIds());
+  for (int i = 0; i < ptIds->GetNumberOfIds(); i++)
+  {
+    pts->SetPoint(i, this->Points->GetPoint(ptIds->GetId(i)));
+    ptIds->SetId(i, this->PointIds->GetId(ptIds->GetId(i)));
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkCell::TriangulatePtIds(int index, vtkIdList* ptIds)
+{
+  // Convert the local ids to the global ones
+  if (!this->TriangulateLocalCellPtIds(index, ptIds))
+  {
+    return 0;
+  };
+  for (int i = 0; i < ptIds->GetNumberOfIds(); i++)
+  {
+    ptIds->SetId(i, this->PointIds->GetId(ptIds->GetId(i)));
+  }
+  return 1;
+}
+
 //------------------------------------------------------------------------------
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result into
 // user provided array.

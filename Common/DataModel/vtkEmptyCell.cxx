@@ -59,9 +59,8 @@ int vtkEmptyCell::IntersectWithLine(const double vtkNotUsed(p1)[3], const double
 }
 
 //------------------------------------------------------------------------------
-int vtkEmptyCell::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkEmptyCell::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
   ptIds->Reset();
   return 1;
 }

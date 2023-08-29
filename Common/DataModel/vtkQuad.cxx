@@ -14,6 +14,9 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 
+#include <algorithm> //std::copy
+#include <array>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuad);
 
@@ -681,50 +684,24 @@ int vtkQuad::IntersectWithLine(const double p1[3], const double p2[3], double to
 }
 
 //------------------------------------------------------------------------------
-int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkQuad::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  double d1, d2;
+  // The base of the pyramid must be split into two triangles.  There are two
+  // ways to do this (across either diagonal).  Pick the shorter diagonal.
+  double d1 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(0), this->Points->GetPoint(2));
+  double d2 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(1), this->Points->GetPoint(3));
 
-  pts->Reset();
-  ptIds->Reset();
-
-  // use minimum diagonal (Delaunay triangles) - assumed convex
-  d1 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(0), this->Points->GetPoint(2));
-  d2 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(1), this->Points->GetPoint(3));
-
+  ptIds->SetNumberOfIds(6);
   if (d1 <= d2)
   {
-    ptIds->InsertId(0, this->PointIds->GetId(0));
-    pts->InsertPoint(0, this->Points->GetPoint(0));
-    ptIds->InsertId(1, this->PointIds->GetId(1));
-    pts->InsertPoint(1, this->Points->GetPoint(1));
-    ptIds->InsertId(2, this->PointIds->GetId(2));
-    pts->InsertPoint(2, this->Points->GetPoint(2));
-
-    ptIds->InsertId(3, this->PointIds->GetId(0));
-    pts->InsertPoint(3, this->Points->GetPoint(0));
-    ptIds->InsertId(4, this->PointIds->GetId(2));
-    pts->InsertPoint(4, this->Points->GetPoint(2));
-    ptIds->InsertId(5, this->PointIds->GetId(3));
-    pts->InsertPoint(5, this->Points->GetPoint(3));
+    constexpr std::array<vtkIdType, 6> localPtIds{ 0, 1, 2, 0, 2, 3 };
+    std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   }
   else
   {
-    ptIds->InsertId(0, this->PointIds->GetId(0));
-    pts->InsertPoint(0, this->Points->GetPoint(0));
-    ptIds->InsertId(1, this->PointIds->GetId(1));
-    pts->InsertPoint(1, this->Points->GetPoint(1));
-    ptIds->InsertId(2, this->PointIds->GetId(3));
-    pts->InsertPoint(2, this->Points->GetPoint(3));
-
-    ptIds->InsertId(3, this->PointIds->GetId(1));
-    pts->InsertPoint(3, this->Points->GetPoint(1));
-    ptIds->InsertId(4, this->PointIds->GetId(2));
-    pts->InsertPoint(4, this->Points->GetPoint(2));
-    ptIds->InsertId(5, this->PointIds->GetId(3));
-    pts->InsertPoint(5, this->Points->GetPoint(3));
+    constexpr std::array<vtkIdType, 6> localPtIds{ 0, 1, 3, 1, 2, 3 };
+    std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   }
-
   return 1;
 }
 

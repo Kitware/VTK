@@ -95,7 +95,7 @@ vtkCell* vtkConvexPointSet::GetFace(int faceId)
 }
 
 //------------------------------------------------------------------------------
-int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkConvexPointSet::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   vtkIdType numPts = this->GetNumberOfPoints();
   double x[3];
@@ -103,7 +103,6 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkP
 
   // Initialize
   ptIds->Reset();
-  pts->Reset();
   if (numPts < 1)
   {
     return 0;
@@ -120,7 +119,7 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkP
   // id.
   for (vtkIdType i = 0; i < numPts; i++)
   {
-    ptId = this->PointIds->GetId(i);
+    ptId = i; // Do not use this->PointIds->GetId(i) because we want local cell point ids
     this->Points->GetPoint(i, x);
     this->Triangulator->InsertPoint(i, ptId, x, x, 0);
   } // for all points
@@ -129,7 +128,7 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkP
   this->Triangulator->Triangulate();
 
   // Add the triangulation to the mesh
-  this->Triangulator->AddTetras(0, ptIds, pts);
+  this->Triangulator->AddTetras(0, ptIds);
 
   return 1;
 }

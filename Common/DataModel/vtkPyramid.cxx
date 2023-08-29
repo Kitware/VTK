@@ -16,6 +16,8 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm> //std::copy
+#include <array>
 #include <cassert>
 #include <vector>
 
@@ -780,67 +782,24 @@ int vtkPyramid::IntersectWithLine(const double p1[3], const double p2[3], double
 }
 
 //------------------------------------------------------------------------------
-int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkPyramid::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  int p[4], i;
-  ptIds->Reset();
-  pts->Reset();
-
   // The base of the pyramid must be split into two triangles.  There are two
   // ways to do this (across either diagonal).  Pick the shorter diagonal.
-  double base_points[4][3];
-  for (i = 0; i < 4; i++)
+  double d1 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(0), this->Points->GetPoint(2));
+  double d2 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(1), this->Points->GetPoint(3));
+  ptIds->SetNumberOfIds(8);
+  if (d1 < d2)
   {
-    this->Points->GetPoint(i, base_points[i]);
-  }
-  double diagonal1, diagonal2;
-  diagonal1 = vtkMath::Distance2BetweenPoints(base_points[0], base_points[2]);
-  diagonal2 = vtkMath::Distance2BetweenPoints(base_points[1], base_points[3]);
-
-  if (diagonal1 < diagonal2)
-  {
-    for (i = 0; i < 4; i++)
-    {
-      p[0] = 0;
-      p[1] = 1;
-      p[2] = 2;
-      p[3] = 4;
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-    for (i = 0; i < 4; i++)
-    {
-      p[0] = 0;
-      p[1] = 2;
-      p[2] = 3;
-      p[3] = 4;
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
+    constexpr std::array<vtkIdType, 8> localPtIds{ 0, 1, 2, 4, 0, 2, 3, 4 };
+    std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   }
   else
   {
-    for (i = 0; i < 4; i++)
-    {
-      p[0] = 0;
-      p[1] = 1;
-      p[2] = 3;
-      p[3] = 4;
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-    for (i = 0; i < 4; i++)
-    {
-      p[0] = 1;
-      p[1] = 2;
-      p[2] = 3;
-      p[3] = 4;
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
+    constexpr std::array<vtkIdType, 8> localPtIds{ 0, 1, 3, 4, 1, 2, 3, 4 };
+    std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   }
-
-  return !(diagonal1 == diagonal2);
+  return 1;
 }
 
 //------------------------------------------------------------------------------

@@ -128,10 +128,12 @@ int vtkQuadraticPolygon::Triangulate(vtkIdList* outTris)
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticPolygon::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
+int vtkQuadraticPolygon::TriangulateLocalCellPtIds(int index, vtkIdList* ptIds)
 {
   this->InitializePolygon();
-  return this->Polygon->Triangulate(index, ptIds, pts);
+  int result = this->Polygon->TriangulateLocalCellPtIds(index, ptIds);
+  vtkQuadraticPolygon::ConvertFromPolygon(ptIds);
+  return result;
 }
 
 //------------------------------------------------------------------------------

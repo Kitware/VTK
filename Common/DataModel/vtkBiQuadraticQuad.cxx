@@ -13,6 +13,8 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
+#include <algorithm> //std::copy
+#include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBiQuadraticQuad);
@@ -246,69 +248,12 @@ int vtkBiQuadraticQuad::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkBiQuadraticQuad::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkBiQuadraticQuad::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->SetNumberOfPoints(24);
+  constexpr std::array<vtkIdType, 24> localPtIds{ 0, 4, 7, 4, 1, 5, 5, 2, 6, 6, 3, 7, 4, 8, 7, 4, 5,
+    8, 5, 6, 8, 6, 7, 8 };
   ptIds->SetNumberOfIds(24);
-
-  // First the corner vertices
-  ptIds->SetId(0, this->PointIds->GetId(0));
-  ptIds->SetId(1, this->PointIds->GetId(4));
-  ptIds->SetId(2, this->PointIds->GetId(7));
-  pts->SetPoint(0, this->Points->GetPoint(0));
-  pts->SetPoint(1, this->Points->GetPoint(4));
-  pts->SetPoint(2, this->Points->GetPoint(7));
-
-  ptIds->SetId(3, this->PointIds->GetId(4));
-  ptIds->SetId(4, this->PointIds->GetId(1));
-  ptIds->SetId(5, this->PointIds->GetId(5));
-  pts->SetPoint(3, this->Points->GetPoint(4));
-  pts->SetPoint(4, this->Points->GetPoint(1));
-  pts->SetPoint(5, this->Points->GetPoint(5));
-
-  ptIds->SetId(6, this->PointIds->GetId(5));
-  ptIds->SetId(7, this->PointIds->GetId(2));
-  ptIds->SetId(8, this->PointIds->GetId(6));
-  pts->SetPoint(6, this->Points->GetPoint(5));
-  pts->SetPoint(7, this->Points->GetPoint(2));
-  pts->SetPoint(8, this->Points->GetPoint(6));
-
-  ptIds->SetId(9, this->PointIds->GetId(6));
-  ptIds->SetId(10, this->PointIds->GetId(3));
-  ptIds->SetId(11, this->PointIds->GetId(7));
-  pts->SetPoint(9, this->Points->GetPoint(6));
-  pts->SetPoint(10, this->Points->GetPoint(3));
-  pts->SetPoint(11, this->Points->GetPoint(7));
-
-  // Now the triangles in the middle
-  ptIds->SetId(12, this->PointIds->GetId(4));
-  ptIds->SetId(13, this->PointIds->GetId(8));
-  ptIds->SetId(14, this->PointIds->GetId(7));
-  pts->SetPoint(12, this->Points->GetPoint(4));
-  pts->SetPoint(13, this->Points->GetPoint(8));
-  pts->SetPoint(14, this->Points->GetPoint(7));
-
-  ptIds->SetId(15, this->PointIds->GetId(4));
-  ptIds->SetId(16, this->PointIds->GetId(5));
-  ptIds->SetId(17, this->PointIds->GetId(8));
-  pts->SetPoint(15, this->Points->GetPoint(4));
-  pts->SetPoint(16, this->Points->GetPoint(5));
-  pts->SetPoint(17, this->Points->GetPoint(8));
-
-  ptIds->SetId(18, this->PointIds->GetId(5));
-  ptIds->SetId(19, this->PointIds->GetId(6));
-  ptIds->SetId(20, this->PointIds->GetId(8));
-  pts->SetPoint(18, this->Points->GetPoint(5));
-  pts->SetPoint(19, this->Points->GetPoint(6));
-  pts->SetPoint(20, this->Points->GetPoint(8));
-
-  ptIds->SetId(21, this->PointIds->GetId(6));
-  ptIds->SetId(22, this->PointIds->GetId(7));
-  ptIds->SetId(23, this->PointIds->GetId(8));
-  pts->SetPoint(21, this->Points->GetPoint(6));
-  pts->SetPoint(22, this->Points->GetPoint(7));
-  pts->SetPoint(23, this->Points->GetPoint(8));
-
+  std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   return 1;
 }
 

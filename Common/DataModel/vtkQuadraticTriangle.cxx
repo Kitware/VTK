@@ -9,6 +9,7 @@
 #include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkTriangle.h"
+#include <algorithm> //std::copy
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticTriangle);
@@ -232,22 +233,11 @@ int vtkQuadraticTriangle::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkQuadraticTriangle::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
   // Create four linear triangles
-  for (int i = 0; i < 4; i++)
-  {
-    ptIds->InsertId(3 * i, this->PointIds->GetId(LinearTris[i][0]));
-    pts->InsertPoint(3 * i, this->Points->GetPoint(LinearTris[i][0]));
-    ptIds->InsertId(3 * i + 1, this->PointIds->GetId(LinearTris[i][1]));
-    pts->InsertPoint(3 * i + 1, this->Points->GetPoint(LinearTris[i][1]));
-    ptIds->InsertId(3 * i + 2, this->PointIds->GetId(LinearTris[i][2]));
-    pts->InsertPoint(3 * i + 2, this->Points->GetPoint(LinearTris[i][2]));
-  }
-
+  ptIds->SetNumberOfIds(12);
+  std::copy(&LinearTris[0][0], &LinearTris[0][0] + 12, ptIds->begin());
   return 1;
 }
 
