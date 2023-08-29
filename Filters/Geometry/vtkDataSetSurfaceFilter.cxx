@@ -1989,7 +1989,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
 
       input->SetCellOrderAndRationalWeights(cellId, cell);
 
-      cell->TriangulatePtIds(0, pts);
+      // Note that pts is used here for local points
+      cell->TriangulateLocalCellPtIds(0, pts);
 
       // Copy the level 1 subdivision points (which also exist in the input and
       // can therefore just be copied over.  Note that the output of Triangulate
@@ -2018,7 +2019,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
         {
           for (i = 0; i < pts->GetNumberOfIds(); i++)
           {
-            vtkIdType op = this->GetOutputPointId(pts->GetId(i), input, newPts, outputPD);
+            vtkIdType op =
+              this->GetOutputPointId(cell->GetPointId(pts->GetId(i)), input, newPts, outputPD);
             outPts->InsertNextId(op);
           }
           break;
@@ -2034,12 +2036,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
         parametricCoords->SetNumberOfComponents(3);
         for (i = 0; i < pts->GetNumberOfIds(); i++)
         {
-          vtkIdType ptId = pts->GetId(i);
-          vtkIdType cellPtId;
-          for (cellPtId = 0; cell->GetPointId(cellPtId) != ptId; cellPtId++)
-          {
-          }
-          parametricCoords->InsertNextTypedTuple(pc + 3 * cellPtId);
+          parametricCoords->InsertNextTypedTuple(pc + 3 * pts->GetId(i));
         }
         // Subdivide these triangles as many more times as necessary.  Remember
         // that we have already done the first subdivision.
@@ -2638,18 +2635,15 @@ vtkIdType vtkDataSetSurfaceFilter::GetOutputPointId(
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkDataSetSurfaceFilter::GetOutputPointIdAndInterpolate(vtkIdType inPtId,
+vtkIdType vtkDataSetSurfaceFilter::GetOutputPointIdAndInterpolate(vtkIdType cellPtId,
   vtkDataSet* input, vtkCell* cell, double* weights, vtkPoints* outPts, vtkPointData* outPD)
 {
   vtkIdType outPtId;
+  vtkIdType inPtId = cell->GetPointId(cellPtId);
   outPtId = this->PointMap[inPtId];
   if (outPtId == -1)
   {
     double* pc = cell->GetParametricCoords();
-    vtkIdType cellPtId;
-    for (cellPtId = 0; cell->GetPointId(cellPtId) != inPtId; cellPtId++)
-    {
-    }
     int subId = -1;
     double wcoords[3];
     cell->EvaluateLocation(subId, pc + 3 * cellPtId, wcoords, weights);
