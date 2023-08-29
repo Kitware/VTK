@@ -212,9 +212,8 @@ More advanced options:
 
 The `VTK_DISPATCH_<array_type>_ARRAYS` options (default `OFF` for all but AOS) enable the
 specified type of array to be included in a dispatch type list. Explicit arrays (such as
-AOS, SOA and Typed) are included in the `vtkArrayDispatchTypeList.h` while
-`vtkArrayDispatchImplicitTypeList.h` includes both explicit and implicit arrays. The implicit
-array framework is included in the `CommonImplicitArrays` module. The following array types
+AOS, SOA, Typed, and implicit arrays) are included in the `vtkArrayDispatchTypeList.h`
+The implicit array framework is included in the `CommonCore` module. The following array types
 currently exist for use with the VTK dispatch mechanism:
 
   * `VTK_DISPATCH_AOS_ARRAYS` (default `ON`): includes dispatching for the commonly used
@@ -229,12 +228,6 @@ currently exist for use with the VTK dispatch mechanism:
     `vtkConstantArray` as part of the implicit array framework
   * `VTK_DISPATCH_STD_FUNCTION_ARRAYS` (default `OFF`): includes dispatching for arrays with
     an `std::function` backend `vtkStdFunctionArray` as part of the implicit array framework
-  * `VTK_DISPATCH_COMPOSITE_ARRAYS` (default `OFF`): includes dispatching of arrays with a
-    `vtkCompositeImplicitBackend` backend, `vtkCompositeArray`, as part of the implicit array
-    framework
-  * `VTK_DISPATCH_INDEXED_ARRAYS` (default `OFF`): includes dispatching of arrays with a
-    `vtkIndexedImplicitBackend` backend, `vtkIndexedArray`, as part of the implicit array
-    framework
 
 The outlier in terms of dispatch support is the family of arrays derived from
 `vtkScaledSOADataArrayTemplate` which are automatically included in dispatch when built setting

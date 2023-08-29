@@ -135,8 +135,8 @@ private:
       assert(array->GetNumberOfComponents() == this->ValidPointMask->GetNumberOfComponents());
 
       using Dispatcher =
-        vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::Arrays, // First array is input, can be
-                                                                     // anything.
+        vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::AllArrays, // First array is input, can
+                                                                        // be anything.
           vtkTypeList::Create<vtkCharArray> // Second is always vtkCharArray.
           >;
       ComputeArrayRange worker;

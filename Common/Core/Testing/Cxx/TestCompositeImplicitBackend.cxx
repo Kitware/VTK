@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCompositeImplicitBackend.h"
-#include "vtkCompositeImplicitBackend.txx"
 #include "vtkDataArrayRange.h"
 
 #include "vtkIntArray.h"
