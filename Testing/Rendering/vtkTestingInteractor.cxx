@@ -32,6 +32,8 @@ vtkTestingInteractor::vtkTestingInteractor()
   {
     this->Controller = nullptr;
   }
+#else
+  this->Controller = nullptr;
 #endif
 }
 
