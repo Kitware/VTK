@@ -738,6 +738,12 @@ bool vtkIOSSReader::vtkInternals::UpdateDatabaseNames(vtkIOSSReader* self)
     if (filenames.size() == 1 && vtkIOSSFilesScanner::IsMetaFile(*filenames.begin()))
     {
       filenames = vtkIOSSFilesScanner::GetFilesFromMetaFile(*filenames.begin());
+      // To address issue paraview/paraview/-/issues/22124 we need to scan for related files
+      // when reading an ex-timeseries file.
+      if (self->GetScanForRelatedFiles())
+      {
+        filenames = vtkIOSSFilesScanner::GetRelatedFiles(filenames);
+      }
     }
     else if (self->GetScanForRelatedFiles())
     {
