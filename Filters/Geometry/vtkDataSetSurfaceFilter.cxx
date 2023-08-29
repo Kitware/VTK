@@ -1901,7 +1901,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
         case VTK_QUADRATIC_LINEAR_QUAD:
         case VTK_LAGRANGE_QUADRILATERAL:
         case VTK_BEZIER_QUADRILATERAL:
-          cellType = VTK_POLYGON;
+          cellType = VTK_QUAD;
           numCellPts = 4;
           break;
       }
