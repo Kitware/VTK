@@ -79,7 +79,12 @@ wgpu::RenderBundle vtkWebGPUActor::RenderToBundle(vtkRenderer* ren, vtkMapper* m
     const int sampleCount = wgpuRenWin->GetMultiSamples() ? wgpuRenWin->GetMultiSamples() : 1;
 
     wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
+#if __EMSCRIPTEN__
+    // FIXME: Update this after emscripten webgpu updates to colorFormatCount
     bundleEncDesc.colorFormatsCount = 1;
+#else
+    bundleEncDesc.colorFormatCount = 1;
+#endif
     bundleEncDesc.colorFormats = &colorFormat;
     bundleEncDesc.depthStencilFormat = wgpuRenWin->GetDepthStencilFormat();
     bundleEncDesc.sampleCount = sampleCount;

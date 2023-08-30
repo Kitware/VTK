@@ -31,6 +31,14 @@
 // The BSDs use stat().
 #define VTK_STAT_STRUCT struct stat
 #define VTK_STAT_FUNC stat
+#elif defined __EMSCRIPTEN__
+#if defined _LARGEFILE64_SOURCE
+#define VTK_STAT_STRUCT struct stat64
+#define VTK_STAT_FUNC stat64
+#else
+#define VTK_STAT_STRUCT struct stat
+#define VTK_STAT_FUNC stat
+#endif
 #else
 // here, we're relying on _FILE_OFFSET_BITS defined in vtkWin32Header.h to help
 // us on POSIX without resorting to using stat64.

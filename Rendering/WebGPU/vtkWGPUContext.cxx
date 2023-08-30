@@ -73,7 +73,7 @@ static void WaitABit()
 
 }
 namespace vtkWGPUImpl = vtkWGPUEmscriptenImpl;
-#elif VTK_USE_DAWN_NATIVE
+#elif VTK_USE_DAWN_WEBGPU
 #include <cstring>
 #include <dawn/dawn_proc.h>
 #include <dawn/native/DawnNative.h>
@@ -88,11 +88,11 @@ static struct
   struct
   {
     DawnProcTable ProcTable;
-    std::unique_ptr<dawn_native::Instance> Instance = nullptr;
+    std::unique_ptr<dawn::native::Instance> Instance = nullptr;
   } DawnNativeEntryPoint;
   struct
   {
-    dawn_native::Adapter Handle;
+    dawn::native::Adapter Handle;
     wgpu::BackendType DawnBackendType;
     struct
     {
@@ -113,10 +113,10 @@ static void Initialize()
   }
 
   // Set up the native procs for the global proctable
-  GPUContext.DawnNativeEntryPoint.ProcTable = dawn_native::GetProcs();
+  GPUContext.DawnNativeEntryPoint.ProcTable = dawn::native::GetProcs();
   dawnProcSetProcs(&GPUContext.DawnNativeEntryPoint.ProcTable);
   GPUContext.DawnNativeEntryPoint.Instance =
-    std::unique_ptr<dawn_native::Instance>(new dawn_native::Instance());
+    std::unique_ptr<dawn::native::Instance>(new dawn::native::Instance());
   GPUContext.DawnNativeEntryPoint.Instance->DiscoverDefaultAdapters();
   GPUContext.DawnNativeEntryPoint.Instance->EnableBackendValidation(true);
 
@@ -125,16 +125,12 @@ static void Initialize()
   // are the preferred on their respective platforms, and Vulkan is preferred to
   // OpenGL
   GPUContext.Adapter.DawnBackendType =
-#if defined(VTK_DAWN_ENABLE_BACKEND_D3D12)
+#if defined(_WIN32)
     wgpu::BackendType::D3D12;
-#elif defined(VTK_DAWN_ENABLE_BACKEND_METAL)
+#elif defined(__APPLE__)
     wgpu::BackendType::Metal;
-#elif defined(VTK_DAWN_ENABLE_BACKEND_VULKAN)
-    wgpu::BackendType::Vulkan;
-#elif defined(VTK_DAWN_ENABLE_BACKEND_OPENGL)
-    wgpu::BackendType::OpenGL;
 #else
-#error
+    wgpu::BackendType::Vulkan;
 #endif
   GPUContext.Adapter.Handle = nullptr;
   GPUContext.Initialized = true;
@@ -159,48 +155,19 @@ static wgpu::Adapter RequestAdapter(const wgpu::RequestAdapterOptions& options)
 {
   Initialize();
 
-  // Search available adapters for a good match, in the
-  // following priority order
-  std::vector<wgpu::AdapterType> typePriority;
-  if (options.powerPreference == wgpu::PowerPreference::LowPower)
+  std::vector<dawn::native::Adapter> adapters =
+    GPUContext.DawnNativeEntryPoint.Instance->EnumerateAdapters(&options);
+  for (const dawn::native::Adapter& adapter : adapters)
   {
-    // low power
-    typePriority = std::vector<wgpu::AdapterType>{
-      wgpu::AdapterType::IntegratedGPU,
-      wgpu::AdapterType::DiscreteGPU,
-      wgpu::AdapterType::CPU,
-    };
-  }
-  else if (options.powerPreference == wgpu::PowerPreference::HighPerformance)
-  {
-    // high performance
-    typePriority = std::vector<wgpu::AdapterType>{
-      wgpu::AdapterType::DiscreteGPU,
-      wgpu::AdapterType::IntegratedGPU,
-      wgpu::AdapterType::CPU,
-    };
-  }
-
-  std::vector<dawn_native::Adapter> adapters =
-    GPUContext.DawnNativeEntryPoint.Instance->GetAdapters();
-  for (auto reqType : typePriority)
-  {
-    for (const dawn_native::Adapter& adapter : adapters)
-    {
-      wgpu::AdapterProperties ap;
-      adapter.GetProperties(&ap);
-      if (ap.adapterType == reqType &&
-        (reqType == wgpu::AdapterType::CPU || ap.backendType == GPUContext.Adapter.DawnBackendType))
-      {
-        GPUContext.Adapter.Handle = adapter;
-        SetAdapterInfo(ap);
-        std::string msg = vtkfmt::format(
-          "Selected adapter {0} (device={1:#x} vendor={2:#x} type={3}/{4})", ap.name, ap.deviceID,
-          ap.vendorID, GPUContext.Adapter.Info.TypeName, GPUContext.Adapter.Info.BackendName);
-        vtkWGPUContextLog(msg);
-        return wgpu::Adapter(GPUContext.Adapter.Handle.Get());
-      }
-    }
+    GPUContext.Adapter.Handle = adapter;
+    wgpu::AdapterProperties ap;
+    adapter.GetProperties(&ap);
+    SetAdapterInfo(ap);
+    std::string msg = vtkfmt::format(
+      "Selected adapter {0} (device={1:#x} vendor={2:#x} type={3}/{4})", ap.name, ap.deviceID,
+      ap.vendorID, GPUContext.Adapter.Info.TypeName, GPUContext.Adapter.Info.BackendName);
+    vtkWGPUContextLog(msg);
+    return wgpu::Adapter(GPUContext.Adapter.Handle.Get());
   }
 
   return nullptr;
@@ -234,7 +201,7 @@ static void LogAvailableAdapters()
 
   std::stringstream msg;
   msg << "Available adapters:\n";
-  for (auto&& a : GPUContext.DawnNativeEntryPoint.Instance->GetAdapters())
+  for (auto&& a : GPUContext.DawnNativeEntryPoint.Instance->EnumerateAdapters())
   {
     wgpu::AdapterProperties p;
     a.GetProperties(&p);
@@ -297,7 +264,7 @@ static const char* AdapterTypeName(wgpu::AdapterType t)
 }
 }
 namespace vtkWGPUImpl = vtkWGPUDawnImpl;
-#endif // VTK_USE_DAWN_NATIVE
+#endif // VTK_USE_DAWN_WEBGPU
 
 //------------------------------------------------------------------------------
 void vtkWGPUContext::LogAvailableAdapters()

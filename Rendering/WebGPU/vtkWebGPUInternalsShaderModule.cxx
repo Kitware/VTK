@@ -8,7 +8,7 @@ wgpu::ShaderModule vtkWebGPUInternalsShaderModule::CreateFromWGSL(
   const wgpu::Device& device, const std::string& source)
 {
   wgpu::ShaderModuleWGSLDescriptor wgslDesc;
-  wgslDesc.source = source.c_str();
+  wgslDesc.code = source.c_str();
 
   wgpu::ShaderModuleDescriptor descriptor;
   descriptor.nextInChain = &wgslDesc;
