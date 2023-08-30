@@ -136,7 +136,7 @@ protected:
    */
   static void GetPermutationToPolygon(vtkIdType nb, vtkIdList* permutation);
   static void PermuteFromPolygon(vtkIdType nb, double* values);
-  static void ConvertFromPolygon(vtkIdList* ids);
+  static void ConvertFromPolygon(vtkIdType nb, vtkIdList* ids);
   ///@}
 
 private:

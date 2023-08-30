@@ -123,7 +123,7 @@ int vtkQuadraticPolygon::Triangulate(vtkIdList* outTris)
 {
   this->InitializePolygon();
   int result = this->Polygon->Triangulate(outTris);
-  vtkQuadraticPolygon::ConvertFromPolygon(outTris);
+  vtkQuadraticPolygon::ConvertFromPolygon(this->GetNumberOfPoints(), outTris);
   return result;
 }
 
@@ -132,7 +132,7 @@ int vtkQuadraticPolygon::TriangulateLocalCellPtIds(int index, vtkIdList* ptIds)
 {
   this->InitializePolygon();
   int result = this->Polygon->TriangulateLocalCellPtIds(index, ptIds);
-  vtkQuadraticPolygon::ConvertFromPolygon(ptIds);
+  vtkQuadraticPolygon::ConvertFromPolygon(this->GetNumberOfPoints(), ptIds);
   return result;
 }
 
@@ -141,7 +141,7 @@ int vtkQuadraticPolygon::NonDegenerateTriangulate(vtkIdList* outTris)
 {
   this->InitializePolygon();
   int result = this->Polygon->NonDegenerateTriangulate(outTris);
-  vtkQuadraticPolygon::ConvertFromPolygon(outTris);
+  vtkQuadraticPolygon::ConvertFromPolygon(this->GetNumberOfPoints(), outTris);
   return result;
 }
 
@@ -405,12 +405,12 @@ void vtkQuadraticPolygon::PermuteFromPolygon(vtkIdType nb, double* values)
 }
 
 //------------------------------------------------------------------------------
-void vtkQuadraticPolygon::ConvertFromPolygon(vtkIdList* ids)
+void vtkQuadraticPolygon::ConvertFromPolygon(vtkIdType nb, vtkIdList* ids)
 {
   vtkIdType nbIds = ids->GetNumberOfIds();
 
   vtkIdList* permutation = vtkIdList::New();
-  vtkQuadraticPolygon::GetPermutationFromPolygon(nbIds, permutation);
+  vtkQuadraticPolygon::GetPermutationFromPolygon(nb, permutation);
 
   vtkIdList* saveList = vtkIdList::New();
   saveList->SetNumberOfIds(nbIds);
