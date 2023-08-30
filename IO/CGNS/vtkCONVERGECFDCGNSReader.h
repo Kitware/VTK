@@ -3,9 +3,9 @@
 
 /**
  * @class    vtkCONVERGECFDCGNSReader
- * @brief    Reader for CONVERGE CFD CGNS post files.
+ * @brief    Reader for CONVERGECFD CGNS post files.
  *
- * This class reads CONVERGE CFD post files using the CGNS standard. Meshes,
+ * This class reads CONVERGECFD post files using the CGNS standard. Meshes,
  * surfaces, and parcels are read. Parcels are defined inside "PARCEL_DATA"
  * UserDefinedData_t nodes.
  *

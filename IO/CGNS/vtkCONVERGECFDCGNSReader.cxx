@@ -6,7 +6,6 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCGNSReader.h"
 #include "vtkCellArray.h"
-#include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkConvertToPartitionedDataSetCollection.h"
 #include "vtkDataArray.h"
@@ -19,6 +18,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyVertex.h"
 #include "vtkSMPTools.h"
@@ -538,7 +538,7 @@ int vtkCONVERGECFDCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
 
               if (array)
               {
-                parcel->GetCellData()->AddArray(array);
+                parcel->GetPointData()->AddArray(array);
               }
             }
           }

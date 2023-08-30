@@ -3,12 +3,12 @@
 
 #include "vtkCONVERGECFDCGNSReader.h"
 
-#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
@@ -94,7 +94,7 @@ int TestCONVERGECFDCGNSReader(int argc, char* argv[])
   }
 
   // Check scalar array
-  vtkFloatArray* array = vtkFloatArray::SafeDownCast(parcels->GetCellData()->GetArray("TEMP"));
+  vtkFloatArray* array = vtkFloatArray::SafeDownCast(parcels->GetPointData()->GetArray("TEMP"));
 
   if (!array)
   {
@@ -110,7 +110,7 @@ int TestCONVERGECFDCGNSReader(int argc, char* argv[])
   }
 
   // Check vector array
-  array = vtkFloatArray::SafeDownCast(parcels->GetCellData()->GetArray("VELOCITY"));
+  array = vtkFloatArray::SafeDownCast(parcels->GetPointData()->GetArray("VELOCITY"));
 
   if (!array)
   {
