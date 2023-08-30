@@ -17,6 +17,10 @@ The topics listed here have corresponding subdirectories in VTK/Examples.
 - DataManipulation - Examples show how to rearrange and manipulate data
                    in the visualization pipeline.
 
+- Emscripten - These examples are self-contained and serve the purpose
+    of demonstrating how to utilize VTK for rendering tasks, all within
+    a browser environment through the utilization of WebAssembly.
+
 - GUI - Examples of interfacing to various GUI's including Motif, and Windows.
 
 - IO - Examples how how to read and write data; and how to import and export
@@ -50,8 +54,8 @@ The topics listed here have corresponding subdirectories in VTK/Examples.
 
 ## Additional Resources
 
-* The VTK Testing directories (e.g., VTK/Graphics/Testing) contain other
-  examples. These are not commented, and designed for testing.
+* The VTK Testing directories (like VTK/Module/Name/Testing/Cxx) comprise additional examples.
+  Unlike commented examples, these are primarily intended for testing purposes.
 
 * The VTK Discourse forum http://discourse.vtk.org/
 

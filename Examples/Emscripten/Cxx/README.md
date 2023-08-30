@@ -1,43 +1,18 @@
 # Building WebAssembly examples with rendering
 
-This example aims to provide a base example on how to create an example using
-VTK for its rendering while running the code inside a browser using WebAssembly.
+These examples are self-contained and serve the purpose of demonstrating how to utilize VTK for rendering tasks, all within a browser environment through the utilization of WebAssembly.
 
-This example was contributed by Rostyslav Lyulinetskyy and Ilya Volkov from
+These examples were contributed by Rostyslav Lyulinetskyy and Ilya Volkov from
 https://about.dicehub.com/.
 
-## Compiling VTK for Emscripten
+## Compiling VTK for WebAssembly architecture
 
 Please refer to [Documentation/dev/build_wasm_emscripten.md](https://gitlab.kitware.com/vtk/-/blob/master/Documentation/dev/build_wasm_emscripten.md) for
 detailed instructions.
 
-## Compiling all Emscripten examples
-
-```
-docker run --rm --entrypoint /bin/bash -v $PWD:/work -p 8000:8000 -it dockcross/web-wasm:20230222-162287d
-
-mkdir -p /work/build-examples-wasm
-cd /work/build-examples-wasm
-
-cmake \
-  -G Ninja \
-  -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} \
-  -DVTK_DIR=/work/build-vtk-wasm \
-  /work/src/Examples
-
-cmake --build .
-```
-
-## Serve and test generated code
-
-```
-cd work/build-examples-wasm/Emscripten/Cxx/
-python3 -m http.server 8000
-```
-
-Open your browser to:
-
-- http://localhost:8000/Cone
-- http://localhost:8000/ConeFullScreen
-- http://localhost:8000/MultiCone
-- http://localhost:8000/WrappedMace
+## Examples
+- [Cone](./Cone/README.md) Shows how to write an extremely simple 3D object viewer that runs in the browser using VTK that targets WebAssembly architecture.
+- [ConeMultiBackend](./ConeMultiBackend/README.md) Shows how to write a 3D object viewer for
+WebAssembly . Notably, it offers the flexibility to select the rendering backend, either OpenGL or WebGPU, during runtime.
+- [MultiCone](./MultiCone/README.md) Shows to render multiple viewports in a HTML canvas using a VTK wasm module per viewport.
+- [WrappedMace](./WrappedMace/README.md) Shows how to write a 3D object viewer in JavaScript using wrapped VTK C++ classes.

@@ -1,16 +1,22 @@
-An example of wrapping vtk classes into JS using embind.
+# Build
 
 ```
-docker run --rm --entrypoint /bin/bash -v $PWD:/work -p 8000:8000 -it dockcross/web-wasm:20230222-162287d
-
-cd /work/build-example
-
 emcmake cmake \
   -G Ninja \
-  -DVTK_DIR=/work/build-vtk-wasm \
-  /work/src/Examples/Emscripten/Cxx/WrappedMace
+  -S /path/to/vtk/Examples/Emscripten/Cxx/WrappedMace \
+  -B out/build \
+  -DVTK_DIR=/path/to/where/vtk/wasm/was/built
 
-cmake --build .
+cmake --build out/build
 ```
+
+# Serve and test generated code
+
+```
+cd out/build
+python3 -m http.server 8000
+```
+
+Open your browser to http://localhost:8000
 
 once built and running you can access the vtk instances for example ```vtk.instances.sphere.SetThetaResolution(22);```
