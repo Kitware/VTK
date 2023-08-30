@@ -9,7 +9,7 @@ VTK_ABI_NAMESPACE_BEGIN
 uint32_t vtkOpenXRManagerGraphics::GetChainLength(XrSwapchain swapchain)
 {
   uint32_t chainLength;
-  vtkOpenXRManager::GetInstance().XrCheckError(
+  vtkOpenXRManager::GetInstance().XrCheckOutput(vtkOpenXRManager::ErrorOutput,
     xrEnumerateSwapchainImages(swapchain, 0, &chainLength, nullptr),
     "Failed to get swapchain images count");
 

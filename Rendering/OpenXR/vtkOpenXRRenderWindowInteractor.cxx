@@ -157,8 +157,9 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
         for (uint32_t hand :
           { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
         {
-          if (!xrManager.XrCheckWarn(xrGetCurrentInteractionProfile(xrManager.GetSession(),
-                                       xrManager.GetSubactionPaths()[hand], &state),
+          if (!xrManager.XrCheckOutput(vtkOpenXRManager::WarningOutput,
+                xrGetCurrentInteractionProfile(
+                  xrManager.GetSession(), xrManager.GetSubactionPaths()[hand], &state),
                 "Failed to get interaction profile for hand " + hand))
           {
             continue;
@@ -174,7 +175,7 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
 
           uint32_t strLength;
           char profileString[XR_MAX_PATH_LENGTH];
-          if (!xrManager.XrCheckWarn(
+          if (!xrManager.XrCheckOutput(vtkOpenXRManager::WarningOutput,
                 xrPathToString(xrManager.GetXrRuntimeInstance(), interactionProfile,
                   XR_MAX_PATH_LENGTH, &strLength, profileString),
                 "Failed to get interaction profile path string for hand " + hand))
@@ -342,8 +343,8 @@ void vtkOpenXRRenderWindowInteractor::HandleAction(
     /*case XR_ACTION_TYPE_FLOAT_INPUT:
       actionT.States[hand]._float.type = XR_TYPE_ACTION_STATE_FLOAT;
       actionT.States[hand]._float.next = nullptr;
-      if (!this->XrCheckError(xrGetActionStateFloat(Session, &info, &action_t.States[hand]._float),
-        "Failed to get float value"))
+      if (!this->XrCheckOutput(vtkOpenXRManager::ErrorOutput, xrGetActionStateFloat(Session, &info,
+      &action_t.States[hand]._float), "Failed to get float value"))
       {
         return false;
       }
