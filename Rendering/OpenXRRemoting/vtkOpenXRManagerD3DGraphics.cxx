@@ -91,7 +91,7 @@ void vtkOpenXRManagerD3DGraphics::EnumerateSwapchainImages(
 
   swapchainImages.Images.resize(chainLength, { XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR });
 
-  vtkOpenXRManager::GetInstance().XrCheckError(
+  vtkOpenXRManager::GetInstance().XrCheckOutput(vtkOpenXRManager::ErrorOutput,
     xrEnumerateSwapchainImages(swapchain, (uint32_t)swapchainImages.Images.size(), &chainLength,
       reinterpret_cast<XrSwapchainImageBaseHeader*>(swapchainImages.Images.data())),
     "Failed to enumerate swapchain images");
@@ -126,7 +126,7 @@ bool vtkOpenXRManagerD3DGraphics::CheckGraphicsRequirements(XrInstance instance,
   xr::GraphicsExtensionDispatchTable extensions;
   extensions.PopulateDispatchTable(instance);
 
-  if (!vtkOpenXRManager::GetInstance().XrCheckError(
+  if (!vtkOpenXRManager::GetInstance().XrCheckOutput(vtkOpenXRManager::ErrorOutput,
         extensions.xrGetD3D11GraphicsRequirementsKHR(instance, id, &graphicsRequirements),
         "Failed to get DirectX graphics requirements!"))
   {
