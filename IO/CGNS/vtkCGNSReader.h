@@ -85,6 +85,21 @@ public:
    */
   vtkDataArraySelection* GetFamilySelection();
 
+  /**
+   * Return selection of cell arrays.
+   */
+  vtkGetMacro(CellDataArraySelection, vtkDataArraySelection*);
+
+  /**
+   * Return selection of face arrays.
+   */
+  vtkGetMacro(FaceDataArraySelection, vtkDataArraySelection*);
+
+  /**
+   * Return selection of point arrays.
+   */
+  vtkGetMacro(PointDataArraySelection, vtkDataArraySelection*);
+
   ///@{
   /**
    * API to select bases to read. These calls simply forward to the

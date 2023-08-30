@@ -4,6 +4,7 @@ vtk_module_test_data(
   Data/bc_struct.cgns
   Data/BoxWithFaceData.cgns
   Data/channelBump_solution.cgns
+  Data/EngineSector.cgns
   Data/Example_fields.cgns
   Data/Example_grids.cgns
   Data/Example_mixed.cgns
