@@ -4,9 +4,9 @@
 #include "vtkForceStaticMesh.h"
 
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
@@ -24,7 +24,8 @@ void vtkForceStaticMesh::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 int vtkForceStaticMesh::FillInputPortInformation(int, vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
@@ -32,41 +33,53 @@ int vtkForceStaticMesh::FillInputPortInformation(int, vtkInformation* info)
 int vtkForceStaticMesh::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkDataSet* input = nullptr;
-
   // Retrieve the input data object to process
   vtkDataObject* inputObj = vtkDataObject::GetData(inputVector[0]);
-  vtkMultiBlockDataSet* inputMB = vtkMultiBlockDataSet::GetData(inputVector[0]);
-  if (inputMB && inputMB->GetNumberOfBlocks() >= 1)
-  {
-    // Recover the first block
-    if (inputMB->GetNumberOfBlocks() > 1)
-    {
-      vtkWarningMacro("Only the first block will be passed");
-    }
+  vtkCompositeDataSet* inputComposite = vtkCompositeDataSet::SafeDownCast(inputObj);
+  vtkDataSet* inputDS = vtkDataSet::SafeDownCast(inputObj);
+  vtkDataObject* output = vtkDataObject::GetData(outputVector);
 
-    inputObj = inputMB->GetBlock(0);
-  }
-
-  // cast into supporte type
-  if (auto inputUG = vtkUnstructuredGrid::SafeDownCast(inputObj))
+  if (!inputComposite && !inputDS)
   {
-    input = inputUG;
-  }
-  else if (auto inputPD = vtkPolyData::SafeDownCast(inputObj))
-  {
-    input = inputPD;
-  }
-
-  if (!input)
-  {
-    vtkErrorMacro("Input is invalid, it should be either a polydata, an unstructured grid"
-                  "or a multiblock with an unstructured grid in the first block");
+    vtkErrorMacro("Unsupported input data type.");
     return 0;
   }
 
-  vtkDataSet* output = vtkDataSet::GetData(outputVector);
+  bool validCache =
+    (inputComposite) ? this->IsValidCache(inputComposite) : this->IsValidCache(inputDS);
 
+  if (this->ForceCacheComputation || !validCache)
+  {
+    // Cache is invalid
+    vtkDebugMacro("Building static mesh cache");
+
+    this->Cache.TakeReference(inputObj->NewInstance());
+    this->Cache->DeepCopy(inputObj);
+    this->CacheInitialized = true;
+  }
+  else
+  {
+    // Cache mesh is up to date, use it to generate data
+    vtkDebugMacro("Using static mesh cache");
+
+    if (inputComposite)
+    {
+      this->InputToCache(inputComposite);
+    }
+    else
+    {
+      this->InputToCache(inputDS);
+    }
+  }
+
+  output->ShallowCopy(this->Cache);
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+bool vtkForceStaticMesh::IsValidCache(vtkDataSet* input)
+{
   bool validCache = this->CacheInitialized;
   if (validCache)
   {
@@ -75,40 +88,127 @@ int vtkForceStaticMesh::RequestData(vtkInformation* vtkNotUsed(request),
       // Not initialized
       validCache = false;
     }
-    if (input->GetNumberOfPoints() != this->Cache->GetNumberOfPoints())
+    vtkDataSet* internalCache = vtkDataSet::SafeDownCast(this->Cache);
+    if (input->GetNumberOfPoints() != internalCache->GetNumberOfPoints())
     {
       vtkWarningMacro("Cache has been invalidated, the number of points in input changed, from "
-        << this->Cache->GetNumberOfPoints() << " to " << input->GetNumberOfPoints());
+        << internalCache->GetNumberOfPoints() << " to " << input->GetNumberOfPoints());
       validCache = false;
     }
-    if (input->GetNumberOfCells() != this->Cache->GetNumberOfCells())
+    if (input->GetNumberOfCells() != internalCache->GetNumberOfCells())
     {
       vtkWarningMacro("Cache has been invalidated, the number of cells in input changed, from "
-        << this->Cache->GetNumberOfCells() << " to " << input->GetNumberOfCells());
+        << internalCache->GetNumberOfCells() << " to " << input->GetNumberOfCells());
       validCache = false;
     }
   }
-
-  if (this->ForceCacheComputation || !validCache)
-  {
-    // Cache is invalid
-    vtkDebugMacro("Building static mesh cache");
-
-    this->Cache.TakeReference(input->NewInstance());
-    this->Cache->DeepCopy(input);
-    this->CacheInitialized = true;
-  }
-  else
-  {
-    // Cache mesh is up to date, use it to generate data
-    vtkDebugMacro("Using static mesh cache");
-
-    this->Cache->GetPointData()->ShallowCopy(input->GetPointData());
-    this->Cache->GetCellData()->ShallowCopy(input->GetCellData());
-    this->Cache->GetFieldData()->ShallowCopy(input->GetFieldData());
-  }
-
-  output->ShallowCopy(this->Cache);
-  return 1;
+  return validCache;
 }
+
+//------------------------------------------------------------------------------
+bool vtkForceStaticMesh::IsValidCache(vtkCompositeDataSet* input)
+{
+  bool validCache = this->CacheInitialized;
+  if (validCache)
+  {
+    if (!this->Cache)
+    {
+      // Not initialized
+      validCache = false;
+    }
+    vtkCompositeDataSet* internalCache = vtkCompositeDataSet::SafeDownCast(this->Cache);
+    assert(internalCache);
+
+    // Global parameters
+    if (input->GetNumberOfPoints() != internalCache->GetNumberOfPoints())
+    {
+      vtkWarningMacro("Cache has been invalidated, the number of points in input changed, from "
+        << internalCache->GetNumberOfPoints() << " to " << input->GetNumberOfPoints());
+      validCache = false;
+    }
+    if (input->GetNumberOfCells() != internalCache->GetNumberOfCells())
+    {
+      vtkWarningMacro("Cache has been invalidated, the number of cells in input changed, from "
+        << internalCache->GetNumberOfCells() << " to " << input->GetNumberOfCells());
+      validCache = false;
+    }
+
+    // Per block parameters
+
+    auto compIterator =
+      vtkSmartPointer<vtkCompositeDataIterator>::Take(internalCache->NewIterator());
+    for (compIterator->InitTraversal(); !compIterator->IsDoneWithTraversal();
+         compIterator->GoToNextItem())
+    {
+      // Both composite must have the same structure by construction,
+      // we can use the GetDataSet with iterator from other composite
+      vtkDataSet* cacheBlock = vtkDataSet::SafeDownCast(internalCache->GetDataSet(compIterator));
+      vtkDataSet* inputBlock = vtkDataSet::SafeDownCast(input->GetDataSet(compIterator));
+
+      if ((cacheBlock == nullptr) != (inputBlock == nullptr))
+      {
+        // if one of them is dataset and not the other:
+        // not the same internal structure, invalid cache
+        validCache = false;
+        break;
+      }
+
+      if (cacheBlock /*&& inputBlock */)
+      {
+        if (inputBlock->GetNumberOfPoints() != cacheBlock->GetNumberOfPoints())
+        {
+          vtkWarningMacro(
+            "Cache has been invalidated, the number of points in a block changed, from "
+            << cacheBlock->GetNumberOfPoints() << " to " << inputBlock->GetNumberOfPoints());
+          validCache = false;
+          break;
+        }
+        if (inputBlock->GetNumberOfCells() != cacheBlock->GetNumberOfCells())
+        {
+          vtkWarningMacro(
+            "Cache has been invalidated, the number of cells in a block changed, from "
+            << cacheBlock->GetNumberOfCells() << " to " << inputBlock->GetNumberOfCells());
+          validCache = false;
+          break;
+        }
+      }
+    }
+  }
+  return validCache;
+}
+
+//------------------------------------------------------------------------------
+void vtkForceStaticMesh::InputToCache(vtkDataSet* input)
+{
+  vtkDataSet* internalCache = vtkDataSet::SafeDownCast(this->Cache);
+  assert(internalCache);
+  internalCache->GetPointData()->ShallowCopy(input->GetPointData());
+  internalCache->GetCellData()->ShallowCopy(input->GetCellData());
+  internalCache->GetFieldData()->ShallowCopy(input->GetFieldData());
+}
+
+//------------------------------------------------------------------------------
+void vtkForceStaticMesh::InputToCache(vtkCompositeDataSet* input)
+{
+  vtkCompositeDataSet* internalCache = vtkCompositeDataSet::SafeDownCast(this->Cache);
+  assert(internalCache);
+  auto compIterator = vtkSmartPointer<vtkCompositeDataIterator>::Take(internalCache->NewIterator());
+  for (compIterator->InitTraversal(); !compIterator->IsDoneWithTraversal();
+       compIterator->GoToNextItem())
+  {
+    // Both composite must have the same structure by construction,
+    // we can use the GetDataSet with iterator from other composite
+    vtkDataSet* cacheBlock = vtkDataSet::SafeDownCast(internalCache->GetDataSet(compIterator));
+    vtkDataSet* inputBlock = vtkDataSet::SafeDownCast(input->GetDataSet(compIterator));
+
+    if (!cacheBlock || !inputBlock)
+    { // intermediate non dataset block are ignored
+      continue;
+    }
+    cacheBlock->GetPointData()->ShallowCopy(inputBlock->GetPointData());
+    cacheBlock->GetCellData()->ShallowCopy(inputBlock->GetCellData());
+    cacheBlock->GetFieldData()->ShallowCopy(inputBlock->GetFieldData());
+  }
+}
+
 VTK_ABI_NAMESPACE_END

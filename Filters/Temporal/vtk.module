@@ -13,9 +13,9 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::FiltersHybrid
+  VTK::FiltersCore
 PRIVATE_DEPENDS
   VTK::CommonMisc
-  VTK::FiltersCore
 TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersSources
