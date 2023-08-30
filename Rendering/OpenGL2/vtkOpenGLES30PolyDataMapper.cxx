@@ -429,7 +429,7 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderEdges(
       "in float edgeValue;\n"
       "in vec4 nextVertexMC;\n"
       "in vec4 prevVertexMC;\n"
-      "noperspective out vec4 edgeEqn[3];");
+      "out vec4 edgeEqn[3];");
     vtkShaderProgram::Substitute(VSSource, "//VTK::EdgesGLES30::Impl",
       "  vec4 nextPosition = MCDCMatrix * nextVertexMC;\n"
       "  vec4 prevPosition = MCDCMatrix * prevVertexMC;\n"
@@ -476,7 +476,7 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderEdges(
     shaders[vtkShader::Vertex]->SetSource(VSSource);
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::Edges::Dec",
-      "noperspective in vec4 edgeEqn[3];\n"
+      "in vec4 edgeEqn[3];\n"
       "uniform float lineWidth;\n"
       "uniform vec3 edgeColor;\n"
       "uniform float edgeOpacity;\n");
