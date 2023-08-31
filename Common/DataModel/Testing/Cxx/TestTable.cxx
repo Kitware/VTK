@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
+#include "vtkConstantArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
@@ -189,6 +190,23 @@ void InsertColumn(vtkTable* table, std::vector<std::vector<double>>& stdTable, i
   stdTable.insert(stdTable.begin() + c0, fillvec);
 
   CheckEqual(table, stdTable, "InsertColumn");
+}
+
+void InsertImplicitArray(vtkTable* table, std::vector<std::vector<double>>& stdTable)
+{
+  vtkVariant name(table->GetNumberOfColumns());
+  vtkNew<vtkConstantArray<int>> arr;
+  arr->SetBackend(std::make_shared<vtkConstantImplicitBackend<int>>(42));
+  arr->SetNumberOfComponents(1);
+  arr->SetNumberOfTuples(table->GetNumberOfRows());
+  arr->SetName((name.ToString() + " (vtkConstantArray)").c_str());
+  table->InsertColumn(arr, 0);
+
+  std::vector<double> fillvec;
+  fillvec.resize(table->GetNumberOfRows(), 42);
+  stdTable.insert(stdTable.begin(), fillvec);
+
+  CheckEqual(table, stdTable, "InsertImplicitColumn");
 }
 
 void InsertRows(
@@ -389,6 +407,9 @@ int TestTable(int, char*[])
 
   RemoveHalfOfColumns(table, stdTable);
   RandomizeValues(table, stdTable);
+
+  // insert a column with an ImplicitArray, i.e. a read-only array.
+  InsertImplicitArray(table, stdTable);
 
   return EXIT_SUCCESS;
 }
