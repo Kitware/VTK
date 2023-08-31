@@ -7,17 +7,16 @@
 #include "vtkIOFDSModule.h"  // For export macro
 #include "vtkNew.h"          // For vtkNew
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
-#include "vtkResourceStream.h" // For vtkResourceStream
-#include "vtkSmartPointer.h"   // For vtkSmartPointer
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <array>  // For std::array
 #include <memory> // For std::unique_ptr
 #include <set>    // For std::set
 #include <string> // For std::string
-#include <vector> // for std::vector
+#include <vector> // For std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkResourceStream;
 /**
  * @class vtkFDSReader
  *
@@ -48,8 +47,8 @@ public:
    * Set/Get the stream from which to read the .smv file.
    * If Stream is not nullptr, it will be used in priority from FileName
    */
-  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
-  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
+  virtual void SetStream(vtkResourceStream* stream);
+  virtual vtkResourceStream* GetStream();
   ///@}
 
   /**
@@ -100,6 +99,13 @@ private:
   vtkFDSReader(const vtkFDSReader&) = delete;
   void operator=(const vtkFDSReader&) = delete;
 
+  bool ParseVIEWTIMES();
+  bool ParseGRID(const std::vector<int>& baseNodes);
+  bool ParseCSVF(const std::vector<int>& baseNodes);
+  bool ParseDEVICE(const std::vector<int>& baseNodes);
+  bool ParseSLCFSLCC(const std::vector<int>& baseNodes);
+  bool ParseBNDF();
+
   vtkSmartPointer<vtkResourceStream> Open();
 
   int AssemblyTag = 0;
@@ -108,7 +114,7 @@ private:
 
   vtkNew<vtkDataAssembly> Assembly;
 
-  vtkSmartPointer<vtkResourceStream> Stream;
+  // vtkSmartPointer<vtkResourceStream> Stream;
 
   double TimeTolerance = 1e-5;
 
