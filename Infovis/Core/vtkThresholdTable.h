@@ -97,6 +97,11 @@ public:
     this->ThresholdBetween(vtkVariant(lower), vtkVariant(upper));
   }
 
+  /**
+   * Return true if value, converted to double, matches the criteria of the current Mode.
+   */
+  bool IsValueAcceptable(vtkVariant value);
+
 protected:
   vtkThresholdTable();
   ~vtkThresholdTable() override;

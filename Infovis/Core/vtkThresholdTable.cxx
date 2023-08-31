@@ -16,6 +16,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThresholdTable);
 
+//------------------------------------------------------------------------------
 vtkThresholdTable::vtkThresholdTable()
   : MinValue(0)
   , MaxValue(VTK_INT_MAX)
@@ -23,8 +24,10 @@ vtkThresholdTable::vtkThresholdTable()
 {
 }
 
+//------------------------------------------------------------------------------
 vtkThresholdTable::~vtkThresholdTable() = default;
 
+//------------------------------------------------------------------------------
 void vtkThresholdTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -52,44 +55,48 @@ void vtkThresholdTable::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
 }
 
+//------------------------------------------------------------------------------
 static bool vtkThresholdTableCompare(vtkVariant a, vtkVariant b)
 {
   return a.ToDouble() <= b.ToDouble();
 }
 
-template <typename iterT>
-void vtkThresholdTableThresholdRows(
-  iterT* it, vtkTable* input, vtkTable* output, vtkVariant min, vtkVariant max, int mode)
+//------------------------------------------------------------------------------
+bool vtkThresholdTable::IsValueAcceptable(vtkVariant value)
 {
-  vtkIdType maxInd = it->GetNumberOfValues();
-  for (vtkIdType i = 0; i < maxInd; i++)
+  bool accept = false;
+  switch (this->Mode)
   {
-    bool accept = false;
-    vtkVariant v(it->GetValue(i));
-    if (mode == vtkThresholdTable::ACCEPT_LESS_THAN)
+    case vtkThresholdTable::ACCEPT_LESS_THAN:
     {
-      accept = vtkThresholdTableCompare(v, max);
+      accept = vtkThresholdTableCompare(value, this->MaxValue);
     }
-    else if (mode == vtkThresholdTable::ACCEPT_GREATER_THAN)
+    break;
+    case vtkThresholdTable::ACCEPT_GREATER_THAN:
     {
-      accept = vtkThresholdTableCompare(min, v);
+      accept = vtkThresholdTableCompare(this->MinValue, value);
+      break;
     }
-    else if (mode == vtkThresholdTable::ACCEPT_BETWEEN)
+    case vtkThresholdTable::ACCEPT_BETWEEN:
     {
-      accept = (vtkThresholdTableCompare(min, v) && vtkThresholdTableCompare(v, max));
+      accept = (vtkThresholdTableCompare(this->MinValue, value) &&
+        vtkThresholdTableCompare(value, this->MaxValue));
+      break;
     }
-    else if (mode == vtkThresholdTable::ACCEPT_OUTSIDE)
+    case vtkThresholdTable::ACCEPT_OUTSIDE:
     {
-      accept = (vtkThresholdTableCompare(v, min) || vtkThresholdTableCompare(max, v));
+      accept = (vtkThresholdTableCompare(value, this->MinValue) ||
+        vtkThresholdTableCompare(this->MaxValue, value));
+      break;
     }
-    if (accept)
-    {
-      vtkVariantArray* row = input->GetRow(i);
-      output->InsertNextRow(row);
-    }
+    default:
+      break;
   }
+
+  return accept;
 }
 
+//------------------------------------------------------------------------------
 void vtkThresholdTable::ThresholdBetween(vtkVariant lower, vtkVariant upper)
 {
   if (this->MinValue != lower || this->MaxValue != upper ||
@@ -102,6 +109,7 @@ void vtkThresholdTable::ThresholdBetween(vtkVariant lower, vtkVariant upper)
   }
 }
 
+//------------------------------------------------------------------------------
 int vtkThresholdTable::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -125,13 +133,16 @@ int vtkThresholdTable::RequestData(
     ncol->Delete();
   }
 
-  vtkArrayIterator* iter = arr->NewIterator();
-  switch (arr->GetDataType())
+  vtkIdType columnIndex = input->GetColumnIndex(arr->GetName());
+  for (vtkIdType rowIndex = 0; rowIndex < arr->GetNumberOfTuples(); rowIndex++)
   {
-    vtkArrayIteratorTemplateMacro(vtkThresholdTableThresholdRows(
-      static_cast<VTK_TT*>(iter), input, output, this->MinValue, this->MaxValue, this->Mode));
+    auto value = input->GetValue(rowIndex, columnIndex);
+    if (this->IsValueAcceptable(value))
+    {
+      vtkVariantArray* row = input->GetRow(rowIndex);
+      output->InsertNextRow(row);
+    }
   }
-  iter->Delete();
 
   return 1;
 }
