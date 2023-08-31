@@ -80,26 +80,29 @@ int vtkGhostCellsGenerator::RequestData(
   bool error = false;
   int retVal = 1;
 
+  vtkSmartPointer<vtkDataObject> modifInputDO =
+    vtkSmartPointer<vtkDataObject>::Take(inputDO->NewInstance());
+  modifInputDO->ShallowCopy(inputDO);
   if (this->GenerateProcessIds)
   {
     vtkNew<vtkGenerateProcessIds> pidGenerator;
-    pidGenerator->SetInputData(inputDO);
+    pidGenerator->SetInputData(modifInputDO);
     pidGenerator->GenerateCellDataOn();
     pidGenerator->GeneratePointDataOn();
     pidGenerator->Update();
-    inputDO->ShallowCopy(pidGenerator->GetOutputDataObject(0));
+    modifInputDO->ShallowCopy(pidGenerator->GetOutputDataObject(0));
   }
   if (this->GenerateGlobalIds)
   {
     vtkNew<vtkGenerateGlobalIds> gidGenerator;
-    gidGenerator->SetInputData(inputDO);
+    gidGenerator->SetInputData(modifInputDO);
     gidGenerator->Update();
-    inputDO->ShallowCopy(gidGenerator->GetOutputDataObject(0));
+    modifInputDO->ShallowCopy(gidGenerator->GetOutputDataObject(0));
   }
 
   std::vector<vtkDataObject*> inputPDSs, outputPDSs;
 
-  if (auto inputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
+  if (auto inputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(modifInputDO))
   {
     auto outputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(outputDO);
     outputPDSC->CopyStructure(inputPDSC);
@@ -112,7 +115,7 @@ int vtkGhostCellsGenerator::RequestData(
   }
   else
   {
-    inputPDSs.emplace_back(inputDO);
+    inputPDSs.emplace_back(modifInputDO);
     outputPDSs.emplace_back(outputDO);
   }
 
