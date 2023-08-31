@@ -393,10 +393,22 @@ vtk_module_add_module(VTK::RenderingOpenGL2
   PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
 
 if (VTK_USE_SDL2)
-  vtk_module_find_package(PACKAGE SDL2)
-  vtk_module_link(VTK::RenderingOpenGL2
-    PUBLIC
-      SDL2::SDL2)
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # The -sUSE_SDL=2 flag will inform emcc driver to add include paths.
+    # PUBLIC because vtkSDL2OpenGLRenderWindow.h includes SDL2.h
+    vtk_module_compile_options(VTK::RenderingUI
+      PUBLIC
+        "-sUSE_SDL=2")
+    vtk_module_link_options(VTK::RenderingUI
+      PUBLIC
+        "-sUSE_SDL=2")
+  else()
+    vtk_module_find_package(PACKAGE SDL2)
+    # PUBLIC because vtkSDL2OpenGLRenderWindow.h includes SDL2.h
+    vtk_module_link(VTK::RenderingUI
+      PUBLIC
+        SDL2::SDL2)
+  endif ()
 endif ()
 
 if (VTK_USE_X)

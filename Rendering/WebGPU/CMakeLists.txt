@@ -207,17 +207,15 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       cxx_std_14
   )
   vtk_module_include(VTK::RenderingWebGPU
-    INTERFACE
-      "${EMSCRIPTEN_ROOT_PATH}/cache/sysroot/include/webgpu"
-  )
-  vtk_module_link_options(VTK::RenderingWebGPU
-    INTERFACE
-      "SHELL:-s USE_WEBGPU=1"
-  )
-  vtk_module_find_package(PACKAGE SDL2)
-  vtk_module_link(VTK::RenderingWebGPU
     PUBLIC
-      SDL2::SDL2)
+      "${EMSCRIPTEN_ROOT_PATH}/cache/sysroot/include/webgpu")
+  vtk_module_compile_options(VTK::RenderingWebGPU
+    PUBLIC
+      "-sUSE_SDL=2")
+  vtk_module_link_options(VTK::RenderingWebGPU
+    PUBLIC
+      "-sUSE_WEBGPU=1"
+      "-sUSE_SDL=2")
 else()
   # WebGPU native
   if (WIN32)
