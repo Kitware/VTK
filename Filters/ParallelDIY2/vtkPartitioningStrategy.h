@@ -1,24 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPartitioningStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#ifndef vtkPartitioningStrategy_h
-#define vtkPartitioningStrategy_h
-
-#include "vtkFiltersParallelDIY2Module.h" // for export macro
-#include "vtkObject.h"
-#include "vtkSmartPointer.h" // for member variables
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkPartitioningStrategy
  * @brief A strategy interface for partitioning meshes
@@ -40,6 +21,14 @@
  * @sa
  * vtkRedistributeDataSetFilter
  */
+
+#ifndef vtkPartitioningStrategy_h
+#define vtkPartitioningStrategy_h
+
+#include "vtkFiltersParallelDIY2Module.h" // for export macro
+#include "vtkObject.h"
+#include "vtkSmartPointer.h" // for member variables
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkMultiProcessController;

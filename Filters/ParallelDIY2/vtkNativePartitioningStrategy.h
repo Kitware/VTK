@@ -1,24 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkNativePartitioningStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#ifndef vtkNativePartitioningStrategy_h
-#define vtkNativePartitioningStrategy_h
-
-#include "vtkPartitioningStrategy.h"
-#include "vtkRedistributeDataSetFilter.h"
-
-VTK_ABI_NAMESPACE_BEGIN
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkNativePartitioningStrategy
  * @brief A partitioning strategy based on load balancing geometric bounding boxes as cuts of a data
@@ -43,6 +24,13 @@ VTK_ABI_NAMESPACE_BEGIN
  * those cuts strictly or to expand boxes on the edge to fit the domain of the
  * input dataset. This can be controlled by `ExpandExplicitCutsForInputDomain`.
  */
+#ifndef vtkNativePartitioningStrategy_h
+#define vtkNativePartitioningStrategy_h
+
+#include "vtkPartitioningStrategy.h"
+#include "vtkRedistributeDataSetFilter.h"
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkDataObjectTree;
 class VTKFILTERSPARALLELDIY2_EXPORT vtkNativePartitioningStrategy final
