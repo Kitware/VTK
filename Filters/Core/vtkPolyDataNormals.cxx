@@ -333,10 +333,10 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSMPTools::For(0, offsetCells, [&](vtkIdType begin, vtkIdType end) {
     static const double n[3] = { 1.0, 0.0, 0.0 };
     bool isFirst = vtkSMPTools::GetSingleThread();
-    checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
+    vtkIdType localCheckAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = begin; cellId < end; cellId++)
     {
-      if (cellId % checkAbortInterval == 0)
+      if (cellId % localCheckAbortInterval == 0)
       {
         if (isFirst)
         {
