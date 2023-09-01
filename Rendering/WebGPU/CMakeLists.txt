@@ -11,7 +11,6 @@ set(classes
   vtkWebGPUHardwareSelector
   vtkWebGPULight
   vtkWebGPURenderWindow
-  vtkSDL2WebGPURenderWindow
   vtkWebGPUPolyDataMapper
   vtkWebGPUProperty
   vtkWebGPURenderer
@@ -78,17 +77,6 @@ foreach (webgpu_override IN LISTS webgpu_overrides)
     OVERRIDE "vtkWebGPU${webgpu_override}")
 endforeach ()
 
-vtk_object_factory_declare(
-  BASE vtkRenderWindow
-  OVERRIDE vtkSDL2WebGPURenderWindow)
-
-vtk_object_factory_configure(
-  SOURCE_FILE vtk_object_factory_source
-  HEADER_FILE vtk_object_factory_header
-  EXPORT_MACRO "VTKRENDERINGWEBGPU_EXPORT"
-  EXTRA_INCLUDES "<vtkCollection.h>" "<vtkObjectFactoryCollection.h>" "<vtkLogger.h>" "<cstdlib>"
-  INITIAL_CODE_FILE "vtkWebGPUObjectFactoryInit.cxx")
-
 set(headers
   vtkWGPUContext.h)
 
@@ -107,6 +95,54 @@ endforeach ()
 set(sources
   vtkWGPUContext.cxx)
 
+# Setup factory overrides and add window system specific render windows.
+# FIXME: I've only brought the X render window from https://gitlab.kitware.com/vtk/vtk/-/merge_requests/10239/commits.
+# Bring in cocoa and win32 overrides as well.
+# NOTE:  Supports only one override in a build. Multiple render window overrides are confusing.
+if (VTK_USE_SDL2 AND (VTK_USE_X OR VTK_USE_COCOA OR VTK_USE_WIN32_OPENGL))
+  message(FATAL_ERROR "The webgpu backend supports only one render window override in a build. Turn off VTK_USE_SDL2 if you do not need it.")
+endif ()
+set(has_vtkRenderWindow_override 0)
+set(vtk_webgpu_factory_override_classname "")
+if (VTK_USE_SDL2)
+  # By default Emscripten system enables VTK_USE_SDL2. See vtkOpenGLOptions.cmake
+  set(vtk_webgpu_factory_override_classname "vtkSDL2WebGPURenderWindow")
+  set(has_vtkRenderWindow_override 1)
+elseif (VTK_USE_X)
+  # Add some custom overrides
+  if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    set(vtk_webgpu_factory_override_classname "vtkXWebGPURenderWindow")
+    set(has_vtkRenderWindow_override 1)
+  endif ()
+elseif (VTK_USE_COCOA)
+  # TODO: Implement
+  # set(vtk_webgpu_factory_override_classname "vtkCocoaWebGPURenderWindow")
+  # set(has_vtkRenderWindow_override 1)
+elseif (VTK_USE_WIN32_OPENGL) # FIXME: We need a VTK_USE_WIN32_WINDOW flag here
+  # TODO: Implement
+  # set(vtk_webgpu_factory_override_classname "vtkWin32WebGPURenderWindow")
+  # set(has_vtkRenderWindow_override 1)
+endif ()
+
+if (NOT has_vtkRenderWindow_override)
+  message(FATAL_ERROR "A render window factory override was not found! This module currently supports X11 and Emscripten platforms")
+endif ()
+
+list (APPEND classes ${vtk_webgpu_factory_override_classname})
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkWebGPUObjectFactoryInit.cxx.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkWebGPUObjectFactoryInit.cxx")
+
+vtk_object_factory_declare(
+  BASE vtkRenderWindow
+  OVERRIDE ${vtk_webgpu_factory_override_classname})
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGWEBGPU_EXPORT"
+  EXTRA_INCLUDES "<vtkCollection.h>" "<vtkObjectFactoryCollection.h>" "<vtkLogger.h>" "<cstdlib>"
+  INITIAL_CODE_FILE "${CMAKE_CURRENT_BINARY_DIR}/vtkWebGPUObjectFactoryInit.cxx")
+  
 vtk_module_add_module(VTK::RenderingWebGPU
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes}
@@ -129,31 +165,24 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     PUBLIC
       "-sUSE_WEBGPU=1"
       "-sUSE_SDL=2")
-else()
-  # WebGPU native
-  if (WIN32)
-    vtk_module_definitions(VTK::RenderingWebGPU PRIVATE
-      "VTK_DAWN_ENABLE_BACKEND_D3D12"
+else ()
+  if (VTK_USE_X)
+    vtk_module_find_package(PACKAGE X11)
+    vtk_module_link(VTK::RenderingWebGPU PUBLIC X11::X11)
+    if (TARGET X11::Xcursor)
+      vtk_module_link(VTK::RenderingWebGPU PRIVATE X11::Xcursor)
+    else()
+      message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
+    endif()
+    set_property(SOURCE vtkXOpenGLRenderWindow.cxx APPEND
+      PROPERTY
+        COMPILE_DEFINITIONS "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
     )
-  elseif(ANDROID)
-    vtk_module_definitions(VTK::RenderingWebGPU PRIVATE
-      "VTK_DAWN_ENABLE_BACKEND_VULKAN"
-    )
-  elseif(UNIX)
-    vtk_module_definitions(VTK::RenderingWebGPU PRIVATE
-      "VTK_DAWN_ENABLE_BACKEND_VULKAN"
-      "VTK_DAWN_USE_X11"
-    )
-  elseif(APPLE)
-    vtk_module_definitions(VTK::RenderingWebGPU PRIVATE
-      "VTK_DAWN_ENABLE_BACKEND_METAL"
-    )
-    vtk_module_link(VTK::RenderingWebGPU PRIVATE "-framework Metal")
-    vtk_module_sources(VTK::RenderingWebGPU PRIVATE
-      "utils_metal.mm")
+  elseif (VTK_USE_COCOA)
+    # TODO
+  elseif (VTK_USE_WIN32_OPENGL) # FIXME: We need a VTK_USE_WIN32_WINDOW flag here
+    # TODO
   endif ()
-  vtk_module_find_package(PRIVATE_IF_SHARED
-    PACKAGE SDL2)
   vtk_module_find_package(PACKAGE Dawn)
   # Must include these source files here.
   vtk_module_sources(VTK::RenderingWebGPU PRIVATE
@@ -161,7 +190,6 @@ else()
     "${DAWN_GEN_SRC_DIR}/dawn/dawn_proc.c")
   vtk_module_link(VTK::RenderingWebGPU
     PRIVATE
-      SDL2::SDL2
       ${DAWN_LIBRARIES})
   vtk_module_include(VTK::RenderingWebGPU
     PUBLIC
