@@ -63,9 +63,9 @@ struct DataSource
   /// Used only when \c FileNameMode is set to \c Relative.
   std::string FileName = "";
 
-  /// Determines whether ghost layers should be added by Fides for distributed
-  /// field arrays.
-  int NumberOfHalos = 0;
+  /// Determines whether to close gaps between uniform grid blocks
+  /// with the use of shared points.
+  bool CreateSharedPoints = false;
 
   DataSource() = default;
   DataSource& operator=(const DataSource& other)
