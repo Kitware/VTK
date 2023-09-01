@@ -122,7 +122,7 @@ int vtkQuadraticPolygon::IntersectWithLine(
 int vtkQuadraticPolygon::Triangulate(vtkIdList* outTris)
 {
   this->InitializePolygon();
-  int result = this->Polygon->Triangulate(outTris);
+  int result = this->Polygon->TriangulateLocalIds(0, outTris);
   vtkQuadraticPolygon::ConvertFromPolygon(this->GetNumberOfPoints(), outTris);
   return result;
 }

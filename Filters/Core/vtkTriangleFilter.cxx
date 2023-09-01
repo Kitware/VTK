@@ -168,7 +168,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
           poly->PointIds->SetId(i, pts[i]);
           poly->Points->SetPoint(i, inPts->GetPoint(pts[i]));
         }
-        poly->Triangulate(ptIds);
+        poly->TriangulateLocalIds(0, ptIds);
         numPts = ptIds->GetNumberOfIds();
         numSimplices = numPts / 3;
         for (i = 0; i < numSimplices; i++)

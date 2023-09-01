@@ -15,6 +15,7 @@
 
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
@@ -169,8 +170,7 @@ public:
    * of three: each three-group defines one triangle. The method returns
    * non-zero if the triangulation is successful.
    */
-  using vtkCell::Triangulate; // Needed to remove warning "member function does not override any
-                              // base class virtual member function"
+  VTK_DEPRECATED_IN_9_3_0("Replaced by its parent's implementation vtkCell::TriangulateLocalIds")
   int Triangulate(vtkIdList* outTris);
 
   /**

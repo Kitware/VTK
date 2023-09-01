@@ -192,7 +192,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArr
       // Do the triangulation
       vtkNew<vtkIdList> ptIds;
       ptIds->Allocate(VTK_CELL_SIZE);
-      poly->Triangulate(ptIds);
+      poly->TriangulateLocalIds(0, ptIds);
 
       vtkIdType numPts = ptIds->GetNumberOfIds();
       vtkIdType numSimplices = numPts / 3;
@@ -417,7 +417,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
       // Do the triangulation
       vtkNew<vtkIdList> ptIds;
       ptIds->Allocate(VTK_CELL_SIZE);
-      poly->Triangulate(ptIds);
+      poly->TriangulateLocalIds(0, ptIds);
 
       vtkIdType numPts = ptIds->GetNumberOfIds();
       vtkIdType numSimplices = numPts / 3;

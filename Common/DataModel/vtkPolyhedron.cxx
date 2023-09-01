@@ -1246,13 +1246,12 @@ int vtkPolyhedron::TriangulateFaces(vtkIdList* newFaces)
     }
 
     vtkNew<vtkIdList> ptIds;
-    vtkNew<vtkPoints> pts;
 
     // Triangulate the face
     // - Triangle : returns the triangle
     // - Quad : adds the "shortest" diagonal
     // - Polygon : uses "EarCut" triangulation
-    face->Triangulate(0, ptIds, pts);
+    face->TriangulateIds(0, ptIds);
 
     // Allocate space for the new triangles
     newFaces->Resize(newFaces->GetNumberOfIds() + ptIds->GetNumberOfIds());
@@ -1997,7 +1996,7 @@ void vtkPolyhedron::Contour(double value, vtkDataArray* pointScalars,
         polygon->Points->SetPoint(i, xyz);
       }
       vtkNew<vtkIdList> ptIds;
-      polygon->Triangulate(ptIds);
+      polygon->TriangulateLocalIds(0, ptIds);
       vtkIdType numPts = ptIds->GetNumberOfIds();
       vtkIdType numSimplices = numPts / 3;
       vtkIdType triPts[3];

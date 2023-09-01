@@ -965,7 +965,7 @@ int vtkPolygon::NonDegenerateTriangulate(vtkIdList* outTris)
     vtkIdList* outTriangles = vtkIdList::New();
     outTriangles->Allocate(3 * (2 * polygon->GetNumberOfPoints() - 4));
 
-    polygon->Triangulate(outTriangles);
+    polygon->TriangulateLocalIds(0, outTriangles);
 
     int outNumTris = outTriangles->GetNumberOfIds();
 
