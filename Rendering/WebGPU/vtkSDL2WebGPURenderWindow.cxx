@@ -31,8 +31,6 @@
 #endif
 
 VTK_ABI_NAMESPACE_BEGIN
-const std::string vtkSDL2WebGPURenderWindow::DEFAULT_BASE_WINDOW_NAME =
-  "Visualization Toolkit - SDL2 WebGPU #";
 
 namespace
 {
@@ -48,7 +46,6 @@ vtkStandardNewMacro(vtkSDL2WebGPURenderWindow);
 //------------------------------------------------------------------------------
 vtkSDL2WebGPURenderWindow::vtkSDL2WebGPURenderWindow()
 {
-  this->SetWindowName(DEFAULT_BASE_WINDOW_NAME.c_str());
   this->SetStencilCapable(1);
 
   // set position to -1 to let SDL place the window
@@ -77,6 +74,12 @@ void vtkSDL2WebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << this->WindowId << '\n';
   this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------------------------
+std::string vtkSDL2WebGPURenderWindow::MakeDefaultWindowNameWithBackend()
+{
+  return std::string("Visualization Toolkit - ") + "SDL2 " + this->GetBackendTypeAsString();
 }
 
 //------------------------------------------------------------------------------

@@ -133,8 +133,8 @@ protected:
   ~vtkSDL2WebGPURenderWindow() override;
 
   void* WindowId = nullptr;
-  static const std::string DEFAULT_BASE_WINDOW_NAME;
 
+  std::string MakeDefaultWindowNameWithBackend() override;
   void CleanUpRenderers();
   void CreateAWindow() override;
   void DestroyWindow() override;

@@ -299,6 +299,7 @@ protected:
   Cursor XCHand;
   Cursor XCCustom;
 
+  std::string MakeDefaultWindowNameWithBackend() override;
   void CreateAWindow() override;
   void DestroyWindow() override;
   void CloseDisplay();

@@ -31,7 +31,7 @@ public:
 
   ///@{
   /**
-   * Set backend type.
+   * Get/Set backend type.
    * The default backend is platform specific.
    * DirectX 12 on Windows
    * Vulkan on Linux and Android
@@ -45,6 +45,7 @@ public:
   void SetBackendTypeToVulkan();
   void SetBackendTypeToOpenGL();
   void SetBackendTypeToOpenGLES();
+  std::string GetBackendTypeAsString();
   ///@}
 
   /**
@@ -192,6 +193,16 @@ public:
 protected:
   vtkWebGPURenderWindow();
   ~vtkWebGPURenderWindow() override;
+
+  /**
+   * Construct the window title as "Visualization Toolkit - <WindowSystem> <GraphicsBackend>"
+   * Ex: "Visualization Toolkit - X11 Vulkan"
+   *     "Visualization Toolkit - X11 OpenGL"
+   *     "Visualization Toolkit - Cocoa Metal"
+   *     "Visualization Toolkit - Cocoa OpenGL"
+   *     "Visualization Toolkit - Win32 D3D12"
+   */
+  virtual std::string MakeDefaultWindowNameWithBackend() = 0;
 
   bool WGPUInit();
   void WGPUFinalize();

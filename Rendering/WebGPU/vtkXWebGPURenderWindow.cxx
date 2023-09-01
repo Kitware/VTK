@@ -176,6 +176,12 @@ void vtkXWebGPURenderWindow::SetShowWindow(bool val)
 }
 
 //------------------------------------------------------------------------------------------------
+std::string vtkXWebGPURenderWindow::MakeDefaultWindowNameWithBackend()
+{
+  return std::string("Visualization Toolkit - ") + "X11 " + this->GetBackendTypeAsString();
+}
+
+//------------------------------------------------------------------------------------------------
 void vtkXWebGPURenderWindow::CreateAWindow()
 {
   XVisualInfo *v, matcher;

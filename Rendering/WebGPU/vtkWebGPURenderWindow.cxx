@@ -172,6 +172,35 @@ void vtkWebGPURenderWindow::SetBackendTypeToOpenGLES()
 }
 
 //------------------------------------------------------------------------------
+std::string vtkWebGPURenderWindow::GetBackendTypeAsString()
+{
+  wgpu::AdapterProperties properties = {};
+  this->Adapter.GetProperties(&properties);
+  switch (properties.backendType)
+  {
+    case wgpu::BackendType::Null:
+      return "Null";
+    case wgpu::BackendType::WebGPU:
+      return "WebGPU";
+    case wgpu::BackendType::D3D11:
+      return "D3D11";
+    case wgpu::BackendType::D3D12:
+      return "D3D12";
+    case wgpu::BackendType::Metal:
+      return "Metal";
+    case wgpu::BackendType::Vulkan:
+      return "Vulkan";
+    case wgpu::BackendType::OpenGL:
+      return "OpenGL";
+    case wgpu::BackendType::OpenGLES:
+      return "OpenGL ES";
+    case wgpu::BackendType::Undefined:
+      break;
+  }
+  return "Unknown";
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -207,6 +236,13 @@ bool vtkWebGPURenderWindow::WGPUInit()
   // install error handler
   this->Device.SetUncapturedErrorCallback(&::print_wgpu_error, this);
   ///@}
+  // change the window name if it's the default "Visualization Toolkit"
+  // to "Visualization Toolkit " + " Backend name"
+  if (this->WindowName == std::string("Visualization Toolkit"))
+  {
+    std::string windowNameWithBackend = this->MakeDefaultWindowNameWithBackend();
+    this->SetWindowName(windowNameWithBackend.c_str());
+  }
   return true;
 }
 
