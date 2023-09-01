@@ -1,0 +1,25 @@
+NAME
+  VTK::FiltersTemporal
+LIBRARY_NAME
+  vtkFiltersTemporal
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersHybrid
+  VTK::FiltersCore
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::FiltersSources
+  VTK::IOXML
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
