@@ -59,7 +59,7 @@ unset(wgsl_shader_sources)
 unset(wgsl_shader_headers)
 set(shader_files
   wgsl/PolyData.wgsl)
-foreach(file IN LISTS shader_files)
+foreach (file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${file}"
     EXPORT_SYMBOL "VTKRENDERINGWEBGPU_NO_EXPORT"
@@ -70,7 +70,7 @@ foreach(file IN LISTS shader_files)
     "${source}")
   list(APPEND wgsl_shader_headers
     "${header}")
-endforeach()
+endforeach ()
 
 foreach (webgpu_override IN LISTS webgpu_overrides)
   vtk_object_factory_declare(
@@ -82,7 +82,7 @@ vtk_object_factory_declare(
   BASE vtkRenderWindow
   OVERRIDE vtkSDL2WebGPURenderWindow)
 
-set (intial_cpp_code
+set(intial_cpp_code
   "
   // defaults
   int use_opengl = 1\;
@@ -181,10 +181,10 @@ vtk_object_factory_configure(
   EXTRA_INCLUDES "<vtkCollection.h>" "<vtkObjectFactoryCollection.h>" "<vtkLogger.h>" "<cstdlib>"
   INITIAL_CODE ${intial_cpp_code})
 
-set (headers
+set(headers
   vtkWGPUContext.h)
 
-set (generated_headers
+set(generated_headers
   vtk_wgpu.h)
 
 foreach (generated_header IN LISTS generated_headers)
@@ -196,7 +196,7 @@ foreach (generated_header IN LISTS generated_headers)
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
 endforeach ()
 
-set (sources
+set(sources
   vtkWGPUContext.cxx)
 
 vtk_module_add_module(VTK::RenderingWebGPU
@@ -246,7 +246,7 @@ else()
     vtk_module_link(VTK::RenderingWebGPU PRIVATE "-framework Metal")
     vtk_module_sources(VTK::RenderingWebGPU PRIVATE
       "utils_metal.mm")
-  endif()
+  endif ()
   vtk_module_find_package(PRIVATE_IF_SHARED
     PACKAGE SDL2)
   vtk_module_find_package(PACKAGE Dawn)
