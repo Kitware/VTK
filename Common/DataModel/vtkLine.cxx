@@ -651,7 +651,7 @@ int vtkLine::IntersectWithLine(const double p1[3], const double p2[3], double to
 }
 
 //------------------------------------------------------------------------------
-int vtkLine::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkLine::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(2);
   ptIds->SetId(0, 0);

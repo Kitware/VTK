@@ -537,7 +537,7 @@ int TestCell(VTKCellType cellType, vtkSmartPointer<T> aCell)
   int index = 0;
   vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
   ptIds->SetNumberOfIds(100);
-  aCell->TriangulatePtIds(index, ptIds);
+  aCell->TriangulateIds(index, ptIds);
   int pts = ptIds->GetNumberOfIds();
   if (aCell->GetCellDimension() == 0)
   {

@@ -246,7 +246,7 @@ int vtkBiQuadraticTriangle::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkBiQuadraticTriangle::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkBiQuadraticTriangle::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(18);
   std::copy(&LinearTris[0][0], &LinearTris[0][0] + 18, ptIds->begin());

@@ -400,7 +400,7 @@ int vtkQuadraticTetra::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticTetra::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkQuadraticTetra::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(32);
   std::copy(&LinearTetras[0][0][0], &LinearTetras[0][0][0] + 32, ptIds->begin());

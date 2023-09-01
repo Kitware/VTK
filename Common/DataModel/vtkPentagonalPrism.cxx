@@ -907,7 +907,7 @@ int vtkPentagonalPrism::IntersectWithLine(const double p1[3], const double p2[3]
 }
 
 //------------------------------------------------------------------------------
-int vtkPentagonalPrism::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkPentagonalPrism::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // Create 8 tetrahedron. This might not be the minimum, but it is a simple solution.
   // The Pentagonal Prism is divided in one hexa and one wedge.

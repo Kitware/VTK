@@ -95,7 +95,7 @@ vtkCell* vtkConvexPointSet::GetFace(int faceId)
 }
 
 //------------------------------------------------------------------------------
-int vtkConvexPointSet::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkConvexPointSet::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   vtkIdType numPts = this->GetNumberOfPoints();
   double x[3];

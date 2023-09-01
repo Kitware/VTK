@@ -248,7 +248,7 @@ int vtkBiQuadraticQuad::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkBiQuadraticQuad::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkBiQuadraticQuad::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   constexpr std::array<vtkIdType, 24> localPtIds{ 0, 4, 7, 4, 1, 5, 5, 2, 6, 6, 3, 7, 4, 8, 7, 4, 5,
     8, 5, 6, 8, 6, 7, 8 };

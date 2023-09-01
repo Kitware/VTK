@@ -508,7 +508,7 @@ int vtkPixel::IntersectWithLine(const double p1[3], const double p2[3], double t
 }
 
 //------------------------------------------------------------------------------
-int vtkPixel::TriangulateLocalCellPtIds(int index, vtkIdList* ptIds)
+int vtkPixel::TriangulateLocalIds(int index, vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(6);
   if ((index % 2))

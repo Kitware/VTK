@@ -495,7 +495,7 @@ int vtkHigherOrderWedge::IntersectWithLine(
   return intersection ? 1 : 0;
 }
 
-int vtkHigherOrderWedge::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkHigherOrderWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // Note that the node numbering between the vtkWedge and vtkHigherOrderWedge is different:
   //

@@ -1793,7 +1793,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
           input->SetCellOrderAndRationalWeights(cellId, cell);
           if (cell->GetCellDimension() == 1)
           {
-            cell->TriangulatePtIds(0, pts);
+            cell->TriangulateIds(0, pts);
             for (i = 0; i < pts->GetNumberOfIds(); i += 2)
             {
               newLines->InsertNextCell(2);
@@ -1825,7 +1825,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
                 if (this->NonlinearSubdivisionLevel >= 1)
                 {
                   // TODO: Handle NonlinearSubdivisionLevel > 1 correctly.
-                  face->TriangulatePtIds(0, pts);
+                  face->TriangulateIds(0, pts);
                   for (i = 0; i < pts->GetNumberOfIds(); i += 3)
                   {
                     this->InsertTriInHash(
@@ -1990,7 +1990,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
       input->SetCellOrderAndRationalWeights(cellId, cell);
 
       // Note that pts is used here for local points
-      cell->TriangulateLocalCellPtIds(0, pts);
+      cell->TriangulateLocalIds(0, pts);
 
       // Copy the level 1 subdivision points (which also exist in the input and
       // can therefore just be copied over.  Note that the output of Triangulate

@@ -233,7 +233,7 @@ int vtkQuadraticTriangle::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticTriangle::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkQuadraticTriangle::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // Create four linear triangles
   ptIds->SetNumberOfIds(12);

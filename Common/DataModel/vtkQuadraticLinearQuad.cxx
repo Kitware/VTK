@@ -261,7 +261,7 @@ int vtkQuadraticLinearQuad::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticLinearQuad::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkQuadraticLinearQuad::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // Create four linear triangles:
   // Choose the triangulation that minimizes the edge length

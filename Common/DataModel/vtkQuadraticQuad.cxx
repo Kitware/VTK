@@ -356,7 +356,7 @@ int vtkQuadraticQuad::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticQuad::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkQuadraticQuad::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // Create six linear triangles: one at each corner and two
   // to cover the remaining quadrilateral.

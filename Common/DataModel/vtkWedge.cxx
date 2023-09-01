@@ -821,7 +821,7 @@ int vtkWedge::IntersectWithLine(const double p1[3], const double p2[3], double t
 }
 
 //------------------------------------------------------------------------------
-int vtkWedge::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // one wedge (or prism) is decomposed into 3 tetrahedrons and four
   // pairs of (pointId, pointCoordinates) are provided for each tetrahedron

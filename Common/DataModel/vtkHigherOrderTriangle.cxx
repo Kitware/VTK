@@ -495,7 +495,7 @@ int vtkHigherOrderTriangle::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkHigherOrderTriangle::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkHigherOrderTriangle::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
 
 #ifdef SEVEN_POINT_TRIANGLE

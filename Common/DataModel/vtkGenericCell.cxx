@@ -225,15 +225,15 @@ int vtkGenericCell::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
 }
 
 //------------------------------------------------------------------------------
-int vtkGenericCell::TriangulateLocalCellPtIds(int index, vtkIdList* ptIds)
+int vtkGenericCell::TriangulateLocalIds(int index, vtkIdList* ptIds)
 {
-  return this->Cell->TriangulateLocalCellPtIds(index, ptIds);
+  return this->Cell->TriangulateLocalIds(index, ptIds);
 }
 
 //------------------------------------------------------------------------------
-int vtkGenericCell::TriangulatePtIds(int index, vtkIdList* ptIds)
+int vtkGenericCell::TriangulateIds(int index, vtkIdList* ptIds)
 {
-  return this->Cell->TriangulatePtIds(index, ptIds);
+  return this->Cell->TriangulateIds(index, ptIds);
 }
 
 //------------------------------------------------------------------------------

@@ -89,7 +89,7 @@ public:
    * Triangulate the vertex. This method fills pts and ptIds with information
    * from the only point in the vertex.
    */
-  int TriangulateLocalCellPtIds(int index, vtkIdList* ptIds) override;
+  int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
 
   /**
    * Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all

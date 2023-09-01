@@ -1722,7 +1722,7 @@ int vtkPolygon::IntersectWithLine(const double p1[3], const double p2[3], double
 }
 
 //------------------------------------------------------------------------------
-int vtkPolygon::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkPolygon::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   this->SuccessfulTriangulation = 1;
   int success = this->EarCutTriangulation(ptIds);

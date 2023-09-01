@@ -293,7 +293,7 @@ public:
    * @warning This method works well for a convex polyhedron but may return
    * wrong result in a concave case.
    */
-  int TriangulateLocalCellPtIds(int index, vtkIdList* ptIds) override;
+  int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
 
   /**
    * Triangulate each face of the polyhedron.

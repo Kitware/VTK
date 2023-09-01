@@ -78,7 +78,7 @@ public:
   {
     return vtkCell::Triangulate(index, ptIds, pts);
   }
-  int TriangulateLocalCellPtIds(int index, vtkIdList* ptIds) override;
+  int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
   int NonDegenerateTriangulate(vtkIdList* outTris);
   static double DistanceToPolygon(
     double x[3], int numPts, double* pts, double bounds[6], double closest[3]);

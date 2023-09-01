@@ -503,7 +503,7 @@ int vtkQuadraticWedge::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticWedge::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkQuadraticWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // A quadratic wedge can be divided into 4 wedges.
   // The central one is linear and is divided into 3 tets

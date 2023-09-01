@@ -514,9 +514,9 @@ int vtkBiQuadraticQuadraticHexahedron::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkBiQuadraticQuadraticHexahedron::TriangulateLocalCellPtIds(int index, vtkIdList* ptIds)
+int vtkBiQuadraticQuadraticHexahedron::TriangulateLocalIds(int index, vtkIdList* ptIds)
 {
-  // Triangulation varies depending upon index See vtkHexahedron::TriangulateLocalCellPtIds
+  // Triangulation varies depending upon index See vtkHexahedron::TriangulateLocalIds
   ptIds->SetNumberOfIds(8 * 20);
   if ((index % 2))
   {

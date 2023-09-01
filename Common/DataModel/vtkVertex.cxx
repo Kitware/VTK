@@ -172,7 +172,7 @@ int vtkVertex::IntersectWithLine(const double p1[3], const double p2[3], double 
 //------------------------------------------------------------------------------
 // Triangulate the vertex. This method fills pts and ptIds with information
 // from the only point in the vertex.
-int vtkVertex::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkVertex::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(1);
   ptIds->SetId(0, 0);

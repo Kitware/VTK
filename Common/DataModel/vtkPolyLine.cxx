@@ -419,7 +419,7 @@ int vtkPolyLine::IntersectWithLine(const double p1[3], const double p2[3], doubl
 }
 
 //------------------------------------------------------------------------------
-int vtkPolyLine::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkPolyLine::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   int numLines = this->Points->GetNumberOfPoints() - 1;
   ptIds->SetNumberOfIds(2 * numLines);

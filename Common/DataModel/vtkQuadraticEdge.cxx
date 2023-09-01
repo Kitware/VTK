@@ -197,7 +197,7 @@ int vtkQuadraticEdge::IntersectWithLine(const double p1[3], const double p2[3], 
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticEdge::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkQuadraticEdge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(4);
   constexpr std::array<vtkIdType, 4> localPtIds{ 0, 2, 2, 1 };

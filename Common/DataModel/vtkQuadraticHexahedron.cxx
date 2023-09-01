@@ -489,7 +489,7 @@ int vtkQuadraticHexahedron::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticHexahedron::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkQuadraticHexahedron::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(88);
   constexpr vtkIdType localPtIds[22][4] = { { 8, 11, 0, 16 }, { 1, 9, 8, 17 }, { 2, 10, 9, 18 },

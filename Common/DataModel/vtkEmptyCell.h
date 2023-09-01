@@ -46,7 +46,7 @@ public:
   void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId) override;
-  int TriangulateLocalCellPtIds(int index, vtkIdList* ptIds) override;
+  int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
 

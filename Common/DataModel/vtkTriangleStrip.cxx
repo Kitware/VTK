@@ -212,7 +212,7 @@ int vtkTriangleStrip::IntersectWithLine(const double p1[3], const double p2[3], 
 }
 
 //------------------------------------------------------------------------------
-int vtkTriangleStrip::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkTriangleStrip::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   int numTris = this->Points->GetNumberOfPoints() - 2;
   ptIds->SetNumberOfIds(3 * numTris);

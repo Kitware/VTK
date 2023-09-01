@@ -782,7 +782,7 @@ int vtkPyramid::IntersectWithLine(const double p1[3], const double p2[3], double
 }
 
 //------------------------------------------------------------------------------
-int vtkPyramid::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkPyramid::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // The base of the pyramid must be split into two triangles.  There are two
   // ways to do this (across either diagonal).  Pick the shorter diagonal.

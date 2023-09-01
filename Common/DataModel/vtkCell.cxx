@@ -441,7 +441,7 @@ int vtkCell::IntersectWithCell(vtkCell* other, double tol)
 int vtkCell::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
 {
   // Convert the local ids to the global ones, plus collect the points
-  if (!this->TriangulateLocalCellPtIds(index, ptIds))
+  if (!this->TriangulateLocalIds(index, ptIds))
   {
     return 0;
   };
@@ -455,10 +455,10 @@ int vtkCell::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
 }
 
 //----------------------------------------------------------------------------
-int vtkCell::TriangulatePtIds(int index, vtkIdList* ptIds)
+int vtkCell::TriangulateIds(int index, vtkIdList* ptIds)
 {
   // Convert the local ids to the global ones
-  if (!this->TriangulateLocalCellPtIds(index, ptIds))
+  if (!this->TriangulateLocalIds(index, ptIds))
   {
     return 0;
   };

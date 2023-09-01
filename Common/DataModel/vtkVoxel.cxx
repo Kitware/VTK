@@ -627,7 +627,7 @@ int vtkVoxel::IntersectWithLine(const double p1[3], const double p2[3], double t
 }
 
 //------------------------------------------------------------------------------
-int vtkVoxel::TriangulateLocalCellPtIds(int index, vtkIdList* ptIds)
+int vtkVoxel::TriangulateLocalIds(int index, vtkIdList* ptIds)
 {
   // Create five tetrahedron. Triangulation varies depending upon index. This
   // is necessary to ensure compatible voxel triangulations.

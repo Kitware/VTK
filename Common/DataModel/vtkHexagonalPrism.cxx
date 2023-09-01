@@ -852,7 +852,7 @@ int vtkHexagonalPrism::IntersectWithLine(const double p1[3], const double p2[3],
 }
 
 //------------------------------------------------------------------------------
-int vtkHexagonalPrism::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkHexagonalPrism::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // Create 10 tetrahedron. This might not be the minimum, but it is a simple solution.
   // The Hexagonal Prism is divided here in two mirrored hexaedra. For the second hexaedron,

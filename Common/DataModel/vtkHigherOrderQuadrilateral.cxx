@@ -274,7 +274,7 @@ int vtkHigherOrderQuadrilateral::IntersectWithLine(
   return intersection ? 1 : 0;
 }
 
-int vtkHigherOrderQuadrilateral::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkHigherOrderQuadrilateral::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // The base of the pyramid must be split into two triangles.  There are two
   // ways to do this (across either diagonal).  Pick the shorter diagonal.

@@ -661,7 +661,7 @@ int vtkHigherOrderTetra::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkHigherOrderTetra::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkHigherOrderTetra::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   vtkIdType bindices[4][4];
   vtkIdType numberOfSubtetras = this->GetNumberOfSubtetras();

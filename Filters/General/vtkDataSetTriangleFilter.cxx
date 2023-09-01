@@ -131,11 +131,11 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet* input, vtkUnstructu
         vtkCell* cell = input->GetCell(i, j, k);
         if ((i + j + k) % 2 == 0)
         {
-          cell->TriangulatePtIds(0, cellPtIds);
+          cell->TriangulateIds(0, cellPtIds);
         }
         else
         {
-          cell->TriangulatePtIds(1, cellPtIds);
+          cell->TriangulateIds(1, cellPtIds);
         }
 
         dim = cell->GetCellDimension() + 1;
@@ -278,7 +278,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
     if (cell->GetCellType() == VTK_POLYHEDRON) // polyhedron
     {
       dim = 4;
-      cell->TriangulatePtIds(0, cellPtIds);
+      cell->TriangulateIds(0, cellPtIds);
       numPts = cellPtIds->GetNumberOfIds();
 
       numSimplices = numPts / dim;
@@ -344,7 +344,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
     else if (!this->TetrahedraOnly) // 2D or lower dimension
     {
       dim++;
-      cell->TriangulatePtIds(0, cellPtIds);
+      cell->TriangulateIds(0, cellPtIds);
       numPts = cellPtIds->GetNumberOfIds();
 
       numSimplices = numPts / dim;

@@ -212,7 +212,7 @@ int vtkHigherOrderCurve::IntersectWithLine(
   return intersection ? 1 : 0;
 }
 
-int vtkHigherOrderCurve::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkHigherOrderCurve::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   vtkIdType nhex = vtkHigherOrderInterpolation::NumberOfIntervals<1>(this->GetOrder());
   int i;

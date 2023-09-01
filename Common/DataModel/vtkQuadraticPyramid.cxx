@@ -581,7 +581,7 @@ int vtkQuadraticPyramid::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticPyramid::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkQuadraticPyramid::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   constexpr vtkIdType ids[14][4] = {
     { 7, 6, 2, 11 },

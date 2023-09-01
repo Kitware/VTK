@@ -256,7 +256,7 @@ int vtkCubicLine::IntersectWithLine(const double p1[3], const double p2[3], doub
 }
 
 //------------------------------------------------------------------------------
-int vtkCubicLine::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkCubicLine::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   constexpr std::array<vtkIdType, 6> localPtIds{ 0, 2, 2, 3, 3, 1 };
   ptIds->SetNumberOfIds(6);

@@ -863,7 +863,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
          IMPORTANT NOTE: triangulation is given with mesh point ids (not local cell ids)
          and are translated to cell local point ids. */
       cell.needTriangulation = false;
-      cell.triangulationOk = (vtkcell->TriangulatePtIds(ci, ptIds) != 0);
+      cell.triangulationOk = (vtkcell->TriangulateIds(ci, ptIds) != 0);
       cell.ntri = 0;
       if (cell.triangulationOk)
       {
@@ -1373,7 +1373,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
                   DBG_ASSERT(nextCell.edges[i][1] >= 0 && nextCell.edges[i][1] < nextCell.np);
                 }
               }
-              nextCell.triangulationOk = (vtkcell->TriangulatePtIds(ci, ptIds) != 0);
+              nextCell.triangulationOk = (vtkcell->TriangulateIds(ci, ptIds) != 0);
               nextCell.ntri = 0;
               if (nextCell.triangulationOk)
               {

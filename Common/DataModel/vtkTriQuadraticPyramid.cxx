@@ -594,7 +594,7 @@ int vtkTriQuadraticPyramid::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkTriQuadraticPyramid::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkTriQuadraticPyramid::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // split into 32 tetrahedra
   ptIds->SetNumberOfIds(32 * 4);

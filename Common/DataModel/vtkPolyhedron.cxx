@@ -1200,7 +1200,7 @@ void vtkPolyhedron::InterpolateDerivs(const double x[3], double* derivs)
 }
 
 //------------------------------------------------------------------------------
-int vtkPolyhedron::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkPolyhedron::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->Reset();
 

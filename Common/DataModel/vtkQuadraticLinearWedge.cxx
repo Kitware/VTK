@@ -458,7 +458,7 @@ int vtkQuadraticLinearWedge::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticLinearWedge::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkQuadraticLinearWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(24);
   std::copy(&LinearWedges[0][0], &LinearWedges[0][0] + 24, ptIds->begin());

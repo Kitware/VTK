@@ -436,7 +436,7 @@ int vtkHigherOrderHexahedron::IntersectWithLine(
   return intersection ? 1 : 0;
 }
 
-int vtkHigherOrderHexahedron::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkHigherOrderHexahedron::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   constexpr std::array<vtkIdType, 20> linearHexLocalPtIds{ 0, 1, 3, 4, 1, 4, 5, 6, 1, 4, 6, 3, 1, 3,
     6, 2, 3, 6, 7, 4 };

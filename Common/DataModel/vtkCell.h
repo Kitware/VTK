@@ -308,7 +308,7 @@ public:
    * This method does not insert new points: all the points that define the
    * simplices are the points that define the cell.
    */
-  virtual int TriangulatePtIds(int index, vtkIdList* ptIds);
+  virtual int TriangulateIds(int index, vtkIdList* ptIds);
 
   /**
    * Generate simplices of proper dimension. If cell is 3D, tetrahedra are
@@ -321,7 +321,7 @@ public:
    * simplices are the points that define the cell.
    * ptIds are the local indices with respect to the cell
    */
-  virtual int TriangulateLocalCellPtIds(int index, vtkIdList* ptIds) = 0;
+  virtual int TriangulateLocalIds(int index, vtkIdList* ptIds) = 0;
 
   /**
    * Compute derivatives given cell subId and parametric coordinates. The

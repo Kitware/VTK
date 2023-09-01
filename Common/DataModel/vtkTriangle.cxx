@@ -693,7 +693,7 @@ int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], doubl
 }
 
 //------------------------------------------------------------------------------
-int vtkTriangle::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkTriangle::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(3);
   std::iota(ptIds->begin(), ptIds->end(), 0);

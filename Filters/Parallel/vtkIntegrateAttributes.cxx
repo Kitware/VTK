@@ -254,7 +254,7 @@ void vtkIntegrateAttributes::ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid
           continue;
         }
 
-        cell->TriangulatePtIds(1, cellPtIds);
+        cell->TriangulateIds(1, cellPtIds);
         switch (cellDim)
         {
           case 1:

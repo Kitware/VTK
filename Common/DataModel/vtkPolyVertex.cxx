@@ -162,7 +162,7 @@ int vtkPolyVertex::IntersectWithLine(const double p1[3], const double p2[3], dou
 }
 
 //------------------------------------------------------------------------------
-int vtkPolyVertex::TriangulateLocalCellPtIds(int vtkNotUsed(index), vtkIdList* ptIds)
+int vtkPolyVertex::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(this->Points->GetNumberOfPoints());
   std::iota(ptIds->begin(), ptIds->end(), 0);

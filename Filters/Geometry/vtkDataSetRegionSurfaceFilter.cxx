@@ -435,7 +435,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
       {
         if (cell->GetCellDimension() == 1)
         {
-          cell->TriangulatePtIds(0, pts);
+          cell->TriangulateIds(0, pts);
           for (i = 0; i < pts->GetNumberOfIds(); i += 2)
           {
             newLines->InsertNextCell(2);
@@ -467,7 +467,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
               if (this->NonlinearSubdivisionLevel >= 1)
               {
                 // TODO: Handle NonlinearSubdivisionLevel > 1 correctly.
-                face->TriangulatePtIds(0, pts);
+                face->TriangulateIds(0, pts);
                 for (i = 0; i < pts->GetNumberOfIds(); i += 3)
                 {
                   this->InsertTriInHash(
@@ -589,7 +589,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
       // Note: we should not be here if this->NonlinearSubdivisionLevel is less
       // than 1.  See the check above.
       input->GetCell(cellId, cell);
-      cell->TriangulatePtIds(0, pts);
+      cell->TriangulateIds(0, pts);
       // Copy the level 1 subdivision points (which also exist in the input and
       // can therefore just be copied over.  Note that the output of Triangulate
       // records triangles in pts where each 3 points defines a triangle.  We
