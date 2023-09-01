@@ -30,8 +30,8 @@
  * Similarly, each generated ghost cells from this filter is tagged with `CELLDUPLICATE`, in
  * addition of other tags that could be set (`HIDDENCELL` for instance).
  *
- * However, if `Sync` is On, ghost data will be synchronized between processes and ghost array
- * won't be recomputed. This parameter assumes that the ghost layer remains unchanged. For
+ * However, if `SynchronizeOnly` is On, ghost data will be synchronized between processes and ghost
+ * array won't be recomputed. This parameter assumes that the ghost layer remains unchanged. For
  * this feature to work, the input must already have GlobalIds and ProcessIds arrays. Otherwise,
  * the filter will fallback on its default behavior.
  *
@@ -150,14 +150,15 @@ public:
 
   ///@{
   /**
-   * Specify if the filter should try to sync ghost
-   * instead of regenerating ghosts. This assumes
-   * that the ghost layer stays the same.
+   * Specify if the filter should try to synchonize ghost
+   * instead of regenerating ghosts if it can. If it can't,
+   * ghost cells and points will be generated instead.
+   * This assumes that the ghost layer stays the same.
    * Default is FALSE.
    */
-  vtkSetMacro(Sync, bool);
-  vtkGetMacro(Sync, bool);
-  vtkBooleanMacro(Sync, bool);
+  vtkSetMacro(SynchronizeOnly, bool);
+  vtkGetMacro(SynchronizeOnly, bool);
+  vtkBooleanMacro(SynchronizeOnly, bool);
   ///@}
 
 protected:
@@ -176,18 +177,22 @@ protected:
 
   int NumberOfGhostLayers = 1;
   bool BuildIfRequired = true;
-  bool GenerateGlobalIds = false;
-  bool GenerateProcessIds = false;
-  bool Sync = false;
 
 private:
   vtkGhostCellsGenerator(const vtkGhostCellsGenerator&) = delete;
   void operator=(const vtkGhostCellsGenerator&) = delete;
 
   /**
-   *
+   * Check if this filter can synchronize only,
+   * which can only be true if ghost array,
+   * process ids and global ids and available.
+   * Return true if cells AND points can be synchronized.
    */
   bool CanSynchronize(vtkDataObject* input, bool& canSyncCell, bool& canSyncPoint);
+
+  bool GenerateGlobalIds = false;
+  bool GenerateProcessIds = false;
+  bool SynchronizeOnly = false;
 };
 
 VTK_ABI_NAMESPACE_END

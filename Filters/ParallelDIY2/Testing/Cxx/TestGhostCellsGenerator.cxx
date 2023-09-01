@@ -718,7 +718,7 @@ bool TestGhostDataSynchronization(vtkMultiProcessController* controller, int myr
   vtkNew<vtkGhostCellsGenerator> generatorSync;
   generatorSync->SetInputData(generatorOutput);
   generatorSync->SetController(controller);
-  generatorSync->SyncOn();
+  generatorSync->SynchronizeOnlyOn();
   generatorSync->Update();
 
   auto syncOutput = vtkImageData::SafeDownCast(generatorSync->GetOutputDataObject(0));
