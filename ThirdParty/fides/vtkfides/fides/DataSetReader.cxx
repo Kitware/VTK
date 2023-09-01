@@ -49,8 +49,8 @@ public:
   DataSetReaderImpl(const std::string& dataModel,
                     DataModelInput inputType,
                     bool streamSteps,
-                    int numberOfHalos,
-                    const Params& params)
+                    const Params& params,
+                    bool createSharedPoints)
   {
     this->StreamingMode = streamSteps;
     this->Cleanup();
@@ -68,12 +68,9 @@ public:
       this->ParsingChecks(doc, dataModel, inputType);
       this->ReadJSON(doc);
     }
-    if (numberOfHalos > 0)
+    for (auto it : this->DataSources)
     {
-      for (auto it : this->DataSources)
-      {
-        it.second->NumberOfHalos = numberOfHalos;
-      }
+      it.second->CreateSharedPoints = createSharedPoints;
     }
 
     this->SetDataSourceParameters(params);
@@ -718,23 +715,23 @@ bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
 
 DataSetReader::DataSetReader(const std::string& dataModel,
                              DataModelInput inputType /*=DataModelInput::JSONFile*/,
-                             int numberOfHalos /*=0*/,
-                             const Params& params)
-  : DataSetReader(dataModel, inputType, false, numberOfHalos, params)
+                             const Params& params,
+                             bool createSharedPoints /*=false*/)
+  : DataSetReader(dataModel, inputType, false, params, createSharedPoints)
 {
 }
 
 DataSetReader::DataSetReader(const std::string& dataModel,
                              DataModelInput inputType,
                              bool streamSteps,
-                             int numberOfHalos /*=0*/,
-                             const Params& params)
+                             const Params& params,
+                             bool createSharedPoints /*=false*/)
   : Impl(nullptr)
 {
   if (inputType != DataModelInput::BPFile)
   {
     this->Impl.reset(
-      new DataSetReaderImpl(dataModel, inputType, streamSteps, numberOfHalos, params));
+      new DataSetReaderImpl(dataModel, inputType, streamSteps, params, createSharedPoints));
     return;
   }
 
@@ -756,7 +753,7 @@ DataSetReader::DataSetReader(const std::string& dataModel,
       if (predefined::DataModelSupported(result[0]))
       {
         this->Impl.reset(
-          new DataSetReaderImpl(dataModel, inputType, streamSteps, numberOfHalos, params));
+          new DataSetReaderImpl(dataModel, inputType, streamSteps, params, createSharedPoints));
         return;
       }
     }
@@ -770,7 +767,7 @@ DataSetReader::DataSetReader(const std::string& dataModel,
     if (!schema.empty())
     {
       this->Impl.reset(new DataSetReaderImpl(
-        schema[0], DataModelInput::JSONString, streamSteps, numberOfHalos, params));
+        schema[0], DataModelInput::JSONString, streamSteps, params, createSharedPoints));
       return;
     }
   }
