@@ -656,66 +656,42 @@ vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
   {
     return vtkVariant();
   }
+
+  if (comps == 1)
+  {
+    return arr->GetVariantValue(row);
+  }
+
   if (vtkArrayDownCast<vtkDataArray>(arr))
   {
-    if (comps == 1)
-    {
-      vtkArrayIterator* iter = arr->NewIterator();
-      vtkVariant v;
-      switch (arr->GetDataType())
-      {
-        vtkArrayIteratorTemplateMacro(v = vtkTableGetVariantValue(static_cast<VTK_TT*>(iter), row));
-      }
-      iter->Delete();
-      return v;
-    }
-    else
-    {
-      // Create a variant holding an array of the appropriate type
-      // with one tuple.
-      vtkDataArray* da = vtkDataArray::CreateDataArray(arr->GetDataType());
-      da->SetNumberOfComponents(comps);
-      da->InsertNextTuple(row, arr);
-      vtkVariant v(da);
-      da->Delete();
-      return v;
-    }
+    // Create a variant holding an array of the appropriate type
+    // with one tuple.
+    vtkDataArray* da = vtkDataArray::CreateDataArray(arr->GetDataType());
+    da->SetNumberOfComponents(comps);
+    da->InsertNextTuple(row, arr);
+    vtkVariant v(da);
+    da->Delete();
+    return v;
   }
   else if (vtkArrayDownCast<vtkStringArray>(arr))
   {
     vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr);
-    if (comps == 1)
-    {
-      return vtkVariant(data->GetValue(row));
-    }
-    else
-    {
-      // Create a variant holding a vtkStringArray with one tuple.
-      vtkStringArray* sa = vtkStringArray::New();
-      sa->SetNumberOfComponents(comps);
-      sa->InsertNextTuple(row, data);
-      vtkVariant v(sa);
-      sa->Delete();
-      return v;
-    }
+    // Create a variant holding a vtkStringArray with one tuple.
+    vtkNew<vtkStringArray> sa;
+    sa->SetNumberOfComponents(comps);
+    sa->InsertNextTuple(row, data);
+    vtkVariant v(sa);
+    return v;
   }
   else if (vtkArrayDownCast<vtkVariantArray>(arr))
   {
     vtkVariantArray* data = vtkArrayDownCast<vtkVariantArray>(arr);
-    if (comps == 1)
-    {
-      return data->GetValue(row);
-    }
-    else
-    {
-      // Create a variant holding a vtkVariantArray with one tuple.
-      vtkVariantArray* va = vtkVariantArray::New();
-      va->SetNumberOfComponents(comps);
-      va->InsertNextTuple(row, data);
-      vtkVariant v(va);
-      va->Delete();
-      return v;
-    }
+    // Create a variant holding a vtkVariantArray with one tuple.
+    vtkNew<vtkVariantArray> va;
+    va->SetNumberOfComponents(comps);
+    va->InsertNextTuple(row, data);
+    vtkVariant v(va);
+    return v;
   }
   return vtkVariant();
 }
