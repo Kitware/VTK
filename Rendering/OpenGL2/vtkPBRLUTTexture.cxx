@@ -33,6 +33,7 @@ void vtkPBRLUTTexture::Load(vtkRenderer* ren)
   if (!renWin)
   {
     vtkErrorMacro("No render window.");
+    return;
   }
 
   if (this->GetMTime() > this->LoadTime.GetMTime())

@@ -847,8 +847,8 @@ public:
   /**
    * If this flag is true and the rendering engine supports it, image based
    * lighting is enabled and surface rendering displays environment reflections.
-   * The input cube map have to be set with SetEnvironmentCubeMap.
-   * If not cubemap is specified, this feature is disable.
+   * Image Based Lighting rely on the environment texture to compute lighting
+   * if it has been provided.
    */
   vtkSetMacro(UseImageBasedLighting, bool);
   vtkGetMacro(UseImageBasedLighting, bool);
@@ -859,12 +859,6 @@ public:
   /**
    * Set/Get the environment texture used for image based lighting.
    * This texture is supposed to represent the scene background.
-   * If it is not a cubemap, the texture is supposed to represent an equirectangular projection.
-   * If used with raytracing backends, the texture must be an equirectangular projection and must be
-   * constructed with a valid vtkImageData.
-   * Warning, this texture must be expressed in linear color space.
-   * If the texture is in sRGB color space, set the color flag on the texture or
-   * set the argument isSRGB to true.
    * @sa vtkTexture::UseSRGBColorSpaceOn
    */
   vtkGetObjectMacro(EnvironmentTexture, vtkTexture);

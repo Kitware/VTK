@@ -123,7 +123,7 @@ int vtkOpenGLRenderer::UpdateLights()
     }
   }
 
-  if (this->GetUseImageBasedLighting() && this->GetEnvironmentTexture() && lightingComplexity == 0)
+  if (this->GetUseImageBasedLighting() && lightingComplexity == 0)
   {
     lightingComplexity = 1;
   }
@@ -228,38 +228,50 @@ void vtkOpenGLRenderer::DeviceRender()
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
-  bool computeIBLTextures = !(this->Pass && this->Pass->IsA("vtkOSPRayPass")) &&
-    this->UseImageBasedLighting && this->EnvironmentTexture;
+  bool computeIBLTextures =
+    !(this->Pass && this->Pass->IsA("vtkOSPRayPass")) && this->UseImageBasedLighting;
   if (computeIBLTextures)
   {
     this->GetEnvMapLookupTable()->Load(this);
     this->GetEnvMapPrefiltered()->Load(this);
 
+    // Complex logic here, different possibilities:
+    // - UseSH is ON, EnvTex is provided but is not compatible, fallback to irradiance
+    // - UseSH is ON and SH are provided, EnvTex is not, just use the SH as is
+    // - UseSH is ON, SH and EnvTex are provided and compatible, check the MTime to recompute SH
+    // - UseSH is ON, SH is not provided, EnvTex is compatible, compute SH
+    // - UseSH is ON, SH is not provided, EnvTex is compatible but empty, error out
+    // - UseSH is OFF, use irradiance
     bool useSH = this->UseSphericalHarmonics;
-
-    if (useSH && this->EnvironmentTexture->GetCubeMap())
+    if (this->EnvironmentTexture && this->EnvironmentTexture->GetCubeMap())
     {
       vtkWarningMacro(
-        "Cannot compute spherical harmonics of a cubemap, fall back to irradiance texture");
-      useSH = false;
-    }
-
-    vtkImageData* img = this->EnvironmentTexture->GetInput();
-    if (useSH && !img)
-    {
-      vtkWarningMacro("Cannot retrieve vtkImageData, fall back to texture");
+        "Cannot compute spherical harmonics of a cubemap, falling back to irradiance texture");
       useSH = false;
     }
 
     if (useSH)
     {
-      if (!this->SphericalHarmonics || img->GetMTime() > this->SphericalHarmonics->GetMTime())
+      vtkImageData* img = nullptr;
+      if (this->EnvironmentTexture)
+      {
+        img = this->EnvironmentTexture->GetInput();
+      }
+
+      if (img &&
+        (!this->SphericalHarmonics || img->GetMTime() > this->SphericalHarmonics->GetMTime()))
       {
         vtkNew<vtkSphericalHarmonics> sh;
         sh->SetInputData(img);
         sh->Update();
         this->SphericalHarmonics = vtkFloatArray::SafeDownCast(
           vtkTable::SafeDownCast(sh->GetOutputDataObject(0))->GetColumn(0));
+      }
+
+      if (!this->SphericalHarmonics)
+      {
+        vtkErrorMacro("Cannot compute spherical harmonics without an image data texture");
+        return;
       }
     }
     else

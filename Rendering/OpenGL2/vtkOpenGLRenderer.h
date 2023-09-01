@@ -151,7 +151,18 @@ public:
   ///@}
 
   /**
-   * Overridden in order to connect the texture to the environment map textures.
+   * Set/Get the environment texture used for image based lighting.
+   * This texture is supposed to represent the scene background.
+   * If it is not a cubemap, the texture is supposed to represent an equirectangular projection.
+   * If used with raytracing backends, the texture must be an equirectangular projection and must be
+   * constructed with a valid vtkImageData.
+   * Warning, this texture must be expressed in linear color space.
+   * If the texture is in sRGB color space, set the color flag on the texture or
+   * set the argument isSRGB to true.
+   * Note that this texture can be omitted if LUT, SpecularColorMap and SphericalHarmonics
+   * are used and provided
+   *
+   * @sa vtkTexture::UseSRGBColorSpaceOn
    */
   void SetEnvironmentTexture(vtkTexture* texture, bool isSRGB = false) override;
 
