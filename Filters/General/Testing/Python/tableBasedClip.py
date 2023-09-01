@@ -288,9 +288,9 @@ class TestClip(Testing.vtkTest):
         self.assertEqual(z, 1)
 
         [x, y, z] = normals_points.GetTuple3(103)
-        self.assertEqual(x, -0.6324555277824402)
-        self.assertEqual(y, -0.3162277638912201)
-        self.assertEqual(z, -0.7071067690849304)
+        self.assertEqual(x, 0.8944272994995117)
+        self.assertEqual(y, 0.44721364974975586)
+        self.assertEqual(z, 0.)
 
 if __name__ == "__main__":
     Testing.main([(TestClip, 'test')])

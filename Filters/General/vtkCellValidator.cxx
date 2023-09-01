@@ -367,19 +367,6 @@ bool vtkCellValidator::Convex(vtkCell* cell, double vtkNotUsed(tolerance))
 }
 
 //------------------------------------------------------------------------------
-namespace
-{
-// The convention for three-dimensional cells is that the normal of each face
-// cell is oriented outwards. Some cells break this convention and remain
-// inconsistent to maintain backwards compatibility.
-bool outwardOrientation(int cellType)
-{
-  return cellType != VTK_QUADRATIC_LINEAR_WEDGE && cellType != VTK_BIQUADRATIC_QUADRATIC_WEDGE &&
-    cellType != VTK_QUADRATIC_WEDGE;
-}
-}
-
-//------------------------------------------------------------------------------
 bool vtkCellValidator::FacesAreOrientedCorrectly(vtkCell* threeDimensionalCell, double tolerance)
 {
   // Ensure that a 3-dimensional cell's faces are oriented away from the
@@ -390,8 +377,6 @@ bool vtkCellValidator::FacesAreOrientedCorrectly(vtkCell* threeDimensionalCell, 
   double faceNorm[3], norm[3], cellCentroid[3], faceCentroid[3];
   vtkCell* face;
   Centroid(threeDimensionalCell, cellCentroid);
-
-  bool hasOutwardOrientation = outwardOrientation(threeDimensionalCell->GetCellType());
 
   for (vtkIdType i = 0; i < threeDimensionalCell->GetNumberOfFaces(); i++)
   {
@@ -410,7 +395,7 @@ bool vtkCellValidator::FacesAreOrientedCorrectly(vtkCell* threeDimensionalCell, 
     vtkMath::Normalize(norm);
     double dot = vtkMath::Dot(faceNorm, norm);
 
-    if (hasOutwardOrientation == (dot < 0.))
+    if (dot < 0.)
     {
       return false;
     }

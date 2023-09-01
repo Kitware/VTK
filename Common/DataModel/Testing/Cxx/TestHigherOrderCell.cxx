@@ -86,6 +86,11 @@ int TestHigherOrderCell(int, char*[])
     return 1;
   }
 
+  auto isQuadraticWedge = [](int cellType) -> bool {
+    return (cellType == VTK_QUADRATIC_LINEAR_WEDGE) ||
+      (cellType == VTK_BIQUADRATIC_QUADRATIC_WEDGE) || (cellType == VTK_QUADRATIC_WEDGE);
+  };
+
   const unsigned char* orderCell;
   const unsigned int nCells = sizeof(HigherOrderCell) / depth;
   vtkCell* cellArray[depth];
@@ -164,7 +169,7 @@ int TestHigherOrderCell(int, char*[])
           vtkCell* f2 = cell->GetFace(f);
           cerr << "Doing Face: #" << f << " comp:" << linCell->GetCellType() << " vs "
                << cell->GetCellType() << endl;
-          if (cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE &&
+          if ((!isQuadraticWedge(cell->GetCellType())) &&
             cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)
           {
             rval += CompareHigherOrderCell(f1, f2);
@@ -173,7 +178,7 @@ int TestHigherOrderCell(int, char*[])
           cerr << "Doing Face: #" << f << " comp:" << quadCell->GetCellType() << " vs "
                << cell->GetCellType() << endl;
           if (cell->GetCellType() != VTK_QUADRATIC_LINEAR_QUAD &&
-            cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE &&
+            (!isQuadraticWedge(cell->GetCellType())) &&
             cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)
           {
             rval += CompareHigherOrderCell(qf1, f2);

@@ -67,11 +67,11 @@ static int LinearWedges[4][6] = {
 
 // We use 2 quadratic triangles and 3 quadratic-linear quads
 static constexpr vtkIdType WedgeFaces[5][6] = {
-  { 0, 1, 2, 6, 7, 8 },   // first quad triangle
-  { 3, 5, 4, 11, 10, 9 }, // second quad triangle
-  { 1, 0, 3, 4, 6, 9 },   // 1. quad-linear quad
-  { 2, 1, 4, 5, 7, 10 },  // 2. quad-linear quad
-  { 0, 2, 5, 3, 8, 11 }   // 3. quad-linear quad
+  { 0, 2, 1, 8, 7, 6 },   // first quad triangle
+  { 3, 4, 5, 9, 10, 11 }, // second quad triangle
+  { 0, 1, 4, 3, 6, 9 },   // 1. quad-linear quad
+  { 1, 2, 5, 4, 7, 10 },  // 2. quad-linear quad
+  { 2, 0, 3, 5, 8, 11 }   // 3. quad-linear quad
 };
 
 // We have 6 quadratic and 3 linear edges
