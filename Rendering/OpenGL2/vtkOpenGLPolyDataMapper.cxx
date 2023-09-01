@@ -2565,6 +2565,20 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     }
   }
 
+  // Check if environment texture changed
+  vtkOpenGLRenderer* oren = static_cast<vtkOpenGLRenderer*>(ren);
+  vtkTexture* environmentTexture = oren->GetEnvironmentTexture();
+  if (this->EnvironmentTexture != environmentTexture ||
+    (environmentTexture && environmentTexture->GetMTime() > this->EnvironmentTextureTime))
+  {
+    this->EnvironmentTexture = environmentTexture;
+    if (environmentTexture)
+    {
+      this->EnvironmentTextureTime = environmentTexture->GetMTime();
+    }
+    return true;
+  }
+
   return false;
 }
 

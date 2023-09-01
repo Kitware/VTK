@@ -501,6 +501,9 @@ protected:
 
   vtkNew<vtkCellArray> SelectionArrays[4];
 
+  vtkMTimeType EnvironmentTextureTime = 0;
+  vtkTexture* EnvironmentTexture = nullptr;
+
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) = delete;
   void operator=(const vtkOpenGLPolyDataMapper&) = delete;
