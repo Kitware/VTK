@@ -284,7 +284,7 @@ void CreateTriangleIndexBuffer(vtkCellArray* cells, vtkPoints* points,
           triIndices[i] = i;
         }
         polygon->Initialize(npts, triIndices, triPoints);
-        polygon->Triangulate(tris);
+        polygon->TriangulateLocalIds(0, tris);
         for (int j = 0; j < tris->GetNumberOfIds(); ++j)
         {
           indexArray.push_back(static_cast<unsigned int>(indices[tris->GetId(j)]));

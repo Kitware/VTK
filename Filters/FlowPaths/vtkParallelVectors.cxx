@@ -373,7 +373,7 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
           polygon->GetPointIds()->SetId(i, i);
         }
 
-        polygon->Triangulate(outTris);
+        polygon->TriangulateLocalIds(0, outTris);
 
         for (vtkIdType i = 0; i < nPoints - 2; ++i)
         {

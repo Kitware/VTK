@@ -76,6 +76,8 @@ public:
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId) override;
   int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
+  int TriangulateIds(int index, vtkIdList* ptIds) override;
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   int GetParametricCenter(double pcoords[3]) override;

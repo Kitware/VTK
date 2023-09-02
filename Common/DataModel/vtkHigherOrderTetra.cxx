@@ -661,15 +661,10 @@ int vtkHigherOrderTetra::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkHigherOrderTetra::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkHigherOrderTetra::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
   vtkIdType bindices[4][4];
   vtkIdType numberOfSubtetras = this->GetNumberOfSubtetras();
-
-  pts->SetNumberOfPoints(4 * numberOfSubtetras);
   ptIds->SetNumberOfIds(4 * numberOfSubtetras);
   for (vtkIdType subCellId = 0; subCellId < numberOfSubtetras; subCellId++)
   {
@@ -677,9 +672,7 @@ int vtkHigherOrderTetra::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vt
 
     for (vtkIdType i = 0; i < 4; i++)
     {
-      vtkIdType pointIndex = this->ToIndex(bindices[i]);
-      ptIds->SetId(4 * subCellId + i, this->PointIds->GetId(pointIndex));
-      pts->SetPoint(4 * subCellId + i, this->Points->GetPoint(pointIndex));
+      ptIds->SetId(4 * subCellId + i, this->ToIndex(bindices[i]));
     }
   }
   return 1;

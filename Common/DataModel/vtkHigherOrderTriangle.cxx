@@ -495,28 +495,22 @@ int vtkHigherOrderTriangle::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkHigherOrderTriangle::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkHigherOrderTriangle::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
 
 #ifdef SEVEN_POINT_TRIANGLE
   if (this->Points->GetNumberOfPoints() == 7)
   {
     static constexpr vtkIdType edgeOrder[7] = { 0, 3, 1, 4, 2, 5, 0 };
-    pts->SetNumberOfPoints(18);
     ptIds->SetNumberOfIds(18);
     vtkIdType pointId = 0;
     for (vtkIdType i = 0; i < 6; i++)
     {
-      ptIds->SetId(pointId, this->PointIds->GetId(edgeOrder[i]));
-      pts->SetPoint(pointId, this->Points->GetPoint(edgeOrder[i]));
+      ptIds->SetId(pointId, edgeOrder[i]);
       pointId++;
-      ptIds->SetId(pointId, this->PointIds->GetId(edgeOrder[i + 1]));
-      pts->SetPoint(pointId, this->Points->GetPoint(edgeOrder[i + 1]));
+      ptIds->SetId(pointId, edgeOrder[i + 1]);
       pointId++;
-      ptIds->SetId(pointId, this->PointIds->GetId(6));
-      pts->SetPoint(pointId, this->Points->GetPoint(6));
+      ptIds->SetId(pointId, 6);
       pointId++;
     }
     return 1;
@@ -525,21 +519,15 @@ int vtkHigherOrderTriangle::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds,
 
   vtkIdType bindices[3][3];
   vtkIdType numberOfSubtriangles = this->GetNumberOfSubtriangles();
-
-  pts->SetNumberOfPoints(3 * numberOfSubtriangles);
   ptIds->SetNumberOfIds(3 * numberOfSubtriangles);
   for (vtkIdType subCellId = 0; subCellId < numberOfSubtriangles; subCellId++)
   {
     this->SubtriangleBarycentricPointIndices(subCellId, bindices);
-
     for (vtkIdType i = 0; i < 3; i++)
     {
-      vtkIdType pointIndex = this->ToIndex(bindices[i]);
-      ptIds->SetId(3 * subCellId + i, this->PointIds->GetId(pointIndex));
-      pts->SetPoint(3 * subCellId + i, this->Points->GetPoint(pointIndex));
+      ptIds->SetId(3 * subCellId + i, this->ToIndex(bindices[i]));
     }
   }
-
   return 1;
 }
 

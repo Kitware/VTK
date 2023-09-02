@@ -165,7 +165,7 @@ public:
   /**
    * Triangulate using methods of vtkOrderedTriangulator.
    */
-  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
 
   /**
    * Computes derivatives by triangulating and from subId and pcoords,

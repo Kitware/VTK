@@ -15,6 +15,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkWedge.h"
 
+#include <algorithm> //std::copy
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -54,7 +55,7 @@ vtkBiQuadraticQuadraticWedge::~vtkBiQuadraticQuadraticWedge()
 
 //------------------------------------------------------------------------------
 // We are using 8 linear wedge
-static int LinearWedges[8][6] = {
+static vtkIdType LinearWedges[8][6] = {
   { 0, 6, 8, 12, 15, 17 },
   { 6, 7, 8, 15, 16, 17 },
   { 6, 1, 7, 15, 13, 16 },
@@ -447,21 +448,10 @@ int vtkBiQuadraticQuadraticWedge::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkBiQuadraticQuadraticWedge::Triangulate(
-  int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkBiQuadraticQuadraticWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
-  for (int i = 0; i < 8; i++)
-  {
-    for (int j = 0; j < 6; j++)
-    {
-      ptIds->InsertId(6 * i + j, this->PointIds->GetId(LinearWedges[i][j]));
-      pts->InsertPoint(6 * i + j, this->Points->GetPoint(LinearWedges[i][j]));
-    }
-  }
-
+  ptIds->SetNumberOfIds(48);
+  std::copy(&LinearWedges[0][0], &LinearWedges[0][0] + 48, ptIds->begin());
   return 1;
 }
 

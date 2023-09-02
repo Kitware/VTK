@@ -1200,10 +1200,9 @@ void vtkPolyhedron::InterpolateDerivs(const double x[3], double* derivs)
 }
 
 //------------------------------------------------------------------------------
-int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkPolyhedron::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->Reset();
-  pts->Reset();
 
   if (!this->GetPoints() || !this->GetNumberOfPoints())
   {
@@ -1226,16 +1225,7 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoint
     triangulator->InsertPoint(i, point, point, 0);
   }
   triangulator->Triangulate();
-
-  triangulator->AddTetras(0, ptIds, pts);
-
-  // convert to global Ids
-  vtkIdType* ids = ptIds->GetPointer(0);
-  for (vtkIdType i = 0; i < ptIds->GetNumberOfIds(); i++)
-  {
-    ids[i] = this->PointIds->GetId(ids[i]);
-  }
-
+  triangulator->AddTetras(0, ptIds);
   return 1;
 }
 
@@ -1256,13 +1246,12 @@ int vtkPolyhedron::TriangulateFaces(vtkIdList* newFaces)
     }
 
     vtkNew<vtkIdList> ptIds;
-    vtkNew<vtkPoints> pts;
 
     // Triangulate the face
     // - Triangle : returns the triangle
     // - Quad : adds the "shortest" diagonal
     // - Polygon : uses "EarCut" triangulation
-    face->Triangulate(0, ptIds, pts);
+    face->TriangulateIds(0, ptIds);
 
     // Allocate space for the new triangles
     newFaces->Resize(newFaces->GetNumberOfIds() + ptIds->GetNumberOfIds());
@@ -2007,7 +1996,7 @@ void vtkPolyhedron::Contour(double value, vtkDataArray* pointScalars,
         polygon->Points->SetPoint(i, xyz);
       }
       vtkNew<vtkIdList> ptIds;
-      polygon->Triangulate(ptIds);
+      polygon->TriangulateLocalIds(0, ptIds);
       vtkIdType numPts = ptIds->GetNumberOfIds();
       vtkIdType numSimplices = numPts / 3;
       vtkIdType triPts[3];

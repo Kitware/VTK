@@ -22,6 +22,7 @@
 #define vtkQuadraticPolygon_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkNonLinearCell.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -72,8 +73,15 @@ public:
   int ParameterizePolygon(
     double p0[3], double p10[3], double& l10, double p20[3], double& l20, double n[3]);
   static int PointInPolygon(double x[3], int numPts, double* pts, double bounds[6], double n[3]);
+  // Needed to remove warning "member function does not override any
+  // base class virtual member function"
+  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override
+  {
+    return vtkCell::Triangulate(index, ptIds, pts);
+  }
+  VTK_DEPRECATED_IN_9_3_0("Replaced by its parent's implementation vtkCell::TriangulateLocalIds")
   int Triangulate(vtkIdList* outTris);
-  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
   int NonDegenerateTriangulate(vtkIdList* outTris);
   static double DistanceToPolygon(
     double x[3], int numPts, double* pts, double bounds[6], double closest[3]);
@@ -131,7 +139,7 @@ protected:
    */
   static void GetPermutationToPolygon(vtkIdType nb, vtkIdList* permutation);
   static void PermuteFromPolygon(vtkIdType nb, double* values);
-  static void ConvertFromPolygon(vtkIdList* ids);
+  static void ConvertFromPolygon(vtkIdType nb, vtkIdList* ids);
   ///@}
 
 private:

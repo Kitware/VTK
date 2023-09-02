@@ -805,7 +805,7 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
       {
         // The vtkPolygon triangulation creates the connectivity array. It
         // is necessary to also create the offsets array.
-        if (polygon->Triangulate(outTris))
+        if (polygon->TriangulateLocalIds(0, outTris))
         {
           vtkIdType* ids = polygon->PointIds->GetPointer(0);
           vtkIdType numTris = outTris->GetNumberOfIds() / 3;

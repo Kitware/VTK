@@ -212,30 +212,20 @@ int vtkHigherOrderCurve::IntersectWithLine(
   return intersection ? 1 : 0;
 }
 
-int vtkHigherOrderCurve::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkHigherOrderCurve::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  ptIds->Reset();
-  pts->Reset();
-
-  vtkIdType nseg = vtkHigherOrderInterpolation::NumberOfIntervals<1>(this->GetOrder());
-  for (int i = 0; i < nseg; ++i)
+  vtkIdType nhex = vtkHigherOrderInterpolation::NumberOfIntervals<1>(this->GetOrder());
+  int i;
+  ptIds->SetNumberOfIds(nhex * 2);
+  for (int subId = 0; subId < nhex; ++subId)
   {
-    vtkLine* approx = this->GetApproximateLine(i);
-    if (approx->Triangulate(1, this->TmpIds.GetPointer(), this->TmpPts.GetPointer()))
+    if (!this->SubCellCoordinatesFromId(i, subId))
     {
-      // Sigh. Triangulate methods all reset their points/ids
-      // so we must copy them to our output.
-      vtkIdType np = this->TmpPts->GetNumberOfPoints();
-      vtkIdType ni = this->TmpIds->GetNumberOfIds();
-      for (vtkIdType ii = 0; ii < np; ++ii)
-      {
-        pts->InsertNextPoint(this->TmpPts->GetPoint(ii));
-      }
-      for (vtkIdType ii = 0; ii < ni; ++ii)
-      {
-        ptIds->InsertNextId(this->TmpIds->GetId(ii));
-      }
+      vtkErrorMacro("Invalid subId " << subId);
+      return 0;
     }
+    ptIds->SetId(subId * 2, this->PointIndexFromIJK(i, 0, 0));
+    ptIds->SetId(subId * 2 + 1, this->PointIndexFromIJK(i + 1, 0, 0));
   }
   return 1;
 }

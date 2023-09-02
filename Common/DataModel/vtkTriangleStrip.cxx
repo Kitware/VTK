@@ -212,26 +212,20 @@ int vtkTriangleStrip::IntersectWithLine(const double p1[3], const double p2[3], 
 }
 
 //------------------------------------------------------------------------------
-int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkTriangleStrip::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   int numTris = this->Points->GetNumberOfPoints() - 2;
+  ptIds->SetNumberOfIds(3 * numTris);
   int i, order;
-  static const int idx[2][3] = { { 0, 1, 2 }, { 1, 0, 2 } };
-
-  pts->Reset();
-  ptIds->Reset();
-
+  constexpr int idx[2][3] = { { 0, 1, 2 }, { 1, 0, 2 } };
   for (int subId = 0; subId < numTris; subId++)
   {
     order = subId % 2;
-
     for (i = 0; i < 3; i++)
     {
-      ptIds->InsertNextId(this->PointIds->GetId(subId + idx[order][i]));
-      pts->InsertNextPoint(this->Points->GetPoint(subId + idx[order][i]));
+      ptIds->SetId(subId * 3 + i, subId + idx[order][i]);
     }
   }
-
   return 1;
 }
 

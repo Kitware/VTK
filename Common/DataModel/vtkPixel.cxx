@@ -508,44 +508,19 @@ int vtkPixel::IntersectWithLine(const double p1[3], const double p2[3], double t
 }
 
 //------------------------------------------------------------------------------
-int vtkPixel::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
+int vtkPixel::TriangulateLocalIds(int index, vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
+  ptIds->SetNumberOfIds(6);
   if ((index % 2))
   {
-    ptIds->InsertId(0, this->PointIds->GetId(0));
-    pts->InsertPoint(0, this->Points->GetPoint(0));
-    ptIds->InsertId(1, this->PointIds->GetId(1));
-    pts->InsertPoint(1, this->Points->GetPoint(1));
-    ptIds->InsertId(2, this->PointIds->GetId(2));
-    pts->InsertPoint(2, this->Points->GetPoint(2));
-
-    ptIds->InsertId(3, this->PointIds->GetId(1));
-    pts->InsertPoint(3, this->Points->GetPoint(1));
-    ptIds->InsertId(4, this->PointIds->GetId(3));
-    pts->InsertPoint(4, this->Points->GetPoint(3));
-    ptIds->InsertId(5, this->PointIds->GetId(2));
-    pts->InsertPoint(5, this->Points->GetPoint(2));
+    constexpr std::array<vtkIdType, 6> localPtIds{ 0, 1, 2, 1, 3, 2 };
+    std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   }
   else
   {
-    ptIds->InsertId(0, this->PointIds->GetId(0));
-    pts->InsertPoint(0, this->Points->GetPoint(0));
-    ptIds->InsertId(1, this->PointIds->GetId(1));
-    pts->InsertPoint(1, this->Points->GetPoint(1));
-    ptIds->InsertId(2, this->PointIds->GetId(3));
-    pts->InsertPoint(2, this->Points->GetPoint(3));
-
-    ptIds->InsertId(3, this->PointIds->GetId(0));
-    pts->InsertPoint(3, this->Points->GetPoint(0));
-    ptIds->InsertId(4, this->PointIds->GetId(3));
-    pts->InsertPoint(4, this->Points->GetPoint(3));
-    ptIds->InsertId(5, this->PointIds->GetId(2));
-    pts->InsertPoint(5, this->Points->GetPoint(2));
+    constexpr std::array<vtkIdType, 6> localPtIds{ 0, 1, 3, 0, 3, 2 };
+    std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   }
-
   return 1;
 }
 

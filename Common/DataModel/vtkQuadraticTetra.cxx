@@ -14,6 +14,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkTetra.h"
+#include <algorithm> //std::copy
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticTetra);
@@ -399,20 +400,10 @@ int vtkQuadraticTetra::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkQuadraticTetra::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
-  for (int i = 0; i < 8; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ptIds->InsertId(4 * i + j, this->PointIds->GetId(LinearTetras[0][i][j]));
-      pts->InsertPoint(4 * i + j, this->Points->GetPoint(LinearTetras[0][i][j]));
-    }
-  }
-
+  ptIds->SetNumberOfIds(32);
+  std::copy(&LinearTetras[0][0][0], &LinearTetras[0][0][0] + 32, ptIds->begin());
   return 1;
 }
 

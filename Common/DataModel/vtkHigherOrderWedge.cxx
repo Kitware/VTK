@@ -20,6 +20,8 @@
 #include "vtkVectorOperators.h"
 #include "vtkWedge.h"
 
+#include <array>
+
 // VTK_21_POINT_WEDGE is defined (or not) in vtkHigherOrderInterpolation.h
 #ifdef VTK_21_POINT_WEDGE
 VTK_ABI_NAMESPACE_BEGIN
@@ -493,7 +495,7 @@ int vtkHigherOrderWedge::IntersectWithLine(
   return intersection ? 1 : 0;
 }
 
-int vtkHigherOrderWedge::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkHigherOrderWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   // Note that the node numbering between the vtkWedge and vtkHigherOrderWedge is different:
   //
@@ -513,33 +515,58 @@ int vtkHigherOrderWedge::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vt
   // For this reason, in order to not get tetrahedra with negative Jacobian,
   // the nodes 2 and 3 of each tetra are swapped.
 
-  ptIds->Reset();
-  pts->Reset();
+  constexpr std::array<vtkIdType, 12> linearWedgeLocalPtIds = { 0, 2, 3, 1, 1, 3, 4, 5, 1, 2, 3,
+    5 };
 
+  int i, j, k, corner;
+  const int* order = this->GetOrder();
   vtkIdType nwedge = this->GetNumberOfApproximatingWedges();
-  for (int i = 0; i < nwedge; ++i)
+  ptIds->SetNumberOfIds(nwedge * 12);
+  int count = 0;
+#ifdef VTK_21_POINT_WEDGE
+  if (order[3] == 21)
   {
-    vtkWedge* approx = this->GetApproximateWedge(i);
-    if (approx->Triangulate(1, this->TmpIds.GetPointer(), this->TmpPts.GetPointer()))
+    for (int subId = 0; subId < nwedge; ++subId)
     {
-      // Sigh. Triangulate methods all reset their points/ids
-      // so we must copy them to our output.
-      vtkIdType np = this->TmpPts->GetNumberOfPoints();
-      vtkIdType ii = 0;
-      while (ii < np)
+      if (subId < 0 || subId >= 12)
       {
-        pts->InsertNextPoint(this->TmpPts->GetPoint(ii));
-        pts->InsertNextPoint(this->TmpPts->GetPoint(ii + 1));
-        pts->InsertNextPoint(this->TmpPts->GetPoint(ii + 3));
-        pts->InsertNextPoint(this->TmpPts->GetPoint(ii + 2));
-
-        ptIds->InsertNextId(this->TmpIds->GetId(ii));
-        ptIds->InsertNextId(this->TmpIds->GetId(ii + 1));
-        ptIds->InsertNextId(this->TmpIds->GetId(ii + 3));
-        ptIds->InsertNextId(this->TmpIds->GetId(ii + 2));
-
-        ii += 4;
+        vtkWarningMacro("Bad subId " << subId << " for 21-point wedge.");
+        return 0;
       }
+      for (vtkIdType ic : linearWedgeLocalPtIds)
+      {
+        corner = vtkHigherOrderWedge21ApproxCorners[subId][ic];
+        ptIds->SetId(count, corner);
+        count++;
+      }
+    }
+    return 1;
+  }
+#endif
+
+  // Get the point coordinates (and optionally scalars) for each of the 6 corners
+  // in the approximating wedge spanning half of (i, i+1) x (j, j+1) x (k, k+1):
+  // vtkIdType aconn[8]; // = {0, 1, 2, 3, 4, 5, 6, 7};
+  // std::cout << "Wedgeproximate " << subId << "\n";
+  bool orientation;
+  constexpr int deltas[2][3][2] = {
+    { { 0, 0 }, { 1, 0 }, { 0, 1 } }, // positive orientation: r, s axes increase as i, j increase
+    { { 1, 1 }, { 0, 1 }, { 1, 0 } }  // negative orientation: r, s axes decrease as i, j increase
+  };
+  for (int subId = 0; subId < nwedge; ++subId)
+  {
+    if (!linearWedgeLocationFromSubId(subId, order[0], order[2], i, j, k, orientation))
+    {
+      vtkWarningMacro(
+        "Bad subId " << subId << " for order " << order[0] << " " << order[1] << " " << order[2]);
+      return 0;
+    }
+    for (vtkIdType ic : linearWedgeLocalPtIds)
+    {
+      corner = this->PointIndexFromIJK(i + deltas[orientation ? 0 : 1][ic % 3][0],
+        j + deltas[orientation ? 0 : 1][ic % 3][1], k + ((ic / 3) ? 1 : 0));
+      ptIds->SetId(count, corner);
+      count++;
     }
   }
   return 1;

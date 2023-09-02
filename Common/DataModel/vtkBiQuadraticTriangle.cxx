@@ -10,6 +10,8 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkTriangle.h"
 
+#include <algorithm> //std::copy
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBiQuadraticTriangle);
 
@@ -60,7 +62,7 @@ vtkCell* vtkBiQuadraticTriangle::GetEdge(int edgeId)
 
 //------------------------------------------------------------------------------
 // order picked carefully for parametric coordinate conversion
-static int LinearTris[6][3] = {
+static vtkIdType LinearTris[6][3] = {
   { 0, 3, 6 },
   { 6, 3, 4 },
   { 6, 4, 5 },
@@ -244,22 +246,10 @@ int vtkBiQuadraticTriangle::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkBiQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkBiQuadraticTriangle::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
-  // Create six linear triangles
-  for (int i = 0; i < 6; i++)
-  {
-    ptIds->InsertId(3 * i, this->PointIds->GetId(LinearTris[i][0]));
-    pts->InsertPoint(3 * i, this->Points->GetPoint(LinearTris[i][0]));
-    ptIds->InsertId(3 * i + 1, this->PointIds->GetId(LinearTris[i][1]));
-    pts->InsertPoint(3 * i + 1, this->Points->GetPoint(LinearTris[i][1]));
-    ptIds->InsertId(3 * i + 2, this->PointIds->GetId(LinearTris[i][2]));
-    pts->InsertPoint(3 * i + 2, this->Points->GetPoint(LinearTris[i][2]));
-  }
-
+  ptIds->SetNumberOfIds(18);
+  std::copy(&LinearTris[0][0], &LinearTris[0][0] + 18, ptIds->begin());
   return 1;
 }
 

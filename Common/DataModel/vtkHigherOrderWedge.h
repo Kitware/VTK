@@ -75,7 +75,7 @@ public:
     vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId) override;
-  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   void SetParametricCoords();
@@ -137,8 +137,6 @@ protected:
   vtkSmartPointer<vtkCellData> ApproxCD;
   vtkNew<vtkDoubleArray> CellScalars;
   vtkNew<vtkDoubleArray> Scalars;
-  vtkNew<vtkPoints> TmpPts;
-  vtkNew<vtkIdList> TmpIds;
 
 private:
   vtkHigherOrderWedge(const vtkHigherOrderWedge&) = delete;

@@ -15,6 +15,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm> //std::copy
 #include <cassert>
 #include <vector>
 
@@ -820,49 +821,13 @@ int vtkWedge::IntersectWithLine(const double p1[3], const double p2[3], double t
 }
 
 //------------------------------------------------------------------------------
-int vtkWedge::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  ptIds->Reset();
-  pts->Reset();
-
   // one wedge (or prism) is decomposed into 3 tetrahedrons and four
   // pairs of (pointId, pointCoordinates) are provided for each tetrahedron
-
-  int i, p[4];
-
-  // Tetra #0 info (original point Ids): { 0, 2, 1, 3 }
-  p[0] = 0;
-  p[1] = 2;
-  p[2] = 1;
-  p[3] = 3;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
-  // Tetra #1 info (original point Ids): { 1, 3, 5, 4 }
-  p[0] = 1;
-  p[1] = 3;
-  p[2] = 5;
-  p[3] = 4;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
-  // Tetra #2 info (original point Ids): { 1, 2, 5, 3 }
-  p[0] = 1;
-  p[1] = 2;
-  p[2] = 5;
-  p[3] = 3;
-  for (i = 0; i < 4; i++)
-  {
-    ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-    pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-  }
-
+  ptIds->SetNumberOfIds(12);
+  constexpr vtkIdType ids[3][4] = { { 0, 2, 1, 3 }, { 1, 3, 5, 4 }, { 1, 2, 5, 3 } };
+  std::copy(&ids[0][0], &ids[0][0] + 12, ptIds->begin());
   return 1;
 }
 

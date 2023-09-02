@@ -215,7 +215,6 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
 
   // These are for the default case/
   vtkIdList* pts;
-  vtkPoints* coords;
   vtkCell* face;
   int flag2D = 0;
 
@@ -226,14 +225,10 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
   vtkIdList* outPts2;
 
   pts = vtkIdList::New();
-  coords = vtkPoints::New();
   parametricCoords = vtkDoubleArray::New();
   parametricCoords2 = vtkDoubleArray::New();
   outPts = vtkIdList::New();
   outPts2 = vtkIdList::New();
-  // might not be necessary to set the data type for coords
-  // but certainly safer to do so
-  coords->SetDataType(input->GetPoints()->GetData()->GetDataType());
   cell = vtkGenericCell::New();
 
   this->NumberOfNewCells = 0;
@@ -440,7 +435,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
       {
         if (cell->GetCellDimension() == 1)
         {
-          cell->Triangulate(0, pts, coords);
+          cell->TriangulateIds(0, pts);
           for (i = 0; i < pts->GetNumberOfIds(); i += 2)
           {
             newLines->InsertNextCell(2);
@@ -472,7 +467,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
               if (this->NonlinearSubdivisionLevel >= 1)
               {
                 // TODO: Handle NonlinearSubdivisionLevel > 1 correctly.
-                face->Triangulate(0, pts, coords);
+                face->TriangulateIds(0, pts);
                 for (i = 0; i < pts->GetNumberOfIds(); i += 3)
                 {
                   this->InsertTriInHash(
@@ -594,7 +589,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
       // Note: we should not be here if this->NonlinearSubdivisionLevel is less
       // than 1.  See the check above.
       input->GetCell(cellId, cell);
-      cell->Triangulate(0, pts, coords);
+      cell->TriangulateIds(0, pts);
       // Copy the level 1 subdivision points (which also exist in the input and
       // can therefore just be copied over.  Note that the output of Triangulate
       // records triangles in pts where each 3 points defines a triangle.  We
@@ -834,7 +829,6 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
 
   // Update ourselves and release memory
   cell->Delete();
-  coords->Delete();
   pts->Delete();
   parametricCoords->Delete();
   parametricCoords2->Delete();

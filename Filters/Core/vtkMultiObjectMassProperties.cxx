@@ -152,7 +152,7 @@ public:
 
       // The volume computation implemented using signed tetrahedra from
       // generating triangles. Thus, polygons may need to be triangulated.
-      poly->Triangulate(tris);
+      poly->TriangulateLocalIds(0, tris);
       numTris = tris->GetNumberOfIds() / 3;
 
       // Loop over each triangle from the tessellation

@@ -11,6 +11,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkVertex.h"
+#include <numeric> //std::iota
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyVertex);
@@ -161,17 +162,10 @@ int vtkPolyVertex::IntersectWithLine(const double p1[3], const double p2[3], dou
 }
 
 //------------------------------------------------------------------------------
-int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkPolyVertex::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  int subId;
-
-  pts->Reset();
-  ptIds->Reset();
-  for (subId = 0; subId < this->Points->GetNumberOfPoints(); subId++)
-  {
-    pts->InsertPoint(subId, this->Points->GetPoint(subId));
-    ptIds->InsertId(subId, this->PointIds->GetId(subId));
-  }
+  ptIds->SetNumberOfIds(this->Points->GetNumberOfPoints());
+  std::iota(ptIds->begin(), ptIds->end(), 0);
   return 1;
 }
 

@@ -59,7 +59,6 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
 {
   vtkSmartPointer<vtkIdList> cellPtIds = vtkSmartPointer<vtkIdList>::New();
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkSmartPointer<vtkPoints> cellPoints = vtkSmartPointer<vtkPoints>::New();
   int cellType;
   vtkDoubleArray* arrays[4] = { nullptr, nullptr, nullptr, nullptr };
   if (this->ComputeVertexCount)
@@ -284,7 +283,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
           case 1:
             if (this->ComputeLength)
             {
-              cell->Triangulate(1, cellPtIds, cellPoints);
+              cell->TriangulateIds(1, cellPtIds);
               value = this->IntegrateGeneral1DCell(input, cellPtIds);
             }
             else
@@ -296,7 +295,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
           case 2:
             if (this->ComputeArea)
             {
-              cell->Triangulate(1, cellPtIds, cellPoints);
+              cell->TriangulateIds(1, cellPtIds);
               value = this->IntegrateGeneral2DCell(inputPS, cellPtIds);
             }
             else
@@ -308,7 +307,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
           case 3:
             if (this->ComputeVolume)
             {
-              cell->Triangulate(1, cellPtIds, cellPoints);
+              cell->TriangulateIds(1, cellPtIds);
               value = this->IntegrateGeneral3DCell(inputPS, cellPtIds);
             }
             else

@@ -419,21 +419,15 @@ int vtkPolyLine::IntersectWithLine(const double p1[3], const double p2[3], doubl
 }
 
 //------------------------------------------------------------------------------
-int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkPolyLine::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   int numLines = this->Points->GetNumberOfPoints() - 1;
-  pts->Reset();
-  ptIds->Reset();
-
+  ptIds->SetNumberOfIds(2 * numLines);
   for (int subId = 0; subId < numLines; subId++)
   {
-    pts->InsertNextPoint(this->Points->GetPoint(subId));
-    ptIds->InsertNextId(this->PointIds->GetId(subId));
-
-    pts->InsertNextPoint(this->Points->GetPoint(subId + 1));
-    ptIds->InsertNextId(this->PointIds->GetId(subId + 1));
+    ptIds->SetId(subId * 2, subId);
+    ptIds->SetId(subId * 2 + 1, subId + 1);
   }
-
   return 1;
 }
 

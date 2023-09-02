@@ -17,6 +17,7 @@
 
 #include <cassert>
 #include <limits>
+#include <numeric> //std::iota
 #include <utility>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -692,17 +693,10 @@ int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], doubl
 }
 
 //------------------------------------------------------------------------------
-int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkTriangle::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
-  for (int i = 0; i < 3; i++)
-  {
-    ptIds->InsertId(i, this->PointIds->GetId(i));
-    pts->InsertPoint(i, this->Points->GetPoint(i));
-  }
-
+  ptIds->SetNumberOfIds(3);
+  std::iota(ptIds->begin(), ptIds->end(), 0);
   return 1;
 }
 

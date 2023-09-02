@@ -15,6 +15,8 @@
 #include "vtkPolygon.h"
 #include "vtkQuad.h"
 
+#include <algorithm> //std::copy
+#include <array>
 #include <cassert>
 #include <vector>
 
@@ -765,120 +767,23 @@ int vtkHexahedron::IntersectWithLine(const double p1[3], const double p2[3], dou
 }
 
 //------------------------------------------------------------------------------
-int vtkHexahedron::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
+int vtkHexahedron::TriangulateLocalIds(int index, vtkIdList* ptIds)
 {
-  int p[4], i;
-
-  ptIds->Reset();
-  pts->Reset();
-
   // Create five tetrahedron. Triangulation varies depending upon index. This
   // is necessary to ensure compatible voxel triangulations.
-  if ((index % 2))
+  ptIds->SetNumberOfIds(20);
+  if (index % 2)
   {
-    p[0] = 0;
-    p[1] = 1;
-    p[2] = 3;
-    p[3] = 4;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-
-    p[0] = 1;
-    p[1] = 4;
-    p[2] = 5;
-    p[3] = 6;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-
-    p[0] = 1;
-    p[1] = 4;
-    p[2] = 6;
-    p[3] = 3;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-
-    p[0] = 1;
-    p[1] = 3;
-    p[2] = 6;
-    p[3] = 2;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-
-    p[0] = 3;
-    p[1] = 6;
-    p[2] = 7;
-    p[3] = 4;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
+    constexpr std::array<vtkIdType, 20> localPtIds{ 0, 1, 3, 4, 1, 4, 5, 6, 1, 4, 6, 3, 1, 3, 6, 2,
+      3, 6, 7, 4 };
+    std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   }
   else
   {
-    p[0] = 2;
-    p[1] = 1;
-    p[2] = 5;
-    p[3] = 0;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-
-    p[0] = 0;
-    p[1] = 2;
-    p[2] = 3;
-    p[3] = 7;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-
-    p[0] = 2;
-    p[1] = 5;
-    p[2] = 6;
-    p[3] = 7;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-
-    p[0] = 0;
-    p[1] = 7;
-    p[2] = 4;
-    p[3] = 5;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
-
-    p[0] = 0;
-    p[1] = 2;
-    p[2] = 7;
-    p[3] = 5;
-    for (i = 0; i < 4; i++)
-    {
-      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
-      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
-    }
+    constexpr std::array<vtkIdType, 20> localPtIds{ 2, 1, 5, 0, 0, 2, 3, 7, 2, 5, 6, 7, 0, 7, 4, 5,
+      0, 2, 7, 5 };
+    std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   }
-
   return 1;
 }
 

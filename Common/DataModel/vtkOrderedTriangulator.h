@@ -290,6 +290,13 @@ public:
   vtkIdType AddTetras(int classification, vtkIdList* ptIds, vtkPoints* pts);
 
   /**
+   * Add the tetrahedra classified (0=inside,1=outside) to the list
+   * of ids. These assume that the first four points
+   * form a tetrahedron, the next four the next, and so on.
+   */
+  vtkIdType AddTetras(int classification, vtkIdList* ptIds);
+
+  /**
    * Add the triangle faces classified (2=boundary) to the connectivity
    * list provided. The method returns the number of triangles.
    */

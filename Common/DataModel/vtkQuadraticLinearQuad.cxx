@@ -13,6 +13,8 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
+#include <algorithm> //std::copy
+#include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticLinearQuad);
@@ -259,88 +261,38 @@ int vtkQuadraticLinearQuad::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticLinearQuad::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkQuadraticLinearQuad::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  pts->Reset();
-  ptIds->Reset();
-
   // Create four linear triangles:
   // Choose the triangulation that minimizes the edge length
   // across the cell.
-  double x0[3], x1[3], x2[3], x3[3], x4[3], x5[3];
-  this->Points->GetPoint(0, x0);
-  this->Points->GetPoint(1, x1);
-  this->Points->GetPoint(2, x2);
-  this->Points->GetPoint(3, x3);
-  this->Points->GetPoint(4, x4);
-  this->Points->GetPoint(5, x5);
+  ptIds->SetNumberOfIds(12);
+  double d1 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(0), this->Points->GetPoint(5));
+  double d2 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(3), this->Points->GetPoint(4));
+  double d3 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(4), this->Points->GetPoint(2));
+  double d4 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(5), this->Points->GetPoint(1));
 
-  if (vtkMath::Distance2BetweenPoints(x0, x5) <= vtkMath::Distance2BetweenPoints(x3, x4))
+  if (d1 <= d2)
   {
-    ptIds->InsertId(0, this->PointIds->GetId(0));
-    ptIds->InsertId(1, this->PointIds->GetId(4));
-    ptIds->InsertId(2, this->PointIds->GetId(5));
-    pts->InsertPoint(0, this->Points->GetPoint(0));
-    pts->InsertPoint(1, this->Points->GetPoint(4));
-    pts->InsertPoint(2, this->Points->GetPoint(5));
-
-    ptIds->InsertId(3, this->PointIds->GetId(0));
-    ptIds->InsertId(4, this->PointIds->GetId(5));
-    ptIds->InsertId(5, this->PointIds->GetId(3));
-    pts->InsertPoint(3, this->Points->GetPoint(0));
-    pts->InsertPoint(4, this->Points->GetPoint(5));
-    pts->InsertPoint(5, this->Points->GetPoint(3));
+    constexpr std::array<vtkIdType, 6> localPtIds1{ 0, 4, 5, 0, 5, 3 };
+    std::copy(localPtIds1.begin(), localPtIds1.end(), ptIds->begin());
   }
   else
   {
-    ptIds->InsertId(0, this->PointIds->GetId(0));
-    ptIds->InsertId(1, this->PointIds->GetId(4));
-    ptIds->InsertId(2, this->PointIds->GetId(3));
-    pts->InsertPoint(0, this->Points->GetPoint(0));
-    pts->InsertPoint(1, this->Points->GetPoint(4));
-    pts->InsertPoint(2, this->Points->GetPoint(3));
-
-    ptIds->InsertId(3, this->PointIds->GetId(4));
-    ptIds->InsertId(4, this->PointIds->GetId(5));
-    ptIds->InsertId(5, this->PointIds->GetId(3));
-    pts->InsertPoint(3, this->Points->GetPoint(4));
-    pts->InsertPoint(4, this->Points->GetPoint(5));
-    pts->InsertPoint(5, this->Points->GetPoint(3));
+    constexpr std::array<vtkIdType, 6> localPtIds2{ 0, 4, 3, 4, 5, 3 };
+    std::copy(localPtIds2.begin(), localPtIds2.end(), ptIds->begin());
   }
 
-  if (vtkMath::Distance2BetweenPoints(x4, x2) <= vtkMath::Distance2BetweenPoints(x5, x1))
+  if (d3 <= d4)
   {
-    ptIds->InsertId(6, this->PointIds->GetId(4));
-    ptIds->InsertId(7, this->PointIds->GetId(1));
-    ptIds->InsertId(8, this->PointIds->GetId(2));
-    pts->InsertPoint(6, this->Points->GetPoint(4));
-    pts->InsertPoint(7, this->Points->GetPoint(1));
-    pts->InsertPoint(8, this->Points->GetPoint(2));
-
-    ptIds->InsertId(9, this->PointIds->GetId(4));
-    ptIds->InsertId(10, this->PointIds->GetId(2));
-    ptIds->InsertId(11, this->PointIds->GetId(5));
-    pts->InsertPoint(9, this->Points->GetPoint(4));
-    pts->InsertPoint(10, this->Points->GetPoint(2));
-    pts->InsertPoint(11, this->Points->GetPoint(5));
+    constexpr std::array<vtkIdType, 6> localPtIds3{ 4, 1, 2, 4, 2, 5 };
+    std::copy(localPtIds3.begin(), localPtIds3.end(), ptIds->begin() + 6);
   }
   else
   {
-    ptIds->InsertId(6, this->PointIds->GetId(4));
-    ptIds->InsertId(7, this->PointIds->GetId(1));
-    ptIds->InsertId(8, this->PointIds->GetId(5));
-    pts->InsertPoint(6, this->Points->GetPoint(4));
-    pts->InsertPoint(7, this->Points->GetPoint(1));
-    pts->InsertPoint(8, this->Points->GetPoint(5));
-
-    ptIds->InsertId(9, this->PointIds->GetId(1));
-    ptIds->InsertId(10, this->PointIds->GetId(2));
-    ptIds->InsertId(11, this->PointIds->GetId(5));
-    pts->InsertPoint(9, this->Points->GetPoint(1));
-    pts->InsertPoint(10, this->Points->GetPoint(2));
-    pts->InsertPoint(11, this->Points->GetPoint(5));
+    constexpr std::array<vtkIdType, 6> localPtIds4{ 4, 1, 5, 1, 2, 5 };
+    std::copy(localPtIds4.begin(), localPtIds4.end(), ptIds->begin() + 6);
   }
-
   return 1;
 }
 

@@ -24,6 +24,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
 
+#include <limits> // For DBL_MAX
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -815,15 +816,7 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
 int vtkPolygon::Triangulate(vtkIdList* outTris)
 {
   this->SuccessfulTriangulation = 1;
-  int success = this->EarCutTriangulation();
-
-  if (!success) // degenerate triangle encountered
-  {
-    vtkDebugMacro(<< "Degenerate polygon encountered during triangulation");
-  }
-
-  outTris->DeepCopy(this->Tris);
-  return success;
+  return this->EarCutTriangulation(outTris);
 }
 
 //------------------------------------------------------------------------------
@@ -972,7 +965,7 @@ int vtkPolygon::NonDegenerateTriangulate(vtkIdList* outTris)
     vtkIdList* outTriangles = vtkIdList::New();
     outTriangles->Allocate(3 * (2 * polygon->GetNumberOfPoints() - 4));
 
-    polygon->Triangulate(outTriangles);
+    polygon->TriangulateLocalIds(0, outTriangles);
 
     int outNumTris = outTriangles->GetNumberOfIds();
 
@@ -1005,60 +998,39 @@ int vtkPolygon::NonDegenerateTriangulate(vtkIdList* outTris)
 int vtkPolygon::BoundedTriangulate(vtkIdList* outTris, double tolerance)
 {
   int i, j, k, success = 0, numPts = this->PointIds->GetNumberOfIds();
-  double totalArea, area_static[VTK_CELL_SIZE], *area;
+  double totalArea, area, areaMin;
   double p[3][3];
-
-  // For most polygons, there should be fewer than VTK_CELL_SIZE points. In
-  // the event that we have a huge polygon, dynamically allocate an
-  // appropriately sized array.
-  std::vector<double> area_dynamic;
-  if (numPts - 2 <= VTK_CELL_SIZE)
-  {
-    area = &area_static[0];
-  }
-  else
-  {
-    area_dynamic.resize(numPts - 2);
-    area = area_dynamic.data();
-  }
 
   for (i = 0; i < numPts; i++)
   {
-    success = this->UnbiasedEarCutTriangulation(i);
+    success = this->UnbiasedEarCutTriangulation(i, outTris);
 
     if (!success)
     {
       continue;
     }
-
+    areaMin = DBL_MAX;
     totalArea = 0.;
     for (j = 0; j < numPts - 2; j++)
     {
       for (k = 0; k < 3; k++)
       {
-        this->Points->GetPoint(this->Tris->GetId(3 * j + k), p[k]);
+        this->Points->GetPoint(outTris->GetId(3 * j + k), p[k]);
       }
-      area[j] = vtkTriangle::TriangleArea(p[0], p[1], p[2]);
-      totalArea += area[j];
+      area = vtkTriangle::TriangleArea(p[0], p[1], p[2]);
+      totalArea += area;
+      areaMin = std::min(area, areaMin);
     }
 
-    for (j = 0; j < numPts - 2; j++)
+    if ((totalArea != 0.) && areaMin / totalArea < tolerance)
     {
-      if (area[j] / totalArea < tolerance)
-      {
-        success = 0;
-        break;
-      }
+      success = 0;
     }
-
-    if (success == 1)
+    else
     {
       break;
     }
   }
-
-  outTris->DeepCopy(this->Tris);
-
   return success;
 }
 
@@ -1439,10 +1411,10 @@ int vtkPolyVertexList::SimpleTriangulation(vtkIdList* tris)
 // different triangulations. While the algorithm works in 3D (the points
 // don't have to be projected into 2D), it is assumed the polygon is planar -
 // if not, poor results may occur.
-int vtkPolygon::EarCutTriangulation(int measure)
+int vtkPolygon::EarCutTriangulation(vtkIdList* outTris, int measure)
 {
   // Initialize the list of output triangles
-  this->Tris->Reset();
+  outTris->Reset();
 
   // Make sure there are at least 3 vertices
   if (this->PointIds->GetNumberOfIds() < 3)
@@ -1459,7 +1431,7 @@ int vtkPolygon::EarCutTriangulation(int measure)
   int i, id;
 
   // Check for trivial triangulation cases
-  if (poly.SimpleTriangulation(this->Tris))
+  if (poly.SimpleTriangulation(outTris))
   {
     return (this->SuccessfulTriangulation = 1);
   }
@@ -1500,7 +1472,7 @@ int vtkPolygon::EarCutTriangulation(int measure)
     id = VertexQueue->Pop(); // removes it, even if can't be split
     if (poly.CanRemoveVertex(id))
     {
-      poly.RemoveVertex(id, this->Tris, VertexQueue);
+      poly.RemoveVertex(id, outTris, VertexQueue);
     }
   } // while
 
@@ -1516,11 +1488,9 @@ int vtkPolygon::EarCutTriangulation(int measure)
 
 //------------------------------------------------------------------------------
 // Copies the results of triangulation into provided id list
-int vtkPolygon::EarCutTriangulation(vtkIdList* outTris, int measure)
+int vtkPolygon::EarCutTriangulation(int measure)
 {
-  int success = this->EarCutTriangulation(measure);
-  outTris->DeepCopy(this->Tris);
-  return success;
+  return this->EarCutTriangulation(this->Tris, measure);
 }
 
 //------------------------------------------------------------------------------
@@ -1528,7 +1498,7 @@ int vtkPolygon::EarCutTriangulation(vtkIdList* outTris, int measure)
 // from the polygon. This implementation does not bias the selection of ears;
 // it sequentially progresses through each vertex starting at a user-defined
 // seed value.
-int vtkPolygon::UnbiasedEarCutTriangulation(int seed, int measure)
+int vtkPolygon::UnbiasedEarCutTriangulation(int seed, vtkIdList* outTris, int measure)
 {
   // Compute the tolerance local to this polygon
   this->ComputeTolerance();
@@ -1538,7 +1508,7 @@ int vtkPolygon::UnbiasedEarCutTriangulation(int seed, int measure)
 
   // First compute the polygon normal the correct way
   //
-  this->Tris->Reset();
+  outTris->Reset();
   if (!poly.ComputeNormal())
   {
     return (this->SuccessfulTriangulation = 0);
@@ -1553,7 +1523,7 @@ int vtkPolygon::UnbiasedEarCutTriangulation(int seed, int measure)
   {
     if (poly.CanRemoveVertex(vtx))
     {
-      poly.RemoveVertex(vtx, this->Tris);
+      poly.RemoveVertex(vtx, outTris);
     }
     vtx = vtx->next;
 
@@ -1576,11 +1546,9 @@ int vtkPolygon::UnbiasedEarCutTriangulation(int seed, int measure)
 
 //------------------------------------------------------------------------------
 // Copies the results of triangulation into provided id list
-int vtkPolygon::UnbiasedEarCutTriangulation(int seed, vtkIdList* outTris, int measure)
+int vtkPolygon::UnbiasedEarCutTriangulation(int seed, int measure)
 {
-  int success = this->UnbiasedEarCutTriangulation(seed, measure);
-  outTris->DeepCopy(this->Tris);
-  return success;
+  return this->UnbiasedEarCutTriangulation(seed, this->Tris, measure);
 }
 
 //------------------------------------------------------------------------------
@@ -1662,7 +1630,7 @@ void vtkPolygon::Contour(double value, vtkDataArray* cellScalars,
   this->TriScalars->SetNumberOfTuples(3);
 
   this->SuccessfulTriangulation = 1;
-  success = this->EarCutTriangulation();
+  success = this->EarCutTriangulation(this->Tris);
 
   if (!success) // Just skip for now.
   {
@@ -1754,26 +1722,14 @@ int vtkPolygon::IntersectWithLine(const double p1[3], const double p2[3], double
 }
 
 //------------------------------------------------------------------------------
-int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkPolygon::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  int i, success;
-
-  pts->Reset();
-  ptIds->Reset();
-
   this->SuccessfulTriangulation = 1;
-  success = this->EarCutTriangulation();
-
+  int success = this->EarCutTriangulation(ptIds);
   if (!success) // Indicate possible failure
   {
     vtkDebugMacro(<< "Possible triangulation failure");
   }
-  for (i = 0; i < this->Tris->GetNumberOfIds(); i++)
-  {
-    ptIds->InsertId(i, this->PointIds->GetId(this->Tris->GetId(i)));
-    pts->InsertPoint(i, this->Points->GetPoint(this->Tris->GetId(i)));
-  }
-
   return this->SuccessfulTriangulation;
 }
 
@@ -1884,7 +1840,7 @@ void vtkPolygon::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPoi
   this->TriScalars->SetNumberOfTuples(3);
 
   this->SuccessfulTriangulation = 1;
-  success = this->EarCutTriangulation();
+  success = this->EarCutTriangulation(this->Tris);
 
   if (success) // clip triangles
   {

@@ -17,6 +17,8 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+#include <array>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkHigherOrderQuadrilateral::vtkHigherOrderQuadrilateral()
 {
@@ -272,30 +274,32 @@ int vtkHigherOrderQuadrilateral::IntersectWithLine(
   return intersection ? 1 : 0;
 }
 
-int vtkHigherOrderQuadrilateral::Triangulate(
-  int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkHigherOrderQuadrilateral::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  ptIds->Reset();
-  pts->Reset();
+  // The base of the pyramid must be split into two triangles.  There are two
+  // ways to do this (across either diagonal).  Pick the shorter diagonal.
+  double d1 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(0), this->Points->GetPoint(2));
+  double d2 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(1), this->Points->GetPoint(3));
+  constexpr std::array<vtkIdType, 6> localPtIds1{ 0, 1, 2, 0, 2, 3 };
+  constexpr std::array<vtkIdType, 6> localPtIds2{ 0, 1, 3, 1, 2, 3 };
 
   vtkIdType nquad = vtkHigherOrderInterpolation::NumberOfIntervals<2>(this->GetOrder());
-  for (int i = 0; i < nquad; ++i)
+  ptIds->SetNumberOfIds(nquad * 6);
+  int i, j, k, corner;
+  int count = 0;
+  for (int subId = 0; subId < nquad; ++subId)
   {
-    vtkQuad* approx = this->GetApproximateQuad(i);
-    if (approx->Triangulate(1, this->TmpIds.GetPointer(), this->TmpPts.GetPointer()))
+    if (!this->SubCellCoordinatesFromId(i, j, k, subId))
     {
-      // Sigh. Triangulate methods all reset their points/ids
-      // so we must copy them to our output.
-      vtkIdType np = this->TmpPts->GetNumberOfPoints();
-      vtkIdType ni = this->TmpIds->GetNumberOfIds();
-      for (vtkIdType ii = 0; ii < np; ++ii)
-      {
-        pts->InsertNextPoint(this->TmpPts->GetPoint(ii));
-      }
-      for (vtkIdType ii = 0; ii < ni; ++ii)
-      {
-        ptIds->InsertNextId(this->TmpIds->GetId(ii));
-      }
+      vtkErrorMacro("Invalid subId " << subId);
+      return 0;
+    }
+    for (vtkIdType ic : ((d1 <= d2) ? localPtIds1 : localPtIds2))
+    {
+      corner = this->PointIndexFromIJK(
+        i + ((((ic + 1) / 2) % 2) ? 1 : 0), j + (((ic / 2) % 2) ? 1 : 0), 0);
+      ptIds->SetId(count, corner);
+      count++;
     }
   }
   return 1;

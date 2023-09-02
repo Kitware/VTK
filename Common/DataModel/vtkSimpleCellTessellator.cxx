@@ -2264,7 +2264,7 @@ void vtkSimpleCellTessellator::TessellateFace(vtkGenericAdaptorCell* cell,
       ++i;
     }
 
-    this->Polygon->Triangulate(this->TriangleIds);
+    this->Polygon->TriangulateLocalIds(0, this->TriangleIds);
 
     // now iterate over any sub-triangle and call triangulateface on it
     vtkIdType pts[3];
@@ -2405,7 +2405,7 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell* cell,
       ++i;
     }
 
-    this->Polygon->Triangulate(this->TriangleIds);
+    this->Polygon->TriangulateLocalIds(0, this->TriangleIds);
 
     // now iterate over any sub-triangle and call triangulateface on it
     vtkIdType pts[3];

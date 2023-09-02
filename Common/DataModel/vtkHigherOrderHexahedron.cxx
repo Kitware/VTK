@@ -19,6 +19,8 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+#include <array>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkHigherOrderHexahedron::vtkHigherOrderHexahedron()
 {
@@ -434,29 +436,27 @@ int vtkHigherOrderHexahedron::IntersectWithLine(
   return intersection ? 1 : 0;
 }
 
-int vtkHigherOrderHexahedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
+int vtkHigherOrderHexahedron::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  ptIds->Reset();
-  pts->Reset();
-
+  constexpr std::array<vtkIdType, 20> linearHexLocalPtIds{ 0, 1, 3, 4, 1, 4, 5, 6, 1, 4, 6, 3, 1, 3,
+    6, 2, 3, 6, 7, 4 };
   vtkIdType nhex = vtkHigherOrderInterpolation::NumberOfIntervals<3>(this->GetOrder());
-  for (int i = 0; i < nhex; ++i)
+  ptIds->SetNumberOfIds(nhex * 20);
+  int i, j, k, corner;
+  int count = 0;
+  for (int subId = 0; subId < nhex; ++subId)
   {
-    vtkHexahedron* approx = this->GetApproximateHex(i);
-    if (approx->Triangulate(1, this->TmpIds.GetPointer(), this->TmpPts.GetPointer()))
+    if (!this->SubCellCoordinatesFromId(i, j, k, subId))
     {
-      // Sigh. Triangulate methods all reset their points/ids
-      // so we must copy them to our output.
-      vtkIdType np = this->TmpPts->GetNumberOfPoints();
-      vtkIdType ni = this->TmpIds->GetNumberOfIds();
-      for (vtkIdType ii = 0; ii < np; ++ii)
-      {
-        pts->InsertNextPoint(this->TmpPts->GetPoint(ii));
-      }
-      for (vtkIdType ii = 0; ii < ni; ++ii)
-      {
-        ptIds->InsertNextId(this->TmpIds->GetId(ii));
-      }
+      vtkErrorMacro("Invalid subId " << subId);
+      return 0;
+    }
+    for (vtkIdType ic : linearHexLocalPtIds)
+    {
+      corner = this->PointIndexFromIJK(
+        i + ((((ic + 1) / 2) % 2) ? 1 : 0), j + (((ic / 2) % 2) ? 1 : 0), k + ((ic / 4) ? 1 : 0));
+      ptIds->SetId(count, corner);
+      count++;
     }
   }
   return 1;
