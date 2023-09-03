@@ -15,8 +15,7 @@ set(classes
   vtkWebGPUPolyDataMapper
   vtkWebGPUProperty
   vtkWebGPURenderer
-  vtkWebGPURenderPass
-)
+  vtkWebGPURenderPass)
 
 set(private_classes
   vtkWebGPUInternalsBindGroup
@@ -26,8 +25,7 @@ set(private_classes
   vtkWebGPUInternalsRenderPassCreateInfo
   vtkWebGPUInternalsRenderPassDescriptor
   vtkWebGPUInternalsRenderPipelineDescriptor
-  vtkWebGPUInternalsShaderModule
-)
+  vtkWebGPUInternalsShaderModule)
 
 # setup factory overrides
 # NI - Not Implemented
@@ -60,8 +58,7 @@ set(webgpu_overrides
 unset(wgsl_shader_sources)
 unset(wgsl_shader_headers)
 set(shader_files
-  wgsl/PolyData.wgsl
-)
+  wgsl/PolyData.wgsl)
 foreach(file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${file}"
@@ -207,19 +204,16 @@ vtk_module_add_module(VTK::RenderingWebGPU
   PRIVATE_CLASSES ${private_classes}
   SOURCES ${vtk_object_factory_source} ${sources} ${wgsl_shader_sources}
   HEADERS ${headers}
-  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${wgsl_shader_headers}
-)
+  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${wgsl_shader_headers})
 
 vtk_module_definitions(VTK::RenderingWebGPU
   PUBLIC
-    VTK_ENABLE_WEBGPU
-)
+    VTK_ENABLE_WEBGPU)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_compile_features(VTK::RenderingWebGPU
     PRIVATE
-      cxx_std_14
-  )
+      cxx_std_14)
   vtk_module_include(VTK::RenderingWebGPU
     PUBLIC
       "${EMSCRIPTEN_ROOT_PATH}/cache/sysroot/include/webgpu")
@@ -251,26 +245,22 @@ else()
     )
     vtk_module_link(VTK::RenderingWebGPU PRIVATE "-framework Metal")
     vtk_module_sources(VTK::RenderingWebGPU PRIVATE
-      "utils_metal.mm"
-    )
+      "utils_metal.mm")
   endif()
   vtk_module_find_package(PRIVATE_IF_SHARED
     PACKAGE SDL2)
   vtk_module_find_package(PACKAGE Dawn)
   vtk_module_compile_features(VTK::RenderingWebGPU
     PUBLIC
-      cxx_std_14
-  )
+      cxx_std_14)
   # Must include these source files here.
   vtk_module_sources(VTK::RenderingWebGPU PRIVATE
     "${DAWN_GEN_SRC_DIR}/dawn/webgpu_cpp.cpp"
-    "${DAWN_GEN_SRC_DIR}/dawn/dawn_proc.c"
-  )
+    "${DAWN_GEN_SRC_DIR}/dawn/dawn_proc.c")
   vtk_module_link(VTK::RenderingWebGPU
     PRIVATE
       SDL2::SDL2
-      ${DAWN_LIBRARIES}
-  )
+      ${DAWN_LIBRARIES})
   vtk_module_include(VTK::RenderingWebGPU
     PUBLIC
       ${DAWN_INCLUDE_DIRS})
