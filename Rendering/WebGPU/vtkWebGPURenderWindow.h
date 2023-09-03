@@ -17,13 +17,35 @@ public:
   vtkTypeMacro(vtkWebGPURenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // for high power preference, we shall request discrete GPU instead of integrated GPU or the CPU.
-  void SetPowerPreference(bool high = true)
-  {
-    this->PowerPreference =
-      high ? wgpu::PowerPreference::HighPerformance : wgpu::PowerPreference::LowPower;
-    this->Modified();
-  }
+  ///@{
+  /**
+   * Set preference for a high-performance or low-power device.
+   * The default preference is a high-performance device.
+   * NOTE: Make sure to call this before the first call to Render if you wish to change the
+   * preference. WARNING: Changing the power preference after the render window is initialized has
+   * no effect.
+   */
+  void PreferHighPerformanceAdapter();
+  void PreferLowPowerAdapter();
+  ///@}
+
+  ///@{
+  /**
+   * Set backend type.
+   * The default backend is platform specific.
+   * DirectX 12 on Windows
+   * Vulkan on Linux and Android
+   * Metal on macOS/iOS.
+   * NOTE: Make sure to call this before the first call to Render if you wish to change the backend.
+   * WARNING: Changing the backend after the render window is initialized has no effect.
+   */
+  void SetBackendTypeToD3D11();
+  void SetBackendTypeToD3D12();
+  void SetBackendTypeToMetal();
+  void SetBackendTypeToVulkan();
+  void SetBackendTypeToOpenGL();
+  void SetBackendTypeToOpenGLES();
+  ///@}
 
   /**
    * Concrete render windows must create a platform window and initialize this->WindowId.
@@ -191,7 +213,16 @@ protected:
   void FlushCommandBuffers(vtkTypeUInt32 count, wgpu::CommandBuffer* buffers);
 
   bool WGPUInitialized = false;
+
   wgpu::PowerPreference PowerPreference = wgpu::PowerPreference::HighPerformance;
+#if defined(__APPLE__)
+  wgpu::BackendType RenderingBackendType = wgpu::BackendType::Metal;
+#elif defined(_WIN32)
+  wgpu::BackendType RenderingBackendType = wgpu::BackendType::D3D12;
+#else
+  wgpu::BackendType RenderingBackendType = wgpu::BackendType::Vulkan;
+#endif
+
   wgpu::Adapter Adapter;
   wgpu::Device Device;
   wgpu::Surface Surface;
@@ -247,6 +278,7 @@ protected:
     vtkSmartPointer<vtkTypeUInt8Array> dst;
     wgpu::Buffer src;
     unsigned long size;
+    vtkWebGPURenderWindow* window;
   } BufferMapReadContext;
 
   vtkNew<vtkTypeUInt8Array> CachedPixelBytes;

@@ -120,6 +120,54 @@ vtkWebGPURenderWindow::vtkWebGPURenderWindow() = default;
 vtkWebGPURenderWindow::~vtkWebGPURenderWindow() = default;
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::PreferHighPerformanceAdapter()
+{
+  this->PowerPreference = wgpu::PowerPreference::HighPerformance;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::PreferLowPowerAdapter()
+{
+  this->PowerPreference = wgpu::PowerPreference::LowPower;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToD3D11()
+{
+  this->RenderingBackendType = wgpu::BackendType::D3D11;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToD3D12()
+{
+  this->RenderingBackendType = wgpu::BackendType::D3D12;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToMetal()
+{
+  this->RenderingBackendType = wgpu::BackendType::Metal;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToVulkan()
+{
+  this->RenderingBackendType = wgpu::BackendType::Vulkan;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToOpenGL()
+{
+  this->RenderingBackendType = wgpu::BackendType::OpenGL;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToOpenGLES()
+{
+  this->RenderingBackendType = wgpu::BackendType::OpenGLES;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -133,6 +181,7 @@ bool vtkWebGPURenderWindow::WGPUInit()
   ///@{ TODO: CLEAN UP DEVICE ACQUISITION
   // for emscripten, the glue code is expected to pre-initialize an instance, adapter and a device.
   wgpu::RequestAdapterOptions options;
+  options.backendType = this->RenderingBackendType;
   options.powerPreference = this->PowerPreference;
   this->Adapter = vtkWGPUContext::RequestAdapter(options);
   wgpu::DeviceDescriptor deviceDescriptor = {};
