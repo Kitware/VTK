@@ -1,3 +1,9 @@
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(VTK_USE_DAWN_WEBGPU OFF)
+else ()
+  set(VTK_USE_DAWN_WEBGPU ON)
+endif ()
+
 set(classes
   vtkWebGPUActor
   vtkWebGPUCamera
@@ -178,21 +184,29 @@ vtk_object_factory_configure(
   EXTRA_INCLUDES "<vtkCollection.h>" "<vtkObjectFactoryCollection.h>" "<vtkLogger.h>" "<cstdlib>"
   INITIAL_CODE ${intial_cpp_code})
 
-list (APPEND vtk_wgpu_public_headers
-  vtk_wgpu.h
-)
-list (APPEND vtk_wgpu_public_headers
-  vtkWGPUContext.h
-)
-list (APPEND vtk_wgpu_priv_sources
-  vtkWGPUContext.cxx
-)
+set (headers
+  vtkWGPUContext.h)
+
+set (generated_headers
+  vtk_wgpu.h)
+
+foreach (generated_header IN LISTS generated_headers)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}"
+    @ONLY)
+  list(APPEND headers
+    "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
+endforeach ()
+
+set (sources
+  vtkWGPUContext.cxx)
 
 vtk_module_add_module(VTK::RenderingWebGPU
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes}
-  SOURCES ${vtk_object_factory_source} ${vtk_wgpu_priv_sources} ${wgsl_shader_sources}
-  HEADERS ${vtk_wgpu_public_headers}
+  SOURCES ${vtk_object_factory_source} ${sources} ${wgsl_shader_sources}
+  HEADERS ${headers}
   PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${wgsl_shader_headers}
 )
 
@@ -259,11 +273,5 @@ else()
   )
   vtk_module_include(VTK::RenderingWebGPU
     PUBLIC
-      ${DAWN_INCLUDE_DIRS}
-  )
-  vtk_module_definitions(VTK::RenderingWebGPU
-    PUBLIC
-      "VTK_USE_DAWN_NATIVE"
-  )
-  # TODO: dawn webgpu
+      ${DAWN_INCLUDE_DIRS})
 endif ()
