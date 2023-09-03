@@ -93,56 +93,11 @@ bool vtkSDL2WebGPURenderWindow::Initialize()
   }
   if (this->WGPUInit())
   {
-#ifdef __EMSCRIPTEN__
     // render into canvas elememnt
     wgpu::SurfaceDescriptorFromCanvasHTMLSelector htmlSurfDesc;
     htmlSurfDesc.selector = "#canvas";
     this->Surface = vtkWGPUContext::CreateSurface(htmlSurfDesc);
     return this->Surface.Get() != nullptr;
-#else
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version)
-    if (SDL_GetWindowWMInfo(ToSDLWindow(this->WindowId), &wmInfo))
-    {
-#ifdef VTK_DAWN_ENABLE_BACKEND_D3D12
-      if (wmInfo.subsystem == SDL_SYSWM_WINDOWS)
-      {
-        wgpu::SurfaceDescriptorFromWindowsHWND winSurfDesc;
-        winSurfDesc.hwnd = wmInfo.info.win.window;
-        winSurfDesc.hinstance = wmInfo.info.win.hinstance;
-        this->Surface = vtkWGPUContext::CreateSurface(winSurfDesc);
-        return true;
-      }
-#elif defined(VTK_DAWN_ENABLE_BACKEND_METAL)
-      if (wmInfo.subsystem == SDL_SYSWM_COCOA)
-      {
-        auto cocoaSurfDesc = SetupWindowAndGetSurfaceDescriptorCocoa(wmInfo.info.cocoa.window);
-        this->Surface = vtkWGPUContext::CreateSurface(*cocoaSurfDesc);
-        return true;
-      }
-#elif defined(VTK_DAWN_USE_WAYLAND)
-      if (wmInfo.subsystem == SDL_SYSWM_WAYLAND)
-      {
-        wgpu::SurfaceDescriptorFromWaylandSurface wlSurfDesc;
-        wlSurfDesc.display = wmInfo.info.wl.display;
-        wlSurfDesc.surface = wmInfo.info.wl.surface;
-        this->Surface = vtkWGPUContext::CreateSurface(wlSurfDesc);
-        return true;
-      }
-      else if (wmInfo.subsystem == SDL_SYSWM_X11)
-#elif defined(VTK_DAWN_USE_X11)
-      {
-        wgpu::SurfaceDescriptorFromXlibWindow x11SurfDesc;
-        x11SurfDesc.display = wmInfo.info.x11.display;
-        x11SurfDesc.window = wmInfo.info.x11.window;
-        this->Surface = vtkWGPUContext::CreateSurface(x11SurfDesc);
-        return true;
-      }
-#else
-      return false;
-#endif
-    }
-#endif
   }
 
   return false;

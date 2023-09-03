@@ -12,6 +12,10 @@
 #ifndef vtkSDL2WebGPURenderWindow_h
 #define vtkSDL2WebGPURenderWindow_h
 
+#if !defined(__EMSCRIPTEN__)
+#error "vtkSDL2WebGPURenderWindow cannot be built without emscripten!"
+#endif
+
 #include "vtkWebGPURenderWindow.h"
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
