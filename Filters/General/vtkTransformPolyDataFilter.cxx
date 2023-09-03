@@ -67,7 +67,7 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (!inPts)
   {
-    vtkErrorMacro(<< "No input data");
+    // Input polydata is empty. This is not an error, the output will be just empty, too.
     return 1;
   }
 
