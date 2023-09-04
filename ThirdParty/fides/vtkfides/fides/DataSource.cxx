@@ -270,10 +270,10 @@ struct FidesArrayMemoryRequirements
   adios2::Dims Start;
   /// Number of elements in each dimension - local to the block.
   adios2::Dims Count;
-  /// Does this memory describe ghost zones as well?
+  /// Does this memory describe shared points as well?
   /// This is used to decide whether `SetSelection` of `SetBlockSelection` is called for global
   /// arrays distributed across blocks.
-  bool IncludesGhostZones;
+  bool HasSharedPoints;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const FidesArrayMemoryRequirements& memReqs)
@@ -285,7 +285,7 @@ inline std::ostream& operator<<(std::ostream& os, const FidesArrayMemoryRequirem
     os << "\tStart[" << dim << "]: " << memReqs.Start[dim] << "\n";
     os << "\tCount[" << dim << "]: " << memReqs.Count[dim] << "\n";
   }
-  os << "\tIncludesGhostZones: " << memReqs.IncludesGhostZones;
+  os << "\tHasSharedPoints: " << memReqs.HasSharedPoints;
   return os;
 }
 
@@ -308,7 +308,7 @@ FidesArrayMemoryRequirements GetVariableMemoryRequirements(
   std::vector<BlocksInfoType>& blocksInfo,
   adios2::Variable<VariableType>& varADIOS2,
   size_t blockId,
-  int numHalos = 0)
+  bool createSharedPoints = false)
 {
   if (blockId >= blocksInfo.size())
   {
@@ -329,7 +329,7 @@ FidesArrayMemoryRequirements GetVariableMemoryRequirements(
   memoryRequirements.Start = blockInfo.Start;
   memoryRequirements.Count = blockInfo.Count;
   memoryRequirements.Size = GetBufferSize(blockInfo.Count);
-  memoryRequirements.IncludesGhostZones = false;
+  memoryRequirements.HasSharedPoints = false;
 #if FidesArrayMemoryRequirements_DEBUG
   std::cout << "Default " << memoryRequirements << std::endl;
 #endif
@@ -338,20 +338,19 @@ FidesArrayMemoryRequirements GetVariableMemoryRequirements(
   {
     case adios2::ShapeID::GlobalArray:
     {
-      if (numHalos > 0)
+      if (createSharedPoints)
       {
         const auto& nDims = blockInfo.Start.size();
         for (size_t dim = 0; dim < nDims; ++dim)
         {
-          // grow by one or more indices for all blocks whose start > 0
+          // grow by one index for all blocks whose start > 0
           const bool extendDimensions = blockInfo.Start[dim] > 0;
-          const int indexDelta = numHalos * static_cast<int>(extendDimensions);
+          const int indexDelta = static_cast<int>(extendDimensions);
           memoryRequirements.Start[dim] -= indexDelta;
           memoryRequirements.Count[dim] += indexDelta;
-          // ghost zones are included if atleast one dimension was extended
-          memoryRequirements.IncludesGhostZones |= extendDimensions;
+          memoryRequirements.HasSharedPoints |= extendDimensions;
         }
-        // size will include new ghost zones
+        // size will include shared points
         memoryRequirements.Size = GetBufferSize(memoryRequirements.Count);
       }
       break;
@@ -387,7 +386,7 @@ void PrepareVariableSelection(adios2::Variable<VariableType>& varADIOS2,
                               const FidesArrayMemoryRequirements& memoryRequirements,
                               const std::size_t blockId)
 {
-  if (memoryRequirements.IncludesGhostZones)
+  if (memoryRequirements.HasSharedPoints)
   {
     varADIOS2.SetSelection({ memoryRequirements.Start, memoryRequirements.Count });
   }
@@ -405,10 +404,11 @@ vtkm::cont::UnknownArrayHandle ReadVariableInternal(adios2::Engine& reader,
                                                     EngineType engineType,
                                                     size_t step,
                                                     IsVector isit = IsVector::Auto,
-                                                    int numHalos = 0)
+                                                    bool createSharedPoints = false)
 {
   auto blocksInfo = reader.BlocksInfo(varADIOS2, step);
-  auto memoryRequirements = GetVariableMemoryRequirements(blocksInfo, varADIOS2, blockId, numHalos);
+  auto memoryRequirements =
+    GetVariableMemoryRequirements(blocksInfo, varADIOS2, blockId, createSharedPoints);
   const auto& shape = memoryRequirements.Count;
   auto& bufSize = memoryRequirements.Size;
 
@@ -588,7 +588,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ReadVariableBlocksInternal(
   EngineType engineType,
   IsVector isit = IsVector::Auto,
   bool isMultiBlock = false,
-  int numHalos = 0)
+  bool createSharedPoints = false)
 {
   std::vector<vtkm::cont::UnknownArrayHandle> arrays;
   if (selections.Has(fides::keys::BLOCK_SELECTION()) &&
@@ -649,7 +649,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ReadVariableBlocksInternal(
     for (auto blockId : blocksToReallyRead)
     {
       arrays.push_back(ReadVariableInternal<VariableType>(
-        reader, varADIOS2, blockId, engineType, step, isit, numHalos));
+        reader, varADIOS2, blockId, engineType, step, isit, createSharedPoints));
     }
   }
 
@@ -662,7 +662,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> GetDimensionsInternal(
   adios2::Engine& reader,
   const std::string& varName,
   const fides::metadata::MetaData& selections,
-  int numHalos = 0)
+  bool createSharedPoints = false)
 {
   auto varADIOS2 = adiosIO.InquireVariable<VariableType>(varName);
   size_t step = reader.CurrentStep();
@@ -698,7 +698,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> GetDimensionsInternal(
   for (auto blockId : blocksToReallyRead)
   {
     const auto memoryRequirements =
-      GetVariableMemoryRequirements(blocksInfo, varADIOS2, blockId, numHalos);
+      GetVariableMemoryRequirements(blocksInfo, varADIOS2, blockId, createSharedPoints);
     std::vector<size_t> shape = memoryRequirements.Count;
     std::reverse(shape.begin(), shape.end());
     std::vector<size_t> start = memoryRequirements.Start;
@@ -898,7 +898,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetVariableDimensions(
   }
 
   fidesTemplateMacro(GetDimensionsInternal<fides_TT>(
-    this->AdiosIO, this->Reader, itr->first, selections, this->NumberOfHalos));
+    this->AdiosIO, this->Reader, itr->first, selections, this->CreateSharedPoints));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
@@ -994,7 +994,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::ReadVariable(
                                                           this->AdiosEngineType,
                                                           isit,
                                                           false,
-                                                          this->NumberOfHalos));
+                                                          this->CreateSharedPoints));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
