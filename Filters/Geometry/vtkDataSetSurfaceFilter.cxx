@@ -346,6 +346,7 @@ vtkDataSetSurfaceFilter::vtkDataSetSurfaceFilter()
   this->OriginalPointIdsName = nullptr;
 
   this->NonlinearSubdivisionLevel = 1;
+  this->MatchBoundariesIgnoringCellOrder = 0;
 
   this->Delegation = false;
 }
@@ -1279,6 +1280,8 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OriginalCellIdsName: " << this->GetOriginalCellIdsName() << endl;
   os << indent << "OriginalPointIdsName: " << this->GetOriginalPointIdsName() << endl;
   os << indent << "NonlinearSubdivisionLevel: " << this->GetNonlinearSubdivisionLevel() << endl;
+  os << indent
+     << "MatchBoundariesIgnoringCellOrder: " << this->GetMatchBoundariesIgnoringCellOrder() << endl;
   os << indent << "FastMode: " << this->GetFastMode() << endl;
   os << indent << "Delegation: " << this->GetDelegation() << endl;
 }
@@ -1396,6 +1399,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
     uggf->SetPassThroughCellIds(this->PassThroughCellIds);
     uggf->SetOriginalCellIdsName(this->GetOriginalCellIdsName());
     uggf->SetPassThroughPointIds(this->PassThroughPointIds);
+    uggf->SetMatchBoundariesIgnoringCellOrder(this->MatchBoundariesIgnoringCellOrder);
     uggf->SetOriginalPointIdsName(this->GetOriginalPointIdsName());
     uggf->DuplicateGhostCellClippingOff();
     uggf->SetContainerAlgorithm(this);

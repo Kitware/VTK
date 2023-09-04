@@ -187,6 +187,17 @@ public:
 
   ///@{
   /**
+   * When two volumetric cells of different order are connected by their corners (for instance, a
+   * quadratic hexahedron next to a linear hexahedron ), the internal face is rendered and is not
+   * considered as a ghost cell. To remove these faces, switch MatchBoundariesIgnoringCellOrder to 1
+   * (default is 0).
+   */
+  vtkSetMacro(MatchBoundariesIgnoringCellOrder, int);
+  vtkGetMacro(MatchBoundariesIgnoringCellOrder, int);
+  ///@}
+
+  ///@{
+  /**
    * Disable delegation to an internal vtkGeometryFilter. The geometry filter runs
    * much faster (especially for unstructured grids); however the two filters
    * produce slightly different output. Hence by default delegation is disabled.
@@ -342,6 +353,7 @@ protected:
   char* OriginalPointIdsName;
 
   int NonlinearSubdivisionLevel;
+  int MatchBoundariesIgnoringCellOrder;
   vtkTypeBool Delegation;
   bool FastMode;
 

@@ -95,6 +95,7 @@ vtkGeometryFilter::vtkGeometryFilter()
 
   // Compatibility with vtkDataSetSurfaceFilter
   this->NonlinearSubdivisionLevel = 1;
+  this->MatchBoundariesIgnoringCellOrder = 0;
 
   // Enable delegation to an internal vtkDataSetSurfaceFilter.
   this->Delegation = true;
@@ -315,6 +316,8 @@ void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OriginalPointIdsName: " << this->GetOriginalPointIdsName() << endl;
 
   os << indent << "NonlinearSubdivisionLevel: " << this->GetNonlinearSubdivisionLevel() << endl;
+  os << indent
+     << "MatchBoundariesIgnoringCellOrder: " << this->GetMatchBoundariesIgnoringCellOrder() << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -2817,6 +2820,7 @@ void vtkGeometryFilterHelper::CopyFilterParams(vtkGeometryFilter* gf, vtkDataSet
   dssf->SetOriginalCellIdsName(gf->GetOriginalCellIdsName());
   dssf->SetOriginalPointIdsName(gf->GetOriginalPointIdsName());
   dssf->SetNonlinearSubdivisionLevel(gf->GetNonlinearSubdivisionLevel());
+  dssf->SetMatchBoundariesIgnoringCellOrder(gf->GetMatchBoundariesIgnoringCellOrder());
   dssf->SetFastMode(gf->GetFastMode());
 }
 
@@ -2831,6 +2835,7 @@ void vtkGeometryFilterHelper::CopyFilterParams(vtkDataSetSurfaceFilter* dssf, vt
   gf->SetOriginalCellIdsName(dssf->GetOriginalCellIdsName());
   gf->SetOriginalPointIdsName(dssf->GetOriginalPointIdsName());
   gf->SetNonlinearSubdivisionLevel(dssf->GetNonlinearSubdivisionLevel());
+  gf->SetMatchBoundariesIgnoringCellOrder(dssf->GetMatchBoundariesIgnoringCellOrder());
   gf->SetFastMode(dssf->GetFastMode());
 }
 
