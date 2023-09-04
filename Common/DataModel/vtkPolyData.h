@@ -164,6 +164,12 @@ public:
   int GetMaxCellSize() override;
 
   /**
+   * Get the maximum spatial dimensionality of the data
+   * which is the maximum dimension of all cells.
+   */
+  int GetMaxSpatialDimension() override;
+
+  /**
    * Maps the cell at position `cellId` inside the `vtkPolyData` to its location in the
    * corresponding cell array. For instance, if cell `cellId` is a line, then this method returns
    * the position of this cell in the `Lines` cell array.

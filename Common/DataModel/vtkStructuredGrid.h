@@ -90,6 +90,7 @@ public:
   }
   void Initialize() override;
   int GetMaxCellSize() override { return 8; } // hexahedron is the largest
+  int GetMaxSpatialDimension() override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds, int* seedLoc);
   ///@}
@@ -294,6 +295,11 @@ inline vtkIdType vtkStructuredGrid::GetNumberOfCells()
 }
 
 inline int vtkStructuredGrid::GetDataDimension()
+{
+  return vtkStructuredData::GetDataDimension(this->DataDescription);
+}
+
+inline int vtkStructuredGrid::GetMaxSpatialDimension()
 {
   return vtkStructuredData::GetDataDimension(this->DataDescription);
 }

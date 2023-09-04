@@ -517,6 +517,19 @@ void vtkDataSet::GetCellPoints(
 }
 
 //------------------------------------------------------------------------------
+int vtkDataSet::GetMaxSpatialDimension()
+{
+  vtkNew<vtkCellTypes> cellTypes;
+  this->GetCellTypes(cellTypes);
+  int maxDim = 0;
+  for (vtkIdType i = 0; i < cellTypes->GetNumberOfTypes(); ++i)
+  {
+    maxDim = std::max(vtkCellTypes::GetDimension(cellTypes->GetCellType(i)), maxDim);
+  }
+  return maxDim;
+}
+
+//------------------------------------------------------------------------------
 void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell* cell)
 {
   switch (cell->GetCellType())

@@ -97,6 +97,7 @@ public:
   }
   void ComputeBounds() override;
   int GetMaxCellSize() override { return 8; } // voxel is the largest
+  int GetMaxSpatialDimension() override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
   ///@}
 
@@ -689,5 +690,10 @@ inline int vtkImageData::GetDataDimension()
   return vtkStructuredData::GetDataDimension(this->DataDescription);
 }
 
+//----------------------------------------------------------------------------
+inline int vtkImageData::GetMaxSpatialDimension()
+{
+  return vtkStructuredData::GetDataDimension(this->DataDescription);
+}
 VTK_ABI_NAMESPACE_END
 #endif

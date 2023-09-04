@@ -732,6 +732,33 @@ int vtkPolyData::GetMaxCellSize()
 }
 
 //------------------------------------------------------------------------------
+int vtkPolyData::GetMaxSpatialDimension()
+{
+  int maxDim = 0;
+
+  if (this->Verts && this->Verts->GetNumberOfCells() > 0)
+  {
+    maxDim = std::max(maxDim, 0);
+  }
+
+  if (this->Lines && this->Lines->GetNumberOfCells() > 0)
+  {
+    maxDim = std::max(maxDim, 1);
+  }
+
+  if (this->Polys && this->Polys->GetNumberOfCells() > 0)
+  {
+    maxDim = std::max(maxDim, 2);
+  }
+
+  if (this->Strips && this->Strips->GetNumberOfCells() > 0)
+  {
+    maxDim = std::max(maxDim, 2);
+  }
+  return maxDim;
+}
+
+//------------------------------------------------------------------------------
 bool vtkPolyData::AllocateEstimate(vtkIdType numCells, vtkIdType maxCellSize)
 {
   return this->AllocateExact(numCells, numCells * maxCellSize);
