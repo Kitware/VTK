@@ -8,6 +8,7 @@
 #ifndef vtkBlockSortHelper_h
 #define vtkBlockSortHelper_h
 
+#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkDataSet.h"
 #include "vtkMatrix4x4.h"
@@ -16,6 +17,8 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+#include <set>
+#include <stack>
 #include <vector>
 
 namespace vtkBlockSortHelper
@@ -33,6 +36,22 @@ inline void GetBounds(vtkDataSet* first, double bds[6])
 {
   first->GetBounds(bds);
 }
+
+template <typename ValueT>
+struct BlockGroup : public std::vector<ValueT>
+{
+  void GetBounds(double bds[6])
+  {
+    vtkBoundingBox bbox;
+    for (auto it = this->begin(); it != this->end(); ++it)
+    {
+      double localBds[6];
+      vtkBlockSortHelper::GetBounds(*it, localBds);
+      bbox.AddBounds(localBds);
+    }
+    bbox.GetBounds(bds);
+  }
+};
 
 /**
  *  operator() for back-to-front sorting.
@@ -90,22 +109,29 @@ struct BackToFront
 
   // -1 if first is closer than second
   //  0 if unknown
-  //  1 if second is farther than first
+  //  1 if second is closer than first
+  //  allowDisconnected is used to permit the comparisons of bounding boxes whose faces/edges do not
+  //  touch at all.
   template <typename TT>
-  inline int CompareOrderWithUncertainty(TT& first, TT& second)
+  inline int CompareOrderWithUncertainty(TT& first, TT& second, bool allowDisconnected = false)
   {
     double abounds[6], bbounds[6];
     vtkBlockSortHelper::GetBounds<TT>(first, abounds);
     vtkBlockSortHelper::GetBounds<TT>(second, bbounds);
-    return CompareBoundsOrderWithUncertainty(abounds, bbounds);
+    return CompareBoundsOrderWithUncertainty(abounds, bbounds, allowDisconnected);
   }
 
   // -1 if first is closer than second
   //  0 if unknown
-  //  1 if second is farther than first
-  inline int CompareBoundsOrderWithUncertainty(const double abounds[6], const double bbounds[6])
+  //  1 if second is closer than first
+  //  allowDisconnected is used to permit the comparisons of bounding boxes whose faces/edges do not
+  //  touch at all.
+  inline int CompareBoundsOrderWithUncertainty(
+    const double abounds[6], const double bbounds[6], bool allowDisconnected = false)
   {
+    // bounds of the projection of block A onto block B
     double bboundsP[6];
+    // bounds of the projection of block B onto block A
     double aboundsP[6];
     for (int i = 0; i < 6; ++i)
     {
@@ -130,6 +156,11 @@ struct BackToFront
       }
     }
 
+    // Determine the dimensionality of the projection
+    /// dims == 3 | Overlap? Yes | Type: Volume
+    /// dims == 2 | Overlap? Yes | Type: Plane
+    /// dims == 1 | Overlap? Yes | Type: Line
+    /// dims == 0 | Overlap? No | Type: None
     int dims = 0;
     int degenDims = 0;
     int degenAxes[3];
@@ -150,6 +181,7 @@ struct BackToFront
 
     // overlapping volumes?
     // in that case find the two largest dimensions
+    // the 3d overlap is collapsed down to a 2d overlap.
     // geneally this should not happen
     if (dims == 3)
     {
@@ -186,7 +218,8 @@ struct BackToFront
     double atoblength = vtkMath::Normalize(atobdir);
 
     // no comment on blocks that do not touch
-    if (fabs(aboundsP[degenAxes[0] * 2] - bboundsP[degenAxes[0] * 2]) > 0.01 * atoblength)
+    if (!allowDisconnected &&
+      (fabs(aboundsP[degenAxes[0] * 2] - bboundsP[degenAxes[0] * 2]) > 0.01 * atoblength))
     {
       return 0;
     }
@@ -227,25 +260,24 @@ struct BackToFront
   }
 };
 
-#ifdef MB_DEBUG
-template <class RandomIt>
-class gnode
+template <typename RandomIt>
+class GraphNode
 {
 public:
   RandomIt Value;
   bool Visited = false;
-  std::vector<gnode<RandomIt>*> Closer;
+  std::set<GraphNode<RandomIt>*> Neighbors;
 };
 
-template <class RandomIt>
-bool operator==(gnode<RandomIt> const& lhs, gnode<RandomIt> const& rhs)
+template <typename RandomIt>
+bool operator==(GraphNode<RandomIt> const& lhs, GraphNode<RandomIt> const& rhs)
 {
-  return lhs.Value == rhs.Value && lhs.Closer == rhs.Closer;
+  return lhs.Value == rhs.Value && lhs.Neighbors == rhs.Neighbors;
 }
 
-template <class RandomIt>
-bool findCycle(gnode<RandomIt>& start, std::vector<gnode<RandomIt>>& graph,
-  std::vector<gnode<RandomIt>>& active, std::vector<gnode<RandomIt>>& loop)
+template <typename RandomIt>
+bool findCycle(GraphNode<RandomIt>& start, std::vector<GraphNode<RandomIt>>& graph,
+  std::vector<GraphNode<RandomIt>>& active, std::vector<GraphNode<RandomIt>>& loop)
 {
   if (start.Visited)
   {
@@ -256,7 +288,7 @@ bool findCycle(gnode<RandomIt>& start, std::vector<gnode<RandomIt>>& graph,
   active.push_back(start);
 
   // traverse the closer nodes one by one depth first
-  for (auto& close : start.Closer)
+  for (auto& close : start.Neighbors)
   {
     if (close->Visited)
     {
@@ -285,64 +317,158 @@ bool findCycle(gnode<RandomIt>& start, std::vector<gnode<RandomIt>>& graph,
   start.Visited = true;
   return false;
 }
-#endif
 
-template <class RandomIt, typename T>
+template <typename RandomIt>
+void VisitNeighborsDFS(GraphNode<RandomIt>& start, std::set<RandomIt>& connected)
+{
+  // use a stack instead of callstack for dfs
+  std::stack<GraphNode<RandomIt>*> nodeStack;
+  nodeStack.push(&start);
+  while (!nodeStack.empty())
+  {
+    auto node = nodeStack.top();
+    nodeStack.pop();
+    // insert into `connected` only if node was not visited.
+    if (!node->Visited)
+    {
+      node->Visited = true;
+      connected.insert(node->Value);
+    }
+    // push all unvisited neighbors onto the stack.
+    for (auto& neighbor : start.Neighbors)
+    {
+      if (!neighbor->Visited)
+      {
+        nodeStack.push(neighbor);
+      }
+    }
+  }
+}
+
+template <typename RandomIt,
+  typename BlockGroupType = typename vtkBlockSortHelper::BlockGroup<typename RandomIt::value_type>>
+std::vector<BlockGroupType> FindConnectedBlocks(std::vector<GraphNode<RandomIt>>& graph)
+{
+  // unvisit all nodes.
+  for (auto& node : graph)
+  {
+    node.Visited = false;
+  }
+  std::vector<BlockGroupType> result;
+  for (auto& node : graph)
+  {
+    // skip if the node was visited.
+    if (node.Visited)
+    {
+      continue;
+    }
+    std::set<RandomIt> connected;
+    VisitNeighborsDFS(node, connected);
+    if (!connected.empty())
+    {
+      BlockGroupType blocks;
+      blocks.reserve(connected.size());
+      for (auto& elem : connected)
+      {
+        blocks.emplace_back(*elem);
+      }
+      result.emplace_back(blocks);
+    }
+  }
+  return result;
+}
+
+template <typename ValueType, typename B2FType>
+/// Sorts `input` vector in-place from front-to-back.
+inline void SortFrontToBackImplementation(
+  std::vector<ValueType>& input, BackToFront<B2FType>& b2f, bool allowDisconnected = false)
+{
+  std::vector<ValueType> result;
+  const std::size_t numNodes = input.size();
+  result.reserve(numNodes);
+
+  // loop over the `input` vector in search of a block that is the front most.
+  // as we discover such blocks, they are moved from `input` to `result` and
+  // the `input` vector is shortened in length. Repeat this process until the
+  // last block in the `input` vector is reached.
+  for (auto it = input.begin(); it != input.end();)
+  {
+    auto it2 = input.begin();
+    for (; it2 != input.end(); ++it2)
+    {
+      // if `it2` is closer than `it`, then `it` is not the closest block,
+      // so break and try the next block from `input` vector.
+      if (it != it2 && b2f.CompareOrderWithUncertainty(*it, *it2, allowDisconnected) > 0)
+      {
+        // not a winner
+        break;
+      }
+    }
+    if (it2 == input.end())
+    {
+      // found a winner, add it to the `result`, remove from the input set and then restart
+      result.push_back(*it);
+      input.erase(it);
+      it = input.begin();
+    }
+    else
+    {
+      ++it;
+    }
+  }
+  if (result.size() != numNodes)
+  {
+    vtkGenericWarningMacro(<< "SortFrontToBackImplementation failed with allowDisconnected="
+                           << allowDisconnected);
+    // do not modify input vector.
+    return;
+  }
+  input.assign(result.begin(), result.end());
+}
+
+template <typename RandomIt, typename T>
 inline void Sort(RandomIt bitr, RandomIt eitr, BackToFront<T>& me)
 {
   auto start = bitr;
 
   // brute force for testing
 
-  std::vector<typename RandomIt::value_type> working;
-  std::vector<typename RandomIt::value_type> result;
+  using ElementType = typename RandomIt::value_type;
+  std::vector<ElementType> working;
+  std::vector<ElementType> result;
   working.assign(bitr, eitr);
-  size_t numNodes = working.size();
+  const size_t numNodes = working.size();
+
+  // build a graph that describes neighbors of each block.
+  std::vector<GraphNode<RandomIt>> graph;
+  graph.reserve(numNodes);
+  for (auto it = working.begin(); it != working.end(); ++it)
+  {
+    GraphNode<RandomIt> anode;
+    anode.Value = it;
+    graph.emplace_back(anode);
+  }
+  for (auto& node1 : graph)
+  {
+    for (auto& node2 : graph)
+    {
+      if (node1.Value != node2.Value &&
+        me.CompareOrderWithUncertainty(*node1.Value, *node2.Value) != 0)
+      {
+        // node2 is a face/line neighbor of node1
+        node1.Neighbors.insert(&node2);
+      }
+    }
+  }
 
 #ifdef MB_DEBUG
-  // check for any short loops and debug
-  for (auto it = working.begin(); it != working.end(); ++it)
-  {
-    auto it2 = it;
-    it2++;
-    for (; it2 != working.end(); ++it2)
-    {
-      int comp1 = me.CompareOrderWithUncertainty(*it, *it2);
-      int comp2 = me.CompareOrderWithUncertainty(*it2, *it);
-      if (comp1 * comp2 > 0)
-      {
-        me.CompareOrderWithUncertainty(*it, *it2);
-        me.CompareOrderWithUncertainty(*it2, *it);
-      }
-    }
-  }
-
-  // build the graph
-  std::vector<gnode<RandomIt>> graph;
-  for (auto it = working.begin(); it != working.end(); ++it)
-  {
-    gnode<RandomIt> anode;
-    anode.Value = it;
-    graph.push_back(anode);
-  }
-  for (auto& git : graph)
-  {
-    for (auto& next : graph)
-    {
-      if (git.Value != next.Value && me.CompareOrderWithUncertainty(*git.Value, *next.Value) > 0)
-      {
-        git.Closer.push_back(&next);
-      }
-    }
-  }
-
   // graph constructed, now look for a loop
-  std::vector<gnode<RandomIt>> active;
-  std::vector<gnode<RandomIt>> loop;
-  for (auto& gval : graph)
+  std::vector<GraphNode<RandomIt>> active;
+  std::vector<GraphNode<RandomIt>> loop;
+  for (auto& node : graph)
   {
     loop.clear();
-    if (findCycle(gval, graph, active, loop))
+    if (findCycle(node, graph, active, loop))
     {
       vtkVector3d dir = me.CameraViewDirection;
       dir.Normalize();
@@ -358,41 +484,35 @@ inline void Sort(RandomIt bitr, RandomIt eitr, BackToFront<T>& me)
   }
 #endif
 
-  // loop over items and find the first that is not in front of any others
-  for (auto it = working.begin(); it != working.end();)
+  // break graph into groups of blocks which are connected by face/line
+  // The blocks inside the group are all connected.
+  using BlockGroupType = BlockGroup<ElementType>;
+  std::vector<BlockGroupType> blockGroups = vtkBlockSortHelper::FindConnectedBlocks(graph);
+  // sort elements inside each of the block group.
+  for (auto& blockGroup : blockGroups)
   {
-    auto it2 = working.begin();
-    for (; it2 != working.end(); ++it2)
+    vtkBlockSortHelper::SortFrontToBackImplementation(blockGroup, me, /*allowDisconnected=*/false);
+  }
+  // now sort the overall blockGroup(s).
+  vtkBlockSortHelper::SortFrontToBackImplementation(blockGroups, me, /*allowDisconnected=*/true);
+  // collect all blocks in the back-to-front sorted order.
+  result.reserve(numNodes);
+  for (const BlockGroupType& blocks : blockGroups)
+  {
+    for (const ElementType& block : blocks)
     {
-      // if another block is in front of this block then this is not the
-      // closest block
-      if (it != it2 && me.CompareOrderWithUncertainty(*it, *it2) > 0)
-      {
-        // not a winner
-        break;
-      }
-    }
-    if (it2 == working.end())
-    {
-      // found a winner, add it to the results, remove from the working set and then restart
-      result.push_back(*it);
-      working.erase(it);
-      it = working.begin();
-    }
-    else
-    {
-      ++it;
+      result.push_back(block);
     }
   }
-
   if (result.size() != numNodes)
   {
     vtkGenericWarningMacro("sorting failed");
+    // for whatever reason, sorting failed, return without modifying `start`
+    return;
   }
-
   // copy results to original container
   std::reverse_copy(result.begin(), result.end(), start);
-};
+}
 VTK_ABI_NAMESPACE_END
 }
 
