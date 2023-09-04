@@ -1,0 +1,23 @@
+NAME
+  VTK::IOFDS
+LIBRARY_NAME
+  vtkIOFDS
+DESCRIPTION
+  A module for handling I/O for the Fire Dynamics Simulator (FDS) output format.
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::IOCore
+  VTK::IOInfovis
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingCore
+  VTK::TestingRendering
