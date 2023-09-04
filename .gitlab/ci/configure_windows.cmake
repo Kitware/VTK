@@ -19,7 +19,6 @@ set(VTK_MODULE_ENABLE_VTK_RenderingExternal NO CACHE STRING "") # glut
 set(VTK_MODULE_ENABLE_VTK_RenderingFreeTypeFontConfig NO CACHE STRING "") # fontconfig
 set(VTK_MODULE_ENABLE_VTK_RenderingMatplotlib NO CACHE STRING "") # matplotlib
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenVR NO CACHE STRING "") # openvr
-set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "") # openxr
 set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "") # ospray
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # adios
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # boost
