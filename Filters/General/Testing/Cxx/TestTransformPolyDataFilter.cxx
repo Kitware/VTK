@@ -93,6 +93,59 @@ int TransformPolyData(int dataType, int outputPointsPrecision)
   return points->GetDataType();
 }
 
+bool IsFilterOutputEmpty(vtkTransformPolyDataFilter* transformPolyDataFilter)
+{
+  transformPolyDataFilter->Update();
+  vtkPoints* points = transformPolyDataFilter->GetOutput()->GetPoints();
+  return (points == nullptr || points->GetNumberOfPoints() == 0);
+}
+
+int TransformEmptyPolyData()
+{
+  vtkNew<vtkTransformPolyDataFilter> transformPolyDataFilter;
+
+  vtkNew<vtkPolyData> inputPolyData;
+  InitializePolyData(inputPolyData, VTK_DOUBLE);
+  transformPolyDataFilter->SetInputData(inputPolyData);
+
+  vtkNew<vtkTransform> transform;
+  InitializeTransform(transform);
+  transformPolyDataFilter->SetTransform(transform);
+
+  if (IsFilterOutputEmpty(transformPolyDataFilter))
+  {
+    std::cerr << "Transformed output is expected to be not empty" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Test if 0 input points produces empty output
+  inputPolyData->GetPoints()->SetNumberOfPoints(0);
+  if (!IsFilterOutputEmpty(transformPolyDataFilter))
+  {
+    std::cerr << "Transformed output should be empty if 0 points in input" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Run the filter with non-empty output again to make sure that in the next test
+  // the filter output is cleared
+  InitializePolyData(inputPolyData, VTK_DOUBLE);
+  if (IsFilterOutputEmpty(transformPolyDataFilter))
+  {
+    std::cerr << "Transformed output is expected to be not empty" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Test if the filter produces empty output if no points object is in the input
+  inputPolyData->SetPoints(nullptr);
+  if (!IsFilterOutputEmpty(transformPolyDataFilter))
+  {
+    std::cerr << "Transformed output should be empty if no points object in input" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
 int TestTransformPolyDataFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int dataType = TransformPolyData(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
@@ -135,6 +188,12 @@ int TestTransformPolyDataFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
+  }
+
+  int result = TransformEmptyPolyData();
+  if (result != EXIT_SUCCESS)
+  {
+    return result;
   }
 
   return EXIT_SUCCESS;
