@@ -705,7 +705,7 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData1(
 {
   auto f = [pt1Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
     vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
-    vtkDataArray* outArray = vtkDataArray::FastDownCast(aoutArray);
+    vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
     if (inArray && outArray)
     {
       // We could template for speed.
@@ -714,8 +714,8 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData1(
       {
         const double vIn1 = inArray->GetComponent(pt1Id, j);
         const double dv = vIn1;
-        const double vOut = (dv * k) + outArray->GetComponent(0, j);
-        outArray->SetComponent(0, j, vOut);
+        const double vOut = (dv * k) + outArray->GetTypedComponent(0, j);
+        outArray->SetTypedComponent(0, j, vOut);
       }
     }
   };
@@ -730,7 +730,7 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData2(
 {
   auto f = [pt1Id, pt2Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
     vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
-    vtkDataArray* outArray = vtkDataArray::FastDownCast(aoutArray);
+    vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
     if (inArray && outArray)
     {
       // We could template for speed.
@@ -740,8 +740,8 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData2(
         const double vIn1 = inArray->GetComponent(pt1Id, j);
         const double vIn2 = inArray->GetComponent(pt2Id, j);
         const double dv = 0.5 * (vIn1 + vIn2);
-        const double vOut = (dv * k) + outArray->GetComponent(0, j);
-        outArray->SetComponent(0, j, vOut);
+        const double vOut = (dv * k) + outArray->GetTypedComponent(0, j);
+        outArray->SetTypedComponent(0, j, vOut);
       }
     }
   };
@@ -757,7 +757,7 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData3(
 {
   auto f = [pt1Id, pt2Id, pt3Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
     vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
-    vtkDataArray* outArray = vtkDataArray::FastDownCast(aoutArray);
+    vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
     if (inArray && outArray)
     {
       // We could template for speed.
@@ -768,8 +768,8 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData3(
         const double vIn2 = inArray->GetComponent(pt2Id, j);
         const double vIn3 = inArray->GetComponent(pt3Id, j);
         const double dv = (vIn1 + vIn2 + vIn3) / 3.0;
-        const double vOut = (dv * k) + outArray->GetComponent(0, j);
-        outArray->SetComponent(0, j, vOut);
+        const double vOut = (dv * k) + outArray->GetTypedComponent(0, j);
+        outArray->SetTypedComponent(0, j, vOut);
       }
     }
   };
@@ -786,7 +786,7 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData4(
   auto f = [pt1Id, pt2Id, pt3Id, pt4Id, k](
              vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
     vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
-    vtkDataArray* outArray = vtkDataArray::FastDownCast(aoutArray);
+    vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
     if (inArray && outArray)
     {
       // We could template for speed.
@@ -798,8 +798,8 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData4(
         const double vIn3 = inArray->GetComponent(pt3Id, j);
         const double vIn4 = inArray->GetComponent(pt4Id, j);
         const double dv = (vIn1 + vIn2 + vIn3 + vIn4) * 0.25;
-        const double vOut = (dv * k) + outArray->GetComponent(0, j);
-        outArray->SetComponent(0, j, vOut);
+        const double vOut = (dv * k) + outArray->GetTypedComponent(0, j);
+        outArray->SetTypedComponent(0, j, vOut);
       }
     }
   };
