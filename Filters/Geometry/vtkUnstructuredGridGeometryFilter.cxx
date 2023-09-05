@@ -519,7 +519,8 @@ public:
 
             // The other corner points
             // will be given in reverse order (opposite orientation)
-            int i = 0;
+            int i = 1; // i = 0 is skipped because it corresponds to smallestId, and smallestId is
+                       // already used to create a key that is already contained in the HashTable.
             while (found && i < numberOfCornerPoints)
             {
               // we add numberOfPoints before modulo. Modulo does not work
@@ -530,84 +531,87 @@ public:
             }
 
             // Check for other kind of points for nonlinear faces.
-            switch (faceType)
+            if (found)
             {
-              case VTK_QUADRATIC_TRIANGLE:
-                // the mid-edge points
-                i = 0;
-                while (found && i < 3)
-                {
-                  // we add numberOfPoints before modulo. Modulo does not work
-                  // with negative values.
-                  // -1: start at the end in reverse order.
-                  found =
-                    current
-                      ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 3 - 1) % 3)] ==
-                    points[numberOfCornerPoints + ((smallestIdx + i) % 3)];
-                  ++i;
-                }
-                break;
-              case VTK_BIQUADRATIC_TRIANGLE:
-                // the center point
-                found = current->Points[6] == points[6];
+              switch (faceType)
+              {
+                case VTK_QUADRATIC_TRIANGLE:
+                  // the mid-edge points
+                  i = 0;
+                  while (found && i < 3)
+                  {
+                    // we add numberOfPoints before modulo. Modulo does not work
+                    // with negative values.
+                    // -1: start at the end in reverse order.
+                    found =
+                      current
+                        ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 3 - 1) % 3)] ==
+                      points[numberOfCornerPoints + ((smallestIdx + i) % 3)];
+                    ++i;
+                  }
+                  break;
+                case VTK_BIQUADRATIC_TRIANGLE:
+                  // the center point
+                  found = current->Points[6] == points[6];
 
-                // the mid-edge points
-                i = 0;
-                while (found && i < 3)
-                {
-                  // we add numberOfPoints before modulo. Modulo does not work
-                  // with negative values.
-                  // -1: start at the end in reverse order.
-                  found =
-                    current
-                      ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 3 - 1) % 3)] ==
-                    points[numberOfCornerPoints + ((smallestIdx + i) % 3)];
-                  ++i;
-                }
-                break;
-              case VTK_LAGRANGE_TRIANGLE:
-              case VTK_BEZIER_TRIANGLE:
-                found &= (current->NumberOfPoints == numberOfPoints);
-                // TODO: Compare all higher order points.
-                break;
-              case VTK_QUADRATIC_QUAD:
-                // the mid-edge points
-                i = 0;
-                while (found && i < 4)
-                {
-                  // we add numberOfPoints before modulo. Modulo does not work
-                  // with negative values.
-                  found =
-                    current
-                      ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 4 - 1) % 4)] ==
-                    points[numberOfCornerPoints + ((smallestIdx + i) % 4)];
-                  ++i;
-                }
-                break;
-              case VTK_BIQUADRATIC_QUAD:
-                // the center point
-                found = current->Points[8] == points[8];
+                  // the mid-edge points
+                  i = 0;
+                  while (found && i < 3)
+                  {
+                    // we add numberOfPoints before modulo. Modulo does not work
+                    // with negative values.
+                    // -1: start at the end in reverse order.
+                    found =
+                      current
+                        ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 3 - 1) % 3)] ==
+                      points[numberOfCornerPoints + ((smallestIdx + i) % 3)];
+                    ++i;
+                  }
+                  break;
+                case VTK_LAGRANGE_TRIANGLE:
+                case VTK_BEZIER_TRIANGLE:
+                  found &= (current->NumberOfPoints == numberOfPoints);
+                  // TODO: Compare all higher order points.
+                  break;
+                case VTK_QUADRATIC_QUAD:
+                  // the mid-edge points
+                  i = 0;
+                  while (found && i < 4)
+                  {
+                    // we add numberOfPoints before modulo. Modulo does not work
+                    // with negative values.
+                    found =
+                      current
+                        ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 4 - 1) % 4)] ==
+                      points[numberOfCornerPoints + ((smallestIdx + i) % 4)];
+                    ++i;
+                  }
+                  break;
+                case VTK_BIQUADRATIC_QUAD:
+                  // the center point
+                  found = current->Points[8] == points[8];
 
-                // the mid-edge points
-                i = 0;
-                while (found && i < 4)
-                {
-                  // we add numberOfPoints before modulo. Modulo does not work
-                  // with negative values.
-                  found =
-                    current
-                      ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 4 - 1) % 4)] ==
-                    points[numberOfCornerPoints + ((smallestIdx + i) % 4)];
-                  ++i;
-                }
-                break;
-              case VTK_LAGRANGE_QUADRILATERAL:
-              case VTK_BEZIER_QUADRILATERAL:
-                found &= (current->NumberOfPoints == numberOfPoints);
-                // TODO: Compare all higher order points.
-                break;
-              default: // other faces are linear: we are done.
-                break;
+                  // the mid-edge points
+                  i = 0;
+                  while (found && i < 4)
+                  {
+                    // we add numberOfPoints before modulo. Modulo does not work
+                    // with negative values.
+                    found =
+                      current
+                        ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 4 - 1) % 4)] ==
+                      points[numberOfCornerPoints + ((smallestIdx + i) % 4)];
+                    ++i;
+                  }
+                  break;
+                case VTK_LAGRANGE_QUADRILATERAL:
+                case VTK_BEZIER_QUADRILATERAL:
+                  found &= (current->NumberOfPoints == numberOfPoints);
+                  // TODO: Compare all higher order points.
+                  break;
+                default: // other faces are linear: we are done.
+                  break;
+              }
             }
           }
         }
