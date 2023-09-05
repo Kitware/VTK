@@ -66,41 +66,19 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  int CompareIntegrationDimension(vtkDataSet* output, int dim);
-  int IntegrationDimension;
-
-  // The length, area or volume of the data set.  Computed by Execute;
-  double Sum;
-  // ToCompute the location of the output point.
-  double SumCenter[3];
+  static int CompareIntegrationDimension(vtkDataSet* output, int dim, double& totalSum,
+    double totalSumCenter[3], int& integrationDimension);
+  static void ZeroAttributes(vtkDataSetAttributes* outda);
 
   bool DivideAllCellDataByVolume;
 
-  void IntegratePolyLine(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdList* cellPtIds);
-  void IntegratePolygon(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdList* cellPtIds);
-  void IntegrateTriangleStrip(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdList* cellPtIds);
-  void IntegrateTriangle(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id);
-  void IntegrateTetrahedron(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id, vtkIdType pt4Id);
-  void IntegratePixel(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdList* cellPtIds);
-  void IntegrateVoxel(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdList* cellPtIds);
-  void IntegrateGeneral1DCell(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdList* cellPtIds);
-  void IntegrateGeneral2DCell(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdList* cellPtIds);
-  void IntegrateGeneral3DCell(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdList* cellPtIds);
-  void IntegrateSatelliteData(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda);
-  void ZeroAttributes(vtkDataSetAttributes* outda);
-  int PieceNodeMinToNode0(vtkUnstructuredGrid* data);
-  void SendPiece(vtkUnstructuredGrid* src);
-  void ReceivePiece(vtkUnstructuredGrid* mergeTo, int fromId);
+  static void IntegrateSatelliteData(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda);
+  int PieceNodeMinToNode0(vtkUnstructuredGrid* data, double& totalSum, double totalSumCenter[3],
+    int& integrationDimension);
+  void SendPiece(vtkUnstructuredGrid* src, double totalSum, const double totalSumCenter[3],
+    int integrationDimension);
+  void ReceivePiece(vtkUnstructuredGrid* mergeTo, int fromId, double& totalSum,
+    double totalSumCenter[3], int& integrationDimension);
 
   // This function assumes the data is in the format of the output of this filter with one
   // point/cell having the value computed as its only tuple.  It divides each value by sum,
@@ -114,23 +92,13 @@ private:
   void operator=(const vtkIntegrateAttributes&) = delete;
 
   class vtkFieldList;
-  vtkFieldList* CellFieldList;
-  vtkFieldList* PointFieldList;
-  int FieldListIndex;
+  class vtkIntegrateAttributesFunctor;
 
-  void AllocateAttributes(vtkFieldList& fieldList, vtkDataSetAttributes* outda);
+  static void AllocateAttributes(vtkFieldList& fieldList, vtkDataSetAttributes* outda);
+  static void InitializeAttributes(vtkDataSetAttributes* outda);
   void ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid* output, int fieldset_index,
-    vtkFieldList& pdList, vtkFieldList& cdList);
-
-  void IntegrateData1(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id,
-    double k, vtkFieldList& fieldlist, int fieldlist_index);
-  void IntegrateData2(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id,
-    vtkIdType pt2Id, double k, vtkFieldList& fieldlist, int fieldlist_index);
-  void IntegrateData3(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id,
-    vtkIdType pt2Id, vtkIdType pt3Id, double k, vtkFieldList& fieldlist, int fieldlist_index);
-  void IntegrateData4(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id,
-    vtkIdType pt2Id, vtkIdType pt3Id, vtkIdType pt4Id, double k, vtkFieldList& fieldlist,
-    int fieldlist_index);
+    vtkFieldList& pdList, vtkFieldList& cdList, double& totalSum, double totalSumCenter[3],
+    int integrationDimension);
 
 public:
   enum CommunicationIds
