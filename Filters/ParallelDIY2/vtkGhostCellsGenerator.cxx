@@ -171,10 +171,13 @@ int vtkGhostCellsGenerator::RequestData(
       continue;
     }
 
+    // Note: We synchronize only if both points AND cells can be synchronized, it would be possible
+    // to improve that if the generating part is able to generate only cells or points at some
+    // point.
     bool canSyncCell = false;
     bool canSyncPoint = false;
-
-    if (vtkGhostCellsGenerator::CanSynchronize(inputPartition, canSyncCell, canSyncPoint))
+    if (this->SynchronizeOnly &&
+      vtkGhostCellsGenerator::CanSynchronize(inputPartition, canSyncCell, canSyncPoint))
     {
       std::vector<vtkDataSet*> inputsDS =
         vtkCompositeDataSet::GetDataSets<vtkDataSet>(inputPartition);
@@ -253,13 +256,6 @@ int vtkGhostCellsGenerator::RequestUpdateExtent(
 bool vtkGhostCellsGenerator::CanSynchronize(
   vtkDataObject* input, bool& canSyncCell, bool& canSyncPoint)
 {
-  if (!this->Sync)
-  {
-    canSyncCell = false;
-    canSyncPoint = false;
-    return false;
-  }
-
   vtkDataSetAttributes* inputCell = input->GetAttributes(vtkDataObject::AttributeTypes::CELL);
   vtkDataSetAttributes* inputPoint = input->GetAttributes(vtkDataObject::AttributeTypes::POINT);
   canSyncCell = inputCell && inputCell->GetGhostArray() && inputCell->GetGlobalIds() &&
@@ -267,7 +263,7 @@ bool vtkGhostCellsGenerator::CanSynchronize(
   canSyncPoint = inputPoint && inputPoint->GetGhostArray() && inputPoint->GetGlobalIds() &&
     inputPoint->GetProcessIds();
 
-  return canSyncCell || canSyncPoint;
+  return canSyncCell && canSyncPoint;
 }
 
 //----------------------------------------------------------------------------
