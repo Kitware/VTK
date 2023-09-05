@@ -654,11 +654,23 @@ bool RequestMesh(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
       }
       if (dataset_size > 0)
       {
-        auto array =
-          vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values), fieldname);
-        if (array->GetNumberOfTuples() != dataset->GetNumberOfElements(vtk_association))
+        vtkSmartPointer<vtkDataArray> array;
+        if (fieldname == "ascent_ghosts")
         {
-          throw std::runtime_error("mismatched tuple count!");
+          // convert ascent ghost information into VTK ghost information
+          // the VTK array is named vtkDataSetAttributes::GhostArrayName()
+          // and has different values.
+          array = vtkConduitArrayUtilities::MCGhostArrayToVTKGhostArray(
+            conduit_cpp::c_node(&values), dsa->IsA("vtkCellData"));
+        }
+        else
+        {
+          array =
+            vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values), fieldname);
+          if (array->GetNumberOfTuples() != dataset->GetNumberOfElements(vtk_association))
+          {
+            throw std::runtime_error("mismatched tuple count!");
+          }
         }
         dsa->AddArray(array);
       }

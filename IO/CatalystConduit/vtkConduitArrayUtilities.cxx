@@ -4,6 +4,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkSOADataArrayTemplate.h"
@@ -219,6 +220,42 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArray(
   const conduit_node* mcarray)
 {
   return vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(mcarray, false);
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCGhostArrayToVTKGhostArray(
+  const conduit_node* c_mcarray, bool is_cell_data)
+{
+  vtkSmartPointer<vtkUnsignedCharArray> array = vtkSmartPointer<vtkUnsignedCharArray>::New();
+  array->SetName(vtkDataSetAttributes::GhostArrayName());
+
+  const conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
+
+  const int num_components = static_cast<int>(mcarray.number_of_children());
+  if (num_components != 0)
+  {
+    vtkLogF(ERROR, "number of components for ascent_ghost should be 1 but is %d", num_components);
+    return nullptr;
+  }
+  const conduit_cpp::DataType dtype0 = mcarray.dtype();
+  const vtkIdType num_tuples = static_cast<vtkIdType>(dtype0.number_of_elements());
+  array->SetNumberOfTuples(num_tuples);
+  const int* vals = mcarray.as_int_ptr();
+  unsigned char ghost_type = is_cell_data == true
+    ? static_cast<unsigned char>(vtkDataSetAttributes::HIDDENCELL)
+    : static_cast<unsigned char>(vtkDataSetAttributes::HIDDENPOINT);
+  for (vtkIdType i = 0; i < num_tuples; i++)
+  {
+    if (vals[i] == 0)
+    {
+      array->SetTypedComponent(i, 0, 0);
+    }
+    else
+    {
+      array->SetTypedComponent(i, 0, ghost_type);
+    }
+  }
+  return array;
 }
 
 //----------------------------------------------------------------------------
