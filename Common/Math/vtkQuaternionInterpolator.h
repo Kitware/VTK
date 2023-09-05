@@ -140,9 +140,9 @@ public:
   ///@{
   /**
    * Specify which type of function to use for interpolation. By default
-   * (SetInterpolationFunctionToSpline()), cubic spline interpolation using a
+   * (SetInterpolationTypeToSpline()), cubic spline interpolation using a
    * modified Kochanek basis is employed. Otherwise, if
-   * SetInterpolationFunctionToLinear() is invoked, linear spherical
+   * SetInterpolationTypeToLinear() is invoked, linear spherical
    * interpolation
    * is used between each pair of quaternions.
    */
