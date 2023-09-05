@@ -7,6 +7,7 @@
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -38,6 +39,8 @@ int main(int argc, char* argv[])
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
+  actor->GetProperty()->SetEdgeVisibility(1);
+  actor->GetProperty()->SetEdgeColor(1, 0, 1);
 
   // Add the actors to the scene
   renderer->AddActor(actor);
