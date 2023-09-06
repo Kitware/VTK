@@ -151,7 +151,6 @@ set(vtk_cmake_patch_files
   patches/3.19/FindJPEG.cmake
   patches/3.19/FindLibArchive.cmake
   patches/3.19/FindSQLite3.cmake
-  patches/3.19/FindX11.cmake
   patches/3.20/FindGDAL.cmake
   patches/3.22/FindMPI/fortranparam_mpi.f90.in
   patches/3.22/FindMPI/libver_mpi.c
@@ -163,7 +162,8 @@ set(vtk_cmake_patch_files
   patches/3.23/FindPython/Support.cmake
   patches/3.23/FindPython3.cmake
   patches/99/FindHDF5.cmake
-  patches/99/FindOpenGL.cmake)
+  patches/99/FindOpenGL.cmake
+  patches/99/FindX11.cmake)
 
 set(vtk_cmake_files_to_install)
 foreach (vtk_cmake_module_file IN LISTS vtk_cmake_module_files vtk_cmake_patch_files)
