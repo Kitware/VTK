@@ -124,11 +124,11 @@ public:
   ///@{
   /**
    * Specify which type of function to use for interpolation. By default
-   * spline interpolation (SetInterpolationFunctionToSpline()) is used
+   * spline interpolation (SetInterpolationTypeToSpline()) is used
    * (i.e., a Kochanek spline) and the InterpolatingSpline instance variable
    * is used to birth the actual interpolation splines via a combination of
    * NewInstance() and DeepCopy(). You may also choose to use linear
-   * interpolation by invoking SetInterpolationFunctionToLinear(). Note that
+   * interpolation by invoking SetInterpolationTypeToLinear(). Note that
    * changing the type of interpolation causes previously inserted data
    * to be discarded.
    */
