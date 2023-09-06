@@ -88,9 +88,9 @@ void vtkHigherOrderHexahedron::SetEdgeIdsAndPoints(int edgeId,
   }
 }
 
-void vtkHigherOrderHexahedron::SetFaceIdsAndPoints(vtkHigherOrderQuadrilateral* result, int faceId,
+void vtkHigherOrderHexahedron::SetFaceIdsAndPoints(int faceId, const int* order,
   const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
-  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points)
+  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points, int* faceOrder)
 {
   if (faceId < 0 || faceId >= 6)
   {
@@ -100,12 +100,12 @@ void vtkHigherOrderHexahedron::SetFaceIdsAndPoints(vtkHigherOrderQuadrilateral* 
   // Do we need to flip the face to get an outward-pointing normal?
   bool flipFace = faceId % 2 == ((faceId / 2) % 2);
 
-  const int* order = this->GetOrder();
   vtkVector2i faceParams = vtkHigherOrderInterpolation::GetVaryingParametersOfHexFace(faceId);
   const int* corners = vtkHigherOrderInterpolation::GetPointIndicesBoundingHexFace(faceId);
-  int npts = (order[faceParams[0]] + 1) * (order[faceParams[1]] + 1);
+  faceOrder[0] = order[faceParams[0]];
+  faceOrder[1] = order[faceParams[1]];
+  int npts = (faceOrder[0] + 1) * (faceOrder[1] + 1);
   set_number_of_ids_and_points(npts);
-  result->SetOrder(order[faceParams[0]], order[faceParams[1]]);
 
   // Add vertex DOFs to result
   int sn = 0;
@@ -532,7 +532,7 @@ void vtkHigherOrderHexahedron::PrepareApproxData(
   this->GetApprox(); // Ensure this->Approx{PD,CD} are non-NULL.
   // this->GetOrder(); // Ensure the order has been updated to match this element.
   this->SetOrderFromCellData(cd, this->Points->GetNumberOfPoints(), cellId);
-  vtkIdType npts = this->Order[3];
+  vtkIdType npts = this->Points->GetNumberOfPoints();
   vtkIdType nele = this->Order[0] * this->Order[1] * this->Order[2];
   this->ApproxPD->Initialize();
   this->ApproxCD->Initialize();

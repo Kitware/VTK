@@ -71,7 +71,6 @@ vtkCell* vtkBezierWedge::GetFace(int faceId)
 
   std::function<void(const vtkIdType&)> set_number_of_ids_and_points;
   std::function<void(const vtkIdType&, const vtkIdType&)> set_ids_and_points;
-
   if (faceId < 2)
   {
     vtkBezierTriangle* result = BdyTri;
@@ -101,7 +100,9 @@ vtkCell* vtkBezierWedge::GetFace(int faceId)
         result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
       };
     }
-    this->GetTriangularFace(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+    vtkHigherOrderWedge::GetTriangularFace(
+      faceId, this->Order, set_number_of_ids_and_points, set_ids_and_points);
+    result->Initialize();
     return result;
   }
   else
@@ -133,7 +134,10 @@ vtkCell* vtkBezierWedge::GetFace(int faceId)
         result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
       };
     }
-    this->GetQuadrilateralFace(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+    int faceOrder[2];
+    vtkHigherOrderWedge::GetQuadrilateralFace(
+      faceId, this->Order, set_number_of_ids_and_points, set_ids_and_points, faceOrder);
+    result->SetOrder(faceOrder[0], faceOrder[1]);
     return result;
   }
 }

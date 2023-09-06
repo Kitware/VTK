@@ -50,9 +50,10 @@ public:
   void SetEdgeIdsAndPoints(int edgeId,
     const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
     const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
-  void SetFaceIdsAndPoints(vtkHigherOrderQuadrilateral* result, int faceId,
+  static void SetFaceIdsAndPoints(int faceId, const int* order,
     const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
-    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points,
+    int* faceOrder);
 
   void Initialize() override;
 

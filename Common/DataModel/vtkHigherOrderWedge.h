@@ -59,6 +59,13 @@ public:
   void SetEdgeIdsAndPoints(int edgeId,
     const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
     const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
+  static void GetTriangularFace(int faceId, const int* order,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
+  static void GetQuadrilateralFace(int faceId, const int* order,
+    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points,
+    int* faceOrder);
   vtkCell* GetFace(int faceId) override = 0;
 
   void Initialize() override;
@@ -122,13 +129,6 @@ protected:
     vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);
   vtkWedge* GetApproximateWedge(
     int subId, vtkDataArray* scalarsIn = nullptr, vtkDataArray* scalarsOut = nullptr);
-
-  void GetTriangularFace(vtkHigherOrderTriangle* result, int faceId,
-    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
-    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
-  void GetQuadrilateralFace(vtkHigherOrderQuadrilateral* result, int faceId,
-    const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
-    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
 
   int Order[4];
   vtkSmartPointer<vtkPoints> PointParametricCoordinates;

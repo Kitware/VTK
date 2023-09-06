@@ -69,7 +69,7 @@ vtkCell* vtkBezierHexahedron::GetEdge(int edgeId)
 vtkCell* vtkBezierHexahedron::GetFace(int faceId)
 {
   vtkBezierQuadrilateral* result = FaceCell;
-
+  int faceOrder[2];
   if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
   {
     const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
@@ -82,7 +82,8 @@ vtkCell* vtkBezierHexahedron::GetFace(int faceId)
       result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
       result->GetRationalWeights()->SetValue(face_id, this->GetRationalWeights()->GetValue(vol_id));
     };
-    this->SetFaceIdsAndPoints(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+    vtkHigherOrderHexahedron::SetFaceIdsAndPoints(
+      faceId, this->Order, set_number_of_ids_and_points, set_ids_and_points, faceOrder);
   }
   else
   {
@@ -95,9 +96,10 @@ vtkCell* vtkBezierHexahedron::GetFace(int faceId)
       result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
     };
-    this->SetFaceIdsAndPoints(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+    vtkHigherOrderHexahedron::SetFaceIdsAndPoints(
+      faceId, this->Order, set_number_of_ids_and_points, set_ids_and_points, faceOrder);
   }
-
+  result->SetOrder(faceOrder[0], faceOrder[1]);
   return result;
 }
 

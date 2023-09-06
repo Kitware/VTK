@@ -132,18 +132,16 @@ void vtkHigherOrderTetra::SetEdgeIdsAndPoints(int edgeId,
 }
 
 //------------------------------------------------------------------------------
-void vtkHigherOrderTetra::SetFaceIdsAndPoints(vtkHigherOrderTriangle* result, int faceId,
+void vtkHigherOrderTetra::SetFaceIdsAndPoints(int faceId, int order, vtkIdType numPts,
   const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
   const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points)
 {
   assert(faceId >= 0 && faceId < 4);
 
-  vtkIdType order = this->GetOrder();
-
   vtkIdType nPoints = (order + 1) * (order + 2) / 2;
 
 #ifdef FIFTEEN_POINT_TETRA
-  if (this->Points->GetNumberOfPoints() == 15)
+  if (numPts == 15)
   {
     nPoints = 7;
   }
@@ -166,14 +164,12 @@ void vtkHigherOrderTetra::SetFaceIdsAndPoints(vtkHigherOrderTriangle* result, in
   }
 
 #ifdef FIFTEEN_POINT_TETRA
-  if (this->Points->GetNumberOfPoints() == 15)
+  if (numPts == 15)
   {
     vtkIdType pointIndex = 10 + ((faceId + 1) % 4);
     set_ids_and_points(6, pointIndex);
   }
 #endif
-
-  result->Initialize();
 }
 
 //------------------------------------------------------------------------------

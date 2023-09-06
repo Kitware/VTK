@@ -77,7 +77,8 @@ vtkCell* vtkBezierTetra::GetFace(int faceId)
       result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
       result->GetRationalWeights()->SetValue(face_id, this->GetRationalWeights()->GetValue(vol_id));
     };
-    this->SetFaceIdsAndPoints(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+    vtkHigherOrderTetra::SetFaceIdsAndPoints(faceId, this->Order, this->Points->GetNumberOfPoints(),
+      set_number_of_ids_and_points, set_ids_and_points);
   }
   else
   {
@@ -90,9 +91,10 @@ vtkCell* vtkBezierTetra::GetFace(int faceId)
       result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
     };
-    this->SetFaceIdsAndPoints(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+    vtkHigherOrderTetra::SetFaceIdsAndPoints(faceId, this->Order, this->Points->GetNumberOfPoints(),
+      set_number_of_ids_and_points, set_ids_and_points);
   }
-
+  result->Initialize();
   return result;
 }
 
