@@ -13,6 +13,7 @@ set(classes
   vtkDemandDrivenPipeline
   vtkDirectedGraphAlgorithm
   vtkEnsembleSource
+  vtkExecutionAggregator
   vtkExecutionRange
   vtkExecutive
   vtkExplicitStructuredGridAlgorithm
