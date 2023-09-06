@@ -170,9 +170,8 @@ int vtkSpatioTemporalHarmonicsAttribute::RequestData(
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
   vtkDataSet* output = vtkDataSet::GetData(outputVector);
 
-  if (!input)
+  if (!input || input->GetNumberOfPoints() == 0)
   {
-    vtkErrorMacro("No input.");
     return 1;
   }
 
@@ -195,8 +194,7 @@ int vtkSpatioTemporalHarmonicsAttribute::RequestData(
   {
     vtkErrorMacro(
       "Failed to compute harmonics. Harmonics parameters should be specified for each harmonic.");
-    newScalars->FillValue(0.0);
-    return 1;
+    return 0;
   }
 
   if (this->Amplitudes.empty())
