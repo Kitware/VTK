@@ -48,6 +48,7 @@ set (VolumeCxxTests
   TestGPURayCastMultiVolumeCellData.cxx
   TestGPURayCastMultiVolumeOverlapping.cxx
   TestGPURayCastMultiVolumeShade.cxx
+  TestGPURayCastMultiVolumeRGBA.cxx
   TestGPURayCastMultiVolumeTransfer2D.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastOrientedVolume.cxx
