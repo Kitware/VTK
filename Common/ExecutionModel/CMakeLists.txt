@@ -13,6 +13,7 @@ set(classes
   vtkDataSetAlgorithm
   vtkDemandDrivenPipeline
   vtkDirectedGraphAlgorithm
+  vtkEndFor
   vtkEnsembleSource
   vtkExecutionAggregator
   vtkExecutionRange
