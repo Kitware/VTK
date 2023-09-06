@@ -20,6 +20,7 @@ set(classes
   vtkExtentSplitter
   vtkExtentTranslator
   vtkFilteringInformationKeyManager
+  vtkForEach
   vtkGraphAlgorithm
   vtkHierarchicalBoxDataSetAlgorithm
   vtkHyperTreeGridAlgorithm
