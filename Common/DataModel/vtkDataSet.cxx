@@ -526,54 +526,27 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
     {
       vtkHigherOrderQuadrilateral* cellBezier =
         dynamic_cast<vtkHigherOrderQuadrilateral*>(cell->GetRepresentativeCell());
-      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        cellBezier->SetOrder(degs[0], degs[1]);
-      }
-      else
-      {
-        vtkIdType numPts = cell->PointIds->GetNumberOfIds();
-        cellBezier->SetUniformOrderFromNumPoints(numPts);
-      }
+      // Set the degrees
+      cellBezier->SetOrderFromCellData(
+        this->GetCellData(), cell->PointIds->GetNumberOfIds(), cellId);
       break;
     }
     case VTK_LAGRANGE_WEDGE:
     {
-      vtkIdType numPts = cell->PointIds->GetNumberOfIds();
       vtkHigherOrderWedge* cellBezier =
         dynamic_cast<vtkHigherOrderWedge*>(cell->GetRepresentativeCell());
-      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        cellBezier->SetOrder(degs[0], degs[1], degs[2], numPts);
-      }
-      else
-      {
-        cellBezier->SetUniformOrderFromNumPoints(numPts);
-      }
+      // Set the degrees
+      cellBezier->SetOrderFromCellData(
+        this->GetCellData(), cell->PointIds->GetNumberOfIds(), cellId);
       break;
     }
     case VTK_LAGRANGE_HEXAHEDRON:
     {
       vtkHigherOrderHexahedron* cellBezier =
         dynamic_cast<vtkHigherOrderHexahedron*>(cell->GetRepresentativeCell());
-      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        cellBezier->SetOrder(degs[0], degs[1], degs[2]);
-      }
-      else
-      {
-        vtkIdType numPts = cell->PointIds->GetNumberOfIds();
-        cellBezier->SetUniformOrderFromNumPoints(numPts);
-      }
+      // Set the degrees
+      cellBezier->SetOrderFromCellData(
+        this->GetCellData(), cell->PointIds->GetNumberOfIds(), cellId);
       break;
     }
 
@@ -583,20 +556,8 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
       vtkIdType numPts = cell->PointIds->GetNumberOfIds();
       vtkBezierQuadrilateral* cellBezier =
         dynamic_cast<vtkBezierQuadrilateral*>(cell->GetRepresentativeCell());
-
       // Set the degrees
-      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        cellBezier->SetOrder(degs[0], degs[1]);
-      }
-      else
-      {
-        cellBezier->SetUniformOrderFromNumPoints(numPts);
-      }
-
+      cellBezier->SetOrderFromCellData(this->GetCellData(), numPts, cellId);
       // Set the weights
       cellBezier->SetRationalWeightsFromPointData(GetPointData(), numPts);
       break;
@@ -606,20 +567,8 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
       vtkIdType numPts = cell->PointIds->GetNumberOfIds();
       vtkBezierHexahedron* cellBezier =
         dynamic_cast<vtkBezierHexahedron*>(cell->GetRepresentativeCell());
-
       // Set the degrees
-      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        cellBezier->SetOrder(degs[0], degs[1], degs[2]);
-      }
-      else
-      {
-        cellBezier->SetUniformOrderFromNumPoints(numPts);
-      }
-
+      cellBezier->SetOrderFromCellData(this->GetCellData(), numPts, cellId);
       // Set the weights
       cellBezier->SetRationalWeightsFromPointData(GetPointData(), numPts);
       break;
@@ -628,20 +577,8 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
     {
       vtkIdType numPts = cell->PointIds->GetNumberOfIds();
       vtkBezierWedge* cellBezier = dynamic_cast<vtkBezierWedge*>(cell->GetRepresentativeCell());
-
       // Set the degrees
-      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        cellBezier->SetOrder(degs[0], degs[1], degs[2], numPts);
-      }
-      else
-      {
-        cellBezier->SetUniformOrderFromNumPoints(numPts);
-      }
-
+      cellBezier->SetOrderFromCellData(this->GetCellData(), numPts, cellId);
       // Set the weights
       cellBezier->SetRationalWeightsFromPointData(GetPointData(), numPts);
       break;
