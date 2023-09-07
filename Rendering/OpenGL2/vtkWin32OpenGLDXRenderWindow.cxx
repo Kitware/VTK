@@ -42,7 +42,12 @@ vtkWin32OpenGLDXRenderWindow::~vtkWin32OpenGLDXRenderWindow()
 void vtkWin32OpenGLDXRenderWindow::Initialize()
 {
   this->Superclass::Initialize();
+  this->InitializeDX();
+}
 
+//------------------------------------------------------------------------------
+void vtkWin32OpenGLDXRenderWindow::InitializeDX()
+{
   // Require NV_DX_interop OpenGL extension
   if (!WGLEW_NV_DX_interop)
   {

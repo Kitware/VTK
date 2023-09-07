@@ -96,6 +96,11 @@ protected:
   vtkWin32OpenGLDXRenderWindow();
   ~vtkWin32OpenGLDXRenderWindow() override;
 
+  /**
+   * @brief Initialize D3D adapter, device and shared texture
+   */
+  void InitializeDX();
+
 private:
   vtkWin32OpenGLDXRenderWindow(const vtkWin32OpenGLDXRenderWindow&) = delete;
   void operator=(const vtkWin32OpenGLDXRenderWindow&) = delete;
