@@ -142,6 +142,16 @@ public:
   vtkGetMacro(StreamSteps, bool);
   ///@}
 
+  ///@{
+  /**
+   * Determines whether to close gaps between blocks of structured grids with the use of shared
+   * points.
+   */
+  vtkBooleanMacro(CreateSharedPoints, bool);
+  vtkSetMacro(CreateSharedPoints, bool);
+  vtkGetMacro(CreateSharedPoints, bool);
+  ///@}
+
   /**
    * Object to perform point array selection before update.
    */
@@ -163,6 +173,7 @@ protected:
   bool ConvertToVTK;
   bool StreamSteps;
   StepStatus NextStepStatus;
+  bool CreateSharedPoints;
 
   virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);

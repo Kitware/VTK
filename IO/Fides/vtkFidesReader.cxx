@@ -5,6 +5,7 @@
 
 #include "vtkDataArraySelection.h"
 #include "vtkFieldData.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -44,6 +45,7 @@ struct vtkFidesReader::vtkFidesReaderImpl
   bool UseInlineEngine{ false };
   fides::Params AllParams;
   vtkNew<vtkStringArray> SourceNames;
+  vtkNew<vtkGhostCellsGenerator> GhostCellsGenerator;
 
   // Metadata of an individual group in ADIOS file
   // This metadata is populated in RequestInformation.
@@ -110,6 +112,7 @@ vtkFidesReader::vtkFidesReader()
   this->ConvertToVTK = false;
   this->StreamSteps = false;
   this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
+  this->CreateSharedPoints = true;
 }
 
 vtkFidesReader::~vtkFidesReader()
@@ -194,8 +197,8 @@ void vtkFidesReader::ParseDataModel()
   }
   try
   {
-    this->Impl->Reader.reset(new fides::io::DataSetReader(
-      this->FileName, inputType, this->StreamSteps, this->Impl->AllParams));
+    this->Impl->Reader.reset(new fides::io::DataSetReader(this->FileName, inputType,
+      this->StreamSteps, this->Impl->AllParams, this->CreateSharedPoints));
   }
   catch (std::exception& e)
   {
@@ -252,6 +255,7 @@ void vtkFidesReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Has parsed data model: " << this->Impl->HasParsedDataModel << "\n";
   os << indent << "All data sources set: " << this->Impl->AllDataSourcesSet << "\n";
   os << indent << "Number of data sources: " << this->Impl->NumberOfDataSources << "\n";
+  os << indent << "Create shared points: " << this->CreateSharedPoints << "\n";
 }
 
 int vtkFidesReader::ProcessRequest(
@@ -785,6 +789,16 @@ int vtkFidesReader::RequestData(
       }
     }
     pdsIdx++;
+  }
+
+  if (this->ConvertToVTK)
+  {
+    this->Impl->GhostCellsGenerator->SetInputData(output);
+    this->Impl->GhostCellsGenerator->BuildIfRequiredOff();
+    this->Impl->GhostCellsGenerator->SetNumberOfGhostLayers(
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    this->Impl->GhostCellsGenerator->Update();
+    output->ShallowCopy(this->Impl->GhostCellsGenerator->GetOutput());
   }
 
   return 1;
