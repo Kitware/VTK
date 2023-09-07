@@ -1218,17 +1218,51 @@ void vtkHigherOrderWedge::GetQuadrilateralFace(int faceId, const int* order,
 void vtkHigherOrderWedge::SetOrderFromCellData(
   vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id)
 {
+  vtkHigherOrderWedge::SetOrderFromCellData(cell_data, numPts, cell_id, this->Order);
+}
+
+void vtkHigherOrderWedge::SetOrderFromCellData(
+  vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id, int* order)
+{
   vtkDataArray* v = cell_data->GetHigherOrderDegrees();
   if (v)
   {
     double degs[3];
     v->GetTuple(cell_id, degs);
-    this->SetOrder(degs[0], degs[1], degs[2], numPts);
+    order[0] = degs[0];
+    order[1] = degs[1];
+    order[2] = degs[2];
   }
   else
   {
-    this->SetUniformOrderFromNumPoints(numPts);
+    const double n = static_cast<double>(numPts);
+    static const double third(1. / 3.);
+    static const double ninth(1. / 9.);
+    static const double twentyseventh(1. / 27.);
+    const double term =
+      std::cbrt(third * sqrt(third) * sqrt((27.0 * n - 2.0) * n) + n - twentyseventh);
+    int deg = static_cast<int>(round(term + ninth / term - 4 * third));
+
+#ifdef VTK_21_POINT_WEDGE
+    if (numPts == 21)
+    {
+      deg = 2;
+    }
+#endif
+    order[0] = order[1] = order[2] = deg;
   }
+#ifdef VTK_21_POINT_WEDGE
+  if (numPts == 21)
+  {
+    order[3] = numPts;
+    if ((order[0] != 2) || (order[2] != 2))
+      vtkGenericWarningMacro("For Wedge 21, the degrees should be quadratic.");
+    return;
+  }
+#endif
+  order[3] = (order[0] + 1) * (order[1] + 2) / 2 * (order[2] + 1);
+  if (order[3] != numPts)
+    vtkGenericWarningMacro("The degrees are not correctly set in the input file.");
 }
 
 void vtkHigherOrderWedge::SetUniformOrderFromNumPoints(vtkIdType numPts)

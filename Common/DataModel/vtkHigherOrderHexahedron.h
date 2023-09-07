@@ -79,6 +79,8 @@ public:
   double GetParametricDistance(const double pcoords[3]) override;
 
   virtual void SetOrderFromCellData(vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id);
+  static void SetOrderFromCellData(
+    vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id, int* order);
   virtual void SetUniformOrderFromNumPoints(vtkIdType numPts);
   virtual void SetOrder(int s, int t, int u);
   virtual const int* GetOrder();

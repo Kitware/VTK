@@ -731,19 +731,30 @@ bool vtkHigherOrderHexahedron::TransformFaceToCellParams(int bdyFace, double* pc
 void vtkHigherOrderHexahedron::SetOrderFromCellData(
   vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id)
 {
+  vtkHigherOrderHexahedron::SetOrderFromCellData(cell_data, numPts, cell_id, this->Order);
+}
+
+void vtkHigherOrderHexahedron::SetOrderFromCellData(
+  vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id, int* order)
+{
   vtkDataArray* v = cell_data->GetHigherOrderDegrees();
   if (v)
   {
     double degs[3];
     v->GetTuple(cell_id, degs);
-    this->SetOrder(degs[0], degs[1], degs[2]);
-    if (this->Order[3] != numPts)
-      vtkErrorMacro("The degrees are not correctly set in the input file.");
+    order[0] = degs[0];
+    order[1] = degs[1];
+    order[2] = degs[2];
   }
   else
   {
-    this->SetUniformOrderFromNumPoints(numPts);
+    order[0] = order[1] = order[2] =
+      static_cast<int>(round(std::cbrt(static_cast<int>(numPts)))) - 1;
   }
+  order[3] = (order[0] + 1) * (order[1] + 1) * (order[2] + 1);
+  if (order[3] != numPts)
+    vtkGenericWarningMacro(
+      "The degrees are direction dependents, and should be set in the input file.");
 }
 
 void vtkHigherOrderHexahedron::SetUniformOrderFromNumPoints(vtkIdType numPts)
