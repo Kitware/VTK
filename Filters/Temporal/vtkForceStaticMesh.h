@@ -9,6 +9,7 @@
 #include "vtkPassThrough.h"
 #include "vtkSmartPointer.h" // For internal field
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCompositeDataSet;
 
@@ -24,7 +25,6 @@ class vtkCompositeDataSet;
  * This filter only impacts vtkPolyData and vtkUnstructuredGrid dataset and blocks (in composite
  * data sets) as other data set types do not provide a GetMeshMTime method.
  */
-VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSTEMPORAL_EXPORT vtkForceStaticMesh : public vtkPassThrough
 {
 public:
