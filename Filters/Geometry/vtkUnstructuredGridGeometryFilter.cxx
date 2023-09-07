@@ -397,7 +397,7 @@ public:
 
   // Add faces of cell type FaceType
   template <typename CellType, int FirstFace, int LastFace, int NumPoints, int FaceType>
-  void InsertFaces(vtkIdType* pts, vtkIdType cellId)
+  void InsertFaces(vtkIdType* pts, vtkIdType cellId, int MatchBoundariesIgnoringCellOrder)
   {
     vtkIdType points[NumPoints];
     for (int face = FirstFace; face < LastFace; ++face)
@@ -408,7 +408,8 @@ public:
         points[pt] = pts[faceIndices[pt]];
       }
       int degrees[2]{ 0, 0 };
-      this->InsertFace(cellId, FaceType, NumPoints, points, degrees);
+      this->InsertFace(
+        cellId, FaceType, NumPoints, points, degrees, MatchBoundariesIgnoringCellOrder);
     }
   }
 
@@ -416,19 +417,23 @@ public:
   // its list of points and the cellId of the 3D cell it belongs to.
   // \pre positive number of points
 
-  void InsertFace(
-    vtkIdType cellId, vtkIdType faceType, int numberOfPoints, vtkIdType* points, int degrees[2])
+  void InsertFace(vtkIdType cellId, vtkIdType faceType, int numberOfPoints, vtkIdType* points,
+    int degrees[2], int matchBoundariesIgnoringCellOrder)
   {
     assert("pre: positive number of points" && numberOfPoints >= 0);
 
     int numberOfCornerPoints;
-
+    vtkIdType faceTypeUsedToHash = faceType;
     switch (faceType)
     {
       case VTK_QUADRATIC_TRIANGLE:
       case VTK_BIQUADRATIC_TRIANGLE:
       case VTK_LAGRANGE_TRIANGLE:
       case VTK_BEZIER_TRIANGLE:
+        if (matchBoundariesIgnoringCellOrder)
+        {
+          faceTypeUsedToHash = VTK_TRIANGLE;
+        }
         numberOfCornerPoints = 3;
         break;
       case VTK_QUADRATIC_QUAD:
@@ -436,6 +441,10 @@ public:
       case VTK_BIQUADRATIC_QUAD:
       case VTK_LAGRANGE_QUADRILATERAL:
       case VTK_BEZIER_QUADRILATERAL:
+        if (matchBoundariesIgnoringCellOrder)
+        {
+          faceTypeUsedToHash = VTK_QUAD;
+        }
         numberOfCornerPoints = 4;
         break;
       default:
@@ -456,7 +465,7 @@ public:
     }
 
     // Compute the hashkey/code
-    size_t key = (faceType * VTK_HASH_PRIME + smallestId) % (this->HashTable.size());
+    size_t key = (faceTypeUsedToHash * VTK_HASH_PRIME + smallestId) % (this->HashTable.size());
 
     // Get the list at this key (several not equal faces can share the
     // same hashcode). This is the first element in the list.
@@ -477,10 +486,39 @@ public:
       vtkSurfel* previous = current;
       while (!found && current != nullptr)
       {
-        found = current->Type == faceType;
+        if (!matchBoundariesIgnoringCellOrder)
+        {
+          found = current->Type == faceTypeUsedToHash;
+        }
+        else
+        {
+          // vtkSurfel stores the cell type with the highest order.
+          // so we need to found its linear counterpart before comparing to faceTypeUsedToHash
+          switch (current->Type)
+          {
+            case VTK_TRIANGLE:
+            case VTK_QUADRATIC_TRIANGLE:
+            case VTK_BIQUADRATIC_TRIANGLE:
+            case VTK_LAGRANGE_TRIANGLE:
+            case VTK_BEZIER_TRIANGLE:
+              found = (faceTypeUsedToHash == VTK_TRIANGLE);
+              break;
+            case VTK_QUAD:
+            case VTK_QUADRATIC_QUAD:
+            case VTK_QUADRATIC_LINEAR_QUAD:
+            case VTK_BIQUADRATIC_QUAD:
+            case VTK_LAGRANGE_QUADRILATERAL:
+            case VTK_BEZIER_QUADRILATERAL:
+              found = (faceTypeUsedToHash == VTK_QUAD);
+              break;
+            default:
+              found = 0;
+          }
+        }
         if (found)
         {
-          if (faceType == VTK_QUADRATIC_LINEAR_QUAD)
+          if ((faceTypeUsedToHash == VTK_QUADRATIC_LINEAR_QUAD) &&
+            (!matchBoundariesIgnoringCellOrder))
           {
             // weird case
             // the following four combinations are equivalent
@@ -491,26 +529,12 @@ public:
 
             // if current=0 or 2, other face has to be 1 or 3
             // if current=1 or 3, other face has to be 0 or 2
-
-            if (points[0] == current->Points[1])
-            {
-              found = (points[1] == current->Points[0] && points[2] == current->Points[3] &&
-                points[3] == current->Points[2] && points[4] == current->Points[4] &&
-                points[5] == current->Points[5]);
-            }
-            else
-            {
-              if (points[0] == current->Points[3])
-              {
-                found = (points[1] == current->Points[2] && points[2] == current->Points[1] &&
-                  points[3] == current->Points[0] && points[4] == current->Points[5] &&
-                  points[5] == current->Points[4]);
-              }
-              else
-              {
-                found = 0;
-              }
-            }
+            found = (points[0] == current->Points[1] && points[1] == current->Points[0] &&
+                      points[2] == current->Points[3] && points[3] == current->Points[2] &&
+                      points[4] == current->Points[4] && points[5] == current->Points[5]) ||
+              (points[0] == current->Points[3] && points[1] == current->Points[2] &&
+                points[2] == current->Points[1] && points[3] == current->Points[0] &&
+                points[4] == current->Points[5] && points[5] == current->Points[4]);
           }
           else
           {
@@ -531,79 +555,47 @@ public:
             }
 
             // Check for other kind of points for nonlinear faces.
-            if (found)
+            if (found && (!matchBoundariesIgnoringCellOrder))
             {
               switch (faceType)
               {
                 case VTK_QUADRATIC_TRIANGLE:
+                case VTK_QUADRATIC_QUAD:
                   // the mid-edge points
                   i = 0;
-                  while (found && i < 3)
+                  while (found && i < numberOfCornerPoints)
                   {
                     // we add numberOfPoints before modulo. Modulo does not work
                     // with negative values.
                     // -1: start at the end in reverse order.
-                    found =
-                      current
-                        ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 3 - 1) % 3)] ==
-                      points[numberOfCornerPoints + ((smallestIdx + i) % 3)];
+                    found = current->Points[numberOfCornerPoints +
+                              ((current->SmallestIdx - i + numberOfCornerPoints - 1) %
+                                numberOfCornerPoints)] ==
+                      points[numberOfCornerPoints + ((smallestIdx + i) % numberOfCornerPoints)];
                     ++i;
                   }
                   break;
                 case VTK_BIQUADRATIC_TRIANGLE:
+                case VTK_BIQUADRATIC_QUAD:
                   // the center point
-                  found = current->Points[6] == points[6];
+                  found = current->Points[numberOfPoints - 1] == points[numberOfPoints - 1];
 
                   // the mid-edge points
                   i = 0;
-                  while (found && i < 3)
+                  while (found && i < numberOfCornerPoints)
                   {
                     // we add numberOfPoints before modulo. Modulo does not work
                     // with negative values.
                     // -1: start at the end in reverse order.
-                    found =
-                      current
-                        ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 3 - 1) % 3)] ==
-                      points[numberOfCornerPoints + ((smallestIdx + i) % 3)];
+                    found = current->Points[numberOfCornerPoints +
+                              ((current->SmallestIdx - i + numberOfCornerPoints - 1) %
+                                numberOfCornerPoints)] ==
+                      points[numberOfCornerPoints + ((smallestIdx + i) % numberOfCornerPoints)];
                     ++i;
                   }
                   break;
                 case VTK_LAGRANGE_TRIANGLE:
                 case VTK_BEZIER_TRIANGLE:
-                  found &= (current->NumberOfPoints == numberOfPoints);
-                  // TODO: Compare all higher order points.
-                  break;
-                case VTK_QUADRATIC_QUAD:
-                  // the mid-edge points
-                  i = 0;
-                  while (found && i < 4)
-                  {
-                    // we add numberOfPoints before modulo. Modulo does not work
-                    // with negative values.
-                    found =
-                      current
-                        ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 4 - 1) % 4)] ==
-                      points[numberOfCornerPoints + ((smallestIdx + i) % 4)];
-                    ++i;
-                  }
-                  break;
-                case VTK_BIQUADRATIC_QUAD:
-                  // the center point
-                  found = current->Points[8] == points[8];
-
-                  // the mid-edge points
-                  i = 0;
-                  while (found && i < 4)
-                  {
-                    // we add numberOfPoints before modulo. Modulo does not work
-                    // with negative values.
-                    found =
-                      current
-                        ->Points[numberOfCornerPoints + ((current->SmallestIdx - i + 4 - 1) % 4)] ==
-                      points[numberOfCornerPoints + ((smallestIdx + i) % 4)];
-                    ++i;
-                  }
-                  break;
                 case VTK_LAGRANGE_QUADRILATERAL:
                 case VTK_BEZIER_QUADRILATERAL:
                   found &= (current->NumberOfPoints == numberOfPoints);
@@ -762,6 +754,7 @@ vtkUnstructuredGridGeometryFilter::vtkUnstructuredGridGeometryFilter()
 
   this->PassThroughCellIds = 0;
   this->PassThroughPointIds = 0;
+  this->MatchBoundariesIgnoringCellOrder = 0;
   this->OriginalCellIdsName = nullptr;
   this->OriginalPointIdsName = nullptr;
 
@@ -1065,84 +1058,95 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
         switch (cellType)
         {
           case VTK_TETRA:
-            this->HashTable->InsertFaces<vtkTetra, 0, 4, 3, VTK_TRIANGLE>(pts, cellId);
+            this->HashTable->InsertFaces<vtkTetra, 0, 4, 3, VTK_TRIANGLE>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_VOXEL:
             // note, faces are PIXEL not QUAD. We don't need to convert
             //  to QUAD because PIXEL exist in an UnstructuredGrid.
-            this->HashTable->InsertFaces<vtkVoxel, 0, 6, 4, VTK_PIXEL>(pts, cellId);
+            this->HashTable->InsertFaces<vtkVoxel, 0, 6, 4, VTK_PIXEL>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_HEXAHEDRON:
-            this->HashTable->InsertFaces<vtkHexahedron, 0, 6, 4, VTK_QUAD>(pts, cellId);
+            this->HashTable->InsertFaces<vtkHexahedron, 0, 6, 4, VTK_QUAD>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_WEDGE:
-            this->HashTable->InsertFaces<vtkWedge, 0, 2, 3, VTK_TRIANGLE>(pts, cellId);
-            this->HashTable->InsertFaces<vtkWedge, 2, 5, 4, VTK_QUAD>(pts, cellId);
+            this->HashTable->InsertFaces<vtkWedge, 0, 2, 3, VTK_TRIANGLE>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
+            this->HashTable->InsertFaces<vtkWedge, 2, 5, 4, VTK_QUAD>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_PYRAMID:
-            this->HashTable->InsertFaces<vtkPyramid, 0, 1, 4, VTK_QUAD>(pts, cellId);
-            this->HashTable->InsertFaces<vtkPyramid, 1, 5, 3, VTK_TRIANGLE>(pts, cellId);
+            this->HashTable->InsertFaces<vtkPyramid, 0, 1, 4, VTK_QUAD>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
+            this->HashTable->InsertFaces<vtkPyramid, 1, 5, 3, VTK_TRIANGLE>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_PENTAGONAL_PRISM:
-            this->HashTable->InsertFaces<vtkPentagonalPrism, 0, 2, 5, VTK_POLYGON>(pts, cellId);
-            this->HashTable->InsertFaces<vtkPentagonalPrism, 2, 7, 4, VTK_QUAD>(pts, cellId);
+            this->HashTable->InsertFaces<vtkPentagonalPrism, 0, 2, 5, VTK_POLYGON>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
+            this->HashTable->InsertFaces<vtkPentagonalPrism, 2, 7, 4, VTK_QUAD>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_HEXAGONAL_PRISM:
-            this->HashTable->InsertFaces<vtkHexagonalPrism, 0, 2, 6, VTK_POLYGON>(pts, cellId);
-            this->HashTable->InsertFaces<vtkHexagonalPrism, 2, 8, 4, VTK_QUAD>(pts, cellId);
+            this->HashTable->InsertFaces<vtkHexagonalPrism, 0, 2, 6, VTK_POLYGON>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
+            this->HashTable->InsertFaces<vtkHexagonalPrism, 2, 8, 4, VTK_QUAD>(
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_QUADRATIC_TETRA:
             this->HashTable->InsertFaces<vtkQuadraticTetra, 0, 4, 6, VTK_QUADRATIC_TRIANGLE>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_QUADRATIC_HEXAHEDRON:
             this->HashTable->InsertFaces<vtkQuadraticHexahedron, 0, 6, 8, VTK_QUADRATIC_QUAD>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_QUADRATIC_WEDGE:
             this->HashTable->InsertFaces<vtkQuadraticWedge, 0, 2, 6, VTK_QUADRATIC_TRIANGLE>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             this->HashTable->InsertFaces<vtkQuadraticWedge, 2, 5, 8, VTK_QUADRATIC_QUAD>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_QUADRATIC_PYRAMID:
             this->HashTable->InsertFaces<vtkQuadraticPyramid, 0, 1, 8, VTK_QUADRATIC_QUAD>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             this->HashTable->InsertFaces<vtkQuadraticPyramid, 1, 5, 6, VTK_QUADRATIC_TRIANGLE>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_TRIQUADRATIC_PYRAMID:
             this->HashTable->InsertFaces<vtkTriQuadraticPyramid, 0, 1, 9, VTK_BIQUADRATIC_QUAD>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             this->HashTable->InsertFaces<vtkTriQuadraticPyramid, 1, 5, 7, VTK_BIQUADRATIC_TRIANGLE>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_TRIQUADRATIC_HEXAHEDRON:
             this->HashTable->InsertFaces<vtkTriQuadraticHexahedron, 0, 6, 9, VTK_BIQUADRATIC_QUAD>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_QUADRATIC_LINEAR_WEDGE:
             this->HashTable->InsertFaces<vtkQuadraticLinearWedge, 0, 2, 6, VTK_QUADRATIC_TRIANGLE>(
-              pts, cellId);
+              pts, cellId, MatchBoundariesIgnoringCellOrder);
             this->HashTable
               ->InsertFaces<vtkQuadraticLinearWedge, 2, 5, 6, VTK_QUADRATIC_LINEAR_QUAD>(
-                pts, cellId);
+                pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
             this->HashTable
               ->InsertFaces<vtkBiQuadraticQuadraticWedge, 0, 2, 6, VTK_QUADRATIC_TRIANGLE>(
-                pts, cellId);
+                pts, cellId, MatchBoundariesIgnoringCellOrder);
             this->HashTable
               ->InsertFaces<vtkBiQuadraticQuadraticWedge, 2, 5, 9, VTK_BIQUADRATIC_QUAD>(
-                pts, cellId);
+                pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
             this->HashTable
               ->InsertFaces<vtkBiQuadraticQuadraticHexahedron, 0, 4, 9, VTK_BIQUADRATIC_QUAD>(
-                pts, cellId);
+                pts, cellId, MatchBoundariesIgnoringCellOrder);
             this->HashTable
               ->InsertFaces<vtkBiQuadraticQuadraticHexahedron, 4, 6, 8, VTK_QUADRATIC_QUAD>(
-                pts, cellId);
+                pts, cellId, MatchBoundariesIgnoringCellOrder);
             break;
           case VTK_POLYHEDRON:
           {
@@ -1152,8 +1156,8 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
             {
               int pt = static_cast<int>(faces->GetId(fptr++));
               int degrees[2]{ 0, 0 };
-              this->HashTable->InsertFace(
-                cellId, VTK_POLYGON, pt, faces->GetPointer(fptr), degrees);
+              this->HashTable->InsertFace(cellId, VTK_POLYGON, pt, faces->GetPointer(fptr), degrees,
+                MatchBoundariesIgnoringCellOrder);
               fptr += pt;
             }
             break;
@@ -1189,8 +1193,8 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
                 degrees[0] = facecellBezier->GetOrder(0);
                 degrees[1] = facecellBezier->GetOrder(1);
               }
-              this->HashTable->InsertFace(
-                cellId, faceCell->GetCellType(), nPoints, points, degrees);
+              this->HashTable->InsertFace(cellId, faceCell->GetCellType(), nPoints, points, degrees,
+                MatchBoundariesIgnoringCellOrder);
               delete[] points;
             }
             break;
@@ -1370,6 +1374,8 @@ void vtkUnstructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "PassThroughCellIds: " << this->PassThroughCellIds << endl;
   os << indent << "PassThroughPointIds: " << this->PassThroughPointIds << endl;
+  os << indent << "MatchBoundariesIgnoringCellOrder: " << this->MatchBoundariesIgnoringCellOrder
+     << endl;
 
   os << indent << "OriginalCellIdsName: " << this->GetOriginalCellIdsName() << endl;
   os << indent << "OriginalPointIdsName: " << this->GetOriginalPointIdsName() << endl;

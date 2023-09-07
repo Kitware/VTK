@@ -184,6 +184,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
     uggf->SetInputData(clone);
     uggf->SetPassThroughCellIds(this->PassThroughCellIds);
     uggf->SetPassThroughPointIds(this->PassThroughPointIds);
+    uggf->SetMatchBoundariesIgnoringCellOrder(this->MatchBoundariesIgnoringCellOrder);
     uggf->Update();
 
     tempInput = vtkSmartPointer<vtkUnstructuredGrid>::New();
