@@ -343,3 +343,4 @@ void vtkURILoader::PrintSelf(ostream& os, vtkIndent indent)
      << std::endl;
   Superclass::PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END
