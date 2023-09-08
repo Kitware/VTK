@@ -152,7 +152,7 @@ public:
    * THE DATASET IS NOT MODIFIED
    *
    * @warning This method MUST be overridden for performance reasons.
-   * Default implementation is very unefficient.
+   * Default implementation is very inefficient.
    */
   virtual vtkIdType GetCellSize(vtkIdType cellId);
 
@@ -377,6 +377,15 @@ public:
    * THIS METHOD IS THREAD SAFE
    */
   virtual int GetMaxCellSize() = 0;
+
+  /**
+   * Get the maximum spatial dimensionality of the data
+   * which is the maximum dimension of all cells.
+   *
+   * @warning This method MUST be overridden for performance reasons.
+   * Default implementation is very inefficient.
+   */
+  virtual int GetMaxSpatialDimension();
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number

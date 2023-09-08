@@ -266,6 +266,12 @@ public:
   int GetMaxCellSize() override;
 
   /**
+   * Get the maximum spatial dimensionality of the data
+   * which is the maximum dimension of all cells.
+   */
+  int GetMaxSpatialDimension() override;
+
+  /**
    * Build topological links from points to lists of cells that use each point.
    * See vtkAbstractCellLinks for more information.
    */

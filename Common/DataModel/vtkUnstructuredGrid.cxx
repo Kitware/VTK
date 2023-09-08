@@ -1195,6 +1195,21 @@ int vtkUnstructuredGrid::GetMaxCellSize()
 }
 
 //------------------------------------------------------------------------------
+int vtkUnstructuredGrid::GetMaxSpatialDimension()
+{
+  if (auto cellTypes = this->GetDistinctCellTypesArray())
+  {
+    int maxDim = 0;
+    for (vtkIdType i = 0; i < cellTypes->GetNumberOfValues(); ++i)
+    {
+      maxDim = std::max(maxDim, vtkCellTypes::GetDimension(cellTypes->GetValue(i)));
+    }
+    return maxDim;
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 vtkIdType vtkUnstructuredGrid::GetNumberOfCells()
 {
   vtkDebugMacro(<< "NUMBER OF CELLS = "
