@@ -1,4 +1,5 @@
 set(classes
+  vtkAggregateToPartitionedDataSetCollection
   vtkAlgorithm
   vtkAlgorithmOutput
   vtkAnnotationLayersAlgorithm
