@@ -16,6 +16,7 @@ vtk_add_test_cxx(vtkIOIOSSCxxTests tests
   TestIOSSReadAllFilesToDetermineStructure.cxx,NO_VALID
   TestIOSSTri6.cxx
   TestIOSSUnsupported.cxx,NO_VALID
+  TestIOSSWedge21.cxx
   TestIOSSGhostArray.cxx,NO_VALID
 )
 
