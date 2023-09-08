@@ -43,6 +43,7 @@ ValueType vtkAffineImplicitBackend<ValueType>::operator()(int index) const
 {
   return this->Slope * static_cast<ValueType>(index) + this->Intercept;
 }
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkAffineImplicitBackend_txx
 

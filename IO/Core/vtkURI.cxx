@@ -779,3 +779,4 @@ void vtkURI::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Uri: " << this->ToString() << std::endl;
   Superclass::PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END
