@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkCommonExecutionModelCxxTests tests
   TestAbortExecuteFromOtherThread.cxx
   TestAbortSMPFilter.cxx
   TestCopyAttributeData.cxx
+  TestForEach.cxx
   TestImageDataToStructuredGrid.cxx
   TestMetaData.cxx
   TestSetInputDataObject.cxx
