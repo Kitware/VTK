@@ -219,3 +219,7 @@ The following strategies (in order of complexity) have been implemented so far:
 - `vtkToAffineArrayStrategy`: transform an explicit array that follows an affine dependence on its indexes into a `vtkAffineArray`
 - `vtkToImplicitTypeErasureStrategy`: transform an explicit integral array (with more range in its value type than necessary for describing it) into a reduced memory explicit integral array wrapped in an implicit array.
 - `vtkToImplicitRamerDouglasPeuckerStrategy`: transform an explicit memory array into a `vtkCompositeArray` with constant (`vtkConstantArray`) and affine (`vtkAffineArray`) parts following a Ramer-Douglas-Peucker algorithm.
+
+## `GetActualMemorySize` function for `vtkImplicitArray`s
+
+`vtkImplicitArray` backends can also define the method `getMemorySize` returning an `unsigned long` value corresponding to their memory usage in KiB. This value can then be accessed through `vtkImplicitArray`'s method `GetActualMemorySize`. If the backend does not define `getMemorySize`, the value returned by `GetActualMemorySize` will be 1.
