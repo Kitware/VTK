@@ -375,6 +375,7 @@ int GetCellType(const Ioss::ElementTopology* topology)
       {
         case 13:
         case 14:
+        case 18:
           return VTK_QUADRATIC_PYRAMID;
         case 19:
           return VTK_TRIQUADRATIC_PYRAMID;
@@ -517,12 +518,18 @@ const Ioss::ElementTopology* GetElementTopology(int vtk_cell_type)
 
 //----------------------------------------------------------------------------
 // internal: get number of points in VTK cell type.
-static vtkIdType GetNumberOfPointsInCellType(int vtk_cell_type)
+static vtkIdType GetNumberOfPointsInCellType(int vtk_cell_type, int ioss_num_points)
 {
   switch (vtk_cell_type)
   {
     case VTK_POLY_VERTEX:
       return -1;
+    case VTK_LAGRANGE_WEDGE:
+      if (ioss_num_points == 21)
+      {
+        return ioss_num_points;
+      }
+      break;
     default:
       break;
   }
@@ -689,7 +696,8 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
   auto connectivity_raw =
     vtkIOSSUtilities::GetData(group_entity, "connectivity_raw", transform.get());
 
-  auto vtk_cell_points = vtkIOSSUtilities::GetNumberOfPointsInCellType(vtk_topology_type);
+  auto vtk_cell_points =
+    vtkIOSSUtilities::GetNumberOfPointsInCellType(vtk_topology_type, ioss_cell_points);
   if (vtk_cell_points == -1)
   {
     // means that the VTK cell can have as many points as needed e.g.
@@ -748,9 +756,30 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
       // clang-format on
       break;
 
-    case VTK_LAGRANGE_WEDGE: // wedge-21
-      // here, the ordering is consistent with IOSS!
-      // so don't do anything.
+    case VTK_LAGRANGE_WEDGE:
+      if (vtk_cell_points == 21)
+      { // wedge-21
+        // clang-format off
+        ordering_transform = std::vector<int>{
+          /* 2 triangles */
+          4, 5, 6, 1, 2, 3,
+
+          /* edge centers */
+          13, 14, 15,
+          7, 8, 9,
+          10, 11, 12,
+
+          /* triangle centers */
+          18, 17,
+
+          /* quad-centers */
+          21, 19, 20,
+
+          /* body center */
+          16
+        };
+        // clang-format on
+      }
       break;
 
     case VTK_QUADRATIC_HEXAHEDRON: // hex-20

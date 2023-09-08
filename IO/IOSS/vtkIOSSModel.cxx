@@ -1319,7 +1319,27 @@ struct vtkEntityBlock : public vtkGroupingEntity
         break;
       }
       case VTK_LAGRANGE_WEDGE:
+      {
+        // We only handle 21-node wedges for now.
+        // The caller checks whether our returned size matches.
+        // clang-format off
+        orderingTransformation = std::vector<int>{
+            // nodes
+          4, 5, 6, 1, 2, 3,
+            // edge mid-points
+         10, 11, 12,
+         13, 14, 15,
+         7, 8, 9,
+           // body center
+         21,
+           // triangle faces
+         17, 16,
+           // quad faces
+         19, 20, 18
+        };
+        // clang-format on
         break;
+      }
       default:
         break;
     }
@@ -1388,10 +1408,22 @@ struct vtkEntityBlock : public vtkGroupingEntity
             }
             else
             {
-              assert(orderingTransformation.size() == static_cast<size_t>(numPts));
-              std::transform(orderingTransformation.begin(), orderingTransformation.end(),
-                std::back_inserter(connectivity),
-                [&](int localId) { return gidOffset + pointGIDs->GetValue(cellPoints[localId]); });
+              if (orderingTransformation.size() != static_cast<size_t>(numPts))
+              {
+                vtkGenericWarningMacro("Cell of type "
+                  << vtk_cell_type << " has " << numPts
+                  << "entries but order transformation expects " << orderingTransformation.size()
+                  << " entries. Skipping transform.");
+                std::transform(cellPoints, cellPoints + numPts, std::back_inserter(connectivity),
+                  [&](vtkIdType ptid) { return gidOffset + pointGIDs->GetValue(ptid); });
+              }
+              else
+              {
+                std::transform(orderingTransformation.begin(), orderingTransformation.end(),
+                  std::back_inserter(connectivity), [&](int localId) {
+                    return gidOffset + pointGIDs->GetValue(cellPoints[localId]);
+                  });
+              }
             }
           }
         }
