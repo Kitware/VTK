@@ -30,6 +30,7 @@
 #include <vtk_ioss.h>
 // clang-format off
 #include VTK_IOSS(Ioss_Assembly.h)
+#include VTK_IOSS(Ioss_CodeTypes.h)
 #include VTK_IOSS(Ioss_DatabaseIO.h)
 #include VTK_IOSS(Ioss_EdgeBlock.h)
 #include VTK_IOSS(Ioss_EdgeSet.h)
@@ -749,15 +750,27 @@ std::vector<std::tuple<std::string, Ioss::Field::BasicType, int>> GetFields(int 
 template <typename T>
 struct PutFieldWorker
 {
-  std::vector<std::vector<T>> Data;
+  std::vector<std::vector<T>> SOAData;
+  std::vector<T> AOSData;
   size_t Offset{ 0 };
   const std::vector<vtkIdType>* SourceIds = nullptr;
-  PutFieldWorker(int numComponents, size_t targetSize)
-    : Data(numComponents)
+  int NumComponents{ 0 };
+  bool CreateAOS{ true };
+  PutFieldWorker(int numComponents, size_t targetSize, bool createAOS)
+    : NumComponents(numComponents)
+    , CreateAOS(createAOS)
   {
-    for (int cc = 0; cc < numComponents; ++cc)
+    if (createAOS)
     {
-      this->Data[cc].resize(targetSize);
+      this->AOSData.resize(static_cast<size_t>(numComponents * targetSize));
+    }
+    else
+    {
+      this->SOAData.resize(numComponents);
+      for (int cc = 0; cc < numComponents; ++cc)
+      {
+        this->SOAData[cc].resize(targetSize);
+      }
     }
   }
 
@@ -770,13 +783,28 @@ struct PutFieldWorker
     vtkSMPThreadLocal<std::vector<SourceT>> tlTuple;
     vtkSMPTools::For(0, this->SourceIds->size(), [&](vtkIdType start, vtkIdType end) {
       auto tuple = tlTuple.Local();
-      tuple.resize(this->Data.size());
-      for (vtkIdType cc = start; cc < end; ++cc)
+      tuple.resize(this->NumComponents);
+      if (this->CreateAOS)
       {
-        array->GetTypedTuple((*this->SourceIds)[cc], tuple.data());
-        for (size_t comp = 0; comp < this->Data.size(); ++comp)
+        for (vtkIdType cc = start; cc < end; ++cc)
         {
-          this->Data[comp][this->Offset + cc] = static_cast<T>(tuple[comp]);
+          array->GetTypedTuple((*this->SourceIds)[cc], tuple.data());
+          for (int comp = 0; comp < this->NumComponents; ++comp)
+          {
+            this->AOSData[(this->Offset + cc) * this->NumComponents + comp] =
+              static_cast<T>(tuple[comp]);
+          }
+        }
+      }
+      else
+      {
+        for (vtkIdType cc = start; cc < end; ++cc)
+        {
+          array->GetTypedTuple((*this->SourceIds)[cc], tuple.data());
+          for (int comp = 0; comp < this->NumComponents; ++comp)
+          {
+            this->SOAData[comp][this->Offset + cc] = static_cast<T>(tuple[comp]);
+          }
         }
       }
     });
@@ -789,13 +817,13 @@ struct PutFieldWorker
     vtkSMPThreadLocal<std::vector<double>> tlTuple;
     vtkSMPTools::For(0, this->SourceIds->size(), [&](vtkIdType start, vtkIdType end) {
       auto tuple = tlTuple.Local();
-      tuple.resize(this->Data.size());
+      tuple.resize(this->NumComponents);
       for (vtkIdType cc = start; cc < end; ++cc)
       {
         ds->GetPoint((*this->SourceIds)[cc], tuple.data());
-        for (size_t comp = 0; comp < this->Data.size(); ++comp)
+        for (int comp = 0; comp < this->NumComponents; ++comp)
         {
-          this->Data[comp][this->Offset + cc] = static_cast<T>(tuple[comp]);
+          this->SOAData[comp][this->Offset + cc] = static_cast<T>(tuple[comp]);
         }
       }
     });
@@ -877,25 +905,25 @@ protected:
   {
     for (const auto& field : fields)
     {
-      switch (std::get<1>(field))
+      const auto& name = std::get<0>(field);
+      const auto& type = std::get<1>(field);
+      const auto& numComponents = std::get<2>(field);
+      switch (type)
       {
         case Ioss::Field::DOUBLE:
-          this->PutField<double>(
-            block, std::get<0>(field), std::get<2>(field), lIds, datasets, association);
+          this->PutField<double>(block, name, numComponents, lIds, datasets, association);
           break;
 
         case Ioss::Field::INT32:
-          this->PutField<int32_t>(
-            block, std::get<0>(field), std::get<2>(field), lIds, datasets, association);
+          this->PutField<int32_t>(block, name, numComponents, lIds, datasets, association);
           break;
 
         case Ioss::Field::INT64:
-          this->PutField<int64_t>(
-            block, std::get<0>(field), std::get<2>(field), lIds, datasets, association);
+          this->PutField<int64_t>(block, name, numComponents, lIds, datasets, association);
           break;
 
         default:
-          vtkLogF(TRACE, "Unsupported field type. Skipping %s", std::get<0>(field).c_str());
+          vtkLogF(TRACE, "Unsupported field type. Skipping %s", name.c_str());
           break;
       }
     }
@@ -911,7 +939,8 @@ protected:
       [](size_t sum, const std::vector<vtkIdType>& ids) { return sum + ids.size(); });
 
     using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
-    PutFieldWorker<T> worker(numComponents, totalSize);
+    const bool createAOS = numComponents <= 3;
+    PutFieldWorker<T> worker(numComponents, totalSize, createAOS);
     for (size_t dsIndex = 0; dsIndex < datasets.size(); ++dsIndex)
     {
       auto& ds = datasets[dsIndex];
@@ -926,10 +955,17 @@ protected:
       }
     }
 
-    for (int comp = 0; comp < numComponents; ++comp)
+    if (createAOS)
     {
-      const auto fieldName = numComponents == 1 ? name : name + std::to_string(comp + 1);
-      block->put_field_data(fieldName, worker.Data[comp]);
+      block->put_field_data(name, worker.AOSData);
+    }
+    else
+    {
+      for (int comp = 0; comp < numComponents; ++comp)
+      {
+        const auto compName = name + std::to_string(comp + 1);
+        block->put_field_data(compName, worker.SOAData[comp]);
+      }
     }
   }
 
@@ -939,17 +975,34 @@ protected:
   {
     for (const auto& field : fields)
     {
-      if (std::get<2>(field) == 1)
+      const auto& name = std::get<0>(field);
+      const auto& type = std::get<1>(field);
+      const auto& numComponents = std::get<2>(field);
+      switch (numComponents)
       {
-        block->field_add(
-          Ioss::Field(std::get<0>(field), std::get<1>(field), "scalar", role, elementCount));
-      }
-      else
-      {
-        for (int comp = 0; comp < std::get<2>(field); ++comp)
+        // fancier variable type names can be found in Ioss_ConcreteVariableType.C
+        case 1:
         {
-          block->field_add(Ioss::Field(std::get<0>(field) + std::to_string(comp + 1),
-            std::get<1>(field), "scalar", role, elementCount));
+          block->field_add(Ioss::Field(name, type, IOSS_SCALAR(), role, elementCount));
+          break;
+        }
+        case 2:
+        {
+          block->field_add(Ioss::Field(name, type, IOSS_VECTOR_2D(), role, elementCount));
+          break;
+        }
+        case 3:
+        {
+          block->field_add(Ioss::Field(name, type, IOSS_VECTOR_3D(), role, elementCount));
+          break;
+        }
+        default:
+        {
+          for (int comp = 0; comp < numComponents; ++comp)
+          {
+            const auto compName = name + std::to_string(comp + 1);
+            block->field_add(Ioss::Field(compName, type, IOSS_SCALAR(), role, elementCount));
+          }
         }
       }
     }
@@ -1052,7 +1105,7 @@ struct vtkNodeBlock : vtkGroupingEntity
 
     // add mesh coordinates
     using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
-    PutFieldWorker<double> worker(3, this->Ids.size());
+    PutFieldWorker<double> worker(3, this->Ids.size(), false /* createAOS */);
     for (size_t dsIndex = 0; dsIndex < this->DataSets.size(); ++dsIndex)
     {
       auto& ds = this->DataSets[dsIndex];
@@ -1082,7 +1135,7 @@ struct vtkNodeBlock : vtkGroupingEntity
       displMagnitude > 0 ? vtkIOSSUtilities::GetDisplacementFieldName(this->DataSets.front()) : "";
     if (!displName.empty() && displMagnitude > 0.0)
     {
-      DisplacementWorker<double> dworker(worker.Data, displMagnitude);
+      DisplacementWorker<double> dworker(worker.SOAData, displMagnitude);
       for (size_t dsIndex = 0; dsIndex < this->DataSets.size(); ++dsIndex)
       {
         auto& ds = this->DataSets[dsIndex];
@@ -1098,9 +1151,9 @@ struct vtkNodeBlock : vtkGroupingEntity
       }
     }
 
-    nodeBlock->put_field_data("mesh_model_coordinates_x", worker.Data[0]);
-    nodeBlock->put_field_data("mesh_model_coordinates_y", worker.Data[1]);
-    nodeBlock->put_field_data("mesh_model_coordinates_z", worker.Data[2]);
+    nodeBlock->put_field_data("mesh_model_coordinates_x", worker.SOAData[0]);
+    nodeBlock->put_field_data("mesh_model_coordinates_y", worker.SOAData[1]);
+    nodeBlock->put_field_data("mesh_model_coordinates_z", worker.SOAData[2]);
   }
 
   void Transient(Ioss::Region& region) const override
