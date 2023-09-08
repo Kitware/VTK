@@ -227,5 +227,16 @@ int TestFDSReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  reader->UpdateTimeStep(8.1);
+  output = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutput());
+  outAssembly = output->GetDataAssembly();
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_1"));
+  boundary = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  if (!testValue(std::abs(boundary->GetPointData()->GetArray("gauge")->GetComponent(259, 0)) > 1e-6,
+        true, "gauge in Mesh01_Blockage_1 boundary at time value 8.1"))
+  {
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }

@@ -194,6 +194,8 @@ void ReadAndExtractRowFromCSV(vtkDelimitedTextReader* reader, const std::string&
   }
 }
 
+void ReadNothing(const char*, std::size_t) {}
+
 //------------------------------------------------------------------------------
 std::vector<float> ParseTimeStepsInSliceFile(const std::string& fileName)
 {
@@ -215,8 +217,7 @@ std::vector<float> ParseTimeStepsInSliceFile(const std::string& fileName)
   for (vtkIdType iL = 0; iL < 4; ++iL)
   {
     parser->Read(reinterpret_cast<char*>(&size), 4);
-    parser->ReadUntil(
-      vtkResourceParser::DiscardNone, [](const char*, std::size_t) {}, size + 4);
+    parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
   }
 
   std::vector<float> timeValues;
@@ -233,8 +234,7 @@ std::vector<float> ParseTimeStepsInSliceFile(const std::string& fileName)
     timeValues.emplace_back(time);
     parser->Read(reinterpret_cast<char*>(&size), 4);
     parser->Read(reinterpret_cast<char*>(&size), 4);
-    result = parser->ReadUntil(
-      vtkResourceParser::DiscardNone, [](const char*, std::size_t) {}, size + 4);
+    result = parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
   } while (result != vtkParseResult::EndOfStream);
   return timeValues;
 }
@@ -264,8 +264,7 @@ vtkSmartPointer<vtkDataArray> ReadSliceFile(const std::string& fileName,
   for (vtkIdType iL = 0; iL < targetLineNumber; ++iL)
   {
     parser->Read(reinterpret_cast<char*>(&size), 4);
-    parser->ReadUntil(
-      vtkResourceParser::DiscardNone, [](const char*, std::size_t) {}, size + 4);
+    parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
   }
 
   parser->Read(reinterpret_cast<char*>(&size), 4);
@@ -325,8 +324,7 @@ std::vector<float> ParseTimeStepsInBoundaryFile(const std::string& fileName)
   for (vtkIdType iL = 0; iL < 3; ++iL)
   {
     parser->Read(reinterpret_cast<char*>(&size), 4);
-    parser->ReadUntil(
-      vtkResourceParser::DiscardNone, [](const char*, std::size_t) {}, size + 4);
+    parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
   }
 
   // read number of patches
@@ -334,6 +332,13 @@ std::vector<float> ParseTimeStepsInBoundaryFile(const std::string& fileName)
   unsigned int nBlockages = 0;
   parser->Read(reinterpret_cast<char*>(&nBlockages), size);
   parser->Read(reinterpret_cast<char*>(&size), 4);
+
+  // discard blockage descriptions
+  for (unsigned int iBlock = 0; iBlock < nBlockages; ++iBlock)
+  {
+    parser->Read(reinterpret_cast<char*>(&size), 4);
+    parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
+  }
 
   std::vector<float> timeValues;
   vtkParseResult result = vtkParseResult::Ok;
@@ -351,8 +356,7 @@ std::vector<float> ParseTimeStepsInBoundaryFile(const std::string& fileName)
     for (unsigned int iBlock = 0; iBlock < nBlockages; ++iBlock)
     {
       parser->Read(reinterpret_cast<char*>(&size), 4);
-      result = parser->ReadUntil(
-        vtkResourceParser::DiscardNone, [](const char*, std::size_t) {}, size + 4);
+      result = parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
     }
   } while (result != vtkParseResult::EndOfStream);
   return timeValues;
@@ -381,8 +385,7 @@ vtkSmartPointer<vtkDataArray> ReadBoundaryFile(const std::string& fileName,
   for (vtkIdType iL = 0; iL < 3; ++iL)
   {
     parser->Read(reinterpret_cast<char*>(&size), 4);
-    parser->ReadUntil(
-      vtkResourceParser::DiscardNone, [](const char*, std::size_t) {}, size + 4);
+    parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
   }
 
   // read number of patches
@@ -427,8 +430,7 @@ vtkSmartPointer<vtkDataArray> ReadBoundaryFile(const std::string& fileName,
   for (vtkIdType iL = 0; iL < nLinesToSkip; ++iL)
   {
     parser->Read(reinterpret_cast<char*>(&size), 4);
-    parser->ReadUntil(
-      vtkResourceParser::DiscardNone, [](const char*, std::size_t) {}, size + 4);
+    parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
   }
 
   parser->Read(reinterpret_cast<char*>(&size), 4);
