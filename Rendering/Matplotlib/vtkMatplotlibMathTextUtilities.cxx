@@ -95,9 +95,41 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::Che
     PyObject* value = nullptr;
     PyObject* traceback = nullptr;
     PyErr_Fetch(&type, &value, &traceback);
+    vtkSmartPyObject tracebackStr;
+    if (traceback)
+    {
+      vtkSmartPyObject tb_module = PyImport_ImportModule("traceback");
+      if (tb_module)
+      {
+        vtkSmartPyObject format_tb = PyObject_GetAttrString(tb_module, "format_tb");
+        if (format_tb)
+        {
+          vtkSmartPyObject tracebacklist =
+            PyObject_CallFunction(format_tb, const_cast<char*>("O"), traceback);
+          Py_ssize_t tbsz = PySequence_Length(tracebacklist);
+          tracebackStr = PyUnicode_FromString("");
+          for (Py_ssize_t i = 0; i < tbsz; ++i)
+          {
+            vtkSmartPyObject item = PySequence_GetItem(tracebacklist, i);
+            if (!item)
+            {
+              continue;
+            }
+            tracebackStr = PyUnicode_Concat(tracebackStr, item);
+            if (!tracebackStr)
+            {
+              break;
+            }
+          }
+        }
+      }
+    }
+    if (!tracebackStr)
+    {
+      tracebackStr = PyObject_Str(traceback);
+    }
     vtkSmartPyObject typeStr(PyObject_Str(type));
     vtkSmartPyObject valueStr(PyObject_Str(value));
-    vtkSmartPyObject tracebackStr(PyObject_Str(traceback));
     vtkMplStartUpDebugMacro("Error during matplotlib import:\n"
       << "\nStack:\n"
       << (tracebackStr ? const_cast<char*>(PyUnicode_AsUTF8(tracebackStr)) : "(none)")
@@ -280,9 +312,41 @@ bool vtkMatplotlibMathTextUtilities::CheckForError()
       PyObject* value = nullptr;
       PyObject* traceback = nullptr;
       PyErr_Fetch(&type, &value, &traceback);
+      vtkSmartPyObject tracebackStr;
+      if (traceback)
+      {
+        vtkSmartPyObject tb_module = PyImport_ImportModule("traceback");
+        if (tb_module)
+        {
+          vtkSmartPyObject format_tb = PyObject_GetAttrString(tb_module, "format_tb");
+          if (format_tb)
+          {
+            vtkSmartPyObject tracebacklist =
+              PyObject_CallFunction(format_tb, const_cast<char*>("O"), traceback);
+            Py_ssize_t tbsz = PySequence_Length(tracebacklist);
+            tracebackStr = PyUnicode_FromString("");
+            for (Py_ssize_t i = 0; i < tbsz; ++i)
+            {
+              vtkSmartPyObject item = PySequence_GetItem(tracebacklist, i);
+              if (!item)
+              {
+                continue;
+              }
+              tracebackStr = PyUnicode_Concat(tracebackStr, item);
+              if (!tracebackStr)
+              {
+                break;
+              }
+            }
+          }
+        }
+      }
+      if (!tracebackStr)
+      {
+        tracebackStr = PyObject_Str(traceback);
+      }
       vtkSmartPyObject typeStr(PyObject_Str(type));
       vtkSmartPyObject valueStr(PyObject_Str(value));
-      vtkSmartPyObject tracebackStr(PyObject_Str(traceback));
       vtkWarningMacro(<< "Python exception raised:\n"
                       << "\nStack:\n"
                       << (tracebackStr ? const_cast<char*>(PyUnicode_AsUTF8(tracebackStr))
