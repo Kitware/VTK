@@ -50,7 +50,7 @@ public:
   void SetEdgeIdsAndPoints(int edgeId,
     const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
     const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
-  void SetFaceIdsAndPoints(vtkHigherOrderTriangle* result, int edgeId,
+  static void SetFaceIdsAndPoints(int faceId, int order, vtkIdType numPts,
     const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
     const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
 

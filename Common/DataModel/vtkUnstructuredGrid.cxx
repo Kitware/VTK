@@ -604,17 +604,7 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
       {
         this->LagrangeQuadrilateral = vtkLagrangeQuadrilateral::New();
       }
-      vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        this->LagrangeQuadrilateral->SetOrder(degs[0], degs[1]);
-      }
-      else
-      {
-        this->LagrangeQuadrilateral->SetUniformOrderFromNumPoints(numPts);
-      }
+      this->LagrangeQuadrilateral->SetOrderFromCellData(GetCellData(), numPts, cellId);
       cell = this->LagrangeQuadrilateral;
       break;
     }
@@ -625,17 +615,7 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
       {
         this->LagrangeHexahedron = vtkLagrangeHexahedron::New();
       }
-      vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        this->LagrangeHexahedron->SetOrder(degs[0], degs[1], degs[2]);
-      }
-      else
-      {
-        this->LagrangeHexahedron->SetUniformOrderFromNumPoints(numPts);
-      }
+      this->LagrangeHexahedron->SetOrderFromCellData(GetCellData(), numPts, cellId);
       cell = this->LagrangeHexahedron;
       break;
     }
@@ -662,17 +642,7 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
       {
         this->LagrangeWedge = vtkLagrangeWedge::New();
       }
-      vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        this->LagrangeWedge->SetOrder(degs[0], degs[1], degs[2], numPts);
-      }
-      else
-      {
-        this->LagrangeWedge->SetUniformOrderFromNumPoints(numPts);
-      }
+      this->LagrangeWedge->SetOrderFromCellData(GetCellData(), numPts, cellId);
       cell = this->LagrangeWedge;
       break;
     }
@@ -704,17 +674,7 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
       {
         this->BezierQuadrilateral = vtkBezierQuadrilateral::New();
       }
-      vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        this->BezierQuadrilateral->SetOrder(degs[0], degs[1]);
-      }
-      else
-      {
-        this->BezierQuadrilateral->SetUniformOrderFromNumPoints(numPts);
-      }
+      this->BezierQuadrilateral->SetOrderFromCellData(GetCellData(), numPts, cellId);
       vtkDataArray* wts = GetPointData()->GetRationalWeights();
       if (wts)
       {
@@ -736,17 +696,7 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
       {
         this->BezierHexahedron = vtkBezierHexahedron::New();
       }
-      vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        this->BezierHexahedron->SetOrder(degs[0], degs[1], degs[2]);
-      }
-      else
-      {
-        this->BezierHexahedron->SetUniformOrderFromNumPoints(numPts);
-      }
+      this->BezierHexahedron->SetOrderFromCellData(GetCellData(), numPts, cellId);
       vtkDataArray* wts = GetPointData()->GetRationalWeights();
       if (wts)
       {
@@ -810,17 +760,7 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
       {
         this->BezierWedge = vtkBezierWedge::New();
       }
-      vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
-      if (v)
-      {
-        double degs[3];
-        v->GetTuple(cellId, degs);
-        this->BezierWedge->SetOrder(degs[0], degs[1], degs[2], numPts);
-      }
-      else
-      {
-        this->BezierWedge->SetUniformOrderFromNumPoints(numPts);
-      }
+      this->BezierWedge->SetOrderFromCellData(GetCellData(), numPts, cellId);
       vtkDataArray* wts = GetPointData()->GetRationalWeights();
       if (wts)
       {

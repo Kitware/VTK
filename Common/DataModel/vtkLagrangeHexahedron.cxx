@@ -50,6 +50,7 @@ vtkCell* vtkLagrangeHexahedron::GetEdge(int edgeId)
 vtkCell* vtkLagrangeHexahedron::GetFace(int faceId)
 {
   vtkLagrangeQuadrilateral* result = FaceCell;
+  int faceOrder[2];
 
   const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
     result->Points->SetNumberOfPoints(npts);
@@ -60,7 +61,9 @@ vtkCell* vtkLagrangeHexahedron::GetFace(int faceId)
     result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
   };
 
-  this->SetFaceIdsAndPoints(result, faceId, set_number_of_ids_and_points, set_ids_and_points);
+  vtkHigherOrderHexahedron::SetFaceIdsAndPoints(
+    faceId, this->Order, set_number_of_ids_and_points, set_ids_and_points, faceOrder);
+  result->SetOrder(faceOrder[0], faceOrder[1]);
   return result;
 }
 

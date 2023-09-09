@@ -50,9 +50,10 @@ public:
   void SetEdgeIdsAndPoints(int edgeId,
     const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
     const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
-  void SetFaceIdsAndPoints(vtkHigherOrderQuadrilateral* result, int faceId,
+  static void SetFaceIdsAndPoints(int faceId, const int* order,
     const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
-    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points);
+    const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points,
+    int* faceOrder);
 
   void Initialize() override;
 
@@ -78,6 +79,8 @@ public:
   double GetParametricDistance(const double pcoords[3]) override;
 
   virtual void SetOrderFromCellData(vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id);
+  static void SetOrderFromCellData(
+    vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id, int* order);
   virtual void SetUniformOrderFromNumPoints(vtkIdType numPts);
   virtual void SetOrder(int s, int t, int u);
   virtual const int* GetOrder();

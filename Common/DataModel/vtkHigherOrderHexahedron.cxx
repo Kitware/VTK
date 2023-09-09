@@ -88,9 +88,9 @@ void vtkHigherOrderHexahedron::SetEdgeIdsAndPoints(int edgeId,
   }
 }
 
-void vtkHigherOrderHexahedron::SetFaceIdsAndPoints(vtkHigherOrderQuadrilateral* result, int faceId,
+void vtkHigherOrderHexahedron::SetFaceIdsAndPoints(int faceId, const int* order,
   const std::function<void(const vtkIdType&)>& set_number_of_ids_and_points,
-  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points)
+  const std::function<void(const vtkIdType&, const vtkIdType&)>& set_ids_and_points, int* faceOrder)
 {
   if (faceId < 0 || faceId >= 6)
   {
@@ -100,12 +100,12 @@ void vtkHigherOrderHexahedron::SetFaceIdsAndPoints(vtkHigherOrderQuadrilateral* 
   // Do we need to flip the face to get an outward-pointing normal?
   bool flipFace = faceId % 2 == ((faceId / 2) % 2);
 
-  const int* order = this->GetOrder();
   vtkVector2i faceParams = vtkHigherOrderInterpolation::GetVaryingParametersOfHexFace(faceId);
   const int* corners = vtkHigherOrderInterpolation::GetPointIndicesBoundingHexFace(faceId);
-  int npts = (order[faceParams[0]] + 1) * (order[faceParams[1]] + 1);
+  faceOrder[0] = order[faceParams[0]];
+  faceOrder[1] = order[faceParams[1]];
+  int npts = (faceOrder[0] + 1) * (faceOrder[1] + 1);
   set_number_of_ids_and_points(npts);
-  result->SetOrder(order[faceParams[0]], order[faceParams[1]]);
 
   // Add vertex DOFs to result
   int sn = 0;
@@ -532,7 +532,7 @@ void vtkHigherOrderHexahedron::PrepareApproxData(
   this->GetApprox(); // Ensure this->Approx{PD,CD} are non-NULL.
   // this->GetOrder(); // Ensure the order has been updated to match this element.
   this->SetOrderFromCellData(cd, this->Points->GetNumberOfPoints(), cellId);
-  vtkIdType npts = this->Order[3];
+  vtkIdType npts = this->Points->GetNumberOfPoints();
   vtkIdType nele = this->Order[0] * this->Order[1] * this->Order[2];
   this->ApproxPD->Initialize();
   this->ApproxCD->Initialize();
@@ -731,19 +731,30 @@ bool vtkHigherOrderHexahedron::TransformFaceToCellParams(int bdyFace, double* pc
 void vtkHigherOrderHexahedron::SetOrderFromCellData(
   vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id)
 {
+  vtkHigherOrderHexahedron::SetOrderFromCellData(cell_data, numPts, cell_id, this->Order);
+}
+
+void vtkHigherOrderHexahedron::SetOrderFromCellData(
+  vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id, int* order)
+{
   vtkDataArray* v = cell_data->GetHigherOrderDegrees();
   if (v)
   {
     double degs[3];
     v->GetTuple(cell_id, degs);
-    this->SetOrder(degs[0], degs[1], degs[2]);
-    if (this->Order[3] != numPts)
-      vtkErrorMacro("The degrees are not correctly set in the input file.");
+    order[0] = degs[0];
+    order[1] = degs[1];
+    order[2] = degs[2];
   }
   else
   {
-    this->SetUniformOrderFromNumPoints(numPts);
+    order[0] = order[1] = order[2] =
+      static_cast<int>(round(std::cbrt(static_cast<int>(numPts)))) - 1;
   }
+  order[3] = (order[0] + 1) * (order[1] + 1) * (order[2] + 1);
+  if (order[3] != numPts)
+    vtkGenericWarningMacro(
+      "The degrees are direction dependents, and should be set in the input file.");
 }
 
 void vtkHigherOrderHexahedron::SetUniformOrderFromNumPoints(vtkIdType numPts)

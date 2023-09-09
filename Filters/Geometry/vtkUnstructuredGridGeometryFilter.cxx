@@ -1163,39 +1163,95 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
             break;
           }
           case VTK_LAGRANGE_HEXAHEDRON:
-          case VTK_LAGRANGE_WEDGE:
-          case VTK_LAGRANGE_TETRAHEDRON:
           case VTK_BEZIER_HEXAHEDRON:
-          case VTK_BEZIER_WEDGE:
-          case VTK_BEZIER_TETRAHEDRON:
           {
-            vtkNew<vtkGenericCell> genericCell;
-            cellIter->GetCell(genericCell);
-            input->SetCellOrderAndRationalWeights(cellId, genericCell);
+            int order[4];
+            int faceOrder[2];
+            vtkHigherOrderHexahedron::SetOrderFromCellData(
+              input->GetCellData(), npts, cellId, order);
+            vtkIdType nPoints = 0;
+            std::vector<vtkIdType> points;
+            const auto set_number_of_ids_and_points = [&](const vtkIdType& numFacePoints) -> void {
+              points.resize(numFacePoints);
+              nPoints = numFacePoints;
+            };
+            const auto set_ids_and_points = [&](const vtkIdType& face_id,
+                                              const vtkIdType& vol_id) -> void {
+              points[face_id] = pts[vol_id];
+            };
 
-            int nFaces = genericCell->GetNumberOfFaces();
-            for (int face = 0; face < nFaces; ++face)
+            int faceCellType = (cellType == VTK_LAGRANGE_HEXAHEDRON) ? VTK_LAGRANGE_QUADRILATERAL
+                                                                     : VTK_BEZIER_QUADRILATERAL;
+            for (int faceId = 0; faceId < 6; ++faceId)
             {
-              vtkCell* faceCell = genericCell->GetFace(face);
-              vtkIdType nPoints = faceCell->GetPointIds()->GetNumberOfIds();
-              vtkIdType* points = new vtkIdType[nPoints];
-              for (int pt = 0; pt < nPoints; ++pt)
-              {
-                points[pt] = faceCell->GetPointIds()->GetId(pt);
-              }
-
-              int degrees[2]{ 0, 0 };
-              if ((faceCell->GetCellType() == VTK_BEZIER_QUADRILATERAL) ||
-                (faceCell->GetCellType() == VTK_LAGRANGE_QUADRILATERAL))
-              {
-                vtkHigherOrderQuadrilateral* facecellBezier =
-                  dynamic_cast<vtkHigherOrderQuadrilateral*>(faceCell);
-                degrees[0] = facecellBezier->GetOrder(0);
-                degrees[1] = facecellBezier->GetOrder(1);
-              }
-              this->HashTable->InsertFace(cellId, faceCell->GetCellType(), nPoints, points, degrees,
+              vtkHigherOrderHexahedron::SetFaceIdsAndPoints(
+                faceId, order, set_number_of_ids_and_points, set_ids_and_points, faceOrder);
+              this->HashTable->InsertFace(cellId, faceCellType, nPoints, points.data(), faceOrder,
                 MatchBoundariesIgnoringCellOrder);
-              delete[] points;
+            }
+            break;
+          }
+          case VTK_BEZIER_TETRAHEDRON:
+          case VTK_LAGRANGE_TETRAHEDRON:
+          {
+            vtkIdType order = vtkHigherOrderTetra::ComputeOrder(npts);
+            int faceOrder[2] = { 0, 0 };
+            vtkIdType nPoints = 0;
+            std::vector<vtkIdType> points;
+            const auto set_number_of_ids_and_points = [&](const vtkIdType& numFacePoints) -> void {
+              points.resize(numFacePoints);
+              nPoints = numFacePoints;
+            };
+            const auto set_ids_and_points = [&](const vtkIdType& face_id,
+                                              const vtkIdType& vol_id) -> void {
+              points[face_id] = pts[vol_id];
+            };
+
+            int faceCellType =
+              (cellType == VTK_LAGRANGE_TETRAHEDRON) ? VTK_LAGRANGE_TRIANGLE : VTK_BEZIER_TRIANGLE;
+            for (int faceId = 0; faceId < 4; ++faceId)
+            {
+              vtkHigherOrderTetra::SetFaceIdsAndPoints(
+                faceId, order, npts, set_number_of_ids_and_points, set_ids_and_points);
+              this->HashTable->InsertFace(cellId, faceCellType, nPoints, points.data(), faceOrder,
+                MatchBoundariesIgnoringCellOrder);
+            }
+            break;
+          }
+          case VTK_LAGRANGE_WEDGE:
+          case VTK_BEZIER_WEDGE:
+          {
+            int order[4];
+            int faceOrder[2] = { 0, 0 };
+            vtkHigherOrderWedge::SetOrderFromCellData(input->GetCellData(), npts, cellId, order);
+            vtkIdType nPoints = 0;
+            std::vector<vtkIdType> points;
+            const auto set_number_of_ids_and_points = [&](const vtkIdType& numFacePoints) -> void {
+              points.resize(numFacePoints);
+              nPoints = numFacePoints;
+            };
+            const auto set_ids_and_points = [&](const vtkIdType& face_id,
+                                              const vtkIdType& vol_id) -> void {
+              points[face_id] = pts[vol_id];
+            };
+
+            int faceCellType =
+              (cellType == VTK_LAGRANGE_WEDGE) ? VTK_LAGRANGE_TRIANGLE : VTK_BEZIER_TRIANGLE;
+            for (int faceId = 0; faceId < 2; ++faceId)
+            {
+              vtkHigherOrderWedge::GetTriangularFace(
+                faceId, order, set_number_of_ids_and_points, set_ids_and_points);
+              this->HashTable->InsertFace(cellId, faceCellType, nPoints, points.data(), faceOrder,
+                MatchBoundariesIgnoringCellOrder);
+            }
+            faceCellType = (cellType == VTK_LAGRANGE_WEDGE) ? VTK_LAGRANGE_QUADRILATERAL
+                                                            : VTK_BEZIER_QUADRILATERAL;
+            for (int faceId = 2; faceId < 5; ++faceId)
+            {
+              vtkHigherOrderWedge::GetQuadrilateralFace(
+                faceId, order, set_number_of_ids_and_points, set_ids_and_points, faceOrder);
+              this->HashTable->InsertFace(cellId, faceCellType, nPoints, points.data(), faceOrder,
+                MatchBoundariesIgnoringCellOrder);
             }
             break;
           }
