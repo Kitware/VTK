@@ -22,7 +22,9 @@ set(datasets
   Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.0
   Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.1
   Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.2
-  Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.3)
+  Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.3
+  Data/wedge21.g
+)
 
 if (VTK_USE_LARGE_DATA)
   list(APPEND datasets
