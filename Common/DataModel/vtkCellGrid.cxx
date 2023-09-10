@@ -55,14 +55,15 @@ void vtkCellGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Attributes (" << this->Attributes.size() << ")\n";
   for (const auto& attrEntry : this->Attributes)
   {
-    os << i2 << attrEntry.first << "\n";
+    os << i2 << attrEntry.second->GetName().Data() << " (" << std::hex << attrEntry.first
+       << std::dec << "):\n";
     attrEntry.second->PrintSelf(os, i3);
   }
   os << indent << "HaveShape: " << (this->HaveShape ? "Y" : "N") << "\n";
   if (this->HaveShape)
   {
-    os << indent << "ShapeAttribute: " << this->ShapeAttribute.GetId() << " ("
-       << this->ShapeAttribute.Data() << ")\n";
+    os << indent << "ShapeAttribute: " << std::hex << this->ShapeAttribute.GetId() << std::dec
+       << " (" << this->ShapeAttribute.Data() << ")\n";
   }
   os << indent << "NextAttribute: " << this->NextAttribute << "\n";
 }
@@ -106,8 +107,10 @@ void vtkCellGrid::ShallowCopy(vtkDataObject* baseSrc)
   // Copy attributes by reference. This works because we shallow-copy the array groups above,
   // so all the arrays from src are referenced by us as well.
   this->Attributes = src->Attributes;
+  this->RangeCache = src->GetRangeCache();
   this->ShapeAttribute = src->ShapeAttribute;
   this->HaveShape = src->HaveShape;
+  this->NextAttribute = src->NextAttribute;
 
   // We must create new instances of vtkCellMetadata since they point back to
   // the parent vtkCellGrid.
@@ -117,6 +120,9 @@ void vtkCellGrid::ShallowCopy(vtkDataObject* baseSrc)
     auto cellType = vtkCellMetadata::NewInstance(cellEntry.second->GetClassName(), this);
     cellType->ShallowCopy(cellEntry.second);
   }
+
+  this->SetSchema(src->GetSchemaName(), src->GetSchemaVersion());
+  this->SetContentVersion(src->GetContentVersion());
 
   this->Modified();
 }
@@ -153,11 +159,35 @@ void vtkCellGrid::DeepCopy(vtkDataObject* baseSrc)
   }
 
   this->Attributes.clear();
+  this->RangeCache.clear();
   auto* srcShape = src->GetShapeAttribute();
+  auto& srcRange = src->GetRangeCache();
   for (const auto& entry : src->Attributes)
   {
     vtkNew<vtkCellAttribute> attribute;
     attribute->DeepCopy(entry.second);
+    // Copy any range information for the cell-attribute:
+    auto cacheIt = srcRange.find(entry.second);
+    if (cacheIt != srcRange.end())
+    {
+      this->RangeCache[attribute].resize(attribute->GetNumberOfComponents() + 2);
+      std::size_t ii = 0;
+      for (const auto& componentRange : cacheIt->second)
+      {
+        if (componentRange.FiniteRangeTime > entry.second->GetMTime())
+        {
+          this->RangeCache[attribute][ii].FiniteRange = cacheIt->second[ii].FiniteRange;
+          this->RangeCache[attribute][ii].FiniteRangeTime.Modified();
+        }
+        if (componentRange.EntireRangeTime > entry.second->GetMTime())
+        {
+          this->RangeCache[attribute][ii].EntireRange = cacheIt->second[ii].EntireRange;
+          this->RangeCache[attribute][ii].EntireRangeTime.Modified();
+        }
+        ++ii;
+      }
+    }
+    // Now add the attribute (after adding the range info).
     this->AddCellAttribute(attribute);
     if (srcShape == entry.second)
     {
@@ -171,6 +201,9 @@ void vtkCellGrid::DeepCopy(vtkDataObject* baseSrc)
     auto cellType = vtkCellMetadata::NewInstance(cellEntry.second->GetClassName(), this);
     cellType->DeepCopy(cellEntry.second);
   }
+  this->NextAttribute = src->NextAttribute;
+  this->SetSchema(src->GetSchemaName(), src->GetSchemaVersion());
+  this->SetContentVersion(src->GetContentVersion());
   this->Modified();
 }
 
@@ -196,6 +229,11 @@ vtkDataSetAttributes* vtkCellGrid::FindAttributes(int type) const
 {
   auto it = this->ArrayGroups.find(type);
   return it == this->ArrayGroups.end() ? nullptr : it->second;
+}
+
+vtkDataSetAttributes* vtkCellGrid::FindAttributes(vtkStringToken type) const
+{
+  return this->FindAttributes(type.GetId());
 }
 
 vtkUnsignedCharArray* vtkCellGrid::GetGhostArray(int type)
@@ -295,6 +333,57 @@ vtkCellMetadata* vtkCellGrid::AddCellMetadata(vtkCellMetadata* cellType)
   return cellType;
 }
 
+int vtkCellGrid::AddAllCellMetadata()
+{
+  int numAdded = 0;
+  auto metadataTypeNames = vtkCellMetadata::CellTypes();
+  for (const auto& metadataTypeName : metadataTypeNames)
+  {
+    auto metadata = vtkCellMetadata::NewInstance(metadataTypeName, this);
+    if (metadata)
+    {
+      ++numAdded;
+    }
+  }
+  return numAdded;
+}
+
+bool vtkCellGrid::RemoveCellMetadata(vtkCellMetadata* cellType)
+{
+  if (!cellType)
+  {
+    return false;
+  }
+  auto it = this->Cells.find(cellType->Hash());
+  if (it == this->Cells.end())
+  {
+    return false;
+  }
+  this->Cells.erase(it);
+  return true;
+}
+
+int vtkCellGrid::RemoveUnusedCellMetadata()
+{
+  int numRemoved = 0;
+  std::set<vtkCellMetadata*> unused;
+  for (const auto& cellEntry : this->Cells)
+  {
+    if (cellEntry.second->GetNumberOfCells() == 0)
+    {
+      unused.insert(cellEntry.second);
+    }
+  }
+  for (const auto& cellType : unused)
+  {
+    if (this->RemoveCellMetadata(cellType))
+    {
+      ++numRemoved;
+    }
+  }
+  return numRemoved;
+}
+
 const vtkCellMetadata* vtkCellGrid::GetCellType(vtkStringToken cellTypeName) const
 {
   auto it = this->Cells.find(cellTypeName);
@@ -325,11 +414,134 @@ bool vtkCellGrid::AddCellAttribute(vtkCellAttribute* attribute)
   if (it != this->Attributes.end())
   {
     // Either we have a hash collision or the attribute already exists.
+    if (it->second != attribute)
+    {
+      vtkWarningMacro("Attempting to add attribute "
+        << attribute << " (" << attribute->GetName().Data() << "), but " << it->second << " ("
+        << it->second->GetName().Data() << ") already exists with the same hash "
+        << it->second->GetHash() << ". Ignoring.");
+    }
     return false;
   }
   this->Attributes[attribute->GetHash()] = attribute;
   attribute->SetId(this->NextAttribute++);
   return true;
+}
+
+bool vtkCellGrid::RemoveCellAttribute(vtkCellAttribute* attribute)
+{
+  if (!attribute)
+  {
+    return false;
+  }
+  // Do not allow the shape attribute to be removed:
+  if (this->ShapeAttribute.GetId() == attribute->GetHash())
+  {
+    return false;
+  }
+  auto it = this->Attributes.find(attribute->GetHash());
+  if (it == this->Attributes.end())
+  {
+    return false;
+  }
+  // Remove any cache for this cell-attribute's ranges.
+  this->RangeCache.erase(attribute);
+  // Now unhook the cell-attribute:
+  this->Attributes.erase(it);
+  return true;
+}
+
+bool vtkCellGrid::GetCellAttributeRange(
+  vtkCellAttribute* attribute, int componentIndex, double range[2], bool finiteRange) const
+{
+  // Invalidate the range so early returns indicate we could not compute one.
+  range[0] = 1.;
+  range[1] = 0.;
+
+  if (!attribute || componentIndex < -2 || componentIndex >= attribute->GetNumberOfComponents())
+  {
+    return false;
+  }
+
+  // If attribute does not belong to this vtkCellGrid, we cannot proceed.
+  auto attIt = this->Attributes.find(attribute->GetHash());
+  if (attIt == this->Attributes.end())
+  {
+    return false;
+  }
+
+  // If the cache does not exist, is not up to date, or is not the right size
+  // (i.e., because someone forgot to call Modified() on the attribute), then
+  // recompute the range.
+  auto cacheIt = this->RangeCache.find(attribute);
+  if (cacheIt == this->RangeCache.end() ||
+    (finiteRange &&
+      (cacheIt->second[componentIndex + 2].FiniteRangeTime < attribute->GetMTime() ||
+        cacheIt->second[componentIndex + 2].FiniteRange.size() <=
+          static_cast<std::size_t>(componentIndex))) ||
+    (!finiteRange &&
+      (cacheIt->second[componentIndex + 2].EntireRangeTime < attribute->GetMTime() ||
+        cacheIt->second[componentIndex + 2].EntireRange.size() <=
+          static_cast<std::size_t>(componentIndex))))
+  {
+    if (!this->ComputeRangeInternal(attribute, componentIndex, finiteRange))
+    {
+      return false;
+    }
+    cacheIt = this->RangeCache.find(attribute);
+    if (cacheIt == this->RangeCache.end())
+    {
+      return false;
+    }
+  }
+
+  // Copy the cache into our result.
+  if (finiteRange)
+  {
+    for (int ii = 0; ii < 2; ++ii)
+    {
+      range[ii] = cacheIt->second[componentIndex + 2].FiniteRange[ii];
+    }
+  }
+  else
+  {
+    for (int ii = 0; ii < 2; ++ii)
+    {
+      range[ii] = cacheIt->second[componentIndex + 2].EntireRange[ii];
+    }
+  }
+  return true;
+}
+
+std::set<int> vtkCellGrid::GetCellAttributeIds() const
+{
+  std::set<int> attributeIds;
+  for (const auto& entry : this->Attributes)
+  {
+    attributeIds.insert(entry.second->GetId());
+  }
+  return attributeIds;
+}
+
+std::vector<int> vtkCellGrid::GetUnorderedCellAttributeIds() const
+{
+  std::set<int> attributeIds;
+  for (const auto& entry : this->Attributes)
+  {
+    attributeIds.insert(entry.second->GetId());
+  }
+  std::vector<int> result(attributeIds.begin(), attributeIds.end());
+  return result;
+}
+
+vtkCellAttribute* vtkCellGrid::GetCellAttribute(vtkStringToken::Hash hash)
+{
+  auto it = this->Attributes.find(hash);
+  if (it == this->Attributes.end())
+  {
+    return nullptr;
+  }
+  return it->second;
 }
 
 vtkCellAttribute* vtkCellGrid::GetCellAttributeById(int attributeId)
@@ -349,6 +561,19 @@ vtkCellAttribute* vtkCellGrid::GetCellAttributeByName(const std::string& name)
   for (const auto& entry : this->Attributes)
   {
     if (entry.second->GetName() == name)
+    {
+      return entry.second;
+    }
+  }
+  return nullptr;
+}
+
+vtkCellAttribute* vtkCellGrid::GetCellAttributeByNameAndType(
+  const std::string& name, vtkStringToken attType)
+{
+  for (const auto& entry : this->Attributes)
+  {
+    if (entry.second->GetName() == name && entry.second->GetAttributeType() == attType)
     {
       return entry.second;
     }
@@ -412,12 +637,27 @@ bool vtkCellGrid::Query(vtkCellGridQuery* query)
 
   bool ok = true;
   query->Initialize();
-  for (const auto& cellType : this->Cells)
+  do
   {
-    ok &= cellType.second->Query(query);
-  }
+    query->StartPass();
+    for (const auto& cellType : this->Cells)
+    {
+      ok &= cellType.second->Query(query);
+    }
+  } while (query->IsAnotherPassRequired());
   query->Finalize();
   return ok;
+}
+
+void vtkCellGrid::SetSchema(vtkStringToken name, vtkTypeUInt32 version)
+{
+  if (name == this->SchemaName && version == this->SchemaVersion)
+  {
+    return;
+  }
+  this->Modified();
+  this->SchemaName = name;
+  this->SchemaVersion = version;
 }
 
 vtkCellGrid* vtkCellGrid::GetData(vtkInformation* info)
@@ -428,6 +668,41 @@ vtkCellGrid* vtkCellGrid::GetData(vtkInformation* info)
 vtkCellGrid* vtkCellGrid::GetData(vtkInformationVector* v, int i)
 {
   return vtkCellGrid::GetData(v->GetInformationObject(i));
+}
+
+vtkDataArray* vtkCellGrid::CorrespondingArray(
+  vtkCellGrid* gridA, vtkDataArray* arrayA, vtkCellGrid* gridB)
+{
+  vtkDataArray* arrayB = nullptr;
+  if (!gridA || !gridB || !arrayA || !arrayA->GetName() || !arrayA->GetName()[0])
+  {
+    return arrayB;
+  }
+
+  const char* arrayName = arrayA->GetName();
+
+  // We don't currently index arrays by their parent group.
+  // Just iterate groups until we find a match.
+  for (const auto& groupEntry : gridA->ArrayGroups)
+  {
+    auto* array = groupEntry.second->GetArray(arrayName);
+    if (array != arrayA)
+    {
+      continue;
+    }
+    auto* groupB = gridB->FindAttributes(groupEntry.first);
+    if (!groupB)
+    {
+      return arrayB;
+    }
+    arrayB = groupB->GetArray(arrayName);
+    if (arrayB)
+    {
+      return arrayB;
+    }
+    // Continue, hoping arrayA is in multiple array groups…
+  }
+  return arrayB;
 }
 
 bool vtkCellGrid::ComputeBoundsInternal()
@@ -445,6 +720,29 @@ bool vtkCellGrid::ComputeBoundsInternal()
     return true;
   }
   return false;
+}
+
+bool vtkCellGrid::ComputeRangeInternal(
+  vtkCellAttribute* attribute, int component, bool finiteRange) const
+{
+  auto* self = const_cast<vtkCellGrid*>(this);
+  auto& cache = this->RangeCache[attribute]; // This inserts a blank entry if none exists.
+  // Ensure the range vectors are the proper size:
+  if (cache.size() != static_cast<std::size_t>(attribute->GetNumberOfComponents() + 2))
+  {
+    cache.resize(attribute->GetNumberOfComponents() + 2);
+  }
+  vtkNew<vtkCellGridRangeQuery> rangeQuery;
+  rangeQuery->SetComponent(component);
+  rangeQuery->SetFiniteRange(finiteRange);
+  rangeQuery->SetCellGrid(self);
+  rangeQuery->SetCellAttribute(attribute);
+  if (!self->Query(rangeQuery))
+  {
+    vtkWarningMacro("Range computation for \"" << attribute->GetName().Data() << "\" "
+                                               << "(" << component << ") was partial at best.");
+  }
+  return true;
 }
 
 VTK_ABI_NAMESPACE_END

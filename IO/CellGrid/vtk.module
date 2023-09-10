@@ -16,18 +16,14 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::IOCore
   VTK::FiltersCellGrid
+  VTK::nlohmannjson
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
   VTK::CommonTransforms
-  VTK::nlohmannjson
   VTK::vtksys
 TEST_DEPENDS
-  VTK::FiltersExtraction
-  VTK::FiltersGeneral
-  VTK::FiltersGeometry
-  VTK::FiltersSources
-  VTK::IOAMR
-  VTK::InteractionStyle
-  VTK::RenderingOpenGL2
-  VTK::TestingRendering
+  VTK::CommonDataModel
+  VTK::FiltersCellGrid
+  VTK::TestingDataModel
+  VTK::TestingCore

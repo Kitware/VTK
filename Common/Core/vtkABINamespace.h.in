@@ -3,7 +3,10 @@
 #ifndef vtkABINamespace_h
 #define vtkABINamespace_h
 
+#cmakedefine01 VTK_HAS_ABI_NAMESPACE
+
 #ifndef VTK_NO_ABI_NAMESPACE
+#define VTK_ABI_NAMESPACE_NAME @VTK_ABI_NAMESPACE_NAME@
 #if defined(__cplusplus)
 #define VTK_ABI_NAMESPACE_BEGIN @VTK_ABI_NAMESPACE_BEGIN@
 #define VTK_ABI_NAMESPACE_END @VTK_ABI_NAMESPACE_END@

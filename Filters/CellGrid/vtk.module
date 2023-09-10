@@ -18,7 +18,9 @@ DEPENDS
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
   VTK::FiltersCore
+  VTK::eigen
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::IOCellGrid
   VTK::TestingCore
+  VTK::IOExodus

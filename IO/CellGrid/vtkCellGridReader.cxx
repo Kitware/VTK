@@ -4,15 +4,12 @@
 #include "vtkCellGridReader.h"
 
 #include "vtkCellAttribute.h"
-#include "vtkCellGridBoundsQuery.h"
-#include "vtkCellGridSidesQuery.h"
+#include "vtkCellGridIOQuery.h"
 #include "vtkCellMetadata.h"
-#include "vtkDGBoundsResponder.h"
-#include "vtkDGHex.h"
-#include "vtkDGSidesResponder.h"
-#include "vtkDGTet.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkFiltersCellGrid.h"
+#include "vtkIOCellGrid.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringToken.h"
 
@@ -59,20 +56,6 @@ void AppendArrayData(T* data, nlohmann::json& values)
   }
 }
 
-void registerCellGridResponders()
-{
-  vtkNew<vtkDGBoundsResponder> dgBds;
-  vtkNew<vtkDGSidesResponder> dgSds;
-  vtkCellMetadata::GetResponders()->RegisterQueryResponder<vtkDGHex, vtkCellGridBoundsQuery>(
-    dgBds.GetPointer());
-  vtkCellMetadata::GetResponders()->RegisterQueryResponder<vtkDGHex, vtkCellGridSidesQuery>(
-    dgSds.GetPointer());
-  vtkCellMetadata::GetResponders()->RegisterQueryResponder<vtkDGTet, vtkCellGridBoundsQuery>(
-    dgBds.GetPointer());
-  vtkCellMetadata::GetResponders()->RegisterQueryResponder<vtkDGTet, vtkCellGridSidesQuery>(
-    dgSds.GetPointer());
-}
-
 } // anonymous namespace
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -81,7 +64,8 @@ vtkStandardNewMacro(vtkCellGridReader);
 vtkCellGridReader::vtkCellGridReader()
 {
   this->SetNumberOfInputPorts(0);
-  registerCellGridResponders();
+  vtkFiltersCellGrid::RegisterCellsAndResponders();
+  vtkIOCellGrid::RegisterCellsAndResponders();
 }
 
 vtkCellGridReader::~vtkCellGridReader()
@@ -197,6 +181,43 @@ int vtkCellGridReader::RequestData(
     return 0;
   }
 
+  bool skipVersionChecks = false;
+  auto jSchemaName = jj.find("schema-name");
+  auto jSchemaVersion = jj.find("schema-version");
+  if (jSchemaName == jj.end() || jSchemaVersion == jj.end())
+  {
+    vtkWarningMacro("No schema name and version provided. Skipping version checks.");
+    skipVersionChecks = true;
+  }
+  if (!skipVersionChecks)
+  {
+    auto jFormatVersion = jj.find("format-version");
+    if (jFormatVersion == jj.end() || jFormatVersion->get<std::uint32_t>() > 1)
+    {
+      vtkErrorMacro("File format version missing or newer than reader code.");
+      return 0;
+    }
+    if (jSchemaName->get<std::string>() != "dg leaf")
+    {
+      vtkErrorMacro("Expecting a schema name of 'dg leaf'.");
+      return 0;
+    }
+    if (jSchemaVersion->get<std::uint32_t>() > 1)
+    {
+      vtkErrorMacro("Cannot read a schema newer than v1.");
+      return 0;
+    }
+    output->SetSchema(jSchemaName->get<std::string>(), jSchemaVersion->get<std::uint32_t>());
+  }
+
+  std::uint32_t contentVersion = 0;
+  auto jContentVersion = jj.find("content-version");
+  if (jContentVersion != jj.end())
+  {
+    contentVersion = jContentVersion->get<std::uint32_t>();
+    output->SetContentVersion(contentVersion);
+  }
+
   output->Initialize();
 
   for (const auto& jGroupEntry : jArrayGroup->items())
@@ -224,6 +245,11 @@ int vtkCellGridReader::RequestData(
       }
       arrayGroup->AddArray(array);
       array->FastDelete();
+      auto arrayIsScalars = jArrayEntry.value().find("default_scalars");
+      if (arrayIsScalars != jArrayEntry.value().end() && arrayIsScalars->get<bool>())
+      {
+        arrayGroup->SetScalars(array);
+      }
       auto arrayIsVec = jArrayEntry.value().find("default_vectors");
       if (arrayIsVec != jArrayEntry.value().end() && arrayIsVec->get<bool>())
       {
@@ -266,17 +292,19 @@ int vtkCellGridReader::RequestData(
     {
       vtkStringToken cellTypeName(arraySpecs.key());
       vtkCellAttribute::ArraysForCellType arrays;
-      for (const auto& arraySpec : arraySpecs.value())
+      for (const auto& arraySpec : arraySpecs.value().items())
       {
-        vtkStringToken group(arraySpec[0].get<std::string>());
-        vtkStringToken arrayName(arraySpec[1].get<std::string>());
+        vtkStringToken group(arraySpec.value()[0].get<std::string>());
+        vtkStringToken arrayName(arraySpec.value()[1].get<std::string>());
+        // std::cout << cellTypeName.Data() << " " << arraySpec.key() << " has " << group.Data() <<
+        // ", " << arrayName.Data() << "\n";
         auto* arrayGroup = output->GetAttributes(group.GetId());
         if (arrayGroup)
         {
           auto* array = arrayGroup->GetArray(arrayName.Data().c_str());
           if (array)
           {
-            arrays[group] = array;
+            arrays[arraySpec.key()] = array;
           }
         }
       }
@@ -291,6 +319,17 @@ int vtkCellGridReader::RequestData(
       output->SetShapeAttribute(attribute);
     }
   }
+
+  // Finally, although we have created vtkCellMetadata objects per the JSON,
+  // we have not configured them. Now that the arrays and attributes are
+  // present, use a query/responder to do so.
+  vtkNew<vtkCellGridIOQuery> query;
+  query->PrepareToDeserialize(*jCellTypes);
+  if (!output->Query(query))
+  {
+    return 0;
+  }
+
   return 1;
 }
 VTK_ABI_NAMESPACE_END

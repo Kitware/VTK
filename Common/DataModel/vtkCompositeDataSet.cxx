@@ -3,6 +3,7 @@
 #include "vtkCompositeDataSet.h"
 
 #include "vtkBoundingBox.h"
+#include "vtkCellGrid.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSetRange.h"
 #include "vtkDataSet.h"
@@ -117,9 +118,14 @@ void vtkCompositeDataSet::GetBounds(double bounds[6])
   vtkBoundingBox bbox;
   for (vtkDataObject* dobj : vtk::Range(this, Opts::SkipEmptyNodes))
   {
-    if (auto ds = vtkDataSet::SafeDownCast(dobj))
+    if (auto* ds = vtkDataSet::SafeDownCast(dobj))
     {
       ds->GetBounds(bds);
+      bbox.AddBounds(bds);
+    }
+    else if (auto* cg = vtkCellGrid::SafeDownCast(dobj))
+    {
+      cg->GetBounds(bds);
       bbox.AddBounds(bds);
     }
   }

@@ -1,23 +1,33 @@
 set(classes
-  vtkDGOpenGLRenderer
+  vtkArrayRenderer
+  vtkGLSLModCamera
+  vtkGLSLModCoincidentTopology
+  vtkGLSLModLight
+  vtkGLSLModPixelDebugger
+  vtkGLSLModifierBase
+  vtkGLSLModifierFactory
+  vtkDGRenderResponder
+  vtkDrawTexturedElements
   vtkOpenGLCellGridMapper
-  vtkOpenGLCellGridRenderRequest
+  vtkRenderingCellGrid
 )
 
 set(sources)
 set(private_headers)
 
 set(shader_files
-  glsl/vtkCellGridFS_DGHex.glsl
-  glsl/vtkCellGridFS_DGTet.glsl
-  glsl/vtkCellGridGS_DGHex.glsl
-  glsl/vtkCellGridGS_DGTet.glsl
-  glsl/vtkCellGridVS.glsl
+  glsl/vtkCellGridShaderBases.glsl
+  glsl/vtkCellGridShaderCommonDefs.glsl
+  glsl/vtkCellGridShaderFragment.glsl
+  glsl/vtkCellGridShaderUtil.glsl
+  glsl/vtkCellGridShaderVertex.glsl
 )
 unset(shader_h_files)
 foreach(file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${file}"
+    EXPORT_SYMBOL "VTKRENDERINGCELLGRID_EXPORT"
+    EXPORT_HEADER "vtkRenderingCellGridModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source
   )

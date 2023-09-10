@@ -8,6 +8,27 @@
 
 #include <string>
 
+#define vtkInheritanceHierarchyBodyMacro(thisClass)                                                \
+  {                                                                                                \
+    std::vector<vtkStringToken> result;                                                            \
+    vtk::Inherits<thisClass>(result);                                                              \
+    return result;                                                                                 \
+  }
+
+/// Use these macros to add an "InheritanceHierarchy()" method to a VTK class.
+///
+/// Note: To use this macro, you must `#include "vtkStringToken.h"` and
+/// `#include <vector>` as the method returns a vector of string tokens.
+//@{
+#define vtkInheritanceHierarchyBaseMacro(thisClass)                                                \
+  virtual std::vector<vtkStringToken> InheritanceHierarchy()                                       \
+    const vtkInheritanceHierarchyBodyMacro(thisClass)
+
+#define vtkInheritanceHierarchyOverrideMacro(thisClass)                                            \
+  std::vector<vtkStringToken> InheritanceHierarchy()                                               \
+    const override vtkInheritanceHierarchyBodyMacro(thisClass)
+//@}
+
 namespace vtk
 {
 namespace detail

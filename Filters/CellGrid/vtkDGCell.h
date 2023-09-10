@@ -20,12 +20,15 @@
 
 #include "vtkCellMetadata.h"
 #include "vtkStringToken.h" // for vtkStringToken::Hash
+#include "vtkVector.h"      // for IsInside API.
 
 #include <vector> // for side connectivity
 
 VTK_ABI_NAMESPACE_BEGIN
+
 class vtkCellAttribute;
 class vtkCellGrid;
+class vtkDataArray;
 class vtkDataSetAttributes;
 class vtkTypeFloat32Array;
 class vtkTypeInt32Array;
@@ -33,9 +36,6 @@ class vtkTypeInt32Array;
 class VTKFILTERSCELLGRID_EXPORT vtkDGCell : public vtkCellMetadata
 {
 public:
-  vtkTypeMacro(vtkDGCell, vtkCellMetadata);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
-
   /// All possible shapes for DG cells.
   enum Shape : int
   {
@@ -46,19 +46,88 @@ public:
     Tetrahedron,   //!< A four-cornered volume bounded by 4 triangular shapes.
     Hexahedron,    //!< An eight-cornered volume; a quadrilateral prism.
     Wedge,         //!< A volumetric, triangular prism.
-    Pyramid        //!< A volumetric shape whose quadrilateral base attaches to a vertex.
+    Pyramid,       //!< A volumetric shape whose quadrilateral base attaches to a vertex.
 
+    None //!< A placeholder for an indeterminate or invalid shape.
     // It is probably more efficient to create a new cell type for arbitrary shapes
     // than to attempt generalizing vtkDGCell, but for the sake of completeness:
     // Polygon       //!< We may one day support an n-sided polygonal face.
     // Polyhedron    //!< We may one day support an n-faced polyhedral volume with polygonal sides.
   };
 
+  /// Records describing the source arrays for cells or cell-sides.
+  struct Source
+  {
+    Source() = default;
+    Source(const Source&) = default;
+    Source(vtkDataArray* conn, vtkIdType off, bool blank, Shape shape, int sideType)
+      : Connectivity(conn)
+      , Offset(off)
+      , Blanked(blank)
+      , SourceShape(shape)
+      , SideType(sideType)
+    {
+    }
+    Source& operator=(const Source& other) = default;
+
+    /// An array holding cell connectivity or (cell-id, side-id) tuples.
+    ///
+    /// If the array is cell connectivity, then each component is a point ID
+    /// and the number of components matches the number of corners for each cell.
+    /// If the array is side connectivity, then each tuple consists of a
+    /// cell ID for component 0 and a side ID for component 1.
+    vtkDataArray* Connectivity{ nullptr };
+
+    /// Offset (start ID; used for picking) of the first cell or side in \a Connectivity.
+    vtkIdType Offset{ 0 };
+
+    /// True when the cells/sides should be omitted from processing.
+    bool Blanked{ false };
+
+    /// The shape of this type of cell/side.
+    Shape SourceShape{ Shape::None };
+
+    /// The type of the side (for calling GetSideRangeForType).
+    /// The default of -1 indicates the that the source is the cell-type itself, not any side.
+    int SideType{ -1 };
+  };
+
+  vtkTypeMacro(vtkDGCell, vtkCellMetadata);
+  vtkInheritanceHierarchyOverrideMacro(vtkDGCell);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /// Provide access to the connectivity array used to define cells of this type.
+  Source& GetCellSpec() { return this->CellSpec; }
+
+  /// Provide access to the (cellId,sideId)-arrays used to define side-cells of this type.
+  std::vector<Source>& GetSideSpecs() { return this->SideSpecs; }
+
+  /// Return the number of cells (and sides) of this type present in this cell grid.
+  vtkIdType GetNumberOfCells() override;
+
+  ///@{
+  /// Copy cell-specific data from \a other into ourselves.
+  void ShallowCopy(vtkCellMetadata* other) override;
+  void DeepCopy(vtkCellMetadata* other) override;
+  ///@}
+
+  /// Return true if the parametric coordinates (\a rst) lie inside the reference
+  /// cell or its closure and false otherwise.
+  ///
+  /// The \a tolerance specifies a margin that should be included as part of
+  /// the reference cell's interior to account for numerical imprecision.
+  virtual bool IsInside(const vtkVector3d& rst, double tolerance = 1e-6) = 0;
+
   static int GetShapeCornerCount(Shape shape);
   static int GetShapeDimension(Shape shape);
   static vtkStringToken GetShapeName(Shape shape);
+  /// Given a string description of a cell shape, return the DG equivalent enum.
+  ///
+  /// Note that this also converts IOSS shape names to DG enums, so there are
+  /// additional cases to handle spheres as points, springs as lines, etc.
+  static Shape GetShapeEnum(vtkStringToken shapeName);
 
-  /// Return the topological shape of this cell type.
+  /// Return the topological shape of this cell or side type.
   virtual Shape GetShape() const = 0;
 
   /// Return the parametric dimension of this cell type (0, 1, 2, or 3).
@@ -83,18 +152,31 @@ public:
   virtual int GetNumberOfSideTypes() const = 0;
 
   /// Return the range of sides of the \a ii-th type,
-  /// where \a ii is in [0, this->GetNumberOfSideTypes()[.
-  /// If you pass \a ii = -1, this will return the total number of sides of all types.
+  /// where \a ii is in [-2, this->GetNumberOfSideTypes()[.
   ///
   /// The returned pair of integers is a half-open interval of side IDs.
   /// The difference between the returned values is the number of sides of \a sideType.
   ///
+  /// Values of \a ii 0 and above are for "strict" sides (i.e., sides whose
+  /// dimension is less than the cell's dimension).
+  /// If you pass \a ii = -2, this will return the total number of strict sides of all types.
+  /// If you pass \a ii = -1, this will return an entry for the cell's "self" type [-1,0[.
+  ///
   /// Example: a tetrahedron will return the following:
-  /// + for \a sideType 0 (faces): [0, 4[
+  /// + for \a sideType -2 (all strict sides): [0, 14[
+  /// + for \a sideType -1 (self): [-1, 0[
+  /// + for \a sideType 0 (triangles): [0, 4[
   /// + for \a sideType 1 (edges): [4, 10[
   /// + for \a sideType 2 (verts): [10, 14[
-  /// + for \a sideType -1 (all): [0, 14[
+  ///
+  /// Side types are ordered from highest dimension to lowest as \a ii increases.
+  /// Note that it is possible to have multiple types of side that have the same
+  /// dimension. For example, wedges and pyramids each have triangle and quadrilateral
+  /// sides (of dimension 2, but of different types).
   virtual std::pair<int, int> GetSideRangeForType(int sideType) const = 0;
+
+  /// A python-wrapped version of GetSideRangeForType.
+  int* GetSideRangeForSideType(int sideType) VTK_SIZEHINT(2);
 
   /// Return the number of boundaries this type of cell has of a given \a dimension.
   ///
@@ -115,6 +197,12 @@ public:
   /// sides are numbered 6–17, and its corner point sides are numbered 18–25.
   /// Sometimes, the interior of the element is considered a side labeled -1.
   virtual Shape GetSideShape(int side) const = 0;
+
+  /// Return the side type index for the given shape (or -1).
+  ///
+  /// This method simply loops over the cell's side types until it finds one
+  /// of the proper shape.
+  virtual int GetSideTypeForShape(Shape s) const;
 
   /// Return the connectivity of the given \a side.
   ///
@@ -180,6 +268,13 @@ public:
 protected:
   vtkDGCell();
   ~vtkDGCell() override;
+
+  /// The connectivity array specifying cells.
+  /// There may be only one \a Source for all the cells of one type in a vtkCellGrid.
+  Source CellSpec;
+  /// The connectivity array(s) specifying sides.
+  /// There may be zero or more \a Source instances for sides in a vtkCellGrid.
+  std::vector<Source> SideSpecs;
 
 private:
   vtkDGCell(const vtkDGCell&) = delete;

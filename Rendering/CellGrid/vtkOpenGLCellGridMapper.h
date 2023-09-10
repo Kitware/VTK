@@ -10,9 +10,12 @@
 
 #include "vtkCellGridMapper.h"
 #include "vtkRenderingCellGridModule.h" // For export macro
-#include <memory>                       // for ivar
+//#include "vtkCellGridRenderRequest.h" // For RenderQuery ivar
+#include <memory> // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkGenericOpenGLResourceFreeCallback;
 
 class VTKRENDERINGCELLGRID_EXPORT vtkOpenGLCellGridMapper : public vtkCellGridMapper
 {
@@ -47,12 +50,15 @@ protected:
   vtkOpenGLCellGridMapper();
   ~vtkOpenGLCellGridMapper() override;
 
+  vtkGenericOpenGLResourceFreeCallback* ResourceCallback;
+
 private:
   vtkOpenGLCellGridMapper(const vtkOpenGLCellGridMapper&) = delete;
   void operator=(const vtkOpenGLCellGridMapper&) = delete;
 
   class vtkInternals;
   vtkInternals* Internal;
+  // vtkNew<vtkCellGridRenderRequest> RenderQuery;
 };
 
 VTK_ABI_NAMESPACE_END

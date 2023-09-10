@@ -2388,7 +2388,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
         "  //VTK::UniformFlow::Impl\n" // for other replacements
       );
       vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
-        "gl_FragDepth = gl_FragDepth + cFactor*cscale + 1.0*cOffset/65000;\n");
+        "gl_FragDepth = gl_FragDepth + cFactor*cscale + 1.0*cOffset/65000.0;\n");
     }
     else
     {
@@ -2397,7 +2397,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
         "  //VTK::UniformFlow::Impl\n" // for other replacements
       );
       vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
-        "gl_FragDepth = gl_FragCoord.z + cFactor*cscale + 1.0*cOffset/65000;\n");
+        "gl_FragDepth = gl_FragCoord.z + cFactor*cscale + 1.0*cOffset/65000.0;\n");
     }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }

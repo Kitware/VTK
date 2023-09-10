@@ -502,6 +502,12 @@ public:
   virtual void SetSelection(vtkSelection*);
   ///@}
 
+  /**
+   * Create an image of the lookup table \a lkup.
+   */
+  static vtkSmartPointer<vtkImageData> BuildColorTextureImage(
+    vtkScalarsToColors* lkup, int colorMode);
+
 protected:
   vtkMapper();
   ~vtkMapper() override;

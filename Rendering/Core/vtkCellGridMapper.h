@@ -6,11 +6,14 @@
  *
  * This mapper is a prototype to help enhance VTK visualization capabilities for
  * Discontinuous Galerkin fields.
- * For now, it requires a `vtkDataObject` input.
+ * It requires a `vtkCellGrid` input.
  *
  * A vtkCellGrid does not couple the fields with geometric degrees of freedom, unlike
  * vtkDataSet. This is useful to render Discontinuous Galerkin fields where two points
  * sharing a common face might not have the same field value (discontinuous).
+ *
+ * Cell grids can also define functions in novel function spaces such as the H(Curl)
+ * and H(Div) spaces.
  */
 
 #ifndef vtkCellGridMapper_h
@@ -62,12 +65,23 @@ public:
   vtkTypeBool Update(vtkInformation* requests) override;
   ///@}
 
+  /// Prepare a colormap for use in a shader.
+  ///
+  /// If you provide a lookup table, it will be uploaded as a 2-D texture
+  /// named "color_map" for you to use in your shaders.
+  /// If not, a default cool-to-warm colormap will be created.
+  ///
+  /// This function may call CreateColormapTexture().
+  void PrepareColormap(vtkScalarsToColors* cmap = nullptr);
+
   /**
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
   double* GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) override { this->Superclass::GetBounds(bounds); }
+
+  bool HasTranslucentPolygonalGeometry() override;
 
 protected:
   vtkCellGridMapper();
@@ -78,6 +92,7 @@ protected:
 
   /// Fill this->ColorTextureMap with an image using this->LookupTable.
   void CreateColormapTexture();
+
   /// Return the attribute to color the \a input with.
   virtual vtkCellAttribute* GetColorAttribute(vtkCellGrid* input) const;
 

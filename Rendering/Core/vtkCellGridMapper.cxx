@@ -4,6 +4,7 @@
 #include "vtkAbstractMapper.h"
 #include "vtkCellAttribute.h"
 #include "vtkCellGrid.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
@@ -38,7 +39,42 @@ void vtkCellGridMapper::SetInputData(vtkCellGrid* in)
 
 vtkCellGrid* vtkCellGridMapper::GetInput()
 {
-  return vtkCellGrid::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+  vtkCellGrid* result = nullptr;
+  if (auto* exec = this->GetExecutive())
+  {
+    result = vtkCellGrid::SafeDownCast(exec->GetInputData(0, 0));
+  }
+  return result;
+}
+
+void vtkCellGridMapper::PrepareColormap(vtkScalarsToColors* cmap)
+{
+  if (!cmap && this->ColorTextureMap)
+  {
+    // We have a previous colormap. Use it.
+    return;
+  }
+  vtkNew<vtkColorTransferFunction> ctf;
+  if (!cmap)
+  {
+    // Create a cool-to-warm (blue to red) diverging colormap by default:
+    ctf->SetVectorModeToMagnitude();
+    ctf->SetColorSpaceToDiverging();
+    ctf->AddRGBPoint(0.0, 59. / 255., 76. / 255., 192. / 255.);
+    ctf->AddRGBPoint(0.5, 221. / 255., 221. / 255., 221. / 255.);
+    ctf->AddRGBPoint(1.0, 180. / 255., 4. / 255., 38. / 255.);
+    ctf->Build();
+    cmap = ctf;
+  }
+  // Now, if there is no colormap texture, make one from the colormap
+  if (!this->LookupTable || this->LookupTable->GetMTime() < cmap->GetMTime())
+  {
+    this->SetLookupTable(cmap);
+  }
+  if (!this->ColorTextureMap || this->ColorTextureMap->GetMTime() < this->LookupTable->GetMTime())
+  {
+    this->CreateColormapTexture(); // populate this->ColorTexture from this->LookupTable
+  }
 }
 
 // Get the bounds for the input of this mapper as
@@ -203,7 +239,7 @@ vtkCellAttribute* vtkCellGridMapper::GetColorAttribute(vtkCellGrid* input) const
     {
       attribute = input->GetCellAttributeByName(this->ArrayName);
     }
-    else // if (this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID)
+    else // if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
     {
       attribute = input->GetCellAttributeById(this->ArrayId);
     }
@@ -211,4 +247,11 @@ vtkCellAttribute* vtkCellGridMapper::GetColorAttribute(vtkCellGrid* input) const
   return attribute;
 }
 
+bool vtkCellGridMapper::HasTranslucentPolygonalGeometry()
+{
+  // TODO: We should determine whether coloring by a scalar
+  //       and, if so, whether the colormap has any opacity
+  //       values in ]0, 1[.
+  return false;
+}
 VTK_ABI_NAMESPACE_END

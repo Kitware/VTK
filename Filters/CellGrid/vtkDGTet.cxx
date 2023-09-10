@@ -19,30 +19,36 @@ vtkStandardNewMacro(vtkDGTet);
 // TODO: Use IMPLEMENTABLE/IMPLEMENTS and vtkObjectFactory or equivalent.
 static bool registerType = vtkCellMetadata::RegisterType<vtkDGTet>();
 
-const std::array<std::array<double, 3>, 4> vtkDGTet::Parameters{ { { 0., 0., 0. }, { +1., 0., 0. },
-  { 0., +1., 0. }, { 0., 0., +1. } } };
-
-const std::array<std::vector<vtkIdType>, 14> vtkDGTet::Sides{ {
-  { 0, 1, 3 }, // face 0
-  { 1, 2, 3 }, // face 1
-  { 2, 0, 3 }, // face 2
-  { 0, 2, 1 }, // face 3
-  { 0, 1 },    // edge 0
-  { 1, 2 },    // edge 1
-  { 2, 0 },    // edge 2
-  { 0, 3 },    // edge 3
-  { 1, 3 },    // edge 4
-  { 2, 3 },    // edge 5
-  { 0 },       // vertex 0
-  { 1 },       // vertex 1
-  { 2 },       // vertex 2
-  { 3 }        // vertex 3
+const std::array<std::array<double, 3>, 4> vtkDGTet::Parameters{ {
+  { 0., 0., 0. }, // node 0
+  { 1., 0., 0. }, // node 1
+  { 0., 1., 0. }, // node 2
+  { 0., 0., 1. }  // node 3
 } };
 
-const std::array<int, vtkDGTet::Dimension + 1> vtkDGTet::SideOffsets{ { 0, 4, 10, 14 } };
+const std::array<int, vtkDGTet::Dimension + 2> vtkDGTet::SideOffsets{ { 0, 1, 5, 11, 15 } };
 
-const std::array<vtkDGCell::Shape, vtkDGTet::Dimension + 1> vtkDGTet::SideShapes{ { Shape::Triangle,
-  Shape::Edge, Shape::Vertex, Shape::Tetrahedron } };
+const std::array<vtkDGCell::Shape, vtkDGTet::Dimension + 2> vtkDGTet::SideShapes{
+  { Shape::Tetrahedron, Shape::Triangle, Shape::Edge, Shape::Vertex, Shape::None }
+};
+
+const std::array<std::vector<vtkIdType>, 15> vtkDGTet::Sides{ {
+  { 0, 1, 2, 3 }, // tetrahedron itself
+  { 0, 1, 3 },    // face 0
+  { 1, 2, 3 },    // face 1
+  { 2, 0, 3 },    // face 2
+  { 0, 2, 1 },    // face 3
+  { 0, 1 },       // edge 0
+  { 1, 2 },       // edge 1
+  { 2, 0 },       // edge 2
+  { 0, 3 },       // edge 3
+  { 1, 3 },       // edge 4
+  { 2, 3 },       // edge 5
+  { 0 },          // vertex 0
+  { 1 },          // vertex 1
+  { 2 },          // vertex 2
+  { 3 }           // vertex 3
+} };
 
 vtkDGTet::vtkDGTet() = default;
 vtkDGTet::~vtkDGTet() = default;
@@ -52,10 +58,14 @@ void vtkDGTet::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-vtkIdType vtkDGTet::GetNumberOfCells()
+bool vtkDGTet::IsInside(const vtkVector3d& rst, double tolerance)
 {
-  auto* dsa = this->CellGrid->GetAttributes("DGTet"_token);
-  return dsa ? dsa->GetNumberOfTuples() : 0;
+  tolerance = std::abs(tolerance);
+  double u = 1.0 - rst[0] - rst[1] - rst[2];
+  double pb = 1.0 + tolerance;
+  double nb = -tolerance;
+  return rst[0] >= nb && rst[0] <= pb && rst[1] >= nb && rst[1] <= pb && rst[2] >= nb &&
+    rst[2] <= pb && u >= nb && u <= pb;
 }
 
 const std::array<double, 3>& vtkDGTet::GetCornerParameter(int corner) const
@@ -70,63 +80,39 @@ const std::array<double, 3>& vtkDGTet::GetCornerParameter(int corner) const
 
 int vtkDGTet::GetNumberOfSideTypes() const
 {
-  return static_cast<int>(vtkDGTet::SideOffsets.size() - 1);
+  return static_cast<int>(vtkDGTet::SideOffsets.size() - 2);
 }
 
 std::pair<int, int> vtkDGTet::GetSideRangeForType(int sideType) const
 {
-  if (sideType < 0)
+  if (sideType < -1)
   {
-    return std::make_pair(SideOffsets[0], SideOffsets[vtkDGTet::Dimension]);
+    return std::make_pair(SideOffsets[1] - 1, SideOffsets[vtkDGTet::Dimension + 1] - 1);
   }
   if (sideType > vtkDGTet::Dimension)
   {
     return std::make_pair(-1, -1);
   }
-  return std::make_pair(SideOffsets[sideType], SideOffsets[sideType + 1]);
+  return std::make_pair(SideOffsets[sideType + 1] - 1, SideOffsets[sideType + 2] - 1);
 }
 
 int vtkDGTet::GetNumberOfSidesOfDimension(int dimension) const
 {
-  switch (dimension)
+  if (dimension < 0 || dimension >= this->Dimension)
   {
-    case 2:
-      return 4;
-    case 1:
-      return 6;
-    case 0:
-      return 4;
-    default:
-      break;
+    return 0;
   }
-  return 0;
+  return this->SideOffsets[Dimension - dimension + 1] - this->SideOffsets[Dimension - dimension];
 }
 
 const std::vector<vtkIdType>& vtkDGTet::GetSideConnectivity(int side) const
 {
-  if (side < 0 || side >= 14)
+  if (side < -1 || side >= 14)
   {
     static std::vector<vtkIdType> dummy;
     return dummy;
   }
-  return this->Sides[side];
-}
-
-vtkDGCell::Shape vtkDGTet::GetSideShape(int side) const
-{
-  if (side < 0)
-  {
-    return Shape::Tetrahedron;
-  }
-  else if (side < 4)
-  {
-    return Shape::Triangle;
-  }
-  else if (side < 10)
-  {
-    return Shape::Edge;
-  }
-  return Shape::Vertex;
+  return this->Sides[side + 1];
 }
 
 vtkTypeFloat32Array* vtkDGTet::GetReferencePoints() const
@@ -135,6 +121,7 @@ vtkTypeFloat32Array* vtkDGTet::GetReferencePoints() const
   if (refPts->GetNumberOfTuples() == 0)
   {
     this->FillReferencePoints(refPts);
+    refPts->SetName("TetReferencePoints");
   }
   return refPts;
 }
@@ -145,8 +132,25 @@ vtkTypeInt32Array* vtkDGTet::GetSideConnectivity() const
   if (sideConn->GetNumberOfTuples() == 0)
   {
     this->FillSideConnectivity(sideConn);
+    sideConn->SetName("TetSideConn");
   }
   return sideConn;
+}
+
+vtkDGCell::Shape vtkDGTet::GetSideShape(int side) const
+{
+  if (side < -1)
+  {
+    return None;
+  }
+  for (std::size_t ii = 0; ii < SideOffsets.size() - 1; ++ii)
+  {
+    if (side + 1 < vtkDGTet::SideOffsets[ii + 1])
+    {
+      return vtkDGTet::SideShapes[ii];
+    }
+  }
+  return None;
 }
 
 vtkTypeInt32Array* vtkDGTet::GetSideOffsetsAndShapes() const
@@ -155,6 +159,7 @@ vtkTypeInt32Array* vtkDGTet::GetSideOffsetsAndShapes() const
   if (sideOffsetsAndShapes->GetNumberOfTuples() == 0)
   {
     this->FillSideOffsetsAndShapes(sideOffsetsAndShapes);
+    sideOffsetsAndShapes->SetName("TetOffsetsAndShapes");
   }
   return sideOffsetsAndShapes;
 }

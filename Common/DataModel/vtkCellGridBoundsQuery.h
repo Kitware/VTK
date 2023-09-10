@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCellGridBoundsQuery
- * @brief   Perform an operation on cells in a vtkCellMetadata instance.
+ * @brief   Compute the geometric bounds of a cell-grid.
  *
- * This is an empty base class that all query types must inherit.
+ * If no cells are present, invalid bounds will be returned
+ * (i.e., bds[1] < bds[0] after calling `GetBounds(bds)`).
  */
 
 #ifndef vtkCellGridBoundsQuery_h

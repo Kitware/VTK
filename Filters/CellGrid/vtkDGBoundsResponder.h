@@ -17,7 +17,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellMetadata;
-class vtkDGBoundsResponders;
 
 class VTKFILTERSCELLGRID_EXPORT vtkDGBoundsResponder
   : public vtkCellGridResponder<vtkCellGridBoundsQuery>

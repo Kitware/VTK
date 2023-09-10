@@ -3,6 +3,7 @@
 #include "vtkDGBoundsResponder.h"
 
 #include "vtkBoundingBox.h"
+#include "vtkCellAttribute.h"
 #include "vtkCellGrid.h"
 #include "vtkCellGridBoundsQuery.h"
 #include "vtkDGHex.h"
@@ -28,19 +29,30 @@ bool vtkDGBoundsResponder::Query(
   (void)caches;
 
   auto* grid = cellType->GetCellGrid();
+  std::string cellTypeName = cellType->GetClassName();
   if (!grid->GetShapeAttribute())
   {
+    vtkErrorMacro("Cells of type \"" << cellTypeName << "\" have no parent grid.");
     return false;
   }
-  // TODO: A better way to get at this is to go through the grid's shape attribute.
-  auto* pts = grid->GetAttributes("coordinates"_token)->GetVectors();
-  std::string cellTypeName = cellType->GetClassName();
-  vtkStringToken cellAttrName(cellTypeName.substr(3));
-  auto* conn = vtkTypeInt64Array::SafeDownCast(grid->GetAttributes(cellAttrName)->GetArray("conn"));
+
+  auto* shape = grid->GetShapeAttribute();
+  if (!shape)
+  {
+    vtkErrorMacro("Cells of type \"" << cellTypeName << "\" have no shape.");
+    return false;
+  }
+
+  vtkStringToken cellTypeToken(cellTypeName);
+  auto shapeArrays = shape->GetArraysForCellType(cellTypeToken);
+  auto* pts = vtkDataArray::SafeDownCast(shapeArrays["values"_token]);
+  auto* conn = vtkTypeInt64Array::SafeDownCast(shapeArrays["connectivity"_token]);
   if (!pts || !conn)
   {
+    vtkErrorMacro("Shape for \"" << cellTypeName << "\" missing points or connectivity.");
     return false;
   }
+
   std::unordered_set<std::int64_t> pointIDs;
   int nc = conn->GetNumberOfComponents();
   std::vector<vtkTypeInt64> entry;

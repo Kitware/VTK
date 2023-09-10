@@ -19,7 +19,7 @@ void vtkCellAttribute::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Type: " << this->GetAttributeType().Data() << "\n";
   os << indent << "Space: " << this->GetSpace().Data() << "\n";
   os << indent << "NumberOfComponents: " << this->GetNumberOfComponents() << "\n";
-  os << indent << "Hash: " << this->GetHash() << "\n";
+  os << indent << "Hash: " << std::hex << this->GetHash() << std::dec << "\n";
   os << indent << "AllArrays: (" << this->AllArrays.size() << " cell types)\n";
   vtkIndent i2 = indent.GetNextIndent();
   vtkIndent i3 = i2.GetNextIndent();
@@ -71,6 +71,22 @@ vtkCellAttribute::ArraysForCellType vtkCellAttribute::GetArraysForCellType(
     return {};
   }
   return it->second;
+}
+
+vtkAbstractArray* vtkCellAttribute::GetArrayForCellTypeAndRole(
+  vtkStringToken cellType, vtkStringToken arrayRole) const
+{
+  auto it = this->AllArrays.find(cellType);
+  if (it == this->AllArrays.end())
+  {
+    return nullptr;
+  }
+  auto it2 = it->second.find(arrayRole);
+  if (it2 == it->second.end())
+  {
+    return nullptr;
+  }
+  return it2->second;
 }
 
 bool vtkCellAttribute::SetArraysForCellType(

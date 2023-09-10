@@ -13,7 +13,7 @@
 
 #include "vtkFiltersCellGridModule.h" // for export macro
 
-#include "vtkDGCell.h"
+#include "vtkDeRhamCell.h"
 #include "vtkStringToken.h" // for vtkStringToken::Hash
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -21,27 +21,31 @@ class vtkCellGrid;
 class vtkDataSetAttributes;
 class vtkCellAttribute;
 
-class VTKFILTERSCELLGRID_EXPORT vtkDGTet : public vtkDGCell
+class VTKFILTERSCELLGRID_EXPORT vtkDGTet : public vtkDeRhamCell
 {
 public:
-  using CellTypeId = std::size_t;
-  using DOFType = vtkStringToken;
   static vtkDGTet* New();
 
-  vtkTypeMacro(vtkDGTet, vtkDGCell);
+  vtkTypeMacro(vtkDGTet, vtkDeRhamCell);
+  vtkInheritanceHierarchyOverrideMacro(vtkDGTet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkIdType GetNumberOfCells() override;
-
+  ///@{
+  /// Methods to query cell shape and reference parameterization.
+  ///
+  /// These methods do not return information about particular
+  /// cells or sides specified by the cell-grid's arrays; only
+  /// metadata about the cell.
+  bool IsInside(const vtkVector3d& rst, double tolerance) override;
   Shape GetShape() const override { return Shape::Tetrahedron; }
-  int GetDimension() const override { return this->Dimension; }
-  int GetNumberOfCorners() const override { return 4; }
+  int GetDimension() const override { return Dimension; }
   const std::array<double, 3>& GetCornerParameter(int corner) const override;
   int GetNumberOfSideTypes() const override;
   std::pair<int, int> GetSideRangeForType(int sideType) const override;
   int GetNumberOfSidesOfDimension(int dimension) const override;
   const std::vector<vtkIdType>& GetSideConnectivity(int side) const override;
   Shape GetSideShape(int side) const override;
+  ///@}
 
   vtkTypeFloat32Array* GetReferencePoints() const override;
   vtkTypeInt32Array* GetSideConnectivity() const override;
@@ -49,9 +53,9 @@ public:
 
   static constexpr int Dimension = 3;
   static const std::array<std::array<double, 3>, 4> Parameters;
-  static const std::array<std::vector<vtkIdType>, 14> Sides;
-  static const std::array<int, vtkDGTet::Dimension + 1> SideOffsets;
-  static const std::array<Shape, Dimension + 1> SideShapes;
+  static const std::array<std::vector<vtkIdType>, 15> Sides;
+  static const std::array<int, Dimension + 2> SideOffsets;
+  static const std::array<Shape, Dimension + 2> SideShapes;
 
 protected:
   vtkDGTet();

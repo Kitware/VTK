@@ -27,13 +27,27 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellGridQuery : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCellGridQuery, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) override
-  {
-    this->Superclass::PrintSelf(os, indent);
-  }
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Override this if your query-result state requires initialization.
-  virtual void Initialize() {}
+  ///
+  /// You may override this method to do additional work, but you must
+  /// be careful to call the base method from your override.
+  virtual void Initialize();
+
+  /// Mark the start of a pass through each cell type.
+  /// This increments the \a Pass ivar which responders can access.
+  ///
+  /// You may override this method to do additional work, but you must
+  /// be careful to call the base method from your override.
+  virtual void StartPass();
+
+  /// Return the current pass (the number of times each responder has been evaluated so far).
+  vtkGetMacro(Pass, int);
+
+  /// Override this if your query allows responders to execute in multiple phases.
+  /// This method may do work in addition to returning whether another pass is needed.
+  virtual bool IsAnotherPassRequired() { return false; }
 
   /// Override this if your query-result state requires finalization.
   virtual void Finalize() {}
@@ -41,6 +55,8 @@ public:
 protected:
   vtkCellGridQuery() = default;
   ~vtkCellGridQuery() override = default;
+
+  int Pass{ -1 };
 
 private:
   vtkCellGridQuery(const vtkCellGridQuery&) = delete;

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDataObjectTree.h"
 
+#include "vtkCellGrid.h"
 #include "vtkDataObjectTreeInternals.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
@@ -612,10 +613,13 @@ vtkIdType vtkDataObjectTree::GetNumberOfCells()
   vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(this->NewIterator());
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds)
+    if (auto* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()))
     {
       numCells += ds->GetNumberOfCells();
+    }
+    else if (auto* cg = vtkCellGrid::SafeDownCast(iter->GetCurrentDataObject()))
+    {
+      numCells += cg->GetNumberOfCells();
     }
   }
   iter->Delete();

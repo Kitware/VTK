@@ -417,6 +417,11 @@ public:
   virtual int IsNumeric() const = 0;
 
   /**
+   * This method will return true if and only if an array contains integer-valued data.
+   */
+  virtual bool IsIntegral() const;
+
+  /**
    * Subclasses must override this method and provide the right kind
    * of templated vtkArrayIteratorTemplate.
    */

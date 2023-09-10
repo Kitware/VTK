@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDGSidesResponder
- * @brief   Respond to a query on one particular type of cell.
+ * @brief   Compute the sides on the outside surface of a collection of DG cells.
  *
- * This is pure virtual base class that all responder types must inherit.
  */
 
 #ifndef vtkDGSidesResponder_h
@@ -17,6 +16,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellMetadata;
+class vtkDGCell;
 class vtkDGSidesResponders;
 
 class VTKFILTERSCELLGRID_EXPORT vtkDGSidesResponder
@@ -32,6 +32,9 @@ public:
 protected:
   vtkDGSidesResponder() = default;
   ~vtkDGSidesResponder() override = default;
+
+  bool HashSides(vtkCellGridSidesQuery* query, vtkDGCell* cellType);
+  bool GenerateSideSets(vtkCellGridSidesQuery* query, vtkDGCell* cellType);
 
 private:
   vtkDGSidesResponder(const vtkDGSidesResponder&) = delete;

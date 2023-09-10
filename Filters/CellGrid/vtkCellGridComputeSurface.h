@@ -28,10 +28,19 @@ public:
   vtkTypeMacro(vtkCellGridComputeSurface, vtkCellGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /// Set/get whether the output should include cells which are themselves
+  /// renderable (surfaces, edges, or vertices) or should only include sides
+  /// of the input cells.
+  ///
+  /// If you are implementing a responder, you are expected to employ this query parameter.
+  virtual void SetPreserveRenderableCells(bool preserve);
+  bool GetPreserveRenderableCells();
+  vtkBooleanMacro(PreserveRenderableCells, bool);
+
   static vtkStringToken GetSideAttribute();
 
 protected:
-  vtkCellGridComputeSurface() = default;
+  vtkCellGridComputeSurface();
   ~vtkCellGridComputeSurface() override = default;
 
   int RequestData(

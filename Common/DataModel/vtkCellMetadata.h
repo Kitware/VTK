@@ -23,6 +23,7 @@
 
 #include "vtkCellGridResponders.h"    // For ivar.
 #include "vtkCommonDataModelModule.h" // for export macro
+#include "vtkInherits.h"              // for vtk::Inherits<>()
 #include "vtkNew.h"                   // for queries
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for constructor return values
@@ -32,6 +33,7 @@
 #include <functional>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellGrid;
@@ -48,6 +50,7 @@ public:
   using ConstructorMap = std::unordered_map<vtkStringToken, MetadataConstructor>;
 
   vtkTypeMacro(vtkCellMetadata, vtkObject);
+  vtkInheritanceHierarchyBaseMacro(vtkCellMetadata);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -79,6 +82,8 @@ public:
 
   static vtkSmartPointer<vtkCellMetadata> NewInstance(
     vtkStringToken className, vtkCellGrid* grid = nullptr);
+
+  static std::unordered_set<vtkStringToken> CellTypes();
 
   /**
    * Return a hash of the cell type.
@@ -128,6 +133,15 @@ public:
 
   /// Return the set of registered responder types.
   static vtkCellGridResponders* GetResponders() { return vtkCellMetadata::Responders; }
+
+  /// Return the set of registered responder types.
+  ///
+  /// This method is not static on purpose; even when VTK is compiled
+  /// as a set of static libraries, calling this method will always
+  /// return the proper class-static member. It returns the same value
+  /// as vtkCellMetadata::GetResponders() but will produce the correct
+  /// result across static-library boundaries (unlike GetResponders above).
+  vtkCellGridResponders* GetCaches();
 
 protected:
   vtkCellMetadata() = default;
