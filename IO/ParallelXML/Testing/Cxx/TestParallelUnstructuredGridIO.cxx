@@ -9,6 +9,7 @@
 #include "vtksys/FStream.hxx"
 #include <vtkCell.h>
 #include <vtkCellData.h>
+#include <vtkFloatArray.h>
 #include <vtkIdList.h>
 #include <vtkLogger.h>
 #include <vtkMultiProcessController.h>
@@ -97,6 +98,38 @@ bool CompareGrids(vtkUnstructuredGrid* s, vtkUnstructuredGrid* t)
     }
   }
 
+  vtkFloatArray* numArrayS =
+    vtkArrayDownCast<vtkFloatArray>(s->GetPointData()->GetAbstractArray("my_point_data"));
+  vtkFloatArray* numArrayT =
+    vtkArrayDownCast<vtkFloatArray>(t->GetPointData()->GetAbstractArray("my_point_data"));
+
+  if (numArrayS->GetNumberOfComponents() != numArrayT->GetNumberOfComponents())
+  {
+    std::cerr << "The number of components is different:" << numArrayS->GetNumberOfComponents()
+              << " != " << numArrayT->GetNumberOfComponents() << std::endl;
+    return false;
+  }
+
+  for (vtkIdType component_i = 0; component_i < 2; ++component_i)
+  {
+    if (std::string(numArrayS->GetComponentName(component_i)) !=
+      std::string(numArrayT->GetComponentName(component_i)))
+    {
+      std::cerr << "The component names are different:" << numArrayS->GetComponentName(component_i)
+                << " != " << numArrayT->GetComponentName(component_i) << std::endl;
+      return false;
+    }
+
+    for (vtkIdType i = 0; i < s->GetNumberOfPoints(); ++i)
+    {
+      if (numArrayS->GetTuple(i)[component_i] != numArrayT->GetTuple(i)[component_i])
+      {
+        std::cerr << "0 Num array does not match:" << numArrayS->GetTuple(i)[component_i]
+                  << " != " << numArrayT->GetTuple(i)[component_i] << std::endl;
+        return false;
+      }
+    }
+  }
   return true;
 }
 
@@ -128,6 +161,23 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
 
   vtkNew<vtkUnstructuredGrid> ug;
   ug->SetPoints(points);
+
+  vtkSmartPointer<vtkFloatArray> point_data = vtkSmartPointer<vtkFloatArray>::New();
+  point_data->SetName("my_point_data");
+  point_data->SetNumberOfComponents(2);
+  point_data->SetComponentName(0, "point_data_0");
+  point_data->SetComponentName(1, "point_data_1");
+  point_data->InsertNextTuple2(0.0, 10.0);
+  point_data->InsertNextTuple2(1.0, 11.0);
+  point_data->InsertNextTuple2(2.0, 12.0);
+  point_data->InsertNextTuple2(3.0, 13.0);
+  point_data->InsertNextTuple2(4.0, 14.0);
+  point_data->InsertNextTuple2(5.0, 15.0);
+  point_data->InsertNextTuple2(6.0, 16.0);
+  point_data->InsertNextTuple2(7.0, 17.0);
+  point_data->InsertNextTuple2(8.0, 18.0);
+  point_data->InsertNextTuple2(9.0, 19.0);
+  ug->GetPointData()->AddArray(point_data);
 
   ug->Allocate(3); // allocate for 3 cells
 
