@@ -12,7 +12,7 @@
 // As soon as num-grids (sub-grids and all) grows beyond this number, we assume
 // that the grids are way too numerous for the user to select individually and
 // hence only the top-level grids are made accessible.
-#define MAX_COLLECTABLE_NUMBER_OF_GRIDS 1000
+#define MAX_COLLECTABLE_NUMBER_OF_GRIDS 10000
 
 using namespace xdmf2;
 
