@@ -17,7 +17,11 @@ else ()
   if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(_openxr_platform_base linux)
   elseif (WIN32)
-    set(_openxr_platform_base win)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(_openxr_platform_base x)
+    else ()
+      set(_openxr_platform_base win)
+    endif ()
   endif ()
   set(OpenXR_PLATFORM ${_openxr_platform_base}${_openxr_bitness})
 endif ()
@@ -40,6 +44,7 @@ find_library(OpenXR_LIBRARY
   PATH_SUFFIXES
     "${OpenXR_PLATFORM}"
     "bin/${OpenXR_PLATFORM}"
+    "${OpenXR_PLATFORM}/lib"
   DOC "OpenXR API library")
 mark_as_advanced(OpenXR_LIBRARY)
 
