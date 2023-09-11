@@ -59,6 +59,7 @@ set(classes
   vtkTableAlgorithm
   vtkThreadedCompositeDataPipeline
   vtkThreadedImageAlgorithm
+  vtkTimeRange
   vtkTreeAlgorithm
   vtkTrivialConsumer
   vtkTrivialProducer
