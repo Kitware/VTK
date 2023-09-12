@@ -44,6 +44,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "python")
     list(APPEND vtk_dll_paths
       "${ci_project_dir}/.gitlab/tbb/redist/${tbb_redist_dir}")
   endif ()
+  list(APPEND vtk_dll_paths
+    "${ci_project_dir}/.gitlab/openxr/x64/bin")
   set(VTK_DLL_PATHS
     ${vtk_dll_paths}
     CACHE STRING "")
