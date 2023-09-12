@@ -176,6 +176,11 @@ public:
   template <class DataSetT = vtkDataSet>
   static std::vector<DataSetT*> GetDataSets(vtkDataObject* dobj, bool preserveNull = false);
 
+  /**
+   * Returns true for POINT or CELL, false otherwise
+   */
+  bool SupportsGhostArray(int type) override;
+
 protected:
   vtkCompositeDataSet();
   ~vtkCompositeDataSet() override;

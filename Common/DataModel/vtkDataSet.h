@@ -521,6 +521,11 @@ public:
    */
   vtkUnsignedCharArray* GetGhostArray(int type) override;
 
+  /**
+   * Returns true for POINT or CELL, false otherwise
+   */
+  bool SupportsGhostArray(int type) override;
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();

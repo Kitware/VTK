@@ -305,6 +305,20 @@ public:
   virtual vtkUnsignedCharArray* GetGhostArray(int type);
 
   /**
+   * Returns if this type of data object support ghost array for specified type.
+   * The type may be:
+   * <ul>
+   * <li>POINT    - Defined in vtkDataSet subclasses
+   * <li>CELL   - Defined in vtkDataSet subclasses.
+   * </ul>
+   * The other attribute types, will return false since
+   * ghosts arrays are not defined for now outside of point or cell.
+   * for vtkDataObject, this always return false but subclasses may override
+   * this method and implement their own logic.
+   */
+  virtual bool SupportsGhostArray(int type);
+
+  /**
    * Returns the attributes of the data object as a vtkFieldData.
    * This returns non-null values in all the same cases as GetAttributes,
    * in addition to the case of FIELD, which will return the field data

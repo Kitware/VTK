@@ -26,6 +26,13 @@ int test_rg3d(ostream& strm)
   strm << "Testing vtkRectilinearGrid 3D" << endl;
   vtkNew<vtkRectilinearGrid> rg3D;
 
+  if (!rg3D->SupportsGhostArray(vtkDataObject::POINT) ||
+    !rg3D->SupportsGhostArray(vtkDataObject::CELL))
+  {
+    std::cerr << "Unexpected results on SupportsGhostArray\n";
+    return 1;
+  }
+
   vtkNew<vtkDoubleArray> xdata;
   vtkNew<vtkDoubleArray> ydata;
   vtkNew<vtkDoubleArray> zdata;

@@ -83,9 +83,11 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   otherCellBoundaries.cxx
   otherCellPosition.cxx
   otherCellTypes.cxx
+  otherCellGrid.cxx
   otherColorTransferFunction.cxx
   otherEmptyCell.cxx
   otherFieldData.cxx
+  otherHyperTreeGrid.cxx
   otherImageData.cxx
   otherPolyData.cxx
   otherRectilinearGrid.cxx

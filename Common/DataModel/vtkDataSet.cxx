@@ -1068,6 +1068,16 @@ vtkUnsignedCharArray* vtkDataSet::GetGhostArray(int attributeType)
 }
 
 //------------------------------------------------------------------------------
+bool vtkDataSet::SupportsGhostArray(int type)
+{
+  if (type == POINT || type == CELL)
+  {
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkDataSet::AllocatePointGhostArray()
 {
   if (!this->GetPointGhostArray())

@@ -22,6 +22,13 @@ int TestOUG_0d(ostream& strm)
 
   ug0D->SetDimensions(1, 1, 1);
 
+  if (!ug0D->SupportsGhostArray(vtkDataObject::POINT) ||
+    !ug0D->SupportsGhostArray(vtkDataObject::CELL))
+  {
+    std::cerr << "Unexpected results on SupportsGhostArray\n";
+    return EXIT_FAILURE;
+  }
+
   // Test GetCell
   vtkNew<vtkIdList> ids;
   int cellId;

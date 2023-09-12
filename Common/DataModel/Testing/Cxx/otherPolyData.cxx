@@ -20,6 +20,18 @@
 namespace
 {
 //------------------------------------------------------------------------------
+bool TestSupportsGhostArray()
+{
+  vtkNew<vtkPolyData> pd;
+  if (!pd->SupportsGhostArray(vtkDataObject::POINT) || !pd->SupportsGhostArray(vtkDataObject::CELL))
+  {
+    vtkLog(ERROR, "Unexpected results on SupportsGhostArray");
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool TestRemoveGhostCells()
 {
   vtkNew<vtkPolyData> pd;
@@ -168,12 +180,8 @@ bool TestRemoveGhostCells()
 //------------------------------------------------------------------------------
 int otherPolyData(int, char*[])
 {
-  int retVal = EXIT_SUCCESS;
-
-  if (!::TestRemoveGhostCells())
-  {
-    retVal = EXIT_FAILURE;
-  }
-
-  return retVal;
+  bool status = true;
+  status &= TestSupportsGhostArray();
+  status &= TestRemoveGhostCells();
+  return status ? EXIT_SUCCESS : EXIT_FAILURE;
 }
