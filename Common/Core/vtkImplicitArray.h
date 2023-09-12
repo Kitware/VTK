@@ -130,6 +130,11 @@
  * arr43->Fill(43);
  * @endcode
  *
+ * Optionnally, `vtkImplicitArray`s backends can return their memory usage in KiB by defining
+ * the function `getMemorySize` returning `unsigned long`. `vtkImplicitArray` then exposes this
+ * function through the `GetActualMemorySize` function. If the backend does not define it,
+ * `GetActualMemorySize` always returns 1.
+ *
  * @sa
  * vtkGenericDataArray vtkImplicitArrayTraits vtkDataArray
  */
@@ -256,6 +261,20 @@ public:
   {
     this->Initialize<BackendT>();
     this->Squeeze();
+  }
+
+  /**
+   * Return the memory in kibibytes (1024 bytes) consumed by this implicit data array.
+   *
+   * The value returned is guaranteed to be greater than or equal to the memory required to
+   * actually represent the data represented by this object.
+   *
+   * Implicit array backends can implement the `getMemorySize` function to override the default
+   * implementation, which always returns 1.
+   */
+  inline unsigned long GetActualMemorySize() const override
+  {
+    return this->GetActualMemorySizeImpl<BackendT>();
   }
 
   /**
@@ -436,6 +455,31 @@ private:
   GetTypedComponentImpl(vtkIdType idx, int comp) const
   {
     return this->GetValue(idx * this->NumberOfComponents + comp);
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Static call to get memory size for compatible backends
+   */
+  template <typename U>
+  typename std::enable_if<vtk::detail::implicit_array_traits<U>::can_get_memory_size,
+    unsigned long>::type
+  GetActualMemorySizeImpl() const
+  {
+    return this->Backend->getMemorySize();
+  }
+
+  /**
+   * Static call to get memory size for incompatible backends
+   * For those backends, dhe default memory size is 1KiB.
+   */
+  template <typename U>
+  typename std::enable_if<!vtk::detail::implicit_array_traits<U>::can_get_memory_size,
+    unsigned long>::type
+  GetActualMemorySizeImpl() const
+  {
+    return 1;
   }
   ///@}
 

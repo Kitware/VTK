@@ -67,6 +67,8 @@ struct ConstComponentStruct
   int map(int idx) const { return this->mapComponent(idx / 3, idx % 3); }
   // used for GetTypedComponent
   int mapComponent(int vtkNotUsed(idx), int comp) const { return this->Tuple[comp]; }
+
+  unsigned long getMemorySize() const { return 16; }
 };
 
 };
@@ -223,6 +225,14 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
 
+  // test GetActualMemorySize fallback default implementation
+  if (genericTupleConstArr->GetActualMemorySize() != 1)
+  {
+    res = EXIT_FAILURE;
+    std::cout
+      << "generic TupleConstArr does not use the default GetActualMemorySize implementation";
+  }
+
   // test backend with mapComponent
   vtkNew<vtkImplicitArray<::ConstComponentStruct>> genericComponentConstArr;
   genericComponentConstArr->ConstructBackend(tuple);
@@ -255,6 +265,13 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
                 << " generic ConstComponentStruct component entry is not equal to constant 1, 2, 3!"
                 << std::endl;
     }
+  }
+
+  // test GetActualMemorySize implementation
+  if (genericComponentConstArr->GetActualMemorySize() != 16)
+  {
+    res = EXIT_FAILURE;
+    std::cout << "generic ConstComponentStruct does not return its actual size";
   }
 
   return res;

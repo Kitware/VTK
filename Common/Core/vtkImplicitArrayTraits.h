@@ -334,6 +334,36 @@ struct can_map_component_trait<T, void_t<typename has_map_component_trait<T>::rt
 };
 ///@}
 
+///@{
+/**
+ * \struct can_get_memory_size_trait
+ * \brief used to check whether the template type has a method named getMemorySize
+ */
+template <typename, typename = void>
+struct can_get_memory_size_trait : std::false_type
+{
+};
+
+template <typename T>
+struct can_get_memory_size_trait<T,
+  void_t<decltype(&std::remove_reference<T>::type::getMemorySize)>>
+  : public can_get_memory_size_trait<decltype(&std::remove_reference<T>::type::getMemorySize)>
+{
+  using type = T;
+  static constexpr bool value = true;
+};
+
+template <typename T>
+struct can_get_memory_size_trait<T*> : public can_get_memory_size_trait<T>
+{
+};
+
+template <typename T>
+struct can_get_memory_size_trait<const T> : public can_get_memory_size_trait<T>
+{
+};
+///@}
+
 /**
  * \struct implicit_array_traits
  * \brief A composite trait for handling all the different capabilities a "backend" to an
@@ -351,6 +381,7 @@ struct implicit_array_traits
   static constexpr bool default_constructible = std::is_default_constructible<T>::value;
   static constexpr bool can_direct_read_tuple = can_map_tuple_trait<T>::value;
   static constexpr bool can_direct_read_component = can_map_component_trait<T>::value;
+  static constexpr bool can_get_memory_size = can_get_memory_size_trait<T>::value;
 };
 
 VTK_ABI_NAMESPACE_END

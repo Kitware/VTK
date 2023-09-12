@@ -44,6 +44,11 @@ struct IsNotDefaultConstructible
   IsNotDefaultConstructible(int& i) { i++; }
 };
 
+struct CanGetMemorySize
+{
+  unsigned long getMemorySize() const { return 1ul; }
+};
+
 }
 
 int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -337,6 +342,19 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (!vtk::detail::implicit_array_traits<::HasNothing>::default_constructible)
   {
     std::cout << "Failed default constructible check on HasNothing" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  //--------------------------------------------------------------------------------
+  if (!vtk::detail::can_get_memory_size_trait<::CanGetMemorySize>::value)
+  {
+    std::cout << "Failed get memory size check on CanGetMemorySize" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (vtk::detail::can_get_memory_size_trait<::HasNothing>::value)
+  {
+    std::cout << "Failed get memory size check on HasNothing" << std::endl;
     result = EXIT_FAILURE;
   }
 
