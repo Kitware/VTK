@@ -24,6 +24,7 @@ void vtkOpenXRInteractorStyle::SetupActions(vtkRenderWindowInteractor* iren)
     oiren->AddAction("startelevation", vtkCommand::Elevation3DEvent);
     oiren->AddAction("startmovement", vtkCommand::ViewerMovement3DEvent);
     oiren->AddAction("triggeraction", vtkCommand::Select3DEvent);
+    oiren->AddAction("teleportation", vtkCommand::Teleportation3DEvent);
   }
 }
 VTK_ABI_NAMESPACE_END

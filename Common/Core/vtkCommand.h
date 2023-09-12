@@ -368,7 +368,8 @@
     _vtk_add_event(PositionProp3DEvent)                                                            \
     _vtk_add_event(Pick3DEvent)                                                                    \
     _vtk_add_event(Select3DEvent)                                                                  \
-    _vtk_add_event(Elevation3DEvent)
+    _vtk_add_event(Elevation3DEvent)                                                               \
+    _vtk_add_event(Teleportation3DEvent)
 // clang-format on
 
 #define vtkEventDeclarationMacro(_enum_name)                                                       \
