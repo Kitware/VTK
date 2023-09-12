@@ -361,17 +361,22 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
   // Before processing any request, read the meta data first
   try
   {
+#ifdef IOADIOS2_BP5_RANDOM_ACCESS
+    auto mode = adios2::Mode::ReadRandomAccess;
+#else
+    auto mode = adios2::Mode::Read;
+#endif
     this->Impl->AdiosIO = this->Impl->Adios->DeclareIO("vtkADIOS2ImageRead");
     if (StringEndsWith(this->FileName, ".bp"))
     {
       this->Impl->AdiosIO.SetEngine("BPFile");
-      this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName, adios2::Mode::Read);
+      this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName, mode);
     }
     else if (StringEndsWith(this->FileName, "md.idx"))
     {
       this->Impl->AdiosIO.SetEngine("BP4");
-      this->Impl->BpReader = this->Impl->AdiosIO.Open(
-        this->FileName.substr(0, this->FileName.size() - 6), adios2::Mode::Read);
+      this->Impl->BpReader =
+        this->Impl->AdiosIO.Open(this->FileName.substr(0, this->FileName.size() - 6), mode);
     }
     else
     {
