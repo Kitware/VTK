@@ -20,9 +20,22 @@
  * STL containers.
  */
 
-#include "vtkSmartPointer.h"
+#include "vtkCompiler.h"     // for VTK_COMPILER_GCC
+#include "vtkSmartPointer.h" // for ivar
 
 #include <cstdint> // for `std::uint*_t`
+
+// GCC 4.8.5 requires a space between the quotes and suffix operator.
+// Whereas, C++23 deprecates the space here though.
+#ifdef VTK_COMPILER_GCC
+#if VTK_COMPILER_GCC_VERSION <= 40805
+#define VTK_STRING_TOKEN_SPACE_BEFORE_SUFFIX 1
+#else
+#define VTK_STRING_TOKEN_SPACE_BEFORE_SUFFIX 0
+#endif
+#else
+#define VTK_STRING_TOKEN_SPACE_BEFORE_SUFFIX 0
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStringManager;
@@ -135,8 +148,13 @@ VTK_ABI_NAMESPACE_BEGIN
 /// occurs at build time. This is more efficient than
 /// a sequence of if-conditionals performing string
 /// comparisons.
+#if VTK_STRING_TOKEN_SPACE_BEFORE_SUFFIX
 inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken::Hash operator"" _hash(
   const char* data, std::size_t size)
+#else
+inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken::Hash operator""_hash(
+  const char* data, std::size_t size)
+#endif
 {
   return vtkStringToken::StringHash(data, size);
 }
@@ -150,8 +168,13 @@ inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken::Hash operator"" _hash(
 /// // std::cout << t.value() << "\n"; // Prints "test" if someone else constructed the token from a
 /// ctor; else throws exception.
 /// ```
+#if VTK_STRING_TOKEN_SPACE_BEFORE_SUFFIX
 inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken operator"" _token(
   const char* data, std::size_t size)
+#else
+inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken operator""_token(
+  const char* data, std::size_t size)
+#endif
 {
   return vtkStringToken(vtkStringToken::StringHash(data, size));
 }
@@ -201,4 +224,6 @@ struct VTKCOMMONCORE_EXPORT hash<vtkStringToken>
   std::size_t operator()(const vtkStringToken& t) const { return t.GetId(); }
 };
 } // namespace std
+
+#undef VTK_STRING_TOKEN_SPACE_BEFORE_SUFFIX
 #endif // vtkStringToken_h

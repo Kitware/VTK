@@ -1,3 +1,9 @@
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(VTK_USE_DAWN_WEBGPU OFF)
+else ()
+  set(VTK_USE_DAWN_WEBGPU ON)
+endif ()
+
 set(classes
   vtkWebGPUActor
   vtkWebGPUCamera
@@ -5,12 +11,10 @@ set(classes
   vtkWebGPUHardwareSelector
   vtkWebGPULight
   vtkWebGPURenderWindow
-  vtkSDL2WebGPURenderWindow
   vtkWebGPUPolyDataMapper
   vtkWebGPUProperty
   vtkWebGPURenderer
-  vtkWebGPURenderPass
-)
+  vtkWebGPURenderPass)
 
 set(private_classes
   vtkWebGPUInternalsBindGroup
@@ -20,8 +24,7 @@ set(private_classes
   vtkWebGPUInternalsRenderPassCreateInfo
   vtkWebGPUInternalsRenderPassDescriptor
   vtkWebGPUInternalsRenderPipelineDescriptor
-  vtkWebGPUInternalsShaderModule
-)
+  vtkWebGPUInternalsShaderModule)
 
 # setup factory overrides
 # NI - Not Implemented
@@ -54,12 +57,11 @@ set(webgpu_overrides
 unset(wgsl_shader_sources)
 unset(wgsl_shader_headers)
 set(shader_files
-  wgsl/PolyData.wgsl
-)
-foreach(file IN LISTS shader_files)
+  wgsl/PolyData.wgsl)
+foreach (file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${file}"
-    EXPORT_SYMBOL "VTKRENDERINGWEBGPU_EXPORT"
+    EXPORT_SYMBOL "VTKRENDERINGWEBGPU_NO_EXPORT"
     EXPORT_HEADER "vtkRenderingWebGPUModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
@@ -67,7 +69,7 @@ foreach(file IN LISTS shader_files)
     "${source}")
   list(APPEND wgsl_shader_headers
     "${header}")
-endforeach()
+endforeach ()
 
 foreach (webgpu_override IN LISTS webgpu_overrides)
   vtk_object_factory_declare(
@@ -75,197 +77,121 @@ foreach (webgpu_override IN LISTS webgpu_overrides)
     OVERRIDE "vtkWebGPU${webgpu_override}")
 endforeach ()
 
+set(headers
+  vtkWGPUContext.h)
+
+set(generated_headers
+  vtk_wgpu.h)
+
+foreach (generated_header IN LISTS generated_headers)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}"
+    @ONLY)
+  list(APPEND headers
+    "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
+endforeach ()
+
+set(sources
+  vtkWGPUContext.cxx)
+
+# Setup factory overrides and add window system specific render windows.
+# FIXME: I've only brought the X render window from https://gitlab.kitware.com/vtk/vtk/-/merge_requests/10239/commits.
+# Bring in cocoa and win32 overrides as well.
+# NOTE:  Supports only one override in a build. Multiple render window overrides are confusing.
+if (VTK_USE_SDL2 AND (VTK_USE_X OR VTK_USE_COCOA OR VTK_USE_WIN32_OPENGL))
+  message(FATAL_ERROR "The webgpu backend supports only one render window override in a build. Turn off VTK_USE_SDL2 if you do not need it.")
+endif ()
+set(has_vtkRenderWindow_override 0)
+set(vtk_webgpu_factory_override_classname "")
+if (VTK_USE_SDL2)
+  # By default Emscripten system enables VTK_USE_SDL2. See vtkOpenGLOptions.cmake
+  set(vtk_webgpu_factory_override_classname "vtkSDL2WebGPURenderWindow")
+  set(has_vtkRenderWindow_override 1)
+elseif (VTK_USE_X)
+  # Add some custom overrides
+  if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    set(vtk_webgpu_factory_override_classname "vtkXWebGPURenderWindow")
+    set(has_vtkRenderWindow_override 1)
+  endif ()
+elseif (VTK_USE_COCOA)
+  # TODO: Implement
+  # set(vtk_webgpu_factory_override_classname "vtkCocoaWebGPURenderWindow")
+  # set(has_vtkRenderWindow_override 1)
+elseif (VTK_USE_WIN32_OPENGL) # FIXME: We need a VTK_USE_WIN32_WINDOW flag here
+  # TODO: Implement
+  # set(vtk_webgpu_factory_override_classname "vtkWin32WebGPURenderWindow")
+  # set(has_vtkRenderWindow_override 1)
+endif ()
+
+if (NOT has_vtkRenderWindow_override)
+  message(FATAL_ERROR "A render window factory override was not found! This module currently supports X11 and Emscripten platforms")
+endif ()
+
+list (APPEND classes ${vtk_webgpu_factory_override_classname})
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkWebGPUObjectFactoryInit.cxx.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkWebGPUObjectFactoryInit.cxx")
+
 vtk_object_factory_declare(
   BASE vtkRenderWindow
-  OVERRIDE vtkSDL2WebGPURenderWindow)
-
-set (intial_cpp_code
-  "
-  // defaults
-  int use_opengl = 1\;
-  int use_webgpu = 0\;
-  // Query the enviromental for backend to use.
-  if(const char* p = std::getenv(\"VTK_GRAPHICS_BACKEND\"))
-  {
-    const std::string backend(p)\;
-    if(backend == \"OPENGL\")
-    {
-      use_webgpu = 0\;
-      use_opengl = 1\;
-    }
-    else if(backend == \"WEBGPU\")
-    {
-      #ifndef VTK_ENABLE_WEBGPU
-      vtkLogF(ERROR,\"WEBGPU backend requested but the WEBGPU backend was not compiled\")\;
-      #else
-      use_webgpu = 1\;
-      use_opengl = 0\;
-      #endif
-    }
-    else
-    {
-      vtkLogF(ERROR,\"Unknown backend '%p', using default OPENGL\",backend.c_str())\;
-    }
-  }
-    // register the factory before modyfing the overrrides so it is found below
-  vtkRenderingWebGPUObjectFactory* renderingFactory = vtkRenderingWebGPUObjectFactory::New()\;
-  if (renderingFactory)
-  {
-    // vtkObjectFactory keeps a reference to the factory,
-    vtkObjectFactory::RegisterFactory(renderingFactory)\;
-    renderingFactory->Delete()\;
-  }
-  vtkObjectFactory* object_factory\;
-  vtkCollectionSimpleIterator osit\;
-  for (vtkObjectFactory::GetRegisteredFactories()->InitTraversal(osit)\;
-      (object_factory = vtkObjectFactory::GetRegisteredFactories()->GetNextObjectFactory(osit))\;)
-  {
-    if (object_factory->HasOverride(\"vtkActor\"))
-    {
-      object_factory->SetEnableFlag(use_webgpu, \"vtkActor\", \"vtkWebGPUActor\")\;
-      object_factory->SetEnableFlag(use_opengl, \"vtkActor\", \"vtkOpenGLActor\")\;
-    }
-    if (object_factory->HasOverride(\"vtkCamera\"))
-    {
-      object_factory->SetEnableFlag(use_webgpu, \"vtkCamera\", \"vtkWebGPUCamera\")\;
-      object_factory->SetEnableFlag(use_opengl, \"vtkCamera\", \"vtkOpenGLCamera\")\;
-    }
-    if (object_factory->HasOverride(\"vtkHardwareSelector\"))
-    {
-      object_factory->SetEnableFlag(use_webgpu, \"vtkHardwareSelector\", \"vtkWebGPUHardwareSelector\")\;
-      object_factory->SetEnableFlag(use_opengl, \"vtkHardwareSelector\", \"vtkOpenGLHardwareSelector\")\;
-    }
-    if (object_factory->HasOverride(\"vtkLight\"))
-    {
-      object_factory->SetEnableFlag(use_webgpu, \"vtkLight\", \"vtkWebGPULight\")\;
-      object_factory->SetEnableFlag(use_opengl, \"vtkLight\", \"vtkOpenGLLight\")\;
-    }
-    if (object_factory->HasOverride(\"vtkPolyDataMapper\"))
-    {
-      object_factory->SetEnableFlag(use_webgpu, \"vtkPolyDataMapper\", \"vtkWebGPUPolyDataMapper\")\;
-      object_factory->SetEnableFlag(use_opengl, \"vtkPolyDataMapper\", \"vtkOpenGLPolyDataMapper\")\;
-      object_factory->SetEnableFlag(use_opengl, \"vtkPolyDataMapper\", \"vtkOpenGLES30PolyDataMapper\")\;
-    }
-    if (object_factory->HasOverride(\"vtkProperty\"))
-    {
-      object_factory->SetEnableFlag(use_webgpu, \"vtkProperty\", \"vtkWebGPUProperty\")\;
-      object_factory->SetEnableFlag(use_opengl, \"vtkProperty\", \"vtkOpenGLProperty\")\;
-    }
-    if (object_factory->HasOverride(\"vtkRenderer\"))
-    {
-      object_factory->SetEnableFlag(use_webgpu, \"vtkRenderer\", \"vtkWebGPURenderer\")\;
-      object_factory->SetEnableFlag(use_opengl, \"vtkRenderer\", \"vtkOpenGLRenderer\")\;
-    }
-    if (object_factory->HasOverride(\"vtkRenderWindow\"))
-    {
-      if (use_webgpu && !use_opengl)
-      {
-        object_factory->SetEnableFlag(use_webgpu, \"vtkRenderWindow\", \"vtkSDL2WebGPURenderWindow\")\;
-        // disable ALL opengl render window overrides.
-        object_factory->SetEnableFlag(0, \"vtkRenderWindow\", \"vtkCocoaOpenGLRenderWindow\")\;
-        object_factory->SetEnableFlag(0, \"vtkRenderWindow\", \"vtkWin32OpenGLRenderWindow\")\;
-        object_factory->SetEnableFlag(0, \"vtkRenderWindow\", \"vtkXOpenGLRenderWindow\")\;
-        object_factory->SetEnableFlag(0, \"vtkRenderWindow\", \"vtkSDL2OpenGLRenderWindow\")\;
-      }
-    }
-  }"
-)
-
+  OVERRIDE ${vtk_webgpu_factory_override_classname})
 vtk_object_factory_configure(
   SOURCE_FILE vtk_object_factory_source
   HEADER_FILE vtk_object_factory_header
   EXPORT_MACRO "VTKRENDERINGWEBGPU_EXPORT"
   EXTRA_INCLUDES "<vtkCollection.h>" "<vtkObjectFactoryCollection.h>" "<vtkLogger.h>" "<cstdlib>"
-  INITIAL_CODE ${intial_cpp_code})
-
-list (APPEND vtk_wgpu_public_headers
-  vtk_wgpu.h
-)
-list (APPEND vtk_wgpu_public_headers
-  vtkWGPUContext.h
-)
-list (APPEND vtk_wgpu_priv_sources
-  vtkWGPUContext.cxx
-)
-
+  INITIAL_CODE_FILE "${CMAKE_CURRENT_BINARY_DIR}/vtkWebGPUObjectFactoryInit.cxx")
+  
 vtk_module_add_module(VTK::RenderingWebGPU
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes}
-  SOURCES ${vtk_object_factory_source} ${vtk_wgpu_priv_sources} ${wgsl_shader_sources}
-  HEADERS ${vtk_wgpu_public_headers}
-  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${wgsl_shader_headers}
-)
+  SOURCES ${vtk_object_factory_source} ${sources} ${wgsl_shader_sources}
+  HEADERS ${headers}
+  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${wgsl_shader_headers})
 
-vtk_module_definitions(VTK::RenderingWebGPU
+vtk_module_compile_features(VTK::RenderingWebGPU
   PUBLIC
-    VTK_ENABLE_WEBGPU
-)
+    cxx_std_14)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  vtk_module_compile_features(VTK::RenderingWebGPU
-    PRIVATE
-      cxx_std_14
-  )
   vtk_module_include(VTK::RenderingWebGPU
-    INTERFACE
-      "${EMSCRIPTEN_ROOT_PATH}/cache/sysroot/include/webgpu"
-  )
+    PUBLIC
+      "${EMSCRIPTEN_ROOT_PATH}/cache/sysroot/include/webgpu")
+  vtk_module_compile_options(VTK::RenderingWebGPU
+    PUBLIC
+      "-sUSE_SDL=2")
   vtk_module_link_options(VTK::RenderingWebGPU
-    INTERFACE
-      "SHELL:-s USE_WEBGPU=1"
-  )
-  vtk_module_find_package(PACKAGE SDL2)
-  vtk_module_link(VTK::RenderingWebGPU
     PUBLIC
-      SDL2::SDL2)
-else()
-  # WebGPU native
-  if (WIN32)
-    vtk_module_definitions(VTK::RenderingWebGPU PRIVATE
-      "VTK_DAWN_ENABLE_BACKEND_D3D12"
+      "-sUSE_WEBGPU=1"
+      "-sUSE_SDL=2")
+else ()
+  if (VTK_USE_X)
+    vtk_module_find_package(PACKAGE X11)
+    vtk_module_link(VTK::RenderingWebGPU PUBLIC X11::X11)
+    if (TARGET X11::Xcursor)
+      vtk_module_link(VTK::RenderingWebGPU PRIVATE X11::Xcursor)
+    else()
+      message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
+    endif()
+    set_property(SOURCE vtkXOpenGLRenderWindow.cxx APPEND
+      PROPERTY
+        COMPILE_DEFINITIONS "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
     )
-  elseif(ANDROID)
-    vtk_module_definitions(VTK::RenderingWebGPU PRIVATE
-      "VTK_DAWN_ENABLE_BACKEND_VULKAN"
-    )
-  elseif(UNIX)
-    vtk_module_definitions(VTK::RenderingWebGPU PRIVATE
-      "VTK_DAWN_ENABLE_BACKEND_VULKAN"
-      "VTK_DAWN_USE_X11"
-    )
-  elseif(APPLE)
-    vtk_module_definitions(VTK::RenderingWebGPU PRIVATE
-      "VTK_DAWN_ENABLE_BACKEND_METAL"
-    )
-    vtk_module_link(VTK::RenderingWebGPU PRIVATE "-framework Metal")
-    vtk_module_sources(VTK::RenderingWebGPU PRIVATE
-      "utils_metal.mm"
-    )
-  endif()
-  vtk_module_find_package(PRIVATE_IF_SHARED
-    PACKAGE SDL2)
+  elseif (VTK_USE_COCOA)
+    # TODO
+  elseif (VTK_USE_WIN32_OPENGL) # FIXME: We need a VTK_USE_WIN32_WINDOW flag here
+    # TODO
+  endif ()
   vtk_module_find_package(PACKAGE Dawn)
-  vtk_module_compile_features(VTK::RenderingWebGPU
-    PUBLIC
-      cxx_std_14
-  )
   # Must include these source files here.
   vtk_module_sources(VTK::RenderingWebGPU PRIVATE
     "${DAWN_GEN_SRC_DIR}/dawn/webgpu_cpp.cpp"
-    "${DAWN_GEN_SRC_DIR}/dawn/dawn_proc.c"
-  )
+    "${DAWN_GEN_SRC_DIR}/dawn/dawn_proc.c")
   vtk_module_link(VTK::RenderingWebGPU
     PRIVATE
-      SDL2::SDL2
-      ${DAWN_LIBRARIES}
-  )
+      ${DAWN_LIBRARIES})
   vtk_module_include(VTK::RenderingWebGPU
     PUBLIC
-      ${DAWN_INCLUDE_DIRS}
-  )
-  vtk_module_definitions(VTK::RenderingWebGPU
-    PUBLIC
-      "VTK_USE_DAWN_NATIVE"
-  )
-  # TODO: dawn webgpu
+      ${DAWN_INCLUDE_DIRS})
 endif ()

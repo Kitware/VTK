@@ -43,11 +43,10 @@ if (VTK_WHEEL_BUILD)
   include(vtkWheelPreparation)
 endif ()
 
-option(VTK_ENABLE_WEBGPU "Enable the WebGPU experimental rendering backend." OFF)
+include(CMakeDependentOption)
+cmake_dependent_option(VTK_ENABLE_WEBGPU "Enable the WebGPU experimental rendering backend." OFF
+  "NOT CMAKE_SYSTEM_NAME STREQUAL \"Emscripten\"" ON)
 mark_as_advanced(VTK_ENABLE_WEBGPU)
-if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  set(VTK_ENABLE_WEBGPU ON)
-endif ()
 
 include(GNUInstallDirs)
 
@@ -290,6 +289,15 @@ else()
 endif()
 set("_vtk_module_reason_VTK::IOCatalystConduit"
   "via `VTK_ENABLE_CATALYST`")
+if (VTK_ENABLE_WEBGPU)
+  list(APPEND vtk_requested_modules
+    VTK::RenderingWebGPU)
+else ()
+  list(APPEND vtk_rejected_modules
+    VTK::RenderingWebGPU)
+endif ()
+set("_vtk_module_reason_VTK::RenderingWebGPU"
+  "via `VTK_ENABLE_WEBGPU`")
 
 if (VTK_BUILD_TESTING)
   list(APPEND vtk_requested_modules

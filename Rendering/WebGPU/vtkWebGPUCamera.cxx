@@ -30,6 +30,10 @@ void vtkWebGPUCamera::Render(vtkRenderer* renderer)
 //------------------------------------------------------------------------------
 void vtkWebGPUCamera::CacheSceneTransforms(vtkRenderer* renderer)
 {
+  if (renderer == nullptr && this->LastRenderer == nullptr)
+  {
+    return;
+  }
   // has the camera changed?
   if (renderer != this->LastRenderer || this->MTime > this->KeyMatrixTime ||
     renderer->GetMTime() > this->KeyMatrixTime)

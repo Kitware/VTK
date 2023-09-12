@@ -9,7 +9,7 @@
 #include <initializer_list>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsBindGroupLayout
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsBindGroupLayout
 {
 public:
   // Helpers to make creating bind group layouts look nicer:

@@ -328,7 +328,7 @@
         - vtk
 
 .webassembly:
-    image: "dockcross/web-wasm:20230116-670f7f7"
+    image: "dockcross/web-wasm:20230831-0ac0f7a"
 
     variables:
         CMAKE_CONFIGURATION: webassembly

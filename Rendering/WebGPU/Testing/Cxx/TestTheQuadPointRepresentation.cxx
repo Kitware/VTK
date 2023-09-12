@@ -52,10 +52,10 @@ int TestTheQuadPointRepresentation(int argc, char* argv[])
   colors->InsertComponent(2, 1, 0);
   colors->InsertComponent(2, 2, 255);
   colors->InsertComponent(2, 3, 255);
-  colors->InsertComponent(2, 0, 0);
-  colors->InsertComponent(2, 1, 0);
-  colors->InsertComponent(2, 2, 255);
-  colors->InsertComponent(2, 3, 255);
+  colors->InsertComponent(3, 0, 255);
+  colors->InsertComponent(3, 1, 255);
+  colors->InsertComponent(3, 2, 0);
+  colors->InsertComponent(3, 3, 255);
   polydata->GetPointData()->SetScalars(colors);
 
   vtkNew<vtkPolyDataMapper> mapper;

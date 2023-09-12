@@ -76,9 +76,11 @@ gclient sync
 
 ##### Build Dawn with `gn` and Ninja
 
+It is important to set `is_component_build=true`. Otherwise the dawn native shared libraries will not be built.
+
 ```sh
 mkdir -p out/Debug
-gn gen out/Debug
+gn gen out/Debug --target_cpu="x64" --args="is_component_build=true is_debug=true is_clang=true"
 autoninja -C out/Debug
 ```
 
@@ -119,7 +121,7 @@ Available tests:
 ```
 
 ##### Run the Rendering Core tests
-Very few of these pass.
+The RenderingCore vtk.module can be edited to link the unit tests with `VTK::RenderingWebGPU` module. After uncommenting the module name under `TEST_DEPENDS`, rebuild and run the tests. Very few of these pass.
 ```sh
 $ export VTK_WINDOW_BACKEND=SDL2
 $ export VTK_GRAPHICS_BACKEND=WEBGPU

@@ -50,8 +50,6 @@ TEST_DEPENDS
   VTK::RenderingAnnotation
   VTK::RenderingOpenGL2
   # Enable for webgpu tests
-  # VTK::RenderingUI
-  # Enable for webgpu tests
   # VTK::RenderingWebGPU
   VTK::TestingCore
   VTK::TestingRendering

@@ -9,7 +9,7 @@
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsShaderModule
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsShaderModule
 {
 public:
   static wgpu::ShaderModule CreateFromWGSL(const wgpu::Device& device, const std::string& source);

@@ -9,7 +9,7 @@
 #include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsRenderPipelineDescriptor
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsRenderPipelineDescriptor
   : public wgpu::RenderPipelineDescriptor
 {
 public:

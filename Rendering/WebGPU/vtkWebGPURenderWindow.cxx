@@ -61,8 +61,9 @@ void device_lost_callback(WGPUDeviceLostReason reason, char const* message, void
     default:
       reason_type_lbl = "Unknown";
   }
-  vtkErrorWithObjectMacro(reinterpret_cast<vtkObject*>(self),
-    << "Device lost! Reason : " << message << " Reason Type: " << reason_type_lbl);
+  auto renWin = vtkRenderWindow::SafeDownCast(reinterpret_cast<vtkObject*>(self));
+  vtkWarningWithObjectMacro(
+    renWin, << "Device lost! Reason : " << message << " Reason Type: " << reason_type_lbl);
 }
 
 struct PixelReadDescriptor
@@ -113,10 +114,91 @@ PixelReadDescriptor GetPixelReadDesriptor(
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPURenderWindow::vtkWebGPURenderWindow() = default;
+vtkWebGPURenderWindow::vtkWebGPURenderWindow()
+{
+  this->ScreenSize[0] = 0;
+  this->ScreenSize[1] = 0;
+}
 
 //------------------------------------------------------------------------------
 vtkWebGPURenderWindow::~vtkWebGPURenderWindow() = default;
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::PreferHighPerformanceAdapter()
+{
+  this->PowerPreference = wgpu::PowerPreference::HighPerformance;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::PreferLowPowerAdapter()
+{
+  this->PowerPreference = wgpu::PowerPreference::LowPower;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToD3D11()
+{
+  this->RenderingBackendType = wgpu::BackendType::D3D11;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToD3D12()
+{
+  this->RenderingBackendType = wgpu::BackendType::D3D12;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToMetal()
+{
+  this->RenderingBackendType = wgpu::BackendType::Metal;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToVulkan()
+{
+  this->RenderingBackendType = wgpu::BackendType::Vulkan;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToOpenGL()
+{
+  this->RenderingBackendType = wgpu::BackendType::OpenGL;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetBackendTypeToOpenGLES()
+{
+  this->RenderingBackendType = wgpu::BackendType::OpenGLES;
+}
+
+//------------------------------------------------------------------------------
+std::string vtkWebGPURenderWindow::GetBackendTypeAsString()
+{
+  wgpu::AdapterProperties properties = {};
+  this->Adapter.GetProperties(&properties);
+  switch (properties.backendType)
+  {
+    case wgpu::BackendType::Null:
+      return "Null";
+    case wgpu::BackendType::WebGPU:
+      return "WebGPU";
+    case wgpu::BackendType::D3D11:
+      return "D3D11";
+    case wgpu::BackendType::D3D12:
+      return "D3D12";
+    case wgpu::BackendType::Metal:
+      return "Metal";
+    case wgpu::BackendType::Vulkan:
+      return "Vulkan";
+    case wgpu::BackendType::OpenGL:
+      return "OpenGL";
+    case wgpu::BackendType::OpenGLES:
+      return "OpenGL ES";
+    case wgpu::BackendType::Undefined:
+      break;
+  }
+  return "Unknown";
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -132,10 +214,13 @@ bool vtkWebGPURenderWindow::WGPUInit()
   ///@{ TODO: CLEAN UP DEVICE ACQUISITION
   // for emscripten, the glue code is expected to pre-initialize an instance, adapter and a device.
   wgpu::RequestAdapterOptions options;
+  options.backendType = this->RenderingBackendType;
   options.powerPreference = this->PowerPreference;
   this->Adapter = vtkWGPUContext::RequestAdapter(options);
   wgpu::DeviceDescriptor deviceDescriptor = {};
   deviceDescriptor.label = "vtkWebGPURenderWindow::WGPUInit";
+  deviceDescriptor.deviceLostCallback = &device_lost_callback;
+  deviceDescriptor.deviceLostUserdata = this;
   ///@{ TODO: Populate feature requests
   // ...
   ///@}
@@ -150,8 +235,14 @@ bool vtkWebGPURenderWindow::WGPUInit()
   }
   // install error handler
   this->Device.SetUncapturedErrorCallback(&::print_wgpu_error, this);
-  this->Device.SetDeviceLostCallback(&::device_lost_callback, this);
   ///@}
+  // change the window name if it's the default "Visualization Toolkit"
+  // to "Visualization Toolkit " + " Backend name"
+  if (this->WindowName == std::string("Visualization Toolkit"))
+  {
+    std::string windowNameWithBackend = this->MakeDefaultWindowNameWithBackend();
+    this->SetWindowName(windowNameWithBackend.c_str());
+  }
   return true;
 }
 
@@ -161,7 +252,6 @@ void vtkWebGPURenderWindow::WGPUFinalize()
   vtkDebugMacro(<< __func__ << " WGPUInitialized=" << this->WGPUInitialized);
   this->DestroyDepthStencilTexture();
   this->DestroySwapChain();
-  this->Device.SetDeviceLostCallback(nullptr, nullptr);
   this->Device = nullptr;
 }
 
@@ -586,18 +676,35 @@ void vtkWebGPURenderWindow::ReadPixels()
   this->BufferMapReadContext.src = this->ColorAttachment.OffscreenBuffer;
   this->BufferMapReadContext.size = this->ColorAttachment.OffscreenBuffer.GetSize();
   this->BufferMapReadContext.dst = this->CachedPixelBytes;
+  this->BufferMapReadContext.window = this;
 
   auto onBufferMapped = [](WGPUBufferMapAsyncStatus status, void* userdata) {
     auto ctx = reinterpret_cast<MappingContext*>(userdata);
     switch (status)
     {
-      case WGPUBufferMapAsyncStatus_DestroyedBeforeCallback:
-      case WGPUBufferMapAsyncStatus_DeviceLost:
-      case WGPUBufferMapAsyncStatus_Error:
-      case WGPUBufferMapAsyncStatus_UnmappedBeforeCallback:
+      case WGPUBufferMapAsyncStatus_ValidationError:
+        vtkErrorWithObjectMacro(ctx->window, << "Validation error occurred");
+        break;
       case WGPUBufferMapAsyncStatus_Unknown:
-      default:
-        assert(false);
+        vtkErrorWithObjectMacro(ctx->window, << "Unknown error occurred");
+        break;
+      case WGPUBufferMapAsyncStatus_DeviceLost:
+        vtkErrorWithObjectMacro(ctx->window, << "Device lost!");
+        break;
+      case WGPUBufferMapAsyncStatus_DestroyedBeforeCallback:
+        vtkErrorWithObjectMacro(ctx->window, << "Buffer destroyed before callback");
+        break;
+      case WGPUBufferMapAsyncStatus_UnmappedBeforeCallback:
+        vtkErrorWithObjectMacro(ctx->window, << "Buffer unmapped before callback");
+        break;
+      case WGPUBufferMapAsyncStatus_MappingAlreadyPending:
+        vtkErrorWithObjectMacro(ctx->window, << "Buffer already has a mapping pending completion");
+        break;
+      case WGPUBufferMapAsyncStatus_OffsetOutOfRange:
+        vtkErrorWithObjectMacro(ctx->window, << "Buffer offset out of range");
+        break;
+      case WGPUBufferMapAsyncStatus_SizeOutOfRange:
+        vtkErrorWithObjectMacro(ctx->window, << "Buffer size out of range");
         break;
       case WGPUBufferMapAsyncStatus_Success:
       {
@@ -611,6 +718,8 @@ void vtkWebGPURenderWindow::ReadPixels()
         std::copy(mapped, mapped + ctx->size, ctx->dst->GetPointer(0));
       }
       break;
+      default:
+        break;
     }
     ctx->src.Unmap();
   };

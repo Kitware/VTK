@@ -10,7 +10,7 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsRenderPassDescriptor
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsRenderPassDescriptor
   : public wgpu::RenderPassDescriptor
 {
 public:

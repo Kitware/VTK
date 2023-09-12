@@ -9,7 +9,7 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsPipelineLayout
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsPipelineLayout
 {
 public:
   static wgpu::PipelineLayout MakeBasicPipelineLayout(

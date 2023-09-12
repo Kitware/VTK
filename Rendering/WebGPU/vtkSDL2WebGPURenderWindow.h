@@ -12,6 +12,10 @@
 #ifndef vtkSDL2WebGPURenderWindow_h
 #define vtkSDL2WebGPURenderWindow_h
 
+#if !defined(__EMSCRIPTEN__)
+#error "vtkSDL2WebGPURenderWindow cannot be built without emscripten!"
+#endif
+
 #include "vtkWebGPURenderWindow.h"
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
@@ -129,8 +133,8 @@ protected:
   ~vtkSDL2WebGPURenderWindow() override;
 
   void* WindowId = nullptr;
-  static const std::string DEFAULT_BASE_WINDOW_NAME;
 
+  std::string MakeDefaultWindowNameWithBackend() override;
   void CleanUpRenderers();
   void CreateAWindow() override;
   void DestroyWindow() override;

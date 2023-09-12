@@ -54,6 +54,16 @@ For this guide, you will need the following:
 These instructions use a specific convention for the source, build and install directories that is appropriate when building VTK for wasm inside
 a docker container. Please replace these _root-directory_ paths if VTK is being built outside a docker container.
 
+### Install emscripten ports (IMPORTANT!)
+
+Emscripten relies on SDL2 to link user input events from the browser's event subsystem to native C/C++ code. If this is your initial download of the EMSDK, you'll need to build the SDL2 port. The "embuilder" script will be accessible on the path if you've successfully installed and activated the EMSDK, as outlined in the prerequisites.
+
+```bash
+$ embuilder build sdl2
+```
+
+### Build VTK
+
 1. Configure the project with CMake. `emcmake` tells CMake to use the `emscripten` toolchain for cross compilation.
 
 ```bash

@@ -8,7 +8,7 @@
 #include "vtk_wgpu.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsRenderPassCreateInfo
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsRenderPassCreateInfo
 {
 public:
   vtkWebGPUInternalsRenderPassCreateInfo();

@@ -77,6 +77,7 @@ vtk_object_factory_configure(
   [HEADER_FILE <variable>]
   [EXPORT_MACRO <macro>]
   [INITIAL_CODE <code>]
+  [INITIAL_CODE_FILE <path>]
   [EXTRA_INCLUDES <include>...])
 ~~~
 
@@ -87,6 +88,7 @@ vtk_object_factory_configure(
   - `EXPORT_MACRO`: (Recommended) The export macro to add to the generated
     class.
   - `INITIAL_CODE`: C++ code to run when the object factory is initialized.
+  - `INITIAL_CODE_FILE`: Read `INITIAL_CODE` from a file.
   - `EXTRA_INCLUDES`: A list of headers to include. The header names need to
     include the `<>` or `""` quoting.
 #]==]
@@ -98,13 +100,25 @@ function (vtk_object_factory_configure)
 
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_object_factory_configure
     ""
-    "SOURCE_FILE;HEADER_FILE;INITIAL_CODE;EXPORT_MACRO"
+    "SOURCE_FILE;HEADER_FILE;INITIAL_CODE;EXPORT_MACRO;INITIAL_CODE_FILE"
     "EXTRA_INCLUDES")
 
   if (_vtk_object_factory_configure_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
       "Unparsed arguments for vtk_object_factory_configure: "
       "${_vtk_object_factory_configure_UNPARSED_ARGUMENTS}")
+  endif ()
+
+  if (DEFINED _vtk_object_factory_configure_INITIAL_CODE AND
+      DEFINED _vtk_object_factory_configure_INITIAL_CODE_FILE)
+    message(FATAL_ERROR
+      "At most one of `INITIAL_CODE` and `INITIAL_CODE_FILE` may be specified "
+      "at a time.")
+  endif ()
+
+  if (_vtk_object_factory_configure_INITIAL_CODE_FILE)
+    file(READ "${_vtk_object_factory_configure_INITIAL_CODE_FILE}"
+      _vtk_object_factory_configure_INITIAL_CODE)
   endif ()
 
   get_property(_vtk_object_factory_done

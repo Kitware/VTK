@@ -24,7 +24,15 @@ namespace
 #if (VTK_SIZEOF_ID_TYPE == 8) && !defined(_DARWIN_FEATURE_64_BIT_INODE) &&                         \
   !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 #ifndef _WIN32
+#if defined __EMSCRIPTEN__
+#if defined _LARGEFILE64_SOURCE
 #define USE_STAT_64
+#else
+#define USE_STAT
+#endif
+#else
+#define USE_STAT_64
+#endif
 #else
 #define USE_WIN_STAT_64
 #endif

@@ -43,7 +43,7 @@ protected:
   ~vtkWebGPUCamera() override;
 
   vtkTimeStamp KeyMatrixTime;
-  vtkRenderer* LastRenderer;
+  vtkRenderer* LastRenderer = nullptr;
   vtkNew<vtkMatrix3x3> NormalMatrix;
 
   // Pack uniforms as needed.
