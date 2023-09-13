@@ -288,7 +288,6 @@ set(classes
   vtkSortDataArray
   vtkStdString
   vtkStringArray
-  vtkStringManager
   vtkStringOutputWindow
   vtkStringToken
   vtkTimePointUtility

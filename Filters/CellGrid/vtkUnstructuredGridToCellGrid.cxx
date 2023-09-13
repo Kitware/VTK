@@ -17,7 +17,6 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStringArray.h"
-#include "vtkStringManager.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <sstream>
@@ -205,7 +204,7 @@ bool vtkUnstructuredGridToCellGrid::TranscribeQuery::SumOutputCounts()
   {
     if (entry.second.NumberOfCells > 0)
     {
-      if (entry.second.CellType.GetId() != vtkStringManager::Invalid)
+      if (entry.second.CellType.IsValid())
       {
         this->OutputAllocations[entry.second.CellType] += entry.second.NumberOfCells;
         // clang-format off

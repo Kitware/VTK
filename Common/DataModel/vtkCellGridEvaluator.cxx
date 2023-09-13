@@ -11,7 +11,6 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 #include "vtkStaticPointLocator.h"
-#include "vtkStringManager.h"
 #include "vtkTypeUInt32Array.h"
 
 #include <algorithm>
@@ -287,7 +286,7 @@ bool vtkCellGridEvaluator::IsAnotherPassRequired()
         }
         // Add a trailing entry containing the total number of points.
         this->ClassifierCellOffsets->SetValue(cellType, offset);
-        this->ClassifierCellTypes->SetValue(cellType, vtkStringManager::Invalid);
+        this->ClassifierCellTypes->SetValue(cellType, vtkStringToken::InvalidHash());
         this->NumberOfOutputPoints = offset;
       }
       break;
