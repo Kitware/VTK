@@ -26,6 +26,8 @@ pre-commit       crlf=input
 
 *.md             whitespace=tab-in-indent conflict-marker-size=30
 
+block.tar        hooks-max-size=15000000
+
 # Third party code.
 Utilities/KWIML/**  -format.clang-format
 Utilities/KWSys/**  -format.clang-format

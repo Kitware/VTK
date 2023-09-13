@@ -37,12 +37,17 @@ if (TARGET VTK::mpi)
   set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 5)
   vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI no_data_tests_5_procs
     TestDIYGenerateCuts.cxx
-    )
+  )
+  set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 16)
+  vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI sub_comm_test
+    TestReducePartitions.cxx
+  )
 
   set(all_tests
     ${tests}
     ${no_data_tests_4_procs}
     ${no_data_tests_5_procs}
+    ${sub_comm_test}
     )
 
   vtk_test_cxx_executable(vtkFiltersParallelDIY2CxxTests-MPI all_tests)
