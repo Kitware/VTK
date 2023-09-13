@@ -532,6 +532,11 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
+  /**
+   * Returns true if type is CELL, false otherwise
+   */
+  bool SupportsGhostArray(int type) override;
+
 private:
   /**
    * Recursively initialize pure material mask

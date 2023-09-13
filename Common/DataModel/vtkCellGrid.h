@@ -99,6 +99,11 @@ public:
   vtkUnsignedCharArray* GetGhostArray(int type) override;
 
   /**
+   * Returns true if type is CELL, false otherwise
+   */
+  bool SupportsGhostArray(int type) override;
+
+  /**
    * Retrieves the attribute type that an array came from.
    * This is useful for obtaining which attribute type a input array
    * to an algorithm came from (retrieved from GetInputAbstractArrayToProcesss).

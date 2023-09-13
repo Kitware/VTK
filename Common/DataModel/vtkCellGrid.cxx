@@ -249,6 +249,16 @@ vtkUnsignedCharArray* vtkCellGrid::GetGhostArray(int type)
   return result;
 }
 
+//------------------------------------------------------------------------------
+bool vtkCellGrid::SupportsGhostArray(int type)
+{
+  if (type == CELL)
+  {
+    return true;
+  }
+  return false;
+}
+
 int vtkCellGrid::GetAttributeTypeForArray(vtkAbstractArray* arr)
 {
   // First, search through DOF arrays:

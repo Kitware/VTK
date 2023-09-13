@@ -15,6 +15,12 @@ int otherUnstructuredGrid(int, char*[])
   int retVal = EXIT_SUCCESS;
 
   vtkNew<vtkUnstructuredGrid> ug;
+  if (!ug->SupportsGhostArray(vtkDataObject::POINT) || !ug->SupportsGhostArray(vtkDataObject::CELL))
+  {
+    vtkLog(ERROR, "Unexpected results on SupportsGhostArray");
+    retVal = EXIT_FAILURE;
+  }
+
   vtkUnsignedCharArray* distinctCellTypes = ug->GetDistinctCellTypesArray();
   if (!distinctCellTypes)
   {

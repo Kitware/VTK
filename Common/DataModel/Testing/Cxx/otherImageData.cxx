@@ -27,6 +27,13 @@ int TestOID(ostream& strm)
   vtkImageData* id2Dyz = vtkImageData::New();
   vtkImageData* id3D = vtkImageData::New();
 
+  if (!id0D->SupportsGhostArray(vtkDataObject::POINT) ||
+    !id0D->SupportsGhostArray(vtkDataObject::CELL))
+  {
+    std::cerr << "Unexpected results on SupportsGhostArray\n";
+    return 1;
+  }
+
   id3D->SetDimensions(20, 20, 20);
 
   if (id3D->GetCellSize(0) != 8)

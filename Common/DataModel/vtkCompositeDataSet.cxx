@@ -148,6 +148,16 @@ vtkDataObject* vtkCompositeDataSet::GetDataSet(unsigned int flatIndex)
 }
 
 //------------------------------------------------------------------------------
+bool vtkCompositeDataSet::SupportsGhostArray(int type)
+{
+  if (type == POINT || type == CELL)
+  {
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkCompositeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

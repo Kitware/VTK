@@ -1,19 +1,21 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// .NAME
+// .SECTION Description
+// this program tests vtkCellGrid
+
+#include "vtkCellGrid.h"
 #include "vtkLogger.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 
-//------------------------------------------------------------------------------
-int TestCompositeDataSets(int, char*[])
+int otherCellGrid(int, char*[])
 {
-  vtkNew<vtkMultiBlockDataSet> mb;
-  if (!mb->SupportsGhostArray(vtkDataObject::POINT) || !mb->SupportsGhostArray(vtkDataObject::CELL))
+  vtkNew<vtkCellGrid> cg;
+  if (cg->SupportsGhostArray(vtkDataObject::POINT) || !cg->SupportsGhostArray(vtkDataObject::CELL))
   {
     vtkLog(ERROR, "Unexpected results on SupportsGhostArray");
     return EXIT_FAILURE;
   }
-
   return EXIT_SUCCESS;
 }

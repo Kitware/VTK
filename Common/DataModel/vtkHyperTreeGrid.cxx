@@ -1425,6 +1425,16 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
 }
 
 //------------------------------------------------------------------------------
+bool vtkHyperTreeGrid::SupportsGhostArray(int type)
+{
+  if (type == CELL)
+  {
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkHyperTreeGrid::GetIndexFromLevelZeroCoordinates(
   vtkIdType& treeindex, unsigned int i, unsigned int j, unsigned int k) const
 {

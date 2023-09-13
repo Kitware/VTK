@@ -26,6 +26,13 @@ int TestOSG_0d(ostream& strm)
   int i, k;
   vtkNew<vtkStructuredGrid> sg0D;
 
+  if (!sg0D->SupportsGhostArray(vtkDataObject::POINT) ||
+    !sg0D->SupportsGhostArray(vtkDataObject::CELL))
+  {
+    std::cerr << "Unexpected results on SupportsGhostArray\n";
+    return 1;
+  }
+
   vtkNew<vtkPoints> onepoints;
   for (k = 0; k < 1; k++)
   {
