@@ -113,7 +113,7 @@ public:
 
   ///@{
   /**
-   * Get/Set number of partitions (if 0 use number of MPI ranks)
+   * Get/Set number of partitions (if < 0 use number of MPI ranks)
    */
   vtkGetMacro(NumberOfPartitions, vtkIdType);
   vtkSetMacro(NumberOfPartitions, vtkIdType);
@@ -125,7 +125,7 @@ protected:
 
   vtkMultiProcessController* Controller = nullptr;
 
-  vtkIdType NumberOfPartitions = 0;
+  vtkIdType NumberOfPartitions = -1;
 
 private:
   vtkPartitioningStrategy(const vtkPartitioningStrategy&) = delete;

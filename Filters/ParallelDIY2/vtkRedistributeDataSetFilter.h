@@ -175,7 +175,7 @@ public:
   ///@{
   /**
    * Specify the number of partitions to split the input dataset into.
-   * Set to 0 to indicate that the partitions should match the number of
+   * Set to -1 to indicate that the partitions should match the number of
    * ranks (processes) determined using vtkMultiProcessController provided.
    * Setting to a non-zero positive number will result in the filter generating at
    * least as many partitions.
@@ -183,7 +183,7 @@ public:
    * This is simply a hint and not an exact number of partitions the data will be
    * split into.
    *
-   * Default is 0.
+   * Default is -1.
    *
    * @sa PreservePartitionsInOutput
    */

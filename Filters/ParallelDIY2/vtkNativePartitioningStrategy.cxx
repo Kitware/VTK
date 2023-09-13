@@ -394,7 +394,7 @@ bool vtkNativePartitioningStrategy::InitializeCuts(vtkDataObjectTree* input)
 std::vector<vtkBoundingBox> vtkNativePartitioningStrategy::GenerateCuts(vtkDataObject* dobj)
 {
   auto controller = this->GetController();
-  const int num_partitions = (controller && this->GetNumberOfPartitions() == 0)
+  const int num_partitions = (controller && this->GetNumberOfPartitions() < 0)
     ? controller->GetNumberOfProcesses()
     : this->GetNumberOfPartitions();
   auto bbox = vtkDIYUtilities::GetLocalBounds(dobj);
