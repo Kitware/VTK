@@ -38,17 +38,19 @@ set (VolumeCxxTests
   TestGPURayCastIndependentVectorMode.cxx
   TestGPURayCastLabelMap.cxx
   TestGPURayCastLabelMap1Label.cxx
+  TestGPURayCastLabelMapValidity.cxx
   TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastMapperBenchmark.cxx
   TestGPURayCastMapperRectilinearGrid.cxx
   TestGPURayCastMapperSampleDistance.cxx
+  TestGPURayCastMapperShadows.cxx
   TestGPURayCastMultiVolumeAddRemove.cxx
   TestGPURayCastMultiVolumeCellData.cxx
   TestGPURayCastMultiVolumeOverlapping.cxx
-  TestGPURayCastMultiVolumeShade.cxx
   TestGPURayCastMultiVolumeRGBA.cxx
+  TestGPURayCastMultiVolumeShade.cxx
   TestGPURayCastMultiVolumeTransfer2D.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastOrientedVolume.cxx
@@ -81,7 +83,6 @@ set (VolumeCxxTests
   TestGPURayCastVolumeUpdate.cxx
   TestGPUVolumeRayCastMapper.cxx
   TestGPUVolumeRayCastMapperManyLights.cxx
-  TestGPURayCastMapperShadows.cxx
   TestMinIntensityRendering.cxx
   TestMultiBlockMapper.cxx
   TestMultiBlockMapperRectilinearGrid.cxx
