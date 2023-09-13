@@ -49,7 +49,7 @@ static int vtkWrapPython_CountAllOccurrences(
 
 /* -------------------------------------------------------------------- */
 /* Declare all local variables used by the wrapper method */
-void vtkWrapPython_DeclareVariables(FILE* fp, ClassInfo* data, FunctionInfo* theFunc)
+void vtkWrapPython_DeclareVariables(FILE* fp, const ClassInfo* data, const FunctionInfo* theFunc)
 {
   ValueInfo* arg;
   int i, n;
@@ -204,7 +204,7 @@ void vtkWrapPython_DeclareVariables(FILE* fp, ClassInfo* data, FunctionInfo* the
 /* -------------------------------------------------------------------- */
 /* Write the code to convert one argument with vtkPythonArgs */
 void vtkWrapPython_GetSingleArgument(
-  FILE* fp, ClassInfo* data, int i, ValueInfo* arg, int static_call)
+  FILE* fp, const ClassInfo* data, int i, const ValueInfo* arg, int static_call)
 {
   const char* prefix = "ap.";
   const char* cp;
@@ -563,7 +563,8 @@ static void vtkWrapPython_CheckPreconds(FILE* fp, ClassInfo* data, FunctionInfo*
 
 /* -------------------------------------------------------------------- */
 /* Convert values into python object and return them within python */
-void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, const ValueInfo* val, int static_call)
+void vtkWrapPython_ReturnValue(
+  FILE* fp, const ClassInfo* data, const ValueInfo* val, int static_call)
 {
   char pythonname[1024];
   const char* deref = "";

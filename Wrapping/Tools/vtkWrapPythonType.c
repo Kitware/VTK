@@ -61,7 +61,7 @@ static const char* vtkWrapPython_WrappedConstructor(
   /* check if a public constructor exists */
   for (i = 0; i < data->NumberOfFunctions; i++)
   {
-    FunctionInfo* theFunc = data->Functions[i];
+    const FunctionInfo* theFunc = data->Functions[i];
 
     if (theFunc->Name && strncmp(theFunc->Name, constructor, n) == 0 && theFunc->Name[n] == '\0' &&
       !theFunc->Template && vtkWrapPython_MethodCheck(data, theFunc, hinfo))

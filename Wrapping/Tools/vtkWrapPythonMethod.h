@@ -14,14 +14,15 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
   int numberOfWrappedFunctions, int fnum, int is_vtkobject, int do_constructors);
 
 /* declare all variables needed by the wrapper method */
-void vtkWrapPython_DeclareVariables(FILE* fp, ClassInfo* data, FunctionInfo* theFunc);
+void vtkWrapPython_DeclareVariables(FILE* fp, const ClassInfo* data, const FunctionInfo* theFunc);
 
 /* Write the code to convert an argument with vtkPythonArgs */
 void vtkWrapPython_GetSingleArgument(
-  FILE* fp, ClassInfo* data, int i, ValueInfo* arg, int static_call);
+  FILE* fp, const ClassInfo* data, int i, const ValueInfo* arg, int static_call);
 
 /* print the code to build python return value from a method */
-void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, const ValueInfo* val, int static_call);
+void vtkWrapPython_ReturnValue(
+  FILE* fp, const ClassInfo* data, const ValueInfo* val, int static_call);
 
 /* print the code that generates a DeprecationWarning */
 void vtkWrapPython_DeprecationWarning(

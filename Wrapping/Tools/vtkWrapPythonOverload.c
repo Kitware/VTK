@@ -85,7 +85,7 @@
 static char vtkWrapPython_FormatChar(unsigned int argtype);
 
 /* create a string for checking arguments against available signatures */
-static char* vtkWrapPython_ArgCheckString(ClassInfo* data, FunctionInfo* currentFunction);
+static char* vtkWrapPython_ArgCheckString(const ClassInfo* data, FunctionInfo* currentFunction);
 
 /* -------------------------------------------------------------------- */
 /* Get the python format char for the give type, after retrieving the
@@ -154,7 +154,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
 /* -------------------------------------------------------------------- */
 /* Create a string to describe the signature of a method. */
 
-static char* vtkWrapPython_ArgCheckString(ClassInfo* data, FunctionInfo* currentFunction)
+static char* vtkWrapPython_ArgCheckString(const ClassInfo* data, FunctionInfo* currentFunction)
 {
   static char result[2048]; /* max literal string length */
   char classname[1024];

@@ -43,7 +43,7 @@ static void vtkWrapPython_CollectionMethods(FILE* fp, const char* classname, con
 
 /* check for wrappability, flags may be VTK_WRAP_ARG or VTK_WRAP_RETURN */
 static int vtkWrapPython_IsValueWrappable(
-  ClassInfo* data, ValueInfo* val, const HierarchyInfo* hinfo, int flags);
+  const ClassInfo* data, const ValueInfo* val, const HierarchyInfo* hinfo, int flags);
 
 /* weed out methods that will never be called */
 static void vtkWrapPython_RemovePrecededMethods(
@@ -436,7 +436,7 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
 /* Check an arg to see if it is wrappable */
 
 static int vtkWrapPython_IsValueWrappable(
-  ClassInfo* data, ValueInfo* val, const HierarchyInfo* hinfo, int flags)
+  const ClassInfo* data, const ValueInfo* val, const HierarchyInfo* hinfo, int flags)
 {
   static const unsigned int wrappableTypes[] = { VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT,
     VTK_PARSE_DOUBLE, VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, VTK_PARSE_INT,
@@ -574,7 +574,7 @@ static int vtkWrapPython_IsValueWrappable(
 /* Check a method to see if it is wrappable in python */
 
 int vtkWrapPython_MethodCheck(
-  ClassInfo* data, FunctionInfo* currentFunction, const HierarchyInfo* hinfo)
+  const ClassInfo* data, const FunctionInfo* currentFunction, const HierarchyInfo* hinfo)
 {
   int i, n;
 
