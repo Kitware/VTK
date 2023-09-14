@@ -128,7 +128,7 @@ for attId in cg.GetUnorderedCellAttributeIds():
         vname = vtkStringToken('shape_vals')
         ar.BindArrayToTexture(cname, conn, True) # Reshape to a 1-D array with 1 component per tuple.
         ar.BindArrayToTexture(vname, vals, False)
-        print('  Binding "%s" and "%s" for "%s", shape_vals size (%d vals×%d bytes/val]' % (cname.Data(), vname.Data(), cellAtt.GetName().Data(), vals.GetMaxId()+1, vals.GetDataTypeSize()))
+        print('  Binding "%s" and "%s" for "%s", shape_vals size (%d vals x %d bytes/val]' % (cname.Data(), vname.Data(), cellAtt.GetName().Data(), vals.GetMaxId()+1, vals.GetDataTypeSize()))
 
 # Add a unit cube centered at the origin to the scene
 cs = vtkCubeSource()
