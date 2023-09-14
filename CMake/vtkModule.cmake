@@ -3579,7 +3579,8 @@ include(GenerateExportHeader)
   .. code-block:: cmake
 
      vtk_module_add_module(<name>
-       [NO_INSTALL] [FORCE_STATIC] [HEADER_ONLY] [HEADER_DIRECTORIES]
+       [NO_INSTALL] [FORCE_STATIC|FORCE_SHARED]
+       [HEADER_ONLY] [HEADER_DIRECTORIES]
        [EXPORT_MACRO_PREFIX      <prefix>]
        [HEADERS_SUBDIR           <subdir>]
        [LIBRARY_NAME_SUFFIX      <suffix>]
@@ -3608,8 +3609,9 @@ include(GenerateExportHeader)
     references to the target that are expected to be satisfied. It is highly
     recommended to test that the build and install exports (as used) be tested
     to make sure that the module is not actually referenced.
-  * ``FORCE_STATIC``: For a static library to be created. If not provided,
-    ``BUILD_SHARED_LIBS`` will control the library type.
+  * ``FORCE_STATIC`` or ``FORCE_SHARED``: For a static (respectively, shared)
+    library to be created. If neither is provided, ``BUILD_SHARED_LIBS`` will
+    control the library type.
   * ``HEADER_ONLY``: The module only contains headers (or templates) and contains
     no compilation steps. Mutually exclusive with ``FORCE_STATIC``.
   * ``HEADER_DIRECTORIES``: The headers for this module are in a directory
@@ -3655,7 +3657,7 @@ function (vtk_module_add_module name)
   endforeach ()
 
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_module
-    "NO_INSTALL;FORCE_STATIC;HEADER_ONLY;HEADER_DIRECTORIES;EXCLUDE_HEADER_TEST"
+    "NO_INSTALL;FORCE_STATIC;FORCE_SHARED;HEADER_ONLY;HEADER_DIRECTORIES;EXCLUDE_HEADER_TEST"
     "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX;SPDX_SKIP_REGEX"
     "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_CLASSES;NOWRAP_TEMPLATE_CLASSES;NOWRAP_HEADERS")
 
@@ -3674,6 +3676,11 @@ function (vtk_module_add_module name)
       "The ${_vtk_build_module} module cannot be header only yet forced "
       "static.")
   endif ()
+
+  if (_vtk_add_module_FORCE_SHARED AND _vtk_add_module_FORCE_STATIC)
+    message(FATAL_ERROR
+      "The ${_vtk_build_module} module cannot be both shared and static.")
+  endif()
 
   foreach (_vtk_add_module_class IN LISTS _vtk_add_module_CLASSES)
     list(APPEND _vtk_add_module_SOURCES
@@ -3755,6 +3762,14 @@ function (vtk_module_add_module name)
   set(_vtk_add_module_type)
   if (_vtk_add_module_FORCE_STATIC)
     set(_vtk_add_module_type STATIC)
+  elseif (_vtk_add_module_FORCE_SHARED)
+    if (NOT EMSCRIPTEN)
+      # XXX(cmake): Until the emscripten platform supports shared libraries,
+      #   do not allow FORCE_SHARED. See [1] and [2] for more information.
+      #   [1]: https://github.com/emscripten-core/emscripten/pull/16281
+      #   [2]: https://github.com/emscripten-core/emscripten/issues/20340
+      set(_vtk_add_module_type SHARED)
+    endif()
   endif ()
 
   set(_vtk_add_module_build_with_kit)
