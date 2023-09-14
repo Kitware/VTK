@@ -241,7 +241,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCGhostArrayToVTKGhostAr
   const vtkIdType num_tuples = static_cast<vtkIdType>(dtype0.number_of_elements());
   array->SetNumberOfTuples(num_tuples);
   const int* vals = mcarray.as_int_ptr();
-  unsigned char ghost_type = is_cell_data == true
+  unsigned char ghost_type = is_cell_data
     ? static_cast<unsigned char>(vtkDataSetAttributes::HIDDENCELL)
     : static_cast<unsigned char>(vtkDataSetAttributes::HIDDENPOINT);
   for (vtkIdType i = 0; i < num_tuples; i++)
