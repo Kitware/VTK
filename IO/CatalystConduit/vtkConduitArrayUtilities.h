@@ -44,6 +44,15 @@ public:
     const conduit_node* mcarray, const std::string& arrayname);
   ///@}
 
+  ///@{
+  /**
+   * Returns a vtkDataArray from a conduit node in the conduit mcarray protocol
+   * that is a conduit ghost array named ascent_ghosts.
+   */
+  static vtkSmartPointer<vtkDataArray> MCGhostArrayToVTKGhostArray(
+    const conduit_node* mcarray, bool is_cell_data);
+  ///@}
+
   /**
    * Converts an mcarray to vtkCellArray.
    *

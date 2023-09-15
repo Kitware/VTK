@@ -11,6 +11,7 @@
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
@@ -81,6 +82,7 @@ bool ValidateMeshTypeUniform()
 {
   conduit_cpp::Node mesh;
   CreateUniformMesh(3, 3, 3, mesh);
+
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
@@ -396,8 +398,6 @@ bool ValidateMeshTypeAMR(const std::string& file)
   // read in an example mesh dataset
   conduit_node_load(conduit_cpp::c_node(&mesh), file.c_str(), "");
 
-  mesh.print();
-
   const auto& meshdata = mesh["data"];
   // run vtk conduit source
   vtkNew<vtkConduitSource> source;
@@ -480,7 +480,64 @@ bool ValidateFieldData()
   return true;
 }
 
-bool ValidateRectlinearGridWithDifferentDimensions()
+bool ValidateAscentGhostCellData()
+{
+  conduit_cpp::Node mesh;
+  CreateUniformMesh(3, 3, 3, mesh);
+
+  std::vector<int> cellGhosts(8, 0);
+  cellGhosts[2] = 1;
+
+  conduit_cpp::Node resCellFields = mesh["fields/ascent_ghosts"];
+  resCellFields["association"] = "element";
+  resCellFields["topology"] = "mesh";
+  resCellFields["volume_dependent"] = "false";
+  resCellFields["values"] = cellGhosts;
+
+  auto data = Convert(mesh);
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto img = vtkImageData::SafeDownCast(pds->GetPartition(0));
+  VERIFY(img != nullptr, "missing partition 0");
+  vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
+    img->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+  VERIFY(array != nullptr &&
+      array->GetValue(2) == static_cast<unsigned char>(vtkDataSetAttributes::HIDDENCELL),
+    "Verification failed for converting Ascent ghost cell data");
+
+  return true;
+}
+
+bool ValidateAscentGhostPointData()
+{
+  conduit_cpp::Node mesh;
+  CreateUniformMesh(3, 3, 3, mesh);
+
+  std::vector<int> pointGhosts(27, 0);
+  pointGhosts[2] = 1;
+
+  conduit_cpp::Node resPointFields = mesh["fields/ascent_ghosts"];
+  resPointFields["association"] = "vertex";
+  resPointFields["topology"] = "mesh";
+  resPointFields["values"] = pointGhosts;
+
+  auto data = Convert(mesh);
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto img = vtkImageData::SafeDownCast(pds->GetPartition(0));
+  VERIFY(img != nullptr, "missing partition 0");
+  vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
+    img->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+  VERIFY(array != nullptr &&
+      array->GetValue(2) == static_cast<unsigned char>(vtkDataSetAttributes::HIDDENPOINT),
+    "Verification failed for converting Ascent ghost point data");
+
+  return true;
+}
+
+bool ValidateRectilinearGridWithDifferentDimensions()
 {
   conduit_cpp::Node mesh;
   CreateRectilinearMesh(3, 2, 1, mesh);
@@ -949,8 +1006,9 @@ int TestConduitSource(int argc, char** argv)
 
   return ValidateMeshTypeUniform() && ValidateMeshTypeRectilinear() &&
       ValidateMeshTypeStructured() && ValidateMeshTypeUnstructured() && ValidateFieldData() &&
-      ValidateRectlinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
-      ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile)
+      ValidateRectilinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
+      ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
+      ValidateAscentGhostCellData() && ValidateAscentGhostPointData()
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 }
