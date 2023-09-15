@@ -307,6 +307,10 @@ int vtkCONVERGECFDCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Retrieve collection assembly so parcels can be added
   vtkDataAssembly* hierarchy = cgnsOutput->GetDataAssembly();
 
+  // change root node name to "assembly"
+  hierarchy->SetRootNodeName("assembly");
+  hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "label", "assembly");
+
   // Use CGIO routine to find the zones
   int cgioId = 0;
   if (cgio_open_file(this->FileName.c_str(), CGIO_MODE_READ, CG_FILE_NONE, &cgioId) != CG_OK)
@@ -394,6 +398,31 @@ int vtkCONVERGECFDCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         vtkWarningMacro("Could not find assembly node '" << nodeName << "'. Ignoring.");
         continue;
+      }
+
+      const auto zoneChildren = hierarchy->GetChildNodes(zoneAssemblyId);
+      for (const auto zoneChild : zoneChildren)
+      {
+        const auto childName = hierarchy->GetNodeName(zoneChild);
+        // 1) change the name of the "Internal" node to "Mesh"
+        if (strcmp(childName, "Internal") == 0)
+        {
+          hierarchy->SetNodeName(zoneChild, "Mesh");
+          hierarchy->SetAttribute(zoneChild, "label", "Mesh");
+          // also change the vtkCompositeDataSet::NAME() metadata
+          unsigned int partitionedDataSetId = hierarchy->GetDataSetIndices(zoneChild).front();
+          if (cgnsOutput->HasMetaData(partitionedDataSetId) &&
+            cgnsOutput->GetMetaData(partitionedDataSetId)->Has(vtkCompositeDataSet::NAME()))
+          {
+            cgnsOutput->GetMetaData(partitionedDataSetId)->Set(vtkCompositeDataSet::NAME(), "Mesh");
+          }
+        }
+        // 2) change the name of the "Patches" node to "Surfaces"
+        else if (strcmp(childName, "Patches") == 0)
+        {
+          hierarchy->SetNodeName(zoneChild, "Surfaces");
+          hierarchy->SetAttribute(zoneChild, "label", "Surfaces");
+        }
       }
 
       // Search for UserDefinedData_t child nodes named "PARCEL_DATA" in current zone
