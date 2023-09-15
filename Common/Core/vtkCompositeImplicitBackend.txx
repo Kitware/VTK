@@ -21,6 +21,7 @@ struct TypedArrayCache
 {
   virtual ValueType GetValue(int idx) const = 0;
   virtual ~TypedArrayCache() = default;
+  virtual unsigned long getMemorySize() const = 0;
 };
 
 /*
@@ -40,6 +41,8 @@ public:
   {
     return static_cast<ValueType>(this->Array->GetValue(idx));
   }
+
+  unsigned long getMemorySize() const override { return this->Array->GetActualMemorySize(); };
 
 private:
   vtkSmartPointer<ArrayT> Array;
@@ -64,6 +67,8 @@ public:
     int iComp = idx - iTup * this->Array->GetNumberOfComponents();
     return static_cast<ValueType>(this->Array->GetComponent(iTup, iComp));
   }
+
+  unsigned long getMemorySize() const override { return this->Array->GetActualMemorySize(); };
 
 private:
   vtkSmartPointer<vtkDataArray> Array;
@@ -103,6 +108,8 @@ struct TypedCacheWrapper
   }
 
   ValueType operator()(int idx) const { return this->Cache->GetValue(idx); }
+
+  unsigned long getMemorySize() const { return this->Cache->getMemorySize(); }
 
 private:
   using Dispatcher = vtkArrayDispatch::DispatchByArray<ArrayList>;
@@ -175,4 +182,17 @@ ValueType vtkCompositeImplicitBackend<ValueType>::operator()(int idx) const
   return this->Internal->CachedArrays[std::distance(this->Internal->Offsets.begin(), itPos)]
     ->GetValue(locIdx);
 }
+
+template <typename ValueType>
+unsigned long vtkCompositeImplicitBackend<ValueType>::getMemorySize() const
+{
+  unsigned long arraySizeSum = 0;
+  for (const auto& array : this->Internal->CachedArrays)
+  {
+    arraySizeSum += array->GetActualMemorySize();
+  }
+
+  return arraySizeSum;
+}
+
 VTK_ABI_NAMESPACE_END

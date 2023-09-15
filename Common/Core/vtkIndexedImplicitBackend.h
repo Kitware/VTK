@@ -70,6 +70,12 @@ public:
    */
   ValueType operator()(int idx) const;
 
+  /**
+   * Returns the smallest integer memory size in KiB needed to store the array.
+   * Used to implement GetActualMemorySize on `vtkIndexedImplicitBackend`.
+   */
+  unsigned long getMemorySize() const;
+
 private:
   struct Internals;
   std::unique_ptr<Internals> Internal;
