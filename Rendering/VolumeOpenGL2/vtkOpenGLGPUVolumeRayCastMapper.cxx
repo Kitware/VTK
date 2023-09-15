@@ -14,6 +14,7 @@
 
 // VTK includes
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLState.h"
@@ -241,7 +242,7 @@ public:
 
   void UpdateTransfer2DYAxisArray(vtkRenderer* ren, vtkVolume* vol);
 
-  bool LoadMask(vtkRenderer* ren);
+  bool LoadMask(vtkRenderer* ren, vtkVolume* vol);
 
   // Update the depth sampler with the current state of the z-buffer. The
   // sampler is used for z-buffer compositing with opaque geometry during
@@ -663,7 +664,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateTransferFunctions(vtkRe
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren)
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren, vtkVolume* vol)
 {
   bool result = true;
   auto maskInput = this->Parent->MaskInput;
@@ -685,6 +686,16 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren)
       this->CurrentMask->GetLoadedScalars() != arr ||
       (arr && arr->GetMTime() > this->MaskUpdateTime))
     {
+      // Setup the scalar range of the mask volume based on the number of transfer functions in the
+      // property. This is done so that the value for texture lookup in the shader is scaled and
+      // biased based on the range of the texture created by the label transfer functions.
+      vtkVolumeProperty* volumeProperty = vol->GetProperty();
+      auto const numLabels = volumeProperty->GetLabelMapLabels().size();
+      double maskRange[2] = { 0.0, (numLabels > 0.0 ? numLabels : 1.0) };
+      vtkNew<vtkInformationVector> infoVec;
+      infoVec->SetNumberOfInformationObjects(1);
+      infoVec->GetInformationObject(0)->Set(vtkDataArray::COMPONENT_RANGE(), maskRange, 2);
+      arr->GetInformation()->Set(vtkDataArray::PER_FINITE_COMPONENT(), infoVec);
       result =
         this->CurrentMask->LoadVolume(ren, maskInput, arr, isCellData, VTK_NEAREST_INTERPOLATION);
 
@@ -3211,7 +3222,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   // Masks are only supported on single-input rendering.
   if (!this->Impl->MultiVolume)
   {
-    this->Impl->LoadMask(ren);
+    this->Impl->LoadMask(ren, vol);
   }
 
   // Get the shader cache. This is important to make sure that shader cache
