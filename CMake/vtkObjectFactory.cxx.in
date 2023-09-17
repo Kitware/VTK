@@ -23,7 +23,7 @@ vtkStandardNewMacro(@_vtk_object_factory_library_name@ObjectFactory);
 @_vtk_object_factory_calls@
 }
 
-const char * @_vtk_object_factory_library_name@ObjectFactory::GetVTKSourceVersion()
+const char * @_vtk_object_factory_library_name@ObjectFactory::GetVTKSourceVersion() VTK_FUTURE_CONST
 {
   return VTK_SOURCE_VERSION;
 }

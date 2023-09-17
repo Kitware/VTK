@@ -15,7 +15,7 @@ vtkTestingObjectFactory::vtkTestingObjectFactory()
     "Overrides for testing", 1, vtkObjectFactoryCreatevtkTestingInteractor);
 }
 
-const char* vtkTestingObjectFactory::GetVTKSourceVersion()
+const char* vtkTestingObjectFactory::GetVTKSourceVersion() VTK_FUTURE_CONST
 {
   return VTK_SOURCE_VERSION;
 }

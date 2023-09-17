@@ -429,27 +429,27 @@ void vtkObjectFactory::GrowOverrideArray()
   }
 }
 
-int vtkObjectFactory::GetNumberOfOverrides()
+int vtkObjectFactory::GetNumberOfOverrides() VTK_FUTURE_CONST
 {
   return this->OverrideArrayLength;
 }
 
-const char* vtkObjectFactory::GetClassOverrideName(int index)
+const char* vtkObjectFactory::GetClassOverrideName(int index) VTK_FUTURE_CONST
 {
   return this->OverrideClassNames[index];
 }
 
-const char* vtkObjectFactory::GetClassOverrideWithName(int index)
+const char* vtkObjectFactory::GetClassOverrideWithName(int index) VTK_FUTURE_CONST
 {
   return this->OverrideArray[index].OverrideWithName;
 }
 
-vtkTypeBool vtkObjectFactory::GetEnableFlag(int index)
+vtkTypeBool vtkObjectFactory::GetEnableFlag(int index) VTK_FUTURE_CONST
 {
   return this->OverrideArray[index].EnabledFlag;
 }
 
-const char* vtkObjectFactory::GetOverrideDescription(int index)
+const char* vtkObjectFactory::GetOverrideDescription(int index) VTK_FUTURE_CONST
 {
   return this->OverrideArray[index].Description;
 }
@@ -479,7 +479,8 @@ void vtkObjectFactory::SetEnableFlag(
 }
 
 // Get the enable flag for a className/subclassName pair
-vtkTypeBool vtkObjectFactory::GetEnableFlag(const char* className, const char* subclassName)
+vtkTypeBool vtkObjectFactory::GetEnableFlag(
+  const char* className, const char* subclassName) VTK_FUTURE_CONST
 {
   for (int i = 0; i < this->OverrideArrayLength; i++)
   {
@@ -507,7 +508,7 @@ void vtkObjectFactory::Disable(const char* className)
 }
 
 // 1,0 is the class overridden by className
-vtkTypeBool vtkObjectFactory::HasOverride(const char* className)
+vtkTypeBool vtkObjectFactory::HasOverride(const char* className) VTK_FUTURE_CONST
 {
   for (int i = 0; i < this->OverrideArrayLength; i++)
   {
@@ -520,7 +521,8 @@ vtkTypeBool vtkObjectFactory::HasOverride(const char* className)
 }
 
 // 1,0 is the class overridden by className/subclassName pair
-vtkTypeBool vtkObjectFactory::HasOverride(const char* className, const char* subclassName)
+vtkTypeBool vtkObjectFactory::HasOverride(
+  const char* className, const char* subclassName) VTK_FUTURE_CONST
 {
   for (int i = 0; i < this->OverrideArrayLength; i++)
   {

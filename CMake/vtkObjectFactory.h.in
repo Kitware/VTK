@@ -15,9 +15,9 @@ public:
   static @_vtk_object_factory_library_name@ObjectFactory * New();
   vtkTypeMacro(@_vtk_object_factory_library_name@ObjectFactory, vtkObjectFactory);
 
-  const char * GetDescription() override { return "@_vtk_object_factory_library_name@ factory overrides."; }
+  const char * GetDescription() VTK_FUTURE_CONST override { return "@_vtk_object_factory_library_name@ factory overrides."; }
 
-  const char * GetVTKSourceVersion() override;
+  const char * GetVTKSourceVersion() VTK_FUTURE_CONST override;
 
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
