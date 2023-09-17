@@ -1,5 +1,5 @@
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 2.11 with the flags below.
+// at least on macOS with cppcheck 2.12 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
@@ -477,10 +477,11 @@ unreadVariable:*/Wrapping/PythonCore/vtkPythonOverload.cxx
 // 48 warnings
 noOperatorEq
 
-// This is a generated file.
+// These are generated files.
 constParameter:*/Wrapping/Tools/vtkParse.tab.c
 constParameterPointer:*/vtkParse.tab.c
 constVariablePointer:*/Wrapping/Tools/vtkParse.tab.c
+constVariablePointer:*/Wrapping/Tools/lex.yy.c
 duplicateCondition:*/Wrapping/Tools/vtkParse.tab.c
 knownConditionTrueFalse:*/Wrapping/Tools/vtkParse.tab.c
 knownConditionTrueFalse:*Wrapping/Tools/lex.yy.c

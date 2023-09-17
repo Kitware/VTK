@@ -928,12 +928,12 @@ void outputFunction(FILE* fp, ClassInfo* data)
   }
 }
 
-void WriteDummyClass(FILE* fp, ClassInfo* data, const char* filename)
+static void WriteDummyClass(FILE* fp, const ClassInfo* data, const char* filename)
 {
   char* class_name = NULL;
   if (data == NULL)
   {
-    char* last_slash = strrchr(filename, '/');
+    const char* last_slash = strrchr(filename, '/');
     const char* first_dot = strchr(last_slash, '.');
     size_t size = first_dot - last_slash;
     class_name = malloc(size * sizeof(char));
@@ -1148,7 +1148,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     size_t len;
     char* dir;
     char* fname;
-    /*const */ char javaDone[] = "VTKJavaWrapped";
+    const char javaDone[] = "VTKJavaWrapped";
     FILE* tfp;
     fname = options->OutputFileName;
     size_t dirlen = strlen(fname) + strlen(javaDone) + 2;

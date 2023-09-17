@@ -10,7 +10,7 @@
 
 /* check whether a method is wrappable */
 int vtkWrapPython_MethodCheck(
-  ClassInfo* data, FunctionInfo* currentFunction, const HierarchyInfo* hinfo);
+  const ClassInfo* data, const FunctionInfo* currentFunction, const HierarchyInfo* hinfo);
 
 /* print out all methods and the method table */
 void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* data,

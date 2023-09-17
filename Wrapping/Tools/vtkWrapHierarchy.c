@@ -38,7 +38,7 @@
 /**
  * Helper to append a text line to an array of lines
  */
-static char** append_unique_line(char** lines, char* line, size_t* np)
+static char** append_unique_line(char** lines, const char* line, size_t* np)
 {
   size_t l, n, m;
 
@@ -208,7 +208,8 @@ static char* append_trailer(char* line, size_t* m, size_t* maxlen, const char* h
 /**
  * Append typedef info
  */
-static char* append_typedef_to_line(char* line, size_t* m, size_t* maxlen, ValueInfo* typedef_info)
+static char* append_typedef_to_line(
+  char* line, size_t* m, size_t* maxlen, const ValueInfo* typedef_info)
 {
   unsigned int type;
   int ndims;
