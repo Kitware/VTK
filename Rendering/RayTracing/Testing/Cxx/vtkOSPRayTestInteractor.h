@@ -22,10 +22,12 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCommand;
 class vtkRenderer;
 class vtkRenderPass;
 class vtkRenderWindow;
+VTK_ABI_NAMESPACE_END
 
 // Define interaction style
 class vtkOSPRayTestInteractor : public vtkInteractorStyleTrackballCamera
