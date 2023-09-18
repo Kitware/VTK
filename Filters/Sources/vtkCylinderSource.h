@@ -25,6 +25,10 @@
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
 VTK_ABI_NAMESPACE_BEGIN
+
+// Forward declarations
+class vtkFloatArray;
+
 class VTKFILTERSSOURCES_EXPORT vtkCylinderSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -75,6 +79,31 @@ public:
 
   ///@{
   /**
+   * Set/Get whether the capping should make the cylinder a capsule. This adds hemispherical caps at
+   * the ends of the cylinder.
+   *
+   * \sa SetCapping()
+   */
+  vtkSetMacro(CapsuleCap, vtkTypeBool);
+  vtkGetMacro(CapsuleCap, vtkTypeBool);
+  vtkBooleanMacro(CapsuleCap, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Cause the spheres to be tessellated with edges along the latitude and longitude lines. If off,
+   * triangles are generated at non-polar regions, which results in edges that are not parallel to
+   * latitude and longitude lines. If on, quadrilaterals are generated everywhere except at the
+   * poles. This can be useful for generating wireframe spheres with natural latitude and longitude
+   * lines.
+   */
+  vtkSetMacro(LatLongTessellation, vtkTypeBool);
+  vtkGetMacro(LatLongTessellation, vtkTypeBool);
+  vtkBooleanMacro(LatLongTessellation, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
@@ -88,11 +117,17 @@ protected:
   ~vtkCylinderSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  int CreateHemisphere(vtkPoints* points, vtkFloatArray* normals, vtkFloatArray* tcooords,
+    vtkCellArray* newPolys, int startIdx = 0);
+
   double Height;
   double Radius;
   double Center[3];
   int Resolution;
   vtkTypeBool Capping;
+  vtkTypeBool CapsuleCap;
+  vtkTypeBool LatLongTessellation;
   int OutputPointsPrecision;
 
 private:
