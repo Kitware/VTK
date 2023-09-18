@@ -21,7 +21,9 @@
 #include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkMultiProcessController.h"
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPIController.h"
+#endif
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
@@ -785,6 +787,7 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
 
   int nprocs = 1;
   int rank = 0;
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   if (controller)
   {
@@ -793,6 +796,7 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
     int nprocs = controller->GetNumberOfProcesses();
     int rank = controller->GetLocalProcessId();
   }
+#endif
   // pre-allocate the levels
   const auto leaves_on_node = node.number_of_children();
   std::vector<int> blocksPerLevelLocal(1);
@@ -836,16 +840,18 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
 
   vtkIdType levels_global = 0;
   double global_origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
-  if (nprocs > 1)
-  {
-    controller->AllReduce(&levels_local, &levels_global, 1, vtkCommunicator::MAX_OP);
-    controller->AllReduce(local_origin, global_origin, 3, vtkCommunicator::MIN_OP);
-  }
-  else
+  if (nprocs == 1)
   {
     levels_global = levels_local;
     std::copy(local_origin, local_origin + 3, global_origin);
   }
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  else
+  {
+    controller->AllReduce(&levels_local, &levels_global, 1, vtkCommunicator::MAX_OP);
+    controller->AllReduce(local_origin, global_origin, 3, vtkCommunicator::MIN_OP);
+  }
+#endif
 
   // need the total number of blocks across all processes
   blocksPerLevelLocal.resize(levels_global, 0); // set the extra values created to 0
@@ -853,14 +859,16 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
   std::vector<int> globalBlockCount(levels_global * nprocs);
   // the ordering of the blocks for AMR is first all level 0 blocks, then all level 1 blocks, ...
   // at each level we order based on proc rank first and then local id
-  if (nprocs > 1)
-  {
-    controller->AllGather(blocksPerLevelLocal.data(), globalBlockCount.data(), levels_global);
-  }
-  else
+  if (nprocs == 1)
   {
     globalBlockCount = blocksPerLevelLocal;
   }
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  else
+  {
+    controller->AllGather(blocksPerLevelLocal.data(), globalBlockCount.data(), levels_global);
+  }
+#endif
 
   blocks_local = vtkIdType(domainID2LvlID.size());
   blocks_global = std::accumulate(globalBlockCount.begin(), globalBlockCount.end(), 0);
@@ -996,9 +1004,10 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
       ++local_index;
     }
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
     controller->AllGatherV(boxExtentsLocal.data(), boxExtentsGlobal.data(), boxExtentsLocal.size(),
       boxBoundsCounts.data(), boxBoundsOffsets.data());
-
+#endif
     for (int i = 0; i < blocks_global; ++i)
     {
       int level = boxExtentsGlobal[8 * i + 0];
@@ -1008,14 +1017,16 @@ bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
       amr->SetAMRBox(level, id, box);
     }
   }
-  if (nprocs > 1)
-  {
-    vtkParallelAMRUtilities::BlankCells(amr, controller);
-  }
-  else
+  if (nprocs == 1)
   {
     vtkAMRUtilities::BlankCells(amr);
   }
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  else
+  {
+    vtkParallelAMRUtilities::BlankCells(amr, controller);
+  }
+#endif
 
   return true;
 }
