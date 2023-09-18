@@ -13,7 +13,7 @@
 #include <chrono>
 #include <thread>
 
-vtkNew<vtkContourGrid> contour;
+vtkContourGrid* contour = nullptr;
 bool returnFailure = false;
 std::atomic<bool> runUpdate{ false };
 
@@ -70,6 +70,9 @@ void toggleAbort()
 
 int TestAbortExecuteFromOtherThread(int, char*[])
 {
+  vtkNew<vtkContourGrid> staticContour;
+  contour = staticContour;
+
   std::thread threadA(runPipeline);
   std::thread threadB(toggleAbort);
 

@@ -49,7 +49,7 @@
 namespace
 {
 
-vtkNew<vtkTesting> TestingData; // For temporary path
+vtkTesting* TestingData = nullptr; // For temporary path
 
 const char* BIT_ARRAY_NAME = "BitArray";
 const char* IDTYPE_ARRAY_NAME = "IdTypeArray";
@@ -563,6 +563,8 @@ bool TestWriterPermutations()
 
 int TestDataObjectXMLIO(int argc, char* argv[])
 {
+  vtkNew<vtkTesting> staticTestingData; // For temporary path
+  TestingData = staticTestingData;
   TestingData->AddArguments(argc, argv);
 
   int result = 0;
