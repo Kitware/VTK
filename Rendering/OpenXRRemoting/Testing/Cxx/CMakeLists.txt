@@ -1,4 +1,5 @@
-set(openxr_tests "")
+set(openxrremoting_tests
+  TestOpenXRRemotingInstantiation.cxx,NO_VALID)
 
 if (VTK_OPENXR_TESTING_ENABLE_RUNTIME_TESTS)
   list (APPEND openxrremoting_tests
