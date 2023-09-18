@@ -13,12 +13,12 @@ SPDX_COPYRIGHT_TEXT
 DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::ParallelCore
 OPTIONAL_DEPENDS
   VTK::ParallelMPI
 PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersAMR
-  VTK::ParallelCore
 TEST_DEPENDS
   VTK::TestingCore
   VTK::IOXML
