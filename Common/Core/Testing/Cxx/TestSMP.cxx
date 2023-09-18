@@ -192,7 +192,7 @@ int doTestSMP()
 
   if (total != Target)
   {
-    cerr << "Error: ARangeFunctor did not generate " << Target << endl;
+    cerr << "Error: ARangeFunctor generated " << total << ", did not generate " << Target << endl;
     return EXIT_FAILURE;
   }
 
