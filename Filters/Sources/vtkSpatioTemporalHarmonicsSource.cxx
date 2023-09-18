@@ -145,6 +145,7 @@ int vtkSpatioTemporalHarmonicsSource::RequestInformation(vtkInformation* vtkNotU
   outInfo->Set(vtkDataObject::SPACING(), 1.0, 1.0, 1.0);
   outInfo->Set(vtkDataObject::ORIGIN(), 0.0, 0.0, 0.0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent, 6);
+  outInfo->Set(CAN_PRODUCE_SUB_EXTENT(), 1);
 
   if (this->Internals->TimeStepValues.empty())
   {
@@ -176,7 +177,7 @@ int vtkSpatioTemporalHarmonicsSource::RequestData(vtkInformation* vtkNotUsed(req
   double timeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
   vtkImageData* output = vtkImageData::GetData(outInfo);
-  output->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  output->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
 
   this->Internals->HarmonicsFilter->SetInputData(output);
   this->Internals->HarmonicsFilter->UpdateTimeStep(timeValue);
