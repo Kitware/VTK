@@ -79,7 +79,7 @@ public:
    * GetSize() and GetNonNullSize() will always return the same value.
    * If not, the array is "sparse".
    */
-  virtual bool IsDense() = 0;
+  virtual bool IsDense() VTK_FUTURE_CONST = 0;
 
   ///@{
   /**
@@ -112,13 +112,13 @@ public:
    * Returns the extents (the number of dimensions and size along each
    * dimension) of the array.
    */
-  virtual const vtkArrayExtents& GetExtents() = 0;
+  virtual const vtkArrayExtents& GetExtents() VTK_FUTURE_CONST = 0;
 
   /**
    * Returns the number of dimensions stored in the array.  Note that
    * this is the same as calling GetExtents().GetDimensions().
    */
-  DimensionT GetDimensions();
+  DimensionT GetDimensions() VTK_FUTURE_CONST;
 
   /**
    * Returns the number of values stored in the array.  Note that this is
@@ -128,14 +128,14 @@ public:
    * array, but may be larger than the number of values stored in a
    * sparse array.
    */
-  SizeT GetSize();
+  SizeT GetSize() VTK_FUTURE_CONST;
 
   /**
    * Returns the number of non-null values stored in the array.  Note
    * that this value will equal GetSize() for dense arrays, and will be
    * less-than-or-equal to GetSize() for sparse arrays.
    */
-  virtual SizeT GetNonNullSize() = 0;
+  virtual SizeT GetNonNullSize() VTK_FUTURE_CONST = 0;
 
   /**
    * Sets the array name.
@@ -144,7 +144,7 @@ public:
   /**
    * Returns the array name.
    */
-  vtkStdString GetName();
+  vtkStdString GetName() VTK_FUTURE_CONST;
 
   /**
    * Sets the label for the i-th array dimension.
@@ -154,7 +154,7 @@ public:
   /**
    * Returns the label for the i-th array dimension.
    */
-  vtkStdString GetDimensionLabel(DimensionT i);
+  vtkStdString GetDimensionLabel(DimensionT i) VTK_FUTURE_CONST;
 
   /**
    * Returns the coordinates of the n-th value in the array, where n is
@@ -163,7 +163,7 @@ public:
    * order in which values are visited using vtkTypedArray::GetValueN()
    * and vtkTypedArray::SetValueN().
    */
-  virtual void GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) = 0;
+  virtual void GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) VTK_FUTURE_CONST = 0;
 
   ///@{
   /**
@@ -253,7 +253,7 @@ private:
   /**
    * Implemented in concrete derivatives to get dimension labels.
    */
-  virtual vtkStdString InternalGetDimensionLabel(DimensionT i) = 0;
+  virtual vtkStdString InternalGetDimensionLabel(DimensionT i) VTK_FUTURE_CONST = 0;
   ///@}
 };
 
