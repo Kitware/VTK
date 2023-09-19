@@ -152,6 +152,14 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
       newCellPts[5] = cellPts->GetId(5);
       break;
     }
+    case VTK_PIXEL:
+    {
+      newCellPts[0] = cellPts->GetId(0);
+      newCellPts[2] = cellPts->GetId(1);
+      newCellPts[1] = cellPts->GetId(2);
+      newCellPts[3] = cellPts->GetId(3);
+      break;
+    }
     case VTK_BEZIER_TRIANGLE:
     case VTK_LAGRANGE_TRIANGLE:
     {
