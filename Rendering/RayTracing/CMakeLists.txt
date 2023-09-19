@@ -94,6 +94,12 @@ if (VTK_ENABLE_VISRTX)
   vtk_module_find_package(
     PACKAGE VisRTX
     CONFIG_MODE)
+  if (DEFINED VisRTX_VERSION AND
+      VisRTX_VERSION VERSION_GREATER_EQUAL "0.2.0")
+    message(FATAL_ERROR
+      "VisRTX 0.2.0 and above are intended to be used via the ANARI interface. "
+      "See https://gitlab.kitware.com/vtk/vtk/-/merge_requests/10324 for progress.")
+  endif ()
   vtk_module_link(VTK::RenderingRayTracing
     PUBLIC
       VisRTX_DynLoad)
