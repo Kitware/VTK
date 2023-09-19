@@ -273,11 +273,15 @@ private:
   void ClipUnstructuredGrid(vtkDataSet* inputGrid, vtkImplicitFunction* implicitFunction,
     vtkDoubleArray* scalars, double isoValue, vtkUnstructuredGrid* outputUG);
 
-  /**
-   * This function checks if vtkPolyData/vtkUnstructuredGrid have cells that can be handled
-   * by this filter or vtkClipDataSet needs to be used internally.
-   */
-  bool CanFullyProcessUnstructuredData(vtkDataSet* inputGrid);
+  template <typename TGrid, typename TInputIdType>
+  vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoints* inputPoints,
+    vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue, bool insideOut,
+    bool generateClipScalars, int outputPointsPrecision, unsigned int batchSize);
+
+  template <typename TGrid, typename TInputIdType>
+  vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints* inputPoints,
+    vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue, bool insideOut,
+    bool generateClipScalars, int outputPointsPrecision, unsigned int batchSize);
 
   /**
    * Register a callback function with the InternalProgressObserver.
