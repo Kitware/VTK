@@ -19,6 +19,12 @@ RUN sh /root/install_catalyst.sh
 COPY install_ospray.sh /root/install_ospray.sh
 RUN sh /root/install_ospray.sh
 
+COPY install_imath.sh /root/install_imath.sh
+RUN sh /root/install_imath.sh
+
+COPY install_alembic.sh /root/install_alembic.sh
+RUN sh /root/install_alembic.sh
+
 # XXX(vpn): no stable URL for use in OptiX and MDL SDKs
 # COPY install_visrtx.sh /root/install_visrtx.sh
 # RUN sh /root/install_visrtx.sh
