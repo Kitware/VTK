@@ -31,10 +31,6 @@ vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithField(vtkm::cont::DataSe
   fieldFilter.SetInvertClip(insideOut);
   auto result = fieldFilter.Execute(in);
 
-  // clean the output to remove unused points
-  vtkm::filter::clean_grid::CleanGrid clean;
-  result = clean.Execute(result);
-
   return result;
 }
 VTK_ABI_NAMESPACE_END

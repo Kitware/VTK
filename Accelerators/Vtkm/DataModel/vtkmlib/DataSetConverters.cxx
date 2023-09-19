@@ -250,7 +250,8 @@ vtkm::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields)
 // determine the type and call the proper Convert routine
 vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields)
 {
-  switch (input->GetDataObjectType())
+  auto typeId = input->GetDataObjectType();
+  switch (typeId)
   {
     case VTK_UNSTRUCTURED_GRID:
       return Convert(vtkUnstructuredGrid::SafeDownCast(input), fields);
@@ -267,7 +268,9 @@ vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields)
     case VTK_UNSTRUCTURED_GRID_BASE:
     case VTK_STRUCTURED_POINTS:
     default:
-      return vtkm::cont::DataSet();
+      const std::string typeStr = vtkDataObjectTypes::GetClassNameFromTypeId(typeId);
+      const std::string errMsg = "Unable to convert " + typeStr + " to vtkm::cont::DataSet";
+      throw vtkm::cont::ErrorBadType(errMsg);
   }
 }
 
