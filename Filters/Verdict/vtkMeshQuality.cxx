@@ -65,6 +65,7 @@ void LinearizeCell(int& cellType)
     case VTK_HIGHER_ORDER_QUAD:
     case VTK_LAGRANGE_QUADRILATERAL:
     case VTK_BEZIER_QUADRILATERAL:
+    case VTK_BIQUADRATIC_QUAD:
       cellType = VTK_QUAD;
       break;
     case VTK_QUADRATIC_TETRA:
