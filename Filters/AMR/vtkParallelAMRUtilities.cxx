@@ -37,7 +37,6 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(
     }
     return;
   }
-  vtkAMRInformation* amrInfo = amr->GetAMRInfo();
   int myRank = controller->GetLocalProcessId();
   int numProcs = controller->GetNumberOfProcesses();
 
