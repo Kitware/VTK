@@ -9,6 +9,7 @@
 #include "vtkBezierTriangle.h"
 #include "vtkBezierWedge.h"
 #include "vtkCellType.h"
+#include "vtkCellTypes.h"
 #include "vtkDataArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
@@ -32,6 +33,7 @@
 #include "vtkVectorOperators.h"
 
 #include <map>
+#include <set>
 using EdgeToPointMap = std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType>;
 using TriangleFaceToPointMap = std::map<std::tuple<vtkIdType, vtkIdType, vtkIdType>, vtkIdType>;
 
@@ -40,19 +42,15 @@ vtkStandardNewMacro(vtkCellTypeSource);
 
 namespace
 {
-const int NumberOf1DCellTypes = 5;
-const int OneDCellTypes[NumberOf1DCellTypes] = { VTK_LINE, VTK_QUADRATIC_EDGE, VTK_CUBIC_LINE,
-  VTK_LAGRANGE_CURVE, VTK_BEZIER_CURVE };
-const int NumberOf2DCellTypes = 9;
-const int TwoDCellTypes[NumberOf2DCellTypes] = { VTK_TRIANGLE, VTK_QUAD, VTK_QUADRATIC_TRIANGLE,
-  VTK_QUADRATIC_QUAD, VTK_BIQUADRATIC_QUAD, VTK_LAGRANGE_TRIANGLE, VTK_LAGRANGE_QUADRILATERAL,
-  VTK_BEZIER_TRIANGLE, VTK_BEZIER_QUADRILATERAL };
-const int NumberOf3DCellTypes = 18;
-const int ThreeDCellTypes[NumberOf3DCellTypes] = { VTK_TETRA, VTK_HEXAHEDRON, VTK_WEDGE,
-  VTK_PYRAMID, VTK_PENTAGONAL_PRISM, VTK_HEXAGONAL_PRISM, VTK_QUADRATIC_TETRA,
-  VTK_QUADRATIC_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON, VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_PYRAMID,
-  VTK_TRIQUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON, VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE,
-  VTK_BEZIER_TETRAHEDRON, VTK_BEZIER_HEXAHEDRON, VTK_BEZIER_WEDGE };
+const std::set<int> SupportedCellTypes = { VTK_LINE, VTK_QUADRATIC_EDGE, VTK_CUBIC_LINE,
+  VTK_LAGRANGE_CURVE, VTK_BEZIER_CURVE, VTK_TRIANGLE, VTK_QUAD, VTK_POLYGON, VTK_PIXEL,
+  VTK_QUADRATIC_TRIANGLE, VTK_QUADRATIC_QUAD, VTK_BIQUADRATIC_QUAD, VTK_LAGRANGE_TRIANGLE,
+  VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_TRIANGLE, VTK_BEZIER_QUADRILATERAL, VTK_TETRA,
+  VTK_HEXAHEDRON, VTK_POLYHEDRON, VTK_VOXEL, VTK_WEDGE, VTK_PYRAMID, VTK_PENTAGONAL_PRISM,
+  VTK_HEXAGONAL_PRISM, VTK_QUADRATIC_TETRA, VTK_QUADRATIC_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON,
+  VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_PYRAMID, VTK_TRIQUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON,
+  VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE, VTK_BEZIER_TETRAHEDRON, VTK_BEZIER_HEXAHEDRON,
+  VTK_BEZIER_WEDGE };
 }
 
 //------------------------------------------------------------------------------
@@ -77,32 +75,11 @@ void vtkCellTypeSource::SetCellType(int cellType)
   {
     return;
   }
-  for (int i = 0; i < NumberOf1DCellTypes; i++)
+  else if (SupportedCellTypes.find(cellType) != SupportedCellTypes.end())
   {
-    if (cellType == OneDCellTypes[i])
-    {
-      this->CellType = cellType;
-      this->Modified();
-      return;
-    }
-  }
-  for (int i = 0; i < NumberOf2DCellTypes; i++)
-  {
-    if (cellType == TwoDCellTypes[i])
-    {
-      this->CellType = cellType;
-      this->Modified();
-      return;
-    }
-  }
-  for (int i = 0; i < NumberOf3DCellTypes; i++)
-  {
-    if (cellType == ThreeDCellTypes[i])
-    {
-      this->CellType = cellType;
-      this->Modified();
-      return;
-    }
+    this->CellType = cellType;
+    this->Modified();
+    return;
   }
   vtkWarningMacro("Cell type " << cellType << " not supported");
 }
@@ -110,26 +87,9 @@ void vtkCellTypeSource::SetCellType(int cellType)
 //------------------------------------------------------------------------------
 int vtkCellTypeSource::GetCellDimension()
 {
-  for (int i = 0; i < NumberOf1DCellTypes; i++)
+  if (SupportedCellTypes.find(this->CellType) != SupportedCellTypes.end())
   {
-    if (this->CellType == OneDCellTypes[i])
-    {
-      return 1;
-    }
-  }
-  for (int i = 0; i < NumberOf2DCellTypes; i++)
-  {
-    if (this->CellType == TwoDCellTypes[i])
-    {
-      return 2;
-    }
-  }
-  for (int i = 0; i < NumberOf3DCellTypes; i++)
-  {
-    if (this->CellType == ThreeDCellTypes[i])
-    {
-      return 3;
-    }
+    return vtkCellTypes::GetDimension(this->CellType);
   }
   return -1;
 }
@@ -284,6 +244,16 @@ int vtkCellTypeSource::RequestData(vtkInformation* vtkNotUsed(request),
       this->GenerateQuads(output, extent);
       break;
     }
+    case VTK_POLYGON:
+    {
+      this->GeneratePolygons(output, extent);
+      break;
+    }
+    case VTK_PIXEL:
+    {
+      this->GeneratePixels(output, extent);
+      break;
+    }
     case VTK_QUADRATIC_TRIANGLE:
     {
       this->GenerateQuadraticTriangles(output, extent);
@@ -307,6 +277,16 @@ int vtkCellTypeSource::RequestData(vtkInformation* vtkNotUsed(request),
     case VTK_HEXAHEDRON:
     {
       this->GenerateHexahedron(output, extent);
+      break;
+    }
+    case VTK_POLYHEDRON:
+    {
+      this->GeneratePolyhedron(output, extent);
+      break;
+    }
+    case VTK_VOXEL:
+    {
+      this->GenerateVoxels(output, extent);
       break;
     }
     case VTK_WEDGE:
@@ -476,6 +456,40 @@ void vtkCellTypeSource::GenerateQuads(vtkUnstructuredGrid* output, int extent[6]
       vtkIdType ids[4] = { i + j * (firstDim + 1), i + 1 + j * (firstDim + 1),
         i + 1 + (j + 1) * (firstDim + 1), i + (j + 1) * (firstDim + 1) };
       output->InsertNextCell(VTK_QUAD, 4, ids);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkCellTypeSource::GeneratePolygons(vtkUnstructuredGrid* output, int extent[6])
+{
+  int firstDim = extent[1] - extent[0];
+  int secondDim = extent[3] - extent[2];
+  output->Allocate(firstDim * secondDim);
+  for (int j = 0; j < secondDim; j++)
+  {
+    for (int i = 0; i < firstDim; i++)
+    {
+      vtkIdType ids[4] = { i + j * (firstDim + 1), i + 1 + j * (firstDim + 1),
+        i + 1 + (j + 1) * (firstDim + 1), i + (j + 1) * (firstDim + 1) };
+      output->InsertNextCell(VTK_POLYGON, 4, ids);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkCellTypeSource::GeneratePixels(vtkUnstructuredGrid* output, int extent[6])
+{
+  int firstDim = extent[1] - extent[0];
+  int secondDim = extent[3] - extent[2];
+  output->Allocate(firstDim * secondDim);
+  for (int j = 0; j < secondDim; j++)
+  {
+    for (int i = 0; i < firstDim; i++)
+    {
+      vtkIdType ids[4] = { i + j * (firstDim + 1), i + 1 + j * (firstDim + 1),
+        i + (j + 1) * (firstDim + 1), i + 1 + (j + 1) * (firstDim + 1) };
+      output->InsertNextCell(VTK_PIXEL, 4, ids);
     }
   }
 }
@@ -787,6 +801,80 @@ void vtkCellTypeSource::GenerateHexahedron(vtkUnstructuredGrid* output, int exte
           i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
         };
         output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkCellTypeSource::GeneratePolyhedron(vtkUnstructuredGrid* output, int extent[6])
+{
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim);
+
+  vtkIdType faces[30] = { 4, 1, 3, 2, 0, 4, 3, 7, 6, 2, 4, 7, 5, 4, 6, 4, 5, 1, 0, 4, 4, 6, 4, 0, 2,
+    4, 5, 7, 3, 1 };
+  for (int k = 0; k < zDim; k++)
+  {
+    for (int j = 0; j < yDim; j++)
+    {
+      for (int i = 0; i < xDim; i++)
+      {
+        vtkIdType hexIds[8] = {
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+        };
+
+        faces[4] = faces[18] = faces[23] = hexIds[0];
+        faces[1] = faces[17] = faces[29] = hexIds[1];
+        faces[3] = faces[9] = faces[24] = hexIds[2];
+        faces[2] = faces[6] = faces[28] = hexIds[3];
+        faces[13] = faces[19] = faces[22] = hexIds[4];
+        faces[12] = faces[16] = faces[26] = hexIds[5];
+        faces[8] = faces[14] = faces[21] = hexIds[6];
+        faces[7] = faces[11] = faces[27] = hexIds[7];
+
+        output->InsertNextCell(VTK_POLYHEDRON, 8, hexIds, 6, faces);
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkCellTypeSource::GenerateVoxels(vtkUnstructuredGrid* output, int extent[6])
+{
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim);
+
+  for (int k = 0; k < zDim; k++)
+  {
+    for (int j = 0; j < yDim; j++)
+    {
+      for (int i = 0; i < xDim; i++)
+      {
+        vtkIdType hexIds[8] = {
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+        };
+        output->InsertNextCell(VTK_VOXEL, 8, hexIds);
       }
     }
   }

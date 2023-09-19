@@ -129,10 +129,14 @@ protected:
 
   void GenerateTriangles(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuads(vtkUnstructuredGrid*, int extent[6]);
+  void GeneratePolygons(vtkUnstructuredGrid*, int extent[6]);
+  void GeneratePixels(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuadraticTriangles(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuadraticQuads(vtkUnstructuredGrid*, int extent[6]);
   void GenerateTetras(vtkUnstructuredGrid*, int extent[6]);
   void GenerateHexahedron(vtkUnstructuredGrid*, int extent[6]);
+  void GeneratePolyhedron(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateVoxels(vtkUnstructuredGrid*, int extent[6]);
   void GenerateWedges(vtkUnstructuredGrid*, int extent[6]);
   void GeneratePyramids(vtkUnstructuredGrid*, int extent[6]);
   void GeneratePentagonalPrism(vtkUnstructuredGrid*, int extent[6]);
