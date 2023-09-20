@@ -117,7 +117,8 @@ public:
    * Setting the aspect ratio will also set DrawAreaResizeBehavior to
    * FixedAspect.
    */
-  vtkGetMacro(FixedAspect, float) virtual void SetFixedAspect(float aspect);
+  vtkGetMacro(FixedAspect, float)
+  virtual void SetFixedAspect(float aspect);
   ///@}
 
   ///@{
