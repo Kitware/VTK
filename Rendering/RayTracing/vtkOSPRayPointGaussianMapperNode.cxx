@@ -280,7 +280,11 @@ OSPVolumetricModel RenderAsParticles(osp::vec3f* vertices, std::vector<unsigned 
   auto oTF = ospNewTransferFunction("piecewiseLinear");
   ospSetObject(oTF, "color", _Colors);
   ospSetObject(oTF, "opacity", _AlphaData);
+#if OSPRAY_VERSION_MAJOR < 3
   ospSetVec2f(oTF, "valueRange", static_cast<float>(wRange[0]), static_cast<float>(wRange[1]));
+#else
+  ospSetBox1f(oTF, "value", static_cast<float>(wRange[0]), static_cast<float>(wRange[1]));
+#endif
   ospCommit(oTF);
   ospRelease(_Colors);
   ospRelease(_AlphaData);

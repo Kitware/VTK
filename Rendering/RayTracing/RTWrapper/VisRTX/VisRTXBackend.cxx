@@ -107,7 +107,7 @@ VTK_ABI_NAMESPACE_BEGIN
         return reinterpret_cast<RTWLight>(new Light(light_type));
     }
 
-    RTWMaterial VisRTXBackend::NewMaterial(const char *renderer_type, const char *light_type)
+    RTWMaterial VisRTXBackend::NewMaterial(const char *light_type)
     {
         return reinterpret_cast<RTWMaterial>(new Material(light_type));
     }
@@ -196,6 +196,14 @@ VTK_ABI_NAMESPACE_BEGIN
         reinterpret_cast<Object*>(object)->SetInt(id, x);
     }
 
+    void VisRTXBackend::SetUInt(RTWObject object, const char *id, uint32_t x)
+    {
+        if (!object)
+            return;
+
+        reinterpret_cast<Object*>(object)->SetInt(id, static_cast<int>(x));
+    }
+
     void VisRTXBackend::SetFloat(RTWObject object, const char *id, float x)
     {
         if (!object)
@@ -241,6 +249,21 @@ VTK_ABI_NAMESPACE_BEGIN
         if (!object)
             return;
 
+        reinterpret_cast<Object*>(object)->SetVec4f(id, x, y, z, w);
+    }
+
+    void VisRTXBackend::SetBox1f(RTWObject object, const char *id, float x, float y)
+    {
+        if (!object)
+            return;
+
+        reinterpret_cast<Object*>(object)->SetVec2f(id, x, y);
+    }
+
+    void VisRTXBackend::SetLinear2f(RTWObject object, const char *id, float x, float y, float z, float w)
+    {
+        if (!object)
+            return;
         reinterpret_cast<Object*>(object)->SetVec4f(id, x, y, z, w);
     }
 

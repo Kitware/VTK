@@ -68,6 +68,7 @@ protected:
 
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
+  std::vector<float> IsoColors;
 
   vtkOSPRayCache<vtkOSPRayCacheItemObject>* Cache;
 

@@ -140,7 +140,10 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 
 #define ospSetFloat backend->SetFloat
 #define ospSetBool backend->SetBool
+#define ospSetBox1f backend->SetBox1f
 #define ospSetInt backend->SetInt
+#define ospSetLinear2f backend->SetLinear2f
+#define ospSetUInt backend->SetUInt
 #define ospSetVec2i backend->SetVec2i
 #define ospSetVec3i backend->SetVec3i
 #define ospSetVec2f backend->SetVec2f

@@ -322,7 +322,11 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         ospCommit(isosurfaces);
 
         ospSetObject(OSPRayIsosurface, "isovalue", isosurfaces);
+#if OSPRAY_VERSION_MAJOR < 3
         ospSetObject(OSPRayIsosurface, "volume", this->OSPRayVolumeModel);
+#else
+        ospSetObject(OSPRayIsosurface, "volume", this->OSPRayVolume);
+#endif
         ospCommit(OSPRayIsosurface);
         ospRelease(isosurfaces);
 
@@ -330,12 +334,21 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         OSPInstance instance = ospNewInstance(group);
 
         OSPGeometricModel OSPRayGeometricModel = ospNewGeometricModel(OSPRayIsosurface);
-
+#if OSPRAY_VERSION_MAJOR < 3
+#else
+        OSPData ospIsoColors = ospNewCopyData1D(this->IsoColors.data(), OSP_VEC4F, nbContours);
+        ospCommit(ospIsoColors);
+        ospSetObject(OSPRayGeometricModel, "color", ospIsoColors);
+#endif
         OSPMaterial material =
           vtkOSPRayMaterialHelpers::NewMaterial(orn, orn->GetORenderer(), "obj");
         ospCommit(material);
         ospSetObjectAsData(OSPRayGeometricModel, "material", OSP_MATERIAL, material);
         ospCommit(OSPRayGeometricModel);
+#if OSPRAY_VERSION_MAJOR < 3
+#else
+        ospRelease(ospIsoColors);
+#endif
         ospRelease(material);
         ospRelease(OSPRayIsosurface);
 
@@ -417,7 +430,11 @@ void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(
   ospCommit(colorData);
   ospSetObject(this->TransferFunction, "color", colorData);
 
+#if OSPRAY_VERSION_MAJOR < 3
   ospSetVec2f(this->TransferFunction, "valueRange", tfRange.x, tfRange.y);
+#else
+  ospSetBox1f(this->TransferFunction, "value", tfRange.x, tfRange.y);
+#endif
 
   OSPData tfAlphaData = ospNewCopyData1D(&this->TFOVals[0], OSP_FLOAT, this->NumColors);
   ospCommit(tfAlphaData);
@@ -427,6 +444,21 @@ void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(
   ospRelease(colorData);
   ospRelease(tfAlphaData);
 
+  vtkContourValues* contours = volProperty->GetIsoSurfaceValues();
+  this->IsoColors.clear();
+  if (contours)
+  {
+    this->IsoColors.reserve(4 * contours->GetNumberOfContours());
+    double* p = contours->GetValues();
+    for (auto i = 0; i < contours->GetNumberOfContours(); ++i)
+    {
+      double* ncol = colorTF->GetColor(p[i]);
+      this->IsoColors.push_back(ncol[0]);
+      this->IsoColors.push_back(ncol[1]);
+      this->IsoColors.push_back(ncol[2]);
+      this->IsoColors.push_back(scalarTF->GetValue(p[i]));
+    }
+  }
   this->PropertyTime.Modified();
 }
 VTK_ABI_NAMESPACE_END

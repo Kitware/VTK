@@ -30,7 +30,7 @@ VTK_ABI_NAMESPACE_BEGIN
         virtual RTWGroup NewGroup() = 0;
         virtual RTWTexture NewTexture(const char* type) = 0;
         virtual RTWLight NewLight(const char *light_type) = 0;
-        virtual RTWMaterial NewMaterial(const char *renderer_type, const char *material_type) = 0;
+        virtual RTWMaterial NewMaterial(const char *material_type) = 0;
         virtual RTWVolume NewVolume(const char *type) = 0;
         virtual RTWVolumetricModel NewVolumetricModel(RTWVolume volume) = 0;
         virtual RTWTransferFunction NewTransferFunction(const char *type) = 0;
@@ -49,13 +49,16 @@ VTK_ABI_NAMESPACE_BEGIN
         virtual void SetObjectAsData(RTWObject target, const char *id, RTWDataType type, RTWObject obj) = 0;
         virtual void SetParam(RTWObject, const char *id, RTWDataType type, const void* mem) = 0;
         virtual void SetBool(RTWObject, const char *id, bool x) = 0;
+        virtual void SetBox1f(RTWObject, const char *id, float x, float y) = 0;
         virtual void SetInt(RTWObject, const char *id, int32_t x) = 0;
+        virtual void SetUInt(RTWObject, const char *id, uint32_t x) = 0;
         virtual void SetVec2i(RTWObject, const char *id, int32_t x, int32_t y) = 0;
         virtual void SetFloat(RTWObject, const char *id, float x) = 0;
         virtual void SetVec2f(RTWObject, const char *id, float x, float y) = 0;
         virtual void SetVec3i(RTWObject, const char *id, int x, int y, int z) = 0;
         virtual void SetVec3f(RTWObject, const char *id, float x, float y, float z) = 0;
         virtual void SetVec4f(RTWObject, const char *id, float x, float y, float z, float w) = 0;
+        virtual void SetLinear2f(RTWObject, const char *id, float x, float y, float z, float w) = 0;
 
         virtual void RemoveParam(RTWObject, const char *id) = 0;
 
