@@ -35,7 +35,18 @@ vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestTextSource.cxx,NO_VALID
   TestTexturedSphereSource.cxx,NO_VALID
   )
-vtk_test_cxx_executable(vtkFiltersSourcesCxxTests tests
+
+vtk_add_test_mpi(vtkFiltersSourcesCxxTests tests_mpi
+  TESTING_DATA
+  TestSpatioTemporalHarmonicsSourceDistributed.cxx
+  )
+
+set(all_tests
+  ${tests}
+  ${tests_mpi}
+  )
+
+vtk_test_cxx_executable(vtkFiltersSourcesCxxTests all_tests
   DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
