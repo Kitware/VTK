@@ -26,6 +26,16 @@ if (vtk_sqlite_build_binary)
   target_link_libraries(sqlitebin
     PRIVATE
       VTK::sqlite)
+    if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+      # allows sqlitebin to access host file system for generating proj.db etc.
+      # permit memory growth to generate arbitrary sized files.
+      # set EXIT_RUNTIME=1 so that stdout is flushed on exit.
+      target_link_options(sqlitebin
+        PRIVATE
+          "-sALLOW_MEMORY_GROWTH=1"
+          "-sNODERAWFS=1"
+          "-sEXIT_RUNTIME=1")
+    endif ()
 endif ()
 
 include(GenerateExportHeader)
