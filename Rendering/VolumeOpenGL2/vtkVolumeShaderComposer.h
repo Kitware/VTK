@@ -3020,7 +3020,7 @@ inline std::string PickingActorPassExit(
     \n    gl_FragData[0] = vec4(0.0);\
     \n    }\
     \n  return;");
-};
+}
 
 //--------------------------------------------------------------------------
 inline std::string PickingIdLow24PassExit(
@@ -3046,7 +3046,7 @@ inline std::string PickingIdLow24PassExit(
   \n    gl_FragData[0] = vec4(0.0);\
   \n    }\
   \n  return;");
-};
+}
 
 //--------------------------------------------------------------------------
 inline std::string PickingIdHigh24PassExit(
@@ -3073,7 +3073,7 @@ inline std::string PickingIdHigh24PassExit(
   \n    gl_FragData[0] = vec4(0.0);\
   \n    }\
   \n  return;");
-};
+}
 
 //--------------------------------------------------------------------------
 inline std::string ShadingExit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
@@ -3221,7 +3221,7 @@ inline std::string PickingActorPassDeclaration(
 {
   return std::string("\
       \n  uniform vec3 in_propId;");
-};
+}
 
 //--------------------------------------------------------------------------
 inline std::string TerminationInit(

@@ -649,7 +649,7 @@ struct vtkSelection::EvaluateFunctor
     this->Range = { VTK_SIGNED_CHAR_MAX, VTK_SIGNED_CHAR_MIN };
   }
 
-  void Initialize(){};
+  void Initialize() {}
 
   void operator()(vtkIdType begin, vtkIdType end)
   {

@@ -208,10 +208,10 @@ public:
    * for a salar value of X and a gradient magnitude of Y.
    */
   void SetTransferFunction2D(int index, vtkImageData* function);
-  void SetTransferFunction2D(vtkImageData* function) { this->SetTransferFunction2D(0, function); };
+  void SetTransferFunction2D(vtkImageData* function) { this->SetTransferFunction2D(0, function); }
 
   vtkImageData* GetTransferFunction2D(int index);
-  vtkImageData* GetTransferFunction2D() { return this->GetTransferFunction2D(0); };
+  vtkImageData* GetTransferFunction2D() { return this->GetTransferFunction2D(0); }
 
   /**
    * Color-opacity transfer function mode. TF_1D is its default value.

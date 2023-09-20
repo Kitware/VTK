@@ -167,7 +167,7 @@ public:
     this->UpdateAdjustedRange();
     _arg1 = this->AdjustedRange[0];
     _arg2 = this->AdjustedRange[1];
-  };
+  }
   virtual void GetAdjustedRange(double _arg[2]) { this->GetAdjustedRange(_arg[0], _arg[1]); }
   virtual int GetAdjustedNumberOfLabels()
   {

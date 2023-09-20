@@ -151,7 +151,7 @@ public:
   /**
    * Update the system, if needed, at end of render process
    */
-  virtual void End(){};
+  virtual void End() {}
 
   /**
    * Finalize the rendering process.

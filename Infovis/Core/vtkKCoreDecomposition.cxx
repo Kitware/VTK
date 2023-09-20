@@ -199,7 +199,7 @@ public:
 private:
   vtkIntArray* _array;
 };
-};
+}
 
 vtkKCoreDecomposition::vtkKCoreDecomposition()
 {

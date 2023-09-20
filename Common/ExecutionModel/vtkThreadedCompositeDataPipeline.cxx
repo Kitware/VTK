@@ -56,7 +56,7 @@ void DeleteAll(vtkInformationVector** dst, int n)
   }
   delete[] dst;
 }
-};
+}
 
 //------------------------------------------------------------------------------
 class ProcessBlockData : public vtkObjectBase

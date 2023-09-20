@@ -99,4 +99,4 @@ int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 #endif // VTK_DISPATCH_AFFINE_ARRAYS
   return res;
-};
+}

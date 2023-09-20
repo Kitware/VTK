@@ -97,7 +97,7 @@ public:
   {
     this->NumberOfPoints = 0;
     this->DataObject = nullptr;
-  };
+  }
   ~vtkOpenGLGlyph3DMapperEntry()
   {
     this->ClearMappers();
@@ -105,7 +105,7 @@ public:
     {
       this->DataObject->Delete();
     }
-  };
+  }
   void ClearMappers()
   {
     for (MapperMap::iterator it = this->Mappers.begin(); it != this->Mappers.end(); ++it)
@@ -122,7 +122,7 @@ public:
   std::vector<vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry*> Entries;
   vtkTimeStamp BuildTime;
   vtkOpenGLGlyph3DMapperSubArray() = default;
-  ~vtkOpenGLGlyph3DMapperSubArray() { this->ClearEntries(); };
+  ~vtkOpenGLGlyph3DMapperSubArray() { this->ClearEntries(); }
   void ClearEntries()
   {
     std::vector<vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry*>::iterator miter =
@@ -148,7 +148,7 @@ public:
       delete miter->second;
     }
     this->Entries.clear();
-  };
+  }
 };
 
 vtkStandardNewMacro(vtkOpenGLGlyph3DMapper);

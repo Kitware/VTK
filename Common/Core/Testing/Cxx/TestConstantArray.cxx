@@ -95,4 +95,4 @@ int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 #endif // VTK_DISPATCH_CONSTANT_ARRAYS
   return res;
-};
+}

@@ -33,7 +33,7 @@ public:
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  virtual void RenderPiece(vtkRenderer*, vtkActor*){};
+  virtual void RenderPiece(vtkRenderer*, vtkActor*) {}
 
   /**
    * This calls RenderPiece (in a for loop if streaming is necessary).
@@ -49,7 +49,7 @@ public:
    * @note: For example, the OpenGL impl is capable of grouping polydata
    * that are similar in terms of the availability of scalars, normals and tcoords.
    */
-  virtual MapperHashType GenerateHash(vtkPolyData*) { return 0; };
+  virtual MapperHashType GenerateHash(vtkPolyData*) { return 0; }
 
   ///@{
   /**

@@ -59,7 +59,7 @@ public:
       this->Modified();
       this->IsIdentity = 0;
     }
-  };
+  }
   ///@}
 
   virtual void SetPosition(double pos[3]) { this->SetPosition(pos[0], pos[1], pos[2]); }
@@ -84,7 +84,7 @@ public:
       this->Modified();
       this->IsIdentity = 0;
     }
-  };
+  }
   virtual void SetOrigin(const double pos[3]) { this->SetOrigin(pos[0], pos[1], pos[2]); }
   vtkGetVectorMacro(Origin, double, 3);
   ///@}
@@ -106,7 +106,7 @@ public:
       this->Modified();
       this->IsIdentity = 0;
     }
-  };
+  }
   virtual void SetScale(double scale[3]) { this->SetScale(scale[0], scale[1], scale[2]); }
   vtkGetVectorMacro(Scale, double, 3);
   ///@}

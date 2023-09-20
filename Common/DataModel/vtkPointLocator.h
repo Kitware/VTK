@@ -152,7 +152,7 @@ public:
     xyz[1] = y;
     xyz[2] = z;
     return this->IsInsertedPoint(xyz);
-  };
+  }
   vtkIdType IsInsertedPoint(const double x[3]) override;
   ///@}
 

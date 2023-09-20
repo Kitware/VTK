@@ -90,7 +90,7 @@ public:
     T* GetContentPtr() override { return &*this->Iter; }
 
   protected:
-    ItImpl* CloneImpl() const override { return new ItImpl(*this); };
+    ItImpl* CloneImpl() const override { return new ItImpl(*this); }
 
   private:
     friend class vtkSMPThreadLocalImpl<BackendType::Sequential, T>;
@@ -123,7 +123,7 @@ public:
     // XXX(c++14): remove std::move and cast variable
     std::unique_ptr<ItImplAbstract> abstractIt(std::move(retVal));
     return abstractIt;
-  };
+  }
 
   std::unique_ptr<ItImplAbstract> end() override
   {

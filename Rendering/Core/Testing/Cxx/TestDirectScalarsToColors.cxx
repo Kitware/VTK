@@ -44,7 +44,7 @@ inline void UCharToColor(unsigned char src, float* dest)
 {
   *dest = (static_cast<float>(src) / 255.0);
 }
-};
+}
 
 template <typename T, typename BaseT>
 void addViews(vtkRenderWindow* renWin, int typeIndex)

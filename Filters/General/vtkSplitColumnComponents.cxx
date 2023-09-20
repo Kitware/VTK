@@ -214,7 +214,7 @@ std::string vtkGetComponentName(vtkAbstractArray* array, int component_no)
   }
   return vtkDefaultComponentName(component_no, array->GetNumberOfComponents());
 }
-};
+}
 
 //------------------------------------------------------------------------------
 std::string vtkSplitColumnComponents::GetComponentLabel(vtkAbstractArray* array, int component_no)

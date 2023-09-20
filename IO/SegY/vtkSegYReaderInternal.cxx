@@ -29,7 +29,7 @@ double decodeMultiplier(short multiplier)
 {
   return (multiplier < 0) ? (-1.0 / multiplier) : (multiplier > 0 ? multiplier : 1.0);
 }
-};
+}
 
 //------------------------------------------------------------------------------
 vtkSegYReaderInternal::vtkSegYReaderInternal()

@@ -204,7 +204,7 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData* mesh)
   mesh->GetPointData()->SetActiveScalars("Mean_Curvature");
 
   vtkDebugMacro("Set Values of Mean Curvature: Done");
-};
+}
 //--------------------------------------------
 #define CLAMP_MACRO(v) ((v) < (-1) ? (-1) : (v) > (1) ? (1) : (v))
 void vtkCurvatures::GetGaussCurvature(vtkPolyData* output)

@@ -128,7 +128,7 @@ public:
    * Overridden to disable this function, and use ComputeTransformMatrix instead, as
    * we need a renderer to compute the transform matrix
    */
-  void ComputeMatrix() override{};
+  void ComputeMatrix() override {}
 
   /**
    * Generate the matrix based on ivars. This method overloads its superclasses

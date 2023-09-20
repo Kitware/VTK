@@ -43,7 +43,9 @@ struct LabelTuple
   vtkIdType Count;
   LabelTuple()
     : Label(0)
-    , Count(0){};
+    , Count(0)
+  {
+  }
 
   // This comparison produces a stable sort because it also
   // considers the label value (it the label count is a tie).

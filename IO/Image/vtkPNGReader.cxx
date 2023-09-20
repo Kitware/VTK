@@ -75,7 +75,7 @@ void PNGReadCallback(png_structp pngPtr, png_bytep output, png_size_t length)
   // Advance cursor
   input->position += length;
 }
-};
+}
 
 class vtkPNGReader::vtkInternals
 {

@@ -219,7 +219,7 @@ protected:
       this->OutputIndex = -1;
       this->NumAttributes = 0;
       this->BlockAttributes = nullptr;
-    };
+    }
     const char* Name;
     int Type;
     int NumElements;

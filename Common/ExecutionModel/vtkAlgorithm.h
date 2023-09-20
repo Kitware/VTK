@@ -226,8 +226,8 @@ public:
   void SetContainerAlgorithm(vtkAlgorithm* containerAlg)
   {
     this->ContainerAlgorithm = containerAlg;
-  };
-  vtkAlgorithm* GetContainerAlgorithm() { return this->ContainerAlgorithm; };
+  }
+  vtkAlgorithm* GetContainerAlgorithm() { return this->ContainerAlgorithm; }
   ///@}
 
   ///@{

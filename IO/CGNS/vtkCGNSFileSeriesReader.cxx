@@ -217,7 +217,7 @@ static bool SetFileNameCallback(vtkAlgorithm* reader, const std::string& fname)
     return true;
   }
   return false;
-};
+}
 VTK_ABI_NAMESPACE_END
 }
 

@@ -55,7 +55,7 @@ herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
   }
   return status;
 }
-};
+}
 
 //------------------------------------------------------------------------------
 vtkHDFReader::Implementation::TypeDescription vtkHDFReader::Implementation::GetTypeDescription(

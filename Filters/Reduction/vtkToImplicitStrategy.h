@@ -74,7 +74,7 @@ public:
    *
    * The default implementation does nothing.
    */
-  virtual void ClearCache(){};
+  virtual void ClearCache() {}
 
 protected:
   vtkToImplicitStrategy() = default;

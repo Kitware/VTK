@@ -78,7 +78,7 @@ public:
   /**
    * Returns the model HandleRepresentation.
    */
-  vtkHandleRepresentation* GetHandleRepresentation() { return this->HandleRepresentation; };
+  vtkHandleRepresentation* GetHandleRepresentation() { return this->HandleRepresentation; }
   ///@}
 
   ///@{

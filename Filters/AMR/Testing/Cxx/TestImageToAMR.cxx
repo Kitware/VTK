@@ -49,7 +49,7 @@ vtkIdType FindCell(vtkImageData* image, double point[3])
   int subid = 0;
   return image->vtkImageData::FindCell(point, nullptr, -1, 0.1, subid, pcoords, nullptr);
 }
-};
+}
 
 int TestImageToAMR(int, char*[])
 {

@@ -203,7 +203,7 @@ void TestHyperTreeGrid()
   TestDataObject(htg, vtkDataObject::CELL);
 }
 
-};
+}
 
 int TestFieldDataToDataSetAttribute(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

@@ -66,7 +66,7 @@ public:
     vtkPen* pen = painter->GetPen();
     pen->SetLineType(this->previousLineType);
     pen->SetWidth(this->previousLineWidth);
-  };
+  }
 
 private:
   DrawHintsHelper(const DrawHintsHelper&) = delete;

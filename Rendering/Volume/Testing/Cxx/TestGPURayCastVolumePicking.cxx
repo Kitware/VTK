@@ -109,7 +109,7 @@ public:
     }
 
     result->Delete();
-  };
+  }
   //////////////////////////////////////////////////////////////////////////////
 
   vtkSmartPointer<vtkRenderer> Renderer;

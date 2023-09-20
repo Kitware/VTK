@@ -177,7 +177,7 @@ public:
     iterator iter;
     iter.Iter = this->Internal.begin();
     return iter;
-  };
+  }
 
   iterator end()
   {

@@ -89,7 +89,7 @@ public:
       Maxs[i] = new cell_extents[nCells];
     }
     global_list_count += 1;
-  };
+  }
   ~Sorted_cell_extents_Lists()
   {
     for (int i = 0; i < 3; i++)
@@ -475,7 +475,7 @@ public:
     {
       bounds[i] = b[i];
     }
-  };
+  }
 };
 
 //------------------------------------------------------------------------------

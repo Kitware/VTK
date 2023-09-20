@@ -282,7 +282,7 @@ public:
   /**
    * Create an image. Subclasses of vtkRenderer must implement this method.
    */
-  virtual void DeviceRender(){};
+  virtual void DeviceRender() {}
 
   /**
    * Render opaque polygonal geometry. Default implementation just calls

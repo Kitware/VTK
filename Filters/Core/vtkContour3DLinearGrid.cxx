@@ -1363,7 +1363,7 @@ void GeneratePointNormals(vtkPoints* pts, vtkCellArray* tris, vtkFloatArray* cel
 
   // Clean up and get out
   pd->SetNormals(ptNormals);
-};
+}
 
 } // anonymous namespace
 

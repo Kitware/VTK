@@ -413,7 +413,7 @@ public:
   vtkGetMacro(GradientOpacityRangeType, int);
   ///@}
 
-  vtkDataSet* GetInput() override { return this->GetInput(0); };
+  vtkDataSet* GetInput() override { return this->GetInput(0); }
 
   ///@{
   /**

@@ -74,7 +74,7 @@ struct MaxCellSizeWorker
     {
       this->ReducedMaxCellSize = std::max(this->ReducedMaxCellSize, *iter);
     }
-  };
+  }
 };
 
 }

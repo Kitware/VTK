@@ -51,7 +51,7 @@ public:
    * Initialize or reinitialize the locator (setting or re-setting clean objects in memory)
    * (Does nothing)
    */
-  virtual void Initialize(){};
+  virtual void Initialize() {}
 
   /**
    * Update the locator's internal variables with respect to changes that could have happened

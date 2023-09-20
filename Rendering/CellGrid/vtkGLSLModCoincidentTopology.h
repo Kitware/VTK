@@ -38,7 +38,7 @@ public:
   {
     // always up to date, because once replacements were handled, there is no need to remove them
     return true;
-  };
+  }
 
 protected:
   vtkGLSLModCoincidentTopology();

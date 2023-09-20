@@ -368,17 +368,17 @@ inline void
 VrmlNodeType::addEventIn(const char *nodeName, int type)
 {
   add(eventIns, nodeName, type);
-};
+}
 inline void
 VrmlNodeType::addEventOut(const char *nodeName, int type)
 {
   add(eventOuts, nodeName, type);
-};
+}
 inline void
 VrmlNodeType::addField(const char *nodeName, int type)
 {
   add(fields, nodeName, type);
-};
+}
 inline void
 VrmlNodeType::addExposedField(const char *nodeName, int type)
 {
@@ -389,7 +389,7 @@ VrmlNodeType::addExposedField(const char *nodeName, int type)
   add(eventIns, tmp.data(), type);
   snprintf(tmp.data(), length, "%s_changed", nodeName);
   add(eventOuts, tmp.data(), type);
-};
+}
 
 inline void
 VrmlNodeType::add(vtkVRMLVectorType<NameTypeRec*> &recs, const char *nodeName, int type)

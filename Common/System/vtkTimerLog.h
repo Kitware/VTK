@@ -258,7 +258,7 @@ public:
     vtkTimerLog::MarkStartEvent(eventString);
   }
 
-  ~vtkTimerLogScope() { vtkTimerLog::MarkEndEvent(this->EventString.c_str()); };
+  ~vtkTimerLogScope() { vtkTimerLog::MarkEndEvent(this->EventString.c_str()); }
 
 protected:
   std::string EventString;

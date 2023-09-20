@@ -219,5 +219,5 @@ vtkHigherOrderQuadrilateral* vtkBezierHexahedron::GetFaceCell()
 vtkHigherOrderInterpolation* vtkBezierHexahedron::GetInterpolation()
 {
   return Interp;
-};
+}
 VTK_ABI_NAMESPACE_END

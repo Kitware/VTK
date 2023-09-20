@@ -91,7 +91,7 @@ typedef std::list<ParticleInformation> ParticleDataList;
 typedef ParticleDataList::iterator ParticleListIterator;
 struct ParticleTracerFunctor;
 VTK_ABI_NAMESPACE_END
-};
+}
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracerBase : public vtkPolyDataAlgorithm

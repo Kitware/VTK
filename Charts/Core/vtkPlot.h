@@ -141,7 +141,7 @@ public:
   // SetColor(unsigned char r, unsigned char g, unsigned char b)
   // here and in the inheriting classes overriding it
   VTK_DEPRECATED_IN_9_3_0("Please use unambiguous SetColorF method instead.")
-  virtual void SetColor(double r, double g, double b) { this->SetColorF(r, g, b); };
+  virtual void SetColor(double r, double g, double b) { this->SetColorF(r, g, b); }
   ///@}
 
   /**
@@ -157,7 +157,7 @@ public:
 
   // If removed, please make GetColor(unsigned char rgb[3]) virtual
   VTK_DEPRECATED_IN_9_3_0("Please use unambiguous GetColorF method instead.")
-  virtual void GetColor(double rgb[3]) { this->GetColorF(rgb); };
+  virtual void GetColor(double rgb[3]) { this->GetColorF(rgb); }
   ///@
 
   /**

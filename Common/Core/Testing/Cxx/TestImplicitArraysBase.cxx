@@ -71,7 +71,7 @@ struct ConstComponentStruct
   unsigned long getMemorySize() const { return 16; }
 };
 
-};
+}
 
 int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

@@ -143,7 +143,7 @@ protected:
 
   VTK_DEPRECATED_IN_9_2_0(
     "This method was not used at all and has been replaced by ReadEvent(const std::string&)")
-  virtual void ReadEvent(){};
+  virtual void ReadEvent() {}
 
   /**
    * A method that parse a event line and invoke the corresponding event

@@ -544,7 +544,7 @@ public:
     , NumPointsCell(0)
   {
     this->cache = new PolyDataCache();
-  };
+  }
 
   ~CellArrayHelper() { delete this->cache; }
 
@@ -568,7 +568,7 @@ public:
         this->DrawPolygons(polyData, scalarMode, x, y, scale);
         break;
     }
-  };
+  }
 
   void HandleEndFrame() { this->cache->SwapCaches(); }
 
@@ -691,7 +691,7 @@ private:
 
       this->CellColors->SetTuple(i, mappedColorId, this->Colors);
     }
-  };
+  }
 
   /**
    * Batch all of the line primitives in an array and draw them using
@@ -763,7 +763,7 @@ private:
         static_cast<unsigned char*>(cacheItem->LineColors->GetVoidPointer(0)),
         cacheItem->LineColors->GetNumberOfComponents());
     }
-  };
+  }
 
   /**
    * Pre-computes the total number of polygon vertices after converted into triangles.
@@ -787,7 +787,7 @@ private:
 
     cellIter->Delete();
     return numTriVert;
-  };
+  }
 
   /**
    * Convert all of the polygon primitives into triangles and draw them as a batch using
@@ -870,7 +870,7 @@ private:
       this->Device->CoreDrawTriangles(cacheItem->PolyTri,
         static_cast<unsigned char*>(cacheItem->PolyColors->GetVoidPointer(0)), 4);
     }
-  };
+  }
 
   vtkOpenGLContextDevice2D* Device;
 

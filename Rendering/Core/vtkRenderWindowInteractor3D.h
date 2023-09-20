@@ -235,16 +235,16 @@ public:
   /**
    * Set/get the direction of the physical coordinate system -Z axis in world coordinates.
    */
-  virtual void SetPhysicalViewDirection(double, double, double){};
-  virtual double* GetPhysicalViewDirection() { return nullptr; };
+  virtual void SetPhysicalViewDirection(double, double, double) {}
+  virtual double* GetPhysicalViewDirection() { return nullptr; }
   ///@}
 
   ///@{
   /**
    * Set/get the direction of the physical coordinate system +Y axis in world coordinates.
    */
-  virtual void SetPhysicalViewUp(double, double, double){};
-  virtual double* GetPhysicalViewUp() { return nullptr; };
+  virtual void SetPhysicalViewUp(double, double, double) {}
+  virtual double* GetPhysicalViewUp() { return nullptr; }
   ///@}
 
   ///@{

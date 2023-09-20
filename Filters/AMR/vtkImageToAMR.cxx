@@ -122,7 +122,7 @@ void Split(const vtkAMRBox& rootBox, int numLevels, int refinementRatio, int max
       SplitXYZ(parent, refinementRatio, childBoxes);
     }
   }
-};
+}
 
 // create a grid by sampling from input using the indices in box
 vtkUniformGrid* ConstructGrid(
@@ -198,7 +198,7 @@ vtkUniformGrid* ConstructGrid(
   return grid;
 }
 
-};
+}
 
 vtkStandardNewMacro(vtkImageToAMR);
 //------------------------------------------------------------------------------
