@@ -721,7 +721,7 @@ unsigned int vtkXdmf3DataSet::GetNumberOfPointsPerCell(int vtk_cell_type, bool& 
     case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
       return 24;
     case VTK_TRIQUADRATIC_HEXAHEDRON:
-      return 24;
+      return 27;
   }
   fail = true;
   return 0;

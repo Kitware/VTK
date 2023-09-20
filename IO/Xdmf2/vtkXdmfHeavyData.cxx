@@ -472,7 +472,7 @@ int vtkXdmfHeavyData::GetNumberOfPointsPerCell(int vtk_cell_type)
     case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
       return 24;
     case VTK_TRIQUADRATIC_HEXAHEDRON:
-      return 24;
+      return 27;
   }
   return -1;
 }
