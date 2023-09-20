@@ -58,7 +58,7 @@ bool vtkZSpaceCoreCompatibilitySDKManager::loadZspaceCoreCompatibilityEntryPoint
   const char* zSpaceCoreCompatDllFilePath, vtkLibHandle& dllModuleHandle,
   zSpaceCoreCompatEntryPoints& entryPoints)
 {
-  dllModuleHandle = vtkDynamicLoader::LoadLibrary(zSpaceCoreCompatDllFilePath);
+  dllModuleHandle = vtkDynamicLoader::OpenLibrary(zSpaceCoreCompatDllFilePath);
 
   if (!dllModuleHandle)
   {
@@ -68,7 +68,7 @@ bool vtkZSpaceCoreCompatibilitySDKManager::loadZspaceCoreCompatibilityEntryPoint
     std::string zSpaceCoreCompatDllDebugFilePath(zSpaceCoreCompatDllFilePath);
     zSpaceCoreCompatDllDebugFilePath.append("_D");
 
-    dllModuleHandle = vtkDynamicLoader::LoadLibrary(zSpaceCoreCompatDllDebugFilePath);
+    dllModuleHandle = vtkDynamicLoader::OpenLibrary(zSpaceCoreCompatDllDebugFilePath.c_str());
 
     if (!dllModuleHandle)
     {

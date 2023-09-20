@@ -8,6 +8,8 @@ SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+CONDITION
+  WIN32
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
