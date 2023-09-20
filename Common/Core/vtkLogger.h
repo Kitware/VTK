@@ -476,15 +476,18 @@ private:
     : vtkLogger::LogF(level, __FILE__, __LINE__, __VA_ARGS__)
 #define vtkLogF(verbosity_name, ...) vtkVLogF(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
 #define vtkVLog(level, x)                                                                          \
-  if ((level) <= vtkLogger::GetCurrentVerbosityCutoff())                                           \
+  do                                                                                               \
   {                                                                                                \
-    vtkOStrStreamWrapper::EndlType const endl;                                                     \
-    vtkOStrStreamWrapper::UseEndl(endl);                                                           \
-    vtkOStrStreamWrapper vtkmsg;                                                                   \
-    vtkmsg << "" x;                                                                                \
-    vtkLogger::Log(level, __FILE__, __LINE__, vtkmsg.str());                                       \
-    vtkmsg.rdbuf()->freeze(0);                                                                     \
-  }
+    if ((level) <= vtkLogger::GetCurrentVerbosityCutoff())                                         \
+    {                                                                                              \
+      vtkOStrStreamWrapper::EndlType const endl;                                                   \
+      vtkOStrStreamWrapper::UseEndl(endl);                                                         \
+      vtkOStrStreamWrapper vtkmsg;                                                                 \
+      vtkmsg << "" x;                                                                              \
+      vtkLogger::Log(level, __FILE__, __LINE__, vtkmsg.str());                                     \
+      vtkmsg.rdbuf()->freeze(0);                                                                   \
+    }                                                                                              \
+  } while (false)
 #define vtkLog(verbosity_name, x) vtkVLog(vtkLogger::VERBOSITY_##verbosity_name, x)
 ///@}
 
@@ -510,15 +513,18 @@ private:
   vtkVLogIfF(vtkLogger::VERBOSITY_##verbosity_name, cond, __VA_ARGS__)
 
 #define vtkVLogIf(level, cond, x)                                                                  \
-  if ((level) <= vtkLogger::GetCurrentVerbosityCutoff() && (cond))                                 \
+  do                                                                                               \
   {                                                                                                \
-    vtkOStrStreamWrapper::EndlType endl;                                                           \
-    vtkOStrStreamWrapper::UseEndl(endl);                                                           \
-    vtkOStrStreamWrapper vtkmsg;                                                                   \
-    vtkmsg << "" x;                                                                                \
-    vtkLogger::Log(level, __FILE__, __LINE__, vtkmsg.str());                                       \
-    vtkmsg.rdbuf()->freeze(0);                                                                     \
-  }
+    if ((level) <= vtkLogger::GetCurrentVerbosityCutoff() && (cond))                               \
+    {                                                                                              \
+      vtkOStrStreamWrapper::EndlType endl;                                                         \
+      vtkOStrStreamWrapper::UseEndl(endl);                                                         \
+      vtkOStrStreamWrapper vtkmsg;                                                                 \
+      vtkmsg << "" x;                                                                              \
+      vtkLogger::Log(level, __FILE__, __LINE__, vtkmsg.str());                                     \
+      vtkmsg.rdbuf()->freeze(0);                                                                   \
+    }                                                                                              \
+  } while (false)
 #define vtkLogIf(verbosity_name, cond, x) vtkVLogIf(vtkLogger::VERBOSITY_##verbosity_name, cond, x)
 ///@}
 

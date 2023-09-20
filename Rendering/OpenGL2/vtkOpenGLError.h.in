@@ -239,6 +239,7 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
 # define vtkOpenGLClearErrorMacro() vtkClearOpenGLErrors(16);
 # include <sstream> // for error macro
 # define vtkOpenGLCheckErrorMacroImpl(ostr, message) \
+do                                                   \
 {                                                    \
   const int maxErrors = 16;                          \
   unsigned int errCode[maxErrors] = {0};             \
@@ -251,7 +252,7 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
         errDesc);                                    \
                                                      \
   if (numErrors)                                     \
-  {                                                \
+  {                                                  \
     std::ostringstream oss;                          \
     vtkPrintOpenGLErrors(                            \
           oss,                                       \
@@ -261,8 +262,8 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
           errDesc);                                  \
                                                      \
     ostr(<< message << " " << oss.str());            \
-  }                                                \
-}
+  }                                                  \
+} while(false)
 # define vtkOpenGLCheckErrorMacro(message) \
   vtkOpenGLCheckErrorMacroImpl(vtkErrorMacro, message)
 # define vtkOpenGLStaticCheckErrorMacro(message) \
