@@ -75,7 +75,7 @@ int TestFDSReader(int argc, char* argv[])
   reader->AddSelector("/exemple_kitware/Grids/Mesh01");
   reader->AddSelector("/exemple_kitware/Devices/HRR_3D");
   reader->AddSelector("/exemple_kitware/HRR/exemple_kitware_hrr");
-  reader->AddSelector("/exemple_kitware/Slices/VelX");
+  reader->AddSelector("/exemple_kitware/Slices/VelX_VELOCITY");
   reader->AddSelector("/exemple_kitware/Boundaries/Mesh01_Blockage_1");
   reader->Update();
 
@@ -176,7 +176,7 @@ int TestFDSReader(int argc, char* argv[])
   }
 
   // Test slice
-  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("VelX"));
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("VelX_VELOCITY"));
   auto slice = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
   if (!slice)
   {

@@ -1506,9 +1506,15 @@ bool vtkFDSReader::ParseCSVF(const std::vector<int>& baseNodes)
     this->Internals->HRRFiles.emplace(idx, fileName);
     this->Internals->MaxNbOfPartitions++;
   }
+  else if (fileType == "steps")
+  {
+    // this is a common thing in the file that we don't yet read so just skip it
+    return true;
+  }
   else
   {
-    vtkWarningMacro(<< "Line " << parser.LineNumber << " : unknown CSV file type.");
+    vtkWarningMacro(<< "Line " << parser.LineNumber << " : unknown CSV file type " << fileType
+                    << ".");
   }
 
   return true;
@@ -1607,8 +1613,26 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
     return false;
   }
 
-  // remove % from beginning of name
-  name.erase(0, 1);
+  // if there is a space between the name and a % or # symbol
+  if (name == "%" || name == "#")
+  {
+    if (!parser.Parse(name))
+    {
+      vtkErrorMacro("Could not parse name of slice at line " << parser.LineNumber);
+      return false;
+    }
+  }
+
+  // remove % or # from name
+  std::array<std::string, 2> wildcards = { "#", "%" };
+  for (const auto& wildcard : wildcards)
+  {
+    for (std::string::size_type iStr = name.find(wildcard); iStr != std::string::npos;
+         iStr = name.find(wildcard))
+    {
+      name.erase(iStr, 1);
+    }
+  }
 
   std::string ampersand;
   if (!parser.Parse(ampersand))
@@ -1642,6 +1666,25 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
   if (!parser.Parse(sData.FileName))
   {
     vtkWarningMacro(<< "Line " << parser.LineNumber << " : unable to parse sf file path.");
+    return false;
+  }
+
+  // Discard a line
+  if (!parser.DiscardLine())
+  {
+    return false;
+  }
+
+  std::string namePostFix;
+  if (!parser.Parse(namePostFix))
+  {
+    vtkErrorMacro("Could not parse name post fix of slice at line " << parser.LineNumber);
+    return false;
+  }
+  name = name + "_" + namePostFix;
+
+  if (!parser.DiscardLine())
+  {
     return false;
   }
 
