@@ -189,7 +189,7 @@ void vtkCollection::RemoveAllItems()
 
 // Search for an object and return location in list. If location == -1,
 // object was not found.
-int vtkCollection::IndexOfFirstOccurence(vtkObject* a)
+int vtkCollection::IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST
 {
   if (!this->Top)
   {
@@ -214,7 +214,7 @@ int vtkCollection::IndexOfFirstOccurence(vtkObject* a)
 
 // Search for an object and return location in list. If location == 0,
 // object was not found.
-int vtkCollection::IsItemPresent(vtkObject* a)
+int vtkCollection::IsItemPresent(vtkObject* a) VTK_FUTURE_CONST
 {
   if (!this->Top)
   {
@@ -246,7 +246,7 @@ void vtkCollection::PrintSelf(ostream& os, vtkIndent indent)
 
 // Get the i'th item in the collection. nullptr is returned if i is out
 // of range
-vtkObject* vtkCollection::GetItemAsObject(int i)
+vtkObject* vtkCollection::GetItemAsObject(int i) VTK_FUTURE_CONST
 {
   vtkCollectionElement* elem = this->Top;
 

@@ -92,14 +92,14 @@ public:
    * 0, the object was not found. If the object was found, the location is
    * the return value-1.
    */
-  int IsItemPresent(vtkObject* a);
+  int IsItemPresent(vtkObject* a) VTK_FUTURE_CONST;
 
   /**
    * Search for an object and return location in list. If the return value is
    * -1, the object was not found. If the object was found, the location is
    * at the returned (0-based) index.
    */
-  int IndexOfFirstOccurence(vtkObject* a);
+  int IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST;
 
   /**
    * Return the number of objects in the list.
@@ -131,7 +131,7 @@ public:
    * Get the i'th item in the collection. nullptr is returned if i is out
    * of range
    */
-  vtkObject* GetItemAsObject(int i);
+  vtkObject* GetItemAsObject(int i) VTK_FUTURE_CONST;
 
   /**
    * A reentrant safe way to get the next object as a collection. Just pass the

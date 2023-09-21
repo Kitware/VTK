@@ -43,7 +43,7 @@ public:
    */
   void Set(vtkInformation* info);
   void Remove(vtkInformation* info) override;
-  int Has(vtkInformation* info) override;
+  int Has(VTK_FUTURE_CONST vtkInformation* info) VTK_FUTURE_CONST override;
   ///@}
 
   /**
