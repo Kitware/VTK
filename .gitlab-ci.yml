@@ -37,6 +37,23 @@ stages:
 
 # Linux
 
+## Dummy
+# A job that always succeeds so that we pass the robot check when all jobs are
+# skipped due to certain rules
+
+dummy:build:
+   stage: build
+   extends:
+    - .linux_builder_tags
+   rules:
+       - if: '$CI_MERGE_REQUEST_ID'
+         when: on_success
+       - if: '$CI_PROJECT_PATH == "vtk/vtk"'
+         when: on_success
+       - when: never
+   script:
+    - echo "dummy"
+
 ## Basic builds
 
 el7-mindeps-python-qt5:build:
