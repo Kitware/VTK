@@ -33,11 +33,22 @@ bool IsReservedCharacter(char c)
   return IsGenDelimiter(c) || IsSubDelimiter(c);
 }
 
+bool IsAlphaNumeric(char c)
+{
+  return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9');
+}
+
 // https://datatracker.ietf.org/doc/html/rfc3986#section-2.3
 bool IsUnreservedCharacter(char c)
 {
-  return std::isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '.' || c == '_' ||
-    c == '~';
+  return IsAlphaNumeric(c) || c == '-' || c == '.' || c == '_' || c == '~';
+}
+
+// pchar = unreserved / pct-encoded / sub-delims / ":" / "@" / "/"
+// pct-encoded is handled by PctFindIf
+bool IsPChar(char c)
+{
+  return IsUnreservedCharacter(c) || IsSubDelimiter(c) || c == ':' || c == '@' || c == '/';
 }
 
 // The following functions extract one component
@@ -127,6 +138,11 @@ const char* ExtractFragment(const char* uri, const char* end, vtkURIComponent& o
   return end;
 }
 
+bool IsHexDigit(char c)
+{
+  return ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f') || ('0' <= c && c <= '9');
+}
+
 // https://datatracker.ietf.org/doc/html/rfc3986#section-2.1
 template <typename It>
 bool IsPercentEncodedValue(It begin, It end)
@@ -142,25 +158,18 @@ bool IsPercentEncodedValue(It begin, It end)
   }
 
   ++begin;
-  if (!std::isxdigit(static_cast<unsigned char>(*begin)))
+  if (!IsHexDigit(*begin))
   {
     return false;
   }
 
   ++begin;
-  if (!std::isxdigit(static_cast<unsigned char>(*begin)))
+  if (!IsHexDigit(*begin))
   {
     return false;
   }
 
   return true;
-}
-
-// pchar = unreserved / pct-encoded / sub-delims / ":" / "@" / "/"
-// pct-encoded is handled by PctFindIf
-bool IsPChar(char c)
-{
-  return IsUnreservedCharacter(c) || IsSubDelimiter(c) || c == ':' || c == '@' || c == '/';
 }
 
 // std::find_if that interprets and skips percent-encoded values ('%XX')
@@ -202,7 +211,7 @@ bool CheckSchemeSyntax(const vtkURIComponent& comp)
   const auto& scheme = comp.GetValue();
   if (scheme.empty()) // not valid for scheme !!
   {
-    vtkErrorWithObjectMacro(nullptr, "URI scheme not be empty if defined");
+    vtkErrorWithObjectMacro(nullptr, "URI scheme must not be empty if defined");
     return false;
   }
 
@@ -326,7 +335,7 @@ bool CheckAuthoritySyntax(const vtkURIComponent& comp)
 }
 
 // https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
-bool CheckPathSyntax(const vtkURIComponent& comp, bool hasAuthority)
+bool CheckPathSyntax(const vtkURIComponent& comp, bool hasAuthority, bool isDataURI)
 {
   if (!comp)
   {
@@ -348,12 +357,28 @@ bool CheckPathSyntax(const vtkURIComponent& comp, bool hasAuthority)
 
   const auto& path = comp.GetValue();
 
-  auto it = PctFindIf(path.begin(), path.end(), [](char c) { return !IsPChar(c); });
-
-  if (it != path.end())
+  if (isDataURI)
   {
-    vtkErrorWithObjectMacro(nullptr, "Invalid character in path component '" << *it << "'");
-    return false;
+    // Skip checks for data itself
+    const auto typeEnd = std::find_if(path.begin(), path.end(), [](char c) { return c == ','; });
+
+    auto it = PctFindIf(path.begin(), typeEnd, [](char c) { return !IsPChar(c); });
+
+    if (it != typeEnd)
+    {
+      vtkErrorWithObjectMacro(nullptr, "Invalid character in path component '" << *it << "'");
+      return false;
+    }
+  }
+  else
+  {
+    auto it = PctFindIf(path.begin(), path.end(), [](char c) { return !IsPChar(c); });
+
+    if (it != path.end())
+    {
+      vtkErrorWithObjectMacro(nullptr, "Invalid character in path component '" << *it << "'");
+      return false;
+    }
   }
 
   return true;
@@ -395,7 +420,8 @@ bool CheckURISyntax(const vtkURI& uri)
     return false;
   }
 
-  if (!CheckPathSyntax(uri.GetPath(), uri.GetAuthority().IsDefined()))
+  const bool isDataURI = vtksys::SystemTools::LowerCase(uri.GetScheme().GetValue()) == "data";
+  if (!CheckPathSyntax(uri.GetPath(), uri.GetAuthority().IsDefined(), isDataURI))
   {
     return false;
   }
@@ -417,6 +443,7 @@ std::string RemoveDotSegments(std::string input)
 {
   // https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.4
   std::string output;
+  output.reserve(input.size());
 
   while (!input.empty())
   {
@@ -489,79 +516,6 @@ std::string MergeWithBasePath(const vtkURI& base, const std::string& path)
   }
 
   return path;
-}
-
-vtkSmartPointer<vtkURI> ResolveURI(const vtkURI& base, const vtkURI& uri)
-{
-  // https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.2
-  vtkURIComponent scheme;
-  vtkURIComponent auth;
-  vtkURIComponent path;
-  vtkURIComponent query;
-
-  if (uri.GetScheme())
-  {
-    scheme = uri.GetScheme();
-    auth = uri.GetAuthority();
-    path = RemoveDotSegments(uri.GetPath().GetValue());
-    query = uri.GetQuery();
-  }
-  else
-  {
-    scheme = base.GetScheme();
-
-    if (uri.GetAuthority())
-    {
-      auth = uri.GetAuthority();
-      path = RemoveDotSegments(uri.GetPath().GetValue());
-      query = uri.GetQuery();
-    }
-    else
-    {
-      auth = base.GetAuthority();
-
-      if (uri.GetPath().GetValue().empty())
-      {
-        path = base.GetPath();
-        if (uri.GetQuery())
-        {
-          query = uri.GetQuery();
-        }
-        else
-        {
-          query = base.GetQuery();
-        }
-      }
-      else
-      {
-        if (uri.GetPath().GetValue().front() == '/')
-        {
-          path = RemoveDotSegments(uri.GetPath().GetValue());
-        }
-        else
-        {
-          path = RemoveDotSegments(MergeWithBasePath(base, uri.GetPath().GetValue()));
-        }
-
-        query = uri.GetQuery();
-      }
-    }
-  }
-
-  vtkURIComponent frag = uri.GetFragment();
-
-  auto output = vtkURI::Make(
-    std::move(scheme), std::move(auth), std::move(path), std::move(query), std::move(frag));
-
-  if (!output->IsFull())
-  {
-    vtkErrorWithObjectMacro(nullptr,
-      "Failed to resolve URI \"" << uri.ToString() << "\" from base URI \"" << base.ToString()
-                                 << "\". Result \"" << output->ToString() << "\" is incomplete");
-    return nullptr;
-  }
-
-  return output;
 }
 
 } // namespace
@@ -637,12 +591,17 @@ std::string vtkURI::PercentDecode(const char* str, std::size_t size)
       unsigned char value;
       if (vtkValueFromString(temp.data(), temp.data() + temp.size(), value) != temp.size())
       {
-        vtkErrorWithObjectMacro(nullptr, "Invalid %" << temp[2] << temp[3] << " value in URI data");
+        vtkErrorWithObjectMacro(nullptr, "Invalid value %" << temp[2] << temp[3] << " in URI data");
         return {};
       }
 
       output += static_cast<char>(value);
       i += 2;
+    }
+    else if (!IsReservedCharacter(current) && !IsUnreservedCharacter(current))
+    {
+      vtkErrorWithObjectMacro(nullptr, "Invalid character '" << current << "' in URI data");
+      return {};
     }
     else
     {
@@ -657,12 +616,8 @@ std::string vtkURI::PercentDecode(const char* str, std::size_t size)
 vtkSmartPointer<vtkURI> vtkURI::Make(vtkURIComponent scheme, vtkURIComponent authority,
   vtkURIComponent path, vtkURIComponent query, vtkURIComponent fragment)
 {
-  auto output = vtkSmartPointer<vtkURI>::New();
-  output->Scheme = std::move(scheme);
-  output->Authority = std::move(authority);
-  output->Path = std::move(path);
-  output->Query = std::move(query);
-  output->Fragment = std::move(fragment);
+  auto output = MakeUnchecked(std::move(scheme), std::move(authority), std::move(path),
+    std::move(query), std::move(fragment));
 
   if (!CheckURISyntax(*output))
   {
@@ -735,7 +690,89 @@ vtkSmartPointer<vtkURI> vtkURI::Resolve(const vtkURI* baseURI, const vtkURI* uri
     return vtkURI::Clone(uri);
   }
 
-  return ResolveURI(*baseURI, *uri);
+  // https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.2
+  vtkURIComponent scheme;
+  vtkURIComponent auth;
+  vtkURIComponent path;
+  vtkURIComponent query;
+
+  if (uri->GetScheme())
+  {
+    scheme = uri->GetScheme();
+    auth = uri->GetAuthority();
+
+    // Data URIs can contain slashes (both base64 and raw).
+    // This highly impact performances of RemoveDotSegments.
+    // This bypass should never impact observable behavior since a valid data URI
+    // will never contain dot or dot-dot path segments.
+    if (vtksys::SystemTools::LowerCase(uri->GetScheme().GetValue()) == "data")
+    {
+      path = uri->GetPath().GetValue();
+    }
+    else
+    {
+      path = RemoveDotSegments(uri->GetPath().GetValue());
+    }
+
+    query = uri->GetQuery();
+  }
+  else
+  {
+    scheme = baseURI->GetScheme();
+
+    if (uri->GetAuthority())
+    {
+      auth = uri->GetAuthority();
+      path = RemoveDotSegments(uri->GetPath().GetValue());
+      query = uri->GetQuery();
+    }
+    else
+    {
+      auth = baseURI->GetAuthority();
+
+      if (uri->GetPath().GetValue().empty())
+      {
+        path = baseURI->GetPath();
+        if (uri->GetQuery())
+        {
+          query = uri->GetQuery();
+        }
+        else
+        {
+          query = baseURI->GetQuery();
+        }
+      }
+      else
+      {
+        if (uri->GetPath().GetValue().front() == '/')
+        {
+          path = RemoveDotSegments(uri->GetPath().GetValue());
+        }
+        else
+        {
+          path = RemoveDotSegments(MergeWithBasePath(*baseURI, uri->GetPath().GetValue()));
+        }
+
+        query = uri->GetQuery();
+      }
+    }
+  }
+
+  vtkURIComponent frag = uri->GetFragment();
+
+  // Will always be valid since both inputs will already be checked
+  auto output = vtkURI::MakeUnchecked(
+    std::move(scheme), std::move(auth), std::move(path), std::move(query), std::move(frag));
+
+  if (!output->IsFull())
+  {
+    vtkErrorWithObjectMacro(nullptr,
+      "Failed to resolve URI \"" << uri->ToString() << "\" from base URI \"" << baseURI->ToString()
+                                 << "\". Result \"" << output->ToString() << "\" is incomplete");
+    return nullptr;
+  }
+
+  return output;
 }
 
 //------------------------------------------------------------------------------
@@ -769,6 +806,20 @@ std::string vtkURI::ToString() const
     output += '#';
     output += this->Fragment.GetValue();
   }
+
+  return output;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkURI> vtkURI::MakeUnchecked(vtkURIComponent scheme, vtkURIComponent authority,
+  vtkURIComponent path, vtkURIComponent query, vtkURIComponent fragment)
+{
+  auto output = vtkSmartPointer<vtkURI>::New();
+  output->Scheme = std::move(scheme);
+  output->Authority = std::move(authority);
+  output->Path = std::move(path);
+  output->Query = std::move(query);
+  output->Fragment = std::move(fragment);
 
   return output;
 }
