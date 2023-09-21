@@ -194,6 +194,11 @@ public:
    * Syntax of components is checked in order to ensure that they respect
    * [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3).
    *
+   * If scheme is "data" (case-insensitive), the path is only checked
+   * until the begining of the data. This is done to prevent massive overhead when constructing
+   * a big data URI. Data validation has to be performed by the decoding algorithm.
+   * vtkURI::PercentDecode does the required checks for raw data URIs.
+   *
    * Percent-encoded character are not decoded. Use `vtkURI::PercentEncode` if necessary.
    *
    * Tip: Parameters may be moved-in to prevent copy of big strings.
@@ -333,8 +338,14 @@ public:
   std::string ToString() const;
 
 private:
+  /**
+   * @brief Private version of vtkURI::Make but does not perform syntax check
+   */
+  static vtkSmartPointer<vtkURI> MakeUnchecked(vtkURIComponent scheme, vtkURIComponent authority,
+    vtkURIComponent path, vtkURIComponent query, vtkURIComponent fragment);
+
   // These functions are factories and need write access to this class
-  friend vtkSmartPointer<vtkURI> Make(vtkURIComponent scheme, vtkURIComponent authority,
+  friend vtkSmartPointer<vtkURI> MakeUnchecked(vtkURIComponent scheme, vtkURIComponent authority,
     vtkURIComponent path, vtkURIComponent query, vtkURIComponent fragment);
   friend vtkSmartPointer<vtkURI> Clone(const vtkURI* other);
 
