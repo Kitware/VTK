@@ -1306,7 +1306,10 @@ void vtkPolyData::GetCellEdgeNeighbors(
       {
         if (*cells1 == *cells2Cur)
         {
-          cellIds->InsertNextId(*cells1);
+          // For degenerate cells, the same cells are linked several times to the degenerate
+          // point. So InsertUniqueId is used to prevent duplicates. This is not impacting
+          // performances compared to InsertNextId, because most of the time, cellIds is empty.
+          cellIds->InsertUniqueId(*cells1);
           break;
         }
         ++cells2Cur;
