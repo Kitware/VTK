@@ -179,7 +179,7 @@ bool TestParseHelper(const std::string& str, bool expectedSuccess, T expectedVal
   }
   else
   {
-    Check(count == 0, "Expected failure but parsing succeded");
+    Check(count == 0, "Expected failure but parsing succeeded");
     Check(value == T{}, "Output variable must not be modified in case of failure");
   }
 

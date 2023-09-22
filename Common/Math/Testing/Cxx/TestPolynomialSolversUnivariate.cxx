@@ -85,7 +85,7 @@ static int vtkRunPolynomial(double* poly, int degree, double* rootInt, double* u
 
 //=============================================================================
 static int vtkTestPolynomials(double* poly, int degree, double* rootInt, double* upperBnds,
-  double tolSturm, double* divtols, int len, double* expectd, int expectedLength, double expectTol,
+  double tolSturm, double* divtols, int len, double* expected, int expectedLength, double expectTol,
   const char* name, bool divideGCD, int methods = 3, int intType = 0)
 {
   int rval = 0;
@@ -94,7 +94,7 @@ static int vtkTestPolynomials(double* poly, int degree, double* rootInt, double*
     cout << endl << name << " (Sturm)" << endl;
     for (int i = 0; i < len; ++i)
     {
-      rval |= vtkRunPolynomial(poly, degree, rootInt, upperBnds, tolSturm, divtols[i], expectd,
+      rval |= vtkRunPolynomial(poly, degree, rootInt, upperBnds, tolSturm, divtols[i], expected,
         expectedLength, expectTol, name, divideGCD, false, intType);
     }
   }
@@ -104,7 +104,7 @@ static int vtkTestPolynomials(double* poly, int degree, double* rootInt, double*
     cout << endl << name << " (Habicht)" << endl;
     for (int i = 0; i < len; ++i)
     {
-      rval |= vtkRunPolynomial(poly, degree, rootInt, upperBnds, tolSturm, divtols[i], expectd,
+      rval |= vtkRunPolynomial(poly, degree, rootInt, upperBnds, tolSturm, divtols[i], expected,
         expectedLength, expectTol, name, divideGCD, true, intType);
     }
   }

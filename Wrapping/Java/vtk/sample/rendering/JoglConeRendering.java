@@ -96,12 +96,12 @@ public class JoglConeRendering {
         boxWidget.SetPriority(1);
 
         final Runnable callback = new Runnable() {
-          vtkTransform trasform = new vtkTransform();
+          vtkTransform transform = new vtkTransform();
 
           public void run() {
             vtkBoxRepresentation rep = (vtkBoxRepresentation) boxWidget.GetRepresentation();
-            rep.GetTransform(trasform);
-            coneActor.SetUserTransform(trasform);
+            rep.GetTransform(transform);
+            coneActor.SetUserTransform(transform);
           }
         };
 

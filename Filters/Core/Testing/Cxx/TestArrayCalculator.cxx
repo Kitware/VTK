@@ -74,16 +74,16 @@ int TestArrayCalculator(int argc, char* argv[])
     calc4->SetFunctionParserType(parserType);
     calc4->SetAttributeTypeToPointData();
     calc4->IgnoreMissingArraysOn();
-    calc4->AddScalarArrayName("NonExistant");
-    calc4->SetFunction("2*NonExistant");
-    calc4->SetResultArrayName("FromNonExistant");
+    calc4->AddScalarArrayName("NonExistent");
+    calc4->SetFunction("2*NonExistent");
+    calc4->SetResultArrayName("FromNonExistent");
     calc4->Update();
 
-    // Output should have no array named "FromNonExistant"
+    // Output should have no array named "FromNonExistent"
     result = vtkPolyData::SafeDownCast(calc4->GetOutput());
-    if (result->GetPointData()->HasArray("FromNonExistant"))
+    if (result->GetPointData()->HasArray("FromNonExistent"))
     {
-      std::cerr << "Output from calc4 has an array named 'FromNonExistant'" << std::endl;
+      std::cerr << "Output from calc4 has an array named 'FromNonExistent'" << std::endl;
       return EXIT_FAILURE;
     }
 

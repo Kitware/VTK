@@ -189,7 +189,7 @@ public:
   void SetUseFontSizeFromProperty(bool sizeFromProp);
 
   /// Set the axes to adjust labels position to a "nice" one.
-  void SetAdjustLabels(bool ajust);
+  void SetAdjustLabels(bool adjust);
   ///@}
 
   ///@{

@@ -61,16 +61,16 @@ void SetIsoValueRMI(
 
   float val;
 
-  vtkMultiProcessController* contrl = args->Controller;
-  int myid = contrl->GetLocalProcessId();
-  int numProcs = contrl->GetNumberOfProcesses();
+  vtkMultiProcessController* controller = args->Controller;
+  int myid = controller->GetLocalProcessId();
+  int numProcs = controller->GetNumberOfProcesses();
 
   vtkContourFilter* iso = args->ContourFilter;
   val = iso->GetValue(0);
   iso->SetValue(0, val + ISO_STEP);
   args->Elevation->UpdatePiece(myid, numProcs, 0);
 
-  contrl->Send(args->Elevation->GetOutput(), 0, ISO_OUTPUT_TAG);
+  controller->Send(args->Elevation->GetOutput(), 0, ISO_OUTPUT_TAG);
 }
 
 // This will be called by all processes

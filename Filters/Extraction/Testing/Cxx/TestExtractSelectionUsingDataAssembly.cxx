@@ -87,11 +87,11 @@ int TestExtractSelectionUsingDataAssembly(int argc, char* argv[])
   selSource->SetFieldType(vtkSelectionNode::CELL);
   selSource->SetContentType(vtkSelectionNode::INDICES);
 
-  vtkNew<vtkConvertSelection> convertor;
-  convertor->SetOutputType(vtkSelectionNode::BLOCK_SELECTORS);
-  convertor->SetDataObjectConnection(reader->GetOutputPort());
-  convertor->SetInputConnection(selSource->GetOutputPort());
-  extractor->SetInputConnection(1, convertor->GetOutputPort());
+  vtkNew<vtkConvertSelection> converter;
+  converter->SetOutputType(vtkSelectionNode::BLOCK_SELECTORS);
+  converter->SetDataObjectConnection(reader->GetOutputPort());
+  converter->SetInputConnection(selSource->GetOutputPort());
+  extractor->SetInputConnection(1, converter->GetOutputPort());
   extractor->Update();
   vtkLogIfF(ERROR,
     extractor->GetOutputDataObject(0)->GetNumberOfElements(vtkDataObject::CELL) != 2352,

@@ -1283,7 +1283,7 @@ bool vtkFDSReader::ParseGRID(const std::vector<int>& baseNodes)
 
       if (i != id)
       {
-        vtkErrorMacro(<< "Wrong dimention found. Expected " << id << ", got " << i << ".");
+        vtkErrorMacro(<< "Wrong dimension found. Expected " << id << ", got " << i << ".");
         return false;
       }
 

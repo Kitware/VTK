@@ -161,8 +161,8 @@ int vtkRTXMLPolyDataReader::IsProcessed(const char* fname)
   int size = static_cast<int>(this->Internal->ProcessedFileList.size());
   for (int i = 0; i < size; i++)
   {
-    const char* aFile = this->Internal->ProcessedFileList[i].c_str();
-    if (strcmp(fname, aFile) == 0)
+    const char* file = this->Internal->ProcessedFileList[i].c_str();
+    if (strcmp(fname, file) == 0)
     {
       return 1;
     }

@@ -111,7 +111,7 @@ int vtkForEach::RequestInformation(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
-    vtkErrorMacro("Could not retieve input information");
+    vtkErrorMacro("Could not retrieve input information");
     return 0;
   }
 

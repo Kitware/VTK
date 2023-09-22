@@ -297,8 +297,8 @@ public:
     }
 
     OSPTexture t2d = nullptr;
-    bool reuseable = sameMode && this->CanReuseBG(forbackplate);
-    if (!reuseable)
+    bool reusable = sameMode && this->CanReuseBG(forbackplate);
+    if (!reusable)
     {
       vtkTexture* text =
         (forbackplate ? ren->GetBackgroundTexture() : ren->GetEnvironmentTexture());
@@ -421,7 +421,7 @@ public:
     {
       this->Owner->AddLight(this->BGLight); // lights cleared every frame, so always add
     }
-    return reuseable;
+    return reusable;
   }
 
   std::map<vtkProp3D*, vtkAbstractMapper3D*> LastMapperFor;

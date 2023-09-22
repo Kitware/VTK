@@ -28,11 +28,11 @@ int TestDataObjectToPartitionedDataSetCollection(int, char*[])
   mb->SetBlock(1, vtkNew<vtkUnstructuredGrid>());
   mb->GetMetaData(1)->Set(vtkCompositeDataSet::NAME(), "Block-1");
 
-  vtkNew<vtkConvertToPartitionedDataSetCollection> convertor;
-  convertor->SetInputDataObject(mb);
-  convertor->Update();
+  vtkNew<vtkConvertToPartitionedDataSetCollection> converter;
+  converter->SetInputDataObject(mb);
+  converter->Update();
 
-  auto output = vtkPartitionedDataSetCollection::SafeDownCast(convertor->GetOutputDataObject(0));
+  auto output = vtkPartitionedDataSetCollection::SafeDownCast(converter->GetOutputDataObject(0));
   if (output == nullptr || output->GetNumberOfPartitionedDataSets() != 3 ||
     vtkPolyData::SafeDownCast(output->GetPartitionedDataSet(0)->GetPartition(0)) == nullptr ||
     output->GetPartitionedDataSet(1)->GetNumberOfPartitions() != 0 ||

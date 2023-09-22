@@ -98,7 +98,7 @@ public:
    * increases the sharpness and ringing, while using an alpha greater
    * than n increases the blurring.
    */
-  void SetWindowParameter(double parm);
+  void SetWindowParameter(double param);
   double GetWindowParameter() { return this->WindowParameter; }
 
   /**

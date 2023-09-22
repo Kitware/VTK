@@ -162,14 +162,14 @@ bool TestRemoveGhostCells()
   vtkAbstractArray* ptArray = pd->GetPointData()->GetAbstractArray(pointDataIds->GetName());
   if (!ptArray || ptArray->GetNumberOfValues() != 4)
   {
-    vtkLog(ERROR, "Removing ghosts failed... Unexepected point data content.");
+    vtkLog(ERROR, "Removing ghosts failed... Unexpected point data content.");
     return false;
   }
   vtkIdTypeArray* fArray =
     vtkArrayDownCast<vtkIdTypeArray>(pd->GetFieldData()->GetAbstractArray(field->GetName()));
   if (!fArray || fArray->GetNumberOfValues() != 1 || fArray->GetValue(0) != 17)
   {
-    vtkLog(ERROR, "Removing ghosts failed... Unexepected field data content.");
+    vtkLog(ERROR, "Removing ghosts failed... Unexpected field data content.");
     return false;
   }
 

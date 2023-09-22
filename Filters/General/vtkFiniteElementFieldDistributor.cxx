@@ -73,15 +73,15 @@ vtkDataArray* InitializeNewArray(
   return arr;
 }
 
-std::vector<std::string> Split(const std::string& inString, const std::string& delimeter)
+std::vector<std::string> Split(const std::string& inString, const std::string& delimiter)
 {
   std::vector<std::string> subStrings;
   std::size_t sIdx = 0;
   std::size_t eIdx = 0;
-  while ((eIdx = inString.find(delimeter, sIdx)) < inString.size())
+  while ((eIdx = inString.find(delimiter, sIdx)) < inString.size())
   {
     subStrings.emplace_back(inString.substr(sIdx, eIdx - sIdx));
-    sIdx = eIdx + delimeter.size();
+    sIdx = eIdx + delimiter.size();
   }
   if (sIdx < inString.size())
   {

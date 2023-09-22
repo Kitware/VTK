@@ -206,12 +206,12 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   int outputNComp = outData[0]->GetNumberOfScalarComponents();
   if (nComp != input1NComp)
   {
-    threadData->ErrorMessage = "Inputs number of components are differents";
+    threadData->ErrorMessage = "Inputs number of components are different";
     return;
   }
   if (outputNComp != input1NComp)
   {
-    threadData->ErrorMessage = "Input and output number of components are differents";
+    threadData->ErrorMessage = "Input and output number of components are different";
     return;
   }
   if (nComp > MAX_NCOMPS || nComp <= 0)

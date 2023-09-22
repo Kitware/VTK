@@ -155,7 +155,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
         component.getRenderWindowInteractor().LeftButtonPressEvent();
         break;
       }
-    } catch (InterruptedException interupt) {
+    } catch (InterruptedException interrupt) {
       // Nothing to do
     } finally {
       component.getVTKLock().unlock();
@@ -192,7 +192,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
         component.getRenderWindowInteractor().LeftButtonReleaseEvent();
         break;
       }
-    } catch (InterruptedException interupt) {
+    } catch (InterruptedException interrupt) {
       // Nothing to do
     } finally {
       component.getVTKLock().unlock();
@@ -218,7 +218,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
       shiftPressed = (e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK ? 1 : 0;
       component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
       component.getRenderWindowInteractor().MouseMoveEvent();
-    } catch (InterruptedException interupt) {
+    } catch (InterruptedException interrupt) {
       // Nothing to do
     } finally {
       component.getVTKLock().unlock();
@@ -253,7 +253,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
       shiftPressed = (e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK ? 1 : 0;
       component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
       component.getRenderWindowInteractor().EnterEvent();
-    } catch (InterruptedException interupt) {
+    } catch (InterruptedException interrupt) {
       // Nothing to do
     } finally {
       component.getVTKLock().unlock();
@@ -279,7 +279,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
       shiftPressed = (e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK ? 1 : 0;
       component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
       component.getRenderWindowInteractor().LeaveEvent();
-    } catch (InterruptedException interupt) {
+    } catch (InterruptedException interrupt) {
       // Nothing to do
     } finally {
       component.getVTKLock().unlock();
@@ -318,7 +318,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
         component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
         component.getRenderWindowInteractor().MouseWheelForwardEvent();
       }
-    } catch (InterruptedException interupt) {
+    } catch (InterruptedException interrupt) {
       // Nothing to do
     } finally {
       component.getVTKLock().unlock();
@@ -344,7 +344,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
       component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, keyChar, 0, String.valueOf(keyChar));
       component.getRenderWindowInteractor().KeyPressEvent();
       component.getRenderWindowInteractor().CharEvent();
-    } catch (InterruptedException interupt) {
+    } catch (InterruptedException interrupt) {
       // Nothing to do
     } finally {
       component.getVTKLock().unlock();

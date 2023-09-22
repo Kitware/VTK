@@ -122,7 +122,7 @@ static PyMethodDef PyVTKClass_override_def = { "override", PyVTKClass_override, 
   "  pass\n"
   "vtk.vtkPoints.override(foo)\n"
   "\n"
-  "will lead to foo being instantied everytime vtkPoints() is called.\n"
+  "will lead to foo being instantied every time vtkPoints() is called.\n"
   "The main objective of this functionality is to enable developers to\n"
   "extend VTK classes with more pythonic subclasses that contain\n"
   "convenience functionality.\n" };

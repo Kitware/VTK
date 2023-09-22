@@ -1487,14 +1487,14 @@ bool vtkMotionFXCFGReader::ReadMetaData()
   if (vtksys::SystemTools::TestFileAccess(
         this->FileName, vtksys::TEST_FILE_OK | vtksys::TEST_FILE_READ))
   {
-    auto* interals = new vtkInternals();
-    if (interals->Parse(this->FileName))
+    auto* internals = new vtkInternals();
+    if (internals->Parse(this->FileName))
     {
-      this->Internals = interals;
+      this->Internals = internals;
       this->MetaDataMTime.Modified();
       return true;
     }
-    delete interals;
+    delete internals;
   }
   else
   {

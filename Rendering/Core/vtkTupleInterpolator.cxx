@@ -179,7 +179,7 @@ void vtkTupleInterpolator::FillFromData(int nb, double* time, double** data, boo
     }
     else
     {
-      vtkWarningMacro(<< "Interpolation initializaton failed for " << this->NumberOfComponents
+      vtkWarningMacro(<< "Interpolation initialization failed for " << this->NumberOfComponents
                       << " components.");
     }
   }
