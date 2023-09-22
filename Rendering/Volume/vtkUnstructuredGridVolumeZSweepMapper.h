@@ -56,7 +56,7 @@ class vtkDoubleScreenEdge;
 class vtkVertexEntry;
 class vtkPixelListEntryMemory;
 VTK_ABI_NAMESPACE_END
-};
+}
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeZSweepMapper

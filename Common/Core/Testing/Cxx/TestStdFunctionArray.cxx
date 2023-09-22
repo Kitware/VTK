@@ -100,4 +100,4 @@ int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 #endif // VTK_DISPATCH_STD_FUNCTION_ARRAYS
   return res;
-};
+}

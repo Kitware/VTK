@@ -237,7 +237,7 @@ public:
   VTK_DEPRECATED_IN_9_3_0("Function has been renamed ReturnOnesidedOn")
   virtual void OptimizeForRealInputOn() { this->ReturnOnesidedOn(); }
   VTK_DEPRECATED_IN_9_3_0("Function has been renamed ReturnOnesidedOff")
-  virtual void OptimizeForRealInputOff() { this->ReturnOnesidedOff(); };
+  virtual void OptimizeForRealInputOff() { this->ReturnOnesidedOff(); }
   ///@}
 
   ///@{
@@ -250,10 +250,10 @@ public:
    */
   VTK_DEPRECATED_IN_9_3_0(
     "Block behavior is not controlled using BlockSize and BlockOverlap properties.")
-  virtual int GetNumberOfBlock() { return 0; };
+  virtual int GetNumberOfBlock() { return 0; }
   VTK_DEPRECATED_IN_9_3_0(
     "Block behavior is not controlled using BlockSize and BlockOverlap properties.")
-  virtual void SetNumberOfBlock(int){};
+  virtual void SetNumberOfBlock(int) {}
   ///@}
 
 protected:

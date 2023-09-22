@@ -2273,7 +2273,7 @@ public:
 };
 
 VTK_ABI_NAMESPACE_END
-};
+}
 
 using namespace vtkUnstructuredGridVolumeZSweepMapperNamespace;
 

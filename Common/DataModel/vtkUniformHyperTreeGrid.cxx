@@ -262,7 +262,7 @@ void vtkUniformHyperTreeGrid::SetZCoordinates(vtkDataArray* m_ZCoordinates)
   this->GridScale[2] =
     (m_ZCoordinates->GetTuple1(m_ZCoordinates->GetNumberOfTuples() - 1) - this->Origin[2]) /
     (m_ZCoordinates->GetNumberOfTuples() - 1);
-};
+}
 
 vtkDataArray* vtkUniformHyperTreeGrid::GetZCoordinates()
 {

@@ -65,7 +65,7 @@ public:
     this->Clip(
       value, cellScalars, locator, connectivity, inPd, outPd, inCd, cellId, outCd, insideOut);
     return false;
-  };
+  }
 
 protected:
   vtkNonLinearCell();

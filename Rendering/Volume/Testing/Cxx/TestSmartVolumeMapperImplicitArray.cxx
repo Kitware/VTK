@@ -98,4 +98,4 @@ int TestSmartVolumeMapperImplicitArray(int argc, char* argv[])
   return (vtkRegressionTester::Test(argc, argv, renWin, 10) == vtkRegressionTester::PASSED)
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
-};
+}

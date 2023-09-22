@@ -26,7 +26,7 @@ inline bool OppSign(const double& a, const double& b)
 {
   return (a <= 0 && b >= 0) || (a >= 0 && b <= 0);
 }
-};
+}
 
 //------------------------------------------------------------------------------
 void vtkBoundingBox::AddPoint(double px, double py, double pz)

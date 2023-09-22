@@ -85,7 +85,7 @@ public:
   /**
    * Get a printable string describing all outputs
    */
-  std::string GetOutputsDescription() override { return this->OutputsDescription; };
+  std::string GetOutputsDescription() override { return this->OutputsDescription; }
 
   /**
    * update timestep

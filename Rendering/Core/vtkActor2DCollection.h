@@ -93,7 +93,7 @@ private:
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
   void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
   int IsItemPresent(vtkObject* o) { return this->vtkCollection::IsItemPresent(o); }
-  int IndexOfFirstOccurence(vtkObject* o) { return this->vtkCollection::IndexOfFirstOccurence(o); };
+  int IndexOfFirstOccurence(vtkObject* o) { return this->vtkCollection::IndexOfFirstOccurence(o); }
 
   vtkActor2DCollection(const vtkActor2DCollection&) = delete;
   void operator=(const vtkActor2DCollection&) = delete;

@@ -240,7 +240,7 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  void PlaceWidget(double*) override{}; // this representation is an overlay. Doesn't need this.
+  void PlaceWidget(double*) override {} // this representation is an overlay. Doesn't need this.
   void BuildRepresentation() override;
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double newEventPos[2]) override;

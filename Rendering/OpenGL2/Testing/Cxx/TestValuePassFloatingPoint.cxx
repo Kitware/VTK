@@ -112,7 +112,7 @@ void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
   data->GetPointData()->AddArray(
     vtkDataSet::SafeDownCast(calc->GetOutput())->GetPointData()->GetArray("elevationVector"));
   data->GetCellData()->AddArray(outputP2c->GetCellData()->GetArray("elevationVector"));
-};
+}
 
 //------------------------------------------------------------------------------
 void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData>>& colorImOut,
@@ -147,7 +147,7 @@ void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData>>& colorImOu
     colorImOut.push_back(colorIm);
     colored->Delete();
   }
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 int TestValuePassFloatingPoint(int argc, char* argv[])

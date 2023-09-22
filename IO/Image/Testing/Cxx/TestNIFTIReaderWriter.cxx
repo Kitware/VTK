@@ -105,7 +105,7 @@ static void TestDisplay(vtkRenderWindow* renwin, const char* infile)
   renwin->SetSize((size[0] + size[2]) / 2 * 2, size[1] / 2 * 2); // keep size even
   renwin->AddRenderer(ren1);
   renwin->AddRenderer(ren2);
-};
+}
 
 static double TestReadWriteRead(
   const char* infile, const char* infile2, const char* outfile, bool planarRGB)

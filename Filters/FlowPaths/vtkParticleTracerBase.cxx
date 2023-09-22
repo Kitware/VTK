@@ -98,7 +98,7 @@ inline int FindInterval(double a, const std::vector<double>& A)
 
   return -1;
 }
-};
+}
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------

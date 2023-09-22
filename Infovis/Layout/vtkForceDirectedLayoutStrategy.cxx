@@ -176,7 +176,7 @@ void vtkForceDirectedLayoutStrategy::Initialize()
   // Set some vars
   this->TotalIterations = 0;
   this->LayoutComplete = 0;
-};
+}
 
 // ForceDirected graph layout method
 void vtkForceDirectedLayoutStrategy::Layout()

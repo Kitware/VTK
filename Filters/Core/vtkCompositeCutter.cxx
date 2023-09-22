@@ -65,7 +65,7 @@ inline bool IntersectBox(vtkImplicitFunction* func, double bounds[6], double val
   }
   return false;
 }
-};
+}
 
 vtkCompositeCutter::vtkCompositeCutter(vtkImplicitFunction* cf)
   : vtkCutter(cf)

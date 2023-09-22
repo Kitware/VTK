@@ -176,7 +176,7 @@ public:
     iterator iter;
     iter.ImplAbstract = this->BackendsImpl[static_cast<int>(backendType)]->begin();
     return iter;
-  };
+  }
 
   //--------------------------------------------------------------------------------
   iterator end()

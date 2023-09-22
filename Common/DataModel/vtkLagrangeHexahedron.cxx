@@ -127,5 +127,5 @@ vtkHigherOrderQuadrilateral* vtkLagrangeHexahedron::GetFaceCell()
 vtkHigherOrderInterpolation* vtkLagrangeHexahedron::GetInterpolation()
 {
   return Interp;
-};
+}
 VTK_ABI_NAMESPACE_END

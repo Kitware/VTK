@@ -225,7 +225,7 @@ void vtkGeneralTransform::Concatenate(vtkAbstractTransform* transform)
   }
   this->Concatenation->Concatenate(transform);
   this->Modified();
-};
+}
 
 //------------------------------------------------------------------------------
 void vtkGeneralTransform::SetInput(vtkAbstractTransform* input)

@@ -182,7 +182,7 @@ void getCellPoint0Depth(vtkPolyData* pds, vtkDataArray* gpts, vtkIdType nCells, 
   delete[] cy;
   delete[] cz;
 }
-};
+}
 
 vtkStandardNewMacro(vtkDepthSortPolyData);
 

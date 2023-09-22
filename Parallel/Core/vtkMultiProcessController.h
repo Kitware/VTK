@@ -1401,7 +1401,7 @@ public:
   /**
    * Check if this controller implements a probe operation
    */
-  virtual bool CanProbe() { return this->Communicator->CanProbe(); };
+  virtual bool CanProbe() { return this->Communicator->CanProbe(); }
 
   /**
    * Blocking test for checking for a message tagged with tag from source process (if

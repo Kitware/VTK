@@ -30,10 +30,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // create the window (not the instance)
-  virtual void Create(){};
+  virtual void Create() {}
 
   // destroy the window (not the instance)
-  virtual void Destroy(){};
+  virtual void Destroy() {}
 
 protected:
   vtkHardwareWindow();

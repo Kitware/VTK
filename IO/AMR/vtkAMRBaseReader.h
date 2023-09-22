@@ -44,7 +44,7 @@ public:
   vtkSetMacro(EnableCaching, vtkTypeBool);
   vtkGetMacro(EnableCaching, vtkTypeBool);
   vtkBooleanMacro(EnableCaching, vtkTypeBool);
-  bool IsCachingEnabled() const { return ((this->EnableCaching) ? true : false); };
+  bool IsCachingEnabled() const { return ((this->EnableCaching) ? true : false); }
   ///@}
 
   ///@{

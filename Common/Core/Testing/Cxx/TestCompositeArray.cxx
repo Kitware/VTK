@@ -88,4 +88,4 @@ int TestCompositeArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   return res;
-};
+}

@@ -76,7 +76,7 @@ public:
     T* GetContentPtr() override { return reinterpret_cast<T*>(this->Impl.GetStorage()); }
 
   protected:
-    ItImpl* CloneImpl() const override { return new ItImpl(*this); };
+    ItImpl* CloneImpl() const override { return new ItImpl(*this); }
 
   private:
     vtk::detail::smp::STDThread::ThreadSpecificStorageIterator Impl;

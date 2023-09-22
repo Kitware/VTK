@@ -36,7 +36,7 @@ enum RegionType
   LargeRegion = 1
 };
 
-}; // anonymous namespace
+} // anonymous namespace
 
 //------------------------------------------------------------------------------
 // Construct with default extraction mode to extract largest regions.

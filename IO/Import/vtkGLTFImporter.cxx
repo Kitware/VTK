@@ -314,7 +314,7 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     b = pow(b, 1.f / 2.2f);
     actor->GetProperty()->SetColor(r, g, b);
   }
-};
+}
 
 //------------------------------------------------------------------------------
 void ApplyTransformToCamera(vtkSmartPointer<vtkCamera> cam, vtkSmartPointer<vtkMatrix4x4> transform)

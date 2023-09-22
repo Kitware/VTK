@@ -900,7 +900,7 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue(1, "Py|x");
   this->AssessNames->SetValue(2, "Px|y");
   this->AssessNames->SetValue(3, "PMI");
-};
+}
 
 //------------------------------------------------------------------------------
 vtkContingencyStatistics::~vtkContingencyStatistics() = default;

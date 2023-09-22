@@ -35,7 +35,7 @@ void copyStructure(vtkDataObject* dataIn, vtkDataObject* dataOut)
   {
     out->CopyStructure(in);
   }
-};
+}
 
 void initializeOutput(vtkDataObject* objInput, vtkDataObject* objOutput, bool copyArrays)
 {

@@ -100,11 +100,11 @@ void vtkLagrangeWedge::InterpolateDerivs(const double pcoords[3], double* derivs
 vtkHigherOrderQuadrilateral* vtkLagrangeWedge::GetBoundaryQuad()
 {
   return BdyQuad;
-};
+}
 vtkHigherOrderTriangle* vtkLagrangeWedge::GetBoundaryTri()
 {
   return BdyTri;
-};
+}
 vtkHigherOrderCurve* vtkLagrangeWedge::GetEdgeCell()
 {
   return EdgeCell;
@@ -112,5 +112,5 @@ vtkHigherOrderCurve* vtkLagrangeWedge::GetEdgeCell()
 vtkHigherOrderInterpolation* vtkLagrangeWedge::GetInterpolation()
 {
   return Interp;
-};
+}
 VTK_ABI_NAMESPACE_END

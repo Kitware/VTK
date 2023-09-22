@@ -27,7 +27,7 @@ vtkEdgeSubdivisionCriterion::~vtkEdgeSubdivisionCriterion()
 {
   delete[] this->FieldIds;
   delete[] this->FieldOffsets;
-};
+}
 
 void vtkEdgeSubdivisionCriterion::ResetFieldList()
 {

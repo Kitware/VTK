@@ -49,7 +49,7 @@ struct vtkValuePass::Parameters
     ScalarRange[0] = 1.0;
     ScalarRange[1] = -1.0;
     LookupTable = nullptr;
-  };
+  }
 
   int ArrayMode;
   int ArrayAccessMode;
@@ -164,7 +164,7 @@ public:
     , InvertibleLookupTable(nullptr)
   {
     this->CreateInvertibleLookupTable();
-  };
+  }
 
   ~vtkInternalsInvertible()
   {
@@ -172,7 +172,7 @@ public:
     {
       this->InvertibleLookupTable->Delete();
     }
-  };
+  }
 
   //-------------------------------------------------------------------
   void ClearInvertibleColor(vtkMapper* mapper, vtkProperty* property)
@@ -184,7 +184,7 @@ public:
       this->OriginalState.LookupTable->UnRegister(Pass);
 
     this->OriginalState = Parameters();
-  };
+  }
 
   /**
    * Makes a lookup table that can be used for deferred colormaps.
@@ -209,7 +209,7 @@ public:
       }
       this->InvertibleLookupTable = table;
     }
-  };
+  }
 
   /**
    * Floating point value to an RGB triplet.
@@ -225,7 +225,7 @@ public:
     color[0] = (unsigned char)((valueI & 0xff0000) >> 16);
     color[1] = (unsigned char)((valueI & 0x00ff00) >> 8);
     color[2] = (unsigned char)((valueI & 0x0000ff));
-  };
+  }
 
   /**
    * RGB triplet to a floating point value.
@@ -237,7 +237,7 @@ public:
       ((int)(*(color + 0))) << 16 | ((int)(*(color + 1))) << 8 | ((int)(*(color + 2)));
     double const valueS = (valueI - 0x1) / (double)0xfffffe; // 0 is reserved as "nothing"
     value = valueS * scale + min;
-  };
+  }
 
   //-------------------------------------------------------------------
   void UseInvertibleColorFor(
@@ -259,7 +259,7 @@ public:
     }
 
     this->SetStateInMapper((*passParams), mapper);
-  };
+  }
 
   //-------------------------------------------------------------------
   void CacheMapperState(vtkMapper* mapper)
@@ -273,7 +273,7 @@ public:
     mapper->GetScalarRange(state.ScalarRange);
     state.LookupTable = mapper->GetLookupTable();
     state.LookupTable->Register(Pass);
-  };
+  }
 
   //-------------------------------------------------------------------
   void SetStateInMapper(Parameters& state, vtkMapper* mapper)
@@ -294,7 +294,7 @@ public:
     }
 
     mapper->SetLookupTable(state.LookupTable);
-  };
+  }
 
   vtkValuePass* Pass;
 

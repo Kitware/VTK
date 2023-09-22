@@ -714,7 +714,7 @@ struct BuildCellArrays
   }
 };
 
-}; // anonymous
+} // anonymous
 
 //------------------------------------------------------------------------------
 // Remove cells from a polygonal data set.

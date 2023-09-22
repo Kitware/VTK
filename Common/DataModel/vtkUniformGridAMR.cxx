@@ -196,7 +196,7 @@ void vtkUniformGridAMR::SetDataSet(vtkCompositeDataIterator* compositeIter, vtkD
     this->SetDataSet(amrIter->GetCurrentLevel(), amrIter->GetCurrentIndex(),
       vtkUniformGrid::SafeDownCast(dataObj));
   }
-};
+}
 
 //------------------------------------------------------------------------------
 void vtkUniformGridAMR::SetGridDescription(int gridDescription)

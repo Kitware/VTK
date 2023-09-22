@@ -183,7 +183,7 @@ vtkPolyData* GetMesh(vtkMultiBlockDataSet* mbMesh)
   auto pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
   return pd;
 }
-};
+}
 
 //------------------------------------------------------------------------------
 vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()

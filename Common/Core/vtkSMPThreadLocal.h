@@ -121,7 +121,7 @@ public:
    * Returns a new iterator pointing to the beginning of
    * the local storage container. Thread safe.
    */
-  iterator begin() { return this->ThreadLocalAPI.begin(); };
+  iterator begin() { return this->ThreadLocalAPI.begin(); }
 
   /**
    * Returns a new iterator pointing to past the end of

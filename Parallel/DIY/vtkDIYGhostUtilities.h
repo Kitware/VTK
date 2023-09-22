@@ -423,7 +423,7 @@ protected:
     bool InputNeedsGhostsPeeledOff() const
     {
       return this->OutputToInputCellIdRedirectionMap != nullptr;
-    };
+    }
 
     /**
      * Bounding box of input.

@@ -1245,7 +1245,7 @@ public:
    * methode a pure virtual method and having it implemented everwhere so as to no longer need the
    * CanProbe method.
    */
-  virtual bool CanProbe() { return false; };
+  virtual bool CanProbe() { return false; }
 
   /**
    * Blocking test for checking for a message tagged with tag from source process (if

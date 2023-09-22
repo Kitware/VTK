@@ -344,8 +344,8 @@ public:
   void SetConstraintBox(double sx, double sy, double sz)
   {
     this->Smoother->SetConstraintBox(sx, sy, sz);
-  };
-  void SetConstraintBox(double s[3]) { this->Smoother->SetConstraintBox(s); };
+  }
+  void SetConstraintBox(double s[3]) { this->Smoother->SetConstraintBox(s); }
   double* GetConstraintBox() VTK_SIZEHINT(3) { return this->Smoother->GetConstraintBox(); }
   void GetConstraintBox(double s[3]) { this->Smoother->GetConstraintBox(s); }
   void SetConstraintStrategyToConstraintDistance()

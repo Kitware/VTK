@@ -121,7 +121,7 @@ public:
     }
 
     this->RenderWindow->Render();
-  };
+  }
 
   void SetVolume(vtkProp3D* vol) { this->Volume = vol; }
 

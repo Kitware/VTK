@@ -221,7 +221,7 @@ public:
   void SetVectorModeToUseVector() { this->SetVectorMode(VTK_USE_VECTOR); }
   void SetVectorModeToUseNormal() { this->SetVectorMode(VTK_USE_NORMAL); }
   void SetVectorModeToVectorRotationOff() { this->SetVectorMode(VTK_VECTOR_ROTATION_OFF); }
-  void SetVectorModeToFollowCameraDirection() { this->SetVectorMode(VTK_FOLLOW_CAMERA_DIRECTION); };
+  void SetVectorModeToFollowCameraDirection() { this->SetVectorMode(VTK_FOLLOW_CAMERA_DIRECTION); }
   const char* GetVectorModeAsString();
   ///@}
 

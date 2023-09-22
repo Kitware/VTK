@@ -46,7 +46,7 @@ public:
   void SetColorF(double r, double g, double b) override;
 
   VTK_DEPRECATED_IN_9_3_0("Please use unambiguous SetColorF method instead.")
-  void SetColor(double r, double g, double b) override { this->SetColorF(r, g, b); };
+  void SetColor(double r, double g, double b) override { this->SetColorF(r, g, b); }
   ///@}
 
   ///@{

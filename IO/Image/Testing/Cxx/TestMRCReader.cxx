@@ -65,7 +65,7 @@ static void TestDisplay(vtkRenderWindow* renwin, const char* infile)
 
   renwin->SetSize(size[0], size[1]);
   renwin->AddRenderer(ren1);
-};
+}
 
 int TestMRCReader(int argc, char* argv[])
 {

@@ -101,7 +101,7 @@ static void TestDisplay(vtkRenderWindow* renwin, const char* infile)
   renwin->SetSize(size[0] + size[2], size[1]);
   renwin->AddRenderer(ren1);
   renwin->AddRenderer(ren2);
-};
+}
 
 int TestNIFTIReaderAnalyze(int argc, char* argv[])
 {

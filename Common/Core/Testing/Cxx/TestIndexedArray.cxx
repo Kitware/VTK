@@ -57,4 +57,4 @@ int TestIndexedArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   return res;
-};
+}

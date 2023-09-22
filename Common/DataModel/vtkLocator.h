@@ -189,7 +189,7 @@ protected:
   /**
    * This function is not pure virtual to maintain backwards compatibility.
    */
-  virtual void BuildLocatorInternal(){};
+  virtual void BuildLocatorInternal() {}
 
   vtkDataSet* DataSet;
   vtkTypeBool UseExistingSearchStructure;

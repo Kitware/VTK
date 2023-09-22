@@ -483,7 +483,7 @@ bool TestLocatorTolerance()
   return success;
 }
 
-};
+}
 
 int TestHyperTreeGridGeometricLocator(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

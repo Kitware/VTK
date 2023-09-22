@@ -195,11 +195,11 @@ vtkDoubleArray* vtkBezierWedge::GetRationalWeights()
 vtkHigherOrderQuadrilateral* vtkBezierWedge::GetBoundaryQuad()
 {
   return BdyQuad;
-};
+}
 vtkHigherOrderTriangle* vtkBezierWedge::GetBoundaryTri()
 {
   return BdyTri;
-};
+}
 vtkHigherOrderCurve* vtkBezierWedge::GetEdgeCell()
 {
   return EdgeCell;
@@ -207,5 +207,5 @@ vtkHigherOrderCurve* vtkBezierWedge::GetEdgeCell()
 vtkHigherOrderInterpolation* vtkBezierWedge::GetInterpolation()
 {
   return Interp;
-};
+}
 VTK_ABI_NAMESPACE_END

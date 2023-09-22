@@ -504,7 +504,9 @@ public:
   using Superclass = vtkVector4<double>;
   vtkVector4d() = default;
   vtkVector4d(double x, double y, double z, double w)
-    : vtkVector4<double>(x, y, z, w){};
+    : vtkVector4<double>(x, y, z, w)
+  {
+  }
   vtkVectorDerivedMacro(vtkVector4d, double, 4);
 };
 
