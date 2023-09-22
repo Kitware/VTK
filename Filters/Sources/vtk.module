@@ -32,11 +32,14 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersHyperTree
   VTK::FiltersModeling
+  VTK::FiltersParallel
   VTK::FiltersVerdict
   VTK::IOParallel
   VTK::IOXML
   VTK::InteractionStyle
+  VTK::ParallelMPI
   VTK::RenderingFreeType
   VTK::RenderingOpenGL2
+  VTK::RenderingParallel
   VTK::TestingCore
   VTK::TestingRendering
