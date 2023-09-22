@@ -11,6 +11,7 @@ vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
   TestLagrangianIntegrationModel.cxx,NO_VALID
   TestLagrangianParticle.cxx,NO_VALID
   TestLagrangianParticleTracker.cxx
+  TestLagrangianParticleTrackerWithGravity.cxx,NO_VALID
   TestStreamTracerImplicitArray.cxx,NO_VALID
   TestVortexCore.cxx,NO_VALID
   TestVectorFieldTopology.cxx

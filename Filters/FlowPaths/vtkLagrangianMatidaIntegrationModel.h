@@ -46,6 +46,14 @@ public:
   int FunctionValues(vtkLagrangianParticle* particle, vtkDataSet* dataSet, vtkIdType cellId,
     double* weights, double* x, double* f) override;
 
+  ///@{
+  /**
+   * Specify the acceleration of gravity.
+   * Default value is (0, 0, -9.8)
+   */
+  vtkSetVector3Macro(Gravity, double);
+  vtkGetVector3Macro(Gravity, double);
+
 protected:
   vtkLagrangianMatidaIntegrationModel();
   ~vtkLagrangianMatidaIntegrationModel() override;
@@ -54,6 +62,8 @@ protected:
 
   static double GetDragCoefficient(const double* flowVelocity, const double* particleVelocity,
     double dynVisc, double particleDiameter, double flowDensity);
+
+  double Gravity[3] = { 0, 0, -9.8 };
 
 private:
   vtkLagrangianMatidaIntegrationModel(const vtkLagrangianMatidaIntegrationModel&) = delete;

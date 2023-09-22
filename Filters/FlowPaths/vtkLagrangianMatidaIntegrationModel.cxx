@@ -135,12 +135,11 @@ int vtkLagrangianMatidaIntegrationModel::FunctionValues(vtkLagrangianParticle* p
       flowDynamicViscosity, particleDiameter, particleDensity);
     // Matida Equation
     f[i + 3] = (relax == 0) ? std::numeric_limits<double>::infinity()
-                            : (flowVelocity[i] - x[i + 3]) * drag / relax;
+                            : (flowVelocity[i] - x[i + 3]) * drag / relax +
+        this->Gravity[i] * (1 - (flowDensity / particleDensity));
     f[i] = x[i + 3];
   }
 
-  const double G = 9.8; // Gravity
-  f[5] -= G * (1 - (flowDensity / particleDensity));
   return 1;
 }
 
