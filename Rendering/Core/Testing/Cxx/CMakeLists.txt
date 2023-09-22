@@ -61,6 +61,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestGlyph3DMapper.cxx
   TestGlyph3DMapper2.cxx,NO_VALID,NO_RT,NO_DATA
   TestGlyph3DMapperArrow.cxx
+  TestGlyph3DMapperCompositeDisplayAttributeInheritance.cxx,NO_DATA
   TestGlyph3DMapperIndexing.cxx,NO_DATA
   TestGlyph3DMapperMasking.cxx
   TestGlyph3DMapperOrientationArray.cxx
