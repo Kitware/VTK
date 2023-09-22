@@ -1,11 +1,13 @@
 # Rules for where jobs can run
 
 .run_on_code_change:
+  # The following rules are intended to include all files and directories
+  # expect the `Documentation` directory.
   rules:
       changes: &code_change
-        - '[a-zA-CE-Z]*' # any path starting with anything but 'D'
-        - 'Domains/*'    # any path under Domains directory is touched
-        - '.*'           # any hidden file is touched
+        - '[a-zA-CE-Z]*/**/*' # any path starting with anything but 'D'
+        - 'Domains/*/**/*'    # any path under Domains directory is touched
+        - '.*'                # any hidden file is touched
       when: on_success
 
 
