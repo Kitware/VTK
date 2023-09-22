@@ -266,7 +266,7 @@ void vtkDescriptiveStatistics::Aggregate(
       double M3_c = primM3->GetComponent(r, 0);
       double M4_c = primM4->GetComponent(r, 0);
 
-      // Update global statics
+      // Update global statistics
       double N = n + n_c;
 
       if (min_c < min)

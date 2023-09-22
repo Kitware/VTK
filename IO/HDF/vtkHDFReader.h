@@ -141,8 +141,8 @@ public:
    * Merging partitions (true) allows the reader to return either `vtkUnstructuredGrid` or
    * `vtkPolyData` directly while not merging (false) them returns a `vtkPartitionedDataSet`. It is
    * advised to set this value to false when using the internal cache (UseCache == true) since the
-   * partitions are what are stored in the cache and merging them before outputing would effectively
-   * double the memory constraints.
+   * partitions are what are stored in the cache and merging them before outputting would
+   * effectively double the memory constraints.
    *
    * Default is true
    */

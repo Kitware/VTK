@@ -646,12 +646,12 @@ public:
     vtkIdType, unsigned int&, unsigned int&, unsigned int&) const;
 
   /**
-   * Convert the global index of a root to its Spacial coordinates origin and size.
+   * Convert the global index of a root to its Spatial coordinates origin and size.
    */
   virtual void GetLevelZeroOriginAndSizeFromIndex(vtkIdType, double*, double*);
 
   /**
-   * JB Convert the global index of a root to its Spacial coordinates origin and size.
+   * JB Convert the global index of a root to its Spatial coordinates origin and size.
    */
   virtual void GetLevelZeroOriginFromIndex(vtkIdType, double*);
 

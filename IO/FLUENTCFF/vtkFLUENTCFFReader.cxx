@@ -7,7 +7,7 @@
 // Terry E. Jordan (Department of Energy, National Energy Technology
 // Laboratory) & Douglas McCorkle (Iowa State University)
 //
-// This class could be improved for memory performance but the developper
+// This class could be improved for memory performance but the developer
 // will need to rewrite entirely the structure of the class.
 
 #include "vtkFLUENTCFFReader.h"

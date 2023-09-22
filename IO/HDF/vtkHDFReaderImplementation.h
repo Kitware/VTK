@@ -204,7 +204,7 @@ protected:
    */
   void BuildTypeReaderMap();
   /**
-   * Associates a struc of three integers with HDF type. This can be used as
+   * Associates a struct of three integers with HDF type. This can be used as
    * key in a map.
    */
   TypeDescription GetTypeDescription(hid_t type);

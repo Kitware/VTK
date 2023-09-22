@@ -5,7 +5,7 @@
  * @brief   interactive manipulation of the camera with a 3DConnexion device
  *
  *
- * vtkTDxInteractorStyleCamera allows the end-user to manipulate tha camera
+ * vtkTDxInteractorStyleCamera allows the end-user to manipulate the camera
  * with a 3DConnexion device.
  *
  * @sa

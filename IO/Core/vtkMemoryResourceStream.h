@@ -91,7 +91,7 @@ public:
    * If `size` is 0, this call won't allocate anything. If `size > 0`,
    * `buffer` must not be `nullptr` and must point to a contiguous buffer of at least `size` bytes.
    *
-   * Regarless of `copy` value, this function also has the following effects:
+   * Regardless of `copy` value, this function also has the following effects:
    * - Reset stream position to `0`.
    * - EndOfStream will return `true` if `size` is `0`, `false` otherwise.
    * - Release currently owned buffer, if any.
@@ -191,7 +191,7 @@ protected:
   vtkMemoryResourceStream& operator=(const vtkMemoryResourceStream&) = delete;
 
 private:
-  const unsigned char* Buffer = nullptr; // for pointer arithmetics
+  const unsigned char* Buffer = nullptr; // for pointer arithmetic
   std::size_t Size = 0;
   vtkTypeInt64 Pos = 0;
   bool Eos = false;

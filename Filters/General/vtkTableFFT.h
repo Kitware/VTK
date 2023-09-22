@@ -192,7 +192,7 @@ public:
   ///@{
   /**
    * Remove trend on each segment before applying the FFT. This is a constant
-   * detrend where the mean of the signal is substracted to the signal.
+   * detrend where the mean of the signal is subtracted to the signal.
    * Only used if AverageFft is true.
    *
    * @see vtkTableFFT::SetAverageFft(bool)

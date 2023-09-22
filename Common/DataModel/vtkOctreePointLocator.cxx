@@ -1002,7 +1002,7 @@ void vtkOctreePointLocator::FreeSearchStructure()
 }
 
 //------------------------------------------------------------------------------
-// build PolyData representation of all spacial regions------------
+// build PolyData representation of all spatial regions------------
 //
 void vtkOctreePointLocator::GenerateRepresentation(int level, vtkPolyData* pd)
 {

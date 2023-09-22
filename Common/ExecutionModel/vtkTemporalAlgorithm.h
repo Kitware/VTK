@@ -40,7 +40,7 @@
  * called. `Initialize` is called at the first iteration, or when `NO_PRIOR_TEMPORAL_ACCESS()` is
  * set to `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET`. Processed time steps
  * are gathered in an array added to the field data of the outputs. The name of this array is
- * `time_steps` and can be retrieved through the methon `TimeStepsArrayName()`.
+ * `time_steps` and can be retrieved through the method `TimeStepsArrayName()`.
  *
  * @warning Python wrapping of subclasses require special handling. Here is an example
  * ensuring wrapping works as expected,
@@ -141,7 +141,7 @@ protected:
     vtkInformationVector* outputVector) = 0;
 
   /**
-   * Method that converts the temporal cache into the ouputs.
+   * Method that converts the temporal cache into the outputs.
    * The parameters are passed as is by `RequestData`.
    */
   virtual int Finalize(vtkInformation* request, vtkInformationVector** inputVector,
@@ -167,7 +167,7 @@ protected:
   /**
    * When turned on, time steps will be requested backward upstream.
    *
-   * @warning This is deprecated. This is only here for one release cycle for backward compatibity
+   * @warning This is deprecated. This is only here for one release cycle for backward compatibility
    * of some subclasses. Please avoid setting this.
    */
   bool RunBackward = false;
@@ -189,7 +189,7 @@ private:
   /**
    * When true, the algorithm calls Finalize at each iteration. It is set to true if the first input
    * on port 0 has set the information key `NO_PRIOR_TEMPORAL_ACCESS()`. It is typically set for in
-   * situ vizualization.
+   * situ visualization.
    */
   bool NoPriorTimeStepAccess = false;
 

@@ -307,9 +307,9 @@ void vtkHyperTreeGridGeometry3DImpl::GenerateOneCellFace(std::vector<HTG3DPoint>
 
   // We compute the current cell points coordinates only if we didn't do it before
   // (i.e. if IsValid == false for a given point)
-  // XXX: The code bellow can be reworked. We can think about computing all
+  // XXX: The code below can be reworked. We can think about computing all
   // cell points once and for all before calling this function and remove all
-  // the logic bellow.
+  // the logic below.
   HTG3DPoint* currentPt = &cellPoints[::FACE_PTS_IDS[faceId][0]];
   if (currentPt->IsValid)
   {

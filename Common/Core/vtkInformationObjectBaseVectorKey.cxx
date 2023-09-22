@@ -210,7 +210,7 @@ void vtkInformationObjectBaseVectorKey::GetRange(
     return;
   }
 
-  // limit copy to whats there.
+  // limit copy to what's there.
   if (n > m - from + 1)
   {
     vtkErrorWithObjectMacro(info, "Copy past the end of the vector has been requested.");

@@ -72,7 +72,7 @@ public:
 };
 
 /*
- * Utiltity struct for dispatching input arrays and creating
+ * Utility struct for dispatching input arrays and creating
  * the corresponding output vtkIndexedArrays.
  */
 struct IndexedArrayInitializer

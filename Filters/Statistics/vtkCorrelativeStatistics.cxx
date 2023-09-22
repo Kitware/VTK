@@ -141,7 +141,7 @@ void vtkCorrelativeStatistics::Aggregate(
       double M2Y_c = primaryTab->GetValueByName(r, "M2 Y").ToDouble();
       double MXY_c = primaryTab->GetValueByName(r, "M XY").ToDouble();
 
-      // Update global statics
+      // Update global statistics
       int N = n + n_c;
 
       double invN = 1. / static_cast<double>(N);

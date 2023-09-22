@@ -131,7 +131,7 @@ void vtkGLSLModCoincidentTopology::GetCoincidentParameters(
     offset = u;
   }
 
-  // TODO: Somehow get wheter we are drawing selections.
+  // TODO: Somehow get whether we are drawing selections.
   // // always move selections a bit closer to the camera
   // // but not as close as point picking would move
   // if (this->DrawingSelection)

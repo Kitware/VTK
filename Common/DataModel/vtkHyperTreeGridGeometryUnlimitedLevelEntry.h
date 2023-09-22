@@ -182,7 +182,7 @@ public:
   bool IsVirtualLeaf(const vtkHyperTreeGrid* grid) const;
 
   /**
-   * Is the cursor pointing to a coarse with all childrens being leaves ?
+   * Is the cursor pointing to a coarse with all children being leaves ?
    * \pre not_tree: tree
    */
   bool IsTerminalNode(const vtkHyperTreeGrid* grid) const;

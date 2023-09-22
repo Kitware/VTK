@@ -76,7 +76,7 @@ html_logo = "../../vtkLogo.ico"
 html_favicon = "../../Utilities/Doxygen/vtk_favicon.png"
 html_theme = "furo"
 
-copybutton_prompt_text = r"\$ | C\:\> |>>> "  # strip promt text on copy
+copybutton_prompt_text = r"\$ | C\:\> |>>> "  # strip prompt text on copy
 copybutton_prompt_is_regexp = True
 copybutton_only_copy_prompt_lines = False
 

@@ -18,7 +18,7 @@ test (`TestArrayRenderer.py`) you can modify. Although the example expects
 the input data to be a `vtkCellGrid`, this is not a requirement.
 
 This class also makes use of the `vtkGLSLModifier` classes in the
-`RenderingCellGrid` module. These classes perform subsitutions on your
+`RenderingCellGrid` module. These classes perform substitutions on your
 shader source code to handle some of the tedium of rendering (such as
 setting up the camera transform matrices, light position uniforms, and so
 on). They also allow you to adjust shader source code while your test script

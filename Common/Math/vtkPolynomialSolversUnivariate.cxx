@@ -942,7 +942,7 @@ static int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double* 
     // So we need to have the following not happen.
     //
     // 1. Not zero at mid.
-    // 2. No "crazy" valus:
+    // 2. No "crazy" values:
     //    a. sign[mid] > sign[0]
     //    b. sign[mid] < sign[1].
     // 3. Does no take too long.

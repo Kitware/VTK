@@ -16,9 +16,9 @@
  *
  * This class reads the HDF5 data in Fluent Format (face type structure)
  * and converts it to VTK Format (cell type structure).
- * This class could be improved for memory performance but the developper
+ * This class could be improved for memory performance but the developer
  * will need to rewrite entirely the structure of the class.
- * Some piece of fonctionnality lack in the HDF reading (overset, AMR tree,
+ * Some piece of functionality lack in the HDF reading (overset, AMR tree,
  * interface), no file available in order to code/test the structure.
  *
  *

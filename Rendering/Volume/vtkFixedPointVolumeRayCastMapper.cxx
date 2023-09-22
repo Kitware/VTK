@@ -1032,7 +1032,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateCroppingRegions()
 // directly as the mapper, the Render method calls these initialization
 // methods and the RenderSubVolumeMethod. The AMR mapper will set the
 // multiRender flag to 1 indicating that the PerImageInitialization
-// should fully polulate the RayCastImage class based on the
+// should fully populate the RayCastImage class based on the
 // origin, spacing, and extent passed in. This will result in computing
 // some things twice - once for the "full" volume (the extent bounding
 // all volumes in the hierarchy), then once for each volume in the

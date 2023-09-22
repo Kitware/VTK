@@ -9,7 +9,7 @@
  * (geometry) of the input vtkHyperTreeGrid.
  *
  * The code is split into specific internal classes depending on the dimension of the input HTG.
- * Each class implement the pure virtual `GenerateGeometry` method, that achieve the constuction
+ * Each class implement the pure virtual `GenerateGeometry` method, that achieve the construction
  * of the HTG surface.
  */
 
@@ -73,7 +73,7 @@ protected:
 
   /**
    * Determine if the input HTG at cellId contains an valid interface and
-   * if yes, determine its characteristics, stored in the variables bellow.
+   * if yes, determine its characteristics, stored in the variables below.
    *
    * Returns true in case of a "valid" interface description.
    *
@@ -160,7 +160,7 @@ private:
   /**
    * Defines the normal of the current cell interface.
    * These are 3D coordinates, some coordinates being
-   * ignored depending on the dimention of the HTG.
+   * ignored depending on the dimension of the HTG.
    *
    * XXX: cache for the "current" cell
    */

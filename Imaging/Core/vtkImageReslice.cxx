@@ -1925,7 +1925,7 @@ void vtkImageResliceClearExecute(
 }
 
 //------------------------------------------------------------------------------
-// this function is only called when the ResliceTransform is not homogenous,
+// this function is only called when the ResliceTransform is not homogeneous,
 // i.e. when it can't be represented as a 4x4 matrix multiplication
 template <class F>
 void vtkResliceApplyTransform(
@@ -3039,7 +3039,7 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
 // single 4x4 matrix for efficiency and simplicity.  There are two cases
 // that we handle:
 //
-// Case A: If all transformations are homogenous, they can be combined into
+// Case A: If all transformations are homogeneous, they can be combined into
 // one matrix that concatenates these transforms together:
 // 1) the output index-to-physical transformation
 // 2) the ResliceAxes transformation
@@ -3055,7 +3055,7 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
 //
 // For Case A, this->OptimizedTransform is set to nullptr so that the
 // vtkImageResliceExecute() method knows that the IndexMatrix performs
-// the full transformation from output index to input continous index.
+// the full transformation from output index to input continuous index.
 // For Case B, this->OptimizedTransform is set to this->ResliceTransform
 // so that vtkImageResliceExecute() knows it must apply the IndexMatrix
 // and then call vtkResliceApplyTransform() to get the input index.

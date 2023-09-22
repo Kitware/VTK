@@ -24,7 +24,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
-#include <string> // for std::strin
+#include <string> // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;

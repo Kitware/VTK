@@ -7,7 +7,7 @@
 #include "vtkOpenXRRenderer.h"
 
 //------------------------------------------------------------------------------
-// Only instanciates, do not requires a OpenXR implementation to run
+// Only instantiates, do not requires a OpenXR implementation to run
 int TestOpenXRInstantiation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkOpenXRRenderer> renderer;

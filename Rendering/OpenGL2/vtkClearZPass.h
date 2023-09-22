@@ -34,7 +34,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the depth value. Initial value is 1.0 (farest).
+   * Set/Get the depth value. Initial value is 1.0 (farthest).
    */
   vtkSetClampMacro(Depth, double, 0.0, 1.0);
   vtkGetMacro(Depth, double);

@@ -593,7 +593,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
 
 //------------------------------------------------------------------------------
 // Returns the direction cosines of the plane on which the contour lies
-// on in world co-ordinates. This would be the same matrix that would be
+// on in world coordinates. This would be the same matrix that would be
 // set in vtkImageReslice or vtkImagePlaneWidget if there were a plane
 // passing through the contour points. The origin passed here must be the
 // origin on the image data under the contour.
@@ -614,8 +614,8 @@ vtkMatrix4x4* vtkOrientedGlyphFocalPlaneContourRepresentation ::GetContourPlaneD
   this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
   vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, fp[0], fp[1], fp[2], fp);
 
-  // What point does the origin of the display co-ordinates map to in world
-  // co-ordinates with respect to the world co-ordinate origin ?
+  // What point does the origin of the display coordinates map to in world
+  // coordinates with respect to the world coordinate origin ?
   vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, 0.0, 0.0, fp[2], pWorld);
   this->ContourPlaneDirectionCosines->SetElement(0, 3, pWorld[0] - origin[0]);
   this->ContourPlaneDirectionCosines->SetElement(1, 3, pWorld[1] - origin[1]);
@@ -630,7 +630,7 @@ vtkMatrix4x4* vtkOrientedGlyphFocalPlaneContourRepresentation ::GetContourPlaneD
 }
 
 //------------------------------------------------------------------------------
-// Returns the contour representation as polydata in world co-ordinates
+// Returns the contour representation as polydata in world coordinates
 // For this class, the contour is overlaid on the focal plane.
 //
 vtkPolyData* vtkOrientedGlyphFocalPlaneContourRepresentation ::GetContourRepresentationAsPolyData()

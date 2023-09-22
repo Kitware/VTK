@@ -150,7 +150,7 @@ public:
 
   ///@{
   /**
-   * Specify if the filter should try to synchonize ghost
+   * Specify if the filter should try to synchronize ghost
    * instead of regenerating ghosts if it can. If it can't,
    * ghost cells and points will be generated instead.
    * This assumes that the ghost layer stays the same.

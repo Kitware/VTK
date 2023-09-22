@@ -11,7 +11,7 @@
  * draw contours on a volume widget and have the contours overlaid on the
  * focal plane in order to do contour segmentation. The superclass,
  * vtkContourRepresentation handles contours that are drawn in actual world
- * position co-ordinates, so they would rotate with the camera position/
+ * position coordinates, so they would rotate with the camera position/
  * orientation changes
  *
  * @sa

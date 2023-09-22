@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// This test exercises whether display attributes can be overriden for certain
+// This test exercises whether display attributes can be overridden for certain
 // datasets in a composite dataset.
 //
 // The command line arguments are:

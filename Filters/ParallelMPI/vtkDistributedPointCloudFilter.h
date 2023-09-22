@@ -7,7 +7,7 @@
  *
  * This filter distributes points among processors into spatially
  * contiguous point set, containing an equivalent number of points.
- * Algorithm: point set is recursively splitted in two, among MPI groups.
+ * Algorithm: point set is recursively split in two, among MPI groups.
  * Note: input cells are ignored. Output is a vtkPolyData.
  *
  * @par Thanks:

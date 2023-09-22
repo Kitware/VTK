@@ -59,14 +59,14 @@ protected:
   virtual void ProcessLeafCellWithoutInterface(vtkHyperTreeGridNonOrientedGeometryCursor* cursor);
 
   /**
-   * Generate the surface for a leaf cell cutted by one interface.
+   * Generate the surface for a leaf cell cut by one interface.
    * Called by ProcessLeafCellWithInterface.
    */
   virtual void ProcessLeafCellWithOneInterface(vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
     double sign, const std::vector<double>& distancesToInterface) = 0;
 
   /**
-   * Generate the surface for a leaf cell cutted by two interfaces.
+   * Generate the surface for a leaf cell cut by two interfaces.
    * Called by ProcessLeafCellWithInterface.
    */
   virtual void ProcessLeafCellWithDoubleInterface(vtkHyperTreeGridNonOrientedGeometryCursor* cursor,

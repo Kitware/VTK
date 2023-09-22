@@ -51,7 +51,7 @@ struct VTKCOMMONCORE_EXPORT vtkAffineImplicitBackend final
   ValueType operator()(int index) const;
 
   /**
-   * The slope of the affine function on the indeces
+   * The slope of the affine function on the indices
    */
   ValueType Slope;
   /**

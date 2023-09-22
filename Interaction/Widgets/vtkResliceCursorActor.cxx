@@ -131,7 +131,7 @@ double* vtkResliceCursorActor::GetBounds()
   // vtkProp3D::GetLength() does not check if the Bounds are initialized or
   // not and makes a call to sqrt(). This call to sqrt with invalid values
   // would raise a floating-point overflow exception (notably on BCC).
-  // As vtkMath::UninitializeBounds initialized finite unvalid bounds, it
+  // As vtkMath::UninitializeBounds initialized finite invalid bounds, it
   // passes silently and GetLength() returns 0.
   vtkMath::UninitializeBounds(this->Bounds);
 

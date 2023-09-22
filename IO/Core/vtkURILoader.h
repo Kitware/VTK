@@ -48,11 +48,11 @@ VTK_ABI_NAMESPACE_BEGIN
  * a `/` at the beginning of the path on Windows, percent-encoding, resolving relative paths,
  * "." and "..", checking that path exists and actual filesystem entry type is coherent.
  *
- * If the loader has no base URI, it can only load full URIs. See `vtkURI` for more informations.
+ * If the loader has no base URI, it can only load full URIs. See `vtkURI` for more information.
  *
  * ## Basic usage
  *
- * Here is a basic exemple of `vtkURILoader` usage:
+ * Here is a basic example of `vtkURILoader` usage:
  * ```cpp
  * vtkNew<vtkURILoader> loader;
  * loader->SetBaseFileName("."); // Set current working directory as the base URI
@@ -88,7 +88,7 @@ VTK_ABI_NAMESPACE_BEGIN
  *
  * ## Extension
  *
- * `vtkURILoader::DoLoad` is reponsible of actually loading a full URI.
+ * `vtkURILoader::DoLoad` is responsible of actually loading a full URI.
  * It is a virtual function, so it can be reimplemented to let the user support additional schemes.
  * In case you want do support additional scheme, URI scheme and host should be case-insensitive
  * as specified in [RFC3986#6.2.2.1](https://datatracker.ietf.org/doc/html/rfc3986#section-6.2.2.1).

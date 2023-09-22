@@ -119,7 +119,7 @@ void set(Value& ref, const char* pname, const MapType& params, const Value& defa
 
 //------------------------------------------------------------------------------
 // Superclass for all motions
-// The member variable names match the keyworks in the cfg file and hence are
+// The member variable names match the keywords in the cfg file and hence are
 // left lower-case.
 struct Motion
 {

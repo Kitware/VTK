@@ -3,7 +3,7 @@
 
 /**
  * @class vtkOpenGLCompositePolyDataMapperDelegator
- * @brief An OpenGL delegator for batched rendering of multipler polydata with similar structure.
+ * @brief An OpenGL delegator for batched rendering of multiple polydata with similar structure.
  *
  * This class delegates work to vtkOpenGLBatchedPolyDataMapper which can do batched rendering
  * of many polydata.

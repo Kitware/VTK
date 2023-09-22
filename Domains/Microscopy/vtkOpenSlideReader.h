@@ -44,7 +44,7 @@ public:
    */
   const char* GetFileExtensions() override
   {
-    return ".ndpi .svs"; // TODO: Get exaustive list of formats
+    return ".ndpi .svs"; // TODO: Get exhaustive list of formats
   }
 
   ///@{

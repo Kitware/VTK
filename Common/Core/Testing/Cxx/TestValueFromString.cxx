@@ -200,7 +200,7 @@ static bool TestIntParse()
   Check(TestIntParseFor<signed long long>(), "Test failed");
   Check(TestIntParseFor<unsigned long long>(), "Test failed");
 
-  // Check on 16-bits intergers, assume it does work for any size < intmax_t
+  // Check on 16-bits integers, assume it does work for any size < intmax_t
   Check(TestIntParseLimitHelper<std::int16_t>(32768, std::ios_base::dec), "Test failed");
   Check(TestIntParseLimitHelper<std::int16_t>(-32769, std::ios_base::dec), "Test failed");
   Check(TestIntParseLimitHelper<std::int16_t>(65536, std::ios_base::oct), "Test failed");

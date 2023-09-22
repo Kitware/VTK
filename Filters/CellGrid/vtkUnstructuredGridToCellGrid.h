@@ -19,7 +19,7 @@
  * Even though this filter is named as though it processes a single unstructured grid
  * at a time, it is multiblock aware (and indeed, always outputs a partitioned dataset
  * collection). This was done in order to properly handle IOSS data, which includes
- * metadata on the parent composite dataset that is relevent to conversions of individual
+ * metadata on the parent composite dataset that is relevant to conversions of individual
  * child objects it contains.
  *
  * There is no reason – apart from the development time required – that

@@ -173,7 +173,7 @@ void vtkSDL2WebGPURenderWindow::SetSize(int w, int h)
     {
       int currentW, currentH;
       SDL_GetWindowSize(ToSDLWindow(this->WindowId), &currentW, &currentH);
-      // set the size only when window is programatically resized.
+      // set the size only when window is programmatically resized.
       if (currentW != w || currentH != h)
       {
         SDL_SetWindowSize(ToSDLWindow(this->WindowId), w, h);

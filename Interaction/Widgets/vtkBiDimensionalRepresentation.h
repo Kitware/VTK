@@ -12,7 +12,7 @@
  * the four points are referred to as Point1, Point2, Point3 and
  * Point4. Point1 and Point2 define the first line; and Point3 and Point4
  * define the second orthogonal line.) This particular class is an abstract
- * class, contrete subclasses (e.g., vtkBiDimensionalRepresentation2D) actual
+ * class, concrete subclasses (e.g., vtkBiDimensionalRepresentation2D) actual
  * implement the widget.
  *
  * To create this widget, you click to place the first two points. The third

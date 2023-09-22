@@ -208,7 +208,7 @@ mark_as_advanced(VTK_ENABLE_CATALYST)
 
 #-----------------------------------------------------------------------------
 # Add an option to enable/disable SPDX generation
-# Remove the "Experimental" once https://gitlab.kitware.com/vtk/vtk/-/issues/18999 is adressed
+# Remove the "Experimental" once https://gitlab.kitware.com/vtk/vtk/-/issues/18999 is addressed
 option(VTK_GENERATE_SPDX "Generate SPDX file for each module." OFF)
 mark_as_advanced(VTK_GENERATE_SPDX)
 

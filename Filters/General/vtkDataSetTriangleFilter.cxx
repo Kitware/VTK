@@ -231,7 +231,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
           case VTK_TRIANGLE:
             if (this->TetrahedraOnly)
             {
-              allsimplices = 0; // don't shallowcopy need to stip non tets
+              allsimplices = 0; // don't shallowcopy need to strip non tets
             }
             break;
           default:

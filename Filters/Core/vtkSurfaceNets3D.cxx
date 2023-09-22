@@ -375,7 +375,7 @@ struct SurfaceNets
   // connections to each of the cell's six face neighbors. The table consists
   // of: 1) the number of edge connections, and 2) 0/1 values indicating
   // which of the six edge are to be generated. The table of stencil cases was
-  // generated programatically (see GenerateStencils).
+  // generated programmatically (see GenerateStencils).
   static const unsigned char StencilFaceCases[64][7];
   static unsigned char GetNumberOfStencilFaceEdges(FaceCaseType caseNum)
   {
@@ -389,7 +389,7 @@ struct SurfaceNets
 
   // This smoothing stencil table is indexed by the voxel *edge* case. It
   // indexes into the face-case-based smoothing stenciles. This table is
-  // constructed programatically.
+  // constructed programmatically.
   unsigned char GetNumberOfStencilEdges(EdgeCaseType caseNum)
   {
     return SurfaceNets::StencilFaceCases[this->StencilTable[caseNum]][0];
@@ -2024,7 +2024,7 @@ struct TransformMeshToTris : public TransformMesh
 void TransformMeshType(
   int outputMeshType, vtkPolyData* output, vtkDataArray* newScalars, int triStrategy)
 {
-  // Ensure that we have a specfic type, and that we are not requesting
+  // Ensure that we have a specific type, and that we are not requesting
   // quads which are already available.
   outputMeshType =
     (outputMeshType == vtkSurfaceNets3D::MESH_TYPE_DEFAULT ? vtkSurfaceNets3D::MESH_TYPE_TRIANGLES

@@ -439,7 +439,7 @@ int vtkLagrangianParticleTracker::RequestData(vtkInformation* vtkNotUsed(request
     }
   }
 
-  // give the model a chance to setup prior to particle initalization
+  // give the model a chance to setup prior to particle initialization
   this->IntegrationModel->PreParticleInitalization();
 
   // Recover seeds

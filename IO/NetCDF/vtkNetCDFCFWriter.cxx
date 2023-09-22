@@ -428,7 +428,7 @@ public:
     int status, dimidOrder[3];
     int fillValue = this->Obj->GetFillValue();
 
-    // How the array is layed out in memory
+    // How the array is laid out in memory
     dimidOrder[0] = dimid[2];
     dimidOrder[1] = dimid[1];
     dimidOrder[2] = dimid[0];

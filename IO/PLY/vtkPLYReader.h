@@ -87,7 +87,7 @@ public:
   ///@{
   /**
    * Enable reading from an InputStream
-   * `ReadFromInputStream` has an higher priotity than `ReadFromInputString`.
+   * `ReadFromInputStream` has an higher priority than `ReadFromInputString`.
    */
   vtkSetMacro(ReadFromInputStream, bool);
   vtkGetMacro(ReadFromInputStream, bool);

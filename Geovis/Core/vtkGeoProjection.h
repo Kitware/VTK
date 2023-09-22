@@ -126,7 +126,7 @@ public:
    * This is a special case alternative to setting the projection name and
    * specifying parameters.
    *
-   * \note If the PROJ4String is not empty, it supercedes the other parameters
+   * \note If the PROJ4String is not empty, it supersedes the other parameters
    * and is used explicitly to instantiate the `projPJ` projection object.
    */
   vtkSetStringMacro(PROJ4String);

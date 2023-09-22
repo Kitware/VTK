@@ -127,7 +127,7 @@ public:
   ///@}
 
   /**
-   * Depreacted RecursiveShallowCopy method, uses ShallowCopy
+   * Deprecated RecursiveShallowCopy method, uses ShallowCopy
    */
   VTK_DEPRECATED_IN_9_3_0("Please use ShallowCopy instead.")
   void RecursiveShallowCopy(vtkDataObject* src) override;

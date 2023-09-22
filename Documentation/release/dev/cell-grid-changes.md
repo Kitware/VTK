@@ -72,7 +72,7 @@ The following subclasses of vtkCellGridQuery are now available.
   Note that this query is an implementation detail inside a subclass of vtkAlgorithm.
 + vtkCellGridRenderRequest – render a cell grid.
 
-Each query class has a matching responder to support continous and discontinuous
+Each query class has a matching responder to support continuous and discontinuous
 Galerkin (CG and DG) cells that support H(Curl), H(Div), and H(Grad) function spaces
 for their cell attributes.
 Only H(Grad) interpolation is supported for a grid's "shape" attribute (the mapping from

@@ -107,7 +107,7 @@ public:
  * that accepts no arguments and a single template parameter.
  * If the return value of your functor is void, then `enumerate()` will invoke
  * your functor once on every type in your object's hierarchy.
- * If the return value of your functor is a boolen, then `enumerate()` will
+ * If the return value of your functor is a boolean, then `enumerate()` will
  * invoke your functor on every type in your object's hierarchy until the
  * functor returns false (indicating early termination is requested).
  * See detail::AddNames() above for an example of the latter.

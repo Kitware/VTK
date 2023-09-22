@@ -550,7 +550,7 @@ bool vtkQuadraticTetra::StableClip(double value, vtkDataArray* cellScalars,
 
     return true;
   }
-  // else we tessalate and return the clip of the tesselation
+  // else we tessalate and return the clip of the tessellation
   else
   {
     this->Clip(value, cellScalars, locator, tetras, inPd, outPd, inCd, cellId, outCd, insideOut);

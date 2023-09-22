@@ -37,7 +37,7 @@ struct VTKCOMMONCORE_EXPORT vtkConstantImplicitBackend final
   /**
    * A non-trivially contructible constructor
    *
-   * \param val the constant value to return for all indeces
+   * \param val the constant value to return for all indices
    */
   vtkConstantImplicitBackend(ValueType val)
     : Value(val)

@@ -179,7 +179,7 @@ public:
   void SubdivideLeaf(const vtkHyperTreeGrid* grid);
 
   /**
-   * Is the cursor pointing to a coarse with all childrens being leaves ?
+   * Is the cursor pointing to a coarse with all children being leaves ?
    * \pre not_tree: tree
    */
   bool IsTerminalNode(const vtkHyperTreeGrid* grid) const;

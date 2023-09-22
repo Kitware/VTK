@@ -111,7 +111,7 @@ public:
    *
    * Create a proxy that will use at most threadCount thread of the thread pool.
    * Proxy act as a thread pool on its own, but will in practice submit its work to this pool,
-   * this prevent threads to be created everytime a SMP function is called.
+   * this prevent threads to be created every time a SMP function is called.
    *
    * If the current thread not in the pool, it will create a "top-level" proxy, otherwise it will
    * create a nested proxy. A nested proxy will never use a thread that is already in use by its

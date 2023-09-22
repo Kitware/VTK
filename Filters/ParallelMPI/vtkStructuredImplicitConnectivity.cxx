@@ -333,7 +333,7 @@ struct DomainMetaData
 
   /// \brief Checks if a grid with the given extent is within this domain
   /// \param ext the extent of the grid in query
-  /// \return status true if the grid is insided, else false.
+  /// \return status true if the grid is inside, else false.
   bool HasGrid(int ext[6]) { return (vtkStructuredExtent::Smaller(ext, this->WholeExtent)); }
 
   /// \brief Initializes the domain metadata.

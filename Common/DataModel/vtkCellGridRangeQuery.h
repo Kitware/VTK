@@ -15,7 +15,7 @@
  *
  * Note that this query is intended to be run by vtkCellGrid::GetRange()
  * since the cell-grid holds a cache of ranges. You may run it outside
- * of this method, but that may cause unneccesary re-computation of ranges.
+ * of this method, but that may cause unnecessary re-computation of ranges.
  */
 
 #ifndef vtkCellGridRangeQuery_h

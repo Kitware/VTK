@@ -312,7 +312,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
 {
   auto& internals = (*this->Internals);
   internals.RenderedList.clear();
-  // Make sure that we have been propertly initialized.
+  // Make sure that we have been properly initialized.
   if (renderer->GetRenderWindow()->CheckAbortStatus())
   {
     return;

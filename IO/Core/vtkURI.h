@@ -125,7 +125,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * @brief Contruct a new vtkURI
+   * @brief Construct a new vtkURI
    *
    * Default URI as a defined but empty path. Other components are undefined.
    *
@@ -195,14 +195,14 @@ public:
    * [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3).
    *
    * If scheme is "data" (case-insensitive), the path is only checked
-   * until the begining of the data. This is done to prevent massive overhead when constructing
+   * until the beginning of the data. This is done to prevent massive overhead when constructing
    * a big data URI. Data validation has to be performed by the decoding algorithm.
    * vtkURI::PercentDecode does the required checks for raw data URIs.
    *
    * Percent-encoded character are not decoded. Use `vtkURI::PercentEncode` if necessary.
    *
    * Tip: Parameters may be moved-in to prevent copy of big strings.
-   * This function is not wrapped. If you need to contruct an URI from a wrapper, use `Parse(str)`.
+   * This function is not wrapped. If you need to construct an URI from a wrapper, use `Parse(str)`.
    *
    * @param scheme URI scheme, must not be empty if defined.
    * @param authority URI authority, may be defined, but empty.
@@ -331,7 +331,7 @@ public:
   vtkSmartPointer<vtkURI> Clone() const { return vtkURI::Clone(this); }
 
   /**
-   * @brief Contruct the string representation of the URI
+   * @brief Construct the string representation of the URI
    *
    * @return a string representing the URI
    */

@@ -144,7 +144,7 @@ private:
    * To support add a supported type you have to:
    * - Add it in this check
    * - Add extern template declaration below in this file
-   * - Add extern template instatiation in source file
+   * - Add extern template instantiation in source file
    * - Implement what is needed in vtkInternals
    */
   template <typename T>

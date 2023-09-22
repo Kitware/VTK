@@ -310,7 +310,7 @@ public:
 
   /// Return information on the range of values taken on by a component of an attribute.
   ///
-  /// This method also accomodates computing the range of the L₁ or L₂ norm
+  /// This method also accommodates computing the range of the L₁ or L₂ norm
   /// of the entire tuple by passing -1 or -2, respectively, for the
   /// \a componentIndex.
   ///

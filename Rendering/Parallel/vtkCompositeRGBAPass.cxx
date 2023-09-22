@@ -226,9 +226,9 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
   {
     // root
     // 1. figure out the back to front ordering
-    // 2. if root is not farest, save it in a TO
+    // 2. if root is not farthest, save it in a TO
     // 3. in back to front order:
-    // 3a. if this is step for root, render root TO (if not farest)
+    // 3a. if this is step for root, render root TO (if not farthest)
     // 3b. if satellite, get image, load it into TO, render quad
 
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
@@ -321,7 +321,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
 
       ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1); // client to server
 
-      // 2. if root is not farest, save it in a TO
+      // 2. if root is not farthest, save it in a TO
       bool rootIsFarest = frontToBackList->GetValue(numProcs - 1) == 0;
       if (!rootIsFarest)
       {
@@ -335,7 +335,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
       }
 
       // 3. in back to front order:
-      // 3a. if this is step for root, render root TO (if not farest)
+      // 3a. if this is step for root, render root TO (if not farthest)
       // 3b. if satellite, get image, load it into TO, render quad
 
       int procIndex = numProcs - 1;

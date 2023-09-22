@@ -14,7 +14,7 @@
  * for safely iterating through subclasses of vtkMappedDataArray, which may
  * not use the same memory layout as a typical vtkDataArray.
  *
- * NOTE: This class has been superceded by the newer vtkGenericDataArray and
+ * NOTE: This class has been superseded by the newer vtkGenericDataArray and
  * vtkArrayDispatch mechanism.
  */
 

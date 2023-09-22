@@ -13,8 +13,8 @@
  *  - Initializes the zSpace SDK via InitializeZSpace(). This method looks
  *    for a zSpace device and optional trackers.
  *  - Synchronizes the zSpace SDK and the plugin via the Update method.
- *    This method corresponds to these succesive calls :
- *    - UpdateViewport : send the viewport-relative informations to the
+ *    This method corresponds to these successive calls :
+ *    - UpdateViewport : send the viewport-relative information to the
  *      zSpace SDK (position, interpupillary distance, near and far plane)
  *      in order to allow it to perform valid stereo frustum computations;
  *    - UpdateViewAndProjectionMatrix : retrieve the the view and projection
@@ -55,7 +55,7 @@ public:
   /**
    * Return the singleton instance (with no reference counting)
    * of a vtkZSpaceCoreSDKManager or vtkZSpaceCoreCompatibilitySDKManager
-   * depending on the curent zSpaceSDK in use.
+   * depending on the current zSpaceSDK in use.
    */
   static vtkZSpaceSDKManager* GetInstance();
 
@@ -72,7 +72,7 @@ public:
   virtual void UpdateViewport() = 0;
 
   /**
-   * Update the position of the stylus and head trakers.
+   * Update the position of the stylus and head trackers.
    */
   virtual void UpdateTrackers() = 0;
 
@@ -95,7 +95,7 @@ public:
 
   ///@{
   /**
-   * Notify the zSpace SDK for the begining/end of a frame
+   * Notify the zSpace SDK for the beginning/end of a frame
    * (vtkZSpaceCoreCompatibility only)
    */
   virtual void BeginFrame() = 0;

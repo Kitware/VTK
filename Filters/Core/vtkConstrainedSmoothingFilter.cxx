@@ -342,7 +342,7 @@ struct SmoothWorker
     } // while still iterating
 
     // Now replace the output's points array with the final
-    // iteration. Because a swap of arrays has already occured, we use the
+    // iteration. Because a swap of arrays has already occurred, we use the
     // most recent array.
     outPts->SetData(tmpPtsArray);
 

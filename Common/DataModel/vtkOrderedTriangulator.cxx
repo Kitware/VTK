@@ -1038,7 +1038,7 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
 }
 
 //------------------------------------------------------------------------------
-// Walk to the tetra tha contains this point. Walking is done by moving
+// Walk to the tetra that contains this point. Walking is done by moving
 // in the direction of the most negative barycentric coordinate (i.e.,
 // into the face neighbor).
 OTTetra* vtkOTMesh::WalkToTetra(OTTetra* tetra, double x[3], int depth, double bc[4])

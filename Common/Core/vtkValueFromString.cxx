@@ -310,7 +310,7 @@ std::size_t FromStringInternal(const char* begin, const char* end, T& output) no
     return 0;
   }
 
-  // check interger 0 and 1
+  // check integer 0 and 1
   if (*begin == '0')
   {
     output = false;

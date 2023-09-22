@@ -116,7 +116,7 @@ protected:
 
     struct RenderOptions
     {
-      // Representaion - 0 : VTK_POINTS, 1 : VTK_WIREFRAME, 2 : VTK_SURFACE
+      // Representation - 0 : VTK_POINTS, 1 : VTK_WIREFRAME, 2 : VTK_SURFACE
       vtkTypeUInt32 Representation = 0;
       // Point size in pixels - applicable when points are visible.
       vtkTypeFloat32 PointSize = 0;
@@ -156,7 +156,7 @@ protected:
       vtkTypeFloat32 SpecularColor[4] = {};
       // Edge color
       vtkTypeFloat32 EdgeColor[4] = {};
-      // use this padding to make wgsl spec validator happy if needed or atleast 32 bytes.
+      // use this padding to make wgsl spec validator happy if needed or at least 32 bytes.
     } ShadeOpts;
   };
 

@@ -2466,7 +2466,7 @@ void vtkAxisActor::BuildAxisGridLines(double p1[3], double p2[3], double localCo
     this->GridlinePts->InsertNextPoint(gridPointClosest);
     this->GridlinePts->InsertNextPoint(gridPointU);
 
-    // Farest U
+    // Farthest U
     this->GridlinePts->InsertNextPoint(gridPointFarest);
     this->GridlinePts->InsertNextPoint(gridPointU);
 
@@ -2474,7 +2474,7 @@ void vtkAxisActor::BuildAxisGridLines(double p1[3], double p2[3], double localCo
     this->GridlinePts->InsertNextPoint(gridPointClosest);
     this->GridlinePts->InsertNextPoint(gridPointV);
 
-    // Farest V
+    // Farthest V
     this->GridlinePts->InsertNextPoint(gridPointFarest);
     this->GridlinePts->InsertNextPoint(gridPointV);
 

@@ -7,7 +7,7 @@
  * Currently only does behind the focal plane
  *
  * This pass expects an initialized depth buffer and color buffer.
- * Initialized buffers means they have been cleared with farest z-value and
+ * Initialized buffers means they have been cleared with farthest z-value and
  * background color/gradient/transparent color.
  *
  * The delegate is used once.

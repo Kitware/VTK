@@ -45,7 +45,7 @@ public:
   void UpdateViewport() override;
 
   /**
-   * Update the position of the stylus and head trakers.
+   * Update the position of the stylus and head trackers.
    */
   void UpdateTrackers() override;
 
@@ -67,7 +67,7 @@ public:
 
   ///@{
   /**
-   * Notify the zSpace SDK for the begining of a frame.
+   * Notify the zSpace SDK for the beginning of a frame.
    * There is no "end frame" notification to make in the
    * case of the zSpace Core SDK.
    */

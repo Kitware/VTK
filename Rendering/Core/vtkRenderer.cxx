@@ -1481,7 +1481,7 @@ double vtkRenderer::GetZ(int x, int y)
 {
   double z = 1.0;
 
-  // use a hardware selector beacuse calling this->RenderWindow->
+  // use a hardware selector because calling this->RenderWindow->
   // GetZbufferData(int,int,int,int) directly from here always
   // results in a z-buffer value of 1.0, meaning it is using a
   // cleared depth buffer.

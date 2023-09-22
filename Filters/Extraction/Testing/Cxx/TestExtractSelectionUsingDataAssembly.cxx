@@ -79,7 +79,7 @@ int TestExtractSelectionUsingDataAssembly(int argc, char* argv[])
     "Incorrect selection for selection '//element_blocks'!");
 
   //------------------------------------------------------------------------
-  // let's also test selection convertor.
+  // let's also test selection converter.
   selSource->RemoveAllSelectors();
   selSource->RemoveAllBlockSelectors();
   selSource->SetCompositeIndex(3u);

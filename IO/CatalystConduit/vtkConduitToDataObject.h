@@ -43,7 +43,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * Create concrete vtkDataSet subclass to set it as partition and add arrays in its
  * DataSetAttributes.
  *
- * Return true if data was correctly generated, false if an error occured.
+ * Return true if data was correctly generated, false if an error occurred.
  * Do not throw errors.
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool FillPartionedDataSet(
@@ -105,7 +105,7 @@ VTKIOCATALYSTCONDUIT_EXPORT vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredG
 
 /**
  * Add FieldData arrays to output data object.
- * Return true if node was correctly parsed, false if a fatal error occured.
+ * Return true if node was correctly parsed, false if a fatal error occurred.
  * If isAMReX, data array is added as a `CellData`
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool AddFieldData(

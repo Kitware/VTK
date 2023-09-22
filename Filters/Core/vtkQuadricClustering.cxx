@@ -914,7 +914,7 @@ void vtkQuadricClustering::EndAppend()
   }
   double cstep = 0;
 
-  // Check for mis use of the Append methods.
+  // Check for misuse of the Append methods.
   if (this->OutputTriangleArray == nullptr || this->OutputLines == nullptr)
   {
     vtkDebugMacro("Missing Array:  Did you call StartAppend?");

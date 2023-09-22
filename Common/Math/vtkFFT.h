@@ -332,7 +332,7 @@ public:
    * for square matrices but is generic. This will also effectively swap shape values.
    * Worst case complexity is : O( (shape[0]*shape[1])^3/2 )
    *
-   * XXX: some fft librairies such as FFTW already propose functions to do that.
+   * XXX: some fft libraries such as FFTW already propose functions to do that.
    * This should be taken into account if the backend is changed at some point.
    *
    * XXX: An optimized version could be implemented for square matrices

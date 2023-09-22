@@ -1543,7 +1543,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport* viewport)
     closestIdx = this->FindClosestAxisIndex(pts);
   }
 
-  // Check furtherst point if needed
+  // Check furthest point if needed
   if (this->GridLineLocation == VTK_GRID_LINES_FURTHEST || this->FlyMode == VTK_FLY_FURTHEST_TRIAD)
   {
     furtherstIdx = this->FindFurtherstAxisIndex(pts);

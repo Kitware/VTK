@@ -28,11 +28,11 @@
  * @par Key Event Bindings:
  * By default, the widget responds to the following key pressed event:
  * <pre>
- * 'x' or 'X': set the translation constrainted to X axis, or None if
+ * 'x' or 'X': set the translation constrained to X axis, or None if
  * already set to X.
- * 'y' or 'Y': set the translation constrainted to Y axis, or None if
+ * 'y' or 'Y': set the translation constrained to Y axis, or None if
  * already set to Y.
- * 'z' or 'Z': set the translation constrainted to Z axis, or None if
+ * 'z' or 'Z': set the translation constrained to Z axis, or None if
  * already set to Z.
  * 'o' or 'O': remove any translation constraint.
  * 'a' or 'A': toggle translation of both position and target, or only

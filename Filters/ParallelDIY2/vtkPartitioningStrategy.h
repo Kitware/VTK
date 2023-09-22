@@ -53,7 +53,7 @@ public:
    * \brief Encapsulation structure for describing the result of a partitioning calculation
    *
    * This structures defines a format for transmitting partition information from the
-   * partitioning algorithm to the comminication and dispatching phase of the
+   * partitioning algorithm to the communication and dispatching phase of the
    * vtkRedistributeDataSetFilter. Its elements are:
    * - TargetEntity: an enum signaling which principal entities are being partitioned by the
    * partitioning algorithm

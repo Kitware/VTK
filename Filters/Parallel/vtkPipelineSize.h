@@ -21,7 +21,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Compute an estimate of how much memory a pipline will require in
+   * Compute an estimate of how much memory a pipeline will require in
    * kibibytes (1024 bytes) This is only an estimate and the
    * calculations in here do not take into account the specifics of many
    * sources and filters.

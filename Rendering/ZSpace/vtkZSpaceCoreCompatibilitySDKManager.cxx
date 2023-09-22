@@ -499,7 +499,7 @@ void vtkZSpaceCoreCompatibilitySDKManager::SetRenderWindow(vtkRenderWindow* rend
   {
     return;
   }
-  // Give the application window handle to the zSpace Core Compatibilty API.
+  // Give the application window handle to the zSpace Core Compatibility API.
   HWND hWnd = static_cast<HWND>(renderWindow->GetGenericWindowId());
   ZCCompatError error =
     this->EntryPts.zccompatSetApplicationWindowHandle(this->ZSpaceContext, hWnd);

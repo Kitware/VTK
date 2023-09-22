@@ -16,7 +16,7 @@ int TestGLTFReaderGeometryNoBin(int argc, char* argv[])
   reader->SetFileName(argv[1]);
 
   // This test expects an error message, but we can't catch it via an error handler
-  // because it's emmited by an internal object, so let's just deactivate the error logging.
+  // because it's emitted by an internal object, so let's just deactivate the error logging.
   auto previousWarningLevel = vtkObject::GetGlobalWarningDisplay();
   vtkObject::SetGlobalWarningDisplay(0);
 

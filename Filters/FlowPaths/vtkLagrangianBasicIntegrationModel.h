@@ -377,7 +377,7 @@ public:
   }
 
   /**
-   * Allow for model setup prior to Particle Initalization
+   * Allow for model setup prior to Particle Initialization
    */
   virtual void PreParticleInitalization() {}
 

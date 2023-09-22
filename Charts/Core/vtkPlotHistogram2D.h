@@ -110,7 +110,7 @@ public:
    * Function to query a plot for the nearest point to the specified coordinate.
    * Returns an index between 0 and (number of histogram cells - 1), or -1.
    * The index 0 is at cell x=0, y=0 of the histogram, and the index increases
-   * in a minor fashon with x and in a major fashon with y.
+   * in a minor fashion with x and in a major fashion with y.
    * The referent of "location" is set to the x and y integer indices of the
    * histogram cell.
    */

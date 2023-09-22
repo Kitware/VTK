@@ -317,7 +317,7 @@ public:
  * it is set to Layout::Identity, the matrix is assumed to be row-wised ordered.
  * If it is set to Layout::Transpose, the matrix is assumed to be column-wise ordered.
  * One can also convert a 1D input array into a diagonal matrix by setting
- * LayoutT to Layout::Diag. In ths particular case, method Get will return a
+ * LayoutT to Layout::Diag. In this particular case, method Get will return a
  * read-only zero on elements outside of the diagonal.
  */
 template <int RowsT, int ColsT, class MatrixT, class LayoutT = Layout::Identity>

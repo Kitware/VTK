@@ -70,7 +70,7 @@
  * \li Support writing global data
  * \li Support writing pedigree IDs
  *
- * @section Apendix Apendix
+ * @section Appendix Appendix
  * * [Sierra IO System](https://sandialabs.github.io/seacas-docs)
  * * [Exodus file format](https://sandialabs.github.io/seacas-docs/ExodusII-Addendum.pdf)
  *
