@@ -678,7 +678,6 @@ void vtkOpenGLRenderer::Clear()
     {
       vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl",
         "uniform vec3 stopColors[2];\n"
-        "uniform vec2 screenSize;\n"
         "//VTK::FSQ::Decl");
       switch (this->GradientMode)
       {
@@ -742,11 +741,7 @@ void vtkOpenGLRenderer::Clear()
 
       std::copy(this->Background, this->Background + 3, &stopColors[0][0]);
       std::copy(this->Background2, this->Background2 + 3, &stopColors[1][0]);
-      int vp[4]; // llX, llY, width, height
-      this->GetTiledSizeAndOrigin(&vp[2], &vp[3], &vp[0], &vp[1]);
-      float screenSize[2] = { static_cast<float>(vp[3]), static_cast<float>(vp[4]) };
       this->BackgroundRenderer->Program->SetUniform3fv("stopColors", 2, stopColors);
-      this->BackgroundRenderer->Program->SetUniform1fv("screenSize", 2, screenSize);
     }
     // draw the background.
     this->BackgroundRenderer->Render();
