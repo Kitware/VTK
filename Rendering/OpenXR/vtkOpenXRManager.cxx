@@ -9,6 +9,8 @@
 #include "vtkOpenXRUtilities.h"
 #include "vtkWindows.h" // Does nothing if we are not on windows
 
+#include <cstring>
+
 #define VTK_CHECK_NULL_XRHANDLE(handle, msg)                                                       \
   if (handle == XR_NULL_HANDLE)                                                                    \
   {                                                                                                \
@@ -17,6 +19,59 @@
   }
 
 VTK_ABI_NAMESPACE_BEGIN
+
+//------------------------------------------------------------------------------
+vtkOpenXRManager::InstanceVersion vtkOpenXRManager::QueryInstanceVersion(
+  vtkOpenXRManagerConnection* cs)
+{
+  if (!cs->Initialize())
+  {
+    vtkWarningWithObjectMacro(nullptr, "Failed to initialize connection strategy.");
+    return {};
+  }
+
+  std::vector<const char*> enabledExtensions; // enable cs extension, if any
+  if (std::strlen(cs->GetExtensionName()) != 0)
+  {
+    enabledExtensions.emplace_back(cs->GetExtensionName());
+  }
+
+  // Create the instance with enabled extensions.
+  XrInstanceCreateInfo createInfo{ XR_TYPE_INSTANCE_CREATE_INFO };
+  createInfo.applicationInfo = XrApplicationInfo{
+    "OpenXR with VTK",      // .applicationName
+    1,                      // .applicationVersion
+    "",                     // .engineName
+    1,                      // .engineVersion
+    XR_CURRENT_API_VERSION, // .apiVersion
+  };
+  createInfo.enabledExtensionCount = static_cast<uint32_t>(enabledExtensions.size());
+  createInfo.enabledExtensionNames = enabledExtensions.data();
+
+  XrInstance instance;
+  if (xrCreateInstance(&createInfo, &instance) != XR_SUCCESS)
+  {
+    vtkWarningWithObjectMacro(nullptr, "Failed to create instance for version query.");
+    return {};
+  }
+
+  XrInstanceProperties properties{ XR_TYPE_INSTANCE_PROPERTIES };
+  if (xrGetInstanceProperties(instance, &properties))
+  {
+    vtkWarningWithObjectMacro(nullptr, "Failed to get instance properties.");
+    return {};
+  }
+
+  InstanceVersion output;
+  output.Major = XR_VERSION_MAJOR(properties.runtimeVersion);
+  output.Minor = XR_VERSION_MINOR(properties.runtimeVersion);
+  output.Patch = XR_VERSION_PATCH(properties.runtimeVersion);
+
+  xrDestroyInstance(instance);
+
+  return output;
+}
+
 //------------------------------------------------------------------------------
 vtkOpenXRManager::vtkOpenXRManager()
 {
