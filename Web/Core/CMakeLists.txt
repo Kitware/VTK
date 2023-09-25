@@ -1,6 +1,7 @@
 set(classes
   vtkDataEncoder
   vtkObjectIdMap
+  vtkRemoteInteractionAdapter
   vtkWebApplication
   vtkWebInteractionEvent
   vtkWebUtilities)
