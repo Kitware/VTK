@@ -454,6 +454,7 @@ public:
 
     // Compute the smallest id among the corner points.
     int smallestIdx = 0;
+    bool isPointIdUnique = true;
     vtkIdType smallestId = points[smallestIdx];
     for (int i = 1; i < numberOfCornerPoints; ++i)
     {
@@ -461,6 +462,32 @@ public:
       {
         smallestIdx = i;
         smallestId = points[i];
+        isPointIdUnique = true;
+      }
+      else if (points[i] == smallestId)
+      {
+        isPointIdUnique = false;
+      }
+    }
+
+    // If smallestId is not unique, the cell is degenerated. smallestId can't be used for the key as
+    // its index won't be unique. So we look for the smallest unique id.
+    if (!isPointIdUnique && numberOfCornerPoints > 2)
+    {
+      std::map<int, std::pair<int, int>> occurances; // map<pointId, pair<count, index>>
+      for (int i = 0; i < numberOfCornerPoints; ++i)
+      {
+        occurances[points[i]].first++;
+        occurances[points[i]].second = i;
+      }
+      for (const auto& idx_count : occurances)
+      {
+        if (idx_count.second.first == 1) // Smallest unique
+        {
+          smallestIdx = idx_count.second.second;
+          smallestId = idx_count.first;
+          break;
+        }
       }
     }
 
