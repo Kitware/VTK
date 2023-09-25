@@ -5,7 +5,9 @@
 #define vtkConstantImplicitBackend_h
 
 #include "vtkCommonCoreModule.h"
-#include "vtkSetGet.h" // for vtkNotUsed
+#include "vtkCompiler.h" // For VTK_USE_EXTERN_TEMPLATE
+#include "vtkSetGet.h"   // for vtkNotUsed
+#include "vtkType.h"     // For vtkExternTemplateMacro
 
 /**
  * \struct vtkConstantImplicitBackend
@@ -58,9 +60,27 @@ VTK_ABI_NAMESPACE_END
 
 #endif // vtkConstantImplicitBackend_h
 
-#ifdef VTK_CONSTANT_BACKEND_INSTANTIATING
+#if defined(VTK_CONSTANT_BACKEND_INSTANTIATING)
+
 #define VTK_INSTANTIATE_CONSTANT_BACKEND(ValueType)                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template struct VTKCOMMONCORE_EXPORT vtkConstantImplicitBackend<ValueType>;                      \
   VTK_ABI_NAMESPACE_END
+
+#elif defined(VTK_USE_EXTERN_TEMPLATE)
+
+#ifndef VTK_CONSTANT_BACKEND_TEMPLATE_EXTERN
+#define VTK_CONSTANT_BACKEND_TEMPLATE_EXTERN
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4910) // extern and dllexport incompatible
+#endif
+VTK_ABI_NAMESPACE_BEGIN
+vtkExternTemplateMacro(extern template struct VTKCOMMONCORE_EXPORT vtkConstantImplicitBackend);
+VTK_ABI_NAMESPACE_END
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+#endif // VTK_CONSTANT_IMPLICIT_BACKEND_TEMPLATE_EXTERN
+
 #endif
