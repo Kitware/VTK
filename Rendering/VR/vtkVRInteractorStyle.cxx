@@ -783,6 +783,62 @@ void vtkVRInteractorStyle::GroundMovement3D(vtkEventDataDevice3D* edd)
 }
 
 //------------------------------------------------------------------------------
+void vtkVRInteractorStyle::OnTeleportation3D(vtkEventData* edata)
+{
+  vtkVRRenderWindow* renWin = vtkVRRenderWindow::SafeDownCast(this->Interactor->GetRenderWindow());
+  vtkVRRenderWindowInteractor* iren = vtkVRRenderWindowInteractor::SafeDownCast(this->Interactor);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+
+  if (!renWin || !iren || !edd || !this->CurrentRenderer)
+  {
+    return;
+  }
+
+  if (edd->GetAction() == vtkEventDataAction::Release)
+  {
+    vtkEventDataDevice controller = edd->GetDevice();
+
+    // Compute controller position and world orientation
+    double p0[3];   // Ray start point
+    double wxyz[4]; // Controller orientation
+    double dummyPos[3];
+    double wdir[3];
+
+    // Get controller pose
+    vtkMatrix4x4* devicePose = renWin->GetDeviceToPhysicalMatrixForDevice(controller);
+    if (!devicePose)
+    {
+      return;
+    }
+
+    // Convert device pose to world coordinates
+    iren->ConvertPoseToWorldCoordinates(devicePose, p0, wxyz, dummyPos, wdir);
+
+    // Perform ray picking
+    this->InteractionPicker->Pick3DRay(p0, wxyz, this->CurrentRenderer);
+
+    // If something is picked, do teleportation
+    vtkProp3D* prop = this->InteractionPicker->GetProp3D();
+    if (prop)
+    {
+      double pickedPoint[3];
+      this->InteractionPicker->GetPickPosition(pickedPoint);
+
+      // Compute and set new translation of the scene
+      double* sceneTrans = iren->GetPhysicalTranslation(this->CurrentRenderer->GetActiveCamera());
+      double newSceneTrans[3] = { 0.0, 0.0, 0.0 };
+
+      double translationVect[3] = { p0[0] - pickedPoint[0], p0[1] - pickedPoint[1],
+        p0[2] - pickedPoint[2] };
+      vtkMath::Add(sceneTrans, translationVect, newSceneTrans);
+
+      iren->SetPhysicalTranslation(this->CurrentRenderer->GetActiveCamera(), newSceneTrans[0],
+        newSceneTrans[1], newSceneTrans[2]);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkVRInteractorStyle::Elevation3D(vtkEventDataDevice3D* edd)
 {
   if (this->CurrentRenderer == nullptr)

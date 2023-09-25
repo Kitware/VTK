@@ -48,6 +48,7 @@ public:
   void OnMove3D(vtkEventData* edata) override;
   void OnMenu3D(vtkEventData* edata) override;
   void OnElevation3D(vtkEventData* edata) override;
+  void OnTeleportation3D(vtkEventData* edata) override;
   ///@}
 
   ///@{
