@@ -6,12 +6,12 @@
 *.pyo
 __pycache__/
 
-# Exclude OS X .DS_Store files.
+# Exclude macOS .DS_Store files.
 .DS_Store
 
 # Exclude some Xcode stuff.
 xcuserdata
-project.xcworkspace
+*.xcuserdatad
 
 # Exclude VSCode settings and configuration folder
 *.vscode*
