@@ -28,7 +28,16 @@ public:
   static vtkOpenXRManagerConnection* New();
   vtkTypeMacro(vtkOpenXRManagerConnection, vtkObject);
 
+  /**
+   * Function called by vtkOpenXRManager before OpenXR initialization
+   */
   virtual bool Initialize() { return true; }
+
+  /**
+   * Function called by vtkOpenXRManager after OpenXR initialization
+   */
+  virtual bool EndInitialize() { return true; }
+
   virtual bool ConnectToRemote(XrInstance vtkNotUsed(instance), XrSystemId vtkNotUsed(id))
   {
     return true;

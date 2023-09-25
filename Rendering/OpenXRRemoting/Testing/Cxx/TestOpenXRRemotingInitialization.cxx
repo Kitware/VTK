@@ -3,12 +3,48 @@
 
 #include "vtkActor.h"
 #include "vtkOpenXRCamera.h"
+#include "vtkOpenXRManagerRemoteConnection.h"
 #include "vtkOpenXRRemotingRenderWindow.h"
 #include "vtkOpenXRRenderWindowInteractor.h"
 #include "vtkOpenXRRenderer.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
+
+#include "vtksys/SystemTools.hxx"
+
+namespace
+{
+
+bool TestOpenXRManagerRemotingConnection()
+{
+  const std::string dummy{ "dummy.json" };
+  vtksys::SystemTools::PutEnv("XR_RUNTIME_JSON=" + dummy);
+
+  vtkNew<vtkOpenXRManagerRemoteConnection> cs;
+  cs->Initialize();
+
+  std::string env;
+  if (!vtksys::SystemTools::GetEnv("XR_RUNTIME_JSON", env) || env == dummy)
+  {
+    std::cout << "XR_RUNTIME_JSON must be defined after cs->Initialize()" << std::endl;
+    return false;
+  }
+
+  cs->EndInitialize();
+  if (!vtksys::SystemTools::GetEnv("XR_RUNTIME_JSON", env) || env != dummy)
+  {
+    std::cout << "XR_RUNTIME_JSON must be restored to its original value after cs->EndInitialize"
+              << std::endl;
+    return false;
+  }
+
+  // let the XR_RUNTIME_JSON environment variable defined so next test will indirectly check
+  // that it does not affect OpenXR Remoting initialization.
+  return true;
+}
+
+}
 
 //------------------------------------------------------------------------------
 int TestOpenXRRemotingInitialization(int argc, char* argv[])
@@ -21,6 +57,11 @@ int TestOpenXRRemotingInitialization(int argc, char* argv[])
   {
     std::cerr << "Usage: The IP address of the player must be specified with \"-playerIP\"."
               << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (!TestOpenXRManagerRemotingConnection())
+  {
     return EXIT_FAILURE;
   }
 
