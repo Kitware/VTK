@@ -47,7 +47,7 @@ int vtkCylinderSource::RequestData(vtkInformation* vtkNotUsed(request),
   double xbot[3], tcbot[2], nbot[3];
   double xtop[3], tctop[2], ntop[3];
   double* center = this->Center;
-  int i, j;
+  int i;
   int idx = 0;
   vtkIdType pts[VTK_CELL_SIZE];
 
