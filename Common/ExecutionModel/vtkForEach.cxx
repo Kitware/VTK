@@ -5,16 +5,28 @@
 
 #include "vtkExecutionRange.h"
 
+#include "vtkCallbackCommand.h"
+#include "vtkDataObject.h"
+#include "vtkEndFor.h"
 #include "vtkExecutive.h"
+#include "vtkInformation.h"
+#include "vtkInformationObjectBaseKey.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkTimeRange.h"
-#include <vtkDataObject.h>
-#include <vtkInformation.h>
-#include <vtkInformationObjectBaseKey.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkSmartPointer.h>
+#include "vtkWeakPointer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+//------------------------------------------------------------------------------
+void RangeModifiedCallback(vtkObject*, unsigned long, void* clientdata, void*)
+{
+  static_cast<vtkForEach*>(clientdata)->Modified();
+}
+}
 
 //------------------------------------------------------------------------------
 struct vtkForEach::Internals
@@ -22,11 +34,10 @@ struct vtkForEach::Internals
   Internals()
     : CurrentIteration(0)
   {
-    this->Range = vtkSmartPointer<vtkTimeRange>::New();
   }
   vtkSmartPointer<vtkExecutionRange> Range;
   std::size_t CurrentIteration = 0;
-  vtkEndFor* EndFor = nullptr;
+  vtkWeakPointer<vtkEndFor> EndFor;
 };
 
 //------------------------------------------------------------------------------
@@ -39,6 +50,8 @@ vtkInformationKeyMacro(vtkForEach, FOR_EACH_FILTER, ObjectBase);
 vtkForEach::vtkForEach()
   : Internal(new Internals)
 {
+  auto defaultRange = vtkSmartPointer<vtkTimeRange>::New();
+  this->SetRange(defaultRange);
 }
 
 //------------------------------------------------------------------------------
@@ -66,6 +79,12 @@ void vtkForEach::SetRange(vtkExecutionRange* range)
   {
     this->Internal->Range = range;
     this->Internal->CurrentIteration = 0;
+
+    auto rangeObserver = vtkSmartPointer<vtkCallbackCommand>::New();
+    rangeObserver->SetCallback(::RangeModifiedCallback);
+    rangeObserver->SetClientData(this);
+    this->Internal->Range->AddObserver(vtkCommand::ModifiedEvent, rangeObserver);
+
     this->Modified();
   }
 }

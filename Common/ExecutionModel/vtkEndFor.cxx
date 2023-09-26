@@ -4,26 +4,34 @@
 #include "vtkEndFor.h"
 
 #include "vtkAggregateToPartitionedDataSetCollection.h"
+#include "vtkCallbackCommand.h"
 #include "vtkExecutionAggregator.h"
 #include "vtkExecutive.h"
 #include "vtkForEach.h"
 #include "vtkInformation.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <vtkInformationObjectBaseKey.h>
+#include "vtkWeakPointer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+//------------------------------------------------------------------------------
+void AggregatorModifiedCallback(vtkObject*, unsigned long, void* clientdata, void*)
+{
+  static_cast<vtkEndFor*>(clientdata)->Modified();
+}
+}
 
 //------------------------------------------------------------------------------
 struct vtkEndFor::Internals
 {
-  Internals()
-    : Aggregator(vtkSmartPointer<vtkAggregateToPartitionedDataSetCollection>::New())
-  {
-  }
+  Internals() = default;
   vtkSmartPointer<vtkExecutionAggregator> Aggregator;
-  vtkForEach* ForEach = nullptr;
+  vtkWeakPointer<vtkForEach> ForEach;
 };
 
 //------------------------------------------------------------------------------
@@ -33,6 +41,8 @@ vtkStandardNewMacro(vtkEndFor);
 vtkEndFor::vtkEndFor()
   : Internal(new Internals)
 {
+  auto defaultAggreg = vtkSmartPointer<vtkAggregateToPartitionedDataSetCollection>::New();
+  this->SetAggregator(defaultAggreg);
 }
 
 //------------------------------------------------------------------------------
@@ -58,6 +68,12 @@ void vtkEndFor::SetAggregator(vtkExecutionAggregator* aggregator)
   {
     this->Internal->Aggregator = aggregator;
     this->Internal->Aggregator->Clear();
+
+    auto aggregatorObserver = vtkSmartPointer<vtkCallbackCommand>::New();
+    aggregatorObserver->SetCallback(::AggregatorModifiedCallback);
+    aggregatorObserver->SetClientData(this);
+    this->Internal->Aggregator->AddObserver(vtkCommand::ModifiedEvent, aggregatorObserver);
+
     this->Modified();
   }
 }
@@ -191,7 +207,7 @@ int vtkEndFor::RequestData(
     return 0;
   }
 
-  output->ShallowCopy(this->Internal->Aggregator->Output());
+  output->ShallowCopy(this->Internal->Aggregator->GetOutputDataObject());
 
   return 1;
 }

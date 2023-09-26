@@ -22,7 +22,7 @@ public:
 
   virtual bool Aggregate(vtkDataObject* input) = 0;
 
-  virtual vtkSmartPointer<vtkDataObject> Output() = 0;
+  virtual vtkSmartPointer<vtkDataObject> GetOutputDataObject() = 0;
 
   virtual void Clear() = 0;
 

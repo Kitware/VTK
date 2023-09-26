@@ -23,7 +23,7 @@ public:
 
   bool Aggregate(vtkDataObject* input) override;
 
-  vtkSmartPointer<vtkDataObject> Output() override;
+  vtkSmartPointer<vtkDataObject> GetOutputDataObject() override;
 
   void Clear() override;
 

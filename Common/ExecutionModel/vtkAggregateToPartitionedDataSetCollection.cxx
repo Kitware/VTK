@@ -63,7 +63,7 @@ bool vtkAggregateToPartitionedDataSetCollection::Aggregate(vtkDataObject* input)
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkDataObject> vtkAggregateToPartitionedDataSetCollection::Output()
+vtkSmartPointer<vtkDataObject> vtkAggregateToPartitionedDataSetCollection::GetOutputDataObject()
 {
   return this->Internal->Output;
 }
