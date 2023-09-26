@@ -353,6 +353,50 @@ bool TestMixedTypes()
 }
 
 //----------------------------------------------------------------------------
+bool TestDegenerateCell()
+{
+  // Create two quads, the second one being degenerated into a triangle
+  // This test make sure that the edge between the two cells is removed by vtkFeatureEdges
+
+  vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
+  polydata->AllocateExact(2, 4);
+
+  auto points = vtkSmartPointer<vtkPoints>::New();
+  points->InsertNextPoint(0, 0, 0);
+  points->InsertNextPoint(1, 0, 0);
+  points->InsertNextPoint(0, 1, 0);
+  points->InsertNextPoint(1, 1, 0);
+  points->InsertNextPoint(1.5, 0.5, 0);
+  polydata->SetPoints(points);
+
+  vtkIdType connectivityQuad1[4] = { 0, 1, 3, 2 };
+  vtkIdType connectivityQuad2[4] = { 4, 3, 1, 1 };
+  polydata->InsertNextCell(VTK_QUAD, 4, connectivityQuad1);
+  polydata->InsertNextCell(VTK_QUAD, 4, connectivityQuad2);
+
+  vtkNew<vtkFeatureEdges> edges;
+  edges->BoundaryEdgesOn();
+  edges->FeatureEdgesOn();
+  edges->NonManifoldEdgesOff();
+  edges->PassLinesOff();
+  edges->ColoringOff();
+  edges->ManifoldEdgesOff();
+  edges->SetInputData(polydata);
+  edges->Update();
+
+  vtkPolyData* out = vtkPolyData::SafeDownCast(edges->GetOutputDataObject(0));
+
+  if (out->GetNumberOfLines() != 5)
+  {
+    vtkLog(ERROR,
+      "Feature edges generated the wrong number of output lines: it generated "
+        << out->GetNumberOfLines() << " lines instead of " << 5);
+    return false;
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
 void InitializePolyData(vtkPolyData* polyData, int dataType)
 {
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -456,6 +500,11 @@ int FeatureEdges(int dataType, int outputPointsPrecision)
 int TestFeatureEdges(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   if (!TestMixedTypes())
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!TestDegenerateCell())
   {
     return EXIT_FAILURE;
   }
