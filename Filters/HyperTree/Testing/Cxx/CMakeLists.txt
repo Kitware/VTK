@@ -33,7 +33,11 @@ set(test_sources
   TestHyperTreeGridBinary2DMaterial.cxx
   TestHyperTreeGridBinary2DMaterialIJK.cxx
   TestHyperTreeGridBinary2DThreshold.cxx
+  TestHyperTreeGridBinary2DThresholdImplicit.cxx
+  TestHyperTreeGridBinary2DThresholdDeep.cxx
   TestHyperTreeGridBinary2DThresholdMaterial.cxx
+  TestHyperTreeGridBinary2DThresholdMaterialDeep.cxx
+  TestHyperTreeGridBinary2DThresholdMaterialImplicit.cxx
   TestHyperTreeGridBinary2DVector.cxx
   TestHyperTreeGridBinary2DVectorAxisReflectionXCenter.cxx
   TestHyperTreeGridBinary2DVectorAxisReflectionYCenter.cxx
@@ -75,7 +79,11 @@ set(test_sources
   TestHyperTreeGridTernary3DPlaneCutterDualMaterial.cxx
   TestHyperTreeGridTernary3DPlaneCutterMaterial.cxx
   TestHyperTreeGridTernary3DThreshold.cxx
+  TestHyperTreeGridTernary3DThresholdDeep.cxx
+  TestHyperTreeGridTernary3DThresholdImplicit.cxx
   TestHyperTreeGridTernary3DThresholdMaterial.cxx
+  TestHyperTreeGridTernary3DThresholdMaterialDeep.cxx
+  TestHyperTreeGridTernary3DThresholdMaterialImplicit.cxx
   TestHyperTreeGridTernary3DUnstructured.cxx
   TestHyperTreeGridTernary3DUnstructuredMaterial.cxx
   TestHyperTreeGridTernaryHyperbola.cxx
