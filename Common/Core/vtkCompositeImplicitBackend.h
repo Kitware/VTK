@@ -66,6 +66,13 @@ public:
    */
   ValueType operator()(int idx) const;
 
+  /**
+   * Returns the smallest integer memory size in KiB needed to store the array.
+   * The memory size of the composite array is calculated as the sum of the sizes of its components.
+   * Used to implement GetActualMemorySize on `vtkCompositeArray`.
+   */
+  unsigned long getMemorySize() const;
+
 protected:
   struct Internals;
   std::unique_ptr<Internals> Internal;

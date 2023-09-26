@@ -18,6 +18,7 @@ template <typename ValueType>
 struct TypedArrayCache
 {
   virtual ValueType GetValue(int idx) const = 0;
+  virtual unsigned long getMemorySize() const = 0;
   virtual ~TypedArrayCache() = default;
 };
 
@@ -34,6 +35,8 @@ public:
   {
     return static_cast<ValueType>(this->Array->GetValue(idx));
   }
+
+  unsigned long getMemorySize() const override { return this->Array->GetActualMemorySize(); };
 
 private:
   vtkSmartPointer<ArrayT> Array;
@@ -55,6 +58,8 @@ public:
     const int iComp = idx - iTup * nComps;
     return static_cast<ValueType>(this->Array->GetComponent(iTup, iComp));
   }
+
+  unsigned long getMemorySize() const override { return this->Array->GetActualMemorySize(); };
 
 private:
   vtkSmartPointer<vtkDataArray> Array;
@@ -86,6 +91,8 @@ struct TypedCacheWrapper
 
   ValueType operator()(int idx) const { return this->Cache->GetValue(idx); }
 
+  unsigned long getMemorySize() const { return this->Cache->getMemorySize(); }
+
 private:
   using Dispatcher = vtkArrayDispatch::DispatchByArray<ArrayList>;
   std::shared_ptr<TypedArrayCache<ValueType>> Cache = nullptr;
@@ -100,6 +107,13 @@ struct IdListWrapper
   }
 
   vtkIdType operator()(int idx) const { return this->Handles->GetId(idx); }
+
+  unsigned long getMemorySize() const
+  {
+    unsigned long bytes =
+      static_cast<unsigned long>(sizeof(vtkIdType)) * this->Handles->GetNumberOfIds();
+    return std::ceil(bytes / 1024.0);
+  }
 
   vtkSmartPointer<vtkIdList> Handles;
 };
@@ -196,5 +210,12 @@ template <typename ValueType>
 ValueType vtkIndexedImplicitBackend<ValueType>::operator()(int idx) const
 {
   return this->Internal->Array->GetValue(this->Internal->Handles->GetValue(idx));
+}
+
+template <typename ValueType>
+unsigned long vtkIndexedImplicitBackend<ValueType>::getMemorySize() const
+{
+  return this->Internal->Array->GetActualMemorySize() +
+    this->Internal->Handles->GetActualMemorySize();
 }
 VTK_ABI_NAMESPACE_END

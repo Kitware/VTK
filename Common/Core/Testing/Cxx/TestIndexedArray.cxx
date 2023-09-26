@@ -41,7 +41,7 @@ int TestIndexedArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     if (indexed->GetValue(iArr) != static_cast<int>(handles->GetId(iArr)))
     {
       res = EXIT_FAILURE;
-      std::cout << "get value failed with vtkIndexedArray" << std::endl;
+      std::cerr << "get value failed with vtkIndexedArray" << std::endl;
     }
   }
 
@@ -51,9 +51,49 @@ int TestIndexedArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     if (val != static_cast<int>(handles->GetId(iArr)))
     {
       res = EXIT_FAILURE;
-      std::cout << "range iterator failed with vtkIndexedArray" << std::endl;
+      std::cerr << "range iterator failed with vtkIndexedArray" << std::endl;
     }
     iArr++;
+  }
+
+  // Test memory size measurement for a large array
+  vtkNew<vtkIdList> largeHandles;
+  largeHandles->SetNumberOfIds(1024 * 3);
+
+  vtkNew<vtkIntArray> largeArray;
+  largeArray->SetNumberOfComponents(4);
+  largeArray->SetNumberOfTuples(1024 * 5);
+
+  vtkNew<vtkIndexedArray<int>> largeIndexed;
+  largeIndexed->SetBackend(
+    std::make_shared<vtkIndexedImplicitBackend<int>>(largeHandles, largeArray));
+
+  unsigned long expectedSizeInKib = 3 * sizeof(vtkIdType) + largeArray->GetActualMemorySize();
+  if (largeIndexed->GetActualMemorySize() != expectedSizeInKib)
+  {
+    res = EXIT_FAILURE;
+    std::cerr << "Wrong value memory size value for large vtkIndexedArray: "
+              << largeIndexed->GetActualMemorySize() << " KiB instead of " << expectedSizeInKib
+              << std::endl;
+  }
+
+  // Test memory size for an array smaller than 1KiB
+  vtkNew<vtkIdList> smallHandles;
+  smallHandles->SetNumberOfIds(5);
+
+  vtkNew<vtkIntArray> smallArray;
+  smallArray->SetNumberOfComponents(5);
+  smallArray->SetNumberOfTuples(5);
+
+  vtkNew<vtkIndexedArray<int>> smallIndexed;
+  smallIndexed->SetBackend(
+    std::make_shared<vtkIndexedImplicitBackend<int>>(smallHandles, smallArray));
+
+  if (smallIndexed->GetActualMemorySize() != 2)
+  {
+    res = EXIT_FAILURE;
+    std::cerr << "Wrong value memory size value for large vtkIndexedArray: "
+              << smallIndexed->GetActualMemorySize() << " KiB instead of 2" << std::endl;
   }
 
   return res;
