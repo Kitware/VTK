@@ -26,7 +26,6 @@ void vtkOpenVRInteractorStyle::SetupActions(vtkRenderWindowInteractor* iren)
     oiren->AddAction("/actions/vtk/in/StartElevation", vtkCommand::Elevation3DEvent, false);
     oiren->AddAction("/actions/vtk/in/StartMovement", vtkCommand::ViewerMovement3DEvent, false);
     oiren->AddAction("/actions/vtk/in/TriggerAction", vtkCommand::Select3DEvent, false);
-    oiren->AddAction("/actions/vtk/in/Teleportation", vtkCommand::Teleportation3DEvent, false);
   }
 }
 
