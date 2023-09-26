@@ -376,3 +376,9 @@
   reader_class: vtkCGNSReader
   writer_class: null
   vtk_module: VTK::IOCGNSReader
+
+- extensions: [.abc]
+  description: "[Alembic](http://www.alembic.io/) scene format"
+  reader_class: null
+  writer_class: vtkAlembicExporter
+  vtk_module: VTK::IOAlembic
