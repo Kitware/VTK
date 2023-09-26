@@ -1742,7 +1742,7 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (!output)
   {
-    vtkErrorMacro("Unable to retrieve the output !");
+    vtkErrorMacro("Unable to retrieve the output!");
     return 0;
   }
 
@@ -1754,6 +1754,11 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     double* timeValues = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    if (!timeValues)
+    {
+      vtkErrorMacro("Unable to get time values!");
+      return 0;
+    }
     requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     vtkIdType requestedTimeStep =
       std::distance(timeValues,

@@ -11,6 +11,7 @@
 #include <vtkTesting.h>
 
 #include <cstdlib>
+#include <fstream>
 
 namespace
 {
@@ -27,18 +28,26 @@ bool testValue(T1 gotVal, T2 expectedVal, const char* valName)
 }
 }
 
-int TestFDSReader(int argc, char* argv[])
+bool TestEmptyFile(const std::string& tempDirectory)
 {
-  vtkNew<vtkTesting> testHelper;
-  testHelper->AddArguments(argc, argv);
-  if (!testHelper->IsFlagSpecified("-D"))
-  {
-    std::cerr << "Error: -D /path/to/data was not specified.";
-    return EXIT_FAILURE;
-  }
+  // Create empty file.
+  std::string emptyFilePath = tempDirectory + "/empty.smv";
+  std::ofstream outputStream(emptyFilePath);
+  outputStream.close();
 
-  std::string dataRoot = testHelper->GetDataRoot();
+  vtkNew<vtkFDSReader> reader;
+  reader->SetFileName(emptyFilePath);
 
+  auto previousGlobalWarningFlag = vtkObject::GetGlobalWarningDisplay();
+  vtkObject::SetGlobalWarningDisplay(0);
+  reader->UpdateTimeStep(0.0);
+  vtkObject::SetGlobalWarningDisplay(previousGlobalWarningFlag);
+
+  return true;
+}
+
+bool TestExampleFile(const std::string& dataRoot)
+{
   // Test RequestInformation
   vtkNew<vtkFDSReader> reader;
   std::string fileName = dataRoot + "/Data/FDSExample/exemple_kitware.smv";
@@ -48,27 +57,27 @@ int TestFDSReader(int argc, char* argv[])
   vtkDataAssembly* assembly = reader->GetAssembly();
   if (!testValue(assembly->GetNumberOfChildren(0), 5, "number of root children"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(assembly->GetNumberOfChildren(1), 2, "number of grids"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(assembly->GetNumberOfChildren(2), 4, "number of devices"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(assembly->GetNumberOfChildren(3), 1, "number of hrr"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(assembly->GetNumberOfChildren(4), 10, "number of slices"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(assembly->GetNumberOfChildren(5), 12, "number of boundaries"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   // Test extraction
@@ -85,27 +94,27 @@ int TestFDSReader(int argc, char* argv[])
 
   if (!testValue(outAssembly->GetNumberOfChildren(0), 5, "number of root children"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(outAssembly->GetNumberOfChildren(1), 1, "number of grids"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(outAssembly->GetNumberOfChildren(2), 1, "number of devices"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(outAssembly->GetNumberOfChildren(3), 1, "number of hrrs"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(outAssembly->GetNumberOfChildren(4), 1, "number of slices"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
   if (!testValue(outAssembly->GetNumberOfChildren(5), 1, "number of boundaries"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   // Test Mesh01
@@ -115,17 +124,17 @@ int TestFDSReader(int argc, char* argv[])
   if (!mesh01)
   {
     std::cerr << "Mesh01 is nullptr" << std::endl;
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(mesh01->GetNumberOfPoints(), 7056, "number of points in Mesh01"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(mesh01->GetNumberOfCells(), 6000, "number of points in Mesh01"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   // Test Device HRR_3D
@@ -135,23 +144,23 @@ int TestFDSReader(int argc, char* argv[])
   if (!hrr3D)
   {
     std::cerr << "HRR_3D device is nullptr" << std::endl;
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(hrr3D->GetNumberOfPoints(), 1, "number of points in HRR_3D"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(hrr3D->GetNumberOfCells(), 1, "number of points in HRR_3D"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(
         hrr3D->GetPointData()->GetArray("Value")->GetComponent(0, 0), 0.0, "value of HRR_3D"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   // Test HRR
@@ -161,18 +170,18 @@ int TestFDSReader(int argc, char* argv[])
   if (!hrr)
   {
     std::cerr << "HRR is nullptr" << std::endl;
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(hrr->GetRowData()->GetNumberOfArrays(), 13, "number of arrays in HRR table"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(
         hrr->GetRowData()->GetArray(0)->GetComponent(0, 0), 0.0, "value of array in HRR table"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   // Test slice
@@ -181,23 +190,23 @@ int TestFDSReader(int argc, char* argv[])
   if (!slice)
   {
     std::cerr << "VelX slice is nullptr" << std::endl;
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(slice->GetNumberOfPoints(), 441, "number of points in slice VelX"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(slice->GetNumberOfCells(), 400, "number of cells in slice VelX"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(
         slice->GetPointData()->GetArray("Values")->GetComponent(0, 0), 0.0, "value in VelX slice"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   // Test boundary
@@ -206,25 +215,25 @@ int TestFDSReader(int argc, char* argv[])
   if (!boundary)
   {
     std::cerr << "Mesh01_Blockage_1 boundary is nullptr" << std::endl;
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(
         boundary->GetNumberOfPoints(), 266, "number of points in Mesh01_Blockage_1 boundary"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(
         boundary->GetNumberOfCells(), 234, "number of cells in Mesh01_Blockage_1 boundary"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!testValue(std::abs(boundary->GetPointData()->GetArray("gauge")->GetComponent(0, 0)) < 1e-6,
         true, "gauge in Mesh01_Blockage_1 boundary"))
   {
-    return EXIT_FAILURE;
+    return false;
   }
 
   reader->UpdateTimeStep(8.1);
@@ -234,6 +243,31 @@ int TestFDSReader(int argc, char* argv[])
   boundary = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
   if (!testValue(std::abs(boundary->GetPointData()->GetArray("gauge")->GetComponent(259, 0)) > 1e-6,
         true, "gauge in Mesh01_Blockage_1 boundary at time value 8.1"))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+int TestFDSReader(int argc, char* argv[])
+{
+  vtkNew<vtkTesting> testHelper;
+  testHelper->AddArguments(argc, argv);
+  if (!testHelper->IsFlagSpecified("-D"))
+  {
+    std::cerr << "Error: -D /path/to/data was not specified.";
+    return EXIT_FAILURE;
+  }
+
+  std::string dataRoot = testHelper->GetDataRoot();
+  if (!TestExampleFile(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+
+  std::string tempDirectory = testHelper->GetTempDirectory();
+  if (!TestEmptyFile(tempDirectory))
   {
     return EXIT_FAILURE;
   }
