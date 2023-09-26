@@ -305,6 +305,8 @@ public:
     }
   }
 
+  void clear() { Map.clear(); }
+
 protected:
   struct HashFunction
   {
@@ -1425,14 +1427,14 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
   vtkCellArray* newPolys;
   vtkPoints* newPts;
   int progressCount;
-  int i, j;
+  vtkIdType i, j, k;
   int cellType;
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   vtkGenericCell* cell;
   vtkNew<vtkIdList> pointIdList;
   const vtkIdType* ids;
-  int numFacePts;
+  vtkIdType numFacePts;
   vtkIdType inPtId, outPtId, numCellPts;
   vtkPointData* inputPD = input->GetPointData();
   vtkCellData* inputCD = input->GetCellData();
@@ -1452,16 +1454,14 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
   int flag2D = 0;
 
   // These are for subdividing quadratic cells
-  vtkDoubleArray* parametricCoords;
-  vtkDoubleArray* parametricCoords2;
+  std::vector<double> parametricCoords;
+  std::unique_ptr<vtkEdgeInterpolationMap> localEdgeMap;
   vtkIdList* outPts;
-  vtkIdList* outPts2;
+  vtkIdList* pts2;
 
   pts = vtkIdList::New();
-  parametricCoords = vtkDoubleArray::New();
-  parametricCoords2 = vtkDoubleArray::New();
   outPts = vtkIdList::New();
-  outPts2 = vtkIdList::New();
+  pts2 = vtkIdList::New();
   cell = vtkGenericCell::New();
   std::vector<double> weights;
 
@@ -1987,126 +1987,132 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
       // Note: we should not be here if this->NonlinearSubdivisionLevel is less
       // than 1.  See the check above.
       input->GetCell(cellId, cell);
+      double* pc = cell->GetParametricCoords();
 
       // If the cell is of Bezier type, the weights might be rational and the degree nonuniform.
       // This need to be initiated.
-
       input->SetCellOrderAndRationalWeights(cellId, cell);
 
-      // Note that pts is used here for local points
+      // Get the triangulation of the first subdivision level.
+      // Note that the output of TriangulateLocalIds records triangles in pts where each 3 points
+      // defines a triangle. The returned ids are local ids with respect to the cell.
       cell->TriangulateLocalIds(0, pts);
+      assert(pts->GetNumberOfIds() % 3 == 0);
 
-      // Copy the level 1 subdivision points (which also exist in the input and
-      // can therefore just be copied over.  Note that the output of Triangulate
-      // records triangles in pts where each 3 points defines a triangle.  We
-      // will keep this invariant and also keep the same invariant in
-      // parametericCoords and outPts later.
-      // Note that the output from Triangulate is overload in the case of Bezier cell,
-      // to get the projection of the non-interpolate points
-
+      // Start to fill outPts with the cell points
+      numFacePts = cell->GetNumberOfPoints();
       outPts->Reset();
-      weights.resize(cell->GetNumberOfPoints());
+      weights.resize(numFacePts);
       switch (cellType)
       {
         case VTK_BEZIER_QUADRILATERAL:
         case VTK_BEZIER_TRIANGLE:
         {
-          for (i = 0; i < pts->GetNumberOfIds(); i++)
+          // For Bezier cells, the points are overload to get the projection of the non-interpolate
+          // points.
+          for (i = 0; i < numFacePts; i++)
           {
-            vtkIdType op = this->GetOutputPointIdAndInterpolate(
-              pts->GetId(i), input, cell, weights.data(), newPts, outputPD);
-            outPts->InsertNextId(op);
+            outPts->InsertNextId(this->GetOutputPointIdAndInterpolate(
+              i, input, cell, pc, weights.data(), newPts, outputPD));
           }
           break;
         }
         default:
         {
-          for (i = 0; i < pts->GetNumberOfIds(); i++)
+          for (i = 0; i < numFacePts; i++)
           {
-            vtkIdType op =
-              this->GetOutputPointId(cell->GetPointId(pts->GetId(i)), input, newPts, outputPD);
-            outPts->InsertNextId(op);
+            outPts->InsertNextId(
+              this->GetOutputPointId(cell->GetPointId(i), input, newPts, outputPD));
           }
           break;
         }
       }
 
       // Do any further subdivision if necessary.
-      double* pc = cell->GetParametricCoords();
       if (this->NonlinearSubdivisionLevel > 1 && pc)
       {
+        vtkIdType maxNumberOfIds =
+          std::pow(4, this->NonlinearSubdivisionLevel - 1) * pts->GetNumberOfIds();
+        pts2->Allocate(maxNumberOfIds);
         // We are going to need parametric coordinates to further subdivide.
-        parametricCoords->Reset();
-        parametricCoords->SetNumberOfComponents(3);
-        for (i = 0; i < pts->GetNumberOfIds(); i++)
+        parametricCoords.resize(maxNumberOfIds * 3);
+        for (i = 0; i < numFacePts * 3; i++)
         {
-          parametricCoords->InsertNextTypedTuple(pc + 3 * pts->GetId(i));
+          parametricCoords[i] = pc[i];
         }
+
+        // localEdgeMap is simular to this->EdgeMap, but only stores local ids
+        localEdgeMap->clear();
+
+        vtkIdType localIdCpt = numFacePts;
+        vtkIdType pt1, pt2, id;
+        vtkIdType inPts[6];
         // Subdivide these triangles as many more times as necessary.  Remember
         // that we have already done the first subdivision.
         for (j = 1; j < this->NonlinearSubdivisionLevel; j++)
         {
-          parametricCoords2->Reset();
-          parametricCoords2->SetNumberOfComponents(3);
-          outPts2->Reset();
+          pts2->Reset();
           // Each triangle will be split into 4 triangles.
-          for (i = 0; i < outPts->GetNumberOfIds(); i += 3)
+          for (i = 0; i < pts->GetNumberOfIds(); i += 3)
           {
             // Hold the input point ids and parametric coordinates.  First 3
             // indices are the original points.  Second three are the midpoints
             // in the edges (0,1), (1,2) and (2,0), respectively (see comment
             // below).
-            vtkIdType inPts[6];
-            double inParamCoords[6][3];
-            int k;
             for (k = 0; k < 3; k++)
             {
-              inPts[k] = outPts->GetId(i + k);
-              parametricCoords->GetTypedTuple(i + k, inParamCoords[k]);
-            }
-            for (k = 3; k < 6; k++)
-            {
-              int pt1 = k - 3;
-              int pt2 = (pt1 < 2) ? (pt1 + 1) : 0;
-              inParamCoords[k][0] = 0.5 * (inParamCoords[pt1][0] + inParamCoords[pt2][0]);
-              inParamCoords[k][1] = 0.5 * (inParamCoords[pt1][1] + inParamCoords[pt2][1]);
-              inParamCoords[k][2] = 0.5 * (inParamCoords[pt1][2] + inParamCoords[pt2][2]);
-              inPts[k] = GetInterpolatedPointId(inPts[pt1], inPts[pt2], input, cell,
-                inParamCoords[k], weights.data(), newPts, outputPD);
+              inPts[k] = pts->GetId(i + k);
+              pt1 = inPts[k];
+              pt2 = pts->GetId(i + ((k < 2) ? (k + 1) : 0));
+              id = localEdgeMap->FindEdge(pt1, pt2);
+              if (id == -1)
+              {
+                id = localIdCpt;
+                parametricCoords[id * 3] =
+                  0.5 * (parametricCoords[pt1 * 3] + parametricCoords[pt2 * 3]);
+                parametricCoords[id * 3 + 1] =
+                  0.5 * (parametricCoords[pt1 * 3 + 1] + parametricCoords[pt2 * 3 + 1]);
+                parametricCoords[id * 3 + 2] =
+                  0.5 * (parametricCoords[pt1 * 3 + 2] + parametricCoords[pt2 * 3 + 2]);
+
+                localEdgeMap->AddEdge(pt1, pt2, id);
+                outPts->InsertNextId(
+                  this->GetInterpolatedPointId(outPts->GetId(pt1), outPts->GetId(pt2), input, cell,
+                    &parametricCoords[id * 3], weights.data(), newPts, outputPD));
+                localIdCpt++;
+              }
+              inPts[k + 3] = id;
             }
             //       * 0
             //      / \        Use the 6 points recorded
-            //     /   \       in inPts and inParamCoords
+            //     /   \       in inPts and paramCoords
             //  3 *-----* 5    to create the 4 triangles
             //   / \   / \     shown here.
             //  /   \ /   \    .
             // *-----*-----*
             // 1     4     2
             static const int subtriangles[12] = { 0, 3, 5, 3, 1, 4, 3, 4, 5, 5, 4, 2 };
-            for (k = 0; k < 12; k++)
+            for (int subId : subtriangles)
             {
-              int localId = subtriangles[k];
-              outPts2->InsertNextId(inPts[localId]);
-              parametricCoords2->InsertNextTypedTuple(inParamCoords[localId]);
+              pts2->InsertNextId(inPts[subId]);
             }
           } // Iterate over triangles
-          // Now that we have recorded the subdivided triangles in outPts2 and
-          // parametricCoords2, swap them with outPts and parametricCoords to
+          // Now that we have recorded the subdivided triangles in pts2 , swap them with pts to
           // make them the current ones.
-          std::swap(outPts, outPts2);
-          std::swap(parametricCoords, parametricCoords2);
+          std::swap(pts, pts2);
         } // Iterate over subdivision levels
-      }   // If further subdivision
-
-      // Now that we have done all the subdivisions and created all of the
-      // points, record the triangles.
-      for (i = 0; i < outPts->GetNumberOfIds(); i += 3)
+      }
+      for (i = 0; i < pts->GetNumberOfIds(); i += 3)
       {
-        newPolys->InsertNextCell(3, outPts->GetPointer(i));
+        newPolys->InsertNextCell(3);
+        newPolys->InsertCellPoint(outPts->GetId(pts->GetId(i)));
+        newPolys->InsertCellPoint(outPts->GetId(pts->GetId(i + 1)));
+        newPolys->InsertCellPoint(outPts->GetId(pts->GetId(i + 2)));
         this->RecordOrigCellId(this->NumberOfNewCells, cellId);
         outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
       }
     }
+
   } // for all cells.
 
   // Now transfer geometry from hash to output (only triangles and quads).
@@ -2155,10 +2161,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
   //
   cell->Delete();
   pts->Delete();
-  parametricCoords->Delete();
-  parametricCoords2->Delete();
   outPts->Delete();
-  outPts2->Delete();
+  pts2->Delete();
 
   output->SetPoints(newPts);
   newPts->Delete();
@@ -2642,12 +2646,20 @@ vtkIdType vtkDataSetSurfaceFilter::GetOutputPointId(
 vtkIdType vtkDataSetSurfaceFilter::GetOutputPointIdAndInterpolate(vtkIdType cellPtId,
   vtkDataSet* input, vtkCell* cell, double* weights, vtkPoints* outPts, vtkPointData* outPD)
 {
+  double* pc = cell->GetParametricCoords();
+  return this->GetOutputPointIdAndInterpolate(cellPtId, input, cell, pc, weights, outPts, outPD);
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkDataSetSurfaceFilter::GetOutputPointIdAndInterpolate(vtkIdType cellPtId,
+  vtkDataSet* input, vtkCell* cell, double* pc, double* weights, vtkPoints* outPts,
+  vtkPointData* outPD)
+{
   vtkIdType outPtId;
   vtkIdType inPtId = cell->GetPointId(cellPtId);
   outPtId = this->PointMap[inPtId];
   if (outPtId == -1)
   {
-    double* pc = cell->GetParametricCoords();
     int subId = -1;
     double wcoords[3];
     cell->EvaluateLocation(subId, pc + 3 * cellPtId, wcoords, weights);
@@ -2661,7 +2673,7 @@ vtkIdType vtkDataSetSurfaceFilter::GetOutputPointIdAndInterpolate(vtkIdType cell
 
 //------------------------------------------------------------------------------
 vtkIdType vtkDataSetSurfaceFilter::GetInterpolatedPointId(vtkIdType edgePtA, vtkIdType edgePtB,
-  vtkDataSet* input, vtkCell* cell, double pcoords[3], double* weights, vtkPoints* outPts,
+  vtkDataSet* input, vtkCell* cell, double* pcoords, double* weights, vtkPoints* outPts,
   vtkPointData* outPD)
 {
   vtkIdType outPtId = this->EdgeMap->FindEdge(edgePtA, edgePtB);
