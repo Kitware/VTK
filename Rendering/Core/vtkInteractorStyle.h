@@ -247,7 +247,6 @@ public:
   virtual void OnPositionProp3D(vtkEventData*) {}
   virtual void OnViewerMovement3D(vtkEventData*) {}
   virtual void OnElevation3D(vtkEventData*) {}
-  virtual void OnTeleportation3D(vtkEventData*) {}
 
   /**
    * OnChar is triggered when an ASCII key is pressed. Some basic key presses
