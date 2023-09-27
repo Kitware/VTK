@@ -436,16 +436,9 @@ public:
    * Default is identity.
    */
   void SetEyeTransformMatrix(vtkMatrix4x4* matrix);
+  void SetEyeTransformMatrix(const double elements[16]);
   vtkGetObjectMacro(EyeTransformMatrix, vtkMatrix4x4);
   ///@}
-
-  /**
-   * Set the eye transform matrix.
-   * This is the transformation matrix for the point between eyes.
-   * This will be used only for offaxis frustum calculation.
-   * Default is identity.
-   */
-  void SetEyeTransformMatrix(const double elements[16]);
 
   ///@{
   /**
@@ -454,15 +447,9 @@ public:
    * such as scale, shear, rotations and translations.
    */
   void SetModelTransformMatrix(vtkMatrix4x4* matrix);
+  void SetModelTransformMatrix(const double elements[16]);
   vtkGetObjectMacro(ModelTransformMatrix, vtkMatrix4x4);
   ///@}
-
-  /**
-   * Set model transformation matrix.
-   * This matrix could be used for model related transformations
-   * such as scale, shear, rotations and translations.
-   */
-  void SetModelTransformMatrix(const double elements[16]);
 
   /**
    * Return the model view matrix of model view transform.

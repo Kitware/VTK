@@ -1,0 +1,25 @@
+NAME
+  VTK::IOAlembic
+LIBRARY_NAME
+  vtkIOAlembic
+KIT
+  VTK::IO
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOCore
+  VTK::IOExport
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::FiltersCore
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
