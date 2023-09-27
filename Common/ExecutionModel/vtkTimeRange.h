@@ -29,7 +29,14 @@ public:
 
   std::size_t Size() override;
 
+protected:
+  vtkTimeRange() = default;
+  ~vtkTimeRange() override = default;
+
 private:
+  vtkTimeRange(const vtkTimeRange&) = delete;
+  void operator=(const vtkTimeRange&) = delete;
+
   std::size_t NumberOfTimeSteps = 0;
   std::vector<double> TimeValues;
 };

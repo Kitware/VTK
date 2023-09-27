@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkForEach();
-  ~vtkForEach() override = default;
+  ~vtkForEach() override;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

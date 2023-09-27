@@ -46,6 +46,9 @@ vtkEndFor::vtkEndFor()
 }
 
 //------------------------------------------------------------------------------
+vtkEndFor::~vtkEndFor() = default;
+
+//------------------------------------------------------------------------------
 void vtkEndFor::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

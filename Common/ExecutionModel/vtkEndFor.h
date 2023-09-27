@@ -26,7 +26,7 @@ public:
 
 protected:
   vtkEndFor();
-  ~vtkEndFor() override = default;
+  ~vtkEndFor() override;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

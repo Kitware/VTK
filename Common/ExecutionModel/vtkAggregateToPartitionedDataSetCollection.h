@@ -29,7 +29,7 @@ public:
 
 protected:
   vtkAggregateToPartitionedDataSetCollection();
-  ~vtkAggregateToPartitionedDataSetCollection() override = default;
+  ~vtkAggregateToPartitionedDataSetCollection() override;
 
 private:
   vtkAggregateToPartitionedDataSetCollection(

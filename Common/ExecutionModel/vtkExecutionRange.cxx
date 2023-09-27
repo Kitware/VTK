@@ -3,6 +3,7 @@
 
 #include "vtkExecutionRange.h"
 
+#include "vtkDataObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 

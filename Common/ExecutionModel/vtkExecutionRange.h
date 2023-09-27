@@ -7,8 +7,7 @@
 #include "vtkObject.h"
 
 #include "vtkCommonExecutionModelModule.h" // for export macro
-#include <vtkDataObject.h>                 // for smart pointer signature
-#include <vtkSmartPointer.h>               // for smart pointer signature
+#include "vtkSmartPointer.h"               // for smart pointer signature
 
 VTK_ABI_NAMESPACE_BEGIN
 

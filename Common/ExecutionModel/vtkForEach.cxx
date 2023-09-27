@@ -55,6 +55,9 @@ vtkForEach::vtkForEach()
 }
 
 //------------------------------------------------------------------------------
+vtkForEach::~vtkForEach() = default;
+
+//------------------------------------------------------------------------------
 void vtkForEach::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -80,6 +83,7 @@ void vtkForEach::SetRange(vtkExecutionRange* range)
     this->Internal->Range = range;
     this->Internal->CurrentIteration = 0;
 
+    // connect the modified method of the range object to this one's
     auto rangeObserver = vtkSmartPointer<vtkCallbackCommand>::New();
     rangeObserver->SetCallback(::RangeModifiedCallback);
     rangeObserver->SetClientData(this);

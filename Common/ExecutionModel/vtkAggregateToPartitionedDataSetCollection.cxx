@@ -24,6 +24,9 @@ vtkAggregateToPartitionedDataSetCollection::vtkAggregateToPartitionedDataSetColl
 }
 
 //------------------------------------------------------------------------------
+vtkAggregateToPartitionedDataSetCollection::~vtkAggregateToPartitionedDataSetCollection() = default;
+
+//------------------------------------------------------------------------------
 void vtkAggregateToPartitionedDataSetCollection::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
