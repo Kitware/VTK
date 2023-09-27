@@ -10,6 +10,7 @@
 #include "vtkForEach.h"
 #include "vtkInformation.h"
 #include "vtkInformationObjectBaseKey.h"
+#include "vtkInformationRequestKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -72,6 +73,7 @@ void vtkEndFor::SetAggregator(vtkExecutionAggregator* aggregator)
     this->Internal->Aggregator = aggregator;
     this->Internal->Aggregator->Clear();
 
+    // connect the modified method of the aggregatorobject to this one's
     auto aggregatorObserver = vtkSmartPointer<vtkCallbackCommand>::New();
     aggregatorObserver->SetCallback(::AggregatorModifiedCallback);
     aggregatorObserver->SetClientData(this);
@@ -184,13 +186,20 @@ int vtkEndFor::RequestData(
 
   this->Internal->Aggregator->Aggregate(input);
 
-  std::cout << "IsIterating: " << this->Internal->ForEach->IsIterating() << std::endl;
   using SDDP = vtkStreamingDemandDrivenPipeline;
   if (this->Internal->ForEach->IsIterating())
   {
     this->Internal->ForEach->Modified();
-    this->GetInputAlgorithm(0, 0)->Update();
-    request->Set(SDDP::CONTINUE_EXECUTING(), 1);
+    if (SDDP::SafeDownCast(this->GetExecutive()))
+    {
+      request->Set(SDDP::CONTINUE_EXECUTING(), 1);
+    }
+    else
+    {
+      // basic executive do not handle complex request,
+      // recursive call
+      this->GetInputAlgorithm(0, 0)->Update();
+    }
     return 1;
   }
 
