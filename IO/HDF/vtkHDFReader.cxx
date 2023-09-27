@@ -1034,12 +1034,15 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
   }
 
   std::map<std::string, std::vector<vtkIdType>> numberOfCells;
+  std::map<std::string, std::vector<vtkIdType>> numberOfCellsBefore;
   std::map<std::string, std::vector<vtkIdType>> numberOfConnectivityIds;
   for (const auto& name : ::POLY_DATA_TOPOS)
   {
     // extract the array containing the number of cells of this topology for this step
     numberOfCells[name] =
       this->Impl->GetMetadata((name + "/NumberOfCells").c_str(), filePieceCount, partOffset);
+    numberOfCellsBefore[name] =
+      this->Impl->GetMetadata((name + "/NumberOfCells").c_str(), partOffset, 0);
     if (numberOfCells[name].empty())
     {
       vtkErrorMacro("Error in reading NumberOfCells for " + name);
@@ -1080,8 +1083,25 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     for (std::size_t iTopo = 0; iTopo < ::NUM_POLY_DATA_TOPOS; ++iTopo)
     {
       const auto& nCells = numberOfCells[::POLY_DATA_TOPOS[iTopo]];
+      vtkIdType connectivityPartOffset = 0;
+      vtkIdType numCellSum = 0;
+      for (const auto& numCell : numberOfCellsBefore[::POLY_DATA_TOPOS[iTopo]])
+      {
+        // No need to iterate if there is no offsetting on the connectivity. Otherwise, we
+        // accumulate the number of part until we reach the current offset, it's usefull to retrieve
+        // the real cell offset
+        if (numCellSum >= startingCellOffsets[iTopo])
+        {
+          break;
+        }
+        else
+        {
+          connectivityPartOffset += 1;
+        }
+        numCellSum += numCell;
+      }
       cellOffsets[iTopo] = std::accumulate(nCells.begin(), nCells.begin() + filePiece,
-        startingCellOffsets[iTopo] + partOffset + filePiece);
+        startingCellOffsets[iTopo] + connectivityPartOffset + filePiece);
       pieceNumberOfCells[iTopo] = nCells[filePiece];
       const auto& nConnectivity = numberOfConnectivityIds[::POLY_DATA_TOPOS[iTopo]];
       connectivityOffsets[iTopo] = std::accumulate(nConnectivity.begin(),

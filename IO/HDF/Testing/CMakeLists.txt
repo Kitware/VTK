@@ -15,6 +15,7 @@ vtk_module_test_data(
   Data/amr_gaussian_pulse/amr_gaussian_pulse_2.vti
   Data/test_poly_data.hdf
   Data/test_transient_poly_data.hdf
+  Data/test_transient_poly_data_offset.vtkhdf
   Data/transient_sphere.hdf
   Data/transient_wavelet.hdf
   Data/wavelet_cell_data.hdf
