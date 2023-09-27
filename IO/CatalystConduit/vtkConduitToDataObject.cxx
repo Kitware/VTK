@@ -70,6 +70,15 @@ bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node
     }
   }
 
+  // add field data at leaf level
+  if (node.has_path("state/fields"))
+  {
+    for (const auto& dataset : datasets)
+    {
+      AddFieldData(dataset.second.Get(), node["state/fields"]);
+    }
+  }
+
   // process "fields"
   if (!node.has_path("fields"))
   {
