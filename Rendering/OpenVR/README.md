@@ -21,10 +21,10 @@ is theoretically supported. Devices include:
 ## Supported Controllers
 
 The VTK `OpenVR` module provides bindings for the following controllers:
-- [HP Motion Controller](vtk_openvr_binding_hpmotioncontroller.json)
-- [Valve Knuckles](vtk_openvr_binding_knuckles.json)
-- [Oculus Touch](vtk_openvr_binding_oculus_touch.json)
-- [HTC Vive Controller](vtk_openvr_binding_vive_controller.json)
+- HP Motion Controller [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenVR/vtk_openvr_binding_hpmotioncontroller.json)
+- Valve Knuckles [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenVR/vtk_openvr_binding_knuckles.json)
+- Oculus Touch [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenVR/vtk_openvr_binding_oculus_touch.json)
+- HTC Vive Controller [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenVR/vtk_openvr_binding_vive_controller.json)
 
 The VTK `OpenVR` module is considered legacy and not under active development.
 Please see the VTK `OpenXR` module for support for additional controllers and
@@ -35,5 +35,5 @@ alternate input mechanisms.
 A minimum [OpenVRCone](https://examples.vtk.org/site/Cxx/GeometricObjects/OpenVRCone/) example is
 available for download on the [VTK Examples website](https://examples.vtk.org/site/).
 
-Tests in the [`Testing/Cxx`](Testing/Cxx) directory may also be run to demonstrate VTK `RenderingOpenVR`
+Tests in the [`Testing/Cxx`](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenVR/Testing/Cxx) directory may also be run to demonstrate VTK `RenderingOpenVR`
 capabilities.
