@@ -23,12 +23,14 @@ DEPENDS
   VTK::RenderingUI
   VTK::glew
 PRIVATE_DEPENDS
+  VTK::CommonColor
   VTK::CommonExecutionModel
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::opengl
   VTK::vtksys
+  VTK::nlohmannjson
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::FiltersExtraction

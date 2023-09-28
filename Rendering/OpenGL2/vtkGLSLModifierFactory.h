@@ -10,7 +10,7 @@
 #ifndef vtkGLSLModifierFactory_h
 #define vtkGLSLModifierFactory_h
 
-#include "vtkRenderingCellGridModule.h"
+#include "vtkRenderingOpenGL2Module.h"
 
 #include <functional>
 #include <map>
@@ -19,7 +19,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkGLSLModifierBase;
 
-class VTKRENDERINGCELLGRID_EXPORT vtkGLSLModifierFactory
+class VTKRENDERINGOPENGL2_EXPORT vtkGLSLModifierFactory
 {
 public:
   using NewModFunction = std::function<vtkGLSLModifierBase*(void* userData)>;

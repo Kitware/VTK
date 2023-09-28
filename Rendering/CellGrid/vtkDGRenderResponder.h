@@ -11,10 +11,12 @@
 #define vtkDGRenderResponder_h
 
 #include "vtkCellGridRenderRequest.h"
-#include "vtkCellGridResponder.h"    // For API.
-#include "vtkDGCell.h"               // For API.
-#include "vtkDrawTexturedElements.h" // For CacheEntry.
-#include "vtkInformation.h"          // For CacheEntry.
+
+#include "vtkCellGridResponder.h"       // For API.
+#include "vtkDGCell.h"                  // For API.
+#include "vtkDrawTexturedElements.h"    // For CacheEntry.
+#include "vtkInformation.h"             // For CacheEntry.
+#include "vtkRenderingCellGridModule.h" // For Export macro
 
 #include <string>
 #include <unordered_set>

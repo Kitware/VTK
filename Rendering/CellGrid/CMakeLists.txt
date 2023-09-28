@@ -1,13 +1,5 @@
 set(classes
-  vtkArrayRenderer
-  vtkGLSLModCamera
-  vtkGLSLModCoincidentTopology
-  vtkGLSLModLight
-  vtkGLSLModPixelDebugger
-  vtkGLSLModifierBase
-  vtkGLSLModifierFactory
   vtkDGRenderResponder
-  vtkDrawTexturedElements
   vtkOpenGLCellGridMapper
   vtkRenderingCellGrid
 )

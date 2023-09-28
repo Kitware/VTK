@@ -10,7 +10,7 @@
 
 #include "vtkObject.h"
 
-#include "vtkRenderingCellGridModule.h" // for export macro
+#include "vtkRenderingOpenGL2Module.h" // for export macro
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractMapper;
@@ -20,7 +20,7 @@ class vtkOpenGLVertexArrayObject;
 class vtkOpenGLRenderer;
 class vtkShaderProgram;
 
-class VTKRENDERINGCELLGRID_EXPORT vtkGLSLModifierBase : public vtkObject
+class VTKRENDERINGOPENGL2_EXPORT vtkGLSLModifierBase : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGLSLModifierBase, vtkObject);
