@@ -8,6 +8,7 @@
 #include "vtkConduitSource.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
+#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
@@ -18,6 +19,12 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
+
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPIController.h"
+#else
+#include "vtkDummyController.h"
+#endif
 
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
@@ -43,6 +50,9 @@ vtkSmartPointer<vtkDataObject> Convert(const conduit_cpp::Node& node)
 void CreateUniformMesh(
   unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ, conduit_cpp::Node& res)
 {
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  auto rank = controller->GetLocalProcessId();
+
   // Create the structure
   conduit_cpp::Node coords = res["coordsets/coords"];
   coords["type"] = "uniform";
@@ -58,7 +68,7 @@ void CreateUniformMesh(
   // -10 to 10 in each dim
   conduit_cpp::Node origin = coords["origin"];
   origin["x"] = -10.0;
-  origin["y"] = -10.0;
+  origin["y"] = -10.0 + 20 * rank;
 
   if (nptsZ > 1)
   {
@@ -363,14 +373,13 @@ bool ValidateMeshTypeUnstructured()
   return true;
 }
 
-bool CheckFieldDataMeshConversion(conduit_cpp::Node& mesh_node, int expected_number_of_arrays,
+bool CheckFieldData(vtkDataObject* data, int expected_number_of_arrays,
   const std::string& expected_array_name, int expected_number_of_components,
   std::vector<vtkVariant> expected_values)
 {
-  auto data = Convert(mesh_node);
   auto field_data = data->GetFieldData();
   VERIFY(field_data->GetNumberOfArrays() == expected_number_of_arrays,
-    "incorrect number of arrays in field data, expected 0, got %d",
+    "incorrect number of arrays in field data, expected %d, got %d", expected_number_of_arrays,
     field_data->GetNumberOfArrays());
 
   if (expected_number_of_arrays > 0)
@@ -378,7 +387,7 @@ bool CheckFieldDataMeshConversion(conduit_cpp::Node& mesh_node, int expected_num
     auto field_array = field_data->GetAbstractArray(0);
 
     VERIFY(std::string(field_array->GetName()) == expected_array_name,
-      "wrong array name, expected \"integer_field_data\", got %s", field_array->GetName());
+      "wrong array name, expected %s, got %s", expected_array_name.c_str(), field_array->GetName());
     VERIFY(field_array->GetNumberOfComponents() == expected_number_of_components,
       "wrong number of component");
     VERIFY(static_cast<size_t>(field_array->GetNumberOfTuples()) == expected_values.size(),
@@ -388,6 +397,25 @@ bool CheckFieldDataMeshConversion(conduit_cpp::Node& mesh_node, int expected_num
       VERIFY(field_array->GetVariantValue(i) == expected_values[i], "wrong value");
     }
   }
+
+  return true;
+}
+
+bool CheckFieldDataMeshConversion(conduit_cpp::Node& mesh_node, int expected_number_of_arrays,
+  const std::string& expected_array_name, int expected_number_of_components,
+  std::vector<vtkVariant> expected_values)
+{
+  auto data = Convert(mesh_node);
+
+  CheckFieldData(data, expected_number_of_arrays, expected_array_name,
+    expected_number_of_components, expected_values);
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto img = vtkImageData::SafeDownCast(pds->GetPartition(0));
+
+  CheckFieldData(img, expected_number_of_arrays, expected_array_name, expected_number_of_components,
+    expected_values);
 
   return true;
 }
@@ -428,6 +456,9 @@ bool ValidateMeshTypeAMR(const std::string& file)
 
 bool ValidateFieldData()
 {
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  auto rank = controller->GetLocalProcessId();
+
   conduit_cpp::Node mesh;
   CreateUniformMesh(3, 3, 3, mesh);
 
@@ -439,8 +470,8 @@ bool ValidateFieldData()
 
   field_data_node.remove(0);
   auto integer_field_data = field_data_node["integer_field_data"];
-  integer_field_data.set_int64(42);
-  VERIFY(CheckFieldDataMeshConversion(mesh, 1, integer_field_data.name(), 1, { 42 }),
+  integer_field_data.set_int64(42 + rank);
+  VERIFY(CheckFieldDataMeshConversion(mesh, 1, integer_field_data.name(), 1, { 42 + rank }),
     "Verification failed for integer field data.");
 
   field_data_node.remove(0);
@@ -1001,14 +1032,27 @@ bool ValidateMeshTypeMixed()
 
 int TestConduitSource(int argc, char** argv)
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  vtkNew<vtkMPIController> controller;
+#else
+  vtkNew<vtkDummyController> controller;
+#endif
+  controller->Initialize(&argc, &argv);
+  vtkMultiProcessController::SetGlobalController(controller);
+
   std::string amrFile =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Conduit/bp_amr_example.json");
 
-  return ValidateMeshTypeUniform() && ValidateMeshTypeRectilinear() &&
+  auto ret = ValidateMeshTypeUniform() && ValidateMeshTypeRectilinear() &&
       ValidateMeshTypeStructured() && ValidateMeshTypeUnstructured() && ValidateFieldData() &&
       ValidateRectilinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
       ValidateAscentGhostCellData() && ValidateAscentGhostPointData()
+
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
+
+  controller->Finalize();
+
+  return ret;
 }
