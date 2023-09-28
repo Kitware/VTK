@@ -84,9 +84,27 @@ VTK_ABI_NAMESPACE_END
 
 #endif // vtkIndexedImplicitBackend_h
 
-#ifdef VTK_INDEXED_BACKEND_INSTANTIATING
+#if defined(VTK_INDEXED_BACKEND_INSTANTIATING)
+
 #define VTK_INSTANTIATE_INDEXED_BACKEND(ValueType)                                                 \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT vtkIndexedImplicitBackend<ValueType>;                        \
   VTK_ABI_NAMESPACE_END
+
+#elif defined(VTK_USE_EXTERN_TEMPLATE)
+
+#ifndef VTK_INDEXED_BACKEND_TEMPLATE_EXTERN
+#define VTK_INDEXED_BACKEND_TEMPLATE_EXTERN
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4910) // extern and dllexport incompatible
+#endif
+VTK_ABI_NAMESPACE_BEGIN
+vtkExternTemplateMacro(extern template class VTKCOMMONCORE_EXPORT vtkIndexedImplicitBackend);
+VTK_ABI_NAMESPACE_END
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+#endif // VTK_INDEXED_IMPLICIT_BACKEND_TEMPLATE_EXTERN
+
 #endif
