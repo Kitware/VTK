@@ -60,14 +60,15 @@ public:
   static bool RegisterType()
   {
     vtkStringToken name = vtk::TypeName<Subclass>();
-    auto status = vtkCellMetadata::Constructors.insert(std::make_pair(name, [](vtkCellGrid* grid) {
-      auto result = vtkSmartPointer<Subclass>::New();
-      if (result)
-      {
-        result->SetCellGrid(grid);
-      }
-      return result;
-    }));
+    auto status =
+      vtkCellMetadata::Constructors().insert(std::make_pair(name, [](vtkCellGrid* grid) {
+        auto result = vtkSmartPointer<Subclass>::New();
+        if (result)
+        {
+          result->SetCellGrid(grid);
+        }
+        return result;
+      }));
     return status.second; // true if insertion occurred.
   }
 
@@ -132,7 +133,7 @@ public:
   virtual void DeepCopy(vtkCellMetadata* vtkNotUsed(other)) {}
 
   /// Return the set of registered responder types.
-  static vtkCellGridResponders* GetResponders() { return vtkCellMetadata::Responders; }
+  static vtkCellGridResponders* GetResponders();
 
   /// Return the set of registered responder types.
   ///
@@ -149,8 +150,7 @@ protected:
 
   vtkCellGrid* CellGrid{ nullptr };
 
-  static ConstructorMap Constructors;
-  static vtkNew<vtkCellGridResponders> Responders;
+  static ConstructorMap& Constructors();
 
 private:
   vtkCellMetadata(const vtkCellMetadata&) = delete;

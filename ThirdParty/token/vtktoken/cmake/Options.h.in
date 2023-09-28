@@ -1,0 +1,9 @@
+// © Kitware, Inc. See license.md for details.
+#ifndef token_Options_h
+#define token_Options_h
+
+#define token_NAMESPACE @token_CXX_NAMESPACE@
+#define token_BEGIN_NAMESPACE namespace @token_CXX_NAMESPACE@ {
+#define token_CLOSE_NAMESPACE } /* namespace @token_CXX_NAMESPACE@ */
+
+#endif // token_Options_h

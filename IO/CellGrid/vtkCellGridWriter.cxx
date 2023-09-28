@@ -14,7 +14,6 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkOptions.h"
-#include "vtkStringManager.h"
 #include "vtkVariant.h"
 
 #include "vtk_nlohmannjson.h"
@@ -379,7 +378,7 @@ void vtkCellGridWriter::WriteData()
   }
 
   auto schemaName = grid->GetSchemaName();
-  if (schemaName.GetId() == vtkStringManager::Invalid)
+  if (!schemaName.IsValid())
   {
     schemaName = "dg leaf";
   }

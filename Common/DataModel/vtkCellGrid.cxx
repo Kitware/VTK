@@ -10,7 +10,6 @@
 #include "vtkInformationDataObjectKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStringManager.h"
 #include "vtkUnsignedCharArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -34,11 +33,11 @@ void vtkCellGrid::PrintSelf(ostream& os, vtkIndent indent)
     cellRec.second->PrintSelf(os, i3);
   }
 
-  auto* smgr = vtkStringToken::GetManager();
   os << indent << "ArrayGroups: (" << this->ArrayGroups.size() << ")\n";
   for (auto it = this->ArrayGroups.begin(); it != this->ArrayGroups.end(); ++it)
   {
-    auto attName = smgr ? smgr->Value(it->first) : "";
+    vtkStringToken attToken(static_cast<vtkStringToken::Hash>(it->first));
+    auto attName = attToken.HasData() ? attToken.Data() : "";
     if (attName.empty())
     {
       os << i2 << it->first << ": " << it->second << " " << it->second->GetNumberOfArrays()

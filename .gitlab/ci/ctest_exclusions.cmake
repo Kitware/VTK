@@ -216,6 +216,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
       "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
     )
   endif()
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
+    # Windows wheels are intermittently flaky and not reproducible.
+    list(APPEND test_exclusions
+      "^VTK::RenderingCellGridPython-TestCellGridRendering$"
+    )
+  endif()
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt" AND

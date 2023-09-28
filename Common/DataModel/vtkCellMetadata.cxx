@@ -4,10 +4,11 @@
 
 #include "vtkCellGrid.h"
 
+#include <token/Singletons.h>
+
 VTK_ABI_NAMESPACE_BEGIN
 
-vtkCellMetadata::ConstructorMap vtkCellMetadata::Constructors;
-vtkNew<vtkCellGridResponders> vtkCellMetadata::Responders;
+using namespace vtk::literals;
 
 vtkCellMetadata::~vtkCellMetadata()
 {
@@ -18,8 +19,9 @@ vtkSmartPointer<vtkCellMetadata> vtkCellMetadata::NewInstance(
   vtkStringToken className, vtkCellGrid* grid)
 {
   vtkSmartPointer<vtkCellMetadata> result;
-  auto it = vtkCellMetadata::Constructors.find(className);
-  if (it != vtkCellMetadata::Constructors.end())
+  auto& ctors = vtkCellMetadata::Constructors();
+  auto it = ctors.find(className);
+  if (it != ctors.end())
   {
     result = it->second(grid);
     if (result && grid)
@@ -33,7 +35,7 @@ vtkSmartPointer<vtkCellMetadata> vtkCellMetadata::NewInstance(
 std::unordered_set<vtkStringToken> vtkCellMetadata::CellTypes()
 {
   std::unordered_set<vtkStringToken> cellTypes;
-  for (const auto& ctor : vtkCellMetadata::Constructors)
+  for (const auto& ctor : vtkCellMetadata::Constructors())
   {
     cellTypes.insert(ctor.first);
   }
@@ -58,14 +60,25 @@ bool vtkCellMetadata::SetCellGrid(vtkCellGrid* parent)
 
 bool vtkCellMetadata::Query(vtkCellGridQuery* query)
 {
-  bool ok = vtkCellMetadata::Responders->Query(this, query);
+  bool ok = vtkCellMetadata::GetResponders()->Query(this, query);
   return ok;
+}
+
+vtkCellGridResponders* vtkCellMetadata::GetResponders()
+{
+  static vtkNew<vtkCellGridResponders> responders;
+  return responders;
 }
 
 vtkCellGridResponders* vtkCellMetadata::GetCaches()
 {
   (void)this; // Keep clang-tidy from complaining that this method should be static.
-  return vtkCellMetadata::Responders;
+  return vtkCellMetadata::GetResponders();
+}
+
+vtkCellMetadata::ConstructorMap& vtkCellMetadata::Constructors()
+{
+  return token_NAMESPACE::singletons().get<ConstructorMap>();
 }
 
 VTK_ABI_NAMESPACE_END

@@ -5,7 +5,6 @@
 // Tests build-time tokenizing strings using the vtkStringToken class.
 
 #include "vtkDebugLeaks.h"
-#include "vtkStringManager.h"
 #include "vtkStringToken.h"
 
 #include <string>
@@ -27,7 +26,7 @@ int TestStringToken(int, char*[])
   std::cout << "missing is " << missing.GetId() << "\n";
   std::cout << "foo the bar is " << fooTheBar1.GetId() << " == " << fooTheBar2.GetId() << "\n";
 
-  if (defaultToken.GetId() != vtkStringManager::Invalid)
+  if (defaultToken.IsValid())
   {
     std::cerr << "ERROR: Default token constructor should be initialized to Invalid token\n";
   }
@@ -47,99 +46,94 @@ int TestStringToken(int, char*[])
     }
   }
 
-  std::cout << "Now look up strings from hash values via vtkStringManager\n";
-  auto* sm = const_cast<vtkStringManager*>(vtkStringToken::GetManager());
-  sm->VisitMembers([&sm](vtkStringManager::Hash hh) {
-    std::cout << "  " << hh << " \"" << sm->Value(hh) << "\"\n";
-    return vtkStringManager::Visit::Continue;
-  });
-  std::cout << "Test that missing strings resolve as empty.\n";
-  auto missingString = sm->Value(missing.GetId());
-  std::cout << "missing string from hash: \"" << missingString << "\" (len " << missingString.size()
-            << ")\n";
+  // Group some tokens into a named set (emulating a dynamic enumeration).
 
-  // Use the string manager to group some tokens into a named set
-  // (emulating a dynamic enumeration).
-  std::size_t numberVisited = 0;
-  vtkStringManager::Visitor visitor = [&](vtkStringManager::Hash hh) {
-    std::cout << "  " << ++numberVisited << ": " << hh << "\n";
-    return vtkStringManager::Visit::Continue;
-  };
-  // Verify that there are no enumeration-sets to begin with.
-  auto outcome = sm->VisitSets(visitor);
-  if (numberVisited || outcome != vtkStringManager::Visit::Continue)
+  // I. Verify that there are no enumeration-sets to begin with.
+  auto groups = vtkStringToken::AllGroups();
+  if (!groups.empty())
   {
-    std::cerr << "ERROR: Expected an empty set of keys, found " << numberVisited << "\n";
+    std::cerr << "ERROR: Expected an empty set of keys, found " << groups.size() << "\n";
     result = 1;
   }
 
   // Test adding an enumeration-set.
   vtkStringToken geomEnum("geometries");
   std::cout << "Create an enumeration set for \"geometries\" (" << geomEnum.GetId() << ")\n";
-  sm->Insert(geomEnum.GetId(), "point"_hash);
-  sm->Insert(geomEnum.GetId(), "curve"_hash);
-  sm->Insert(geomEnum.GetId(), "surface"_hash);
-  sm->Insert(geomEnum.Data(), "volume"_hash);
-  outcome = sm->VisitSets(visitor);
-  if (numberVisited != 1)
+  bool added = true;
+  added &= geomEnum.AddChild("point"_hash);
+  added &= geomEnum.AddChild("curve"_hash);
+  added &= geomEnum.AddChild("surface"_hash);
+  added &= geomEnum.AddChild("volume"_hash);
+  if (!added)
   {
-    std::cerr << "ERROR: Expected 1 key, found " << numberVisited << "\n";
+    std::cerr << "ERROR: Failed to add at least 1 child.\n";
     result = 1;
   }
-  numberVisited = 0;
-  std::cout << "Visiting members of \"geometries\"\n";
-  outcome = sm->VisitMembers(visitor, geomEnum.GetId());
-  if (numberVisited != 4)
+  groups = vtkStringToken::AllGroups();
+  if (groups.size() != 1)
   {
-    std::cerr << "ERROR: Expected 4 values, found " << numberVisited << "\n";
+    std::cerr << "ERROR: Expected 1 key, found " << groups.size() << "\n";
+    result = 1;
+  }
+  std::cout << "Members of \"geometries\"\n";
+  auto members = geomEnum.Children();
+  for (const auto& member : members)
+  {
+    std::cout << "  " << member.Data() << "\n";
+  }
+  if (members.size() != 4)
+  {
+    std::cerr << "ERROR: Expected 4 values, found " << members.size() << "\n";
     result = 1;
   }
 
   // Test removal of a string from an enumeration-set.
   std::cout << "Remove \"volume\" from \"geometries\".\nRemaining members:\n";
-  if (!sm->Remove("geometries"_hash, "volume"_hash))
+  if (!geomEnum.RemoveChild("volume"_hash))
   {
     std::cerr << "ERROR: Expected to remove \"volume\".\n";
     result = 1;
   }
-  numberVisited = 0;
-  outcome = sm->VisitMembers(visitor, geomEnum.GetId());
-  if (numberVisited != 3)
+  members = geomEnum.Children();
+  for (const auto& member : members)
   {
-    std::cerr << "ERROR: Expected 4 values, found " << numberVisited << "\n";
+    std::cout << "  " << member.Data() << "\n";
+  }
+  if (members.size() != 3)
+  {
+    std::cerr << "ERROR: Expected 3 values, found " << members.size() << "\n";
     result = 1;
   }
 
   // Attempt to add an invalid member to a valid set.
-  if (sm->Insert(geomEnum.GetId(), "foo"_hash))
+  if (geomEnum.AddChild("foo"_hash))
   {
     std::cerr << "ERROR: Expected failure when adding an invalid member-hash to a set.\n";
     result = 1;
   }
 
   // Attempt to add a valid member to an invalid set-hash.
-  if (sm->Insert("foo"_hash, "point"_hash))
+  vtkStringToken invalid;
+  if (invalid.AddChild("point"_token))
   {
     std::cerr << "ERROR: Expected failure when adding a member-hash to an invalid set.\n";
     result = 1;
   }
 
-  // Erase the set (which also erases all its members).
-  std::cout << "Test erasing an enumeration set.\n";
-  auto numRemoved = sm->Unmanage(geomEnum.GetId());
-  if (numRemoved != 4)
+  std::cout << "Add one more group\n";
+  vtkStringToken car("car");
+  car.AddChild("body");
+  car.AddChild("wheels");
+  car.AddChild("windows");
+  car.AddChild("motor");
+  groups = vtkStringToken::AllGroups();
+  for (const auto& group : groups)
   {
-    std::cerr << "ERROR: Removing \"geometries\" erased " << numRemoved << " items, expected 4.\n";
-    result = 1;
+    std::cout << "  " << group.Data() << "\n";
   }
-  if (sm->Find("geometries") != vtkStringManager::Invalid)
+  if (groups.size() != 2)
   {
-    std::cerr << "ERROR: Should have unmanaged \"geometries\".\n";
-    result = 1;
-  }
-  if (sm->Find("point") != vtkStringManager::Invalid)
-  {
-    std::cerr << "ERROR: Should have unmanaged \"point\".\n";
+    std::cerr << "ERROR: Expected 2 groups, got " << groups.size() << ".\n";
     result = 1;
   }
 

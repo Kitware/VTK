@@ -44,7 +44,7 @@ namespace
 {
 
 // Global variables used by the glutDisplayFunc and glutIdleFunc
-vtkNew<ExternalVTKWidget> externalVTKWidget;
+ExternalVTKWidget* externalVTKWidget = nullptr;
 bool initialized = false;
 int NumArgs;
 char** ArgV;
@@ -176,6 +176,8 @@ void onexit()
 /* Main function: GLUT runs as a console application starting at main()  */
 int TestGLUTRenderWindow(int argc, char* argv[])
 {
+  vtkNew<ExternalVTKWidget> staticExternalVTKWidget;
+  externalVTKWidget = staticExternalVTKWidget;
   NumArgs = argc;
   ArgV = argv;
   glutInit(&argc, argv); // Initialize GLUT

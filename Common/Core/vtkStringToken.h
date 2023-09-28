@@ -20,10 +20,13 @@
  * STL containers.
  */
 
+#include <token/Token.h>
+
 #include "vtkCompiler.h"     // for VTK_COMPILER_GCC
 #include "vtkSmartPointer.h" // for ivar
 
-#include <cstdint> // for `std::uint*_t`
+#include <cstdint>       // for `std::uint*_t`
+#include <unordered_set> // for membership API
 
 // GCC 4.8.5 requires a space between the quotes and suffix operator.
 // Whereas, C++23 deprecates the space here though.
@@ -38,7 +41,6 @@
 #endif
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkStringManager;
 
 class VTKCOMMONCORE_EXPORT vtkStringToken
 {
@@ -63,6 +65,13 @@ public:
   /// Return the string corresponding to the token.
   const std::string& Data() const;
 
+  /// Return whether the token is valid or not.
+  ///
+  /// Valid tokens are those whose hash is not equal to the hash of an empty string.
+  bool IsValid() const;
+  /// Return whether a string is available for the token's hash ID.
+  bool HasData() const;
+
   /// Fast equality comparison (compares hashes, not strings).
   bool operator==(const vtkStringToken& other) const;
   /// Fast inequality comparison (compares hashes, not strings).
@@ -78,46 +87,40 @@ public:
   /// This is used internally but also by the ""_token() literal operator
   inline static constexpr Hash StringHash(const char* data, std::size_t size) noexcept
   {
-    return vtkStringToken::hash_32_fnv1a_const(data, size);
+    return token_NAMESPACE::Token::stringHash(data, size);
   }
 
-  /// Return the database of strings and their tokens (hashes).
-  static const vtkStringManager* GetManager();
+  /// Return the hash code used to indicate an invalid (empty) token.
+  static Hash InvalidHash();
+
+  /// Methods to manage groups of tokens underneath a parent.
+  ///
+  /// Grouping tokens provides applications a way to create and discover
+  /// dynamic enumerations or sets of strings.
+  /// For example, you might tokenize `car` and add tokens for car parts
+  /// such `body`, `motor`, and `wheels` as children of `car`.
+  /// Another library might then add more children such as `windshield`
+  /// and `hood`; the application can present all of these children by
+  /// asking for all the children of `car`.
+  ///@{
+  /// Add \a member as a child of this token.
+  ///
+  /// If true is returned, the \a member was added.
+  /// If false is returned, the \a member was already part of the group
+  /// or one of the tokens (this token or \a member) was invalid.
+  bool AddChild(vtkStringToken member);
+  /// Remove a \a member from this token's children.
+  ///
+  /// If this returns false, \a member was not a child of this token.
+  bool RemoveChild(vtkStringToken member);
+  /// Return all the children of this token.
+  std::unordered_set<vtkStringToken> Children(bool recursive = true);
+  /// Return all the tokens that have children.
+  static std::unordered_set<vtkStringToken> AllGroups();
+  ///@}
 
 protected:
   Hash Id;
-  static vtkSmartPointer<vtkStringManager> Manager;
-
-  static vtkStringManager* GetManagerInternal();
-
-  // ----
-  // Adapted from https://notes.underscorediscovery.com/constexpr-fnv1a/index.html
-  // which declared the source as public domain or equivalent. Retrieved on 2022-07-22.
-  static constexpr uint32_t hash32a_const = 0x811c9dc5;
-  static constexpr uint32_t hash32b_const = 0x1000193;
-  static constexpr uint64_t hash64a_const = 0xcbf29ce484222325;
-  static constexpr uint64_t hash64b_const = 0x100000001b3;
-
-  // Compute a 32-bit hash of a string.
-  // Unlike the original, this version handles embedded null characters so that
-  // unicode multi-byte sequences can be hashed.
-  inline static constexpr uint32_t hash_32_fnv1a_const(
-    const char* const str, std::size_t size, const uint32_t value = hash32a_const) noexcept
-  {
-    return (!str || size <= 0)
-      ? value
-      : hash_32_fnv1a_const(&str[1], size - 1, (value ^ uint32_t(str[0])) * hash32b_const);
-  }
-
-#if 0
-  // Compute a 64-bit hash of a string.
-  inline static constexpr uint64_t hash_64_fnv1a_const(
-    const char* const str, std::size_t size, const uint64_t value = hash64a_const) noexcept
-  {
-    return (!str || size <= 0) ? value :
-      hash_64_fnv1a_const(&str[1], size - 1, (value ^ uint64_t(str[0])) * hash64b_const);
-  }
-#endif
 };
 VTK_ABI_NAMESPACE_END
 

@@ -48,7 +48,7 @@ vtkDGCell::vtkDGCell()
   {
     registeredSideShapes = true;
     // Constructing these inserts the strings into the
-    // vtkStringManager so they are available for printing
+    // vtkStringToken's manager so they are available for printing
     // even though GetShapeName() computes the hash at
     // compile time (which cannot insert strings into the
     // manager).

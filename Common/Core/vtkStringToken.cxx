@@ -1,23 +1,22 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkStringToken.h"
-#include "vtkStringManager.h"
 
 #include <cstring>
 #include <exception>
 #include <mutex>
 #include <thread>
 
-VTK_ABI_NAMESPACE_BEGIN
+#include <token/Hash.h>
+#include <token/Manager.h>
 
-static std::mutex s_managerLock;
-vtkSmartPointer<vtkStringManager> vtkStringToken::Manager;
+VTK_ABI_NAMESPACE_BEGIN
 
 vtkStringToken::vtkStringToken(const char* data, std::size_t size)
 {
   if (!data)
   {
-    this->Id = vtkStringManager::Invalid;
+    this->Id = token_NAMESPACE::Invalid;
   }
   else
   {
@@ -25,36 +24,84 @@ vtkStringToken::vtkStringToken(const char* data, std::size_t size)
     {
       size = std::strlen(data);
     }
-    this->Id = vtkStringToken::GetManagerInternal()->Manage(std::string(data, size));
+    this->Id = token_NAMESPACE::Token::getManager()->manage(std::string(data, size));
   }
 }
 
 vtkStringToken::vtkStringToken(const std::string& data)
 {
-  this->Id = vtkStringToken::GetManagerInternal()->Manage(data);
+  this->Id = token_NAMESPACE::Token::getManager()->manage(data);
 }
 
 const std::string& vtkStringToken::Data() const
 {
-  return vtkStringToken::GetManagerInternal()->Value(this->Id);
+  return token_NAMESPACE::Token::getManager()->value(this->Id);
 }
 
-const vtkStringManager* vtkStringToken::GetManager()
+bool vtkStringToken::IsValid() const
 {
-  return vtkStringToken::GetManagerInternal();
+  return this->Id != token_NAMESPACE::Invalid;
 }
 
-vtkStringManager* vtkStringToken::GetManagerInternal()
+bool vtkStringToken::HasData() const
 {
-  if (!vtkStringToken::Manager)
+  return token_NAMESPACE::Token::getManager()->contains(this->Id);
+}
+
+vtkStringToken::Hash vtkStringToken::InvalidHash()
+{
+  return token_NAMESPACE::Invalid;
+}
+
+bool vtkStringToken::AddChild(vtkStringToken member)
+{
+  if (!this->IsValid() || !member.IsValid())
   {
-    std::lock_guard<std::mutex> lock(s_managerLock);
-    if (!vtkStringToken::Manager)
-    {
-      vtkStringToken::Manager = vtkSmartPointer<vtkStringManager>::New();
-    }
+    return false;
   }
-  return vtkStringToken::Manager.GetPointer();
+
+  bool result = token_NAMESPACE::Token::getManager()->insert(this->GetId(), member.GetId());
+  return result;
+}
+
+bool vtkStringToken::RemoveChild(vtkStringToken member)
+{
+  if (!this->IsValid() || !member.IsValid())
+  {
+    return false;
+  }
+
+  auto result = token_NAMESPACE::Token::getManager()->remove(this->GetId(), member.GetId());
+  return result;
+}
+
+std::unordered_set<vtkStringToken> vtkStringToken::Children(bool recursive)
+{
+  std::unordered_set<vtkStringToken> result;
+  auto* manager = token_NAMESPACE::Token::getManager();
+  token_NAMESPACE::Manager::Visitor visitor = [&result, &manager, &visitor, recursive](
+                                                token_NAMESPACE::Hash member) {
+    if (recursive && result.find(member) == result.end())
+    {
+      manager->visitMembers(visitor, member);
+    }
+    result.insert(vtkStringToken(member));
+    return token_NAMESPACE::Manager::Visit::Continue;
+  };
+  manager->visitMembers(visitor, this->GetId());
+  return result;
+}
+
+std::unordered_set<vtkStringToken> vtkStringToken::AllGroups()
+{
+  std::unordered_set<vtkStringToken> result;
+  auto* manager = token_NAMESPACE::Token::getManager();
+  token_NAMESPACE::Manager::Visitor visitor = [&result](token_NAMESPACE::Hash member) {
+    result.insert(vtkStringToken(member));
+    return token_NAMESPACE::Manager::Visit::Continue;
+  };
+  manager->visitSets(visitor);
+  return result;
 }
 
 bool vtkStringToken::operator==(const vtkStringToken& other) const
