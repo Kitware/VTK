@@ -492,18 +492,18 @@ void vtkDrawTexturedElements::DrawInstancedElements(
     this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
 #else
 #if 1
-  if (GLEW_VERSION_3_1 && &glDrawElementsInstanced)
+  if (GLEW_VERSION_3_1)
   {
     glDrawElementsInstanced(
       this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
   }
-  else if (GL_ARB_instanced_arrays && &glDrawElementsInstancedARB)
+  else if (GL_ARB_instanced_arrays)
   {
     glDrawElementsInstancedARB(
       this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
   }
 #else
-  if (GLEW_VERSION_3_1 && &glDrawArraysInstanced)
+  if (GLEW_VERSION_3_1)
   {
     glDrawArraysInstanced(this->P->Primitive, 0, this->P->Count, instances);
   }
