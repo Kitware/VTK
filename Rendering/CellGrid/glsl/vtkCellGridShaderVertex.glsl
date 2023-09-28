@@ -1,6 +1,6 @@
+//VTK::System::Dec
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-//VTK::System::Dec
 /// Model-to-device coordinate transform
 uniform mat4 MCDCMatrix;
 /// Model-to-view coordinate transform
@@ -16,18 +16,18 @@ uniform samplerBuffer vertices;
 uniform samplerBuffer cell_parametrics;
 
 // Tuples of (cell-id, side-id) to render.
-uniform isamplerBuffer sides;
+uniform highp isamplerBuffer sides;
 // Look up the offset at which local cell-side connectivity starts in \a side_local.
-uniform isamplerBuffer side_offsets;
+uniform highp isamplerBuffer side_offsets;
 // The subset of DOFs in shape_conn that correspond to each side in cells of this shape.
-uniform isamplerBuffer side_local;
+uniform highp isamplerBuffer side_local;
 // The indices of all DOFs for all cells of this shape.
-uniform isamplerBuffer shape_conn;
+uniform highp isamplerBuffer shape_conn;
 // The (x,y,z) points of each DOF in the entire mesh.
 uniform samplerBuffer shape_vals;
 // We may need this if the color and shape have different interpolation orders
 // **and** the color attribute is continuous (i.e., shares coefficients at cell boundaries).
-uniform isamplerBuffer color_conn;
+uniform highp isamplerBuffer color_conn;
 // The coefficient of each basis function at each integration point in each cell.
 uniform samplerBuffer color_vals;
 // For vector- or tensor-valued field attributes, which should determine the color?
@@ -73,14 +73,14 @@ void main()
   }}
   else
   {{
-     cellAndSide = texelFetch(sides, gl_InstanceID).st;
+     cellAndSide = texelFetchBuffer(sides, gl_InstanceID).st;
      // These two VS outputs are to be used for picking:
      cellIdVS = cellAndSide.s;
      sideIdVS = cellAndSide.t;
   }}
 
   // Fetch the offset into the (ragged) side_local table:
-  int sideRaggedOffset = texelFetch(side_offsets, {ShapeIndex}).s;
+  int sideRaggedOffset = texelFetchBuffer(side_offsets, {ShapeIndex}).s;
 
   // Fetch point coordinates and per-integration-point field values for
   // the entire cell, passing them in bulk to the fragment shader using
@@ -94,10 +94,10 @@ void main()
   // fetching shapeValuesVS much simpler than fetching colorValuesVS.
   for (int ii = 0; ii < {ShapeNumBasisFun}; ++ii)
   {{
-    int vertexId = texelFetch(shape_conn, cellIdVS * {ShapeNumBasisFun} + ii).s;
+    int vertexId = texelFetchBuffer(shape_conn, cellIdVS * {ShapeNumBasisFun} + ii).s;
     for (int jj = 0; jj < {ShapeMultiplicity}; ++jj)
     {{
-      shapeValuesVS[ii * {ShapeMultiplicity} + jj] = texelFetch(shape_vals, vertexId * {ShapeMultiplicity} + jj).x;
+      shapeValuesVS[ii * {ShapeMultiplicity} + jj] = texelFetchBuffer(shape_vals, vertexId * {ShapeMultiplicity} + jj).x;
     }}
   }}
 
@@ -108,10 +108,10 @@ void main()
       // Continuous (shared) field values
       for (int ii = 0; ii < {ColorNumBasisFun}; ++ii)
       {{
-        int dofId = texelFetch(color_conn, cellIdVS * {ColorNumBasisFun} + ii).s;
+        int dofId = texelFetchBuffer(color_conn, cellIdVS * {ColorNumBasisFun} + ii).s;
         for (int jj = 0; jj < {ColorMultiplicity}; ++jj)
         {{
-          colorValuesVS[ii * {ColorMultiplicity} + jj] = texelFetch(color_vals, dofId * {ColorMultiplicity} + jj).x;
+          colorValuesVS[ii * {ColorMultiplicity} + jj] = texelFetchBuffer(color_vals, dofId * {ColorMultiplicity} + jj).x;
         }}
       }}
     }}
@@ -123,7 +123,7 @@ void main()
       {{
         for (int jj = 0; jj < {ColorMultiplicity}; ++jj)
         {{
-          cv = texelFetch(color_vals, (cellIdVS * {ColorNumBasisFun} + ii) * {ColorMultiplicity} + jj).x;
+          cv = texelFetchBuffer(color_vals, (cellIdVS * {ColorNumBasisFun} + ii) * {ColorMultiplicity} + jj).x;
           colorValuesVS[ii * {ColorMultiplicity} + jj] = cv;
         }}
       }}
@@ -135,16 +135,16 @@ void main()
   // look up their connectivity offset from sideRaggedOffset (the start in side_local
   // for connectivity of sides of our type).
   int sideVertexIndex =
-    texelFetch(side_local,
+    texelFetchBuffer(side_local,
       sideRaggedOffset + (cellAndSide.t - {SideOffset}) * NumPtsPerSide + gl_VertexID).s;
-  int vertexId = texelFetch(shape_conn, cellIdVS * NumPtsPerCell + sideVertexIndex).s;
+  int vertexId = texelFetchBuffer(shape_conn, cellIdVS * NumPtsPerCell + sideVertexIndex).s;
   // Parametric coordinate for this vertex.
-  pcoordVS = texelFetch(cell_parametrics, sideVertexIndex).xyz;
+  pcoordVS = texelFetchBuffer(cell_parametrics, sideVertexIndex).xyz;
   // position for this vertex as defined in vtk data model.
   vec4 vertexMC = vec4(
-      texelFetch(shape_vals, vertexId * 3).x,
-      texelFetch(shape_vals, vertexId * 3 + 1).x,
-      texelFetch(shape_vals, vertexId * 3 + 2).x,
+      texelFetchBuffer(shape_vals, vertexId * 3).x,
+      texelFetchBuffer(shape_vals, vertexId * 3 + 1).x,
+      texelFetchBuffer(shape_vals, vertexId * 3 + 2).x,
       1.0f);
   // default eye direction in model coordinates.
   vec3 eyeNormalMC = vec3(0.0f, 0.0f, 1.0f);
