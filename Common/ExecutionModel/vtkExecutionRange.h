@@ -1,6 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @class vtkExecutionRange
+ * @brief Define a range for the `vtkForEach`.
+ *
+ * vtkExecutionRange is an interface used to define the range of a vtkForEach.
+ * It uses the same interface as a vtkAlgorithm because it roles it to split
+ * the execution regarding a given parameter. It can be a timestep, a block ID
+ * or any other parameter.
+ *
+ * @sa vtkForEach, vtkEndFor
+ */
+
 #ifndef vtkExecutionRange_h
 #define vtkExecutionRange_h
 

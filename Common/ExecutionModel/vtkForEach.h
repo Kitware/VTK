@@ -13,14 +13,13 @@
  * @brief Algorithm allowing to implement a for loop using the VTK pipeline and a sister filter
  * vtkEndFor
  *
- * This filter begins a for loop that can execute a portion of a pipeline a certain number of times.
- * To be used in conjunction with the `vtkEndFor` filter that should end the loop.
+ * This filter begins a for loop that can execute a portion of a pipeline (sub-pipeline) a certain
+ * number of times. To be used in conjunction with the `vtkEndFor` filter that should end the loop.
  *
  * > Largely inspired by the ttkForEach/ttkEndFor in the TTK project
  * > (https://github.com/topology-tool-kit/ttk/tree/dev)
  *
- * @sa
- * vtkEndFor
+ * @sa vtkEndFor, vtkExecutionRange
  */
 
 VTK_ABI_NAMESPACE_BEGIN

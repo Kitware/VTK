@@ -1,6 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @class vtkAggregateToPartitionedDataSetCollection
+ * @brief Aggregate results in the vtkEndFor
+ *
+ * vtkAggregateToPartitionedDataSetCollection is an execution aggregator for the
+ * `vtkEndFor` filter that insert each iteration result in a partition of a
+ * vtkPartitionnedDataSetCollection.
+ *
+ * @sa vtkEndFor, vtkForEach, vtkExecutionAggregator
+ */
+
 #ifndef vtkAggregateToPartitionedDataSetCollection_h
 #define vtkAggregateToPartitionedDataSetCollection_h
 
@@ -21,10 +32,19 @@ public:
 
   vtkSmartPointer<vtkDataObject> RequestDataObject(vtkDataObject* input) override;
 
+  /**
+   * Push the input dataset at the end of the output vtkPartitionedDataSetCollection.
+   */
   bool Aggregate(vtkDataObject* input) override;
 
+  /**
+   * Retrieve the constructed vtkPartitionedDataSetCollection
+   */
   vtkSmartPointer<vtkDataObject> GetOutputDataObject() override;
 
+  /**
+   * Reset the internal vtkPartitionedDataSetCollection
+   */
   void Clear() override;
 
 protected:

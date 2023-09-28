@@ -21,20 +21,20 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+
 //------------------------------------------------------------------------------
 void RangeModifiedCallback(vtkObject*, unsigned long, void* clientdata, void*)
 {
   static_cast<vtkForEach*>(clientdata)->Modified();
 }
+
 }
 
 //------------------------------------------------------------------------------
 struct vtkForEach::Internals
 {
-  Internals()
-    : CurrentIteration(0)
-  {
-  }
+  Internals() = default;
+  ~Internals() = default;
   vtkSmartPointer<vtkExecutionRange> Range;
   std::size_t CurrentIteration = 0;
   vtkWeakPointer<vtkEndFor> EndFor;
@@ -50,8 +50,7 @@ vtkInformationKeyMacro(vtkForEach, FOR_EACH_FILTER, ObjectBase);
 vtkForEach::vtkForEach()
   : Internal(new Internals)
 {
-  auto defaultRange = vtkSmartPointer<vtkTimeRange>::New();
-  this->SetRange(defaultRange);
+  this->SetRange(vtkSmartPointer<vtkTimeRange>::New());
 }
 
 //------------------------------------------------------------------------------
@@ -87,7 +86,6 @@ void vtkForEach::SetRange(vtkExecutionRange* range)
     auto rangeObserver = vtkSmartPointer<vtkCallbackCommand>::New();
     rangeObserver->SetCallback(::RangeModifiedCallback);
     rangeObserver->SetClientData(this);
-    this->Internal->Range->AddObserver(vtkCommand::ModifiedEvent, rangeObserver);
 
     this->Modified();
   }

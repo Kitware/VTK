@@ -20,11 +20,13 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+
 //------------------------------------------------------------------------------
 void AggregatorModifiedCallback(vtkObject*, unsigned long, void* clientdata, void*)
 {
   static_cast<vtkEndFor*>(clientdata)->Modified();
 }
+
 }
 
 //------------------------------------------------------------------------------
@@ -42,8 +44,7 @@ vtkStandardNewMacro(vtkEndFor);
 vtkEndFor::vtkEndFor()
   : Internal(new Internals)
 {
-  auto defaultAggreg = vtkSmartPointer<vtkAggregateToPartitionedDataSetCollection>::New();
-  this->SetAggregator(defaultAggreg);
+  this->SetAggregator(vtkSmartPointer<vtkAggregateToPartitionedDataSetCollection>::New());
 }
 
 //------------------------------------------------------------------------------
@@ -77,7 +78,6 @@ void vtkEndFor::SetAggregator(vtkExecutionAggregator* aggregator)
     auto aggregatorObserver = vtkSmartPointer<vtkCallbackCommand>::New();
     aggregatorObserver->SetCallback(::AggregatorModifiedCallback);
     aggregatorObserver->SetClientData(this);
-    this->Internal->Aggregator->AddObserver(vtkCommand::ModifiedEvent, aggregatorObserver);
 
     this->Modified();
   }
@@ -189,15 +189,20 @@ int vtkEndFor::RequestData(
   using SDDP = vtkStreamingDemandDrivenPipeline;
   if (this->Internal->ForEach->IsIterating())
   {
+    // We need to "touch" the top of the sub-pipeline we want
+    // to loop.
     this->Internal->ForEach->Modified();
+
     if (SDDP::SafeDownCast(this->GetExecutive()))
     {
+      // Tell the executive that we want to continue
+      // the current execution so the pipeline can loop
       request->Set(SDDP::CONTINUE_EXECUTING(), 1);
     }
     else
     {
-      // basic executive do not handle complex request,
-      // recursive call
+      // basic executive do not handle CONTINUE_EXECUTING,
+      // so we fallback on recursive call
       this->GetInputAlgorithm(0, 0)->Update();
     }
     return 1;
@@ -220,6 +225,9 @@ int vtkEndFor::RequestData(
   }
 
   output->ShallowCopy(this->Internal->Aggregator->GetOutputDataObject());
+
+  // reclaim unused memory
+  this->Internal->Aggregator->Clear();
 
   return 1;
 }

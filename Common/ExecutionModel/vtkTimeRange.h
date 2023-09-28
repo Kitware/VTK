@@ -1,6 +1,16 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @class vtkTimeRange
+ * @brief vtkExecutionRange using time to dispatch in a vtkForEach sub-pipeline
+ *
+ * vtkTimeRange is an execution range for the vtkForEach, that split execution by time steps.
+ * The resulting sub-pipeline will be executed once for each time step of the input dataset.
+ *
+ * @sa vtkForEach, vtkExecutionRange, vtkTimeRange
+ */
+
 #ifndef vtkTimeRange_h
 #define vtkTimeRange_h
 
