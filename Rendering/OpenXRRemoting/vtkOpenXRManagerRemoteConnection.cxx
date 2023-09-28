@@ -29,12 +29,41 @@ bool vtkOpenXRManagerRemoteConnection::Initialize()
   // to not use the system default OpenXR runtime but instead redirect to the Holographic Remoting
   // OpenXR runtime.
   std::string remotingXRPath = vtksys::SystemTools::FindFile("RemotingXR.json", { exeDir });
-  if (!remotingXRPath.empty() && vtksys::SystemTools::PutEnv("XR_RUNTIME_JSON=" + remotingXRPath))
+  if (remotingXRPath.empty())
   {
-    return true;
+    return false;
   }
 
-  return false;
+  std::string oldValue;
+  if (vtksys::SystemTools::GetEnv("XR_RUNTIME_JSON", oldValue))
+  {
+    this->OldXrRuntimeEnvValue = std::move(oldValue);
+  }
+
+  if (!vtksys::SystemTools::PutEnv("XR_RUNTIME_JSON=" + remotingXRPath))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenXRManagerRemoteConnection::EndInitialize()
+{
+  if (!this->OldXrRuntimeEnvValue.empty())
+  {
+    if (!vtksys::SystemTools::PutEnv("XR_RUNTIME_JSON=" + this->OldXrRuntimeEnvValue))
+    {
+      return false;
+    }
+  }
+  else if (!vtksys::SystemTools::UnPutEnv("XR_RUNTIME_JSON"))
+  {
+    return false;
+  }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------

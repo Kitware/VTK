@@ -26,6 +26,7 @@ public:
   vtkTypeMacro(vtkOpenXRManagerRemoteConnection, vtkOpenXRManagerConnection);
 
   bool Initialize() override;
+  bool EndInitialize() override;
   bool ConnectToRemote(XrInstance instance, XrSystemId id) override;
 
   /**
@@ -45,6 +46,8 @@ protected:
 private:
   vtkOpenXRManagerRemoteConnection(const vtkOpenXRManagerRemoteConnection&) = delete;
   void operator=(const vtkOpenXRManagerRemoteConnection&) = delete;
+
+  std::string OldXrRuntimeEnvValue;
 };
 
 VTK_ABI_NAMESPACE_END

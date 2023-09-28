@@ -58,6 +58,22 @@ public:
   bool XrCheckOutput(OutputLevel level, const XrResult&, const std::string& message);
   ///@}
 
+  /**
+   * Structure representing OpenXR instance version
+   */
+  struct VTKRENDERINGOPENXR_EXPORT InstanceVersion
+  {
+    std::uint16_t Major{};
+    std::uint16_t Minor{};
+    std::uint32_t Patch{};
+  };
+
+  /**
+   * Utility function to get XrInstance runtime version for given ConnectionStrategy
+   * This function creates a XrInstance, which may have a significant runtime overhead.
+   */
+  static InstanceVersion QueryInstanceVersion(vtkOpenXRManagerConnection* cs);
+
   ///@{
   /**
    * Utility functions to print information about OpenXR manager internal structures.
