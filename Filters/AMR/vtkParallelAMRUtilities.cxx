@@ -37,7 +37,6 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(
     }
     return;
   }
-  vtkAMRInformation* amrInfo = amr->GetAMRInfo();
   int myRank = controller->GetLocalProcessId();
   int numProcs = controller->GetNumberOfProcesses();
 
@@ -63,9 +62,6 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(
     offsets[i] = currentOffset;
     currentOffset += numBlocks[i];
   }
-  cout << "(" << myRank << ")"
-       << "total # of active blocks: " << currentOffset << " out of total "
-       << amrInfo->GetTotalNumberOfBlocks() << endl;
   std::vector<int> allBlocks(currentOffset, -1);
   controller->AllGatherV(myBlocks.data(), allBlocks.data(), (vtkIdType)myBlocks.size(),
     numBlocks.data(), offsets.data());
