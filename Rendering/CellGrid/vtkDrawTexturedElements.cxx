@@ -290,6 +290,7 @@ void vtkDrawTexturedElements::ArrayTextureData::Upload(
     return;
   }
   this->Buffer->SetType(this->BufferType);
+  this->Texture->SetRequireTextureInteger(this->IntegerTexture);
   this->Texture->SetContext(renderWindow);
   vtkSmartPointer<vtkDataArray> array = this->Array;
   // Narrow arrays of large values to a precision supported by base-OpenGL:
@@ -349,7 +350,6 @@ void vtkDrawTexturedElements::ArrayTextureData::Upload(
     vtkTemplateMacro(this->Buffer->Upload(
       static_cast<VTK_TT*>(array->GetVoidPointer(0)), array->GetMaxId() + 1, this->BufferType));
   }
-  this->Texture->SetRequireTextureInteger(this->IntegerTexture);
   int numberOfComponents = this->ScalarComponents ? 1 : array->GetNumberOfComponents();
   vtkIdType numberOfTuples =
     this->ScalarComponents ? array->GetMaxId() + 1 : array->GetNumberOfTuples();
@@ -488,7 +488,8 @@ void vtkDrawTexturedElements::DrawInstancedElements(
 
   // Render the element instances:
 #ifdef GL_ES_VERSION_3_0
-#error OpenGLES 3.2+ or OpenGL 3.2+ is required for the VTK::RenderingCellGrid module.
+  glDrawElementsInstanced(
+    this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
 #else
 #if 1
   if (GLEW_VERSION_3_1 && &glDrawElementsInstanced)
@@ -562,11 +563,13 @@ void vtkDrawTexturedElements::PrepareIBO()
   // It would be nice to test this in the constructor
   // but there is no current context at that point.
   // Instead, we test here to avoid testing on every render.
+#ifndef VTK_MODULE_vtkglew_GLES3
   if (!GLEW_VERSION_3_1)
   {
     vtkErrorWithObjectMacro(this->IBO, "OpenGL 3.1 or newer required.");
     throw std::runtime_error("OpenGL 3.1 or newer required.");
   }
+#endif
 
   this->P->UploadedIndexBuffer = this->UploadIBO();
   if (!this->P->UploadedIndexBuffer)
