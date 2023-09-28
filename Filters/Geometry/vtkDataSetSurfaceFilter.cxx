@@ -292,6 +292,10 @@ public:
   }
   vtkIdType FindEdge(vtkIdType endpoint1, vtkIdType endpoint2)
   {
+    if (endpoint1 == endpoint2)
+    {
+      return endpoint1;
+    }
     if (endpoint1 > endpoint2)
       std::swap(endpoint1, endpoint2);
     MapType::iterator iter = Map.find(std::make_pair(endpoint1, endpoint2));
@@ -1455,7 +1459,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
 
   // These are for subdividing quadratic cells
   std::vector<double> parametricCoords;
-  std::unique_ptr<vtkEdgeInterpolationMap> localEdgeMap;
+  std::unique_ptr<vtkEdgeInterpolationMap> localEdgeMap(new vtkEdgeInterpolationMap());
   vtkIdList* outPts;
   vtkIdList* pts2;
 
@@ -2028,21 +2032,38 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
         }
       }
 
+      bool isDegenerateCell = false;
+      auto isDegeneratedSubTriangle = [&](vtkIdType ii) {
+        return outPts->GetId(pts->GetId(ii)) == outPts->GetId(pts->GetId(ii + 1)) ||
+          outPts->GetId(pts->GetId(ii)) == outPts->GetId(pts->GetId(ii + 2)) ||
+          outPts->GetId(pts->GetId(ii + 1)) == outPts->GetId(pts->GetId(ii + 2));
+      };
+
       // Do any further subdivision if necessary.
       if (this->NonlinearSubdivisionLevel > 1 && pc)
       {
+        for (i = 0; i < pts->GetNumberOfIds(); i += 3)
+        {
+          if (isDegeneratedSubTriangle(i))
+          {
+            isDegenerateCell = true;
+            break;
+          }
+        }
+
         vtkIdType maxNumberOfIds =
           std::pow(4, this->NonlinearSubdivisionLevel - 1) * pts->GetNumberOfIds();
         pts2->Allocate(maxNumberOfIds);
         // We are going to need parametric coordinates to further subdivide.
         parametricCoords.resize(maxNumberOfIds * 3);
-        for (i = 0; i < numFacePts * 3; i++)
-        {
-          parametricCoords[i] = pc[i];
-        }
+        std::copy(&pc[0], &pc[0] + numFacePts * 3, parametricCoords.begin());
 
         // localEdgeMap is simular to this->EdgeMap, but only stores local ids
         localEdgeMap->clear();
+
+        auto isEqualTo1Or0 = [](double a, double e = 1e-10) {
+          return (std::abs(a) <= e) || (std::abs(a - 1) <= e);
+        };
 
         vtkIdType localIdCpt = numFacePts;
         vtkIdType pt1, pt2, id;
@@ -2052,6 +2073,37 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
         for (j = 1; j < this->NonlinearSubdivisionLevel; j++)
         {
           pts2->Reset();
+          if (isDegenerateCell)
+          {
+            // For degenerate cells, we can have multiple parametric points linked to the same
+            // output point. But we need to select a single one. The rule is to give priority to
+            // the points that are on the contour of the parametric space. This is necessary for
+            // connecting adjacent cells. The way we give this priority is by calling
+            // this->EdgeMap->FindEgde/AddEdge for those points first. So a first iteration over pts
+            // is performed to add those points. During the second iteration (the one not specific
+            // to degenerate cells), when trying to add a duplicate point, the edge map will return
+            // the output id of the already existing point.
+            double coords[3];
+            for (i = 0; i < pts->GetNumberOfIds(); i += 3)
+            {
+              for (k = 0; k < 3; k++)
+              {
+                pt1 = pts->GetId(i + k);
+                pt2 = pts->GetId(i + ((k < 2) ? (k + 1) : 0));
+                {
+                  coords[0] = 0.5 * (parametricCoords[pt1 * 3] + parametricCoords[pt2 * 3]);
+                  coords[1] = 0.5 * (parametricCoords[pt1 * 3 + 1] + parametricCoords[pt2 * 3 + 1]);
+                  coords[2] = 0.5 * (parametricCoords[pt1 * 3 + 2] + parametricCoords[pt2 * 3 + 2]);
+                  if (isEqualTo1Or0(coords[0]) || isEqualTo1Or0(coords[1]))
+                  {
+                    this->GetInterpolatedPointId(outPts->GetId(pt1), outPts->GetId(pt2), input,
+                      cell, coords, weights.data(), newPts, outputPD);
+                  }
+                }
+              }
+            }
+          }
+
           // Each triangle will be split into 4 triangles.
           for (i = 0; i < pts->GetNumberOfIds(); i += 3)
           {
@@ -2104,6 +2156,10 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
       }
       for (i = 0; i < pts->GetNumberOfIds(); i += 3)
       {
+        if (isDegenerateCell && isDegeneratedSubTriangle(i))
+        {
+          continue; // Do not record the degenerate triangle
+        }
         newPolys->InsertNextCell(3);
         newPolys->InsertCellPoint(outPts->GetId(pts->GetId(i)));
         newPolys->InsertCellPoint(outPts->GetId(pts->GetId(i + 1)));
