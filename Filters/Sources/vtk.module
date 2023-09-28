@@ -37,9 +37,10 @@ TEST_DEPENDS
   VTK::IOParallel
   VTK::IOXML
   VTK::InteractionStyle
-  VTK::ParallelMPI
   VTK::RenderingFreeType
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
