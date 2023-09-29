@@ -69,7 +69,6 @@ target_include_directories(token
     $<BUILD_INTERFACE:${token_BINARY_DIR}>
     # XXX(kitware): Use path that works with VTK module
     # $<INSTALL_INTERFACE:include/token/${token_VERSION}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/vtk${vtk_version_suffix}>
 )
 token_install_library(token)
 generate_export_header(token EXPORT_FILE_NAME Exports.h)
