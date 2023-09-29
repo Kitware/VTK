@@ -554,8 +554,8 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
   // Descend further into input trees only if cursor is not a leaf
   if (!supercursor->IsLeaf())
   {
-    // Cell is not selected until proven otherwise
-    bool selected = false;
+    // Selected cells are determined in RecursivelyPreProcessTree
+    bool selected = (this->SelectedCells->GetTuple1(id) == 1.0);
 
     // Iterate over contours
     for (vtkIdType c = 0; c < this->ContourValues->GetNumberOfContours() && !selected; ++c)
