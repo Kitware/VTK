@@ -67,6 +67,11 @@ vtkOpenXRManager::InstanceVersion vtkOpenXRManager::QueryInstanceVersion(
   output.Minor = XR_VERSION_MINOR(properties.runtimeVersion);
   output.Patch = XR_VERSION_PATCH(properties.runtimeVersion);
 
+  if (!cs->EndInitialize())
+  {
+    vtkWarningWithObjectMacro(nullptr, "Failed to terminate connection strategy initialization.");
+  }
+
   xrDestroyInstance(instance);
 
   return output;
