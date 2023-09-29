@@ -6,8 +6,7 @@ from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
 from vtkmodules.vtkFiltersSources import vtkCubeSource, vtkOutlineCornerFilter
 from vtkmodules.vtkFiltersCellGrid import vtkCellGridComputeSurface
 from vtkmodules.vtkRenderingCore import vtkRenderWindow, vtkRenderer, vtkActor, vtkPolyDataMapper
-from vtkmodules.vtkRenderingOpenGL2 import vtkShader, vtkShaderProgram
-from vtkmodules.vtkRenderingCellGrid import vtkArrayRenderer
+from vtkmodules.vtkRenderingOpenGL2 import vtkArrayRenderer, vtkShader, vtkShaderProgram
 from vtkmodules.vtkInteractionWidgets import vtkCameraOrientationWidget
 from vtkmodules.vtkIOCellGrid import vtkCellGridReader
 from vtkmodules.util.misc import vtkGetDataRoot

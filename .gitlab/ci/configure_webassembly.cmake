@@ -39,7 +39,6 @@ set(VTK_MODULE_ENABLE_VTK_IOOpenVDB NO CACHE STRING "") # no openvdb
 set(VTK_MODULE_ENABLE_VTK_IOPDAL NO CACHE STRING "") # no pdal
 set(VTK_MODULE_ENABLE_VTK_IOPostgreSQL NO CACHE STRING "") # no postgresql
 # ├── Rendering
-set(VTK_MODULE_ENABLE_VTK_RenderingCellGrid NO CACHE STRING "") # gl code incompatible with gles 3.0
 set(VTK_MODULE_ENABLE_VTK_RenderingExternal NO CACHE STRING "") # gl code incompatible with gles 3.0
 set(VTK_MODULE_ENABLE_VTK_RenderingFFMPEGOpenGL2 NO CACHE STRING "") # no ffmpeg
 set(VTK_MODULE_ENABLE_VTK_RenderingFreeTypeFontConfig NO CACHE STRING "") # no fontconfig

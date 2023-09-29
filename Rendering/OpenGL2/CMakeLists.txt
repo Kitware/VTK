@@ -1,4 +1,5 @@
 set(classes
+  vtkArrayRenderer
   vtkCameraPass
   vtkClearRGBPass
   vtkClearZPass
@@ -8,12 +9,19 @@ set(classes
   vtkDepthImageProcessingPass
   vtkDepthOfFieldPass
   vtkDepthPeelingPass
+  vtkDrawTexturedElements
   vtkDualDepthPeelingPass
   vtkEDLShading
   vtkEquirectangularToCubeMapTexture
   vtkFramebufferPass
   vtkGaussianBlurPass
   vtkGenericOpenGLRenderWindow
+  vtkGLSLModCamera
+  vtkGLSLModCoincidentTopology
+  vtkGLSLModLight
+  vtkGLSLModPixelDebugger
+  vtkGLSLModifierBase
+  vtkGLSLModifierFactory
   vtkHiddenLineRemovalPass
   vtkImageProcessingPass
   vtkLightingMapPass

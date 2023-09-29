@@ -641,16 +641,16 @@ public:
    * for optional extensions are set then the test fails when support
    * for them is not found.
    */
-  static bool IsSupported(vtkOpenGLRenderWindow*, bool /* requireTexFloat */,
-    bool /* requireDepthFloat */, bool /* requireTexInt */)
-  {
-    return true;
-  }
+  static bool IsSupported(vtkOpenGLRenderWindow* renWin, bool requireTexFloat,
+    bool requireDepthFloat, bool requireTexInt);
 
   /**
    * Check for feature support, without any optional features.
    */
-  static bool IsSupported(vtkOpenGLRenderWindow*) { return true; }
+  static bool IsSupported(vtkOpenGLRenderWindow* renWin)
+  {
+    return vtkTextureObject::IsSupported(renWin, false, false, false);
+  }
 
   ///@{
   /**
@@ -731,6 +731,11 @@ protected:
   ~vtkTextureObject() override;
 
   vtkGenericOpenGLResourceFreeCallback* ResourceCallback;
+
+  /**
+   * Load all necessary extensions.
+   */
+  bool LoadRequiredExtensions(vtkOpenGLRenderWindow* renWin);
 
   /**
    * Creates a texture handle if not already created.

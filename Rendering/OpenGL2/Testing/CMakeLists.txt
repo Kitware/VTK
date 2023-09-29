@@ -3,6 +3,7 @@ vtk_module_test_data(
   Data/autoshop.jpg
   Data/anisotropyTex.png
   Data/bunny.ply
+  Data/dgHexahedra.dg
   Data/clouds.jpeg
   Data/dragon.ply
   Data/normalMapping.png

@@ -41,13 +41,14 @@ int TestTextureBufferEmulation(int /*argc*/, char* /*argv*/[])
   bo->Upload(values, bo->GetType());
   // should get uploaded as a 2D texture.
   vtkNew<vtkTextureObject> aTexture;
+  aTexture->SetRequireTextureInteger(true);
   aTexture->SetContext(oglRenWin);
   success = aTexture->EmulateTextureBufferWith2DTextures(width * height, 4, VTK_UNSIGNED_CHAR, bo);
 
   using GLUtil = vtkOpenGLRenderUtilities;
   std::string fs = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
   // write code that indexes into a 2D texture.
-  vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl", "uniform sampler2D aTexture;");
+  vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl", "uniform usampler2D aTexture;");
   vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Impl",
     "vec2 pixelCoord = vec2(gl_FragCoord.x - 0.5, gl_FragCoord.y - 0.5);\n"
     "int i = int(pixelCoord.x);\n"
@@ -55,7 +56,7 @@ int TestTextureBufferEmulation(int /*argc*/, char* /*argv*/[])
     "int idx = i + j * " +
       std::to_string(width) +
       ";\n"
-      "gl_FragData[0] = texelFetch(aTexture, ivec2(idx, 0), 0);\n"
+      "gl_FragData[0] = texelFetch(aTexture, ivec2(idx, 0), 0) / 255.0f;\n"
       // gotta use texCoord, so that program is linked
       "gl_FragDepth = texCoord.x;\n");
   vtkShaderProgram* program = oglRenWin->GetShaderCache()->ReadyShaderProgram(
@@ -86,10 +87,17 @@ int TestTextureBufferEmulation(int /*argc*/, char* /*argv*/[])
   renWin->GetRGBACharPixelData(0, 0, width - 1, height - 1, /*front=*/1, output);
   for (vtkIdType i = 0; i < output->GetNumberOfValues(); ++i)
   {
-    // std::cout << int(output->GetValue(i)) << ' ';
     success &= (values[i] == output->GetValue(i));
   }
-  // std::cout << std::endl;
+  if (!success)
+  {
+    // if something didn't go right, print all values.
+    for (vtkIdType i = 0; i < output->GetNumberOfValues(); ++i)
+    {
+      std::cout << int(output->GetValue(i)) << ' ';
+    }
+    std::cout << std::endl;
+  }
 
   return success ? 0 : 1;
 }

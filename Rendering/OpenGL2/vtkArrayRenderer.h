@@ -10,6 +10,8 @@
 #ifndef vtkArrayRenderer_h
 #define vtkArrayRenderer_h
 
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+
 #include "vtkDrawTexturedElements.h" // Inherited helper class.
 #include "vtkMapper.h"
 
@@ -19,7 +21,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGCELLGRID_EXPORT vtkArrayRenderer
+class VTKRENDERINGOPENGL2_EXPORT vtkArrayRenderer
   : public vtkMapper
   , public vtkDrawTexturedElements
 {

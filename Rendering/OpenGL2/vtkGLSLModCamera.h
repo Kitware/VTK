@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGLSLModCamera
- * @brief   Implement light kit support in the OpenGL renderer for vtkCellGrid.
+ * @brief   Implement light kit support in the OpenGL rendereR.
  */
 
 #ifndef vtkGLSLModCamera_h
@@ -10,16 +10,16 @@
 
 #include "vtkGLSLModifierBase.h"
 
-#include "vtkMatrix3x3.h"               // for ivar
-#include "vtkMatrix4x4.h"               // for ivar
-#include "vtkRenderingCellGridModule.h" // for export macro
-#include "vtkWeakPointer.h"             // for ivar
+#include "vtkMatrix3x3.h"              // for ivar
+#include "vtkMatrix4x4.h"              // for ivar
+#include "vtkRenderingOpenGL2Module.h" // for export macro
+#include "vtkWeakPointer.h"            // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkInformationObjectBaseKey;
 
-class VTKRENDERINGCELLGRID_EXPORT vtkGLSLModCamera : public vtkGLSLModifierBase
+class VTKRENDERINGOPENGL2_EXPORT vtkGLSLModCamera : public vtkGLSLModifierBase
 {
 public:
   static vtkGLSLModCamera* New();

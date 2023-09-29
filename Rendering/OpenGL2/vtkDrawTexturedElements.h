@@ -15,7 +15,7 @@
 #ifndef vtkDrawTexturedElements_h
 #define vtkDrawTexturedElements_h
 
-#include "vtkRenderingCellGridModule.h" // For export macro
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include "vtkMatrix3x3.h"               // for ivar
 #include "vtkMatrix4x4.h"               // for ivar
@@ -48,7 +48,7 @@ class vtkShaderProgram;
 class vtkTextureObject;
 class vtkWindow;
 
-class VTKRENDERINGCELLGRID_EXPORT vtkDrawTexturedElements
+class VTKRENDERINGOPENGL2_EXPORT vtkDrawTexturedElements
 {
 public:
   vtkDrawTexturedElements();

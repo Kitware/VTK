@@ -10,17 +10,17 @@
 
 #include "vtkGLSLModifierBase.h"
 
-#include "vtkMatrix3x3.h"               // for ivar
-#include "vtkMatrix4x4.h"               // for ivar
-#include "vtkRenderingCellGridModule.h" // for export macro
-#include "vtkWeakPointer.h"             // for ivar
+#include "vtkMatrix3x3.h"              // for ivar
+#include "vtkMatrix4x4.h"              // for ivar
+#include "vtkRenderingOpenGL2Module.h" // for export macro
+#include "vtkWeakPointer.h"            // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkInformationObjectBaseKey;
 class vtkMapper;
 
-class VTKRENDERINGCELLGRID_EXPORT vtkGLSLModCoincidentTopology : public vtkGLSLModifierBase
+class VTKRENDERINGOPENGL2_EXPORT vtkGLSLModCoincidentTopology : public vtkGLSLModifierBase
 {
 public:
   static vtkGLSLModCoincidentTopology* New();

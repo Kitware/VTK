@@ -63,17 +63,17 @@
 
 #include "vtkGLSLModifierBase.h"
 
-#include "vtkOpenGLRenderer.h"          // for ivar
-#include "vtkRenderingCellGridModule.h" // for export macro
-#include "vtkStringToken.h"             // for ivar
-#include "vtkWeakPointer.h"             // for ivar
+#include "vtkOpenGLRenderer.h"         // for ivar
+#include "vtkRenderingOpenGL2Module.h" // for export macro
+#include "vtkStringToken.h"            // for ivar
+#include "vtkWeakPointer.h"            // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkInformationObjectBaseKey;
 class vtkOpenGLRenderer;
 
-class VTKRENDERINGCELLGRID_EXPORT vtkGLSLModPixelDebugger : public vtkGLSLModifierBase
+class VTKRENDERINGOPENGL2_EXPORT vtkGLSLModPixelDebugger : public vtkGLSLModifierBase
 {
 public:
   static vtkGLSLModPixelDebugger* New();

@@ -25,8 +25,8 @@
 
 #include <cassert>
 
-//#define VTK_TO_DEBUG
-//#define VTK_TO_TIMING
+// #define VTK_TO_DEBUG
+// #define VTK_TO_TIMING
 
 #ifdef VTK_TO_TIMING
 #include "vtkTimerLog.h"
@@ -176,6 +176,69 @@ vtkTextureObject::~vtkTextureObject()
     this->ShaderProgram = nullptr;
   }
 }
+//----------------------------------------------------------------------------
+bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win), bool requireTexFloat,
+  bool requireDepthFloat, bool requireTexInt)
+{
+#ifdef GL_ES_VERSION_3_0
+  (void)requireTexFloat;
+  (void)requireDepthFloat;
+  (void)requireTexInt;
+  return true;
+#elif __APPLE__
+  // Cannot trust glew on apple systems
+  (void)requireTexFloat;
+  (void)requireDepthFloat;
+  (void)requireTexInt;
+  return true;
+#else
+  bool texFloat = true;
+  if (requireTexFloat)
+  {
+    texFloat =
+      (glewIsSupported("GL_ARB_texture_float") != 0 && glewIsSupported("GL_ARB_texture_rg") != 0);
+  }
+
+  bool depthFloat = true;
+  if (requireDepthFloat)
+  {
+    depthFloat = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
+  }
+
+  bool texInt = true;
+  if (requireTexInt)
+  {
+    texInt = (glewIsSupported("GL_EXT_texture_integer") != 0);
+  }
+
+  return texFloat && depthFloat && texInt;
+#endif
+}
+
+//----------------------------------------------------------------------------
+bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow* renWin)
+{
+#ifdef GL_ES_VERSION_3_0
+  this->SupportsTextureInteger = true;
+  this->SupportsTextureFloat = true;
+  this->SupportsDepthBufferFloat = true;
+#elif __APPLE__
+  // Cannot trust glew on apple systems. OpenGL 3.2 on apple supports these features.
+  this->SupportsTextureInteger = true;
+  this->SupportsTextureFloat = true;
+  this->SupportsDepthBufferFloat = true;
+#else
+  this->SupportsTextureInteger = (glewIsSupported("GL_EXT_texture_integer") != 0);
+
+  this->SupportsTextureFloat =
+    (glewIsSupported("GL_ARB_texture_float") != 0 && glewIsSupported("GL_ARB_texture_rg") != 0);
+
+  this->SupportsDepthBufferFloat = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
+#endif
+
+  return this->IsSupported(
+    renWin, this->RequireTextureFloat, this->RequireDepthBufferFloat, this->RequireTextureInteger);
+}
 
 //------------------------------------------------------------------------------
 void vtkTextureObject::SetContext(vtkOpenGLRenderWindow* renWin)
@@ -195,6 +258,12 @@ void vtkTextureObject::SetContext(vtkOpenGLRenderWindow* renWin)
   // all done if assigned null
   if (!renWin)
   {
+    return;
+  }
+
+  if (!this->LoadRequiredExtensions(renWin))
+  {
+    vtkErrorMacro("Required OpenGL extensions not supported by the context.");
     return;
   }
 
@@ -684,7 +753,6 @@ unsigned int vtkTextureObject::GetDefaultFormat(
     return GL_DEPTH_COMPONENT;
   }
 
-#ifndef GL_ES_VERSION_3_0
   if (this->SupportsTextureInteger && shaderSupportsTextureInt &&
     (vtktype == VTK_SIGNED_CHAR || vtktype == VTK_UNSIGNED_CHAR || vtktype == VTK_SHORT ||
       vtktype == VTK_UNSIGNED_SHORT || vtktype == VTK_INT || vtktype == VTK_UNSIGNED_INT))
@@ -695,10 +763,17 @@ unsigned int vtkTextureObject::GetDefaultFormat(
         return GL_RED_INTEGER;
       case 2:
         return GL_RG_INTEGER;
+#ifdef GL_ES_VERSION_3_0
+      case 3:
+        return GL_RGB_INTEGER;
+      case 4:
+        return GL_RGBA_INTEGER;
+#else
       case 3:
         return GL_RGB_INTEGER_EXT;
       case 4:
         return GL_RGBA_INTEGER_EXT;
+#endif
     }
   }
   else
@@ -714,28 +789,6 @@ unsigned int vtkTextureObject::GetDefaultFormat(
       case 4:
         return GL_RGBA;
     }
-#else
-  (void)shaderSupportsTextureInt;
-  {
-    switch (numComps)
-    {
-#ifdef GL_RED
-      case 1:
-        return GL_RED;
-      case 2:
-        return GL_RG;
-#else
-      case 1:
-        return GL_LUMINANCE;
-      case 2:
-        return GL_LUMINANCE_ALPHA;
-#endif
-      case 3:
-        return GL_RGB;
-      case 4:
-        return GL_RGBA;
-    }
-#endif
   }
   return GL_RGB;
 }
@@ -1185,7 +1238,13 @@ bool vtkTextureObject::EmulateTextureBufferWith2DTextures(
     pbo->UnBind();
 
     // source a 2D texture with the pbo.
-    this->Create2D(width, height, numComps, pbo, false);
+    const int vtktype = pbo->GetType();
+    bool isIntegral = false;
+    switch (vtktype)
+    {
+      vtkTemplateMacro(isIntegral = std::is_integral<VTK_TT>());
+    }
+    this->Create2D(width, height, numComps, pbo, isIntegral);
     return true;
   }
 }
