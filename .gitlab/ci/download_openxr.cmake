@@ -12,7 +12,7 @@ else ()
     "Unknown platform for OpenXR")
 endif ()
 
-set(openxr_url_root "https://github.com/KhronosGroup/OpenXR-SDK-Source/releases/download/release-${openxr_version}")
+set(openxr_url_root "https://paraview.org/files/dependencies/")
 set(openxr_file "openxr_loader_${openxr_platform}-${openxr_version}.${openxr_ext}")
 
 # Download the file.

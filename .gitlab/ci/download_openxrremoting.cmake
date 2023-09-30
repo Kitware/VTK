@@ -12,12 +12,12 @@ else ()
     "Unknown platform for OpenXRRemoting")
 endif ()
 
-set(openxrremoting_url_root "https://www.nuget.org/api/v2/package/Microsoft.Holographic.Remoting.OpenXr/")
+set(openxrremoting_url_root "https://paraview.org/files/dependencies/")
 set(openxrremoting_file "microsoft.holographic.remoting.openxr.${openxrremoting_version}.${openxrremoting_ext}")
 
 # Download the file.
 file(DOWNLOAD
-  "${openxrremoting_url_root}/${openxrremoting_version}"
+  "${openxrremoting_url_root}/${openxrremoting_file}"
   ".gitlab/openxrremoting/${openxrremoting_file}"
   STATUS download_status
   EXPECTED_HASH "SHA256=${openxrremoting_hash}")
