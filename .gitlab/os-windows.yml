@@ -225,6 +225,11 @@
     - cmake -P .gitlab/ci/download_tbb.cmake
     - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\tbb;$env:CMAKE_PREFIX_PATH"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\tbb\redist\$env:TBB_REDIST_DIR;$env:PATH"
+    - cmake -P .gitlab/ci/download_openxr.cmake
+    - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\openxr;$env:CMAKE_PREFIX_PATH"
+    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\openxr\x64\bin;$env:PATH"
+    - cmake -P .gitlab/ci/download_openxrremoting.cmake
+    - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\openxrremoting\build\native;$env:CMAKE_PREFIX_PATH"
 
 .cmake_build_windows:
     stage: build
