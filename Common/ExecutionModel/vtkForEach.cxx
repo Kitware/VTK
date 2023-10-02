@@ -197,7 +197,7 @@ int vtkForEach::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
     this->Internal->CurrentIteration = 0;
   }
 
-  std::cout << "CurrentIteration: " << this->Internal->CurrentIteration << std::endl;
+  vtkDebugMacro("ForEach Iteration: " << this->Internal->CurrentIteration);
 
   int res =
     this->Internal->Range->RequestData(this->Internal->CurrentIteration, inputVector, outputVector);
