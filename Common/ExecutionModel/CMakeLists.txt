@@ -1,4 +1,5 @@
 set(classes
+  vtkAggregateToPartitionedDataSetCollection
   vtkAlgorithm
   vtkAlgorithmOutput
   vtkAnnotationLayersAlgorithm
@@ -12,13 +13,17 @@ set(classes
   vtkDataSetAlgorithm
   vtkDemandDrivenPipeline
   vtkDirectedGraphAlgorithm
+  vtkEndFor
   vtkEnsembleSource
+  vtkExecutionAggregator
+  vtkExecutionRange
   vtkExecutive
   vtkExplicitStructuredGridAlgorithm
   vtkExtentRCBPartitioner
   vtkExtentSplitter
   vtkExtentTranslator
   vtkFilteringInformationKeyManager
+  vtkForEach
   vtkGraphAlgorithm
   vtkHierarchicalBoxDataSetAlgorithm
   vtkHyperTreeGridAlgorithm
@@ -58,6 +63,7 @@ set(classes
   vtkTableAlgorithm
   vtkThreadedCompositeDataPipeline
   vtkThreadedImageAlgorithm
+  vtkTimeRange
   vtkTreeAlgorithm
   vtkTrivialConsumer
   vtkTrivialProducer
