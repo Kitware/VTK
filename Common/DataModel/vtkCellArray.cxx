@@ -526,6 +526,12 @@ vtkCellArray::vtkCellArray() = default;
 vtkCellArray::~vtkCellArray() = default;
 vtkStandardNewMacro(vtkCellArray);
 
+#ifdef VTK_USE_64BIT_IDS
+bool vtkCellArray::DefaultStorageIs64Bit = true;
+#else
+bool vtkCellArray::DefaultStorageIs64Bit = false;
+#endif
+
 //=================== Begin Legacy Methods ===================================
 // These should be deprecated at some point as they are confusing or very slow
 
