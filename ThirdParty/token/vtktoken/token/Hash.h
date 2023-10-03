@@ -13,7 +13,7 @@ using Hash = std::uint32_t;
 
 /// An invalid hash (that should never exist inside the manager's storage).
 /// This value corresponds to the hash computed for an empty string.
-constexpr Hash Invalid = 0x811c9dc5;
+inline constexpr Hash Invalid() { return 0x811c9dc5; }
 
 token_CLOSE_NAMESPACE
 

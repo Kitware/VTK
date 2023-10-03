@@ -96,9 +96,9 @@ int testManager(int, char*[])
   for (std::size_t ii = 0; ii < s1.size(); ++ii)
   {
     hashes[2 + ii] = manager->manage(s1[ii]);
-    test(hashes[2 + ii] != Manager::Invalid, "Zero hashes are not OK.");
+    test(hashes[2 + ii] != Manager::Invalid(), "Zero hashes are not OK.");
     hashes[7 + ii] = manager->manage(s2[ii]);
-    test(hashes[7 + ii] != Manager::Invalid, "Zero hashes are not OK.");
+    test(hashes[7 + ii] != Manager::Invalid(), "Zero hashes are not OK.");
     auto hs1 = manager->insert("fooset", hashes[2 + ii]);
     std::cout << "Inserted into set " << hs1 << "\n";
     test(hs1 == hashes[0], "Expected hash equivalence (hs1).");
@@ -123,12 +123,12 @@ int testManager(int, char*[])
   // Test visitation of entire manager.
   Manager::Visit didHalt;
   vcount = 0;
-  didHalt = manager->visitMembers(nullptr, Manager::Invalid);
+  didHalt = manager->visitMembers(nullptr, Manager::Invalid());
   test(didHalt == Manager::Visit::Halt, "Expected barfage when passing a null visitor.");
   test(vcount == 0, "Expected to visit 0 entries.");
 
   vcount = 0;
-  didHalt = manager->visitMembers(visitor, Manager::Invalid);
+  didHalt = manager->visitMembers(visitor, Manager::Invalid());
   test(
     didHalt == Manager::Visit::Continue,
     "Not expecting barfage when passing a valid visitor.");
@@ -158,10 +158,10 @@ int testManager(int, char*[])
   auto numRemoved = manager->unmanage(hashes[0]);
   std::cout << "Removing " << name << " erased " << numRemoved << " entries.\n";
   test(numRemoved == 6, "Expected to remove fooset and all its members.");
-  test(manager->find("fooset") == Manager::Invalid, "Expected fooset to be removed.");
+  test(manager->find("fooset") == Manager::Invalid(), "Expected fooset to be removed.");
   for (int ii = 0; ii < 5; ++ii)
   {
-    test(manager->find(s1[ii]) == Manager::Invalid, "Expected " + s1[ii] + " to be removed.");
+    test(manager->find(s1[ii]) == Manager::Invalid(), "Expected " + s1[ii] + " to be removed.");
   }
 
   // Test removal from set but not "un-manage-ment."
@@ -173,14 +173,14 @@ int testManager(int, char*[])
   }
 
   // Test lookup from hash and that a bad hash fails.
-  test(manager->value(token_NAMESPACE::Manager::Invalid).empty(), "Expected an empty string.");
+  test(manager->value(token_NAMESPACE::Manager::Invalid()).empty(), "Expected an empty string.");
 
   // Test lookup and that an unmanaged string returns Invalid.
   test(
-    manager->find("not there") == Manager::Invalid,
+    manager->find("not there") == Manager::Invalid(),
     "Expected an unmanaged string to return an invalid hash.");
 
-  // Test that compute() will never return Manager::Invalid.
+  // Test that compute() will never return Manager::Invalid().
   // We can't test all unputs, but we can try a few.
   test(!!manager->compute(std::string()), "Expected a valid hash from an empty string.");
 
@@ -195,7 +195,7 @@ int testManager(int, char*[])
   manager = j;
 
   vcount = 0;
-  didHalt = manager->visitMembers(visitor, Manager::Invalid);
+  didHalt = manager->visitMembers(visitor, Manager::Invalid());
   std::cout << vcount << " members\n";
   test(vcount == 11, "Expected to deserialize 11 members.");
 
