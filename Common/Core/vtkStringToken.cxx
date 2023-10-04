@@ -16,7 +16,7 @@ vtkStringToken::vtkStringToken(const char* data, std::size_t size)
 {
   if (!data)
   {
-    this->Id = token_NAMESPACE::Invalid;
+    this->Id = token_NAMESPACE::Invalid();
   }
   else
   {
@@ -40,7 +40,7 @@ const std::string& vtkStringToken::Data() const
 
 bool vtkStringToken::IsValid() const
 {
-  return this->Id != token_NAMESPACE::Invalid;
+  return this->Id != token_NAMESPACE::Invalid();
 }
 
 bool vtkStringToken::HasData() const
@@ -50,7 +50,7 @@ bool vtkStringToken::HasData() const
 
 vtkStringToken::Hash vtkStringToken::InvalidHash()
 {
-  return token_NAMESPACE::Invalid;
+  return token_NAMESPACE::Invalid();
 }
 
 bool vtkStringToken::AddChild(vtkStringToken member)

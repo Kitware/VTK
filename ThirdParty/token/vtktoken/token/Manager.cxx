@@ -73,7 +73,7 @@ Hash Manager::find(const std::string& ss) const
     LockGuard lock(this->m_writeLock);
     hh = this->computeInternal(ss, lock);
   }
-  return hh.second ? hh.first : Invalid;
+  return hh.second ? hh.first : Invalid();
 }
 
 Hash Manager::compute(const std::string& ss) const
@@ -89,10 +89,10 @@ Hash Manager::insert(const std::string& ss, Hash hh)
   // Verify \a h is managed.
   if (m_data.find(hh) == m_data.end())
   {
-    return Invalid;
+    return Invalid();
   }
   // Insert \a h into \a ss.
-  std::pair<Hash, bool> setHash{ Invalid, false };
+  std::pair<Hash, bool> setHash{ Invalid(), false };
   {
     setHash = this->computeInternalAndInsert(ss, lock);
     didInsert = m_sets[setHash.first].insert(hh).second;
@@ -121,7 +121,7 @@ bool Manager::remove(const std::string& ss, Hash hh)
   // Verify \a h is managed.
   if (m_data.find(hh) == m_data.end())
   {
-    return Invalid;
+    return Invalid();
   }
   // Remove \a hh from \a ss.
   auto setHash = this->computeInternalAndInsert(ss, lock);
@@ -176,7 +176,7 @@ bool Manager::contains(const std::string& ss, Hash hh) const
 bool Manager::contains(Hash ss, Hash hh) const
 {
   LockGuard lock(this->m_writeLock);
-  if (ss == Invalid)
+  if (ss == Invalid())
   {
     auto mit = m_data.find(hh);
     return mit != m_data.end();
@@ -193,7 +193,7 @@ Manager::Visit Manager::visitMembers(Visitor visitor, Hash ss) const
   }
 
   std::unordered_set<Hash> currentSet;
-  if (ss == Invalid)
+  if (ss == Invalid())
   {
     // Copy keys from m_data and iterate over them all.
     {
@@ -296,7 +296,7 @@ std::pair<Hash, bool> Manager::computeInternalAndInsert(
   const std::string& ss, const LockGuard& proofOfLock)
 {
   std::pair<Hash, bool> result = this->computeInternal(ss, proofOfLock);
-  if (result.first != Invalid)
+  if (result.first != Invalid())
   {
     m_data[result.first] = ss;
     result.second = true;

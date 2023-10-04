@@ -132,13 +132,13 @@ int testToken(int, char*[])
     ++expectedCandy;
   }
 
-  token_NAMESPACE::Token naughty(token_NAMESPACE::Invalid);
+  token_NAMESPACE::Token naughty(token_NAMESPACE::Invalid());
   token_NAMESPACE::Token uninitialized;
   test(!naughty.valid(), "Improper validity check.");
   test(!uninitialized.valid(), "Uninitialized tokens should be invalid.");
 
   token_NAMESPACE::Token emptyString("");
   std::cout << "Empty string has ID " << std::hex << emptyString.getId() << "\n";
-  test(emptyString.getId() == token_NAMESPACE::Invalid, "Expected zero-length string to have invalid hash.");
+  test(emptyString.getId() == token_NAMESPACE::Invalid(), "Expected zero-length string to have invalid hash.");
   return 0;
 }

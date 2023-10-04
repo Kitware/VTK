@@ -54,7 +54,7 @@ public:
   const std::string& data() const;
 
   /// Return true if the hash has been initialized; false otherwise.
-  bool valid() const { return m_id != Invalid; }
+  bool valid() const { return m_id != Invalid(); }
   /// Return true if there is a non-empty string for the ID in this token.
   bool hasData() const;
 

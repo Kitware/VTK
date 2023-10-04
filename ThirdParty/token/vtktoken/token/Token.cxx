@@ -16,7 +16,7 @@ Token::Token(const char* data, std::size_t size)
 {
   if (!data)
   {
-    m_id = token_NAMESPACE::Invalid;
+    m_id = token_NAMESPACE::Invalid();
   }
   else
   {

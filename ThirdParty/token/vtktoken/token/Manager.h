@@ -41,7 +41,7 @@ public:
   using Visitor = std::function<Visit(Hash entry)>;
   /// An invalid hash (that should never exist inside the manager's storage).
   /// This corresponds to the empty string:
-  static constexpr Hash Invalid = 0x811c9dc5;
+  static inline constexpr Hash Invalid() { return 0x811c9dc5; }
 
   /// Insert a string into the manager by computing a unique hash (the returned value).
   Hash manage(const std::string& ss);
@@ -52,7 +52,7 @@ public:
   /// Look up a string from its hashed value, \a hh.
   const std::string& value(Hash hh) const;
   /// Look up a hash from a string value (without inserting it).
-  /// If the string has not been previously managed, then Manager::Invalid will be returned.
+  /// If the string has not been previously managed, then Manager::Invalid() will be returned.
   Hash find(const std::string& s) const;
   /// Compute a hash from a string value (without inserting it into the manager).
   /// If the string is not already managed, this will compute the hash value
@@ -60,7 +60,7 @@ public:
   /// This method allows hash collisions to be avoided; one can compute a hash while the
   /// map is write-locked and insert if needed.
   ///
-  /// Unlike the \a find() method, this will never return Manager::Invalid.
+  /// Unlike the \a find() method, this will never return Manager::Invalid().
   Hash compute(const std::string& ss) const;
 
   /// Add the hash \a hh to the set \a ss.
@@ -81,17 +81,17 @@ public:
 
   /**\brief Return true if the set \a ss exists and contains hash \a hh ; and false otherwise.
    *
-   * If \a ss is Invalid, then this returns true if the hash exists in \a Data
+   * If \a ss is Invalid(), then this returns true if the hash exists in \a Data
    * and false otherwise.
    */
   bool contains(const std::string& ss, Hash hh) const;
   bool contains(Hash ss, Hash hh) const;
-  bool contains(Hash hh) const { return this->contains(Invalid, hh); }
+  bool contains(Hash hh) const { return this->contains(Invalid(), hh); }
 
   /// Return true if the manager is empty (i.e., managing no hashes) and false otherwise.
   bool empty() const { return m_data.empty(); }
 
-  /// Visit all members of the set (or the entire Manager if passed the Invalid hash).
+  /// Visit all members of the set (or the entire Manager if passed the Invalid() hash).
   ///
   /// Note that this method makes a copy of the set keys at the time it is invoked and
   /// visits them. Other threads (or even your \a visitor) may modify the string manager
@@ -99,7 +99,7 @@ public:
   /// the hash provided to it has a valid entry.
   ///
   /// You may terminate early by returning Visit::Halt.
-  Visit visitMembers(Visitor visitor, Hash set = Invalid) const;
+  Visit visitMembers(Visitor visitor, Hash set = Invalid()) const;
 
   /// Visit all set names in the manager.
   ///
