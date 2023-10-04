@@ -1242,10 +1242,29 @@ bool vtkFDSReader::ParseGRID(const std::vector<int>& baseNodes)
       return false;
     }
 
-    // Discard line (contains unused info)
+    // We must skip grid coordinates (along X, Y or Z axis) beginning with "-1"
+    // Here we parse the number of such lines.
+    unsigned int nbOfLinesToDiscard = 0;
+    if (!parser.Parse(nbOfLinesToDiscard))
+    {
+      vtkErrorMacro(
+        "Could not read line " << parser.LineNumber << " where expected a positive number.");
+      return false;
+    }
+
+    // Discard the rest of the line
     if (!parser.DiscardLine())
     {
       return false;
+    }
+
+    // Discard all grid coordinates (along X, Y or Z axis) beginning with "-1"
+    for (unsigned int lineNb = 0; lineNb < nbOfLinesToDiscard; lineNb++)
+    {
+      if (!parser.DiscardLine())
+      {
+        return false;
+      }
     }
 
     vtkNew<vtkDoubleArray> coordArray;
