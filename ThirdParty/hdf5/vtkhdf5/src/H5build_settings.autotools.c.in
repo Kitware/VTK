@@ -1,0 +1,119 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Copyright by The HDF Group.                                               *
+ * All rights reserved.                                                      *
+ *                                                                           *
+ * This file is part of HDF5.  The full HDF5 copyright notice, including     *
+ * terms governing use, modification, and redistribution, is contained in    *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+#include "H5private.h"
+
+H5_GCC_DIAG_OFF("larger-than=")
+H5_CLANG_DIAG_OFF("overlength-strings")
+
+/* clang-format off */
+const char H5build_settings[]=
+    "        SUMMARY OF THE HDF5 CONFIGURATION\n"
+    "        =================================\n"
+    "\n"
+    "General Information:\n"
+    "-------------------\n"
+    "                   HDF5 Version: @H5_VERSION@\n"
+    "                  Configured on: @CONFIG_DATE@\n"
+    "                  Configured by: @CONFIG_USER@\n"
+    "                    Host system: @host_cpu@-@host_vendor@-@host_os@\n"
+    "              Uname information: @UNAME_INFO@\n"
+    "                       Byte sex: @BYTESEX@\n"
+    "             Installation point: @prefix@\n"
+    "\n"
+    "Compiling Options:\n"
+    "------------------\n"
+    "                     Build Mode: @BUILD_MODE@\n"
+    "              Debugging Symbols: @SYMBOLS@\n"
+    "                        Asserts: @ASSERTS@\n"
+    "                      Profiling: @PROFILING@\n"
+    "             Optimization Level: @OPTIMIZATION@\n"
+    "\n"
+    "Linking Options:\n"
+    "----------------\n"
+    "                      Libraries: @STATIC_SHARED@\n"
+    "  Statically Linked Executables: @LT_STATIC_EXEC@\n"
+    "                        LDFLAGS: @LDFLAGS@\n"
+    "                     H5_LDFLAGS: @H5_LDFLAGS@\n"
+    "                     AM_LDFLAGS: @AM_LDFLAGS@\n"
+    "                Extra libraries: @LIBS@\n"
+    "                       Archiver: @AR@\n"
+    "                       AR_FLAGS: @AR_FLAGS@\n"
+    "                         Ranlib: @RANLIB@\n"
+    "\n"
+    "Languages:\n"
+    "----------\n"
+    "                              C: yes\n"
+    "                     C Compiler: @CC_VERSION@\n"
+    "                       CPPFLAGS: @CPPFLAGS@\n"
+    "                    H5_CPPFLAGS: @H5_CPPFLAGS@\n"
+    "                    AM_CPPFLAGS: @AM_CPPFLAGS@\n"
+    "                        C Flags: @CFLAGS@\n"
+    "                     H5 C Flags: @H5_CFLAGS@\n"
+    "                     AM C Flags: @AM_CFLAGS@\n"
+    "               Shared C Library: @enable_shared@\n"
+    "               Static C Library: @enable_static@\n"
+    "\n"
+    "\n"
+    "                        Fortran: @HDF_FORTRAN@\n"
+@BUILD_FORTRAN_CONDITIONAL_TRUE@    "               Fortran Compiler: @FC_VERSION@\n"
+@BUILD_FORTRAN_CONDITIONAL_TRUE@    "                  Fortran Flags: @FCFLAGS@\n"
+@BUILD_FORTRAN_CONDITIONAL_TRUE@    "               H5 Fortran Flags: @H5_FCFLAGS@\n"
+@BUILD_FORTRAN_CONDITIONAL_TRUE@    "               AM Fortran Flags: @AM_FCFLAGS@\n"
+@BUILD_FORTRAN_CONDITIONAL_TRUE@    "         Shared Fortran Library: @H5_FORTRAN_SHARED@\n"
+@BUILD_FORTRAN_CONDITIONAL_TRUE@    "         Static Fortran Library: @enable_static@\n"
+@BUILD_FORTRAN_CONDITIONAL_TRUE@    "               Module Directory: @fmoddir@\n"
+    "\n"
+    "                            C++: @HDF_CXX@\n"
+@BUILD_CXX_CONDITIONAL_TRUE@    "                   C++ Compiler: @CXX_VERSION@\n"
+@BUILD_CXX_CONDITIONAL_TRUE@    "                      C++ Flags: @CXXFLAGS@\n"
+@BUILD_CXX_CONDITIONAL_TRUE@    "                   H5 C++ Flags: @H5_CXXFLAGS@\n"
+@BUILD_CXX_CONDITIONAL_TRUE@    "                   AM C++ Flags: @AM_CXXFLAGS@\n"
+@BUILD_CXX_CONDITIONAL_TRUE@    "             Shared C++ Library: @enable_shared@\n"
+@BUILD_CXX_CONDITIONAL_TRUE@    "             Static C++ Library: @enable_static@\n"
+    "\n"
+    "                           Java: @HDF_JAVA@\n"
+@BUILD_JAVA_CONDITIONAL_TRUE@    "                  Java Compiler: @JAVA_VERSION@\n"
+    "\n"
+    "\n"
+    "Features:\n"
+    "---------\n"
+    "                     Parallel HDF5: @PARALLEL@\n"
+    "  Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@\n"
+    "                Large Parallel I/O: @LARGE_PARALLEL_IO@\n"
+    "                High-level library: @HDF5_HL@\n"
+    "Dimension scales w/ new references: @DIMENSION_SCALES_WITH_NEW_REF@\n"
+    "                  Build HDF5 Tests: @HDF5_TESTS@\n"
+    "                  Build HDF5 Tools: @HDF5_TOOLS@\n"
+    "                   Build GIF Tools: @HDF5_HL_GIF_TOOLS@\n"
+    "                      Threadsafety: @THREADSAFE@\n"
+    "               Default API mapping: @DEFAULT_API_VERSION@\n"
+    "    With deprecated public symbols: @DEPRECATED_SYMBOLS@\n"
+    "            I/O filters (external): @EXTERNAL_FILTERS@\n"
+    "                     Map (H5M) API: @MAP_API@\n"
+    "                        Direct VFD: @DIRECT_VFD@\n"
+    "                        Mirror VFD: @MIRROR_VFD@\n"
+    "                     Subfiling VFD: @SUBFILING_VFD@\n"
+    "                (Read-Only) S3 VFD: @ROS3_VFD@\n"
+    "              (Read-Only) HDFS VFD: @HAVE_LIBHDFS@\n"
+    "    Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@\n"
+    "                       API tracing: @TRACE_API@\n"
+    "              Using memory checker: @USINGMEMCHECKER@\n"
+    "            Function stack tracing: @CODESTACK@\n"
+    "                  Use file locking: @DESIRED_FILE_LOCKING@\n"
+    "         Strict file format checks: @STRICT_FORMAT_CHECKS@\n"
+    "      Optimization instrumentation: @INSTRUMENT_LIBRARY@\n"
+;
+/* clang-format on */
+
+H5_GCC_DIAG_ON("larger-than=")
+H5_CLANG_DIAG_OFF("overlength-strings")
