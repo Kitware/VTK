@@ -107,6 +107,7 @@ private:
   bool ParseBNDF();
 
   vtkSmartPointer<vtkResourceStream> Open();
+  std::string SanitizeName(const std::string& name);
 
   int AssemblyTag = 0;
   std::string FileName;
