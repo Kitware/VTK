@@ -6,7 +6,7 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmCoreCxxTests tests
   TestVTKMImplicitDataArray.cxx,NO_VALID
   )
 
-if (TARGET vtkm::cuda)
+if (TARGET vtkm::cuda OR TARGET vtkm::kokkos_cuda)
   foreach(src IN LISTS tests)
     string(REPLACE "," ";" src ${src})
     list(GET src 0 src)
