@@ -375,9 +375,10 @@ public:
 
   vtkSetMacro(LowResMode, int);
   vtkGetMacro(LowResMode, int)
-    ///@}
+  ///@}
 
-    protected : vtkSmartVolumeMapper();
+protected:
+  vtkSmartVolumeMapper();
   ~vtkSmartVolumeMapper() override;
 
   /**

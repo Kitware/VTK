@@ -404,11 +404,11 @@ public:
   vtkSetMacro(ContentVersion, vtkTypeUInt32);
   vtkGetMacro(ContentVersion, vtkTypeUInt32)
 
-    ///@{
-    /**
-     * Retrieve an instance of this class from an information object.
-     */
-    static vtkCellGrid* GetData(vtkInformation* info);
+  ///@{
+  /**
+   * Retrieve an instance of this class from an information object.
+   */
+  static vtkCellGrid* GetData(vtkInformation* info);
   static vtkCellGrid* GetData(vtkInformationVector* v, int i = 0);
   ///@}
 
