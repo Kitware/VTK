@@ -127,6 +127,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestPolyhedronDecompose.cxx,NO_DATA
   TestSmoothErrorMetric.cxx
   TestQuadraticPolygonFilters.cxx
+  TestNonlinearSubdivisionOfDegenerateCells.cxx,NO_DATA
   )
 # add to the list but don't define a test
 list(APPEND data_tests
