@@ -164,8 +164,8 @@ public:
    *
    * For other FindCell signatures, see vtkAbstractCellLocator.
    */
-  vtkIdType FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* cell, int& subId,
-    double pcoords[3], double* weights) override;
+  vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* cell, int& subId, double pcoords[3],
+    double* weights) override;
 
   /**
    * Quickly test if a point is inside the bounds of a particular cell.

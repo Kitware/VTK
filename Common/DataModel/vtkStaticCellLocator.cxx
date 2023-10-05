@@ -270,8 +270,8 @@ struct vtkCellProcessor
   virtual ~vtkCellProcessor() = default;
 
   // Satisfy cell locator API
-  virtual vtkIdType FindCell(
-    const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3], double* weights) = 0;
+  virtual vtkIdType FindCell(const double pos[3], double tol2, vtkGenericCell* cell, int& subId,
+    double pcoords[3], double* weights) = 0;
   virtual void FindCellsWithinBounds(double* bbox, vtkIdList* cells) = 0;
   virtual void FindCellsAlongPlane(
     const double o[3], const double n[3], double tolerance, vtkIdList* cells) = 0;
@@ -350,8 +350,8 @@ struct CellProcessor : public vtkCellProcessor
   }
 
   // Methods to satisfy vtkCellProcessor virtual API
-  vtkIdType FindCell(const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3],
-    double* weights) override;
+  vtkIdType FindCell(const double pos[3], double tol2, vtkGenericCell* cell, int& subId,
+    double pcoords[3], double* weights) override;
   void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
   void FindCellsAlongPlane(
     const double o[3], const double n[3], double tolerance, vtkIdList* cells) override;
@@ -481,8 +481,8 @@ struct MapOffsets
 
 //------------------------------------------------------------------------------
 template <typename T>
-vtkIdType CellProcessor<T>::FindCell(
-  const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
+vtkIdType CellProcessor<T>::FindCell(const double pos[3], double tol2, vtkGenericCell* cell,
+  int& subId, double pcoords[3], double* weights)
 {
   // check if pos outside of bounds
   if (!CellProcessor::IsInBounds(this->Bounds, pos))
@@ -501,18 +501,21 @@ vtkIdType CellProcessor<T>::FindCell(
   // not seem to be much faster.
   else
   {
+    const double tol = std::sqrt(tol2);
     const CellFragments<T>* cellIds = this->GetIds(binId);
-    double dist2;
+    double dist2 = 0;
+    double closestPoint[3];
     T cellId;
 
     for (T j = 0; j < numIds; j++)
     {
       cellId = cellIds[j].CellId;
 
-      if (this->InsideCellBounds(pos, cellId))
+      if (this->InsideCellBounds(pos, cellId, tol))
       {
         this->DataSet->GetCell(cellId, cell);
-        if (cell->EvaluatePosition(pos, nullptr, subId, pcoords, dist2, weights) == 1)
+        const int stat = cell->EvaluatePosition(pos, closestPoint, subId, pcoords, dist2, weights);
+        if (stat != -1 && dist2 <= tol2)
         {
           return cellId;
         }
@@ -1365,14 +1368,14 @@ void vtkStaticCellLocator::FreeSearchStructure()
 
 //------------------------------------------------------------------------------
 vtkIdType vtkStaticCellLocator::FindCell(
-  double pos[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
+  double pos[3], double tol2, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
   this->BuildLocator();
   if (!this->Processor)
   {
     return -1;
   }
-  return this->Processor->FindCell(pos, cell, subId, pcoords, weights);
+  return this->Processor->FindCell(pos, tol2, cell, subId, pcoords, weights);
 }
 
 //------------------------------------------------------------------------------

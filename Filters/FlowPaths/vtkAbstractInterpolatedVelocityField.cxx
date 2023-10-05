@@ -326,7 +326,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
                           : vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE);
   const double tol = std::sqrt(tol2);
 
-  double dist2;
+  double dist2 = 0;
   int inside;
   vtkIdType closestPointFound;
   bool foundInCache = false;
@@ -334,11 +334,11 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
   if (this->Caching && this->LastCellId != -1)
   {
     // Use cache cell only if point is inside
-    int ret = this->CurrentCell->EvaluatePosition(
+    inside = this->CurrentCell->EvaluatePosition(
       x, this->LastClosestPoint, this->LastSubId, this->LastPCoords, dist2, this->Weights.data());
 
     // check if point is inside the cell
-    if (ret == 1)
+    if (inside == 1)
     {
       this->CacheHit++;
       foundInCache = true;
@@ -353,7 +353,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
       {
         // this location strategy uses a vtkStaticCellLocator which is a 3D grid with bins
         // and each bin has the cellIds that are inside this bin (robust but possibly slower)
-        this->LastCellId = strategy->FindCell(x, nullptr, this->CurrentCell, -1, tol2 /*not used*/,
+        this->LastCellId = strategy->FindCell(x, nullptr, this->CurrentCell, -1, tol2,
           this->LastSubId, this->LastPCoords, this->Weights.data());
         // this strategy once it finds a cell where the given point is inside it stops
         // immediately, so this->CurrentCell contains the cell we want

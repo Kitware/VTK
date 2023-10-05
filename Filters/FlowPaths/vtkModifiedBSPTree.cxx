@@ -923,7 +923,7 @@ int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3]
 
 //------------------------------------------------------------------------------
 vtkIdType vtkModifiedBSPTree::FindCell(
-  double x[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
+  double x[3], double tol2, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
   this->BuildLocator();
   if (this->mRoot == nullptr)
@@ -935,11 +935,12 @@ vtkIdType vtkModifiedBSPTree::FindCell(
   {
     return -1;
   }
+  const double tol = std::sqrt(tol2);
   vtkIdType cellId;
   nodestack ns;
   BSPNode* node;
   ns.push(this->mRoot.get());
-  double closestPoint[3], dist2;
+  double closestPoint[3], dist2 = 0;
   //
   while (!ns.empty())
   {
@@ -965,10 +966,11 @@ vtkIdType vtkModifiedBSPTree::FindCell(
       for (int i = 0; i < node->num_cells; i++)
       {
         cellId = node->sorted_cell_lists[0][i];
-        if (vtkAbstractCellLocator::InsideCellBounds(x, cellId))
+        if (vtkAbstractCellLocator::InsideCellBounds(x, cellId, tol))
         {
           this->DataSet->GetCell(cellId, cell);
-          if (cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) == 1)
+          const int stat = cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+          if (stat != -1 && dist2 <= tol2)
           {
             return cellId;
           }

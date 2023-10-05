@@ -144,7 +144,7 @@ public:
    * the cell parameters are copied into the supplied variables, a cell must
    * be provided to store the information.
    */
-  vtkIdType FindCell(double pos[3], double vtkNotUsed(tol2), vtkGenericCell* cell, int& subId,
+  vtkIdType FindCell(double pos[3], double tol2, vtkGenericCell* cell, int& subId,
     double pcoords[3], double* weights) override;
 
   ///@{

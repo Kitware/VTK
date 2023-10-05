@@ -36,6 +36,7 @@ TEST_DEPENDS
   VTK::CommonSystem
   VTK::FiltersCellGrid
   VTK::FiltersExtraction
+  VTK::FiltersFlowPaths
   VTK::FiltersGeneric
   VTK::FiltersGeometry
   VTK::FiltersModeling

@@ -128,7 +128,7 @@ int Test2dFindMultipleCellsSingleTestCase(vtkSmartPointer<vtkUnstructuredGrid> g
   locator->BuildLocator();
 
   {
-    const vtkIdType cell_id = locator->FindCell(coords.data());
+    const vtkIdType cell_id = locator->FindCell(coords.data(), 1e-03);
     double const* const cc_actual = ccs->GetPoint(cell_id);
 
     if (!isPointInList(cc_actual, expected_cell_centers))

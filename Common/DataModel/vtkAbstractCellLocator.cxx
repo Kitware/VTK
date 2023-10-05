@@ -224,9 +224,15 @@ void vtkAbstractCellLocator::FindCellsAlongPlane(const double vtkNotUsed(o)[3],
 //------------------------------------------------------------------------------
 vtkIdType vtkAbstractCellLocator::FindCell(double x[3])
 {
+  return this->FindCell(x, 0.0);
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkAbstractCellLocator::FindCell(double x[3], double tol2)
+{
   this->UpdateInternalWeights();
-  double dist2 = 0, pcoords[3];
-  return this->FindCell(x, dist2, this->GenericCell, pcoords, this->Weights.data());
+  double pcoords[3];
+  return this->FindCell(x, tol2, this->GenericCell, pcoords, this->Weights.data());
 }
 
 //------------------------------------------------------------------------------

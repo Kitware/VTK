@@ -488,7 +488,7 @@ public:
     auto& lastLength2 = tlData.LastLength2;
     auto& lastCellId = tlData.LastCellId;
     // local data
-    double x[3], dist2 = 0.0;
+    double x[3], dist2 = 0;
     vtkIdType closestPointFound;
     int inside;
     bool foundInCache, insideCellBounds;
@@ -543,8 +543,8 @@ public:
           if (cellLocatorStrategy)
           {
             // this location strategy uses a cell locator
-            lastCellId = cellLocatorStrategy->FindCell(x, nullptr, currentCell, -1,
-              this->Tol2 /*not used*/, lastSubId, lastPCoords, weights);
+            lastCellId = cellLocatorStrategy->FindCell(
+              x, nullptr, currentCell, -1, this->Tol2, lastSubId, lastPCoords, weights);
             // this strategy once it finds a cell where the given point is inside it stops
             // immediately, so currentCell contains the cell we want
           }

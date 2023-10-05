@@ -1073,8 +1073,8 @@ double vtkCellLocator::Distance2ToBounds(const double x[3], double bounds[6])
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* cell,
-  int& subId, double pcoords[3], double* weights)
+vtkIdType vtkCellLocator::FindCell(
+  double x[3], double tol2, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
   this->BuildLocator();
   if (this->Tree == nullptr)
@@ -1089,8 +1089,9 @@ vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGene
 
   vtkIdList* cellIds;
   int ijk[3];
-  double dist2;
+  double dist2 = 0.;
   vtkIdType idx, cellId;
+  double closestPoint[3];
 
   int leafStart = this->NumberOfOctants -
     this->NumberOfDivisions * this->NumberOfDivisions * this->NumberOfDivisions;
@@ -1102,6 +1103,7 @@ vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGene
   if ((cellIds = this->Tree[leafStart + ijk[0] + ijk[1] * this->NumberOfDivisions +
          ijk[2] * this->NumberOfDivisions * this->NumberOfDivisions]) != nullptr)
   {
+    const double tol = std::sqrt(tol2);
     // query each cell
     for (idx = 0; idx < cellIds->GetNumberOfIds(); ++idx)
     {
@@ -1109,10 +1111,11 @@ vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGene
       cellId = cellIds->GetId(idx);
       // check whether we could be close enough to the cell by
       // testing the cell bounds
-      if (this->InsideCellBounds(x, cellId))
+      if (this->InsideCellBounds(x, cellId, tol))
       {
         this->DataSet->GetCell(cellId, cell);
-        if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 1)
+        const int stat = cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+        if (stat != -1 && dist2 <= tol2)
         {
           return cellId;
         }

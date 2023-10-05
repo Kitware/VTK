@@ -199,7 +199,7 @@ public:
    *
    * For other FindCell signatures, see vtkAbstractCellLocator.
    */
-  vtkIdType FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* GenCell, int& subId,
+  vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* GenCell, int& subId,
     double pcoords[3], double* weights) override;
 
   /**

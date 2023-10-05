@@ -267,7 +267,15 @@ public:
    *
    * THIS FUNCTION IS NOT THREAD SAFE.
    */
-  virtual vtkIdType FindCell(double x[3]);
+  vtkIdType FindCell(double x[3]);
+
+  /**
+   * Returns the Id of the cell containing the point within provided squared tolerance,
+   * returns -1 if no cell found.
+   *
+   * THIS FUNCTION IS NOT THREAD SAFE.
+   */
+  vtkIdType FindCell(double x[3], double tol2);
 
   ///@{
   /**
@@ -277,7 +285,7 @@ public:
    *
    * THIS FUNCTION IS THREAD SAFE.
    */
-  virtual vtkIdType FindCell(
+  vtkIdType FindCell(
     double x[3], double tol2, vtkGenericCell* GenCell, double pcoords[3], double* weights);
   virtual vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* GenCell, int& subId,
     double pcoords[3], double* weights);
