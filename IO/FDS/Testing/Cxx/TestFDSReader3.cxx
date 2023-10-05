@@ -27,7 +27,7 @@ bool testValue(T1 gotVal, T2 expectedVal, const char* valName)
 }
 }
 
-int TestFDSReader2(int argc, char* argv[])
+int TestFDSReader3(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;
   testHelper->AddArguments(argc, argv);
@@ -41,7 +41,7 @@ int TestFDSReader2(int argc, char* argv[])
 
   // Test RequestInformation
   vtkNew<vtkFDSReader> reader;
-  std::string fileName = dataRoot + "/Data/FDSExample2/visibility_adjustment.smv";
+  std::string fileName = dataRoot + "/Data/FDS/1000meca/1000meca.smv";
   reader->SetFileName(fileName);
   reader->UpdateInformation();
 
@@ -62,26 +62,27 @@ int TestFDSReader2(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
-  if (!testValue(assembly->GetNumberOfChildren(4), 1, "number of slices"))
+  if (!testValue(assembly->GetNumberOfChildren(4), 2, "number of slices"))
   {
     return EXIT_FAILURE;
   }
-  if (!testValue(assembly->GetNumberOfChildren(5), 0, "number of boundaries"))
+  if (!testValue(assembly->GetNumberOfChildren(5), 26, "number of boundaries"))
   {
     return EXIT_FAILURE;
   }
 
   // Test extraction
-  reader->AddSelector("/visibility_adjustment/Grids/MESH_0000001");
-  reader->AddSelector("/visibility_adjustment/HRR/visibility_adjustment_hrr");
-  reader->AddSelector("/visibility_adjustment/Slices/STRUCTURED_SOOT");
+  reader->AddSelector("/_1000meca/Grids");
+  reader->AddSelector("/_1000meca/HRR");
+  reader->AddSelector("/_1000meca/Slices/SOOT");
+  reader->AddSelector("/_1000meca/Boundaries/Mesh01_Blockage_3");
   reader->Update();
 
   vtkPartitionedDataSetCollection* output =
     vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutput());
   vtkDataAssembly* outAssembly = output->GetDataAssembly();
 
-  if (!testValue(outAssembly->GetNumberOfChildren(0), 3, "number of root children"))
+  if (!testValue(outAssembly->GetNumberOfChildren(0), 4, "number of root children"))
   {
     return EXIT_FAILURE;
   }
@@ -101,34 +102,33 @@ int TestFDSReader2(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
-  if (!testValue(outAssembly->GetNumberOfChildren(5), 0, "number of boundaries"))
+  if (!testValue(outAssembly->GetNumberOfChildren(5), 1, "number of boundaries"))
   {
     return EXIT_FAILURE;
   }
 
   // Test Mesh01
-  auto nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("MESH_0000001"));
+  auto nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01"));
   auto mesh01 =
     vtkRectilinearGrid::SafeDownCast(output->GetPartitionedDataSet(nodeIds[0])->GetPartition(0));
   if (!mesh01)
   {
-    std::cerr << "MESH_0000001 is nullptr" << std::endl;
+    std::cerr << "Mesh01 is nullptr" << std::endl;
     return EXIT_FAILURE;
   }
 
-  if (!testValue(mesh01->GetNumberOfPoints(), 6615, "number of points in MESH_0000001"))
+  if (!testValue(mesh01->GetNumberOfPoints(), 468741, "number of points in Mesh01"))
   {
     return EXIT_FAILURE;
   }
 
-  if (!testValue(mesh01->GetNumberOfCells(), 5600, "number of cells in MESH_0000001"))
+  if (!testValue(mesh01->GetNumberOfCells(), 440000, "number of cells in Mesh01"))
   {
     return EXIT_FAILURE;
   }
 
   // Test HRR
-  nodeIds =
-    outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("visibility_adjustment_hrr"));
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("_1000meca_hrr"));
   auto hrr = vtkTable::SafeDownCast(output->GetPartitionAsDataObject(nodeIds[0], 0));
   if (!hrr)
   {
@@ -148,7 +148,7 @@ int TestFDSReader2(int argc, char* argv[])
   }
 
   // Test slice
-  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("STRUCTURED_SOOT"));
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("SOOT"));
   auto slice = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
   if (!slice)
   {
@@ -156,30 +156,38 @@ int TestFDSReader2(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  if (!testValue(slice->GetNumberOfPoints(), 441, "number of points in slice SOOT"))
+  if (!testValue(slice->GetNumberOfPoints(), 22321, "number of points in slice SOOT"))
   {
     return EXIT_FAILURE;
   }
 
-  if (!testValue(slice->GetNumberOfCells(), 400, "number of cells in slice SOOT"))
+  if (!testValue(slice->GetNumberOfCells(), 22000, "number of cells in slice SOOT"))
   {
     return EXIT_FAILURE;
   }
 
   if (!testValue(
-        slice->GetPointData()->GetArray("Values")->GetComponent(0, 0), 30.0, "value in SOOT slice"))
+        slice->GetPointData()->GetArray("Values")->GetComponent(0, 0), 0.0, "value in SOOT slice"))
   {
     return EXIT_FAILURE;
   }
 
-  reader->UpdateTimeStep(31.0);
-  output = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutput());
-  outAssembly = output->GetDataAssembly();
-  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("STRUCTURED_SOOT"));
-  slice = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  // Test boundary
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3"));
+  auto boundary = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  if (!boundary)
+  {
+    std::cerr << "Mesh01_Blockage_3 boundary is nullptr" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   if (!testValue(
-        std::abs(slice->GetPointData()->GetArray("Values")->GetComponent(259, 0) - 3.29237) < 1e-5,
-        true, "soot at time value 31"))
+        boundary->GetNumberOfPoints(), 50, "number of points in Mesh01_Blockage_3 boundary"))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!testValue(boundary->GetNumberOfCells(), 16, "number of cells in Mesh01_Blockage_3 boundary"))
   {
     return EXIT_FAILURE;
   }
