@@ -443,7 +443,7 @@ void vtkLinearTransformCellLocator::FindCellsWithinBounds(double*, vtkIdList*)
 
 //------------------------------------------------------------------------------
 void vtkLinearTransformCellLocator::FindCellsAlongPlane(
-  const double o[3], const double n[3], double tolerance, vtkIdList* cells)
+  const double o[3], const double n[3], double tol, vtkIdList* cells)
 {
   if (!this->CellLocator)
   {
@@ -453,7 +453,7 @@ void vtkLinearTransformCellLocator::FindCellsAlongPlane(
   double oTransform[3], nTransform[3];
   this->InverseTransform->InternalTransformPoint(o, oTransform);
   this->InverseTransform->InternalTransformNormal(n, nTransform);
-  this->CellLocator->FindCellsAlongPlane(oTransform, nTransform, tolerance, cells);
+  this->CellLocator->FindCellsAlongPlane(oTransform, nTransform, tol, cells);
 }
 
 //------------------------------------------------------------------------------

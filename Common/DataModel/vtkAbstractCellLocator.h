@@ -258,7 +258,7 @@ public:
    * THIS FUNCTION IS THREAD SAFE.
    */
   virtual void FindCellsAlongPlane(
-    const double o[3], const double n[3], double tolerance, vtkIdList* cells);
+    const double o[3], const double n[3], double tol, vtkIdList* cells);
 
   /**
    * Returns the Id of the cell containing the point,

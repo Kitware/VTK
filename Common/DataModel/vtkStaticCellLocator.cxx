@@ -274,7 +274,7 @@ struct vtkCellProcessor
     double pcoords[3], double* weights) = 0;
   virtual void FindCellsWithinBounds(double* bbox, vtkIdList* cells) = 0;
   virtual void FindCellsAlongPlane(
-    const double o[3], const double n[3], double tolerance, vtkIdList* cells) = 0;
+    const double o[3], const double n[3], double tol, vtkIdList* cells) = 0;
   virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) = 0;
   virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol,
@@ -354,7 +354,7 @@ struct CellProcessor : public vtkCellProcessor
     double pcoords[3], double* weights) override;
   void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
   void FindCellsAlongPlane(
-    const double o[3], const double n[3], double tolerance, vtkIdList* cells) override;
+    const double o[3], const double n[3], double tol, vtkIdList* cells) override;
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, vtkPoints* points,
@@ -802,12 +802,14 @@ struct CellPlaneCandidates
   unsigned char* CellVisited;
   double BinOffsetX, BinOffsetY, BinOffsetZ;
   double BinRadius;
+  double Tol;
 
   CellPlaneCandidates(CellProcessor<TId>* p, const vtkCellBinner* b, const double* o,
-    const double* n, unsigned char* visited)
+    const double* n, unsigned char* visited, double tol)
     : Processor(p)
     , Binner(b)
     , CellVisited(visited)
+    , Tol(tol)
   {
     this->Origin[0] = o[0];
     this->Origin[1] = o[1];
@@ -893,7 +895,7 @@ struct CellPlaneCandidates
   void operator()(vtkIdType k, vtkIdType kEnd)
   {
     double *o = this->Origin, *n = this->Normal;
-    double center[3], d, *bounds;
+    double center[3], d, *bounds, boundsArray[6];
     vtkIdType i, j, iEnd = this->Binner->Divisions[0], jEnd = this->Binner->Divisions[1];
 
     // Over all z slabs
@@ -910,7 +912,7 @@ struct CellPlaneCandidates
           // Now see if the bin could be intersected by the plane. It's a pseudo
           // sphere tree operation.
           d = vtkPlane::DistanceToPlane(center, n, o);
-          if (d <= this->BinRadius)
+          if (d <= this->BinRadius + this->Tol)
           {
             vtkIdType cId, ii, numCellsInBin;
             vtkIdType bin = i + j * this->Binner->xD + k * this->Binner->xyD;
@@ -924,6 +926,16 @@ struct CellPlaneCandidates
                 if (!this->CellVisited[cId])
                 {
                   bounds = this->Processor->CellBounds + (6 * cId);
+                  if (this->Tol > 0)
+                  {
+                    boundsArray[0] = bounds[0] - this->Tol;
+                    boundsArray[1] = bounds[1] + this->Tol;
+                    boundsArray[2] = bounds[2] - this->Tol;
+                    boundsArray[3] = bounds[3] + this->Tol;
+                    boundsArray[4] = bounds[4] - this->Tol;
+                    boundsArray[5] = bounds[5] + this->Tol;
+                    bounds = boundsArray;
+                  }
                   this->CellVisited[cId] = (vtkBox::IntersectWithPlane(bounds, o, n) ? 2 : 1);
                 }
               }
@@ -940,7 +952,7 @@ struct CellPlaneCandidates
 // output list.
 template <typename T>
 void CellProcessor<T>::FindCellsAlongPlane(
-  const double o[3], const double n[3], double vtkNotUsed(tol), vtkIdList* cells)
+  const double o[3], const double n[3], double tol, vtkIdList* cells)
 {
   // Initialize the list of cells
   if (!cells)
@@ -951,6 +963,17 @@ void CellProcessor<T>::FindCellsAlongPlane(
 
   // Make sure that the bounding box of the locator is intersected.
   double* bounds = this->Binner->Bounds;
+  double boundsArray[6];
+  if (tol > 0)
+  {
+    boundsArray[0] = bounds[0] - tol;
+    boundsArray[1] = bounds[1] + tol;
+    boundsArray[2] = bounds[2] - tol;
+    boundsArray[3] = bounds[3] + tol;
+    boundsArray[4] = bounds[4] - tol;
+    boundsArray[5] = bounds[5] + tol;
+    bounds = boundsArray;
+  }
   double origin[3] = { o[0], o[1], o[2] };
   double normal[3] = { n[0], n[1], n[2] };
   if (vtkBox::IntersectWithPlane(bounds, origin, normal) == 0)
@@ -966,7 +989,7 @@ void CellProcessor<T>::FindCellsAlongPlane(
   std::vector<unsigned char> cellHasBeenVisited(this->NumCells, 0);
 
   // For now we will parallelize over z-slabs of bins.
-  CellPlaneCandidates<T> cellCandidates(this, this->Binner, o, n, cellHasBeenVisited.data());
+  CellPlaneCandidates<T> cellCandidates(this, this->Binner, o, n, cellHasBeenVisited.data(), tol);
   vtkSMPTools::For(0, this->Binner->Divisions[2], cellCandidates);
 
   // Populate the output list.

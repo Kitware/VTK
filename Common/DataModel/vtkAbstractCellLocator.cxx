@@ -215,7 +215,7 @@ void vtkAbstractCellLocator::FindCellsAlongLine(
 
 //------------------------------------------------------------------------------
 void vtkAbstractCellLocator::FindCellsAlongPlane(const double vtkNotUsed(o)[3],
-  const double vtkNotUsed(n)[3], double vtkNotUsed(tolerance), vtkIdList* vtkNotUsed(cells))
+  const double vtkNotUsed(n)[3], double vtkNotUsed(tol), vtkIdList* vtkNotUsed(cells))
 {
   vtkErrorMacro(<< "The locator " << this->GetClassName()
                 << " does not yet support FindCellsAlongPlane");

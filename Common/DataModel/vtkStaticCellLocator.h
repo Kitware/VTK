@@ -168,7 +168,7 @@ public:
    * pointer, then no information is generated for that list.
    */
   void FindCellsAlongPlane(
-    const double o[3], const double n[3], double tolerance, vtkIdList* cells) override;
+    const double o[3], const double n[3], double tol, vtkIdList* cells) override;
 
   /**
    * Find the cell containing a given point. returns -1 if no cell found
