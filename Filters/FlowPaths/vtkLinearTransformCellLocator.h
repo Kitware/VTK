@@ -171,7 +171,7 @@ public:
    * Quickly test if a point is inside the bounds of a particular cell.
    * This function should be used ONLY after the locator is built.
    */
-  bool InsideCellBounds(double x[3], vtkIdType cellId) override;
+  bool InsideCellBounds(double x[3], vtkIdType cellId, double tol = 0.0) override;
 
   ///@{
   /**

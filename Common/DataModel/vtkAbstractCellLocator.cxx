@@ -261,17 +261,17 @@ vtkIdType vtkAbstractCellLocator::FindCell(
 }
 
 //------------------------------------------------------------------------------
-bool vtkAbstractCellLocator::InsideCellBounds(double x[3], vtkIdType cell_ID)
+bool vtkAbstractCellLocator::InsideCellBounds(double x[3], vtkIdType cell_ID, double tol)
 {
   if (this->CacheCellBounds)
   {
-    return vtkAbstractCellLocator::IsInBounds(&this->CellBounds[cell_ID * 6], x);
+    return vtkAbstractCellLocator::IsInBounds(&this->CellBounds[cell_ID * 6], x, tol);
   }
   else
   {
     double cellBounds[6];
     this->DataSet->GetCellBounds(cell_ID, cellBounds);
-    return vtkAbstractCellLocator::IsInBounds(cellBounds, x);
+    return vtkAbstractCellLocator::IsInBounds(cellBounds, x, tol);
   }
 }
 
