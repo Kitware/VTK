@@ -26,11 +26,14 @@
 #define S_ISDIR(m) (((m)&_S_IFMT) == _S_IFDIR)
 #endif
 #else
-#include <sys/unistd.h>
-#if defined(__APPLE__) && defined(__MACH__)
-#include <sys/param.h>
+#include <unistd.h>
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__)
 #include <sys/mount.h>
-#else
+#include <sys/param.h>
+#elif defined(__OpenBSD__)
+#include <sys/types.h>
+#include <sys/mount.h>
+#elif defined(__linux__)
 #include <sys/statfs.h>
 #endif
 #endif
