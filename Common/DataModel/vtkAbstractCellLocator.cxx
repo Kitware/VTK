@@ -128,12 +128,10 @@ int vtkAbstractCellLocator::IntersectWithLine(const double vtkNotUsed(p1)[3],
 }
 
 //------------------------------------------------------------------------------
-int vtkAbstractCellLocator::IntersectWithLine(const double vtkNotUsed(p1)[3],
-  const double vtkNotUsed(p2)[3], vtkPoints* vtkNotUsed(points), vtkIdList* vtkNotUsed(cellIds))
+int vtkAbstractCellLocator::IntersectWithLine(
+  const double p1[3], const double p2[3], vtkPoints* points, vtkIdList* cellIds)
 {
-  vtkErrorMacro(<< "The locator class - " << this->GetClassName()
-                << " does not yet support this IntersectWithLine interface");
-  return 0;
+  return this->IntersectWithLine(p1, p2, 0.0, points, cellIds, this->GenericCell);
 }
 
 //------------------------------------------------------------------------------

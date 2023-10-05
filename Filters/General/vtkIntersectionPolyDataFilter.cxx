@@ -2273,7 +2273,6 @@ int vtkIntersectionPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   obbTree0->SetDataSet(mesh0);
   obbTree0->SetNumberOfCellsPerNode(10);
   obbTree0->SetMaxLevel(1000000);
-  obbTree0->SetTolerance(this->Tolerance);
   obbTree0->AutomaticOn();
   obbTree0->BuildLocator();
 
@@ -2286,7 +2285,6 @@ int vtkIntersectionPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   obbTree1->SetDataSet(mesh1);
   obbTree1->SetNumberOfCellsPerNode(10);
   obbTree1->SetMaxLevel(1000000);
-  obbTree1->SetTolerance(this->Tolerance);
   obbTree1->AutomaticOn();
   obbTree1->BuildLocator();
 
@@ -2359,8 +2357,8 @@ int vtkIntersectionPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   }
 
   // This performs the triangle intersection search
-  obbTree0->IntersectWithOBBTree(
-    obbTree1, nullptr, vtkIntersectionPolyDataFilter::Impl::FindTriangleIntersections, impl);
+  obbTree0->IntersectWithOBBTree(obbTree1, nullptr,
+    vtkIntersectionPolyDataFilter::Impl::FindTriangleIntersections, impl, this->Tolerance);
 
   int rawLines = outputIntersection->GetNumberOfLines();
 

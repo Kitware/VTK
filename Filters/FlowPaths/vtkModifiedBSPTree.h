@@ -170,8 +170,8 @@ public:
    * Take the passed line segment and intersect it with the data set.
    * The return value of the function is 0 if no intersections were found.
    * For each intersection with the bounds of a cell or with a cell (if a cell is provided),
-   * the points and cellIds have the relevant information added sorted by t.
-   * If points or cellIds are nullptr pointers, then no information is generated for that list.
+   * the points and cellIds have the relevant information added sorted by their parametric distance
+   * t. If points or cellIds are nullptr pointers, then no information is generated for that list.
    *
    * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */

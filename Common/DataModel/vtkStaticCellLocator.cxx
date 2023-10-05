@@ -275,7 +275,7 @@ struct vtkCellProcessor
   virtual void FindCellsWithinBounds(double* bbox, vtkIdList* cells) = 0;
   virtual void FindCellsAlongPlane(
     const double o[3], const double n[3], double tolerance, vtkIdList* cells) = 0;
-  virtual int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t,
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) = 0;
   virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol,
     vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell) = 0;

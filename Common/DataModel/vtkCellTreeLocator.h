@@ -104,15 +104,15 @@ public:
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. The cell is returned as a cell id and as a generic cell.
    */
-  int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t, double x[3],
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
 
   /**
    * Take the passed line segment and intersect it with the data set.
    * The return value of the function is 0 if no intersections were found.
    * For each intersection with the bounds of a cell or with a cell (if a cell is provided),
-   * the points and cellIds have the relevant information added sorted by t.
-   * If points or cellIds are nullptr pointers, then no information is generated for that list.
+   * the points and cellIds have the relevant information added sorted by their parametric distance
+   * t. If points or cellIds are nullptr pointers, then no information is generated for that list.
    *
    * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */
