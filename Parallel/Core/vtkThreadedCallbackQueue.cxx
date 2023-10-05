@@ -63,7 +63,7 @@ private:
 
     // invoker was in the queue which is locked. No one will be touching Status, so we do not need
     // to lock invoker->Mutex
-    invoker->Status = RUNNING;
+    invoker->Status.store(RUNNING, std::memory_order_release);
 
     this->Queue->PopFrontNullptr();
     lock.unlock();
@@ -206,7 +206,6 @@ void vtkThreadedCallbackQueue::PopFrontNullptr()
 //-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::Invoke(vtkSharedFutureBase* invoker)
 {
-  invoker->Status = RUNNING;
   (*invoker)();
   this->SignalDependentSharedFutures(invoker);
 }
@@ -231,12 +230,13 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(vtkSharedFutureBase*
       // its associated invoker in the running queue.
       std::unique_lock<std::mutex> dependentLock(dependent->Mutex);
       --dependent->NumberOfPriorSharedFuturesRemaining;
-      if (dependent->Status == ON_HOLD && !dependent->NumberOfPriorSharedFuturesRemaining)
+      if (dependent->Status.load(std::memory_order_acquire) == ON_HOLD &&
+        !dependent->NumberOfPriorSharedFuturesRemaining)
       {
         // Invoker is high priority if it comes from vtkThreadedCallbackQueue::Wait for example.
         if (dependent->IsHighPriority)
         {
-          dependent->Status = RUNNING;
+          dependent->Status.store(RUNNING, std::memory_order_release);
           dependentLock.unlock();
           this->Invoke(dependent);
         }
@@ -259,11 +259,11 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(vtkSharedFutureBase*
                                                  : this->InvokerQueue.front()->InvokerIndex;
     for (SharedFutureBasePointer& inv : invokersToLaunch)
     {
-      assert(inv->Status == ON_HOLD && "Status should be ON_HOLD");
+      assert(inv->Status.load(std::memory_order_acquire) == ON_HOLD && "Status should be ON_HOLD");
       inv->InvokerIndex = --index;
 
       std::lock_guard<std::mutex> stateLock(inv->Mutex);
-      inv->Status = ENQUEUED;
+      inv->Status.store(ENQUEUED, std::memory_order_release);
 
       // This dependent has been waiting enough, let's give him some priority.
       // Anyway, the invoker is past due if it was put inside InvokersOnHold.
@@ -282,7 +282,7 @@ bool vtkThreadedCallbackQueue::TryInvoke(vtkSharedFutureBase* invoker)
   if (![this, &invoker] {
         // We need to check again if we cannot run in case the thread worker just popped this
         // invoker. We are guarded by this->Mutex so there cannot be a conflict here.
-        if (invoker->Status != ENQUEUED)
+        if (invoker->Status.load(std::memory_order_relaxed) != ENQUEUED)
         {
           // Someone picked up the invoker right before us, we can abort.
           return false;
@@ -297,7 +297,7 @@ bool vtkThreadedCallbackQueue::TryInvoke(vtkSharedFutureBase* invoker)
 
         std::lock_guard<std::mutex> invLock(invoker->Mutex);
 
-        if (invoker->Status != ENQUEUED)
+        if (invoker->Status.load(std::memory_order_acquire) != ENQUEUED)
         {
           // Recheck if someone picked up the invoker right before us.
           return false;

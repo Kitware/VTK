@@ -173,7 +173,7 @@ struct vtkThreadedCallbackQueue::InvokerImpl
     static void Invoke(InvokerT&& invoker, vtkSharedFuture<ReturnT>* future)
     {
       future->ReturnValue = ReturnValueWrapper<ReturnT>(invoker());
-      future->Status = READY;
+      future->Status.store(READY, std::memory_order_release);
       future->ConditionVariable.notify_all();
     }
   };
@@ -187,7 +187,7 @@ struct vtkThreadedCallbackQueue::InvokerImpl::InvokerHelper<void>
   static void Invoke(InvokerT&& invoker, vtkSharedFuture<void>* future)
   {
     invoker();
-    future->Status = READY;
+    future->Status.store(READY, std::memory_order_release);
     future->ConditionVariable.notify_all();
   }
 };
@@ -408,7 +408,7 @@ public:
 
   void operator()() override
   {
-    assert(this->Status == RUNNING && "Status should be RUNNING");
+    assert(this->Status.load(std::memory_order_relaxed) == RUNNING && "Status should be RUNNING");
     InvokerImpl::InvokerHelper<InvokeResult<FT>>::Invoke(this->Impl, this);
   }
 
@@ -436,7 +436,7 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
     {
       // We can do a quick check to avoid locking if possible. If the prior shared future is ready,
       // we can just move on.
-      if (prior->Status == READY)
+      if (prior->Status.load(std::memory_order_acquire) == READY)
       {
         continue;
       }
@@ -445,7 +445,7 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
       // This way, we can make sure that if the invoker is still running, we notify it that we
       // depend on it before it checks its dependents in SignalDependentSharedFutures
       std::unique_lock<std::mutex> lock(prior->Mutex);
-      if (prior->Status != READY)
+      if (prior->Status.load(std::memory_order_acquire) != READY)
       {
         // We notify the invoker we depend on by adding ourselves in DependentSharedFutures.
         prior->Dependents.emplace_back(invoker);
@@ -456,7 +456,7 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
         // invoker decrements, and if we end up with 0 remaining prior futures, we execute the
         // invoker anyway, so the invoker side has nothing to do.
         lock.unlock();
-        ++invoker->NumberOfPriorSharedFuturesRemaining;
+        invoker->NumberOfPriorSharedFuturesRemaining.fetch_add(1, std::memory_order_release);
       }
     }
   }
@@ -464,11 +464,11 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
   std::unique_lock<std::mutex> lock(invoker->Mutex);
   if (invoker->NumberOfPriorSharedFuturesRemaining)
   {
-    invoker->Status = ON_HOLD;
+    invoker->Status.store(ON_HOLD, std::memory_order_release);
   }
   else
   {
-    invoker->Status = RUNNING;
+    invoker->Status.store(RUNNING, std::memory_order_release);
     lock.unlock();
     this->Invoke(std::forward<InvokerT>(invoker));
   }
@@ -480,7 +480,7 @@ bool vtkThreadedCallbackQueue::MustWait(SharedFutureContainerT&& priorSharedFutu
 {
   for (const vtkSharedFutureBase* prior : priorSharedFutures)
   {
-    if (prior->Status != READY)
+    if (prior->Status.load(std::memory_order_acquire) != READY)
     {
       return true;
     }
@@ -500,7 +500,7 @@ void vtkThreadedCallbackQueue::Wait(SharedFutureContainerT&& priorSharedFutures)
   // and save time instead of waiting.
   for (vtkSharedFutureBase* prior : priorSharedFutures)
   {
-    switch (prior->Status.load())
+    switch (prior->Status.load(std::memory_order_acquire))
     {
       case RUNNING:
       case ON_HOLD:
@@ -620,15 +620,15 @@ void vtkThreadedCallbackQueue::PushControl(FT&& f, ArgsT&&... args)
     // The queue is not running yet, we need to invoke by hand.
     if (this->Threads.empty())
     {
-      // No need to lock anything here. We are the only invoker that is allowed to run here.
-      invoker->Status = RUNNING;
+      // No need to synchonize anything here. We are the only invoker that is allowed to run here.
+      invoker->Status.store(RUNNING, std::memory_order_relaxed);
       (*invoker)();
       return;
     }
 
     {
       std::lock_guard<std::mutex> invokerLock(invoker->Mutex);
-      invoker->Status = ENQUEUED;
+      invoker->Status.store(ENQUEUED, std::memory_order_release);
 
       std::lock_guard<std::mutex> lock(this->Mutex);
       invoker->InvokerIndex =
@@ -656,7 +656,7 @@ vtkThreadedCallbackQueue::Push(FT&& f, ArgsT&&... args)
 {
   auto invoker =
     InvokerPointer<FT, ArgsT...>::New(std::forward<FT>(f), std::forward<ArgsT>(args)...);
-  invoker->Status = ENQUEUED;
+  invoker->Status.store(ENQUEUED, std::memory_order_release);
 
   {
     std::lock_guard<std::mutex> lock(this->Mutex);
