@@ -41,7 +41,7 @@ int TestFDSReader2(int argc, char* argv[])
 
   // Test RequestInformation
   vtkNew<vtkFDSReader> reader;
-  std::string fileName = dataRoot + "/Data/FDSExample2/visibility_adjustment.smv";
+  std::string fileName = dataRoot + "/Data/FDS/visibility_adjustment/visibility_adjustment.smv";
   reader->SetFileName(fileName);
   reader->UpdateInformation();
 

@@ -1,6 +1,6 @@
  vtk_module_test_data(
-   Data/FDSExample/,REGEX:.*
-   Data/FDSExample2/,REGEX:.*
+   Data/FDS/exemple_kitware/,REGEX:.*
+   Data/FDS/visibility_adjustment/,REGEX:.*
    Data/FDS/1000meca/,REGEX:.*
    )
 
