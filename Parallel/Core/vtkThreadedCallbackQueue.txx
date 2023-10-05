@@ -468,7 +468,9 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
   }
   else
   {
-    this->Invoke(std::forward<InvokerT>(invoker), lock);
+    invoker->Status = RUNNING;
+    lock.unlock();
+    this->Invoke(std::forward<InvokerT>(invoker));
   }
 }
 
@@ -658,9 +660,8 @@ vtkThreadedCallbackQueue::Push(FT&& f, ArgsT&&... args)
 
   {
     std::lock_guard<std::mutex> lock(this->Mutex);
-    invoker->InvokerIndex = this->InvokerQueue.empty() ? 0
-                                                       : this->InvokerQueue.front()->InvokerIndex +
-        static_cast<vtkIdType>(this->InvokerQueue.size());
+    invoker->InvokerIndex =
+      this->InvokerQueue.empty() ? 0 : this->InvokerQueue.back()->InvokerIndex + 1;
     this->InvokerQueue.emplace_back(invoker);
   }
 
