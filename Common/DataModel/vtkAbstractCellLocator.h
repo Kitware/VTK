@@ -247,7 +247,7 @@ public:
    * THIS FUNCTION IS THREAD SAFE.
    */
   virtual void FindCellsAlongLine(
-    const double p1[3], const double p2[3], double tolerance, vtkIdList* cells);
+    const double p1[3], const double p2[3], double tol, vtkIdList* cells);
 
   /**
    * Given an unbounded plane defined by an origin o[3] and unit normal n[3],

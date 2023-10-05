@@ -208,9 +208,9 @@ void vtkAbstractCellLocator::FindCellsWithinBounds(
 
 //------------------------------------------------------------------------------
 void vtkAbstractCellLocator::FindCellsAlongLine(
-  const double p1[3], const double p2[3], double tolerance, vtkIdList* cells)
+  const double p1[3], const double p2[3], double tol, vtkIdList* cells)
 {
-  this->IntersectWithLine(p1, p2, tolerance, nullptr, cells, nullptr);
+  this->IntersectWithLine(p1, p2, tol, nullptr, cells, nullptr);
 }
 
 //------------------------------------------------------------------------------
