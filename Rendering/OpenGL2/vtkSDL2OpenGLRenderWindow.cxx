@@ -12,8 +12,8 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
-#include "vtkSDL2RenderWindowInteractor.h"
 
 #include <cmath>
 #include <sstream>

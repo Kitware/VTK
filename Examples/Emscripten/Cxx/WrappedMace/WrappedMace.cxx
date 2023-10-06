@@ -9,7 +9,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSDL2RenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 
 #include <emscripten/bind.h>
@@ -38,7 +37,6 @@ vtkAddDestructor(vtkProp);
 vtkAddDestructor(vtkRenderer);
 vtkAddDestructor(vtkRenderWindow);
 vtkAddDestructor(vtkRenderWindowInteractor);
-vtkAddDestructor(vtkSDL2RenderWindowInteractor);
 vtkAddDestructor(vtkSphereSource);
 vtkAddDestructor(vtkViewport);
 }
@@ -115,12 +113,6 @@ EMSCRIPTEN_BINDINGS(webtest)
     .function("Start", &vtkRenderWindowInteractor::Start)
     .function("SetRenderWindow", &vtkRenderWindowInteractor::SetRenderWindow,
       emscripten::allow_raw_pointers());
-
-  // vtkSDL2RenderWindowInteractor ------------------------------------
-  emscripten::class_<vtkSDL2RenderWindowInteractor, emscripten::base<vtkRenderWindowInteractor>>(
-    "vtkSDL2RenderWindowInteractor")
-    .constructor(&vtkSDL2RenderWindowInteractor::New, emscripten::allow_raw_pointers())
-    .function("AddEventHandler", &vtkSDL2RenderWindowInteractor::AddEventHandler);
 
   // vtkSphereSource -------------------------------------------------
   emscripten::class_<vtkSphereSource, emscripten::base<vtkAlgorithm>>("vtkSphereSource")

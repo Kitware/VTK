@@ -39,7 +39,7 @@
         var renderer = new Module.vtkRenderer();
         var renWin = new Module.vtkRenderWindow();
         renWin.AddRenderer(renderer);
-        var iren = new Module.vtkSDL2RenderWindowInteractor();
+        var iren = new Module.vtkRenderWindowInteractor();
         iren.SetRenderWindow(renWin);
 
         var sphere = new Module.vtkSphereSource();
@@ -88,7 +88,7 @@
           spikeActor,
         };
 
-        iren.AddEventHandler();
+        iren.Start();
       });
     </script>
   </body>

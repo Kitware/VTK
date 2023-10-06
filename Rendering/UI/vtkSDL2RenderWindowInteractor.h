@@ -11,11 +11,16 @@
 #define vtkSDL2RenderWindowInteractor_h
 
 #include "vtkRenderWindowInteractor.h"
+
+#include "vtkDeprecation.h"       // for VTK_DEPRECATED_IN_9_3_0
 #include "vtkRenderingUIModule.h" // For export macro
 #include <map>                    // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGUI_EXPORT vtkSDL2RenderWindowInteractor : public vtkRenderWindowInteractor
+class VTK_DEPRECATED_IN_9_3_0(
+  "Please use one of the dedicated platform render window interactors or "
+  "vtkWebAssemblyRenderWindowInteractor if your application targets WebAssembly.")
+  VTKRENDERINGUI_EXPORT vtkSDL2RenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   /**
