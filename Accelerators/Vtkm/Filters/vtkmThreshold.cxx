@@ -128,6 +128,12 @@ int vtkmThreshold::RequestData(
         "vtkmThreshold currently does not support UseContinuousCellRange.");
     }
 
+    if (this->GetComponentMode() == VTK_COMPONENT_MODE_USE_SELECTED &&
+      this->GetSelectedComponent() == inputArray->GetNumberOfComponents())
+    {
+      throw vtkm::cont::ErrorFilterExecution("vtkmThreshold currently does not support Magnitude.");
+    }
+
     if (HasGhostFlagsSet(input->GetCellData()->GetGhostArray(), vtkDataSetAttributes::HIDDENCELL) ||
       HasGhostFlagsSet(input->GetPointData()->GetGhostArray(), vtkDataSetAttributes::HIDDENPOINT))
     {

@@ -363,9 +363,16 @@ int vtkThreshold::EvaluateComponents(TScalarsArray& scalars, vtkIdType id)
   switch (this->ComponentMode)
   {
     case VTK_COMPONENT_MODE_USE_SELECTED:
-      c = this->SelectedComponent < this->NumberOfComponents ? this->SelectedComponent : 0;
-      keepCell = (this->*(this->ThresholdFunction))(static_cast<double>(scalars[id][c]));
-      break;
+    {
+      double value = 0.0;
+      if (!this->ComputeMagnitude(value, scalars, id))
+      {
+        c = this->SelectedComponent < this->NumberOfComponents ? this->SelectedComponent : 0;
+        value = static_cast<double>(scalars[id][c]);
+      }
+      keepCell = (this->*(this->ThresholdFunction))(value);
+    }
+    break;
     case VTK_COMPONENT_MODE_USE_ANY:
       keepCell = 0;
       for (c = 0; (!keepCell) && (c < this->NumberOfComponents); c++)
@@ -483,6 +490,28 @@ int vtkThreshold::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
+}
+
+//------------------------------------------------------------------------------
+template <typename TScalarsArray>
+bool vtkThreshold::ComputeMagnitude(double& magnitude, const TScalarsArray& scalars, vtkIdType id)
+{
+  if (this->SelectedComponent != this->NumberOfComponents || this->NumberOfComponents <= 1)
+  {
+    // If NumberOfComponents == 1, magnitude equals component value
+    // so don't do extra computation
+    return false;
+  }
+
+  double squaredNorm = 0.0;
+  for (int i = 0; i < this->NumberOfComponents; ++i)
+  {
+    const double value = static_cast<double>(scalars[id][i]);
+    squaredNorm += value * value;
+  }
+
+  magnitude = std::sqrt(squaredNorm);
+  return true;
 }
 
 //------------------------------------------------------------------------------
