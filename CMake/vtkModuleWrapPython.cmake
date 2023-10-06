@@ -400,7 +400,8 @@ function (_vtk_module_wrap_python_library name)
   add_custom_command(
     OUTPUT  "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
-    COMMAND "${_vtk_python_wrap_target}"
+    COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
+            "${_vtk_python_wrap_target}"
             "${_vtk_python_init_data_file}"
             "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
