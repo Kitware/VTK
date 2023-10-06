@@ -13,7 +13,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
-#include "vtkMPIController.h"
+#include "vtkMultiProcessController.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkParallelAMRUtilities.h"
 #include "vtkPartitionedDataSet.h"
