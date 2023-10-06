@@ -98,6 +98,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestStereoBackgroundLeft.cxx
   TestStereoBackgroundRight.cxx
   TestTexturedBackground.cxx
+  TestTexturedCylinder.cxx
   TestTextureRGBA.cxx
   TestTextureRGBADepthPeeling.cxx
   TestTextureSize.cxx,NO_VALID

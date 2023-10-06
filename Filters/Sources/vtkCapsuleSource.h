@@ -17,13 +17,16 @@
 #ifndef vtkCapsuleSource_h
 #define vtkCapsuleSource_h
 
+#include "vtkDeprecation.h"          // For deprecation macros
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkSphereSource.h" // For VTK_MAX_SPHERE_RESOLUTION
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSOURCES_EXPORT vtkCapsuleSource : public vtkPolyDataAlgorithm
+class VTK_DEPRECATED_IN_9_3_0(
+  "Use vtkCylinderSource with SetCapping(true) and SetCapsuleCap(true) instead of "
+  "vtkCapsuleSource.") VTKFILTERSSOURCES_EXPORT vtkCapsuleSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCapsuleSource, vtkPolyDataAlgorithm);
