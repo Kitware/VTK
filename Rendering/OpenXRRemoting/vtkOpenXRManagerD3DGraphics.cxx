@@ -78,8 +78,9 @@ const std::vector<int64_t>& vtkOpenXRManagerD3DGraphics::GetSupportedColorFormat
 //------------------------------------------------------------------------------
 const std::vector<int64_t>& vtkOpenXRManagerD3DGraphics::GetSupportedDepthFormats()
 {
-  const static std::vector<int64_t> supportedDepthFormats = { DXGI_FORMAT_D16_UNORM,
-    DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_D32_FLOAT_S8X24_UINT };
+  const static std::vector<int64_t> supportedDepthFormats = { DXGI_FORMAT_D24_UNORM_S8_UINT,
+    DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_D32_FLOAT_S8X24_UINT };
+
   return supportedDepthFormats;
 }
 

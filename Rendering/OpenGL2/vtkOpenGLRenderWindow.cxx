@@ -1350,8 +1350,15 @@ void vtkOpenGLRenderWindow::Frame()
     this->RenderFramebuffer->Bind(GL_READ_FRAMEBUFFER);
     this->RenderFramebuffer->ActivateReadBuffer(0);
 
-    this->GetState()->vtkglBlitFramebuffer(0, 0, fbsize[0], fbsize[1], 0, 0, fbsize[0], fbsize[1],
-      (copiedColor ? 0 : GL_COLOR_BUFFER_BIT) | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    if (this->FramebufferFlipY)
+    {
+      this->TextureDepthBlit(this->RenderFramebuffer->GetDepthAttachmentAsTextureObject());
+    }
+    else
+    {
+      this->GetState()->vtkglBlitFramebuffer(0, 0, fbsize[0], fbsize[1], 0, 0, fbsize[0], fbsize[1],
+        (copiedColor ? 0 : GL_COLOR_BUFFER_BIT) | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    }
 
     this->GetState()->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
     this->GetState()->vtkglScissor(0, 0, this->Size[0], this->Size[1]);

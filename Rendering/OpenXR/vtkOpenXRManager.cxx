@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenXRManager.h"
 
+#include "vtkCamera.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenXRManagerOpenGLGraphics.h"
+#include "vtkOpenXRRenderWindow.h"
 #include "vtkOpenXRUtilities.h"
+#include "vtkRendererCollection.h"
 #include "vtkWindows.h" // Does nothing if we are not on windows
 
 #include <cstring>
@@ -358,8 +361,13 @@ bool vtkOpenXRManager::LoadControllerModels()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenXRManager::PrepareRendering(uint32_t eye, void* colorTextureId, void* depthTextureId)
+bool vtkOpenXRManager::PrepareRendering(
+  vtkOpenXRRenderWindow* win, void* colorTextureId, void* depthTextureId)
 {
+  // vtkOpenXRRenderWindow only supports a single renderer, so this is OK.
+  vtkCamera* camera = win->GetRenderers()->GetFirstRenderer()->GetActiveCamera();
+  const std::uint32_t eye = camera->GetLeftEye() == 1 ? 0 : 1;
+
   const vtkOpenXRManager::Swapchain_t& colorSwapchain = this->RenderResources->ColorSwapchains[eye];
   const vtkOpenXRManager::Swapchain_t& depthSwapchain = this->RenderResources->DepthSwapchains[eye];
 
@@ -406,11 +414,18 @@ bool vtkOpenXRManager::PrepareRendering(uint32_t eye, void* colorTextureId, void
 
     this->GraphicsStrategy->GetDepthSwapchainImage(eye, depthSwapchainImageIndex, depthTextureId);
 
+    std::array<double, 2> clippingPlanes;
+    camera->GetClippingRange(clippingPlanes.data());
+
+    double physscale = win->GetPhysicalScale();
+    double znear = clippingPlanes[0] / physscale;
+    double zfar = clippingPlanes[1] / physscale;
+
     this->RenderResources->DepthInfoViews[eye] = { XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR };
     this->RenderResources->DepthInfoViews[eye].minDepth = 0;
     this->RenderResources->DepthInfoViews[eye].maxDepth = 1;
-    this->RenderResources->DepthInfoViews[eye].nearZ = 0.1;
-    this->RenderResources->DepthInfoViews[eye].farZ = 20.0;
+    this->RenderResources->DepthInfoViews[eye].nearZ = znear;
+    this->RenderResources->DepthInfoViews[eye].farZ = zfar;
     this->RenderResources->DepthInfoViews[eye].subImage.swapchain = depthSwapchain.Swapchain;
     this->RenderResources->DepthInfoViews[eye].subImage.imageRect = imageRect;
     this->RenderResources->DepthInfoViews[eye].subImage.imageArrayIndex = 0;
@@ -719,6 +734,12 @@ std::vector<const char*> vtkOpenXRManager::SelectExtensions()
 
   this->OptionalExtensions.RemotingSupported =
     EnableExtensionIfSupported(this->ConnectionStrategy->GetExtensionName());
+
+  if (this->UseDepthExtension)
+  {
+    this->OptionalExtensions.DepthExtensionSupported =
+      EnableExtensionIfSupported(XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME);
+  }
 
   this->PrintOptionalExtensions();
 

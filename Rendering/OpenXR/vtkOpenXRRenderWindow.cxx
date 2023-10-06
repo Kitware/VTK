@@ -254,7 +254,7 @@ void vtkOpenXRRenderWindow::RenderOneEye(uint32_t eye)
   FramebufferDesc& eyeFramebufferDesc = this->FramebufferDescs[eye];
 
   if (!xrManager.PrepareRendering(
-        eye, &eyeFramebufferDesc.ResolveColorTextureId, &eyeFramebufferDesc.ResolveDepthTextureId))
+        this, &eyeFramebufferDesc.ResolveColorTextureId, &eyeFramebufferDesc.ResolveDepthTextureId))
   {
     return;
   }

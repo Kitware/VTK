@@ -28,6 +28,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
+class vtkOpenXRRenderWindow;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManager
 {
@@ -223,10 +224,10 @@ public:
   /**
    * Prepare the rendering resources for the specified eye and store in \p colorTextureId and
    * in \p depthTextureId (if the depth extension is supported) the texture in which we need
-   * to draw pixels.
+   * to draw pixels. \p win is used to get the right clipping planes for the depth extension.
    * Return true if no error occurred.
    */
-  bool PrepareRendering(uint32_t eye, void* colorTextureId, void* depthTextureId);
+  bool PrepareRendering(vtkOpenXRRenderWindow* win, void* colorTextureId, void* depthTextureId);
   ///@}
 
   ///@{
@@ -378,6 +379,26 @@ public:
    */
   void SetConnectionStrategy(vtkOpenXRManagerConnection* cs) { this->ConnectionStrategy = cs; }
   vtkOpenXRManagerConnection* GetConnectionStrategy() { return this->ConnectionStrategy; }
+  ///@}
+
+  ///@{
+  /**
+   * Enable or disable XR_KHR_composition_layer_depth extension even when it is available.
+   *
+   * This must be set before vtkOpenXRManager initialization.
+   * Do nothing if XR_KHR_composition_layer_depth isn't available.
+   *
+   * Depth information is useful for augmented reality devices such as the Hololens 2.
+   * When enabled and XR_KHR_composition_layer_depth is available,
+   * the depth texture of the render window is submitted to the runtime.
+   * The runtime will use this information increase hologram stability of the Hololens 2.
+   *
+   * Note: enabling this option without providing the depth information could reduce stability.
+   *
+   * Default value: `false`
+   */
+  void SetUseDepthExtension(bool value) { this->UseDepthExtension = value; }
+  bool GetUseDepthExtension() const { return this->UseDepthExtension; }
   ///@}
 
 protected:
@@ -593,6 +614,7 @@ protected:
    */
   XrTime PredictedDisplayTime;
 
+  bool UseDepthExtension = false;
   bool SessionRunning = false;
   // After each WaitAndBeginFrame, the OpenXR runtime may inform us that
   // the current frame should not be rendered. Store it to avoid a render
