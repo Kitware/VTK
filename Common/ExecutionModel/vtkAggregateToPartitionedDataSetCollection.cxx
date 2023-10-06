@@ -58,9 +58,13 @@ bool vtkAggregateToPartitionedDataSetCollection::Aggregate(vtkDataObject* input)
     return true;
   }
 
+  // Ensure we do not reuse the same pointer
+  auto newPartition = vtkSmartPointer<vtkDataObject>::Take(input->NewInstance());
+  newPartition->ShallowCopy(input);
+
   unsigned int LastPDS = this->Internal->Output->GetNumberOfPartitionedDataSets();
   this->Internal->Output->SetNumberOfPartitionedDataSets(LastPDS + 1);
-  this->Internal->Output->SetPartition(LastPDS, 0, input);
+  this->Internal->Output->SetPartition(LastPDS, 0, newPartition);
 
   return true;
 }
