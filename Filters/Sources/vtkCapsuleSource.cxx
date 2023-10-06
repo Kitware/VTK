@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) Kitware Inc.
 // SPDX-License-Identifier: BSD-3-Clause AND Apache-2.0
+
+// Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkCapsuleSource.h"
 
 #include "vtkCellArray.h"
