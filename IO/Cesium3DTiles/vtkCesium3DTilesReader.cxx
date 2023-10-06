@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCesium3DTilesReader.h"
-#include "vtkDoublePointsFactory.h"
 
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkGLTFReader.h"
