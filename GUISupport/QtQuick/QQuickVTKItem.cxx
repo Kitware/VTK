@@ -75,7 +75,6 @@ public:
   QQueue<std::function<void(vtkRenderWindow*, QQuickVTKItem::vtkUserData)>> asyncDispatch;
 
   QVTKInteractorAdapter qt2vtkInteractorAdapter;
-
   bool scheduleRender = false;
 
   mutable QSGVtkObjectNode* node = nullptr;
@@ -142,6 +141,11 @@ public:
 
   ~QSGVtkObjectNode() override
   {
+    for (const auto& id : this->vtkWindowObserverIds)
+    {
+      vtkWindow->RemoveObserver(id);
+    }
+    this->vtkWindowObserverIds.clear();
     if (m_item)
       m_item->destroyingVTK(vtkWindow, vtkUserData);
 
@@ -159,6 +163,15 @@ public:
   }
 
   QSGTexture* texture() const override { return QSGSimpleTextureNode::texture(); }
+
+  void renderWindowEventHandler(vtkObject*, unsigned long eventid, void* vtkNotUsed(callData))
+  {
+    if (eventid == vtkCommand::WindowFrameEvent)
+    {
+      // Render on the vtkRenderWindow should trigger an update on the QQuickWindow.
+      this->scheduleRender();
+    }
+  }
 
   void initialize(QQuickVTKItem* item)
   {
@@ -186,6 +199,8 @@ public:
     vtkWindow->SetForceMaximumHardwareLineWidth(1);
     vtkWindow->SetOwnContext(false);
     vtkWindow->OpenGLInitContext();
+    this->vtkWindowObserverIds.push_back(vtkWindow->AddObserver(
+      vtkCommand::WindowFrameEvent, this, &QSGVtkObjectNode::renderWindowEventHandler));
   }
 
   void scheduleRender()
@@ -249,6 +264,7 @@ private:
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> vtkWindow;
   vtkSmartPointer<vtkObject> vtkUserData;
   bool m_renderPending = false;
+  std::vector<unsigned long> vtkWindowObserverIds;
 
 protected:
   // variables set in QQuickVTKItem::updatePaintNode()
