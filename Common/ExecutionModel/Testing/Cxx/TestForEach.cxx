@@ -1,11 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <vtkContourFilter.h>
 #include <vtkEndFor.h>
 #include <vtkForEach.h>
 #include <vtkImageDataToPointSet.h>
 #include <vtkNew.h>
 #include <vtkPartitionedDataSetCollection.h>
+#include <vtkPlaneCutter.h>
 #include <vtkRandomAttributeGenerator.h>
 #include <vtkSpatioTemporalHarmonicsSource.h>
 
@@ -82,14 +84,16 @@ bool TestComplexPipeline()
   vtkNew<vtkForEach> forEach;
   forEach->SetInputConnection(source->GetOutputPort());
 
-  vtkNew<vtkImageDataToPointSet> toPointSet;
-  toPointSet->SetInputConnection(forEach->GetOutputPort());
+  vtkNew<vtkPlaneCutter> slice;
+  slice->SetInputConnection(forEach->GetOutputPort());
 
-  vtkNew<vtkRandomAttributeGenerator> random;
-  random->SetInputConnection(toPointSet->GetOutputPort());
+  vtkNew<vtkContourFilter> contour;
+  contour->SetInputConnection(slice->GetOutputPort());
+  contour->SetNumberOfContours(1);
+  contour->SetValue(0, 1);
 
   vtkNew<vtkEndFor> endFor;
-  endFor->SetInputConnection(random->GetOutputPort());
+  endFor->SetInputConnection(contour->GetOutputPort());
 
   endFor->Update();
 
@@ -106,6 +110,19 @@ bool TestComplexPipeline()
     std::cerr << "Output did not have correct number of blocks" << std::endl;
     return false;
   }
+
+  // Check temporal change
+  vtkDataSet* part1 = pdsc->GetPartition(0, 0);
+  vtkDataSet* part2 = pdsc->GetPartition(1, 0);
+
+  if (part1->GetNumberOfPoints() == part2->GetNumberOfPoints())
+  {
+    std::cerr
+      << "Partitions have the same number of points, time not updated correctly in vtkEndFor "
+      << std::endl;
+    return false;
+  }
+
   return true;
 }
 
