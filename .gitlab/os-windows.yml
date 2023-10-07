@@ -308,6 +308,7 @@
         - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
         - python -m venv venv
         - . .\venv\Scripts\Activate.ps1
+        - pip install setuptools
         - pip install wheel
         - python setup.py bdist_wheel
         - python "$env:GIT_CLONE_PATH\.gitlab\ci\create_wheel_sdk_archive.py"

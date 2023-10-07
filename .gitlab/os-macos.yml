@@ -239,6 +239,7 @@
         - sccache --show-stats
         - cd build
         - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
+        - venv/bin/pip install setuptools
         - venv/bin/pip install wheel
         - venv/bin/python3 setup.py bdist_wheel
         - '[ -f dist/*_universal2.whl ] && exit 1 # universal2 wheels are not made; platform detection requires an override'
