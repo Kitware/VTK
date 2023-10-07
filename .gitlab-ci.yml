@@ -44,15 +44,15 @@ stages:
 dummy:build:
    stage: build
    extends:
-    - .linux_builder_tags
+        - .linux_builder_tags
    rules:
-       - if: '$CI_MERGE_REQUEST_ID'
-         when: on_success
-       - if: '$CI_PROJECT_PATH == "vtk/vtk"'
-         when: on_success
-       - when: never
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: on_success
+        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
+          when: on_success
+        - when: never
    script:
-    - echo "dummy"
+        - echo "dummy"
 
 ## Basic builds
 
