@@ -44,8 +44,10 @@ stages:
 dummy:build:
    stage: build
    image: alpine:latest
-   extends:
-        - .linux_builder_tags
+   tags:
+        - build
+        - docker
+        - linux-x86_64
    rules:
         - if: '$CI_MERGE_REQUEST_ID'
           when: on_success
