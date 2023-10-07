@@ -31,6 +31,16 @@ public:
    */
   void SetSourceProjection(vtkGeoProjection* source);
   vtkGetObjectMacro(SourceProjection, vtkGeoProjection);
+
+  ///@{
+  /**
+   * If true, we transform (x, y, z) otherwise
+   * we transform (x, y) and leave z unchanged. Default is false.
+   * This is used when converting from/to cartesian (cart) coordinate,
+   * but it could be used for other transforms as well.
+   */
+  vtkSetMacro(TransformZCoordinate, bool);
+  vtkGetMacro(TransformZCoordinate, bool);
   ///@}
 
   ///@{
@@ -95,9 +105,9 @@ protected:
   ~vtkGeoTransform() override;
 
   void InternalTransformPoints(double* ptsInOut, vtkIdType numPts, int stride);
-
   vtkGeoProjection* SourceProjection;
   vtkGeoProjection* DestinationProjection;
+  bool TransformZCoordinate;
 
 private:
   vtkGeoTransform(const vtkGeoTransform&) = delete;
