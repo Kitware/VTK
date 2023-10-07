@@ -43,6 +43,7 @@ stages:
 
 dummy:build:
    stage: build
+   image: alpine:latest
    extends:
         - .linux_builder_tags
    rules:
