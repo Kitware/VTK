@@ -115,7 +115,16 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->NumberOfVectors = 0;
   if (this->FileState == DataState::AVAILABLE)
   {
-    int flagData = this->GetData();
+    int flagData = 0;
+    try
+    {
+      flagData = this->GetData();
+    }
+    catch (std::runtime_error const& e)
+    {
+      vtkErrorMacro(<< e.what());
+      return 0;
+    }
     if (flagData == 0)
     {
       vtkErrorMacro(
@@ -336,7 +345,16 @@ int vtkFLUENTCFFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   if (this->FileState == DataState::AVAILABLE)
   {
-    int flagData = this->GetMetaData();
+    int flagData = 0;
+    try
+    {
+      flagData = this->GetMetaData();
+    }
+    catch (std::runtime_error const& e)
+    {
+      vtkErrorMacro(<< e.what());
+      return 0;
+    }
     if (flagData == 0)
     {
       vtkErrorMacro(
@@ -360,6 +378,14 @@ int vtkFLUENTCFFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 bool vtkFLUENTCFFReader::OpenCaseFile(const std::string& filename)
 {
+  // Check if hdf5 lib contains zlib (DEFLATE)
+  htri_t avail = H5Zfilter_avail(H5Z_FILTER_DEFLATE);
+  if (!avail)
+  {
+    vtkErrorMacro("The current build is not compatible with this reader, HDF5 library misses ZLIB "
+                  "compatibility.");
+    return false;
+  }
   // Check if the file is HDF5 or exist
   htri_t file_type = H5Fis_hdf5(filename.c_str());
   if (file_type != 1)
