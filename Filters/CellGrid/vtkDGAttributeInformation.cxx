@@ -11,6 +11,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkVectorOperators.h"
 
+#include <cctype>  // for std::tolower/std::toupper
 #include <cstdlib> // for strtol
 #include <sstream> // for basisName
 
