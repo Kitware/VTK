@@ -194,6 +194,7 @@ void ReadAndExtractRowFromCSV(vtkDelimitedTextReader* reader, const std::string&
   }
 }
 
+//------------------------------------------------------------------------------
 void ReadNothing(const char*, std::size_t) {}
 
 //------------------------------------------------------------------------------
@@ -958,6 +959,7 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   const auto baseNodes = this->Assembly->AddNodes(BASE_NODES);
 
   std::string rootNodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName);
+  rootNodeName = this->SanitizeName(rootNodeName);
   this->Assembly->SetNodeName(vtkDataAssembly::GetRootNode(), rootNodeName.c_str());
   std::string FDSRootDir = vtksys::SystemTools::GetFilenamePath(this->FileName);
 
@@ -1240,10 +1242,29 @@ bool vtkFDSReader::ParseGRID(const std::vector<int>& baseNodes)
       return false;
     }
 
-    // Discard line (contains unused info)
+    // We must skip grid coordinates (along X, Y or Z axis) beginning with "-1"
+    // Here we parse the number of such lines.
+    unsigned int nbOfLinesToDiscard = 0;
+    if (!parser.Parse(nbOfLinesToDiscard))
+    {
+      vtkErrorMacro(
+        "Could not read line " << parser.LineNumber << " where expected a positive number.");
+      return false;
+    }
+
+    // Discard the rest of the line
     if (!parser.DiscardLine())
     {
       return false;
+    }
+
+    // Discard all grid coordinates (along X, Y or Z axis) beginning with "-1"
+    for (unsigned int lineNb = 0; lineNb < nbOfLinesToDiscard; lineNb++)
+    {
+      if (!parser.DiscardLine())
+      {
+        return false;
+      }
     }
 
     vtkNew<vtkDoubleArray> coordArray;
@@ -1306,6 +1327,7 @@ bool vtkFDSReader::ParseGRID(const std::vector<int>& baseNodes)
   }
 
   // Register grid and fill assembly
+  gridName = this->SanitizeName(gridName);
   const int idx = this->Assembly->AddNode(gridName.c_str(), baseNodes[GRIDS]);
   ::GridData gridData;
   gridData.GridNb = this->Internals->GridCount;
@@ -1410,9 +1432,9 @@ bool vtkFDSReader::ParseGRID(const std::vector<int>& baseNodes)
   for (vtkIdType iBlock = 0; iBlock < nBlockages; ++iBlock)
   {
     auto& oData = gridBoundaries[iBlock];
-    const int bIdx = this->Assembly->AddNode(
-      (gridName + "_Blockage_" + std::to_string(oData.BlockageNumber)).c_str(),
-      baseNodes[::BOUNDARIES]);
+    std::string blockageName = gridName + "_Blockage_" + std::to_string(oData.BlockageNumber);
+    blockageName = this->SanitizeName(blockageName);
+    const int bIdx = this->Assembly->AddNode(blockageName.c_str(), baseNodes[::BOUNDARIES]);
     this->Internals->Boundaries.emplace(bIdx, oData);
     this->Internals->MaxNbOfPartitions++;
   }
@@ -1502,6 +1524,7 @@ bool vtkFDSReader::ParseCSVF(const std::vector<int>& baseNodes)
     }
 
     // Register file path and fill assembly
+    nodeName = this->SanitizeName(nodeName);
     const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[HRR]);
     this->Internals->HRRFiles.emplace(idx, fileName);
     this->Internals->MaxNbOfPartitions++;
@@ -1574,7 +1597,8 @@ bool vtkFDSReader::ParseDEVICE(const std::vector<int>& baseNodes)
   }
 
   // Register file path and fill assembly
-  const int idx = this->Assembly->AddNode(dData.Name.c_str(), baseNodes[DEVICES]);
+  std::string nodeName = this->SanitizeName(dData.Name);
+  const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[DEVICES]);
   this->Internals->Devices.emplace(idx, dData);
   this->Internals->MaxNbOfPartitions++;
 
@@ -1613,38 +1637,48 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
     return false;
   }
 
-  // if there is a space between the name and a % or # symbol
-  if (name == "%" || name == "#")
+  // if we have an ampersand immediately, it means no name prefix was provided.
+  if (name == "&")
   {
-    if (!parser.Parse(name))
+    name = "";
+  }
+  else
+  {
+    // if there is a space between the name and a % or # symbol
+    if (name == "%" || name == "#")
     {
-      vtkErrorMacro("Could not parse name of slice at line " << parser.LineNumber);
+      if (!parser.Parse(name))
+      {
+        vtkErrorMacro("Could not parse name of slice at line " << parser.LineNumber);
+        return false;
+      }
+    }
+
+    // remove % or # from name
+    std::array<std::string, 2> wildcards = { "#", "%" };
+    for (const auto& wildcard : wildcards)
+    {
+      for (std::string::size_type iStr = name.find(wildcard); iStr != std::string::npos;
+           iStr = name.find(wildcard))
+      {
+        name.erase(iStr, 1);
+      }
+    }
+
+    // Parse ampersand after the name
+    std::string ampersand;
+    if (!parser.Parse(ampersand))
+    {
+      vtkErrorMacro(
+        "Error parsing ampersand at end of " << name << " at line " << parser.LineNumber);
       return false;
     }
-  }
 
-  // remove % or # from name
-  std::array<std::string, 2> wildcards = { "#", "%" };
-  for (const auto& wildcard : wildcards)
-  {
-    for (std::string::size_type iStr = name.find(wildcard); iStr != std::string::npos;
-         iStr = name.find(wildcard))
+    if (ampersand != "&")
     {
-      name.erase(iStr, 1);
+      vtkErrorMacro("Expected & at end of " << name << " at line " << parser.LineNumber);
+      return false;
     }
-  }
-
-  std::string ampersand;
-  if (!parser.Parse(ampersand))
-  {
-    vtkErrorMacro("Error parsing ampersand at end of " << name << " at line " << parser.LineNumber);
-    return false;
-  }
-
-  if (ampersand != "&")
-  {
-    vtkErrorMacro("Expected & at end of " << name << " at line " << parser.LineNumber);
-    return false;
   }
 
   for (std::size_t iExtent = 0; iExtent < 6; ++iExtent)
@@ -1681,7 +1715,12 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
     vtkErrorMacro("Could not parse name post fix of slice at line " << parser.LineNumber);
     return false;
   }
-  name = name + "_" + namePostFix;
+
+  if (!name.empty())
+  {
+    name += "_";
+  }
+  name += namePostFix;
 
   if (!parser.DiscardLine())
   {
@@ -1702,6 +1741,7 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
 
   sData.TimeValues = ::ParseTimeStepsInSliceFile(sData.FileName);
 
+  name = this->SanitizeName(name);
   const int idx = this->Assembly->AddNode(name.c_str(), baseNodes[SLICES]);
   this->Internals->Slices.emplace(idx, sData);
   this->Internals->MaxNbOfPartitions++;
@@ -1921,6 +1961,20 @@ vtkSmartPointer<vtkResourceStream> vtkFDSReader::Open()
   }
 
   return fileStream;
+}
+
+//------------------------------------------------------------------------------
+std::string vtkFDSReader::SanitizeName(const std::string& name)
+{
+  if (this->Assembly->IsNodeNameValid(name.c_str()))
+  {
+    return name;
+  }
+
+  std::string newName = this->Assembly->MakeValidNodeName(name.c_str());
+  vtkWarningMacro(
+    "Name " + name + " is not a valid data assembly node name.\nNew name : " << newName);
+  return newName;
 }
 
 VTK_ABI_NAMESPACE_END

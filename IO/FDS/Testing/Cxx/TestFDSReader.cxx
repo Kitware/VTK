@@ -50,7 +50,7 @@ bool TestExampleFile(const std::string& dataRoot)
 {
   // Test RequestInformation
   vtkNew<vtkFDSReader> reader;
-  std::string fileName = dataRoot + "/Data/FDSExample/exemple_kitware.smv";
+  std::string fileName = dataRoot + "/Data/FDS/exemple_kitware/exemple_kitware.smv";
   reader->SetFileName(fileName);
   reader->UpdateInformation();
 
