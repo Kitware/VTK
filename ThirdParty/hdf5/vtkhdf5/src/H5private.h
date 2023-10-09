@@ -560,7 +560,7 @@ H5_DLL herr_t   H5_timer_start(H5_timer_t *timer /*in,out*/);
 H5_DLL herr_t   H5_timer_stop(H5_timer_t *timer /*in,out*/);
 H5_DLL herr_t   H5_timer_get_times(H5_timer_t timer, H5_timevals_t *times /*in,out*/);
 H5_DLL herr_t   H5_timer_get_total_times(H5_timer_t timer, H5_timevals_t *times /*in,out*/);
-H5_DLL char *   H5_timer_get_time_string(double seconds);
+H5_DLL char    *H5_timer_get_time_string(double seconds);
 
 /* Depth of object copy */
 typedef enum {
@@ -1774,17 +1774,17 @@ typedef enum {
 } H5_pkg_t;
 
 typedef struct H5_debug_open_stream_t {
-    FILE *                         stream; /* Open output stream */
+    FILE                          *stream; /* Open output stream */
     struct H5_debug_open_stream_t *next;   /* Next open output stream */
 } H5_debug_open_stream_t;
 
 typedef struct H5_debug_t {
-    FILE *  trace;  /*API trace output stream  */
+    FILE   *trace;  /*API trace output stream  */
     hbool_t ttop;   /*Show only top-level calls?    */
     hbool_t ttimes; /*Show trace event times?       */
     struct {
         const char *name;   /*package name      */
-        FILE *      stream; /*output stream  or NULL    */
+        FILE       *stream; /*output stream  or NULL    */
     } pkg[H5_NPKGS];
     H5_debug_open_stream_t *open_stream; /* Stack of open output streams */
 } H5_debug_t;
@@ -1796,7 +1796,7 @@ extern hbool_t H5_coll_api_sanity_check_g;
 extern H5_debug_t H5_debug_g;
 #define H5DEBUG(X) (H5_debug_g.pkg[H5_PKG_##X].stream)
 /* Do not use const else AIX strings does not show it. */
-extern char H5libhdf5_settings[]; /* embedded library information */
+extern const char H5build_settings[]; /* embedded library information */
 
 /*-------------------------------------------------------------------------
  * Purpose: These macros are inserted automatically just after the
@@ -2619,7 +2619,7 @@ enum h5_arg_level {
  * end.
  */
 struct h5_long_options {
-    const char *      name;     /* Name of the long option */
+    const char       *name;     /* Name of the long option */
     enum h5_arg_level has_arg;  /* Whether we should look for an arg */
     char              shortval; /* The shortname equivalent of long arg
                                  * this gets returned from get_option

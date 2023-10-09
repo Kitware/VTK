@@ -50,7 +50,7 @@
 /* Node for list of 'atclose' routines to invoke at library shutdown */
 typedef struct H5_atclose_node_t {
     H5_atclose_func_t         func; /* Function to invoke */
-    void *                    ctx;  /* Context to pass to function */
+    void                     *ctx;  /* Context to pass to function */
     struct H5_atclose_node_t *next; /* Pointer to next node in list */
 } H5_atclose_node_t;
 
@@ -771,7 +771,7 @@ done:
 static void
 H5__debug_mask(const char *s)
 {
-    FILE *  stream = stderr;
+    FILE   *stream = stderr;
     char    pkg_name[32], *rest;
     size_t  i;
     hbool_t clear;
@@ -953,8 +953,8 @@ H5check_version(unsigned majnum, unsigned minnum, unsigned relnum)
     char                substr[]                 = H5_VERS_SUBRELEASE;
     static int          checked                  = 0; /* If we've already checked the version info */
     static unsigned int disable_version_check    = 0; /* Set if the version check should be disabled */
-    static const char * version_mismatch_warning = VERSION_MISMATCH_WARNING;
-    static const char * release_mismatch_warning = RELEASE_MISMATCH_WARNING;
+    static const char  *version_mismatch_warning = VERSION_MISMATCH_WARNING;
+    static const char  *release_mismatch_warning = RELEASE_MISMATCH_WARNING;
     herr_t              ret_value                = SUCCEED; /* Return value */
 
     FUNC_ENTER_API_NOINIT_NOERR_NOFS
@@ -985,8 +985,8 @@ H5check_version(unsigned majnum, unsigned minnum, unsigned relnum)
                 /* Mention the versions we are referring to */
                 HDfprintf(stderr, "Headers are %u.%u.%u, library is %u.%u.%u\n", majnum, minnum, relnum,
                           (unsigned)H5_VERS_MAJOR, (unsigned)H5_VERS_MINOR, (unsigned)H5_VERS_RELEASE);
-                /* Show library settings if available */
-                HDfprintf(stderr, "%s", H5libhdf5_settings);
+                /* Show library build settings if available */
+                HDfprintf(stderr, "%s", H5build_settings);
 
                 /* Bail out now. */
                 HDfputs("Bye...\n", stderr);
@@ -1002,8 +1002,8 @@ H5check_version(unsigned majnum, unsigned minnum, unsigned relnum)
                 /* Mention the versions we are referring to */
                 HDfprintf(stderr, "Headers are %u.%u.%u, library is %u.%u.%u\n", majnum, minnum, relnum,
                           (unsigned)H5_VERS_MAJOR, (unsigned)H5_VERS_MINOR, (unsigned)H5_VERS_RELEASE);
-                /* Show library settings if available */
-                HDfprintf(stderr, "%s", H5libhdf5_settings);
+                /* Show library build settings if available */
+                HDfprintf(stderr, "%s", H5build_settings);
                 break;
             default:
                 /* 2 or higher: continue silently */
