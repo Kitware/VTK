@@ -43,16 +43,19 @@ stages:
 
 dummy:build:
    stage: build
-   extends:
-    - .linux_builder_tags
+   image: alpine:latest
+   tags:
+        - build
+        - docker
+        - linux-x86_64
    rules:
-       - if: '$CI_MERGE_REQUEST_ID'
-         when: on_success
-       - if: '$CI_PROJECT_PATH == "vtk/vtk"'
-         when: on_success
-       - when: never
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: on_success
+        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
+          when: on_success
+        - when: never
    script:
-    - echo "dummy"
+        - echo "dummy"
 
 ## Basic builds
 
