@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGLSLModCamera
- * @brief   Implement light kit support in the OpenGL rendereR.
+ * @brief   Implement model-view-projection transforms in the OpenGL renderer.
  */
 
 #ifndef vtkGLSLModCamera_h
@@ -13,7 +13,9 @@
 #include "vtkMatrix3x3.h"              // for ivar
 #include "vtkMatrix4x4.h"              // for ivar
 #include "vtkRenderingOpenGL2Module.h" // for export macro
-#include "vtkWeakPointer.h"            // for ivar
+#include "vtkSmartPointer.h"           // for ivar
+
+#include <array> // for array
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -26,15 +28,13 @@ public:
   vtkTypeMacro(vtkGLSLModCamera, vtkGLSLModifierBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  void EnableShiftScale(bool coordShiftAndScaleInUse, vtkMatrix4x4* ssMatrix);
+  void DisableShiftScale();
+
   // vtkGLSLModifierBase virtuals:
-  bool ReplaceShaderValues(vtkOpenGLRenderer* vtkNotUsed(renderer),
-    std::string& vtkNotUsed(vertexShader), std::string& vtkNotUsed(geometryShader),
-    std::string& vtkNotUsed(fragmentShader), vtkAbstractMapper* vtkNotUsed(mapper),
-    vtkActor* vtkNotUsed(actor)) override
-  {
-    // nothing to replace.
-    return true;
-  }
+  bool ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::string& vertexShader,
+    std::string& geometryShader, std::string& fragmentShader, vtkAbstractMapper* mapper,
+    vtkActor* actor) override;
   bool SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShaderProgram* program,
     vtkAbstractMapper* mapper, vtkActor* actor, vtkOpenGLVertexArrayObject* VAO = nullptr) override;
 
@@ -51,6 +51,10 @@ protected:
 
   vtkNew<vtkMatrix3x3> TempMatrix3;
   vtkNew<vtkMatrix4x4> TempMatrix4;
+
+  bool CoordinateShiftAndScaleInUse;
+  bool ApplyShiftAndScaleFromShader;
+  vtkSmartPointer<vtkMatrix4x4> SSMatrix;
 
 private:
   vtkGLSLModCamera(const vtkGLSLModCamera&) = delete;
