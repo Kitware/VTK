@@ -10,6 +10,7 @@ set(python38_version "3.8.10") # Source-only releases after this.
 set(python39_version "3.9.13") # Source-only releases after this.
 set(python310_version "3.10.11") # Source-only releases after this.
 set(python311_version "3.11.6")
+set(python312_version "3.12.0")
 
 # Hashes for various deployments.
 set(python36_windows_x86_64_hash "3f70798c4885d11842869c9fb2842c8f8bafed1ebfac04e3f4ae1af6498527ce")
@@ -18,6 +19,7 @@ set(python38_windows_x86_64_hash "d4e7e83de0db659697eea034dd2b1620ff26ac7062709b
 set(python39_windows_x86_64_hash "004683810c0e0b4ff10025392ac95e699e99d8c3566f415aa7fa35c6d4882f88")
 set(python310_windows_x86_64_hash "b02692c7905dea2829e4204eab2343b226f0c9f244df89502ba8d483d5f8f9d3")
 set(python311_windows_x86_64_hash "2a8393087e0cac9e3c0eeb69a3a34f3b01734266a0bb276621aec7a159b576b6")
+set(python312_windows_x86_64_hash "782f1b9db7e8ff78c928ea94861549820c8abc70cde76a3dfb7ef9e54a06e326")
 
 set(python36_macos_x86_64_hash "bd3b68dfc9787c39312c8bd554853fe750abd999e100690c3ed81c29447b02d3")
 set(python37_macos_x86_64_hash "1d31a228ac921c13787f74e0b9e7a04ae5806e70c5226e23711840bf0f0c9e90")
@@ -28,6 +30,8 @@ set(python310_macos_arm64_hash "5e5a2124abfdc3bb85751e6a544ab81d0624473afe7bab41
 set(python310_macos_x86_64_hash "edb762a34ea20c6876f9f583158e7f65c1a428aecea1971717fc05e26415f55b")
 set(python311_macos_arm64_hash "ad1380cd383e0bab7d988f9ee7bfb8693d5de28736ad3d8d256937fad7d02ec7")
 set(python311_macos_x86_64_hash "6dba6a561f02ae1a93707dd87386f2adca4a4765a9a73929c121290489ca14db")
+set(python312_macos_arm64_hash "475b1626769b6e517eb0630accba08c4669c4e16573c6d4137cef0aaee67b785")
+set(python312_macos_x86_64_hash "22772ed975c06f931c9b9f1d633afe34b04fbab6d0824d9a46a698d561ee5e90")
 
 # Extracting information from the build configuration.
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
@@ -53,6 +57,8 @@ elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "310_")
   set(python_version 310)
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "311_")
   set(python_version 311)
+elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "312_")
+  set(python_version 312)
 else ()
   message(FATAL_ERROR
     "Unknown version for Python")
