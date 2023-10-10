@@ -836,7 +836,9 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
           if (isAMReX)
           {
             auto ug = vtkUniformGrid::SafeDownCast(output);
-            ug->GetCellData()->AddArray(dataArray);
+            const auto vtk_association = GetAssociation(field_node["association"].as_string());
+            auto dsa = ug->GetAttributes(vtk_association);
+            dsa->AddArray(dataArray);
           }
           else
           {
