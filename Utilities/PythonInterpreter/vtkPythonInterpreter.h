@@ -210,20 +210,6 @@ private:
   ///@}
 
   /**
-   * Since vtkPythonInterpreter is often used outside CPython executable, e.g.
-   * vtkpython, the default logic to locate Python standard libraries used by
-   * Python (which depends on the executable path) may fail or pickup incorrect
-   * Python libs. This methods address the issue by setting program name to help
-   * guide Python's default prefix/exec_prefix searching logic.
-   */
-  static void SetupPythonPrefix();
-
-  /**
-   * Add paths to VTK's Python modules.
-   */
-  static void SetupVTKPythonPaths();
-
-  /**
    * Verbosity level to use when logging info.
    */
   static int LogVerbosity;
