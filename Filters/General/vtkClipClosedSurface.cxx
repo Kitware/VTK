@@ -533,6 +533,13 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
     // Convert the plane into an easy-to-evaluate function
     double pc[4];
     plane->GetNormal(pc);
+    if (this->InsideOut)
+    {
+      for (int i = 0; i < 3; ++i)
+      {
+        pc[i] *= -1.0;
+      }
+    }
     pc[3] = -vtkMath::Dot(pc, plane->GetOrigin());
 
     // Create the clip scalars by evaluating the plane at each point
