@@ -15,9 +15,7 @@
 
 namespace conduit_cpp
 {
-VTK_ABI_NAMESPACE_BEGIN
 class Node;
-VTK_ABI_NAMESPACE_END
 }
 
 VTK_ABI_NAMESPACE_BEGIN
