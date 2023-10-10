@@ -38,6 +38,9 @@ execute_process(
 if (res)
   message(FATAL_ERROR
     "Failed to determine the platform build directory: ${err}")
+elseif (err)
+  message(AUTHOR_WARNING
+    "Platform build directory warning: ${err}")
 endif ()
 
 set(wheel_data_dir

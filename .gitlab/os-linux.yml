@@ -92,6 +92,19 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux311_x86_64_osmesa
 
+.wheel_linux312_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux312_x86_64
+        PYTHON_PREFIX: /opt/python/cp312-cp312
+
+.wheel_linux312_x86_64_osmesa:
+    extends: .wheel_linux312_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux312_x86_64_osmesa
+
 .fedora34:
     extends: .linux
     image: "kitware/vtk:ci-fedora34-20230926"

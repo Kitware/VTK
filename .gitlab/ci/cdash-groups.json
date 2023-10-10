@@ -128,6 +128,11 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[wheel_linux312_x86_64]"
+        },
+        {
+            "group": "release",
+            "site": "gitlab-ci",
             "buildname": "[wheel_macos36_x86_64]"
         },
         {
@@ -173,6 +178,16 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[wheel_macos312_arm64]"
+        },
+        {
+            "group": "release",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_macos312_x86_64]"
+        },
+        {
+            "group": "release",
+            "site": "gitlab-ci",
             "buildname": "[wheel_windows36_x86_64]"
         },
         {
@@ -203,6 +218,11 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[wheel_windows312_x86_64]"
+        },
+        {
+            "group": "release",
+            "site": "gitlab-ci",
             "buildname": "[wheel_linux37_x86_64_ext_vtk]"
         },
         {
@@ -227,6 +247,11 @@
         },
         {
             "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_linux312_x86_64_ext_vtk]"
+        },
+        {
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[wheel_macos37_x86_64_ext_vtk]"
         },
@@ -268,6 +293,16 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[wheel_macos312_arm64_ext_vtk]"
+        },
+        {
+            "group": "release",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_macos312_x86_64_ext_vtk]"
+        },
+        {
+            "group": "release",
+            "site": "gitlab-ci",
             "buildname": "[wheel_windows37_x86_64_ext_vtk]"
         },
         {
@@ -292,6 +327,11 @@
         },
         {
             "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_windows312_x86_64_ext_vtk]"
+        },
+        {
+            "group": "release",
             "site": "gitlab-ci",
             "buildname": "[windows_vs2022_kits_mpi_python_qt]"
         },
