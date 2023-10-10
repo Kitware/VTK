@@ -22,6 +22,7 @@ set(classes
   vtkCameraActor
   vtkCameraInterpolator
   vtkCellCenterDepthSort
+  vtkCellGraphicsPrimitiveMap
   vtkCellGridMapper
   vtkCellGridRenderRequest
   vtkColorTransferFunction
