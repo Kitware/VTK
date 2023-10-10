@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGroupDataSetsFilter.h"
 
+#include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkConvertToPartitionedDataSetCollection.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -195,16 +197,26 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
       {
         break;
       }
-      if (vtkPartitionedDataSetCollection::SafeDownCast(input.second) ||
-        vtkPartitionedDataSet::SafeDownCast(input.second))
-      {
-        vtkErrorMacro("Cannot group " << input.second->GetClassName()
-                                      << " as a vtkMultiBlockDataSet. Skipping.");
-        continue;
-      }
-
       const auto idx = next++;
-      output->SetBlock(idx, input.second);
+      vtkSmartPointer<vtkDataObject> inputDO;
+      if (vtkPartitionedDataSetCollection::SafeDownCast(input.second))
+      {
+        vtkNew<vtkConvertToMultiBlockDataSet> converter;
+        converter->SetInputDataObject(input.second);
+        converter->Update();
+        inputDO = converter->GetOutput();
+      }
+      else if (auto inputPD = vtkPartitionedDataSet::SafeDownCast(input.second))
+      {
+        vtkNew<vtkMultiPieceDataSet> data;
+        data->ShallowCopy(inputPD);
+        inputDO = data;
+      }
+      else
+      {
+        inputDO = input.second;
+      }
+      output->SetBlock(idx, inputDO);
       output->GetMetaData(idx)->Set(vtkCompositeDataSet::NAME(), input.first.c_str());
     }
   }
