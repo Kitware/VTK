@@ -17,16 +17,16 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
-#include "vtkMatrix3x3.h"               // for ivar
-#include "vtkMatrix4x4.h"               // for ivar
-#include "vtkNew.h"                     // for ivar
-#include "vtkOpenGLBufferObject.h"      // for ObjectType
-#include "vtkOpenGLIndexBufferObject.h" // for ivar
-#include "vtkOpenGLTexture.h"           // for ivar
-#include "vtkOpenGLVertexArrayObject.h" // for ivar
-#include "vtkShader.h"                  // for ivar
-#include "vtkSmartPointer.h"            // for ivar
-#include "vtkStringToken.h"             // for passing shader and array names
+#include "vtkMatrix3x3.h"                       // for ivar
+#include "vtkMatrix4x4.h"                       // for ivar
+#include "vtkNew.h"                             // for ivar
+#include "vtkOpenGLArrayTextureBufferAdapter.h" // for ivar
+#include "vtkOpenGLBufferObject.h"              // for ObjectType
+#include "vtkOpenGLTexture.h"                   // for ivar
+#include "vtkOpenGLVertexArrayObject.h"         // for ivar
+#include "vtkShader.h"                          // for ivar
+#include "vtkSmartPointer.h"                    // for ivar
+#include "vtkStringToken.h"                     // for passing shader and array names
 
 #include <unordered_map>
 
@@ -121,22 +121,6 @@ protected:
   /// Set any custom uniforms provided by the actor.
   void SetCustomUniforms(vtkRenderer* ren, vtkActor* a);
 
-  struct ArrayTextureData
-  {
-    vtkSmartPointer<vtkDataArray> Array;
-    vtkSmartPointer<vtkTextureObject> Texture;
-    vtkSmartPointer<vtkOpenGLBufferObject> Buffer;
-    vtkOpenGLBufferObject::ObjectType BufferType;
-    bool IntegerTexture;
-    bool ScalarComponents;
-
-    ArrayTextureData();
-    ArrayTextureData(vtkDataArray* array, bool asScalars, bool* integerTexture = nullptr);
-    ArrayTextureData(const ArrayTextureData&) = default;
-
-    void Upload(vtkOpenGLRenderWindow* renderWindow, bool force = false);
-  };
-
   using ShaderMap = std::map<vtkShader::Type, vtkShader*>;
   struct Internal;
 
@@ -146,7 +130,7 @@ protected:
   vtkIdType NumberOfElements{ 1 };
   int ElementType{ ElementShape::TriangleStrip };
   bool IncludeColormap{ true };
-  std::unordered_map<vtkStringToken, ArrayTextureData> Arrays;
+  std::unordered_map<vtkStringToken, vtkOpenGLArrayTextureBufferAdapter> Arrays;
   ShaderMap Shaders;
   vtkSmartPointer<vtkShaderProgram> ShaderProgram;
   vtkNew<vtkOpenGLVertexArrayObject> VAO;

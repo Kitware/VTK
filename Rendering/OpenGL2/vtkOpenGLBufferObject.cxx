@@ -134,7 +134,7 @@ bool vtkOpenGLBufferObject::UploadInternal(
     return false;
   }
 
-  // std::cout << "Uploading " << size << " bytes using glBufferData" << std::endl;
+  vtkDebugMacro(<< "glBufferData: " << size << " bytes");
   glBindBuffer(this->Internal->Type, this->Internal->Handle);
   glBufferData(this->Internal->Type, size, static_cast<const GLvoid*>(buffer), GL_STATIC_DRAW);
   this->Dirty = false;

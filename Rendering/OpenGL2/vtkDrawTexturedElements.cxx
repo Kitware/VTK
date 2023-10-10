@@ -96,12 +96,21 @@ void vtkDrawTexturedElements::BindArrayToTexture(
   vtkStringToken textureName, vtkDataArray* array, bool asScalars)
 {
   auto it = this->Arrays.find(textureName);
+#ifdef vtkDrawTexturedElements_DEBUG
+  std::cout << "Bind " << array->GetObjectDescription() << "to texture " << textureName.Data()
+            << std::endl;
+#endif
   if (it == this->Arrays.end())
   {
-    this->Arrays[textureName] = ArrayTextureData(array, asScalars);
+    this->Arrays[textureName] = vtkOpenGLArrayTextureBufferAdapter(array, asScalars);
     return;
   }
-  it->second.Array = array;
+  if (array != it->second.Array)
+  {
+    it->second.Array = array;
+    // needs to be re-uploaded.
+    it->second.Buffer->FlagBufferAsDirty();
+  }
   it->second.ScalarComponents = asScalars;
 }
 
@@ -124,7 +133,6 @@ bool vtkDrawTexturedElements::SetNumberOfElements(vtkIdType numberOfElements)
   }
   this->NumberOfElements = numberOfElements;
   // this->Modified();
-  this->P->UploadedIndexBuffer = false; // We need to re-upload our IBO.
   return true;
 }
 
@@ -158,109 +166,6 @@ bool vtkDrawTexturedElements::SetIncludeColormap(bool includeColormap)
   }
   this->IncludeColormap = includeColormap;
   return true;
-}
-
-vtkDrawTexturedElements::ArrayTextureData::ArrayTextureData()
-  : Array(nullptr)
-  , Texture(vtkSmartPointer<vtkTextureObject>::New())
-  , Buffer(vtkSmartPointer<vtkOpenGLBufferObject>::New())
-  , BufferType(vtkOpenGLBufferObject::ObjectType::TextureBuffer)
-  , IntegerTexture(true)
-  , ScalarComponents(false)
-{
-}
-
-vtkDrawTexturedElements::ArrayTextureData::ArrayTextureData(
-  vtkDataArray* array, bool asScalars, bool* integerTexture)
-  : Array(array)
-  , Texture(vtkSmartPointer<vtkTextureObject>::New())
-  , Buffer(vtkSmartPointer<vtkOpenGLBufferObject>::New())
-  , BufferType(vtkOpenGLBufferObject::ObjectType::TextureBuffer)
-  , IntegerTexture((integerTexture ? *integerTexture : array->IsIntegral()))
-  , ScalarComponents(asScalars)
-{
-}
-
-void vtkDrawTexturedElements::ArrayTextureData::Upload(
-  vtkOpenGLRenderWindow* renderWindow, bool force)
-{
-  if (this->Buffer->IsReady() && !force)
-  {
-    // We don't need to re-upload.
-    return;
-  }
-  this->Buffer->SetType(this->BufferType);
-  this->Texture->SetRequireTextureInteger(this->IntegerTexture);
-  this->Texture->SetContext(renderWindow);
-  vtkSmartPointer<vtkDataArray> array = this->Array;
-  // Narrow arrays of large values to a precision supported by base-OpenGL:
-  switch (array->GetDataType())
-  {
-    case VTK_DOUBLE:
-    {
-      array = vtkSmartPointer<vtkFloatArray>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    case VTK_ID_TYPE:
-    {
-      // FIXME: We should check that truncating to 32 bits is OK.
-      array = vtkSmartPointer<vtkTypeInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-#if VTK_TYPE_UINT64 == VTK_UNSIGNED_LONG
-    case VTK_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    case VTK_UNSIGNED_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeUInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-#endif
-    case VTK_LONG_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    case VTK_UNSIGNED_LONG_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeUInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    default:
-      // Do nothing
-      break;
-  }
-#ifdef vtkDrawTexturedElements_DEBUG
-  std::cout << "Uploading Array: " << this->Array->GetName()
-            << " with MTime: " << this->Array->GetMTime() << " into Buffer: " << this->Buffer
-            << " with MTime: " << this->Texture->GetMTime() << std::endl;
-#endif
-  // Now upload the array
-  switch (array->GetDataType())
-  {
-    vtkTemplateMacro(this->Buffer->Upload(
-      static_cast<VTK_TT*>(array->GetVoidPointer(0)), array->GetMaxId() + 1, this->BufferType));
-  }
-  int numberOfComponents = this->ScalarComponents ? 1 : array->GetNumberOfComponents();
-  vtkIdType numberOfTuples =
-    this->ScalarComponents ? array->GetMaxId() + 1 : array->GetNumberOfTuples();
-  // if (updateInternalTextureFormat)
-  {
-    this->Texture->GetInternalFormat(
-      array->GetDataType(), numberOfComponents, this->IntegerTexture);
-  }
-  this->Texture->CreateTextureBuffer(
-    numberOfTuples, numberOfComponents, array->GetDataType(), this->Buffer);
-  // this->Texture->Activate();
 }
 
 void vtkDrawTexturedElements::DrawInstancedElements(
@@ -383,6 +288,9 @@ void vtkDrawTexturedElements::DrawInstancedElements(
 #endif
       continue;
     }
+#ifdef vtkDrawTexturedElements_DEBUG
+    std::cout << "Activate \"" << entry.first.Data() << " for sampler " << samplerName << "\"\n";
+#endif
     entry.second.Texture->Activate();
     int textureUnit = entry.second.Texture->GetTextureUnit();
     this->ShaderProgram->SetUniformi(samplerName.c_str(), textureUnit);

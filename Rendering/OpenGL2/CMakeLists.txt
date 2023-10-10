@@ -28,6 +28,7 @@ set(classes
   vtkLightsPass
   vtkOpaquePass
   vtkOpenGLActor
+  vtkOpenGLArrayTextureBufferAdapter
   vtkOpenGLBatchedPolyDataMapper
   vtkOpenGLBillboardTextActor3D
   vtkOpenGLBufferObject

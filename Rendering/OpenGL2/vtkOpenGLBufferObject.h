@@ -46,6 +46,9 @@ public:
   /** Determine if the buffer object is ready to be used. */
   bool IsReady() const { return this->Dirty == false; }
 
+  /** Indicate that the buffer object needs to be re-uploaded. */
+  void FlagBufferAsDirty() { this->Dirty = true; }
+
   /** Generate the opengl buffer for this Handle */
   bool GenerateBuffer(ObjectType type);
 
