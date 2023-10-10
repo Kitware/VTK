@@ -15,23 +15,14 @@
 #ifndef vtkOpenGLBatchedPolyDataMapper_h
 #define vtkOpenGLBatchedPolyDataMapper_h
 
+#include "vtkOpenGLPolyDataMapper.h"
+
 #include "vtkColor.h"                                  // class uses vtkColor
 #include "vtkNew.h"                                    // for ivar
 #include "vtkOpenGLCompositePolyDataMapperDelegator.h" // for struct BatchElement
 #include "vtkRenderingOpenGL2Module.h"                 // for export macro
 #include "vtkSmartPointer.h"                           // for arg
 #include "vtk_glew.h"                                  // for OpenGL defs
-
-// clang-format off
-// Must be included after vtk_glew.h for GL_ES_VERSION_3_0
-#ifndef GL_ES_VERSION_3_0
-#include "vtkOpenGLPolyDataMapper.h"
-#define vtkOpenGLPolyDataMapperImplementation vtkOpenGLPolyDataMapper
-#else
-#include "vtkOpenGLES30PolyDataMapper.h"
-#define vtkOpenGLPolyDataMapperImplementation vtkOpenGLES30PolyDataMapper
-#endif
-// clang-format on
 
 #include <cstdint> // for std::uintptr_t
 #include <memory>  // for shared_ptr
@@ -40,12 +31,11 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositePolyDataMapper;
 class vtkPolyData;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLBatchedPolyDataMapper
-  : public vtkOpenGLPolyDataMapperImplementation
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLBatchedPolyDataMapper : public vtkOpenGLPolyDataMapper
 {
 public:
   static vtkOpenGLBatchedPolyDataMapper* New();
-  vtkTypeMacro(vtkOpenGLBatchedPolyDataMapper, vtkOpenGLPolyDataMapperImplementation);
+  vtkTypeMacro(vtkOpenGLBatchedPolyDataMapper, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
