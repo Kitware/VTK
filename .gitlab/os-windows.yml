@@ -92,6 +92,18 @@
     variables:
         CMAKE_CONFIGURATION: wheel_windows311_x86_64_osmesa
 
+.wheel_windows312_x86_64:
+    extends: .wheel_windows_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_windows312_x86_64
+
+.wheel_windows312_x86_64_osmesa:
+    extends: .wheel_windows312_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_windows312_x86_64_osmesa
+
 ### Build and test
 
 .windows_build:
@@ -313,6 +325,7 @@
         - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
         - python -m venv venv
         - . .\venv\Scripts\Activate.ps1
+        - pip install setuptools
         - pip install wheel
         - python setup.py bdist_wheel
         - python "$env:GIT_CLONE_PATH\.gitlab\ci\create_wheel_sdk_archive.py"
