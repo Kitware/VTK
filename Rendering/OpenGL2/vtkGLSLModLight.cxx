@@ -49,10 +49,16 @@ vtkGLSLModLight::LightStatsBasic vtkGLSLModLight::GetBasicLightStats(
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer,
-  std::string& vtkNotUsed(vertexShader), std::string& /*geometryShader*/,
-  std::string& fragmentShader, vtkAbstractMapper* vtkNotUsed(mapper), vtkActor* actor)
+bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::string& vertexShader,
+  std::string& /*geometryShader*/, std::string& fragmentShader,
+  vtkAbstractMapper* vtkNotUsed(mapper), vtkActor* actor)
 {
+  vtkShaderProgram::Substitute(
+    vertexShader, "//VTK::PositionVC::Dec", "out vec4 vertexPositionVCVS;");
+  vtkShaderProgram::Substitute(
+    fragmentShader, "//VTK::PositionVC::Dec", "in vec4 vertexPositionVCVS;");
+  // Tangents..
+
   // Generate code to handle different types of lights.
   auto info = actor->GetPropertyKeys();
   if (info && info->Has(vtkLightingMapPass::RENDER_NORMALS()))
@@ -75,17 +81,18 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer,
   this->LastLightComplexity = stats.Complexity;
   this->LastLightCount = stats.Count;
 
-  int LastlightComplexity = this->LastLightComplexity;
+  int lastlightComplexity = this->LastLightComplexity;
   int LastlightCount = this->LastLightCount;
 
   if (actor->GetProperty()->GetInterpolation() != VTK_PBR && LastlightCount == 0)
   {
-    LastlightComplexity = 0;
+    lastlightComplexity = 0;
   }
 
+  vtkShaderProgram::Substitute(fragmentShader, "//VTK::PositionVC::Impl",
+    "vec4 vertexPositionVC = vertexPositionVCVS;\n", false);
   vtkShaderProgram::Substitute(fragmentShader, "//VTK::Normal::Impl",
     "\n"
-    "  vec4 vertexPositionVC = vertexPositionVCVS;\n"
     "  vec3 vertexNormalVC = normalize(vertexNormalVCVS);\n"
     "  if (gl_FrontFacing == false) vertexNormalVC = -vertexNormalVC;",
     false);
@@ -94,7 +101,7 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer,
   // get standard lighting declarations.
   vtkShaderProgram::Substitute(
     fragmentShader, "//VTK::Light::Dec", renderer->GetLightingUniforms());
-  switch (LastlightComplexity)
+  switch (lastlightComplexity)
   {
     case 0: // no lighting
       vtkShaderProgram::Substitute(fragmentShader, "//VTK::Light::Impl",
@@ -111,7 +118,7 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer,
       else
       {
         toString << "float df = max(0.0f, vertexNormalVC.z);\n"
-                    "  float sf = pow(df, specularPower);\n"
+                    "  float sf = pow(df, power_specular);\n"
                     "  vec3 diffuse = df * diffuseColor * lightColor0;\n"
                     "  vec3 specular = sf * specularColor * lightColor0;\n"
                     "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);\n"
@@ -143,7 +150,7 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer,
                       "  diffuse += (df * lightColor"
                    << i << ");\n"
                    << "  sf = sign(df)*pow(max(1e-5, dot( reflect(lightDirectionVC" << i
-                   << ", vertexNormalVC), normalize(-vertexPositionVC.xyz))), specularPower);\n"
+                   << ", vertexNormalVC), normalize(-vertexPositionVC.xyz))), power_specular);\n"
                       // if you change the next line also change vtkShadowMapPass
                       "  specular += (sf * lightColor"
                    << i << ");\n";
@@ -224,7 +231,7 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer,
             << i
             << ");\n"
                "    sf = sign(df)*attenuation*pow( max(1e-5, dot( reflect(vertLightDirectionVC, "
-               "vertexNormalVC), normalize(-vertexPositionVC.xyz))), specularPower);\n"
+               "vertexNormalVC), normalize(-vertexPositionVC.xyz))), power_specular);\n"
                // if you change the next line also change vtkShadowMapPass
                "      specular += (sf * lightColor"
             << i << ");\n";
@@ -235,6 +242,8 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer,
                     "  //VTK::Light::Impl";
       }
       vtkShaderProgram::Substitute(fragmentShader, "//VTK::Light::Impl", toString.str(), false);
+      break;
+    default:
       break;
   }
 
