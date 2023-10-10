@@ -48,113 +48,13 @@
 // Uncomment to print shader/color info to cout
 // #define vtkDrawTexturedElements_DEBUG
 
-namespace
-{
-
-thread_local std::vector<GLubyte> iotaByte;
-thread_local std::vector<GLushort> iotaShort;
-thread_local std::vector<GLuint> iotaInt;
-
-// glIota() is a function to create an array to upload into an index-buffer object (IBO).
-// Since this class uses vertex-pulling to assign coordinates and other values in the
-// vertex shader, no vertex array data is used and the IBO is typically minimal (just a
-// few triangles at most). The OpenGL-provided gl_VertexID and gl_InstanceID are used to
-// fetch or compute vertex data as required.
-//
-// glIotaInternal is templated on integer type so that the smallest integer type that
-// supports the required index values can be used.
-template <typename IotaType>
-IotaType* glIotaInternal(vtkOpenGLIndexBufferObject* ibo, GLsizei count);
-
-template <>
-GLubyte* glIotaInternal<GLubyte>(vtkOpenGLIndexBufferObject* ibo, GLsizei count)
-{
-  if (count > 255)
-  {
-    return nullptr;
-  }
-  if (count > static_cast<GLsizei>(iotaByte.size()))
-  {
-    iotaByte.resize(count);
-    std::iota(iotaByte.begin(), iotaByte.end(), 0);
-  }
-  ibo->Upload(iotaByte, vtkOpenGLBufferObject::ObjectType::ElementArrayBuffer);
-  return &iotaByte[0];
-}
-
-template <>
-GLushort* glIotaInternal<GLushort>(vtkOpenGLIndexBufferObject* ibo, GLsizei count)
-{
-  if (count > 255)
-  {
-    return nullptr;
-  }
-  if (count > static_cast<GLsizei>(iotaShort.size()))
-  {
-    iotaShort.resize(count);
-    std::iota(iotaShort.begin(), iotaShort.end(), 0);
-  }
-  ibo->Upload(iotaShort, vtkOpenGLBufferObject::ObjectType::ElementArrayBuffer);
-  return &iotaShort[0];
-}
-
-template <>
-GLuint* glIotaInternal<GLuint>(vtkOpenGLIndexBufferObject* ibo, GLsizei count)
-{
-  if (count > 255)
-  {
-    return nullptr;
-  }
-  if (count > static_cast<GLsizei>(iotaInt.size()))
-  {
-    iotaInt.resize(count);
-    std::iota(iotaInt.begin(), iotaInt.end(), 0);
-  }
-  ibo->Upload(iotaInt, vtkOpenGLBufferObject::ObjectType::ElementArrayBuffer);
-  return &iotaInt[0];
-}
-
-// See documentation for glIotaInternal above for details.
-void glIota(vtkOpenGLIndexBufferObject* ibo, GLenum& indexType, void*& indices, GLsizei count)
-{
-  // We do not support more than 2**30 vertices since OpenGL does not provide an
-  // integer that can distinguish between them. In that case, we will not upload an IBO.
-  if (count > (1 << 30))
-  {
-    indices = nullptr;
-  }
-  if (count > 16383)
-  {
-    indices = glIotaInternal<GLuint>(ibo, count);
-    indexType = GL_UNSIGNED_INT;
-  }
-  else if (count > 255)
-  {
-    indices = glIotaInternal<GLushort>(ibo, count);
-    indexType = GL_UNSIGNED_SHORT;
-  }
-  else
-  {
-    indices = glIotaInternal<GLubyte>(ibo, count);
-    indexType = GL_UNSIGNED_BYTE;
-  }
-  // Unbind after uploading
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-}
-
 VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkDrawTexturedElements::Internal
 {
-  /// True when the IBO has up-to-date data loaded.
-  bool UploadedIndexBuffer{ false };
-  /// The data type for indices in the IBO (one of GL_UNSIGNED_{BYTE,SHORT,INT}).
-  GLenum IndexType;
-  /// The type of primitives represented by the IBO (the default is GL_TRIANGLE_STRIP).
+  /// The type of primitives to draw (the default is GL_TRIANGLE_STRIP).
   GLenum Primitive;
-  /// The number of connectivity entries in the IBO.
+  /// The total number of vertices.
   GLsizei Count;
 };
 
@@ -381,11 +281,15 @@ void vtkDrawTexturedElements::DrawInstancedElements(
   switch (this->ElementType)
   {
     case ElementShape::Point:
+#ifndef GL_ES_VERSION_3_0
       ostate->vtkglPointSize(actor->GetProperty()->GetPointSize());
+#endif
       break;
     case ElementShape::Line:
     case ElementShape::LineStrip:
+#ifndef GL_ES_VERSION_3_0
       ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
+#endif
       break;
     default:
       break;
@@ -399,8 +303,40 @@ void vtkDrawTexturedElements::DrawInstancedElements(
     return;
   }
 
-  // Either create+bind a new index-buffer or bind an existing index-buffer.
-  this->PrepareIBO();
+  // Determine number of invocations of the vertex shader.
+  this->P->Count = static_cast<GLsizei>(this->NumberOfElements);
+  switch (this->ElementType)
+  {
+    case ElementShape::Point:
+      this->P->Primitive = GL_POINTS;
+      break;
+    case ElementShape::Line:
+      this->P->Primitive = GL_LINES;
+      this->P->Count *= 2;
+      break;
+    case ElementShape::LineStrip:
+      this->P->Primitive = GL_LINE_STRIP;
+      ++this->P->Count;
+      break;
+    case ElementShape::Triangle:
+      this->P->Primitive = GL_TRIANGLES;
+      this->P->Count *= 3;
+      break;
+    case ElementShape::TriangleStrip:
+      this->P->Primitive = GL_TRIANGLE_STRIP;
+      this->P->Count += 2;
+      break;
+    case ElementShape::TriangleFan:
+      this->P->Primitive = GL_TRIANGLE_FAN;
+      this->P->Count += 2;
+      break;
+    default:
+    {
+      // vtkErrorMacro("Invalid element type " << this->ElementType << ".");
+      vtkGenericWarningMacro("Invalid element type " << this->ElementType << ".");
+      break;
+    }
+  }
 
   if (this->IncludeColormap)
   {
@@ -483,38 +419,22 @@ void vtkDrawTexturedElements::DrawInstancedElements(
 
   // Bind the (null) VAO and the IBO
   this->VAO->Bind();
-  this->IBO->Bind();
-  vtkOpenGLStaticCheckErrorMacro("Failed after binding VAO and IBO.");
-
+  vtkOpenGLStaticCheckErrorMacro("Failed after binding VAO.");
   // Render the element instances:
 #ifdef GL_ES_VERSION_3_0
-  glDrawElementsInstanced(
-    this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
-#else
-#if 1
-  if (GLEW_VERSION_3_1)
-  {
-    glDrawElementsInstanced(
-      this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
-  }
-  else if (GL_ARB_instanced_arrays)
-  {
-    glDrawElementsInstancedARB(
-      this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
-  }
+  glDrawArraysInstanced(this->P->Primitive, 0, this->P->Count, instances);
 #else
   if (GLEW_VERSION_3_1)
   {
     glDrawArraysInstanced(this->P->Primitive, 0, this->P->Count, instances);
   }
-  else if (GL_ARB_instanced_arrays && &glDrawArraysInstancedARB)
+  else if (GL_ARB_instanced_arrays)
   {
     glDrawArraysInstancedARB(this->P->Primitive, 0, this->P->Count, instances);
   }
-#endif
   else
   {
-    vtkErrorWithObjectMacro(ren, "No support for glDrawElementsInstanced.");
+    vtkErrorWithObjectMacro(ren, "No support for glDrawArraysInstanced.");
   }
 #endif
   vtkOpenGLStaticCheckErrorMacro("Just after draw");
@@ -526,14 +446,12 @@ void vtkDrawTexturedElements::DrawInstancedElements(
 #endif
   vtkOpenGLStaticCheckErrorMacro("Just after texture release");
 
-  this->IBO->Release();
   this->VAO->Release();
   this->ColorTextureGL->PostRender(ren);
 }
 
 void vtkDrawTexturedElements::ReleaseResources(vtkWindow* window)
 {
-  this->IBO->ReleaseGraphicsResources();
   this->VAO->ReleaseGraphicsResources();
   this->ColorTextureGL->ReleaseGraphicsResources(window);
   for (auto& entry : this->Arrays)
@@ -551,75 +469,6 @@ vtkShaderProgram* vtkDrawTexturedElements::GetShaderProgram()
 vtkCollection* vtkDrawTexturedElements::GetGLSLModCollection() const
 {
   return this->GLSLMods;
-}
-
-void vtkDrawTexturedElements::PrepareIBO()
-{
-  if (this->P->UploadedIndexBuffer)
-  {
-    return; // Fast path is when we have already uploaded the IBO.
-  }
-
-  // It would be nice to test this in the constructor
-  // but there is no current context at that point.
-  // Instead, we test here to avoid testing on every render.
-#ifndef VTK_MODULE_vtkglew_GLES3
-  if (!GLEW_VERSION_3_1)
-  {
-    vtkErrorWithObjectMacro(this->IBO, "OpenGL 3.1 or newer required.");
-    throw std::runtime_error("OpenGL 3.1 or newer required.");
-  }
-#endif
-
-  this->P->UploadedIndexBuffer = this->UploadIBO();
-  if (!this->P->UploadedIndexBuffer)
-  {
-    vtkErrorWithObjectMacro(this->IBO, "Unable to upload IBO for array renderer.");
-    return;
-  }
-}
-
-bool vtkDrawTexturedElements::UploadIBO()
-{
-  // Create a "connectivity" array (indices) for the elements.
-  // The array renderer assumes these are just a sequence of integers 0..(N-1).
-  this->P->Count = static_cast<GLsizei>(this->NumberOfElements);
-  switch (this->ElementType)
-  {
-    case ElementShape::Point:
-      this->P->Primitive = GL_POINTS;
-      break;
-    case ElementShape::Line:
-      this->P->Primitive = GL_LINES;
-      this->P->Count *= 2;
-      break;
-    case ElementShape::LineStrip:
-      this->P->Primitive = GL_LINE_STRIP;
-      ++this->P->Count;
-      break;
-    case ElementShape::Triangle:
-      this->P->Primitive = GL_TRIANGLES;
-      this->P->Count *= 3;
-      break;
-    case ElementShape::TriangleStrip:
-      this->P->Primitive = GL_TRIANGLE_STRIP;
-      this->P->Count += 2;
-      break;
-    case ElementShape::TriangleFan:
-      this->P->Primitive = GL_TRIANGLE_FAN;
-      this->P->Count += 2;
-      break;
-    default:
-    {
-      // vtkErrorMacro("Invalid element type " << this->ElementType << ".");
-      vtkGenericWarningMacro("Invalid element type " << this->ElementType << ".");
-      return false;
-    }
-  }
-
-  void* indices = nullptr;
-  glIota(this->IBO, this->P->IndexType, indices, this->P->Count);
-  return true;
 }
 
 void vtkDrawTexturedElements::SetCustomUniforms(vtkRenderer* vtkNotUsed(ren), vtkActor* actor)

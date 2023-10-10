@@ -38,7 +38,6 @@ class vtkGLSLRuntimeModBase;
 class vtkMapper;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
-class vtkOpenGLIndexBufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexArrayObject;
 class vtkOpenGLTexture;
@@ -119,8 +118,6 @@ public:
   vtkCollection* GetGLSLModCollection() const;
 
 protected:
-  void PrepareIBO();
-  bool UploadIBO();
   /// Set any custom uniforms provided by the actor.
   void SetCustomUniforms(vtkRenderer* ren, vtkActor* a);
 
@@ -152,7 +149,6 @@ protected:
   std::unordered_map<vtkStringToken, ArrayTextureData> Arrays;
   ShaderMap Shaders;
   vtkSmartPointer<vtkShaderProgram> ShaderProgram;
-  vtkNew<vtkOpenGLIndexBufferObject> IBO;
   vtkNew<vtkOpenGLVertexArrayObject> VAO;
   vtkNew<vtkOpenGLTexture> ColorTextureGL;
   vtkNew<vtkCollection> GLSLMods;
