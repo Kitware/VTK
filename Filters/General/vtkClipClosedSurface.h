@@ -24,6 +24,10 @@
  * the clip region means. This changes the which side of the clipping plane is
  * clipped away.
  *
+ * This filter can be configured to compute a second output. The second output
+ * is the polygonal data with the new triangulated faces. Set the
+ * GenerateClipFaceOutput boolean on if you wish to access this output data.
+ *
  * @warning
  * The triangulation of new faces is done in O(n) time for simple convex
  * inputs, but for non-convex inputs the worst-case time is O(n^2*m^2)
@@ -209,6 +213,22 @@ public:
   vtkBooleanMacro(InsideOut, vtkTypeBool);
   ///@}
 
+  ///@{
+  /**
+   * Control whether a second output is generated. The second output contains
+   * the polygonal data that is generated at the clip face as a result of the
+   * triangulation.  GenerateClipFaceOutput is off by default.
+   */
+  vtkSetMacro(GenerateClipFaceOutput, vtkTypeBool);
+  vtkGetMacro(GenerateClipFaceOutput, vtkTypeBool);
+  vtkBooleanMacro(GenerateClipFaceOutput, vtkTypeBool);
+  ///@}
+
+  /**
+   * Return the clip face triangulated output.
+   */
+  vtkPolyData* GetClipFaceOutput();
+
 protected:
   vtkClipClosedSurface();
   ~vtkClipClosedSurface() override;
@@ -226,6 +246,7 @@ protected:
   double ClipColor[3];
   double ActivePlaneColor[3];
   vtkTypeBool InsideOut = false;
+  vtkTypeBool GenerateClipFaceOutput = false;
 
   vtkTypeBool TriangulationErrorDisplay;
 
