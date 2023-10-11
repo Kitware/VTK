@@ -44,7 +44,7 @@ void vtkFloatingPointExceptions::Enable()
   // enable floating point exceptions on MSVC
   _controlfp(_EM_DENORMAL | _EM_UNDERFLOW | _EM_INEXACT, _MCW_EM);
 #endif //_MSC_VER
-#if defined(VTK_USE_FENV)
+#if defined(VTK_USE_FENV) && FE_ALL_EXCEPT != 0
   // This should work on all platforms
   feenableexcept(FE_DIVBYZERO | FE_INVALID);
   // Set the signal handler
@@ -63,7 +63,7 @@ void vtkFloatingPointExceptions::Disable()
     _EM_INVALID | _EM_DENORMAL | _EM_ZERODIVIDE | _EM_OVERFLOW | _EM_UNDERFLOW | _EM_INEXACT,
     _MCW_EM);
 #endif //_MSC_VER
-#if defined(VTK_USE_FENV)
+#if defined(VTK_USE_FENV) && FE_ALL_EXCEPT != 0
   fedisableexcept(FE_DIVBYZERO | FE_INVALID);
 #endif
 }
