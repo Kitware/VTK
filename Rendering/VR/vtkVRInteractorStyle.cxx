@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkVRInteractorStyle.h"
 
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
@@ -446,14 +447,10 @@ void ForEachNonWidgetProp(vtkRenderer* renderer, Func&& func)
   {
     if (!prop->IsA("vtkWidgetRepresentation"))
     {
-      auto* actor = vtkActor::SafeDownCast(prop);
-      if (actor)
+      prop->InitPathTraversal();
+      for (vtkAssemblyPath* path = prop->GetNextPath(); path; path = prop->GetNextPath())
       {
-        actor->InitPathTraversal();
-        for (vtkAssemblyPath* path = actor->GetNextPath(); path; path = actor->GetNextPath())
-        {
-          func(path->GetLastNode()->GetViewProp());
-        }
+        func(path->GetLastNode()->GetViewProp());
       }
     }
   }
@@ -488,6 +485,17 @@ void vtkVRInteractorStyle::StartClip(vtkEventDataDevice3D* ed)
         {
           mapper->AddClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
         }
+        return;
+      }
+      auto* volume = vtkVolume::SafeDownCast(prop);
+      if (volume)
+      {
+        auto* mapper = volume->GetMapper();
+        if (mapper)
+        {
+          mapper->AddClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
+        }
+        return;
       }
     });
   }
