@@ -16,7 +16,6 @@
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
-#include "vtkXMLPolyDataWriter.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <vtk_nlohmannjson.h>
@@ -160,10 +159,6 @@ void vtkCesium3DTilesReader::Implementation::ReadTiles(
       std::string tileFileName = this->TileFileNames[rank];
       transform->SetMatrix(this->Transforms[rank].data());
       vtkSmartPointer<vtkPolyData> tile = ReadTile(tileFileName, transform);
-      vtkNew<vtkXMLPolyDataWriter> writer;
-      writer->SetFileName("tile_0.vtp");
-      writer->SetInputDataObject(tile);
-      writer->Update();
       pd->SetPartition(0, tile);
     }
   }
@@ -179,10 +174,6 @@ void vtkCesium3DTilesReader::Implementation::ReadTiles(
       std::string tileFileName = this->TileFileNames[i];
       transform->SetMatrix(this->Transforms[i].data());
       vtkSmartPointer<vtkPolyData> tile = ReadTile(tileFileName, transform);
-      vtkNew<vtkXMLPolyDataWriter> writer;
-      writer->SetFileName((std::string("tile_") + std::to_string(i) + ".vtp").c_str());
-      writer->SetInputDataObject(tile);
-      writer->Update();
       pd->SetPartition(partitionIndex++, tile);
     }
   }
@@ -210,10 +201,6 @@ vtkSmartPointer<vtkPolyData> vtkCesium3DTilesReader::Implementation::ReadTile(
       this->Reader, "Error: Cannot read polydata from: " << this->Reader->GetFileName());
     return tile;
   }
-  vtkNew<vtkXMLPolyDataWriter> writer;
-  writer->SetFileName((std::string("btile_") + std::to_string(index++) + ".vtp").c_str());
-  writer->SetInputDataObject(poly);
-  writer->Update();
   vtkNew<vtkTransformFilter> transformFilter;
   transformFilter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   transformFilter->SetTransform(transform);

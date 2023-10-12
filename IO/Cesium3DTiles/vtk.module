@@ -16,7 +16,6 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::IOImage
   VTK::IOGeometry
-  VTK::IOXML
   VTK::FiltersGeneral
   VTK::FiltersGeometry
   VTK::FiltersExtraction
