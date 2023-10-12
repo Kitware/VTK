@@ -37,6 +37,26 @@ vtkGeoTransform::~vtkGeoTransform()
   }
 }
 
+void vtkGeoTransform::SetSourceProjection(const char* proj)
+{
+  if (this->SourceProjection)
+  {
+    this->SourceProjection->Delete();
+  }
+  this->SourceProjection = vtkGeoProjection::New();
+  this->SourceProjection->SetPROJ4String(proj);
+}
+
+void vtkGeoTransform::SetDestinationProjection(const char* proj)
+{
+  if (this->DestinationProjection)
+  {
+    this->DestinationProjection->Delete();
+  }
+  this->DestinationProjection = vtkGeoProjection::New();
+  this->DestinationProjection->SetPROJ4String(proj);
+}
+
 void vtkGeoTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -137,7 +157,7 @@ void vtkGeoTransform::InternalTransformDerivative(
   (void)out;
   (void)derivative;
   vtkErrorMacro("Error: Normal transfomation is not implemented. Please remove normals"
-                " using vtkPassSelectedArrays");
+                " using vtkPassSelectedArrays and regenerate normals after the transform.");
 }
 
 vtkAbstractTransform* vtkGeoTransform::MakeTransform()

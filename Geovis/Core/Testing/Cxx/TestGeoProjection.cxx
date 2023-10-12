@@ -31,13 +31,9 @@ int TestGeoProjection(int, char*[])
   const int zoneExpected = 35;
   std::array<double, 3> galatiLonLat;
   vtkNew<vtkGeoTransform> transform;
-  vtkNew<vtkGeoProjection> sourceProj;
-  sourceProj->SetPROJ4String("+proj=cart");
-  vtkNew<vtkGeoProjection> destProj;
-  destProj->SetPROJ4String("+proj=lonlat");
   transform->SetTransformZCoordinate(true);
-  transform->SetSourceProjection(sourceProj);
-  transform->SetDestinationProjection(destProj);
+  transform->SetSourceProjection("+proj=cart");
+  transform->SetDestinationProjection("+proj=lonlat");
   transform->InternalTransformPoint(galatiCart.data(), galatiLonLat.data());
   int zone = vtkGeoTransform::ComputeUTMZone(galatiLonLat[0], galatiLonLat[1]);
   if (std::equal(galatiLonLat.begin(), galatiLonLat.end(), galatiLonLatExpected.begin(),

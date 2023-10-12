@@ -27,10 +27,14 @@ public:
 
   ///@{
   /**
-   * The source geographic projection.
+   * The source geographic projection, which can be set using
+   * an external vtkGeoProjection, or using a proj string, in which
+   * case the projection is allocated internally.
    */
   void SetSourceProjection(vtkGeoProjection* source);
+  void SetSourceProjection(const char* proj);
   vtkGetObjectMacro(SourceProjection, vtkGeoProjection);
+  ///@}
 
   ///@{
   /**
@@ -45,9 +49,12 @@ public:
 
   ///@{
   /**
-   * The target geographic projection.
+   * The target geographic projection, which can be set using
+   * an external vtkGeoProjection, or using a proj string, in which
+   * case the projection is allocated internally.
    */
   void SetDestinationProjection(vtkGeoProjection* dest);
+  void SetDestinationProjection(const char* dest);
   vtkGetObjectMacro(DestinationProjection, vtkGeoProjection);
   ///@}
 
