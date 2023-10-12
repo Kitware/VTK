@@ -43,6 +43,8 @@ class vtkUnstructuredGrid;
  * in a supplemental 'VTKHDF/Steps' group for vtkUnstructuredGrid
  * vtkPolyData, and vtkImageData.
  *
+ * @note vtkHDF file format is defined here :
+ * https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#hdf-file-formats
  */
 class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataObjectAlgorithm
 {
