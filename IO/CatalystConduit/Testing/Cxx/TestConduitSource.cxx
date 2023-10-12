@@ -5,6 +5,7 @@
 
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkConduitSource.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
@@ -426,6 +427,25 @@ bool ValidateMeshTypeAMR(const std::string& file)
   // read in an example mesh dataset
   conduit_node_load(conduit_cpp::c_node(&mesh), file.c_str(), "");
 
+  // add in point data
+  std::string field_name = "pointfield";
+  double field_value = 1;
+  size_t num_children = mesh["data"].number_of_children();
+  for (size_t i = 0; i < num_children; i++)
+  {
+    conduit_cpp::Node amr_block = mesh["data"].child(i);
+    int i_dimension = amr_block["coordsets/coords/dims/i"].to_int32();
+    int j_dimension = amr_block["coordsets/coords/dims/j"].to_int32();
+    int k_dimension = amr_block["coordsets/coords/dims/k"].to_int32();
+    conduit_cpp::Node fields = amr_block["fields"];
+    conduit_cpp::Node point_field = fields[field_name];
+    point_field["association"] = "vertex";
+    point_field["topology"] = "topo";
+    std::vector<double> point_values(
+      (i_dimension + 1) * (j_dimension + 1) * (k_dimension + 1), field_value);
+    point_field["values"] = point_values;
+  }
+
   const auto& meshdata = mesh["data"];
   // run vtk conduit source
   vtkNew<vtkConduitSource> source;
@@ -450,6 +470,18 @@ bool ValidateMeshTypeAMR(const std::string& file)
     "Incorrect AMR bounds");
 
   VERIFY(origin[0] == 0 && origin[1] == 0 && origin[2] == 0, "Incorrect AMR origin");
+
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(amr->NewIterator());
+  iter->InitTraversal();
+  for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  {
+    vtkDataSet* block = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    VERIFY(block->GetCellData()->GetArray("density") != nullptr, "Incorrect AMR cell data");
+    double range[2] = { -1, -1 };
+    block->GetPointData()->GetArray(field_name.c_str())->GetRange(range);
+    VERIFY(range[0] == field_value && range[1] == field_value, "Incorrect AMR point data");
+  }
 
   return true;
 }
