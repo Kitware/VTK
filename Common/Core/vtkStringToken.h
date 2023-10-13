@@ -124,7 +124,6 @@ protected:
 };
 VTK_ABI_NAMESPACE_END
 
-#ifndef __VTK_WRAP__
 namespace vtk
 {
 namespace literals
@@ -185,7 +184,6 @@ inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken operator""_token(
 VTK_ABI_NAMESPACE_END
 } // namespace literals
 } // namespace vtk
-#endif // __VTK_WRAP__
 
 VTK_ABI_NAMESPACE_BEGIN
 bool VTKCOMMONCORE_EXPORT operator==(const std::string& a, const vtkStringToken& b);
