@@ -897,6 +897,14 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetVariableDimensions(
     throw std::runtime_error("Variable type unavailable.");
   }
 
+  if (this->AdiosEngineType == EngineType::Inline)
+  {
+    // in the inline case, Fides can't read from other blocks,
+    // so we'll just set to false so we don't end up with junk
+    // data.
+    this->CreateSharedPoints = false;
+  }
+
   fidesTemplateMacro(GetDimensionsInternal<fides_TT>(
     this->AdiosIO, this->Reader, itr->first, selections, this->CreateSharedPoints));
 
@@ -985,6 +993,14 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::ReadVariable(
   if (type.empty())
   {
     throw std::runtime_error("Variable type unavailable.");
+  }
+
+  if (this->AdiosEngineType == EngineType::Inline)
+  {
+    // in the inline case, Fides can't read from other blocks,
+    // so we'll just set to false so we don't end up with junk
+    // data.
+    this->CreateSharedPoints = false;
   }
 
   fidesTemplateMacro(ReadVariableBlocksInternal<fides_TT>(this->AdiosIO,

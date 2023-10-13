@@ -169,6 +169,7 @@ void vtkFidesReader::SetDataSourceIO(const std::string& name, const std::string&
   // can't call SetDataSourceIO in Fides yet, so just save the address for now
   this->Impl->IOObjectInfo = std::make_pair(name, ioAddress);
   this->StreamSteps = true;
+  this->Impl->UseInlineEngine = true;
   this->Modified();
 }
 
@@ -313,6 +314,15 @@ int vtkFidesReader::RequestInformation(
     // RequestInformation calls, but we don't want to actually reset the
     // reader
     return 1;
+  }
+
+  if (this->Impl->UseInlineEngine)
+  {
+    // ranks can only access their own data with the inline engine, so
+    // we have to set CreateSharedPoints to false. GhostCellsGenerator
+    // is currently having a feature added to it, that will fix the gap
+    // without Fides needing to do it, that should work for the inline case
+    this->CreateSharedPoints = false;
   }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
