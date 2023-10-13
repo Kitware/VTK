@@ -1,21 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
-// SPDX-License-Identifier: BSD-3-Clause
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    PIOAdaptor.h
-
-  Copyright (c) 2021, Los Alamos National Laboratory
-  All rights reserved.
-  See Copyright.md for details.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-    ARE DISCLAIMED. See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) 2021, Triad National Security, LLC.
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-LANL-USGov
 /**
  *
  * @class PIOAdaptor
