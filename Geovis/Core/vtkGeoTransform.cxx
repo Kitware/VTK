@@ -7,7 +7,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkGeoProjection.h"
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
 #include "vtk_libproj.h"
