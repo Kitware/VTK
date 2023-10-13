@@ -3,9 +3,9 @@ vtk_module_find_package(PRIVATE_IF_SHARED
   VERSION 2.4)
 if (VTK_USE_MPI AND NOT ADIOS2_HAVE_MPI)
   message(FATAL_ERROR "VTK built with MPI requires ADIOS2 built with MPI")
-elseif(NOT VTK_USE_MPI AND ADIOS2_HAVE_MPI)
+elseif (NOT VTK_USE_MPI AND ADIOS2_HAVE_MPI)
   message(FATAL_ERROR "VTK built without MPI requires ADIOS2 built without MPI")
-endif()
+endif ()
 
 # Initial empty set of files
 set(classes_core)
@@ -69,6 +69,6 @@ endif ()
 
 if (ADIOS2_VERSION VERSION_GREATER_EQUAL "2.8.0")
   vtk_module_definitions(VTK::IOADIOS2 PRIVATE IOADIOS2_BP5_RANDOM_ACCESS)
-endif()
+endif ()
 
 vtk_add_test_mangling(VTK::IOADIOS2)
