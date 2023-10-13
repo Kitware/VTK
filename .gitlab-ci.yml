@@ -406,16 +406,18 @@ wheel-linux-python37-x86_64:build:
         - .cmake_wheel_artifacts
         - .merged_only
 
-wheel-linux-python37-x86_64:test:
-    extends:
-        - .wheel_linux37_x86_64
-        - .cmake_test_wheel_linux
-        - .linux_builder_tags
-        - .merged_only
-    dependencies:
-        - wheel-linux-python37-x86_64:build
-    needs:
-        - wheel-linux-python37-x86_64:build
+# XXX(urllib3): The manylinux container for 3.7 has OpenSSL 1.1 which is no
+# longer supported by `urllib3`.
+# wheel-linux-python37-x86_64:test:
+#     extends:
+#         - .wheel_linux37_x86_64
+#         - .cmake_test_wheel_linux
+#         - .linux_builder_tags
+#         - .merged_only
+#     dependencies:
+#         - wheel-linux-python37-x86_64:build
+#     needs:
+#         - wheel-linux-python37-x86_64:build
 
 wheel-linux-python37-x86_64:test-x11:
     extends:
@@ -436,16 +438,18 @@ wheel-linux-python37-x86_64-osmesa:build:
         - .cmake_wheel_artifacts
         - .merged_only
 
-wheel-linux-python37-x86_64-osmesa:test:
-    extends:
-        - .wheel_linux37_x86_64_osmesa
-        - .cmake_test_wheel_linux
-        - .linux_builder_tags
-        - .merged_only
-    dependencies:
-        - wheel-linux-python37-x86_64-osmesa:build
-    needs:
-        - wheel-linux-python37-x86_64-osmesa:build
+# XXX(urllib3): The manylinux container for 3.7 has OpenSSL 1.1 which is no
+# longer supported by `urllib3`.
+# wheel-linux-python37-x86_64-osmesa:test:
+#     extends:
+#         - .wheel_linux37_x86_64_osmesa
+#         - .cmake_test_wheel_linux
+#         - .linux_builder_tags
+#         - .merged_only
+#     dependencies:
+#         - wheel-linux-python37-x86_64-osmesa:build
+#     needs:
+#         - wheel-linux-python37-x86_64-osmesa:build
 
 wheel-linux-python37-x86_64-osmesa:test-x11:
     extends:
@@ -793,7 +797,7 @@ wheel:pypi:upload:
         # - wheel-linux-python36-x86_64:test
         # - wheel-linux-python36-x86_64:test-x11
         - wheel-linux-python37-x86_64:build
-        - wheel-linux-python37-x86_64:test
+        # - wheel-linux-python37-x86_64:test
         - wheel-linux-python37-x86_64:test-x11
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
@@ -899,10 +903,10 @@ wheel:vtk:upload:
         # - wheel-linux-python36-x86_64-osmesa:test
         # - wheel-linux-python36-x86_64-osmesa:test-x11
         - wheel-linux-python37-x86_64:build
-        - wheel-linux-python37-x86_64:test
+        # - wheel-linux-python37-x86_64:test
         - wheel-linux-python37-x86_64:test-x11
         - wheel-linux-python37-x86_64-osmesa:build
-        - wheel-linux-python37-x86_64-osmesa:test
+        # - wheel-linux-python37-x86_64-osmesa:test
         - wheel-linux-python37-x86_64-osmesa:test-x11
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
@@ -1033,10 +1037,10 @@ wheel-sdk:upload:
         - wheel-linux-python36-x86_64:build
         - wheel-linux-python36-x86_64-osmesa:build
         - wheel-linux-python37-x86_64:build
-        - wheel-linux-python37-x86_64:test
+        # - wheel-linux-python37-x86_64:test
         - wheel-linux-python37-x86_64:test-x11
         - wheel-linux-python37-x86_64-osmesa:build
-        - wheel-linux-python37-x86_64-osmesa:test
+        # - wheel-linux-python37-x86_64-osmesa:test
         - wheel-linux-python37-x86_64-osmesa:test-x11
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
@@ -1293,10 +1297,10 @@ release-artifacts:upload:
         - wheel-linux-python36-x86_64:build
         - wheel-linux-python36-x86_64-osmesa:build
         - wheel-linux-python37-x86_64:build
-        - wheel-linux-python37-x86_64:test
+        # - wheel-linux-python37-x86_64:test
         - wheel-linux-python37-x86_64:test-x11
         - wheel-linux-python37-x86_64-osmesa:build
-        - wheel-linux-python37-x86_64-osmesa:test
+        # - wheel-linux-python37-x86_64-osmesa:test
         - wheel-linux-python37-x86_64-osmesa:test-x11
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
