@@ -183,7 +183,6 @@ void vtkCesium3DTilesReader::Implementation::ReadTiles(
 vtkSmartPointer<vtkPolyData> vtkCesium3DTilesReader::Implementation::ReadTile(
   std::string tileFileName, vtkTransform* transform)
 {
-  static int index = 0;
   auto tile = vtkSmartPointer<vtkPolyData>::New();
   vtkNew<vtkGLTFReader> tileReader;
   tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
