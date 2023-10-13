@@ -361,7 +361,7 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
   // Before processing any request, read the meta data first
   try
   {
-#ifdef IOADIOS2_BP5_RANDOM_ACCESS
+#if IOADIOS2_BP5_RANDOM_ACCESS
     auto mode = adios2::Mode::ReadRandomAccess;
 #else
     auto mode = adios2::Mode::Read;

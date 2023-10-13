@@ -55,8 +55,12 @@ vtk_module_add_module(VTK::IOADIOS2
   PRIVATE_TEMPLATES ${private_templates})
 vtk_module_link(VTK::IOADIOS2 PRIVATE adios2::adios2)
 
+set(adios_have_bp5_random_access 0)
 if (ADIOS2_VERSION VERSION_GREATER_EQUAL "2.8.0")
-  vtk_module_definitions(VTK::IOADIOS2 PRIVATE IOADIOS2_BP5_RANDOM_ACCESS)
+  set(adios_have_bp5_random_access 1)
 endif ()
+set_property(SOURCE VTX/VTXSchemaManager.cxx vtkADIOS2CoreImageReader.cxx APPEND
+  PROPERTY
+    COMPILE_DEFINITIONS "IOADIOS2_BP5_RANDOM_ACCESS=$<BOOL:${adios_have_bp5_random_access}>")
 
 vtk_add_test_mangling(VTK::IOADIOS2)
