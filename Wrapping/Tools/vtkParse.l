@@ -68,7 +68,7 @@ static void vtk_section_comment(void);
 static void cpp_comment_line(void);
 static void blank_line(void);
 
-static const char* raw_string(const char* begin);
+static const char* raw_string(const char* begin, int* has_ud_suffix);
 
 static void preprocessor_directive(const char* text, size_t l);
 static void print_preprocessor_error(int result, const char* cp, size_t n);
@@ -124,19 +124,25 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       preprocessor_directive(yytext, yyleng);
    }
 
-("u8"|"u"|"U"|"L")?\"([^\\"]|\\\r\n|\\\n|\\.)*\"(_{ID})?  {
+("u8"|"u"|"U"|"L")?\"([^\\"]|\\\r\n|\\\n|\\.)*\" {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(STRING_LITERAL);
     }
 
-("u8"|"u"|"U"|"L")?\'([^\\']|\\.)+\'(_{ID})?  {
+("u8"|"u"|"U"|"L")?\"([^\\"]|\\\r\n|\\\n|\\.)*\"{ID}  {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(STRING_LITERAL_UD);
+    }
+
+("u8"|"u"|"U"|"L")?\'([^\\']|\\.)+\'{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(CHAR_LITERAL);
     }
 
 ("R"|"u8R"|"uR"|"UR"|"LR")\"[^ ()\t\v\f\n]*"(" {
-      yylval.str = raw_string(yytext);
-      return(STRING_LITERAL);
+      int has_ud_suffix = 0;
+      yylval.str = raw_string(yytext, &has_ud_suffix);
+      return (has_ud_suffix ? STRING_LITERAL_UD : STRING_LITERAL);
     }
 
 "auto"          return(AUTO);
@@ -1212,7 +1218,7 @@ void blank_line()
 /*
  * Convert a raw string into a non-raw string.
  */
-const char* raw_string(const char* begin)
+const char* raw_string(const char* begin, int* has_ud_suffix)
 {
   int savelineno = yylineno;
   char* textbuf;
@@ -1344,13 +1350,18 @@ const char* raw_string(const char* begin)
   *dp++ = '\"';
 
   c = input();
-  if (c == '_')
+  if (vtkParse_CharType(c, CPRE_ID))
   {
+    *has_ud_suffix = 1;
     do
     {
       *dp++ = c;
       c = input();
     } while (vtkParse_CharType(c, CPRE_XID));
+  }
+  else
+  {
+    *has_ud_suffix = 0;
   }
   unput(c);
 

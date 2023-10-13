@@ -1637,7 +1637,7 @@ static unsigned int add_indirection_to_array(unsigned int type)
 
 /* Expect 110 reduce/reduce conflicts, these can be cleared by removing
    either '<' or angle_brackets_sig from constant_expression_item. */
-%expect-rr 109
+%expect-rr 110
 
 /* The parser will shift/reduce values <str> or <integer>, where
    <str> is for IDs and <integer> is for types, modifiers, etc. */
@@ -1669,6 +1669,7 @@ static unsigned int add_indirection_to_array(unsigned int type)
 
 /* literal tokens are provided as strings */
 %token <str> STRING_LITERAL
+%token <str> STRING_LITERAL_UD
 %token <str> INT_LITERAL
 %token <str> HEX_LITERAL
 %token <str> BIN_LITERAL
@@ -3182,7 +3183,8 @@ operator_id:
   | '=' { $<str>$ = "="; }
   | OP_RSHIFT_A '>' { $<str>$ = ">>"; }
   | OP_RSHIFT_A OP_RSHIFT_A { $<str>$ = ">>"; }
-  | STRING_LITERAL ID { $<str>$ = vtkstrcat("\"\" ", $<str>2); }
+  | STRING_LITERAL ID { $<str>$ = vtkstrcat($<str>1, $<str>2); }
+  | STRING_LITERAL_UD
   | operator_id_no_delim
 
 operator_id_no_delim:
@@ -3261,6 +3263,7 @@ literal:
   | FLOAT_LITERAL
   | CHAR_LITERAL
   | STRING_LITERAL
+  | STRING_LITERAL_UD
   | ZERO
   | NULLPTR
 
