@@ -4219,7 +4219,6 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
         COMPONENT   "${_vtk_build_SPDX_COMPONENT}")
     endif ()
   endif ()
-
 endfunction ()
 
 #[==[.rst:
