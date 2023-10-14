@@ -38,6 +38,11 @@
 #include <stddef.h> /* for wchar_t */
 #endif
 
+typedef struct Warnings_
+{
+  int Empty;
+} Warnings;
+
 /**
  * Options for the wrappers
  */
@@ -52,6 +57,8 @@ typedef struct OptionInfo_
   int NumberOfHierarchyFileNames; /* the total number of types argument */
   char** HierarchyFileNames;      /* the file preceded by "--types" */
   int DumpMacros;                 /* dump macros to output */
+
+  Warnings WarningFlags; /* warning flags */
 } OptionInfo;
 
 #ifdef __cplusplus

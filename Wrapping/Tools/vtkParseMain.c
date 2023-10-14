@@ -54,6 +54,8 @@ static void parse_print_help(FILE* fp, const char* cmd, int multi)
     "  -U <macro>        undefine a preprocessor macro\n"
     "  -imacros <file>   read macros from a header file\n"
     "  -undef            do not predefine platform macros\n"
+    "  -Wempty           warn when nothing is wrapped\n"
+    "  -Wno-empty        do not warn when nothing is wrapped\n"
     "  @<file>           read arguments from a file\n",
     parse_exename(cmd));
 
@@ -267,6 +269,7 @@ static int parse_check_options(int argc, char* argv[], int multi)
   options.NumberOfHintFileNames = 0;
   options.HintFileNames = NULL;
   options.DumpMacros = 0;
+  options.WarningFlags.Empty = 0;
 
   for (i = 1; i < argc; i++)
   {
@@ -298,6 +301,14 @@ static int parse_check_options(int argc, char* argv[], int multi)
     else if (strcmp(argv[i], "-dM") == 0)
     {
       options.DumpMacros = 1;
+    }
+    else if (strcmp(argv[i], "-Wempty") == 0)
+    {
+      options.WarningFlags.Empty = 1;
+    }
+    else if (strcmp(argv[i], "-Wno-empty") == 0)
+    {
+      options.WarningFlags.Empty = 0;
     }
     else if (argv[i][0] == '-' && isalpha(argv[i][1]))
     {
