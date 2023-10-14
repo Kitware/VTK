@@ -3851,7 +3851,9 @@ function (vtk_module_add_module name)
       add_library("${_vtk_add_module_real_target}" ${_vtk_add_module_type}
         ${_vtk_add_module_SOURCES}
         ${_vtk_add_module_TEMPLATES}
+        ${_vtk_add_module_PRIVATE_TEMPLATES}
         ${_vtk_add_module_HEADERS}
+        ${_vtk_add_module_NOWRAP_HEADERS}
         ${_vtk_add_module_PRIVATE_HEADERS})
 
       if (_vtk_build_UTILITY_TARGET)
