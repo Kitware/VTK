@@ -1364,6 +1364,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (data->Template)
   {
     fclose(fp);
+    vtkWrap_WarnEmpty(options);
     return 0;
   }
 
@@ -1372,6 +1373,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     if (strchr(data->SuperClasses[i], '<'))
     {
       fclose(fp);
+      vtkWrap_WarnEmpty(options);
       return 0;
     }
   }
@@ -1381,6 +1383,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     if (!vtkWrap_IsTypeOf(hierarchyInfo, data->Name, "vtkObjectBase"))
     {
       fclose(fp);
+      vtkWrap_WarnEmpty(options);
       return 0;
     }
 

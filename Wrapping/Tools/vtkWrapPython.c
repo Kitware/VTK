@@ -591,5 +591,10 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
 
   vtkParse_Free(file_info);
 
+  if (!wrapped_anything)
+  {
+    vtkWrap_WarnEmpty(options);
+  }
+
   return 0;
 }
