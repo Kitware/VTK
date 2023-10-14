@@ -299,7 +299,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     char* etext = strerror(e);
     etext = (etext ? etext : "Unknown error");
     fprintf(stderr, "Error %d opening output file %s: %s\n", e, options->OutputFileName, etext);
-    exit(1);
+    return 1;
   }
 
   /* get the filename without the extension */
