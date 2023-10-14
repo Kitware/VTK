@@ -46,7 +46,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * - Leading `+` is not supported and will return an error.
  *
  * ---
- * `bool` parsing supports the following syntaxes: "0", "1", "[F|f]alse" and "[T|t]rue".
+ * `bool` parsing supports the following syntaxes: "0", "1", "false", "False", "true" and "True".
  *
  * @param begin Begin of the range to convert
  * @param end End of the range to convert

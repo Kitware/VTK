@@ -23,7 +23,7 @@ static constexpr std::size_t NoRunningJob = (std::numeric_limits<std::size_t>::m
 
 struct vtkSMPThreadPool::ThreadJob
 {
-  // This construtor is needed because aggregate initialization can not have default value
+  // This constructor is needed because aggregate initialization can not have default value
   // (prior to C++14)
   // also because emplace_back can not use aggregate initialization (prior to C++20)
   ThreadJob(ProxyData* proxy = nullptr, std::function<void()> function = nullptr)
@@ -42,7 +42,7 @@ struct vtkSMPThreadPool::ThreadData
   // stack of jobs, any thread can push, and only push, jobs (and Mutex must be locked)
   std::vector<ThreadJob> Jobs{};
   // Current job (used to map thread to Proxy), using an index is okay as only this thread can
-  // erase the job and other threads can only push back new jobs not insert. This constaint could
+  // erase the job and other threads can only push back new jobs not insert. This constraint could
   // be relaxed by using unique ids instead.
   std::size_t RunningJob{ NoRunningJob };
   std::thread SystemThread{};                  // the system thread, not really used
@@ -52,7 +52,7 @@ struct vtkSMPThreadPool::ThreadData
 
 struct vtkSMPThreadPool::ProxyThreadData
 {
-  // This construtor is needed because aggregate initialization can not have default value
+  // This constructor is needed because aggregate initialization can not have default value
   // (prior to C++14)
   // also because emplace_back can not use aggregate initialization (prior to C++20)
   ProxyThreadData(ThreadData* threadData = nullptr, std::size_t id = 0)

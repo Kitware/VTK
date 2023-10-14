@@ -248,7 +248,7 @@ public:
    * Methods to set / get the search method used.
    * By default the search method used is the one automatically updated
    * each time the data is modified.
-   * This behavior can be overriden by using SetUseCustomSearchMethod() and SetCustomSearchMethod()
+   * This behavior can be overridden by using SetUseCustomSearchMethod() and SetCustomSearchMethod()
    */
   int GetAutomaticSearchMethod();
   void SetUseCustomSearchMethod(bool use);

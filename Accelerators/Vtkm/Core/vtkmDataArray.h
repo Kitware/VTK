@@ -20,7 +20,7 @@
  * 1. Access can be quite slow compared to direct memory access and thus, should be avoided.
  * 2. Once the underlying data is accessed though this class, any modifications via the ArrayHandle
  *    interface would result in undefined behaviour.
- * 3. Any modifications made through this class' API is not guarenteed to be reflected via the
+ * 3. Any modifications made through this class' API is not guaranteed to be reflected via the
  *    ArrayHandle interface.
  *
  * @sa vtkGenericDataArray

@@ -245,7 +245,7 @@ void vtk3DCursorRepresentation::BuildRepresentation()
 
   const double sizeRatio = 2 * targetSize / (cursorBounds[1] - cursorBounds[0]);
 
-  // Harware Picker can return NaN position when the ray cast picking do not find any
+  // Hardware Picker can return NaN position when the ray cast picking do not find any
   // intersection due to floating-point arithmetic imprecisions (for example, when hitting
   // the border of a cell)
   if (std::isnan(sizeRatio))

@@ -707,7 +707,7 @@ bool vtkRedistributeDataSetFilter::RedistributePTD(vtkPartitionedDataSet* inputP
   {
     if (info.size() <= *ptdOffset)
     {
-      vtkErrorMacro("Information about partitions not lining up with partition number offseting");
+      vtkErrorMacro("Information about partitions not lining up with partition number offsetting");
       return false;
     }
     else

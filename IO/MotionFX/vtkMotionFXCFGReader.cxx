@@ -119,7 +119,7 @@ void set(Value& ref, const char* pname, const MapType& params, const Value& defa
 
 //------------------------------------------------------------------------------
 // Superclass for all motions
-// The member variable names match the keyworks in the cfg file and hence are
+// The member variable names match the keywords in the cfg file and hence are
 // left lower-case.
 struct Motion
 {
@@ -1487,14 +1487,14 @@ bool vtkMotionFXCFGReader::ReadMetaData()
   if (vtksys::SystemTools::TestFileAccess(
         this->FileName, vtksys::TEST_FILE_OK | vtksys::TEST_FILE_READ))
   {
-    auto* interals = new vtkInternals();
-    if (interals->Parse(this->FileName))
+    auto* internals = new vtkInternals();
+    if (internals->Parse(this->FileName))
     {
-      this->Internals = interals;
+      this->Internals = internals;
       this->MetaDataMTime.Modified();
       return true;
     }
-    delete interals;
+    delete internals;
   }
   else
   {

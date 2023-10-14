@@ -128,7 +128,7 @@ public:
 
   /**
    * Get temporal information for the provided animationIndex and frameRate.
-   * This implementation return false, but concrete classe implementation
+   * This implementation return false, but concrete class implementation
    * behavior is as follows.
    * frameRate is used to define the number of frames for one second of simulation,
    * set to zero if timeSteps are not needed.

@@ -27,7 +27,7 @@ MODULE_FILE_PARSER.ignore("#" + LINE)
 
 def parse_vtk_module(filepath):
     """Create a dictionary that holds the structure of the given vtk.module
-    located at filepath. The resturn value is a dictionary(key,list(lines)) where key is
+    located at filepath. The return value is a dictionary(key,list(lines)) where key is
     the module keywords and the list(lines) the value corresponding to this key
     as a list of lines.
     """
@@ -63,7 +63,7 @@ def gather_module_documentation(
         custom_dirs = iter([Path(path) for path in custom_paths])
         paths = itertools.chain(paths, custom_dirs)
 
-    # tranform the ignore_list to Path objects
+    # transform the ignore_list to Path objects
     ignore_list = [Path(os.path.join(basepath, path)) for path in ignore_list]
 
     module_list = []
@@ -254,7 +254,7 @@ def create_release_index(basedir):
     """Populate basedir with release files X.Y.md with X,Y being the major and minor versions respectively.
     it returns a string holding the toctree of the index file to be injected in basedir/index.md
     """
-    # get x.y.0 releases skiping rc's
+    # get x.y.0 releases skipping rc's
     command = "git tag --sort=version:refname  --format '%(refname:strip=2) %(creatordate:format:%Y-%m-%d)'  | grep -v 'rc' | grep 'v[0-9]*\.[0-9]*\.0'"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     tags = str(result.stdout).split("\n")[:-1]  # drop last empty line
@@ -262,7 +262,7 @@ def create_release_index(basedir):
     files = []
     for entry in tags:
         tag, date = entry.split(" ")
-        short_tag = tag[1:]  # stip 'v'
+        short_tag = tag[1:]  # strip 'v'
         short_tag = short_tag.rsplit(".", 1)[0]  #  drop last '.0'
         if tag in HISTORICAL_RELEASE_URLS:
             content = CONTENT_TEMPLATE.format(

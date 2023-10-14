@@ -215,7 +215,7 @@ if showSkin:
 
     # Shrink Filter
     if True:
-        # En 3D, le shrink ne doit pas se faire sur la geometrie car elle ne represente que la peau
+        # In 3D, the shrink shouldn't be done on the geometry because it only represents the skin
         shrink = vtkShrinkFilter()
         shrink.SetInputConnection(geometry.GetOutputPort())
         shrink.SetShrinkFactor(.8)
@@ -241,7 +241,7 @@ else:
 
     # Shrink Filter
     if True:
-        # En 3D, le shrink ne doit pas se faire sur la geometrie car elle ne represente que la peau
+        # In 3D, the shrink shouldn't be done on the geometry because it only represents the skin
         shrink = vtkShrinkFilter()
         shrink.SetInputConnection(ns.GetOutputPort())
         shrink.SetShrinkFactor(.8)

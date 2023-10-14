@@ -192,7 +192,7 @@ c<sub>10</sub> c<sub>11</sub> ... c<sub>1(nValues-1)</sub><br>
 ...<br>
 c<sub>(n-1)0</sub> c<sub>(n-1)1</sub> ... c<sub>(n-1)(nValues-1)</sub></i></b>
 
-* **Lookup Table**. The *tableName* field is a character string (without imbedded white space) used to identify the lookup table. This label is used by the VTK reader to extract a specific table.
+* **Lookup Table**. The *tableName* field is a character string (without embedded white space) used to identify the lookup table. This label is used by the VTK reader to extract a specific table.
 Each entry in the lookup table is a rgba[4] (red-green-blue-alpha) array (alpha is opacity where alpha=0 is transparent). If the file format is ASCII, the lookup table values must be float values between (0,1). If the file format is BINARY, the stream of data must be four unsigned char values per table entry.
 <br><br>LOOKUP_TABLE <b><i>tableName size<br>
 r<sub>0</sub> g<sub>0</sub> b<sub>0</sub> a<sub>0</sub><br>
@@ -938,7 +938,7 @@ The following is a complete example specifying a vtkPolyData representing a cube
 The `VTKHDF` file format is a file format using the same concepts as the
 XML formats described above but relying on
 [HDF5](https://www.hdfgroup.org/solutions/hdf5/) for actual storage. It
-is meant to provide good I/O perfomance as well as robust and flexible
+is meant to provide good I/O performance as well as robust and flexible
 parallel I/O capabilities.
 
 Note: This development is iterative and the format is expected to grow in

@@ -312,9 +312,9 @@ class VtkPrintMethodParser:
                 self.methods.remove (method)
 
         for i in range (0, len (self.methods)):
-            strng = self.methods[i]
-            strng = strng.replace (" ", "")
-            self.methods[i] = strng.split (":")
+            string = self.methods[i]
+            string = string.replace (" ", "")
+            self.methods[i] = string.split (":")
 
 
         self.toggle_meths = []

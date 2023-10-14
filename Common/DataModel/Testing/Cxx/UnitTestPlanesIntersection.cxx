@@ -94,7 +94,7 @@ int UnitTestPlanesIntersection(int, char*[])
     if (result != 0)
     {
       ++status4;
-      std::cout << " PolygonIntersectsBBox() fils bbox outside ";
+      std::cout << " PolygonIntersectsBBox() fails bbox outside ";
     }
 
     // bbox straddles
@@ -106,7 +106,7 @@ int UnitTestPlanesIntersection(int, char*[])
     if (result != 0)
     {
       ++status4;
-      std::cout << " PolygonIntersectsBBox() fils bbox outside ";
+      std::cout << " PolygonIntersectsBBox() fails bbox outside ";
     }
 
     if (status4)

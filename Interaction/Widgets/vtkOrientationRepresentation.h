@@ -248,7 +248,7 @@ public:
     RotatingZ
   };
 
-  // Used to select properties axis dependant
+  // Used to select properties axis dependent
   enum Axis : int
   {
     X_AXIS = 0,
@@ -273,7 +273,7 @@ private:
    */
   void InitSources();
   /**
-   * Method to initiliaze transform handling position and scaling of tori.
+   * Method to initialize transform handling position and scaling of tori.
    * Can be used to recompute them.
    */
   void InitTransforms();
@@ -300,7 +300,7 @@ private:
   vtkSmartPointer<vtkProp> CurrentHandle;
   vtkSmartPointer<vtkProp> LastHandle;
 
-  // Transform informations
+  // Transform information
   vtkNew<vtkTransform> BaseTransform;
   vtkNew<vtkTransform> OrientationTransform;
 

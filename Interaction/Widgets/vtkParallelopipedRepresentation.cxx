@@ -131,7 +131,7 @@ public:
     // PrintTopology( cout );
   }
 
-  // Populate topoplogy into a vtkCellArray.
+  // Populate topology into a vtkCellArray.
   // If configuration is 0, the topoology populated is that of a parallelopiped.
   // If configuration > 0, the topology populated is that of a parallelopiped
   // with a chair at node = (configuration - 1).

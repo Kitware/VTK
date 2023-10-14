@@ -25,7 +25,7 @@ public:
   /**
    * @brief Open a file
    *
-   * Opening a file reset the stream to intial position: Tell() = 0.
+   * Opening a file reset the stream to initial position: Tell() = 0.
    * EndOfStream is set to true if file opening failed.
    * If path is nullptr, the file will only be closed.
    * This function will increase modified time.

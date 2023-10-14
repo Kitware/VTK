@@ -53,7 +53,7 @@ public:
    * Ask all props to update themselves. This process should be limited
    * to wgpu::Buffer uploads, creation of bind groups, bind group layouts,
    * graphics pipeline. Basically, do everything necessary but do NOT encode
-   * render pass commads.
+   * render pass commands.
    */
   int UpdateGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 

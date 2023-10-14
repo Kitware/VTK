@@ -343,7 +343,7 @@ print('With Geometry Filter (HTG to NS)')
 # Shrink Filter
 if True:
   print('With Shrink Filter (NS)')
-  # En 3D, le shrink ne doit pas se faire sur la geometrie car elle ne represente que la peau
+  # In 3D, the shrink shouldn't be done on the geometry because it only represents the skin
   shrink = vtkShrinkFilter()
   shrink.SetInputConnection(geometry.GetOutputPort())
   shrink.SetShrinkFactor(.8)

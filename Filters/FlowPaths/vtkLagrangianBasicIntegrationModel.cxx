@@ -379,7 +379,7 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
     // As one cas see in the test above, if a pass through surface intersects at the exact
     // same location than the point computed using the intersection factor,
     // we do not store the intersection.
-    // pass through are considered non prioritary, and do not intersects
+    // pass through are considered non priority, and do not intersects
     // when at the exact the same place as the main intersection
     if (item.second < interFactor)
     {

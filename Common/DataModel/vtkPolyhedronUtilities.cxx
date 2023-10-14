@@ -182,8 +182,8 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
   ////////// Compute barycenters and barycenters data //////////
   // Here we iterate over each face and generate a new point (barycenter of the face).
   // We also add new point data for the barycenter, that is the mean value of the face points data.
-  // XXX Consider rework this code in order to include the face and face points interations
-  // inside the workers in order to reduce the number of dispatchs (that are costly)
+  // XXX Consider rework this code in order to include the face and face points iterations
+  // inside the workers in order to reduce the number of dispatches (that are costly)
 
   // Global faces are faces with global point indexes
   vtkIdType* globalFaces = polyhedron->GetFaces();

@@ -299,7 +299,7 @@ bool CheckAuthoritySyntax(const vtkURIComponent& comp)
 
       if (it != info.Host.end() - 1)
       {
-        vtkErrorWithObjectMacro(nullptr, "Invalid characted in host IP '" << *it << "'");
+        vtkErrorWithObjectMacro(nullptr, "Invalid character in host IP '" << *it << "'");
         return false;
       }
     }
@@ -311,7 +311,7 @@ bool CheckAuthoritySyntax(const vtkURIComponent& comp)
 
       if (it != info.Host.end())
       {
-        vtkErrorWithObjectMacro(nullptr, "Invalid characted in host '" << *it << "'");
+        vtkErrorWithObjectMacro(nullptr, "Invalid character in host '" << *it << "'");
         return false;
       }
     }

@@ -638,7 +638,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
             cell = this->Voxel;
             break;
           default:
-            vtkErrorMacro("Unsuported cell dimension had been encountered (must be 1, 2 or 3).");
+            vtkErrorMacro("Unsupported cell dimension had been encountered (must be 1, 2 or 3).");
             return;
         } // switch ( dim )
 

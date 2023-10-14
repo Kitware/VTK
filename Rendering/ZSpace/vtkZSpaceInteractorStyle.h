@@ -10,7 +10,7 @@
  * - LeftButton (LeftController + Trigger) maps to VTKIS_PICK. It asks vtkPVZSpaceView to use its
  *   own PVHardwareSelector to pick a cell or a point, depending on the value of
  *   vtkPVZSpaceView::PickingFieldAssociation.
- *   Then informations about picking is shown on the bottom left of the screen. A pick actor is
+ *   Then information about picking is shown on the bottom left of the screen. A pick actor is
  *   also shown to visualize the picked cell or picked point.
  *
  * - MiddleButton (GenericTracker + Trigger) maps to VTKIS_POSITION_PROP. It allows the user to
@@ -132,7 +132,7 @@ protected:
 
   /**
    * Do a selection using the vtkZSpaceHardwarePicker.
-   * The selection can be then retrived for the HardwarePricker member
+   * The selection can be then retrieved for the HardwarePricker member
    * variable.
    */
   bool HardwareSelect(vtkEventDataDevice3D* edd, bool actorPassOnly);
@@ -143,7 +143,7 @@ protected:
   bool FindDataSet(vtkSelection* sel, vtkSmartPointer<vtkDataSet>& ds, vtkIdType& aid);
 
   /**
-   * Create a string that contains informations about the point or cell defined by the
+   * Create a string that contains information about the point or cell defined by the
    * index 'aid' in the dataset 'ds'.
    */
   std::string GetPickedText(vtkDataSet* ds, const vtkIdType& aid);

@@ -88,7 +88,7 @@ public:
   ///@}
 
   /**
-   * Return the frequency of occurence (i.e., the count) of each label
+   * Return the frequency of occurrence (i.e., the count) of each label
    * returned in the LabelsArray. The methods returns a vtkIdTypeArray that is
    * implicitly ordered consistent with the LabelsArray (i.e., LabelsCount[i]
    * gives the frequency count for LabelsArray[i]). Note that if
@@ -113,10 +113,10 @@ public:
   ///@{
   /**
    * Indicate whether to sort the output labels by their input scalars label
-   * value (SortByLabelValue), or to sort by the frequency of occurence of
+   * value (SortByLabelValue), or to sort by the frequency of occurrence of
    * the label values(SortByLabelCount). By default, sorting is performed by
    * label value.  Note that typically the background label has the highest
-   * frequency of occurence, with a label value == 0 (but this is not a
+   * frequency of occurrence, with a label value == 0 (but this is not a
    * guarantee).
    */
   vtkSetClampMacro(SortBy, int, SORT_BY_LABEL_VALUE, SORT_BY_LABEL_COUNT);

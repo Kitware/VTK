@@ -222,7 +222,7 @@ public:
    * a functor or a member function pointer.
    *
    * If f is a functor, its copy constructor will be invoked if it is passed as an lvalue reference.
-   * Consequently, if the functor is somewhat heavy, it is adviced to pass it as an rvalue reference
+   * Consequently, if the functor is somewhat heavy, it is advised to pass it as an rvalue reference
    * or to wrap inside a smart pointer (`std::unique_ptr` for example).
    *
    * If f is a member function pointer, an instance of its host class needs to be provided in the

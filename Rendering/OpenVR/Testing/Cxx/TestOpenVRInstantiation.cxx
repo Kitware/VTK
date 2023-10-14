@@ -7,7 +7,7 @@
 #include "vtkOpenVRRenderer.h"
 
 //------------------------------------------------------------------------------
-// Only instanciates, do not requires a OpenVR implementation to run
+// Only instantiates, do not requires a OpenVR implementation to run
 int TestOpenVRInstantiation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkOpenVRRenderer> renderer;

@@ -1369,7 +1369,7 @@ int vtkPolyVertexList::CanRemoveVertex(vtkLocalPolyVertex* currentVtx)
 // returns != 0 if vertex can be removed. Uses half-space
 // comparison to determine whether ear-cut is valid, and may
 // resort to line-plane intersections to resolve possible
-// instersections with ear-cut.
+// intersections with ear-cut.
 int vtkPolyVertexList::CanRemoveVertex(int id)
 {
   return this->CanRemoveVertex(this->Array + id);

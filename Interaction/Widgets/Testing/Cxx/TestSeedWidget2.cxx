@@ -1360,7 +1360,7 @@ int TestSeedWidget2(int argc, char* argv[])
   // Create a test pipeline
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  // Start by creatin a black/white lookup table.
+  // Start by creating a black/white lookup table.
   vtkSmartPointer<vtkLookupTable> bwLut = vtkSmartPointer<vtkLookupTable>::New();
   bwLut->SetTableRange(0, 2000);
   bwLut->SetSaturationRange(0, 0);

@@ -68,7 +68,7 @@ struct VecNumStaticComponents<V, vtkm::VecTraitsTagSizeVariable>
 };
 
 /// Note that `NUM_COMPONENTS` will be 0 for vectors with non-static size.
-/// Bellow, it is assumed that only the top level Vector will be a non-static-size type.
+/// Below, it is assumed that only the top level Vector will be a non-static-size type.
 /// The code will need to be changed in the future if that assumption no longer holds true.
 ///
 template <typename VecType>
@@ -215,14 +215,14 @@ struct MinMaxHelper
 
 /// Decorator classes for `ArrayHandleDecorator` to be used to wrap an array for computing its
 /// range using `Reduce` while ignoring ghost and non-finite values. This is achieved by returning
-/// the reduce identiy for such values.
+/// the reduce identity for such values.
 ///
 /// These decorators Wrap an array to be processed, `Src`, and a (possibly empty) `Ghosts` array.
 /// They test the values of the `Src` and `Ghosts` arrays and return the identity value when a
 /// specific condition is met based on the other parameters.
 /// `GhostValueToSkip`: Only used if the ghost array is not empty. Return identity if the
 ///                     bitwise-and of the value in the `Ghosts` array and this value is not zero.
-/// `FinitesOnly`     : Return identiy if the value in the Src array is not a finite value.
+/// `FinitesOnly`     : Return identity if the value in the Src array is not a finite value.
 ///
 /// Note that `DecoratorForScalarRanage` only works for static length Vec values.
 ///

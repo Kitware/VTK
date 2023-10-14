@@ -275,7 +275,7 @@ void vtkAMRResampleFilter::CopyData(
     {
       double f = srcArray->GetComponent(srcIdx, c);
       targetArray->SetComponent(targetIdx, c, f);
-    } // END for all componenents
+    } // END for all components
 
   } // END for all arrays
 }

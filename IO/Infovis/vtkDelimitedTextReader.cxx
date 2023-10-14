@@ -54,7 +54,7 @@ public:
   DelimitedTextIterator(const vtkIdType max_records, const std::string& record_delimiters,
     const std::string& field_delimiters, const std::string& string_delimiters,
     const std::string& whitespace, const std::string& escape, bool have_headers,
-    bool merg_cons_delimiters, bool use_string_delimeter, vtkTable* const output_table)
+    bool merg_cons_delimiters, bool use_string_delimiter, vtkTable* const output_table)
     : MaxRecords(max_records)
     , MaxRecordIndex(have_headers ? max_records + 1 : max_records)
     , RecordDelimiters(record_delimiters.begin(), record_delimiters.end())
@@ -70,7 +70,7 @@ public:
     , RecordAdjacent(true)
     , MergeConsDelims(merg_cons_delimiters)
     , ProcessEscapeSequence(false)
-    , UseStringDelimiter(use_string_delimeter)
+    , UseStringDelimiter(use_string_delimiter)
     , WithinString(0)
   {
   }

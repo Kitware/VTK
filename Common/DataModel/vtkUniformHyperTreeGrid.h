@@ -134,12 +134,12 @@ public:
   ///@}
 
   /**
-   * Convert the global index of a root to its Spacial coordinates origin and size.
+   * Convert the global index of a root to its Spatial coordinates origin and size.
    */
   void GetLevelZeroOriginAndSizeFromIndex(vtkIdType, double*, double*) override;
 
   /**
-   * Convert the global index of a root to its Spacial coordinates origin and size.
+   * Convert the global index of a root to its Spatial coordinates origin and size.
    */
   void GetLevelZeroOriginFromIndex(vtkIdType, double*) override;
 

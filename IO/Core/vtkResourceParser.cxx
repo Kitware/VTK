@@ -117,7 +117,7 @@ public:
       const auto begin = std::copy(this->Begin, this->End, this->Buffer.begin());
       const auto offset = std::distance(this->Buffer.begin(), begin);
 
-      // Always read buffer size, may be benefic for the stream to have a contant, aligned, size
+      // Always read buffer size, may be beneficial for the stream to have a constant, aligned, size
       const auto read = this->Stream->Read(std::addressof(*begin), BufferSize);
       this->Begin = this->Buffer.data();
       this->End = this->Buffer.data() + offset + read;

@@ -9,7 +9,7 @@
  *
  * Very similar to vtkVRHardwarePicker (differences are related to HMD and specific downcasts).
  * The logic is the same : create a new temporary camera, position the camera like the stylus and
- * orientate it like the stylus ray. Then do a harware picking at the center of the framebuffer,
+ * orientate it like the stylus ray. Then do a hardware picking at the center of the framebuffer,
  * and restore the original camera.
  *
  * @sa

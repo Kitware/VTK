@@ -88,7 +88,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the distance betweem camera position and the front handle.
+   * Set/Get the distance between camera position and the front handle.
    * Note that the distance is scaled with view to keep the widget the same size.
    * Default: 2.5.
    **/
@@ -98,7 +98,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the distance betweem camera position and the up handle.
+   * Set/Get the distance between camera position and the up handle.
    * Note that the distance is scaled with view to keep the widget the same size.
    * Default: 1.5.
    **/

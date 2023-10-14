@@ -459,7 +459,7 @@ int vtkCONVERGECFDCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
         int parcelDataAssemblyId = hierarchy->AddNode("Parcels", zoneAssemblyId);
 
         // Go down three levels and check for UserDefinedData_t nodes.
-        // Parcel ponts coordinates are described in "PARCEL_X", "PARCEL_Y" and
+        // Parcel points coordinates are described in "PARCEL_X", "PARCEL_Y" and
         // "PARCEL_Z" nodes.
         // Other nodes are data arrays defined on these points.
         // Ignore them if they do not have children DataArray_t nodes themselves.

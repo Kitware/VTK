@@ -51,7 +51,7 @@ private:
 
   /**
    * Generate the surface for a leaf cell if needed, taking account of the
-   * presence of inteface(s) in the cell.
+   * presence of interface(s) in the cell.
    */
   void GenerateCellSurface(vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* cursor,
     unsigned char coarseCellFacesToBeTreated, vtkIdType cellId);
@@ -148,7 +148,7 @@ private:
 
   /**
    * Retrieved from the input HTG.
-   * Bit arrays indicating wich HTG cells are marked as "pure".
+   * Bit arrays indicating which HTG cells are marked as "pure".
    * Note that cells with "invalid" interfaces will also be considered as such.
    */
   vtkBitArray* InPureMaskArray;

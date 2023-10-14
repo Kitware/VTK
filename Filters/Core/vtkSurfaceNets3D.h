@@ -17,7 +17,7 @@
  *
  * The filter implements a contouring operation over a non-continuous scalar
  * field. In comparison, classic contouring methods (like Flying Edges or
- * Marching Cubes) presume a continuous scalar field. In comparision, this
+ * Marching Cubes) presume a continuous scalar field. In comparison, this
  * method processes non-continuous label maps, which corresponds to discrete
  * regions in an input 3D image (i.e., volume). With a non-continuous scalar
  * function, the usual data interpolation across a continuous function (e.g.,
@@ -264,7 +264,7 @@ public:
   ///@{
   /**
    * This value specifies the label value to use when referencing the
-   * backround region outside of any of the specified regions. (This value is
+   * background region outside of any of the specified regions. (This value is
    * used when producing cell scalars.) By default this value is zero. Be
    * very careful of the value being used here, it should not overlap an
    * extracted label value, and because it is the same type as the input

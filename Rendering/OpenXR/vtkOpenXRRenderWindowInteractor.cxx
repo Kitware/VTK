@@ -286,7 +286,7 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
 
   // Handle head movement
   // XXX This is a temporary solution to stick with the OpenVR behavior.
-  // Move3DEvent is emited by left and right controllers, and the headset.
+  // Move3DEvent is emitted by left and right controllers, and the headset.
   // This is used in vtkOpenXRInteractorStyle for "grounded" movement.
   // In future refactoring of OpenXR classes, we could add a specific method in
   // vtkOpenXRManager to retrieve the "real" head pose (for now we use the left

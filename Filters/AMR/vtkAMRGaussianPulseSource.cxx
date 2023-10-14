@@ -338,7 +338,7 @@ int vtkAMRGaussianPulseSource::RequestData(vtkInformation* vtkNotUsed(request),
       vtkErrorMacro("Dimensions must be either 2 or 3!");
   }
 
-  // Skipping BlankCells incase output is empty
+  // Skipping BlankCells in case output is empty
   if (!this->CheckAbort())
   {
     vtkAMRUtilities::BlankCells(output);

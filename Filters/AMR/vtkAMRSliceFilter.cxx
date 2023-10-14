@@ -371,7 +371,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
 
   vtkTimerLog::MarkStartEvent("AMRSlice::Generate Blanking");
 
-  // Skipping BlankCells incase out is empty
+  // Skipping BlankCells in case out is empty
   if (!this->CheckAbort())
   {
     vtkParallelAMRUtilities::BlankCells(out, this->Controller);

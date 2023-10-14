@@ -474,13 +474,13 @@ public:
     // its index won't be unique. So we look for the smallest unique id.
     if (!isPointIdUnique && numberOfCornerPoints > 2)
     {
-      std::map<int, std::pair<int, int>> occurances; // map<pointId, pair<count, index>>
+      std::map<int, std::pair<int, int>> occurrences; // map<pointId, pair<count, index>>
       for (int i = 0; i < numberOfCornerPoints; ++i)
       {
-        occurances[points[i]].first++;
-        occurances[points[i]].second = i;
+        occurrences[points[i]].first++;
+        occurrences[points[i]].second = i;
       }
-      for (const auto& idx_count : occurances)
+      for (const auto& idx_count : occurrences)
       {
         if (idx_count.second.first == 1) // Smallest unique
         {

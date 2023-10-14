@@ -164,7 +164,7 @@ void vtkAutoCorrelativeStatistics::Aggregate(
         double M2Xt_c = currentTab->GetValueByName(r, "M2 Xt").ToDouble();
         double MXsXt_c = currentTab->GetValueByName(r, "M XsXt").ToDouble();
 
-        // Update global statics
+        // Update global statistics
         int N = n + n_c;
 
         double invN = 1. / static_cast<double>(N);

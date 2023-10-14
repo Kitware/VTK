@@ -8,7 +8,7 @@
  * frequency domain by a vtkImageFFT filter.  A vtkImageRFFT filter
  * can be used to convert the output back into the spatial domain.
  * vtkImageIdealHighPass just sets a portion of the image to zero.  The sharp
- * cutoff in the frequence domain produces ringing in the spatial domain.
+ * cutoff in the frequency domain produces ringing in the spatial domain.
  * Input and Output must be doubles.  Dimensionality is set when the axes are
  * set.  Defaults to 2D on X and Y axes.
  *

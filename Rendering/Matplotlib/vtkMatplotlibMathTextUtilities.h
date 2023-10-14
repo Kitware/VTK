@@ -202,7 +202,7 @@ private:
 
   /**
    * Parse the string to handle multiline and multicolumn.
-   * Divide it in lines (splitted with '\n') and cells (splitted with '|')
+   * Divide it in lines (split with '\n') and cells (split with '|')
    * and store each cell string in strGrid. Also compute the maximum number of cells of all
    * lines to ensure that all lines have the same number of cells.
    */

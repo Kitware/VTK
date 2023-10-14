@@ -142,7 +142,7 @@ int TestGPURayCastMultiVolumeShade(int argc, char* argv[])
 
   // ---------------------------------------------------------
   // Here is what we want to test, activate the shading and
-  // set some properties espacially the ambient property.
+  // set some properties especially the ambient property.
   vol->GetProperty()->ShadeOn();
   vol->GetProperty()->SetAmbient(0.5);
   vol->GetProperty()->SetDiffuse(1.0);

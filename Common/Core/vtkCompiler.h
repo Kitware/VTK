@@ -50,7 +50,7 @@
 //
 // Solution:
 // The solution is fairly simple, but annoying. You need to mark template
-// classes intended for use in dynamic_cast with appropropriate visibility
+// classes intended for use in dynamic_cast with appropriate visibility
 // settings.
 //
 // TL;DR:

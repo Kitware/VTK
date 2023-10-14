@@ -71,7 +71,7 @@ public:
   ///@{
   /**
    * Setter/Getter for target reduction
-   * Value usually inbetween 0 and 1 which sets the acceptible reduction in size of an array for
+   * Value usually in between 0 and 1 which sets the acceptable reduction in size of an array for
    * passing it to its implicit form (0.1 by default).
    */
   vtkGetMacro(TargetReduction, double);

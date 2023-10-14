@@ -177,7 +177,7 @@ public:
   void GenerateYDyadPoints(int ijk[3], unsigned char vCase, vtkIdType* eIds);
   void GenerateOriginDyadPoint(int ijk[3], unsigned char vCase, vtkIdType* eIds);
 
-  // Generate cell scalar vaues if requested
+  // Generate cell scalar values if requested
   void GenerateScalars(T* s, unsigned char dCase, vtkIdType& polyNum);
 
   // Helper function to set up the point ids on pixel vertices including the

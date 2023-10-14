@@ -115,7 +115,7 @@
  * A peculiarity of `vtkImplicitArray`s is that their `NewInstance` method no longer gives
  * an instance of the exact same array type. A `NewInstance` call on a `vtkImplicitArray`
  * will return a `vtkAOSDataArrayTemplate<ValueTypeT>` with the same value type as the
- * orginal implicit array. This is so that the following workflow (used extensively
+ * original implicit array. This is so that the following workflow (used extensively
  * throughout VTK) can work without issues:
  * @code
  * struct Const42
@@ -130,7 +130,7 @@
  * arr43->Fill(43);
  * @endcode
  *
- * Optionnally, `vtkImplicitArray`s backends can return their memory usage in KiB by defining
+ * Optionally, `vtkImplicitArray`s backends can return their memory usage in KiB by defining
  * the function `getMemorySize` returning `unsigned long`. `vtkImplicitArray` then exposes this
  * function through the `GetActualMemorySize` function. If the backend does not define it,
  * `GetActualMemorySize` always returns 1.

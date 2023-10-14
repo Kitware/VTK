@@ -5,7 +5,7 @@
  * @brief   create a moving, magnifying renderer that can inspect the contents
  *          of an encapsulating renderer.
  *
- * This class provides a small, interactive, overlayed viewport (i.e.,
+ * This class provides a small, interactive, overlaid viewport (i.e.,
  * renderer) that follows the mouse while inside another, larger
  * renderer. Inside this viewport effects like magnification (via zoom or
  * adjustment of the view angle), or other rendering effects are possible.

@@ -222,8 +222,8 @@ int vtkOMETIFFReader::CanReadFile(const char* fname)
 void vtkOMETIFFReader::ExecuteInformation()
 {
   this->Superclass::ExecuteInformation();
-  auto& interals = (*this->InternalImage);
-  if (!interals.Image || !interals.IsOpen)
+  auto& internals = (*this->InternalImage);
+  if (!internals.Image || !internals.IsOpen)
   {
     return;
   }
@@ -234,7 +234,7 @@ void vtkOMETIFFReader::ExecuteInformation()
   auto& doc = omeinternals.XMLDocument;
 
   char* description[255];
-  if (TIFFGetField(interals.Image, TIFFTAG_IMAGEDESCRIPTION, description))
+  if (TIFFGetField(internals.Image, TIFFTAG_IMAGEDESCRIPTION, description))
   {
     auto result = doc.load_buffer(description[0], strlen(description[0]));
     if (!result)
@@ -301,7 +301,7 @@ void vtkOMETIFFReader::ExecuteInformation()
     nextIFD = tiffdataXML.attribute("IFD").as_int(nextIFD);
 
     const int planeCount = tiffdataXML.attribute("PlaneCount")
-                             .as_int(tiffdataXML.attribute("IFD") ? 1 : interals.NumberOfPages);
+                             .as_int(tiffdataXML.attribute("IFD") ? 1 : internals.NumberOfPages);
     for (int plane = 0; plane < planeCount; ++plane)
     {
       omeinternals.IFDMap[vtkVector3i(next[c_idx], next[t_idx], next[z_idx])] = nextIFD;

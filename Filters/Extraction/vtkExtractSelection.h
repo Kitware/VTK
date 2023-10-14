@@ -176,7 +176,7 @@ private:
   vtkExtractSelection(const vtkExtractSelection&) = delete;
   void operator=(const vtkExtractSelection&) = delete;
 
-  /// Boolean controling whether to extract HTG input as a UG (true) or a masked HTG (false)
+  /// Boolean controlling whether to extract HTG input as a UG (true) or a masked HTG (false)
   bool HyperTreeGridToUnstructuredGrid = false;
 };
 

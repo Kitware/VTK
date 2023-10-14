@@ -148,7 +148,7 @@ public:
 
   /**
    * Overridden from the base class. It converts the display
-   * co-ordinates to world co-ordinates. It returns 1 if the point lies
+   * coordinates to world coordinates. It returns 1 if the point lies
    * within the constrained region, otherwise return 0
    */
   int CheckConstraint(vtkRenderer* renderer, double pos[2]) override;
@@ -204,7 +204,7 @@ public:
 
   /**
    * Method overridden from Superclass. computes the world
-   * co-ordinates using GetIntersectionPosition()
+   * coordinates using GetIntersectionPosition()
    */
   void SetDisplayPosition(double pos[3]) override;
 

@@ -98,7 +98,7 @@ void WriteMesh(
   // If the actor has a transform, the mesh should have an OXForm parent node
   // Always use a transform, even if matrix is identity.
   vtkMatrix4x4* amat = aPart->GetMatrix();
-  // We need to covert row-major to column-major, with transpose.
+  // We need to convert row-major to column-major, with transpose.
   vtkNew<vtkMatrix4x4> transpose;
   vtkMatrix4x4::Transpose(amat, transpose);
   double matData[4][4];
@@ -238,7 +238,7 @@ void WriteCamera(OArchive& archive, vtkRenderer* ren)
   trans->GetInverse(inv);
   // Convert right-handed to left-handed, by swapping Y.
   // inv->Scale(1, -1, 1);
-  // Instead we need to covert row-major to column-major, with transpose.
+  // Instead we need to convert row-major to column-major, with transpose.
   vtkNew<vtkMatrix4x4> transpose;
   vtkMatrix4x4::Transpose(inv, transpose);
   double matData[4][4];

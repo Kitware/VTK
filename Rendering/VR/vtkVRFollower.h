@@ -42,7 +42,7 @@ private:
   /**
    * DO NOT USE
    * This method is declared in order to hide a `-Woverloaded-virtual`
-   * since we cant use the `using` keyword with private methods
+   * since we can't use the `using` keyword with private methods
    */
   void Render(vtkRenderer*, vtkMapper*) override {}
 };

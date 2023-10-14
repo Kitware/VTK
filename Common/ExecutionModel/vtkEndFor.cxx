@@ -90,7 +90,7 @@ int vtkEndFor::RequestInformation(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
-    vtkErrorMacro("Could not retieve input information");
+    vtkErrorMacro("Could not retrieve input information");
     return 0;
   }
 
@@ -114,7 +114,7 @@ int vtkEndFor::RequestInformation(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
   {
-    vtkErrorMacro("Could not retieve output information");
+    vtkErrorMacro("Could not retrieve output information");
     return 0;
   }
 
@@ -134,7 +134,7 @@ int vtkEndFor::RequestDataObject(vtkInformation* vtkNotUsed(request),
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
-    vtkErrorMacro("Could not retieve input information");
+    vtkErrorMacro("Could not retrieve input information");
     return 0;
   }
 
@@ -179,7 +179,7 @@ int vtkEndFor::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
-    vtkErrorMacro("Could not retieve input information");
+    vtkErrorMacro("Could not retrieve input information");
     return 0;
   }
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());

@@ -123,7 +123,7 @@ public:
 
   /**
    * Direction cosines of the plane on which the contour lies
-   * on in world co-ordinates. This would be the same matrix that would be
+   * on in world coordinates. This would be the same matrix that would be
    * set in vtkImageReslice or vtkImagePlaneWidget if there were a plane
    * passing through the contour points. The origin must be the origin of the
    * data under the contour.
@@ -148,7 +148,7 @@ protected:
   vtkPolyData* ActiveFocalData;
   vtkPoints* ActiveFocalPoint;
 
-  // The polydata represents the contour in display co-ordinates.
+  // The polydata represents the contour in display coordinates.
   vtkPolyData* Lines;
   vtkPolyDataMapper2D* LinesMapper;
   vtkActor2D* LinesActor;

@@ -8,7 +8,7 @@
  * OBJ files contain the geometry including lines, triangles and polygons.
  * Normals and texture coordinates on points are also written if they exist.
  * One can specify a texture passing a vtkImageData on port 1.
- * If a texture is set, additionals .mtl and .png files are generated. Those files have the same
+ * If a texture is set, additional .mtl and .png files are generated. Those files have the same
  * name without obj extension.
  * Alternatively, one can specify a TextureFileName pointing to an existing texture.
  * In this case a .mtl file is generated pointing to the specified file.

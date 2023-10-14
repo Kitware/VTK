@@ -11,7 +11,7 @@
  *
  *    A subclass of vtkPlanes, this class determines whether it
  *    intersects an axis aligned box.   This is motivated by the
- *    need to intersect the axis aligned region of a spacial
+ *    need to intersect the axis aligned region of a spatial
  *    decomposition of volume data with various other regions.
  *    It uses the algorithm from Graphics Gems IV, page 81.
  *

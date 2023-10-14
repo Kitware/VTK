@@ -76,7 +76,7 @@ int TestBoxPlot(int, char*[])
   labels->SetValue(4, "Param 4");
   chart->GetPlot(0)->SetLabels(labels);
 
-  // Manually change the color of one serie
+  // Manually change the color of one series
   double rgb[3] = { 0.5, 0.5, 0.5 };
   vtkPlotBox::SafeDownCast(chart->GetPlot(0))->SetColumnColor("P1", rgb);
 

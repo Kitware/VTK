@@ -44,7 +44,7 @@ public:
 
   ///@{
   /**
-   * This is where the VTK initializiation should be done including creating a pipeline and
+   * This is where the VTK initialization should be done including creating a pipeline and
    * attaching it to the window
    *
    * \note All VTK objects are owned by and run on the QML render thread!!  This means you CAN NOT
@@ -52,7 +52,7 @@ public:
    * dispatch_async() functions!!
    *
    * \note All VTK objects must be stored in the vtkUserData object returned from this method.
-   *       They will be destroyed if the underlaying QSGNode (which must contain all VTK objects) is
+   *       They will be destroyed if the underlying QSGNode (which must contain all VTK objects) is
    * destroyed.
    *
    * \note At any moment the QML SceneGraph can decide to delete the underlying QSGNode.

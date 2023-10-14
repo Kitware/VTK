@@ -652,7 +652,7 @@ inline void vtkStructuredAMRGridConnectivity::SetRefinementRatioAtLevel(int leve
 {
   assert("pre: RefinementRatios vector is not properly allocated" &&
     this->RefinementRatios.size() == this->NumberOfLevels);
-  assert("pre: leve is out-of-bounds!" && (level >= 0) &&
+  assert("pre: level is out-of-bounds!" && (level >= 0) &&
     (level < static_cast<int>(this->RefinementRatios.size())));
   assert("pre: invalid refinement ratio" && (r >= 2));
 
@@ -664,7 +664,7 @@ inline int vtkStructuredAMRGridConnectivity::GetRefinementRatioAtLevel(int level
 {
   assert("pre: RefinementRatios vector is not properly allocated" &&
     this->RefinementRatios.size() == this->NumberOfLevels);
-  assert("pre: leve is out-of-bounds!" && (level >= 0) &&
+  assert("pre: level is out-of-bounds!" && (level >= 0) &&
     (level < static_cast<int>(this->RefinementRatios.size())));
   assert(
     "pre: refinement ratio for level has not been set" && (this->RefinementRatios[level] >= 2));

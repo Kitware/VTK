@@ -1071,7 +1071,7 @@ int vtkOpenVDBReader::RequestData(vtkInformation* vtkNotUsed(request),
     // inside each vtkResDataLeafInformation, there is one array per requested grid
     for (const auto& gridInfo : imgDataInfo.GridsInfo)
     {
-      // instanciate the correct data array type (according to the OpenVDB grid type)
+      // instantiate the correct data array type (according to the OpenVDB grid type)
       vtkSmartPointer<vtkDataArray> dataArray = ::InstanciateVtkArrayType(gridInfo->Grid);
       if (!dataArray)
       {

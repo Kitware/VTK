@@ -684,7 +684,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       double viewport[4] = {};
       float chart3dSize[4] = { 0, 0, size.GetWidth(), size.GetHeight() };
       // stretch and squeeze the viewport in x and y directions in order
-      // to accomodate the 3D chart in the rotation phase.
+      // to accommodate the 3D chart in the rotation phase.
       viewport[0] = size.GetX() / this->Scene->GetViewWidth();
       viewport[1] = size.GetY() / this->Scene->GetViewHeight();
       viewport[2] = (size.GetX() + size.GetWidth() + this->Gutter.GetX() + this->Borders[2]) /

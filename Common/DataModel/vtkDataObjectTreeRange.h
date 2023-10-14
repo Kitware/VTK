@@ -92,7 +92,7 @@ public:
 
   friend bool operator==(const DataObjectTreeIterator& lhs, const DataObjectTreeIterator& rhs)
   {
-    // A null internal iterator means it is an 'end' sentinal.
+    // A null internal iterator means it is an 'end' sentinel.
     InternalIterator* l = lhs.Iterator;
     InternalIterator* r = rhs.Iterator;
 
@@ -136,7 +136,7 @@ protected:
   }
 
   // Note: Iterators constructed using this ctor will be considered
-  // 'end' iterators via a sentinal pattern.
+  // 'end' iterators via a sentinel pattern.
   DataObjectTreeIterator() noexcept
     : Iterator{ nullptr }
   {

@@ -260,7 +260,7 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::ToRoot()
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::ToParent()
 {
-  assert("has: valide entry" && this->LastValidEntry > 0);
+  assert("has: valid entry" && this->LastValidEntry > 0);
   assert("has: level" && this->Level > 0);
   this->LastValidEntry--;
   this->Level--;

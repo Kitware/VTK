@@ -97,7 +97,7 @@
  * does not need to be polluted with OpenGL headers/constants.
  *
  * This class replaces both vtkFrameBufferObject and vtkFrameBufferObject2
- * and contins methods from both of them. Most methods from FO2 should
+ * and contains methods from both of them. Most methods from FO2 should
  * work with this class. Just rename FBO2 to FBO and make sure to Save and
  * Restore the bindings and buffers.
  * If you have been using the old FO class, which had comments

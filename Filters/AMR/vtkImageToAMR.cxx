@@ -346,7 +346,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  // Skipping BlankCells incase amr is empty
+  // Skipping BlankCells in case amr is empty
   if (!this->CheckAbort())
   {
     vtkAMRUtilities::BlankCells(amr);

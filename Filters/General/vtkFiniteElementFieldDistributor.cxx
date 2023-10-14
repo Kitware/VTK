@@ -73,15 +73,15 @@ vtkDataArray* InitializeNewArray(
   return arr;
 }
 
-std::vector<std::string> Split(const std::string& inString, const std::string& delimeter)
+std::vector<std::string> Split(const std::string& inString, const std::string& delimiter)
 {
   std::vector<std::string> subStrings;
   std::size_t sIdx = 0;
   std::size_t eIdx = 0;
-  while ((eIdx = inString.find(delimeter, sIdx)) < inString.size())
+  while ((eIdx = inString.find(delimiter, sIdx)) < inString.size())
   {
     subStrings.emplace_back(inString.substr(sIdx, eIdx - sIdx));
-    sIdx = eIdx + delimeter.size();
+    sIdx = eIdx + delimiter.size();
   }
   if (sIdx < inString.size())
   {
@@ -398,7 +398,7 @@ public:
             const double s = refCoord[1]; //NOLINT(readability-identifier-length)
             const double t = refCoord[2]; //NOLINT(readability-identifier-length)
             const std::size_t& npts = physCoords.size() / stride;
-            assert(npts >= 8); // atleast 8 nodes in a hex. quadratic hex can have more, but we don't use them.
+            assert(npts >= 8); // at least 8 nodes in a hex. quadratic hex can have more, but we don't use them.
             (void) npts;
             int xOfst = 0, yOfst = 1, zOfst = 2;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_HEX_C1_FEMDef.hpp#L83
@@ -527,7 +527,7 @@ public:
             const double r = refCoord[0]; //NOLINT(readability-identifier-length)
             const double s = refCoord[1]; //NOLINT(readability-identifier-length)
             const std::size_t& npts = physCoords.size() / stride;
-            assert(npts >= 3); // atleast 3 nodes in a triangle. quadratic triangle can have more, but we don't use them.
+            assert(npts >= 3); // at least 3 nodes in a triangle. quadratic triangle can have more, but we don't use them.
             (void) npts;
             int xOfst = 0, yOfst = 1;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_QUAD_C1_FEMDef.hpp#L78
@@ -607,7 +607,7 @@ public:
           // clang-format off
           jacFunc = [](const double vtkNotUsed(refCoord)[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
             const std::size_t& npts = physCoords.size() / stride;
-            assert(npts >= 4); // atleast 4 nodes in a tet. quad tet can have more, but we don't use them.
+            assert(npts >= 4); // at least 4 nodes in a tet. quad tet can have more, but we don't use them.
             (void) npts;
             int xOfst = 0, yOfst = 1, zOfst = 2;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_TET_C1_FEMDef.hpp#L79
@@ -695,7 +695,7 @@ public:
           // clang-format off
           jacFunc = [](const double vtkNotUsed(refCoord)[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
             const std::size_t& npts = physCoords.size() / stride;
-            assert(npts >= 3); // atleast 3 nodes in a triangle. quadratic triangle can have more, but we don't use them.
+            assert(npts >= 3); // at least 3 nodes in a triangle. quadratic triangle can have more, but we don't use them.
             (void) npts;
             int xOfst = 0, yOfst = 1;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_TRI_C1_FEMDef.hpp#L78
@@ -777,7 +777,7 @@ public:
             const double s = refCoord[1]; //NOLINT(readability-identifier-length)
             const double t = refCoord[2]; //NOLINT(readability-identifier-length)
             const std::size_t& npts = physCoords.size() / stride;
-            assert(npts >= 6); // atleast 6 nodes in a wedge. quadratic wedge can have more, but we don't use them.
+            assert(npts >= 6); // at least 6 nodes in a wedge. quadratic wedge can have more, but we don't use them.
             (void) npts;
             int xOfst = 0, yOfst = 1, zOfst = 2;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_WEDGE_C1_FEMDef.hpp#L81

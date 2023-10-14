@@ -12,7 +12,7 @@
  * a unit test or VTK application is actively running. Ultimately, you can just move your mouse in
  * the render window to witness your modifications taking effect!
  *
- * Shader substitions will need to be defined in a json file. An example is provided in
+ * Shader substitutions will need to be defined in a json file. An example is provided in
  * Rendering/CellGrid/LiveGLSLDebugSample/sample.json file. If you've built VTK from source,
  * you may live edit that json file and glsl files under the LiveGLSLDebugSample directory.
  * Here is what it looks like:
@@ -39,7 +39,7 @@
  * In the sample, both substitutions are disabled. Please enable either to view it.
  * Here is detailed information about the keys:
  *
- * \li \c Substitions: This is a list of maps that contain information about a substitution.
+ * \li \c Substitutions: This is a list of maps that contain information about a substitution.
  *
  * \li \c Target: This must be a string of type "//VTK::Feature::[Dec,Impl]".
  * These are found in the shader templates.
@@ -54,8 +54,8 @@
  *
  * \li \c FileNameIsAbsolute: Whether 'FileName' is an absolute path or relative to the json file.
  *
- * \li \c Enabled: When enabled is true, the mod will perform the substition, otherwise, the
- * substition is not applied.
+ * \li \c Enabled: When enabled is true, the mod will perform the substitution, otherwise, the
+ * substitution is not applied.
  */
 
 #ifndef vtkGLSLModPixelDebugger_h

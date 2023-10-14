@@ -449,14 +449,14 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet* shape, vtkFloatArray*
   }
 
   // Local variant of b for fast access.
-  double* bloc = NewVector(bsize);
+  double* block = NewVector(bsize);
 
   const int n = output->GetNumberOfPoints();
 
   if (shape->GetNumberOfPoints() != n)
   {
     vtkErrorMacro(<< "Input shape does not have the correct number of points");
-    DeleteVector(bloc);
+    DeleteVector(block);
     return;
   }
 
@@ -474,12 +474,12 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet* shape, vtkFloatArray*
 
   for (i = 0; i < bsize; i++)
   {
-    bloc[i] = 0;
+    block[i] = 0;
 
     // Project the shape onto eigenvector i
     for (j = 0; j < n * 3; j++)
     {
-      bloc[i] += shapevec[j] * evecMat2[j][i];
+      block[i] += shapevec[j] * evecMat2[j][i];
     }
   }
 
@@ -488,13 +488,13 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet* shape, vtkFloatArray*
   for (i = 0; i < bsize; i++)
   {
     if (this->Evals->GetValue(i))
-      b->SetValue(i, bloc[i] / sqrt(this->Evals->GetValue(i)));
+      b->SetValue(i, block[i] / sqrt(this->Evals->GetValue(i)));
     else
       b->SetValue(i, 0);
   }
 
   DeleteVector(shapevec);
-  DeleteVector(bloc);
+  DeleteVector(block);
 }
 
 //------------------------------------------------------------------------------

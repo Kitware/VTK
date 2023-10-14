@@ -3,7 +3,7 @@ It needs to be imported specifically in order to work:
 
 >>> import vtkmodules.util.pickle_support
 
-Once imported however, the pickling of data objects is very straighforward. Here is an
+Once imported however, the pickling of data objects is very straightforward. Here is an
 example using poly data:
 
 >>> sphereSrc = vtkSphereSource()
@@ -57,7 +57,7 @@ def unserialize_VTK_data_object(state):
 
 def serialize_VTK_data_object(data_object):
     """Returns a tuple with a reference to the unpickling function and a state dictionary
-    with entires:
+    with entries:
       - Type : a string with the class name for the data object
       - Serialized : a numpy array with the serialized data object
 

@@ -200,7 +200,7 @@ int TestCompositePolyDataMapperOverrideLUT(int argc, char* argv[])
   attributes->SetBlockScalarVisibility(polydata7, false);
   // polydata8: interpolate scalars before mapping. shows rainbow colors.
   attributes->SetBlockInterpolateScalarsBeforeMapping(polydata8, true);
-  // polydata8: interpolate scalars before mapping. uses overriden lookup table.
+  // polydata8: interpolate scalars before mapping. uses overridden lookup table.
   attributes->SetBlockLookupTable(polydata9, lutE);
   attributes->SetBlockInterpolateScalarsBeforeMapping(polydata9, true);
 

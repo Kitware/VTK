@@ -86,7 +86,7 @@ public:
    * and then sort them only once. Much faster than using
    * AddTuple for each tuple.
    * t is the time values array, nb is the size of time values array,
-   * data is the array containings tuples to add (by default AOS ordering)
+   * data is the array containing tuples to add (by default AOS ordering)
    */
   void FillFromData(int nb, double* t, double** data, bool isSOADataArray = false);
 

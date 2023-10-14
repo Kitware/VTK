@@ -294,7 +294,7 @@ static bool vtkResliceCursorPickerIsDifferentSanityCheck(const double a[3], cons
 }
 
 //------------------------------------------------------------------------------
-// Transform the reslice plane onto the co-ordinate system its displayed in.
+// Transform the reslice plane onto the coordinate system its displayed in.
 //
 void vtkResliceCursorPicker::TransformPlane()
 {

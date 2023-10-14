@@ -193,7 +193,7 @@ struct vtkThreadedCallbackQueue::InvokerImpl::InvokerHelper<void>
 };
 
 //=============================================================================
-// For lamdas or std::function
+// For lambdas or std::function
 template <class ReturnT, class... ArgsT>
 struct vtkThreadedCallbackQueue::Signature<ReturnT(ArgsT...)>
 {

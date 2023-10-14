@@ -324,15 +324,15 @@ void vtkCameraInterpolator::SetParallelScaleInterpolator(vtkTupleInterpolator* p
 }
 
 //------------------------------------------------------------------------------
-void vtkCameraInterpolator::SetViewAngleInterpolator(vtkTupleInterpolator* vai)
+void vtkCameraInterpolator::SetViewAngleInterpolator(vtkTupleInterpolator* interpolator)
 {
-  if (this->ViewAngleInterpolator != vai)
+  if (this->ViewAngleInterpolator != interpolator)
   {
     if (this->ViewAngleInterpolator != nullptr)
     {
       this->ViewAngleInterpolator->Delete();
     }
-    this->ViewAngleInterpolator = vai;
+    this->ViewAngleInterpolator = interpolator;
     if (this->ViewAngleInterpolator != nullptr)
     {
       this->ViewAngleInterpolator->Register(this);

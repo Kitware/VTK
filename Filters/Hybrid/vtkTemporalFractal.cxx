@@ -982,7 +982,7 @@ void vtkTemporalFractal::AddTestArray(vtkHierarchicalBoxDataSet* output)
       int x, y, z;
       int ext[6];
       grid->GetExtent(ext);
-      // we need cell extents bu we just get point extents
+      // we need cell extents but we just get point extents
       if (ext[5] > 0)
       {
         --ext[5];
@@ -1047,7 +1047,7 @@ void vtkTemporalFractal::AddVectorArray(vtkHierarchicalBoxDataSet* output)
       int x, y, z;
       int ext[6];
       grid->GetExtent(ext);
-      // we need cell extents bu we just get point extents
+      // we need cell extents but we just get point extents
       if (ext[5] > 0)
       {
         --ext[5];

@@ -179,7 +179,7 @@ bool TestParseHelper(const std::string& str, bool expectedSuccess, T expectedVal
   }
   else
   {
-    Check(count == 0, "Expected failure but parsing succeded");
+    Check(count == 0, "Expected failure but parsing succeeded");
     Check(value == T{}, "Output variable must not be modified in case of failure");
   }
 
@@ -200,7 +200,7 @@ static bool TestIntParse()
   Check(TestIntParseFor<signed long long>(), "Test failed");
   Check(TestIntParseFor<unsigned long long>(), "Test failed");
 
-  // Check on 16-bits intergers, assume it does work for any size < intmax_t
+  // Check on 16-bits integers, assume it does work for any size < intmax_t
   Check(TestIntParseLimitHelper<std::int16_t>(32768, std::ios_base::dec), "Test failed");
   Check(TestIntParseLimitHelper<std::int16_t>(-32769, std::ios_base::dec), "Test failed");
   Check(TestIntParseLimitHelper<std::int16_t>(65536, std::ios_base::oct), "Test failed");

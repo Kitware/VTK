@@ -250,7 +250,7 @@ protected:
    * world coordinates), the new display position of the handle center is
    * populated into requestedDisplayPos. This is again only a request for the
    * new display position. It is up to the point placer to deduce the
-   * appropriate world co-ordinates that this display position will map into.
+   * appropriate world coordinates that this display position will map into.
    * The placer may even disallow such a movement.
    * If "SmoothMotion" is OFF, the returned requestedDisplayPos is the same
    * as the event position, ie the location of the mouse cursor. If its OFF,

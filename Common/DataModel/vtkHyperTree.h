@@ -458,7 +458,7 @@ public:
 
   /**
    * Return if a vertice identified by index in tree as a terminal node.
-   * For this, all childrens mus be all leaves.
+   * For this, all children must be all leaves.
    * \pre not_valid_index
    * \pre not_valid_child_index
    */
@@ -533,7 +533,7 @@ protected:
   // Storage of pre-computed per-level cell scales
   // In hypertree grid, one description by hypertree.
   // In Uniform hypertree grid, one description by hypertree grid
-  // (all cells, differents hypertree, are identicals by level).
+  // (all cells, different hypertree, are identical by level).
   mutable std::shared_ptr<vtkHyperTreeGridScales> Scales;
 
 private:

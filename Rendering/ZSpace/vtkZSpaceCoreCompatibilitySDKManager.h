@@ -33,7 +33,7 @@ VTK_ABI_NAMESPACE_BEGIN
  */
 struct zSpaceCoreCompatEntryPoints
 {
-  // Use the zSpace Core Compatibilty API function name reflection macro to
+  // Use the zSpace Core Compatibility API function name reflection macro to
   // auto-generate function pointer members for all zSpace Core Compatibility
   // API entry point functions.
 
@@ -67,7 +67,7 @@ public:
   void UpdateViewport() override;
 
   /**
-   * Update the position of the stylus and head trakers.
+   * Update the position of the stylus and head trackers.
    */
   void UpdateTrackers() override;
 
@@ -89,7 +89,7 @@ public:
 
   ///@{
   /**
-   * Notify the zSpace SDK for the begining/end of a frame.
+   * Notify the zSpace SDK for the beginning/end of a frame.
    */
   void BeginFrame() override;
   void EndFrame() override;
@@ -97,7 +97,7 @@ public:
 
   /**
    * Set the render windwow the manager makes viewport computations
-   * from. Overriden to pass the related Windows window handle to
+   * from. Overridden to pass the related Windows window handle to
    * the SDK.
    */
   void SetRenderWindow(vtkRenderWindow*) override;

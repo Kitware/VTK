@@ -172,8 +172,8 @@ int vtkOggTheoraWriterInternal::Start()
     // make sure there's nothing left laying around...
     delete[] this->thImage[i].data;
     // allocate the image plane
-    size_t siz = this->thImage[i].width * this->thImage[i].height;
-    this->thImage[i].data = new unsigned char[siz];
+    size_t size = this->thImage[i].width * this->thImage[i].height;
+    this->thImage[i].data = new unsigned char[size];
   }
 
   // thInfo is no longer needed

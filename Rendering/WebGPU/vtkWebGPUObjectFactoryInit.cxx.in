@@ -1,7 +1,7 @@
 // defaults
 int use_opengl = 1;
 int use_webgpu = 0;
-// Query the enviromental for backend to use.
+// Query the environmental for backend to use.
 if (const char* p = std::getenv("VTK_GRAPHICS_BACKEND"))
 {
   const std::string backend(p);
@@ -20,7 +20,7 @@ if (const char* p = std::getenv("VTK_GRAPHICS_BACKEND"))
     vtkLogF(ERROR, "Unknown backend '%s', using default OPENGL", backend.c_str());
   }
 }
-// register the factory before modyfing the overrrides so it is found below
+// register the factory before modyfing the overrides so it is found below
 vtkRenderingWebGPUObjectFactory* renderingFactory = vtkRenderingWebGPUObjectFactory::New();
 if (renderingFactory)
 {

@@ -18,7 +18,7 @@
  * However, it MUST be consistent between the two lists.
  *
  * Unlike other kinds of cells (e.g. vtkVoxel), the topology is not directly deduced from points
- * coordinates or point IDs ordering; it must be explicitely defined by providing a list of faces
+ * coordinates or point IDs ordering; it must be explicitly defined by providing a list of faces
  * (see the SetFaces() method). Each face is represented as a sequence of global point Ids.
  *
  * Once point coordinates, point IDs and faces are defined, the Initialize() method should be called
@@ -35,7 +35,7 @@
  * //     `. |    `.|
  * //     12`+------+ 14
  * //
- * // (Global IDs are arbitrarily choosen between 8 and 15)
+ * // (Global IDs are arbitrarily chosen between 8 and 15)
  *
  * // Insert point coordinates
  * polyhedron->GetPoints()->SetNumberOfPoints(8);
@@ -77,7 +77,7 @@
  * @section Specifications Specifications
  *
  * Polyhedrons described by this class must conform to some criteria in order to avoid errors and
- * garantee good results in terms of visualization and processing.
+ * guarantee good results in terms of visualization and processing.
  *
  * These specifications are described as follows. Polyhedrons must:
  * - be watertight : the faces describing the polyhedron should define an enclosed volume
@@ -100,7 +100,7 @@
  *
  * @section Limitations Limitations
  *
- * The class does not require the polyhedron to be convex. However, the suport of concave
+ * The class does not require the polyhedron to be convex. However, the support of concave
  * polyhedrons is currently limited. Concavity can lead to bad results with some filters,
  * including:
  * - Contour: the contour (surface) can be constructed outside of the cell,

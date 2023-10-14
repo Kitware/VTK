@@ -144,7 +144,7 @@ int yylex(void);
 FileInfo* data = NULL;
 int parseDebug;
 
-/* globals for cacheing directory listings */
+/* globals for caching directory listings */
 static StringCache system_strings = { 0, 0, 0, 0 };
 static SystemInfo system_cache = { &system_strings, NULL, NULL };
 

@@ -26,7 +26,7 @@ If no harmonic is specified, the source will generate
 null harmonic values. You can generate default harmonics
 with the `ResetHarmonics` function though.
 
-If no time value is specifed, the source will not
+If no time value is specified, the source will not
 generate time steps. You can generate default ones with
 the reset `ResetTimeStepValues` function though.
 
