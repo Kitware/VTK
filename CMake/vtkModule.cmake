@@ -3119,14 +3119,14 @@ function (_vtk_module_standard_includes)
   target_include_directories("${_vtk_standard_includes_TARGET}"
     ${_vtk_standard_includes_system}
     "${_vtk_standard_includes_visibility}"
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>")
 
   if (_vtk_build_INSTALL_HEADERS AND _vtk_standard_includes_HEADERS_DESTINATION AND NOT _vtk_add_module_NO_INSTALL)
     target_include_directories("${_vtk_standard_includes_TARGET}"
       ${_vtk_standard_includes_system}
       "${_vtk_standard_includes_visibility}"
-      $<INSTALL_INTERFACE:${_vtk_standard_includes_HEADERS_DESTINATION}>)
+      "$<INSTALL_INTERFACE:${_vtk_standard_includes_HEADERS_DESTINATION}>")
   endif ()
 endfunction ()
 
