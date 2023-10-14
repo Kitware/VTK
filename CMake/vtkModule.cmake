@@ -3868,12 +3868,56 @@ function (vtk_module_add_module name)
   endif ()
 
   if (NOT _vtk_add_module_NO_INSTALL)
-    vtk_module_install_headers(
-      ${_vtk_add_module_use_relative_paths}
-      FILES   ${_vtk_add_module_HEADERS}
-              ${_vtk_add_module_NOWRAP_HEADERS}
-              ${_vtk_add_module_TEMPLATES}
-      SUBDIR  "${_vtk_add_module_HEADERS_SUBDIR}")
+    # Warn if `HEADER_DIRECTORIES` is not specified and directories are found
+    # in the source listings. But ignore third party packages; they have other
+    # mechanisms.
+    get_property(_vtk_add_module_is_third_party GLOBAL
+      PROPERTY  "_vtk_module_${_vtk_build_module}_third_party")
+    if (NOT _vtk_add_module_HEADER_DIRECTORIES)
+      foreach (_vtk_add_module_header_path IN LISTS _vtk_add_module_HEADERS _vtk_add_module_NOWRAP_HEADERS _vtk_add_module_TEMPLATES)
+        set(_vtk_add_module_header_path_orig "${_vtk_add_module_header_path}")
+        set(_vtk_add_module_header_path_base "source")
+        if (IS_ABSOLUTE "${_vtk_add_module_header_path}")
+          file(RELATIVE_PATH _vtk_add_module_header_path
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            "${_vtk_add_module_header_path}")
+          if (_vtk_add_module_header_path MATCHES "^\\.\\./")
+            message(AUTHOR_WARNING
+              "The `${_vtk_add_module_header_path_orig}` source appears to "
+              "be outside of the module's source or binary directory. "
+              "Please relocate the source to be underneath one of the two "
+              "directories.")
+            continue ()
+          endif ()
+          set(_vtk_add_module_header_path_base "binary")
+        endif ()
+        if (_vtk_add_module_header_path MATCHES "/")
+          message(AUTHOR_WARNING
+            "The `${_vtk_add_module_header_path_orig}` source contains a "
+            "directory between the ${_vtk_add_module_header_path_base} "
+            "directory and its location. Newer CMake prefers to use "
+            "`FILE_SET` installation which will keep this directory "
+            "structure within the install tree. This module likely has a "
+            "custom include directory setting to support consuming this "
+            "header. Please update to support `HEADER_DIRECTORIES` as "
+            "needed.")
+        endif ()
+      endforeach ()
+    endif ()
+
+    # XXX(cmake-3.23): file sets
+    if (CMAKE_VERSION VERSION_LESS "3.23" OR
+        # XXX(cmake-3.19): Using a non-`INTERACE` `FILE_SET`s with `INTERFACE`
+        # targets is not yet supported.
+        (CMAKE_VERSION VERSION_LESS "3.19" AND
+         _vtk_add_module_HEADER_ONLY))
+      vtk_module_install_headers(
+        ${_vtk_add_module_use_relative_paths}
+        FILES   ${_vtk_add_module_HEADERS}
+                ${_vtk_add_module_NOWRAP_HEADERS}
+                ${_vtk_add_module_TEMPLATES}
+        SUBDIR  "${_vtk_add_module_HEADERS_SUBDIR}")
+    endif ()
   endif ()
 
   set(_vtk_add_module_type)
@@ -3916,6 +3960,18 @@ function (vtk_module_add_module name)
     endif ()
 
     add_library("${_vtk_add_module_real_target}" INTERFACE)
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_templates
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_TEMPLATES})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_headers
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_HEADERS})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_nowrap_headers
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_NOWRAP_HEADERS})
 
     if (NOT _vtk_build_module STREQUAL _vtk_add_module_real_target)
       add_library("${_vtk_build_module}" ALIAS
@@ -3962,12 +4018,25 @@ function (vtk_module_add_module name)
 
     target_sources("${_vtk_add_module_real_target}"
       PRIVATE
-        ${_vtk_add_module_SOURCES}
-        ${_vtk_add_module_TEMPLATES}
-        ${_vtk_add_module_PRIVATE_TEMPLATES}
-        ${_vtk_add_module_HEADERS}
-        ${_vtk_add_module_NOWRAP_HEADERS}
-        ${_vtk_add_module_PRIVATE_HEADERS})
+        ${_vtk_add_module_SOURCES})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_private_templates
+      FILES ${_vtk_add_module_PRIVATE_TEMPLATES})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_templates
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_TEMPLATES})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_private_headers
+      FILES ${_vtk_add_module_PRIVATE_HEADERS})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_headers
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_HEADERS})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_nowrap_headers
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_NOWRAP_HEADERS})
 
     if (_vtk_build_UTILITY_TARGET)
       target_link_libraries("${_vtk_add_module_real_target}"
@@ -4129,10 +4198,14 @@ function (vtk_module_add_module name)
           "${_vtk_add_module_private_depends_forward_link}")
     endif ()
   endif ()
-  _vtk_module_standard_includes(
-    TARGET  "${_vtk_add_module_real_target}"
-    ${_vtk_add_module_includes_interface}
-    HEADERS_DESTINATION "${_vtk_build_HEADERS_DESTINATION}")
+  # Not needed for CMake 3.23+ as FILE_SET installation handles this
+  # automatically.
+  if (CMAKE_VERSION VERSION_LESS "3.23")
+    _vtk_module_standard_includes(
+      TARGET  "${_vtk_add_module_real_target}"
+      ${_vtk_add_module_includes_interface}
+      HEADERS_DESTINATION "${_vtk_build_HEADERS_DESTINATION}")
+  endif ()
 
   vtk_module_autoinit(
     MODULES ${_vtk_add_module_depends}
@@ -4636,6 +4709,26 @@ function (_vtk_module_install target)
     endif ()
   endif ()
 
+  set(_vtk_install_file_set_args)
+  # XXX(cmake-3.23): file sets
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23")
+    set(_vtk_install_file_sets_destination "${_vtk_build_HEADERS_DESTINATION}")
+    if (_vtk_add_module_HEADERS_SUBDIR)
+      string(APPEND _vtk_install_file_sets_destination
+        "/${_vtk_add_module_HEADERS_SUBDIR}")
+    endif ()
+
+    get_property(_vtk_install_available_file_sets
+      TARGET    "${target}"
+      PROPERTY  INTERFACE_HEADER_SETS)
+    foreach (_vtk_install_file_set IN LISTS _vtk_install_available_file_sets)
+      list(APPEND _vtk_install_file_set_args
+        FILE_SET "${_vtk_install_file_set}"
+          DESTINATION "${_vtk_install_file_sets_destination}"
+          COMPONENT   "${_vtk_install_headers_component}")
+    endforeach ()
+  endif ()
+
   install(
     TARGETS             "${target}"
     ${_vtk_install_export}
@@ -4649,7 +4742,8 @@ function (_vtk_module_install target)
       NAMELINK_COMPONENT "${_vtk_build_HEADERS_COMPONENT}"
     RUNTIME
       DESTINATION "${_vtk_build_RUNTIME_DESTINATION}"
-      COMPONENT   "${_vtk_install_targets_component}")
+      COMPONENT   "${_vtk_install_targets_component}"
+    ${_vtk_install_file_set_args})
 endfunction ()
 
 #[==[.rst:
