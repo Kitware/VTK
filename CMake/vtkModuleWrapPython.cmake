@@ -1091,7 +1091,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}/py.typed")
 
       if (TARGET VTK::vtkpython)
-        set(_vtk_python_exe $<TARGET_FILE:VTK::vtkpython>)
+        set(_vtk_python_exe "$<TARGET_FILE:VTK::vtkpython>")
       else ()
         set(_vtk_python_exe "${Python3_EXECUTABLE}")
       endif ()
