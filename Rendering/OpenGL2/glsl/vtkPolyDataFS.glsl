@@ -81,6 +81,8 @@ void main()
   // Generate the normal if we are not passed in one
   //VTK::Normal::Impl
 
+  //VTK::PBR::Impl
+
   //VTK::Light::Impl
 
   //VTK::TCoord::Impl

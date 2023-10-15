@@ -35,6 +35,7 @@ set(classes
   vtkOpenGLCamera
   vtkOpenGLCellToVTKCellMap
   vtkOpenGLCompositePolyDataMapperDelegator
+  vtkOpenGLES30PolyDataMapper2D
   vtkOpenGLFXAAFilter
   vtkOpenGLFXAAPass
   vtkOpenGLFluidMapper
@@ -52,6 +53,7 @@ set(classes
   vtkOpenGLInstanceCulling
   vtkOpenGLLabeledContourMapper
   vtkOpenGLLight
+  vtkOpenGLLowMemoryPolyDataMapper
   vtkOpenGLPointGaussianMapper
   vtkOpenGLPolyDataMapper
   vtkOpenGLPolyDataMapper2D
@@ -112,6 +114,7 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 
 set(nowrap_headers
+  vtkOpenGLShaderDeclaration.h
   vtkCompositeMapperHelper2.h
 )
 
@@ -127,6 +130,13 @@ endif ()
 
 set(sources)
 set(private_headers)
+set(private_classes
+  vtkOpenGLLowMemoryCellTypeAgent
+  vtkOpenGLLowMemoryLinesAgent
+  vtkOpenGLLowMemoryPolygonsAgent
+  vtkOpenGLLowMemoryStripsAgent
+  vtkOpenGLLowMemoryVerticesAgent
+)
 
 set(shader_files
   glsl/vtkDepthOfFieldPassFS.glsl
@@ -234,19 +244,15 @@ set(opengl_overrides
 include(vtkOpenGLOptions)
 if (VTK_OPENGL_USE_GLES)
   # Add custom overrides
-  set(opengles_overrides
-    PolyDataMapper
-    PolyDataMapper2D)
-  list(APPEND classes
-    vtkOpenGLES30PolyDataMapper
-    vtkOpenGLES30PolyDataMapper2D)
-  foreach (opengles_override IN LISTS opengles_overrides)
-    vtk_object_factory_declare(
-      BASE "vtk${opengles_override}"
-      OVERRIDE "vtkOpenGLES30${opengles_override}")
-    # remove opengl override
-    list(REMOVE_ITEM opengl_overrides ${opengles_override})
-  endforeach()
+  vtk_object_factory_declare(
+    BASE "vtkPolyDataMapper"
+    OVERRIDE "vtkOpenGLLowMemoryPolyDataMapper")
+  vtk_object_factory_declare(
+    BASE "vtkPolyDataMapper2D"
+    OVERRIDE "vtkOpenGLES30PolyDataMapper2D")
+  # remove default opengl override
+  list(REMOVE_ITEM opengl_overrides PolyDataMapper)
+  list(REMOVE_ITEM opengl_overrides PolyDataMapper2D)
 endif ()
 
 # Now to see about the GPU info list.
@@ -396,6 +402,7 @@ endif ()
 
 vtk_module_add_module(VTK::RenderingOpenGL2
   CLASSES ${classes}
+  PRIVATE_CLASSES ${private_classes}
   SOURCES ${sources} ${vtk_object_factory_source}
   HEADERS ${headers}
   NOWRAP_HEADERS ${nowrap_headers}
