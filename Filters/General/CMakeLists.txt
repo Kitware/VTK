@@ -111,6 +111,7 @@ set(classes
   vtkSubPixelPositionEdgels
   vtkSubdivisionFilter
   vtkSynchronizeTimeFilter
+  vtkTableBasedClipCases
   vtkTableBasedClipDataSet
   vtkTableFFT
   vtkTableToPolyData

@@ -251,7 +251,7 @@ private:
   /**
    * This function handles the actual steps of the clipping operation.
    */
-  template <typename TGrid, typename TInputIdType>
+  template <typename TGrid, typename TInputIdType, bool InsideOut>
   vtkSmartPointer<vtkUnstructuredGrid> ClipTDataSet(
     TGrid* input, vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue);
 
