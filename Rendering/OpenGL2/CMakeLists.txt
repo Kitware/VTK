@@ -53,6 +53,7 @@ set(classes
   vtkOpenGLInstanceCulling
   vtkOpenGLLabeledContourMapper
   vtkOpenGLLight
+  vtkOpenGLLowMemoryBatchedPolyDataMapper
   vtkOpenGLLowMemoryPolyDataMapper
   vtkOpenGLPointGaussianMapper
   vtkOpenGLPolyDataMapper

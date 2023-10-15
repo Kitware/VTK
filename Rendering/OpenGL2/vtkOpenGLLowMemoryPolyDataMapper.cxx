@@ -565,7 +565,6 @@ bool vtkOpenGLLowMemoryPolyDataMapper::BindArraysToTextureBuffers(
     vtkWarningMacro(<< this->GetObjectDescription() << " does not have a vtkPolyData input.");
     return false;
   }
-  // remove all arrays that we may've bound.
   using namespace vtk::literals;
 
   const auto numPoints = mesh->GetNumberOfPoints();

@@ -4,7 +4,12 @@
 #include "vtkOpenGLCompositePolyDataMapperDelegator.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkObjectFactory.h"
+
+#ifdef GL_ES_VERSION_3_0
+#include "vtkOpenGLLowMemoryBatchedPolyDataMapper.h"
+#else
 #include "vtkOpenGLBatchedPolyDataMapper.h"
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
@@ -13,7 +18,7 @@ vtkStandardNewMacro(vtkOpenGLCompositePolyDataMapperDelegator);
 //------------------------------------------------------------------------------
 vtkOpenGLCompositePolyDataMapperDelegator::vtkOpenGLCompositePolyDataMapperDelegator()
 {
-  this->GLDelegate = vtkOpenGLBatchedPolyDataMapper::New();
+  this->GLDelegate = GLDelegateClass::New();
   this->Delegate = vtk::TakeSmartPointer(this->GLDelegate);
 }
 
