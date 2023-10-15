@@ -122,12 +122,17 @@ public:
 protected:
   /// Set any custom uniforms provided by the actor.
   void SetCustomUniforms(vtkRenderer* ren, vtkActor* a);
+  void ReadyShaderProgram(vtkRenderer* ren);
+  void PreDraw(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
+  void DrawInstancedElementsImpl(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
+  void PostDraw(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
 
   using ShaderMap = std::map<vtkShader::Type, vtkShader*>;
   struct Internal;
 
   /// Private data for this class.
   Internal* P{ nullptr };
+  vtkIdType FirstVertexId{ 0 };
   vtkIdType NumberOfInstances{ 1 };
   vtkIdType NumberOfElements{ 1 };
   int ElementType{ ElementShape::TriangleStrip };

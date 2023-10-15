@@ -186,8 +186,7 @@ bool vtkDrawTexturedElements::SetIncludeColormap(bool includeColormap)
   return true;
 }
 
-void vtkDrawTexturedElements::DrawInstancedElements(
-  vtkRenderer* ren, vtkActor* actor, vtkMapper* mapper)
+void vtkDrawTexturedElements::ReadyShaderProgram(vtkRenderer* ren)
 {
   auto* renderWindow = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   if (!renderWindow)
@@ -195,63 +194,64 @@ void vtkDrawTexturedElements::DrawInstancedElements(
     vtkWarningWithObjectMacro(ren, "Renderer has no OpenGL render-window.");
     return;
   }
-
-  // Turn off face culling (especially when HasTranslucentPolygonalGeometry()
-  // returns true, since this will break depth peeling/OIT).
-  vtkOpenGLState* ostate = renderWindow->GetState();
-  vtkOpenGLState::ScopedglEnableDisable cfsaver(ostate, GL_CULL_FACE);
-  ostate->vtkglDisable(GL_CULL_FACE);
-  switch (this->ElementType)
-  {
-    case ElementShape::Point:
-#ifndef GL_ES_VERSION_3_0
-      ostate->vtkglPointSize(actor->GetProperty()->GetPointSize());
-#endif
-      break;
-    case ElementShape::Line:
-    case ElementShape::LineStrip:
-#ifndef GL_ES_VERSION_3_0
-      ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
-#endif
-      break;
-    default:
-      break;
-  }
-
   this->ShaderProgram = renderWindow->GetShaderCache()->ReadyShaderProgram(this->Shaders);
   vtkOpenGLStaticCheckErrorMacro("Failed readying shader program");
+}
+
+void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapper* mapper)
+{
   if (this->ShaderProgram == nullptr)
   {
     // can be nullptr if glsl failed to compile or link
     return;
   }
-
-  // Determine number of invocations of the vertex shader.
-  this->P->Count = static_cast<GLsizei>(this->NumberOfElements);
+  auto* renderWindow = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  if (!renderWindow)
+  {
+    vtkWarningWithObjectMacro(ren, "Renderer has no OpenGL render-window.");
+    return;
+  }
+  // Turn off face culling (especially when HasTranslucentPolygonalGeometry()
+  // returns true, since this will break depth peeling/OIT).
+  vtkOpenGLState* ostate = renderWindow->GetState();
+  ostate->vtkglDisable(GL_CULL_FACE);
+#ifndef GL_ES_VERSION_3_0
+  // For GLES 3.0, none of these are supported. It is recommended to set gl_PointSize in shader
+  // and render wide lines using instanced rendering.
   switch (this->ElementType)
   {
     case ElementShape::Point:
-      this->P->Primitive = GL_POINTS;
+      ostate->vtkglPointSize(actor->GetProperty()->GetPointSize());
       break;
     case ElementShape::Line:
-      this->P->Primitive = GL_LINES;
-      this->P->Count *= 2;
-      break;
     case ElementShape::LineStrip:
+      ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
+      break;
+    default:
+      break;
+  }
+#endif
+
+  // Determine primitive type number of invocations of the vertex shader.
+  switch (this->ElementType)
+  {
+    case vtkDrawTexturedElements::ElementShape::Point:
+      this->P->Primitive = GL_POINTS;
+      break;
+    case vtkDrawTexturedElements::ElementShape::Line:
+      this->P->Primitive = GL_LINES;
+      break;
+    case vtkDrawTexturedElements::ElementShape::LineStrip:
       this->P->Primitive = GL_LINE_STRIP;
-      ++this->P->Count;
       break;
-    case ElementShape::Triangle:
+    case vtkDrawTexturedElements::ElementShape::Triangle:
       this->P->Primitive = GL_TRIANGLES;
-      this->P->Count *= 3;
       break;
-    case ElementShape::TriangleStrip:
+    case vtkDrawTexturedElements::ElementShape::TriangleStrip:
       this->P->Primitive = GL_TRIANGLE_STRIP;
-      this->P->Count += 2;
       break;
-    case ElementShape::TriangleFan:
+    case vtkDrawTexturedElements::ElementShape::TriangleFan:
       this->P->Primitive = GL_TRIANGLE_FAN;
-      this->P->Count += 2;
       break;
     default:
     {
@@ -260,7 +260,6 @@ void vtkDrawTexturedElements::DrawInstancedElements(
       break;
     }
   }
-
   if (this->IncludeColormap)
   {
     // Upload the colormap (or create one if none exists).
@@ -293,6 +292,9 @@ void vtkDrawTexturedElements::DrawInstancedElements(
   // I. Upload data to texture objects as needed.
   for (auto& entry : this->Arrays)
   {
+#ifdef vtkDrawTexturedElements_DEBUG
+    std::cout << "Attempt to upload \"" << entry.first.Data() << "\"\n";
+#endif
     entry.second.Upload(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
   }
   // II. Activate each texture (bind it).
@@ -340,30 +342,25 @@ void vtkDrawTexturedElements::DrawInstancedElements(
   // Add custom uniforms provided by the actor's shader property.
   this->SetCustomUniforms(ren, actor);
 
-  auto instances = static_cast<GLsizei>(this->NumberOfInstances);
-  vtkOpenGLStaticCheckErrorMacro("Just before draw instanced");
-
   // Bind the (null) VAO and the IBO
   this->VAO->Bind();
   vtkOpenGLStaticCheckErrorMacro("Failed after binding VAO.");
-  // Render the element instances:
-#ifdef GL_ES_VERSION_3_0
-  glDrawArraysInstanced(this->P->Primitive, 0, this->P->Count, instances);
-#else
-  if (GLEW_VERSION_3_1)
+}
+
+void vtkDrawTexturedElements::PostDraw(vtkRenderer* ren, vtkActor*, vtkMapper*)
+{
+  if (this->ShaderProgram == nullptr)
   {
-    glDrawArraysInstanced(this->P->Primitive, 0, this->P->Count, instances);
+    // can be nullptr if glsl failed to compile or link
+    return;
   }
-  else if (GL_ARB_instanced_arrays)
+  auto* renderWindow = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  if (!renderWindow)
   {
-    glDrawArraysInstancedARB(this->P->Primitive, 0, this->P->Count, instances);
+    vtkWarningWithObjectMacro(ren, "Renderer has no OpenGL render-window.");
+    return;
   }
-  else
-  {
-    vtkErrorWithObjectMacro(ren, "No support for glDrawArraysInstanced.");
-  }
-#endif
-  vtkOpenGLStaticCheckErrorMacro("Just after draw");
+
 #if 1
   for (const auto& entry : this->Arrays)
   {
@@ -374,6 +371,79 @@ void vtkDrawTexturedElements::DrawInstancedElements(
 
   this->VAO->Release();
   this->ColorTextureGL->PostRender(ren);
+
+  // Turn off face culling (especially when HasTranslucentPolygonalGeometry()
+  // returns true, since this will break depth peeling/OIT).
+  vtkOpenGLState* ostate = renderWindow->GetState();
+  ostate->vtkglEnable(GL_CULL_FACE);
+}
+
+void vtkDrawTexturedElements::DrawInstancedElementsImpl(vtkRenderer* ren, vtkActor*, vtkMapper*)
+{
+  if (this->ShaderProgram == nullptr)
+  {
+    // can be nullptr if glsl failed to compile or link
+    return;
+  }
+
+  // Determine number of invocations of the vertex shader.
+  this->P->Count = static_cast<GLsizei>(this->NumberOfElements);
+  switch (this->ElementType)
+  {
+    case vtkDrawTexturedElements::ElementShape::Point:
+      break;
+    case vtkDrawTexturedElements::ElementShape::Line:
+      this->P->Count *= 2;
+      break;
+    case vtkDrawTexturedElements::ElementShape::LineStrip:
+      ++this->P->Count;
+      break;
+    case vtkDrawTexturedElements::ElementShape::Triangle:
+      this->P->Count *= 3;
+      break;
+    case vtkDrawTexturedElements::ElementShape::TriangleStrip:
+      this->P->Count += 2;
+      break;
+    case vtkDrawTexturedElements::ElementShape::TriangleFan:
+      this->P->Count += 2;
+      break;
+    default:
+    {
+      // vtkErrorMacro("Invalid element type " << this->ElementType << ".");
+      vtkGenericWarningMacro("Invalid element type " << this->ElementType << ".");
+      break;
+    }
+  }
+  auto instances = static_cast<GLsizei>(this->NumberOfInstances);
+  vtkOpenGLStaticCheckErrorMacro("Just before draw instanced");
+  // Render the element instances:
+#ifdef GL_ES_VERSION_3_0
+  (void)ren;
+  glDrawArraysInstanced(this->P->Primitive, this->FirstVertexId, this->P->Count, instances);
+#else
+  if (GLEW_VERSION_3_1)
+  {
+    glDrawArraysInstanced(this->P->Primitive, this->FirstVertexId, this->P->Count, instances);
+  }
+  else if (GL_ARB_instanced_arrays)
+  {
+    glDrawArraysInstancedARB(this->P->Primitive, this->FirstVertexId, this->P->Count, instances);
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(ren, "No support for glDrawArraysInstanced.");
+  }
+#endif
+  vtkOpenGLStaticCheckErrorMacro("Just after draw");
+}
+
+void vtkDrawTexturedElements::DrawInstancedElements(
+  vtkRenderer* ren, vtkActor* actor, vtkMapper* mapper)
+{
+  this->ReadyShaderProgram(ren);
+  this->PreDraw(ren, actor, mapper);
+  this->DrawInstancedElementsImpl(ren, actor, mapper);
+  this->PostDraw(ren, actor, mapper);
 }
 
 void vtkDrawTexturedElements::ReleaseResources(vtkWindow* window)
