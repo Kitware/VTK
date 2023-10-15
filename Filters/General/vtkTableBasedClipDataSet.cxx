@@ -387,11 +387,13 @@ struct EvaluatePoints
 {
   vtkDoubleArray* Scalars;
   double IsoValue;
-  bool InsideOut;
   vtkIdType NumberOfInputPoints;
   vtkTableBasedClipDataSet* Filter;
 
   vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> PointsMap;
+
+  const std::array<TInputIdType, 2> InsideOutValues;
+
   TableBasedPointBatches PointBatches;
   TInputIdType NumberOfKeptPoints;
 
@@ -399,9 +401,9 @@ struct EvaluatePoints
     vtkTableBasedClipDataSet* filter)
     : Scalars(scalars)
     , IsoValue(isoValue)
-    , InsideOut(insideOut)
     , NumberOfInputPoints(scalars->GetNumberOfTuples())
     , Filter(filter)
+    , InsideOutValues({ { insideOut ? 1 : -1, insideOut ? -1 : 1 } })
   {
     // initialize batches
     this->PointBatches.Initialize(this->NumberOfInputPoints, batchSize);
@@ -417,6 +419,7 @@ struct EvaluatePoints
     const auto& scalars = vtk::DataArrayValueRange<1>(this->Scalars);
     auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
     vtkIdType pointId;
+    double grdDiff;
 
     const bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
@@ -434,8 +437,8 @@ struct EvaluatePoints
       for (pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
       {
         // Outside points are marked with -1, others with 1
-        pointsMap[pointId] = this->InsideOut ? (scalars[pointId] - this->IsoValue >= 0.0 ? -1 : 1)
-                                             : (scalars[pointId] - this->IsoValue >= 0.0 ? 1 : -1);
+        grdDiff = scalars[pointId] - this->IsoValue;
+        pointsMap[pointId] = this->InsideOutValues[grdDiff >= 0.0];
         batchNumberOfPoints += (pointsMap[pointId] > 0);
       }
     }
@@ -456,7 +459,8 @@ struct EvaluatePoints
     vtkSMPTools::For(0, this->PointBatches.GetNumberOfBatches(),
       [&](vtkIdType beginBatchId, vtkIdType endBatchId) {
         vtkIdType pointId;
-        TInputIdType offset;
+        TInputIdType pointsMapValues[2] = { -1 /*always the same*/, 0 /*offset*/ };
+        bool isKept;
 
         const bool isFirst = vtkSMPTools::GetSingleThread();
         for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
@@ -470,13 +474,12 @@ struct EvaluatePoints
             break;
           }
           TableBasedPointBatch& batch = this->PointBatches[batchId];
-          offset = static_cast<TInputIdType>(batch.Data.PointsOffset);
+          pointsMapValues[1] = static_cast<TInputIdType>(batch.Data.PointsOffset);
           for (pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
           {
-            if (pointsMap[pointId] > 0)
-            {
-              pointsMap[pointId] = offset++;
-            }
+            isKept = pointsMap[pointId] > 0;
+            pointsMap[pointId] = pointsMapValues[isKept];
+            pointsMapValues[1] += isKept;
           }
         }
       });
