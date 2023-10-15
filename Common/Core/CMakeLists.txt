@@ -354,6 +354,7 @@ set(headers
   vtkArrayIteratorIncludes.h
   vtkAssume.h
   vtkAutoInit.h
+  vtkBatch.h
   vtkBuffer.h
   vtkCompiler.h
   vtkDataArrayIteratorMacro.h
