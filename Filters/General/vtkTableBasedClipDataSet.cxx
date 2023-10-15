@@ -340,7 +340,7 @@ namespace // begin anonymous namespace
 //------------------------------------------------------------------------------
 // Extract the clipped cells is a 4-step process
 // 1) Determine which input points will be kept using scalars and calculate
-//    numberOfKeptPoints, and pointsMap.
+//    pointBatches, numberOfKeptPoints, and pointsMap.
 //    1) If an implicit function is provided instead of scalars,
 //       then the scalars need to be evaluated first.
 // 2) Evaluate the input cells and calculate connectivitySize, numberOfOutputCells
@@ -348,68 +348,138 @@ namespace // begin anonymous namespace
 // 3) Extract cells and calculate centroids, types, cell array, cell data.
 // 4) Extract points and point data.
 
+//-----------------------------------------------------------------------------
+// Keep track of output information within each batch of points - this
+// information is eventually rolled up into offsets iso that separate threads
+// know where to write their data. We need to know how many total points are kept.
+struct TableBasedPointBatchData
+{
+  // In EvaluatePoints::operator() this is used as an accumulator
+  // in EvaluatePoints::Reduce() this is changed to an offset
+  // This is done to reduce memory footprint.
+  vtkIdType PointsOffset;
+
+  TableBasedPointBatchData()
+    : PointsOffset(0)
+  {
+  }
+  ~TableBasedPointBatchData() = default;
+  TableBasedPointBatchData& operator+=(const TableBasedPointBatchData& other)
+  {
+    this->PointsOffset += other.PointsOffset;
+    return *this;
+  }
+  TableBasedPointBatchData operator+(const TableBasedPointBatchData& other) const
+  {
+    TableBasedPointBatchData result = *this;
+    result += other;
+    return result;
+  }
+};
+using TableBasedPointBatch = vtkBatch<TableBasedPointBatchData>;
+using TableBasedPointBatches = vtkBatches<TableBasedPointBatchData>;
+
+//-----------------------------------------------------------------------------
+// Determine which input points will be kept using scalars, calculate
+// pointBatchInfo, numberOfKeptPoints, and pointsMap.
 template <typename TInputIdType>
-struct EvaluatePointsWithScalarArray
+struct EvaluatePoints
 {
   vtkDoubleArray* Scalars;
   double IsoValue;
   bool InsideOut;
-
-  vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> PointsMap;
-  TInputIdType NumberOfKeptPoints;
+  vtkIdType NumberOfInputPoints;
   vtkTableBasedClipDataSet* Filter;
 
-  EvaluatePointsWithScalarArray(
-    vtkDoubleArray* scalars, double isoValue, bool insideOut, vtkTableBasedClipDataSet* filter)
+  vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> PointsMap;
+  TableBasedPointBatches PointBatches;
+  TInputIdType NumberOfKeptPoints;
+
+  EvaluatePoints(vtkDoubleArray* scalars, double isoValue, bool insideOut, unsigned int batchSize,
+    vtkTableBasedClipDataSet* filter)
     : Scalars(scalars)
     , IsoValue(isoValue)
     , InsideOut(insideOut)
-    , NumberOfKeptPoints(0)
+    , NumberOfInputPoints(scalars->GetNumberOfTuples())
     , Filter(filter)
   {
+    // initialize batches
+    this->PointBatches.Initialize(this->NumberOfInputPoints, batchSize);
+
     this->PointsMap = vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>>::New();
-    this->PointsMap->SetNumberOfValues(scalars->GetNumberOfTuples());
+    this->PointsMap->SetNumberOfValues(this->NumberOfInputPoints);
   }
 
   void Initialize() {}
 
-  void operator()(vtkIdType beginPointId, vtkIdType endPointId)
+  void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
   {
     const auto& scalars = vtk::DataArrayValueRange<1>(this->Scalars);
     auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
+    vtkIdType pointId;
 
     const bool isFirst = vtkSMPTools::GetSingleThread();
-    const auto checkAbortInterval = std::min((endPointId - beginPointId) / 10 + 1, (vtkIdType)1000);
-    for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
+    for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
-      if (pointId % checkAbortInterval == 0)
+      if (isFirst)
       {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+        this->Filter->CheckAbort();
       }
-      // Outside points are marked with number < 0.
-      pointsMap[pointId] = this->InsideOut ? (scalars[pointId] - this->IsoValue >= 0.0 ? -1 : 1)
-                                           : (scalars[pointId] - this->IsoValue >= 0.0 ? 1 : -1);
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+      TableBasedPointBatch& batch = this->PointBatches[batchId];
+      auto& batchNumberOfPoints = batch.Data.PointsOffset;
+      for (pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
+      {
+        // Outside points are marked with -1, others with 1
+        pointsMap[pointId] = this->InsideOut ? (scalars[pointId] - this->IsoValue >= 0.0 ? -1 : 1)
+                                             : (scalars[pointId] - this->IsoValue >= 0.0 ? 1 : -1);
+        batchNumberOfPoints += (pointsMap[pointId] > 0);
+      }
     }
   }
 
   void Reduce()
   {
+    // trim batches with 0 points in-place
+    this->PointBatches.TrimBatches(
+      [](const TableBasedPointBatch& batch) { return batch.Data.PointsOffset == 0; });
+
+    // assign beginPointsOffset for each batch
+    const auto globalSum = this->PointBatches.BuildOffsetsAndGetGlobalSum();
+    this->NumberOfKeptPoints = globalSum.PointsOffset;
+
     // Prefix sum to create point map of kept (i.e., retained) points.
-    this->NumberOfKeptPoints = 0;
-    for (auto& pointId : vtk::DataArrayValueRange<1>(this->PointsMap))
-    {
-      if (pointId > 0)
-      {
-        pointId = this->NumberOfKeptPoints++;
-      }
-    }
+    auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
+    vtkSMPTools::For(0, this->PointBatches.GetNumberOfBatches(),
+      [&](vtkIdType beginBatchId, vtkIdType endBatchId) {
+        vtkIdType pointId;
+        TInputIdType offset;
+
+        const bool isFirst = vtkSMPTools::GetSingleThread();
+        for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+        {
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
+          TableBasedPointBatch& batch = this->PointBatches[batchId];
+          offset = static_cast<TInputIdType>(batch.Data.PointsOffset);
+          for (pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
+          {
+            if (pointsMap[pointId] > 0)
+            {
+              pointsMap[pointId] = offset++;
+            }
+          }
+        }
+      });
   }
 };
 
@@ -1312,57 +1382,56 @@ struct ExtractPointsWorker
 
   template <typename TInputPoints, typename TOutputPoints>
   void operator()(TInputPoints* inputPoints, TOutputPoints* outputPoints,
-    vtkAOSDataArrayTemplate<TInputIdType>* pointsMap, ArrayList& pointDataArrays,
-    const std::vector<TEdge>& edges, const std::vector<Centroid>& centroids,
-    vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges, vtkIdType numberOfCentroids,
-    vtkTableBasedClipDataSet* filter)
+    const TableBasedPointBatches& pointBatches, vtkAOSDataArrayTemplate<TInputIdType>* pointsMap,
+    ArrayList& pointDataArrays, const std::vector<TEdge>& edges,
+    const std::vector<Centroid>& centroids, vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges,
+    vtkIdType numberOfCentroids, vtkTableBasedClipDataSet* filter)
   {
+    const auto inPts = vtk::DataArrayTupleRange<3>(inputPoints);
+    auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
+    const auto ptsMap = vtk::DataArrayValueRange<1>(pointsMap);
+
     // copy kept input points
-    auto extractKeptPoints = [&](vtkIdType beginPointId, vtkIdType endPointId) {
-      const auto inPts = vtk::DataArrayTupleRange<3>(inputPoints);
-      auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
-      const auto ptsMap = vtk::DataArrayValueRange<1>(pointsMap);
-      TInputIdType keptPointId;
+    auto extractKeptPoints = [&](vtkIdType beginBatchId, vtkIdType endBatchId) {
+      vtkIdType pointId;
       double inputPoint[3];
 
       const bool isFirst = vtkSMPTools::GetSingleThread();
-      const auto checkAbortInterval =
-        std::min((endPointId - beginPointId) / 10 + 1, (vtkIdType)1000);
-      for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
+      for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
       {
-        if (pointId % checkAbortInterval == 0)
+        if (isFirst)
         {
-          if (isFirst)
-          {
-            filter->CheckAbort();
-          }
-          if (filter->GetAbortOutput())
-          {
-            break;
-          }
+          filter->CheckAbort();
         }
-        if (ptsMap[pointId] >= 0)
+        if (filter->GetAbortOutput())
         {
-          keptPointId = ptsMap[pointId];
-          // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
-          // we do that since the input points can be implicit points, and GetTypedTuple is faster
-          // than accessing the component of the TupleReference using GetTypedComponent internally.
-          inPts.GetTuple(pointId, inputPoint);
-          auto outputPoint = outPts[keptPointId];
-          outputPoint[0] = inputPoint[0];
-          outputPoint[1] = inputPoint[1];
-          outputPoint[2] = inputPoint[2];
-          pointDataArrays.Copy(pointId, keptPointId);
+          break;
+        }
+        const TableBasedPointBatch& batch = pointBatches[batchId];
+        for (pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
+        {
+          if (ptsMap[pointId] >= 0)
+          {
+            const auto& keptPointId = ptsMap[pointId];
+            // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+            // we do that since the input points can be implicit points, and GetTypedTuple is faster
+            // than accessing the component of the TupleReference using GetTypedComponent
+            // internally.
+            inPts.GetTuple(pointId, inputPoint);
+            auto outputPoint = outPts[keptPointId];
+            outputPoint[0] = inputPoint[0];
+            outputPoint[1] = inputPoint[1];
+            outputPoint[2] = inputPoint[2];
+            pointDataArrays.Copy(pointId, keptPointId);
+          }
         }
       }
     };
-    vtkSMPTools::For(0, pointsMap->GetNumberOfValues(), extractKeptPoints);
+    vtkSMPTools::For(0, pointBatches.GetNumberOfBatches(), extractKeptPoints);
 
     // create edge points
     auto extractEdgePoints = [&](vtkIdType beginEdgeId, vtkIdType endEdgeId) {
-      const auto inPts = vtk::DataArrayTupleRange<3>(inputPoints);
-      auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
-      vtkIdType outputMidEdgePointId;
+      vtkIdType outputEdgePointId;
       double edgePoint1[3], edgePoint2[3];
 
       const bool isFirst = vtkSMPTools::GetSingleThread();
@@ -1386,22 +1455,21 @@ struct ExtractPointsWorker
         // than accessing the component of the TupleReference using GetTypedComponent internally.
         inPts.GetTuple(edge.V0, edgePoint1);
         inPts.GetTuple(edge.V1, edgePoint2);
-        outputMidEdgePointId = numberOfKeptPoints + edgeId;
-        auto outputPoint = outPts[outputMidEdgePointId];
+        outputEdgePointId = numberOfKeptPoints + edgeId;
+        auto outputPoint = outPts[outputEdgePointId];
 
         const double& percentage = edge.Data;
         const double bPercentage = 1.0 - percentage;
         outputPoint[0] = edgePoint1[0] * percentage + edgePoint2[0] * bPercentage;
         outputPoint[1] = edgePoint1[1] * percentage + edgePoint2[1] * bPercentage;
         outputPoint[2] = edgePoint1[2] * percentage + edgePoint2[2] * bPercentage;
-        pointDataArrays.InterpolateEdge(edge.V0, edge.V1, bPercentage, outputMidEdgePointId);
+        pointDataArrays.InterpolateEdge(edge.V0, edge.V1, bPercentage, outputEdgePointId);
       }
     };
     vtkSMPTools::For(0, numberOfEdges, extractEdgePoints);
 
     // create centroid points
     auto extractCentroids = [&](vtkIdType beginCentroid, vtkIdType endCentroid) {
-      auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
       vtkIdType outputCentroidPointId;
       double weights[MAX_CELL_SIZE];
       double weightFactor;
@@ -1469,11 +1537,12 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkTableBasedClipDataSet::ClipTDataSet(
   {
     clipArray = scalars;
   }
-  // Evaluate points and calculate numberOfKeptPoints, pointsMap using clipArray
-  EvaluatePointsWithScalarArray<TInputIdType> evaluatePoints(
-    clipArray, isoValue, this->InsideOut, this);
-  vtkSMPTools::For(0, clipArray->GetNumberOfTuples(), evaluatePoints);
+  // Evaluate points and calculate pointBatches, numberOfKeptPoints, pointsMap using clipArray
+  EvaluatePoints<TInputIdType> evaluatePoints(
+    clipArray, isoValue, this->InsideOut, this->BatchSize, this);
+  vtkSMPTools::For(0, evaluatePoints.PointBatches.GetNumberOfBatches(), evaluatePoints);
   const TInputIdType numberOfKeptPoints = evaluatePoints.NumberOfKeptPoints;
+  const TableBasedPointBatches& pointBatches = evaluatePoints.PointBatches;
   vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> pointsMap = evaluatePoints.PointsMap;
   if (implicitFunction && this->GenerateClipScalars)
   {
@@ -1578,12 +1647,12 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkTableBasedClipDataSet::ClipTDataSet(
     vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
       vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
   if (!ExtractPointsDispatcher::Execute(inputPoints->GetData(), outputPoints->GetData(),
-        extractPointsWorker, pointsMap.Get(), pointDataArrays, edges, centroids, numberOfKeptPoints,
-        numberOfEdges, numberOfCentroids, this))
+        extractPointsWorker, pointBatches, pointsMap.Get(), pointDataArrays, edges, centroids,
+        numberOfKeptPoints, numberOfEdges, numberOfCentroids, this))
   {
-    extractPointsWorker(inputPoints->GetData(), outputPoints->GetData(), pointsMap.Get(),
-      pointDataArrays, edges, centroids, numberOfKeptPoints, numberOfEdges, numberOfCentroids,
-      this);
+    extractPointsWorker(inputPoints->GetData(), outputPoints->GetData(), pointBatches,
+      pointsMap.Get(), pointDataArrays, edges, centroids, numberOfKeptPoints, numberOfEdges,
+      numberOfCentroids, this);
   }
 
   // create outputClippedCells
