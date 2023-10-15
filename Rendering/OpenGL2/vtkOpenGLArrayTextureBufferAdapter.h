@@ -15,16 +15,19 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextureObject.h"
 
+#include <vector>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLArrayTextureBufferAdapter
 {
 public:
-  vtkSmartPointer<vtkDataArray> Array;
+  std::vector<vtkSmartPointer<vtkDataArray>> Arrays;
   vtkSmartPointer<vtkTextureObject> Texture;
   vtkSmartPointer<vtkOpenGLBufferObject> Buffer;
   vtkOpenGLBufferObject::ObjectType BufferType;
+  vtkOpenGLBufferObject::ObjectUsage BufferUsage;
   bool IntegerTexture;
   bool ScalarComponents;
 

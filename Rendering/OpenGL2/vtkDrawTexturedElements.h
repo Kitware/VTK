@@ -74,6 +74,8 @@ public:
   /// image is uploaded where each value is a scalar (row indices are tuple IDs, column
   /// indices are component IDs).
   void BindArrayToTexture(vtkStringToken textureName, vtkDataArray* array, bool asScalars = false);
+  void AppendArrayToTexture(
+    vtkStringToken textureName, vtkDataArray* array, bool asScalars = false);
   bool UnbindArray(vtkStringToken);
 
   /// Set/get the number of element instances to draw.

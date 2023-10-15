@@ -105,12 +105,9 @@ void vtkDrawTexturedElements::BindArrayToTexture(
     this->Arrays[textureName] = vtkOpenGLArrayTextureBufferAdapter(array, asScalars);
     return;
   }
-  if (array != it->second.Array)
-  {
-    it->second.Array = array;
-    // needs to be re-uploaded.
-    it->second.Buffer->FlagBufferAsDirty();
-  }
+  it->second.Arrays = { array };
+  // needs to be re-uploaded.
+  it->second.Buffer->FlagBufferAsDirty();
   it->second.ScalarComponents = asScalars;
 }
 
@@ -123,6 +120,27 @@ bool vtkDrawTexturedElements::UnbindArray(vtkStringToken textureName)
   }
   this->Arrays.erase(it);
   return true;
+}
+
+void vtkDrawTexturedElements::AppendArrayToTexture(
+  vtkStringToken textureName, vtkDataArray* array, bool asScalars)
+{
+  auto it = this->Arrays.find(textureName);
+#ifdef vtkDrawTexturedElements_DEBUG
+  std::cout << "Append " << array->GetObjectDescription() << "to texture " << textureName.Data()
+            << std::endl;
+#endif
+  if (it == this->Arrays.end())
+  {
+    this->Arrays[textureName] = vtkOpenGLArrayTextureBufferAdapter(array, asScalars);
+    return;
+  }
+  else
+  {
+    it->second.Arrays.emplace_back(array);
+    // needs to be re-uploaded.
+    it->second.Buffer->FlagBufferAsDirty();
+  }
 }
 
 bool vtkDrawTexturedElements::SetNumberOfElements(vtkIdType numberOfElements)

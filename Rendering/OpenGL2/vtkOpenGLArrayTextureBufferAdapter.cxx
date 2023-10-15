@@ -7,17 +7,18 @@
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeUInt32Array.h"
 
-// Uncomment to debug upload timestamps.
+// Uncomment to print upload events.
 // #define vtkOpenGLArrayTextureBufferAdapter_DEBUG
 
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 vtkOpenGLArrayTextureBufferAdapter::vtkOpenGLArrayTextureBufferAdapter()
-  : Array(nullptr)
+  : Arrays({})
   , Texture(vtkSmartPointer<vtkTextureObject>::New())
   , Buffer(vtkSmartPointer<vtkOpenGLBufferObject>::New())
   , BufferType(vtkOpenGLBufferObject::ObjectType::TextureBuffer)
+  , BufferUsage(vtkOpenGLBufferObject::ObjectUsage::StaticDraw)
   , IntegerTexture(true)
   , ScalarComponents(false)
 {
@@ -26,10 +27,11 @@ vtkOpenGLArrayTextureBufferAdapter::vtkOpenGLArrayTextureBufferAdapter()
 //------------------------------------------------------------------------------
 vtkOpenGLArrayTextureBufferAdapter::vtkOpenGLArrayTextureBufferAdapter(
   vtkDataArray* array, bool asScalars, bool* integerTexture)
-  : Array(array)
+  : Arrays({ array })
   , Texture(vtkSmartPointer<vtkTextureObject>::New())
   , Buffer(vtkSmartPointer<vtkOpenGLBufferObject>::New())
   , BufferType(vtkOpenGLBufferObject::ObjectType::TextureBuffer)
+  , BufferUsage(vtkOpenGLBufferObject::ObjectUsage::StaticDraw)
   , IntegerTexture((integerTexture ? *integerTexture : array->IsIntegral()))
   , ScalarComponents(asScalars)
 {
@@ -43,81 +45,107 @@ void vtkOpenGLArrayTextureBufferAdapter::Upload(vtkOpenGLRenderWindow* renderWin
     // We don't need to re-upload.
     return;
   }
+  if (this->Arrays.empty())
+  {
+    // There are no arrays to upload.
+    return;
+  }
   this->Buffer->SetType(this->BufferType);
   this->Texture->SetRequireTextureInteger(this->IntegerTexture);
   this->Texture->SetContext(renderWindow);
-  vtkSmartPointer<vtkDataArray> array = this->Array;
-  // Narrow arrays of large values to a precision supported by base-OpenGL:
-  switch (array->GetDataType())
+  std::size_t nbytes = 0;
+  vtkIdType numberOfTuples = 0;
+  int numberOfComponents = 0;
+  int vtktype = 0;
+  std::vector<vtkSmartPointer<vtkDataArray>> arraysToUpload;
+  // 1. Prepare a list of arrays to upload, also figuring out the size of the huge buffer
+  // allocation.
+  for (auto& actualArray : this->Arrays)
   {
-    case VTK_DOUBLE:
+    auto array = actualArray;
+    // Narrow arrays of large values to a precision supported by base-OpenGL:
+    switch (array->GetDataType())
     {
-      array = vtkSmartPointer<vtkFloatArray>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    case VTK_ID_TYPE:
-    {
-      // FIXME: We should check that truncating to 32 bits is OK.
-      array = vtkSmartPointer<vtkTypeInt32Array>::New();
-#if VTK_ID_TYPE_IMPL == VTK_INT
-      array->ShallowCopy(this->Array);
-#else
-      array->DeepCopy(this->Array);
-#endif
-    }
-    break;
-#if VTK_TYPE_UINT64 == VTK_UNSIGNED_LONG
-    case VTK_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    case VTK_UNSIGNED_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeUInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-#endif
-    case VTK_LONG_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    case VTK_UNSIGNED_LONG_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeUInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    default:
-      // Do nothing
+      case VTK_DOUBLE:
+      {
+        array = vtkSmartPointer<vtkFloatArray>::New();
+        array->DeepCopy(actualArray);
+      }
       break;
-  }
-#ifdef vtkOpenGLArrayTextureBufferAdapter_DEBUG
-  std::cout << "Uploading Array: " << this->Array->GetName()
-            << " with MTime: " << this->Array->GetMTime() << " into Buffer: " << this->Buffer
-            << " with MTime: " << this->Texture->GetMTime() << std::endl;
+      case VTK_ID_TYPE:
+      {
+        // FIXME: We should check that truncating to 32 bits is OK.
+        array = vtkSmartPointer<vtkTypeInt32Array>::New();
+#if VTK_ID_TYPE_IMPL == VTK_INT
+        array->ShallowCopy(actualArray);
+#else
+        array->DeepCopy(actualArray);
 #endif
-  // Now upload the array
-  switch (array->GetDataType())
-  {
-    vtkTemplateMacro(this->Buffer->Upload(
-      static_cast<VTK_TT*>(array->GetVoidPointer(0)), array->GetMaxId() + 1, this->BufferType));
+      }
+      break;
+#if VTK_TYPE_UINT64 == VTK_UNSIGNED_LONG
+      case VTK_LONG:
+      {
+        array = vtkSmartPointer<vtkTypeInt32Array>::New();
+        array->DeepCopy(actualArray);
+      }
+      break;
+      case VTK_UNSIGNED_LONG:
+      {
+        array = vtkSmartPointer<vtkTypeUInt32Array>::New();
+        array->DeepCopy(actualArray);
+      }
+      break;
+#endif
+      case VTK_LONG_LONG:
+      {
+        array = vtkSmartPointer<vtkTypeInt32Array>::New();
+        array->DeepCopy(actualArray);
+      }
+      break;
+      case VTK_UNSIGNED_LONG_LONG:
+      {
+        array = vtkSmartPointer<vtkTypeUInt32Array>::New();
+        array->DeepCopy(actualArray);
+      }
+      break;
+      default:
+        // Do nothing
+        break;
+    }
+    vtktype = array->GetDataType();
+    nbytes += array->GetDataSize() * array->GetDataTypeSize();
+    numberOfComponents = this->ScalarComponents ? 1 : array->GetNumberOfComponents();
+    numberOfTuples += (this->ScalarComponents ? array->GetMaxId() + 1 : array->GetNumberOfTuples());
+    arraysToUpload.emplace_back(array);
   }
-  int numberOfComponents = this->ScalarComponents ? 1 : array->GetNumberOfComponents();
-  vtkIdType numberOfTuples =
-    this->ScalarComponents ? array->GetMaxId() + 1 : array->GetNumberOfTuples();
+
+  // 2. Request an allocation for the GPU buffer.
+  this->Buffer->Allocate(nbytes, this->BufferType, this->BufferUsage);
+
+  // 3. Upload each array one by one into a gigantic GPU buffer.
+  ptrdiff_t offset = 0;
+  for (auto& array : arraysToUpload)
+  {
+#ifdef vtkOpenGLArrayTextureBufferAdapter_DEBUG
+    std::cout << "Uploading Array: " << actualArray->GetObjectDescription()
+              << "(name: " << actualArray->GetName() << ")" << std::endl;
+#endif
+    // Now upload the array
+    switch (array->GetDataType())
+    {
+      vtkTemplateMacro(this->Buffer->UploadRange(static_cast<VTK_TT*>(array->GetVoidPointer(0)),
+        offset, array->GetMaxId() + 1, this->BufferType));
+    }
+    offset += array->GetDataSize() * array->GetDataTypeSize();
+  }
+
+  // 4. Sync the buffer with a texture.
   // if (updateInternalTextureFormat)
   {
-    this->Texture->GetInternalFormat(
-      array->GetDataType(), numberOfComponents, this->IntegerTexture);
+    this->Texture->GetInternalFormat(vtktype, numberOfComponents, this->IntegerTexture);
   }
-  this->Texture->CreateTextureBuffer(
-    numberOfTuples, numberOfComponents, array->GetDataType(), this->Buffer);
+  this->Texture->CreateTextureBuffer(numberOfTuples, numberOfComponents, vtktype, this->Buffer);
   // this->Texture->Activate();
 }
 
