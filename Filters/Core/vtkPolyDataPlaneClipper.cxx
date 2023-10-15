@@ -4,6 +4,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkBatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
@@ -212,42 +213,41 @@ struct EvaluatePointsWorker
 // write their data. We need to know how many total cells are created, the
 // number of lines generated (which is equal to the number of clipped cells),
 // and the connectivity size of the output cells and lines.
-struct Batch
+struct PolyClipperBatchData
 {
-  // These are accumulated in EvaluateCells::operator().
-  vtkIdType NumKeptCells;
-  vtkIdType NumClippedCells;
-  vtkIdType CellsConnSize;
-
-  // These are assigned via prefix sum in EvaluateCells::Reduce(). This
-  // information is used to instantiate the output cell arrays,
+  // In EvaluateCells::operator() this is used as an accumulator
+  // in EvaluateCells::Reduce() this is changed to an offset
+  // This is done to reduce memory footprint.
   vtkIdType CellsOffset;
-  vtkIdType CellsConnOffset;
+  vtkIdType CellsConnectivityOffset;
   vtkIdType LinesOffset;
   vtkIdType LinesConnOffset;
 
-  Batch()
-    : NumKeptCells(0)
-    , NumClippedCells(0)
-    , CellsConnSize(0)
-    , CellsOffset(0)
-    , CellsConnOffset(0)
+  PolyClipperBatchData()
+    : CellsOffset(0)
+    , CellsConnectivityOffset(0)
     , LinesOffset(0)
     , LinesConnOffset(0)
   {
   }
-};
-struct vtkBatchInfo
-{
-  int BatchSize;
-  int NumBatches;
-  Batch* Batches;
-  vtkBatchInfo()
-    : Batches(nullptr)
+  ~PolyClipperBatchData() = default;
+  PolyClipperBatchData& operator+=(const PolyClipperBatchData& other)
   {
+    this->CellsOffset += other.CellsOffset;
+    this->CellsConnectivityOffset += other.CellsConnectivityOffset;
+    this->LinesOffset += other.LinesOffset;
+    this->LinesConnOffset += other.LinesConnOffset;
+    return *this;
   }
-  ~vtkBatchInfo() { delete[] this->Batches; }
+  PolyClipperBatchData operator+(const PolyClipperBatchData& other) const
+  {
+    PolyClipperBatchData result = *this;
+    result += other;
+    return result;
+  }
 };
+using PolyClipperBatch = vtkBatch<PolyClipperBatchData>;
+using PolyClipperBatches = vtkBatches<PolyClipperBatchData>;
 
 // Compute the cases for convex cells. The case is one of either (0,N>0). If
 // 0, then the entire cell is discarded. If N==npts (i.e., the number of
@@ -278,10 +278,10 @@ struct EvaluateCells
   const vtkIdType* PtMap;
   vtkCellArray* Cells;
   vtkIdType NumCells;
-  vtkBatchInfo BatchInfo;
+  PolyClipperBatches Batches;
   vtkIdType* CellMap;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
-  vtkIdType NumberOfKeptCells;
+  vtkIdType NumberOfKeptOrClippedCells;
   vtkIdType NumberOfClippedCells;
   vtkIdType CellsConnSize;
   vtkPolyDataPlaneClipper* Filter;
@@ -293,9 +293,7 @@ struct EvaluateCells
     , Filter(filter)
   {
     this->NumCells = this->Cells->GetNumberOfCells();
-    this->BatchInfo.BatchSize = batchSize;
-    this->BatchInfo.NumBatches = ((this->NumCells - 1) / batchSize) + 1;
-    this->BatchInfo.Batches = new Batch[this->BatchInfo.NumBatches];
+    this->Batches.Initialize(this->NumCells, batchSize);
     this->CellMap = new vtkIdType[this->NumCells];
   }
   ~EvaluateCells() { delete[] this->CellMap; }
@@ -308,36 +306,27 @@ struct EvaluateCells
     const vtkIdType* cell;
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = 0;
 
     for (; batchId < endBatchId; ++batchId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
       if (this->Filter->GetAbortOutput())
       {
         break;
       }
-      Batch* batch = this->BatchInfo.Batches + batchId;
-      vtkIdType cellId = batchId * this->BatchInfo.BatchSize;
-      vtkIdType endCellId =
-        (cellId + this->BatchInfo.BatchSize > this->NumCells ? this->NumCells
-                                                             : cellId + this->BatchInfo.BatchSize);
-      vtkIdType* cellMap = this->CellMap + cellId;
-      vtkIdType numKeptPts;
+      auto& batch = this->Batches[batchId];
+      auto& batchNumberOfKeptOrClippedCells = batch.Data.CellsOffset;
+      auto& batchCellsConnectivity = batch.Data.CellsConnectivityOffset;
+      auto& batchNumberOfClippedCells = batch.Data.LinesOffset;
+      auto& batchLinesConnectivity = batch.Data.LinesConnOffset;
 
-      checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
-      for (; cellId < endCellId; cellId++)
+      vtkIdType* cellMap = this->CellMap + batch.BeginId;
+      vtkIdType numKeptPts;
+      for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; cellId++)
       {
-        if (cellId % checkAbortInterval == 0)
-        {
-          if (isFirst)
-          {
-            this->Filter->CheckAbort();
-          }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
-        }
         cellIter->GetCellAtId(cellId, npts, cell);
         numKeptPts = CellCases::ComputeCase(npts, cell, this->PtMap);
         if (numKeptPts == 0) // Cell discarded
@@ -351,49 +340,37 @@ struct EvaluateCells
             *cellMap++ = -1; // cell clipped
             // The property of a convex cell is that two extra clipped points
             // will be generated.
-            batch->CellsConnSize += (numKeptPts + 2);
-            batch->NumClippedCells++;
+            batchCellsConnectivity += (numKeptPts + 2);
+            batchNumberOfClippedCells++;
+            batchNumberOfKeptOrClippedCells++;
           }
           else // Entire cell kept, no new clipped points will be generated.
           {
             *cellMap++ = 1; // cell kept
-            batch->CellsConnSize += numKeptPts;
-            batch->NumKeptCells++;
+            batchCellsConnectivity += numKeptPts;
+            batchNumberOfKeptOrClippedCells++;
           }
         }
       } // for each cell in this batch
-    }   // for each batch of cells
+      batchLinesConnectivity = 2 * batchNumberOfClippedCells;
+    } // for each batch of cells
   }
 
   // Reduce() basically builds offsets and such so that the output can be
   // generated in the next pass.
   void Reduce()
   {
-    this->NumberOfKeptCells = 0;
-    this->NumberOfClippedCells = 0;
-    this->CellsConnSize = 0;
-    vtkIdType cellsConnSize = 0, cellsOffset = 0, linesOffset = 0;
+    // trim batches with 0 cells in-place
+    this->Batches.TrimBatches(
+      [](const PolyClipperBatch& batch) { return batch.Data.CellsOffset == 0; });
 
-    // Prefix sum over the batches to roll up total output.
-    for (auto batchNum = 0; batchNum < this->BatchInfo.NumBatches; ++batchNum)
-    {
-      Batch* batch = this->BatchInfo.Batches + batchNum;
-      batch->CellsOffset = cellsOffset;
-      batch->CellsConnOffset = cellsConnSize;
-      batch->LinesOffset = linesOffset;
-      batch->LinesConnOffset = 2 * linesOffset;
-
-      cellsOffset += batch->NumKeptCells + batch->NumClippedCells;
-      cellsConnSize += batch->CellsConnSize;
-      linesOffset += batch->NumClippedCells;
-
-      this->NumberOfKeptCells += batch->NumKeptCells;
-      this->NumberOfClippedCells += batch->NumClippedCells;
-    }
-    this->CellsConnSize = cellsConnSize;
+    const auto globalSum = this->Batches.BuildOffsetsAndGetGlobalSum();
+    this->NumberOfKeptOrClippedCells = globalSum.CellsOffset;
+    this->NumberOfClippedCells = globalSum.LinesOffset;
+    this->CellsConnSize = globalSum.CellsConnectivityOffset;
   } // Reduce
 
-  void Execute() { vtkSMPTools::For(0, this->BatchInfo.NumBatches, *this); }
+  void Execute() { vtkSMPTools::For(0, this->Batches.GetNumberOfBatches(), *this); }
 };
 
 // Represent clip edges. A clip edge has two values: (V0,V1) defining the
@@ -414,7 +391,7 @@ using EdgeLocatorType = vtkStaticEdgeLocatorTemplate<vtkIdType, IdxType>;
 // Also copy cell data.
 struct ExtractCells
 {
-  const vtkBatchInfo& BatchInfo;
+  const PolyClipperBatches& Batches;
   const vtkIdType* PtMap;
   vtkCellArray* Cells;
   vtkIdType NumCells;
@@ -428,11 +405,11 @@ struct ExtractCells
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
   vtkPolyDataPlaneClipper* Filter;
 
-  ExtractCells(const vtkBatchInfo& binfo, const vtkIdType* ptMap, vtkCellArray* cells,
+  ExtractCells(const PolyClipperBatches& batches, const vtkIdType* ptMap, vtkCellArray* cells,
     vtkIdType* cellMap, vtkIdTypeArray* cellConn, vtkIdTypeArray* cellOffsets,
     vtkIdTypeArray* lineConn, vtkIdTypeArray* lineOffsets, EdgeTupleType* e, ArrayList* arrays,
     vtkPolyDataPlaneClipper* filter)
-    : BatchInfo(binfo)
+    : Batches(batches)
     , PtMap(ptMap)
     , Cells(cells)
     , CellMap(cellMap)
@@ -456,45 +433,32 @@ struct ExtractCells
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     const vtkIdType* ptMap = this->PtMap;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = 0;
 
     for (; batchNum < endBatchNum; ++batchNum)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
       if (this->Filter->GetAbortOutput())
       {
         break;
       }
-      Batch* batch = this->BatchInfo.Batches + batchNum;
-      vtkIdType cellId = batchNum * this->BatchInfo.BatchSize;
-      vtkIdType endCellId =
-        (cellId + this->BatchInfo.BatchSize > this->NumCells ? this->NumCells
-                                                             : cellId + this->BatchInfo.BatchSize);
-      vtkIdType* cellMap = this->CellMap + cellId;
-      vtkIdType cellConnIdx = batch->CellsConnOffset;
-      vtkIdType* cellOffsets = this->CellOffsets + batch->CellsOffset;
-      vtkIdType newCellId = batch->CellsOffset;
-      vtkIdType cellOffset = batch->CellsConnOffset;
-      vtkIdType lineConnIdx = batch->LinesConnOffset;
-      vtkIdType* lineOffsets = this->LineOffsets + batch->LinesOffset;
-      vtkIdType lineOffset = batch->LinesConnOffset;
-      EdgeTupleType* edge = this->Edges + batch->LinesConnOffset;
+      auto& batch = this->Batches[batchNum];
+
+      vtkIdType* cellMap = this->CellMap + batch.BeginId;
+      vtkIdType cellConnIdx = batch.Data.CellsConnectivityOffset;
+      vtkIdType* cellOffsets = this->CellOffsets + batch.Data.CellsOffset;
+      vtkIdType newCellId = batch.Data.CellsOffset;
+      vtkIdType cellOffset = batch.Data.CellsConnectivityOffset;
+      vtkIdType lineConnIdx = batch.Data.LinesConnOffset;
+      vtkIdType* lineOffsets = this->LineOffsets + batch.Data.LinesOffset;
+      vtkIdType lineOffset = batch.Data.LinesConnOffset;
+      EdgeTupleType* edge = this->Edges + batch.Data.LinesConnOffset;
       ArrayList* arrays = this->Arrays;
 
-      checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
-      for (; cellId < endCellId; ++cellId, ++cellMap)
+      for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId, ++cellMap)
       {
-        if (cellId % checkAbortInterval == 0)
-        {
-          if (isFirst)
-          {
-            this->Filter->CheckAbort();
-          }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
-        }
-
         if (*cellMap != 0) // if the cell is clipped or kept
         {
           cellIter->GetCellAtId(cellId, npts, cell);
@@ -549,7 +513,7 @@ struct ExtractCells
 
   void Reduce() {}
 
-  void Execute() { vtkSMPTools::For(0, this->BatchInfo.NumBatches, *this); }
+  void Execute() { vtkSMPTools::For(0, this->Batches.GetNumberOfBatches(), *this); }
 };
 
 // Write the points to the output. There are two parts to this: first copy
@@ -907,8 +871,8 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   // what's output, and then to actually create the output.
   EvaluateCells ec(epWorker.KeptPtMap, cells, this->BatchSize, this);
   ec.Execute();
-  vtkBatchInfo& batchInfo = ec.BatchInfo;
-  vtkIdType numOutCells = ec.NumberOfKeptCells + ec.NumberOfClippedCells;
+  PolyClipperBatches& batchInfo = ec.Batches;
+  vtkIdType numOutCells = ec.NumberOfKeptOrClippedCells;
 
   // Build the cell arrays for the output cells and lines. This means
   // creating connectivity and offset arrays. Clipe edges are merged because there
