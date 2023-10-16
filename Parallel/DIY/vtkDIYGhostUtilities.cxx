@@ -5818,7 +5818,7 @@ void vtkDIYGhostUtilities::CloneInputData(vtkDataSet* input, vtkDataSet* output,
   inFieldData->AddArray(ghostArray);
   inFieldData->SetGlobalIds(globalIdsArray);
   inFieldData->SetProcessIds(processIdsArray);
-  
+
   outFieldData->AddArray(ghostArray);
   outFieldData->SetGlobalIds(globalIdsArray);
   outFieldData->SetProcessIds(processIdsArray);
@@ -5829,12 +5829,12 @@ void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master, std::vector<vtk
 {
   if (syncCell)
   {
-    InitializeBlocks(master, inputs, vtkDataSet::AttributeTypes::CELL, 
+    InitializeBlocks(master, inputs, vtkDataSet::AttributeTypes::CELL,
       vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
   }
   if (syncPoint)
   {
-    InitializeBlocks(master, inputs, vtkDataSet::AttributeTypes::POINT, 
+    InitializeBlocks(master, inputs, vtkDataSet::AttributeTypes::POINT,
       vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
   }
 }
@@ -5996,7 +5996,7 @@ void vtkDIYGhostUtilities::ExchangeFieldData(
       {
         continue;
       }
-      
+
       vtkNew<vtkIdList> lids;
       const auto gidsRange = vtk::DataArrayValueRange<1>(block->GhostGidsFromBlocks[fieldType][blockId.gid]);
       for (const auto& gid : gidsRange)
@@ -6008,7 +6008,7 @@ void vtkDIYGhostUtilities::ExchangeFieldData(
       vtkDataSetAttributes* inputFieldData = input->GetAttributes(fieldType);
       fieldData->CopyStructure(inputFieldData);
       fieldData->SetNumberOfTuples(lids->GetNumberOfIds());
-      
+
       // Do not send ids info
       if (inputFieldData->GetGlobalIds())
       {
@@ -6051,7 +6051,7 @@ void vtkDIYGhostUtilities::ExchangeFieldData(
     auto& output = outputs[myBlockLid];
 
     vtkFieldData* tmpFieldData = nullptr;
-    
+
     diy::Link* link = cp.link();
     for (int id = 0; id < link->size(); ++id)
     {
