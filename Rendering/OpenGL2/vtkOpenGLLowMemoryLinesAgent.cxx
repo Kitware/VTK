@@ -25,7 +25,14 @@ void vtkOpenGLLowMemoryLinesAgent::PreDrawInternal(
   vtkRenderer*, vtkActor* actor, vtkOpenGLLowMemoryPolyDataMapper* lmMapper) const
 {
   lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Line;
-  lmMapper->NumberOfInstances = 2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth());
+  if (actor->GetProperty()->GetLineWidth() > 1)
+  {
+    lmMapper->NumberOfInstances = 2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth());
+  }
+  else
+  {
+    lmMapper->NumberOfInstances = 1;
+  }
   lmMapper->ShaderProgram->SetUniformi("cellType", VTK_LINE);
 }
 
