@@ -122,6 +122,17 @@ struct SliceData
 };
 
 //------------------------------------------------------------------------------
+struct CSVFileData
+{
+  std::string FileName;
+  std::vector<float> TimeValues;
+};
+
+//------------------------------------------------------------------------------
+typedef CSVFileData DeviceFileData;
+typedef CSVFileData HRRData;
+
+//------------------------------------------------------------------------------
 struct DeviceData
 {
   std::string Name;
@@ -177,6 +188,9 @@ vtkSmartPointer<vtkRectilinearGrid> GenerateSubGrid(
 void ReadAndExtractRowFromCSV(vtkDelimitedTextReader* reader, const std::string& fileName,
   vtkIdType requestedTimeStep, std::map<std::string, vtkSmartPointer<vtkDataArray>>& map)
 {
+  // Extracts row (for given timestep) as a map
+  // First value is the row name
+  // Second value is a vtk array of size 1 with value at timestep
   reader->SetFileName(fileName.c_str());
   reader->Update();
   auto table = vtkTable::SafeDownCast(reader->GetOutput());
@@ -195,6 +209,42 @@ void ReadAndExtractRowFromCSV(vtkDelimitedTextReader* reader, const std::string&
 }
 
 //------------------------------------------------------------------------------
+void ExtractTimeValuesFromCSV(
+  vtkDelimitedTextReader* reader, const std::string& fileName, std::vector<float>& timesteps)
+{
+  // Extracts timesteps (column "Time") from a csv file
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto table = vtkTable::SafeDownCast(reader->GetOutput());
+  const auto rowData = table->GetRowData();
+  int iCol = 0;
+  for (; iCol < rowData->GetNumberOfArrays(); ++iCol)
+  {
+    auto arr = vtkStringArray::SafeDownCast(rowData->GetAbstractArray(iCol));
+    if (arr->GetNumberOfValues() < 2)
+    {
+      vtkErrorWithObjectMacro(nullptr, << "Failed to read timesteps in file: " << fileName
+                                       << ". The file should contain at least 3 rows.");
+    }
+    std::string columnName = arr->GetValue(1);
+    if (columnName == "Time")
+    {
+      timesteps.clear();
+      for (int i = 2; i < arr->GetNumberOfValues(); i++)
+      {
+        timesteps.emplace_back(std::stof(arr->GetValue(i)));
+      }
+      break;
+    }
+  }
+  if (iCol == rowData->GetNumberOfArrays())
+  {
+    vtkErrorWithObjectMacro(
+      nullptr, << "Could not locate the \"Time\" column in " << fileName << ".");
+  }
+}
+
+//------------------------------------------------------------------------------
 void ReadNothing(const char*, std::size_t) {}
 
 //------------------------------------------------------------------------------
@@ -204,7 +254,7 @@ std::vector<float> ParseTimeStepsInSliceFile(const std::string& fileName)
   if (fileName.empty() || !fileStream->Open(fileName.c_str()))
   {
     vtkErrorWithObjectMacro(nullptr,
-      << "Failed to open file: " << (fileName.empty() ? fileName : "No file name for slice given"));
+      << "Failed to open file: " << (fileName.empty() ? "no file name for slice given" : fileName));
     return std::vector<float>();
   }
 
@@ -617,15 +667,26 @@ public:
       vtkErrorMacro("Must set internals and output pointers before using grid visitor");
       return;
     }
-    auto itHRR = this->Internals->HRRFiles.find(nodeId);
-    if (itHRR == this->Internals->HRRFiles.end())
+    auto itHRR = this->Internals->HRRs.find(nodeId);
+    if (itHRR == this->Internals->HRRs.end())
     {
       return;
     }
 
+    auto hrrData = itHRR->second;
+
+    // Retrieve requested timestep (row)
+    vtkIdType requestedTimeStep = std::distance(hrrData.TimeValues.begin(),
+                                    std::upper_bound(hrrData.TimeValues.begin(),
+                                      hrrData.TimeValues.end(), this->RequestedTimeValue)) -
+      1;
+    requestedTimeStep = requestedTimeStep >= static_cast<vtkIdType>(hrrData.TimeValues.size())
+      ? hrrData.TimeValues.size() - 1
+      : (requestedTimeStep < 0 ? 0 : requestedTimeStep);
+
     std::map<std::string, vtkSmartPointer<vtkDataArray>> hrrMap;
     vtkNew<vtkDelimitedTextReader> reader;
-    ReadAndExtractRowFromCSV(reader, itHRR->second, this->RequestedTimeStep, hrrMap);
+    ReadAndExtractRowFromCSV(reader, hrrData.FileName, requestedTimeStep, hrrMap);
 
     // transfer back to table
     vtkNew<vtkTable> result;
@@ -645,7 +706,7 @@ public:
 
   std::shared_ptr<InternalsT> Internals;
   vtkPartitionedDataSetCollection* OutputPDSC = nullptr;
-  vtkIdType RequestedTimeStep = 0;
+  double RequestedTimeValue = 0.0;
 
 protected:
   vtkFDSHRRVisitor() = default;
@@ -832,11 +893,9 @@ struct vtkFDSReader::vtkInternals
   std::map<int, ::DeviceData> Devices;
   std::map<int, ::SliceData> Slices;
   std::map<int, ::ObstacleData> Boundaries;
-  std::map<int, std::string> HRRFiles;
-  std::set<std::string> DevcFiles;
+  std::map<int, ::HRRData> HRRs;
+  std::vector<::DeviceFileData> DevcFiles;
   std::vector<::BoundaryFieldData> BoundaryFields;
-
-  std::vector<double> ViewTimes;
 
   unsigned int MaxNbOfPartitions = 0;
   unsigned int GridCount = 0;
@@ -983,15 +1042,7 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       continue;
     }
 
-    if (keyWord == "VIEWTIMES")
-    {
-      if (!this->ParseVIEWTIMES())
-      {
-        vtkErrorMacro("Failed parsing of VIEWTIMES");
-        return 0;
-      }
-    }
-    else if (keyWord == "GRID")
+    if (keyWord == "GRID")
     {
       if (!this->ParseGRID(baseNodes))
       {
@@ -1057,8 +1108,14 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   auto insertIntoSet = [&uniqueSortedTimeValues](
                          double val) { uniqueSortedTimeValues.insert(val); };
 
-  std::for_each(
-    this->Internals->ViewTimes.begin(), this->Internals->ViewTimes.end(), insertIntoSet);
+  for (auto& devcFileData : this->Internals->DevcFiles)
+  {
+    std::for_each(devcFileData.TimeValues.begin(), devcFileData.TimeValues.end(), insertIntoSet);
+  }
+  for (auto& pair : this->Internals->HRRs)
+  {
+    std::for_each(pair.second.TimeValues.begin(), pair.second.TimeValues.end(), insertIntoSet);
+  }
   for (auto& pair : this->Internals->Slices)
   {
     std::for_each(pair.second.TimeValues.begin(), pair.second.TimeValues.end(), insertIntoSet);
@@ -1093,52 +1150,6 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     vtkStreamingDemandDrivenPipeline::TIME_RANGE(), this->Internals->TimeRange.data(), 2);
 
   return 1;
-}
-
-// ----------------------------------------------------------------------------
-bool vtkFDSReader::ParseVIEWTIMES()
-{
-  ::FDSParser& parser = *(this->Internals->SMVParser);
-  // throw away rest of line
-  if (!parser.DiscardLine())
-  {
-    return false;
-  }
-
-  double beginTime = 0.0;
-  if (!parser.Parse(beginTime))
-  {
-    vtkErrorMacro("Could not parse begin time at line " << parser.LineNumber);
-    return false;
-  }
-
-  double endTime = 0.0;
-  if (!parser.Parse(endTime))
-  {
-    vtkErrorMacro("Could not parse end time at line " << parser.LineNumber);
-    return false;
-  }
-
-  vtkIdType nTimeSteps = 0;
-  if (!parser.Parse(nTimeSteps))
-  {
-    vtkErrorMacro("Could not parse number of time steps at line " << parser.LineNumber);
-    return false;
-  }
-
-  // throw away rest of line
-  if (!parser.DiscardLine())
-  {
-    return false;
-  }
-
-  this->Internals->ViewTimes.resize(nTimeSteps, 0.0);
-  double timeStep = (endTime - beginTime) / (nTimeSteps > 1 ? nTimeSteps - 1 : 1);
-  for (vtkIdType iStep = 0; iStep < nTimeSteps; ++iStep)
-  {
-    this->Internals->ViewTimes[iStep] = beginTime + iStep * timeStep;
-  }
-  return true;
 }
 
 // ----------------------------------------------------------------------------
@@ -1491,8 +1502,15 @@ bool vtkFDSReader::ParseCSVF(const std::vector<int>& baseNodes)
       return false;
     }
 
+    // Setup devc files data
+    ::DeviceFileData devcFileData;
+    devcFileData.FileName = fileName;
+
+    vtkNew<vtkDelimitedTextReader> csvReader;
+    ::ExtractTimeValuesFromCSV(csvReader, fileName, devcFileData.TimeValues);
+
     // Register file path and fill assembly
-    this->Internals->DevcFiles.insert(fileName);
+    this->Internals->DevcFiles.emplace_back(devcFileData);
   }
   else if (fileType == "hrr")
   {
@@ -1523,10 +1541,17 @@ bool vtkFDSReader::ParseCSVF(const std::vector<int>& baseNodes)
       return false;
     }
 
+    // Setup HRR data
+    ::HRRData hrrData;
+    hrrData.FileName = fileName;
+
+    vtkNew<vtkDelimitedTextReader> csvReader;
+    ::ExtractTimeValuesFromCSV(csvReader, fileName, hrrData.TimeValues);
+
     // Register file path and fill assembly
     nodeName = this->SanitizeName(nodeName);
     const int idx = this->Assembly->AddNode(nodeName.c_str(), baseNodes[HRR]);
-    this->Internals->HRRFiles.emplace(idx, fileName);
+    this->Internals->HRRs.emplace(idx, hrrData);
     this->Internals->MaxNbOfPartitions++;
   }
   else if (fileType == "steps")
@@ -1832,8 +1857,9 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
   const std::vector<std::string> selectors(this->Selectors.begin(), this->Selectors.end());
   const auto selectedNodes = this->Assembly->SelectNodes(selectors);
 
+  // Compute requested "global" time value based on all times values
+  // retrieved from devc, hrr, slices and boundaries (during request information)
   double requestedTimeValue = 0;
-  vtkIdType requestedViewTimeStep = 0;
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     double* timeValues = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
@@ -1853,18 +1879,6 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
       : (requestedTimeStep < 0 ? 0 : requestedTimeStep);
     output->GetInformation()->Set(
       vtkDataObject::DATA_TIME_STEP(), this->Internals->TimeValues[requestedTimeStep]);
-
-    auto& viewTimes = this->Internals->ViewTimes;
-    if (!viewTimes.empty())
-    {
-      requestedViewTimeStep =
-        std::distance(viewTimes.begin(),
-          std::upper_bound(viewTimes.begin(), viewTimes.end(), requestedTimeValue)) -
-        1;
-      requestedViewTimeStep = static_cast<std::size_t>(requestedTimeStep) >= viewTimes.size()
-        ? viewTimes.size() - 1
-        : (requestedViewTimeStep < 0 ? 0 : requestedViewTimeStep);
-    }
   }
 
   vtkNew<vtkDataAssembly> outAssembly;
@@ -1892,10 +1906,20 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
     deviceVisitor->Internals = this->Internals;
     deviceVisitor->OutputPDSC = output;
     vtkNew<vtkDelimitedTextReader> csvReader;
-    for (const auto& fileName : this->Internals->DevcFiles)
+    for (const auto& devcFileData : this->Internals->DevcFiles)
     {
+      // Retrieve requested timestep (row)
+      vtkIdType requestedTimeStep = std::distance(devcFileData.TimeValues.begin(),
+                                      std::upper_bound(devcFileData.TimeValues.begin(),
+                                        devcFileData.TimeValues.end(), requestedTimeValue)) -
+        1;
+      requestedTimeStep =
+        requestedTimeStep >= static_cast<vtkIdType>(devcFileData.TimeValues.size())
+        ? devcFileData.TimeValues.size() - 1
+        : (requestedTimeStep < 0 ? 0 : requestedTimeStep);
+
       ::ReadAndExtractRowFromCSV(
-        csvReader, fileName, requestedViewTimeStep, deviceVisitor->DeviceValueMap);
+        csvReader, devcFileData.FileName, requestedTimeStep, deviceVisitor->DeviceValueMap);
     }
     outAssembly->Visit(devicesIdx, deviceVisitor);
   }
@@ -1908,7 +1932,7 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkNew<HRRVisitor> hrrVisitor;
     hrrVisitor->Internals = this->Internals;
     hrrVisitor->OutputPDSC = output;
-    hrrVisitor->RequestedTimeStep = requestedViewTimeStep;
+    hrrVisitor->RequestedTimeValue = requestedTimeValue;
     outAssembly->Visit(hrrsIdx, hrrVisitor);
   }
 
