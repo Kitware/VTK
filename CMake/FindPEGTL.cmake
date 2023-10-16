@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2006, 2007 Montel Laurent, <montel@kde.org>
 # SPDX-FileCopyrightText: Copyright (c) 2008, 2009 Gael Guennebaud, <g.gael@free.fr>
 # SPDX-FileCopyrightText: Copyright (c) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
-# SPDX-License-Identifier: BSD-2-Clause 
+# SPDX-License-Identifier: BSD-2-Clause
 
 # - Try to find PEGTL lib
 #

@@ -35,12 +35,12 @@ vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestTextSource.cxx,NO_VALID
   TestTexturedSphereSource.cxx,NO_VALID
   )
-  
+
 vtk_test_cxx_executable(vtkFiltersSourcesCxxTests tests
   DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
-  
+
 if(TARGET VTK::ParallelMPI)
   vtk_add_test_mpi(vtkFiltersSourcesCxxTests-MPI tests_mpi
     TESTING_DATA

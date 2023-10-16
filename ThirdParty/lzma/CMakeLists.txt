@@ -1,6 +1,6 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES 
+    LICENSE_FILES
       "vtklzma/COPYING"
     SPDX_LICENSE_IDENTIFIER
       "LicenseRef-PublicDomain-lzma"
@@ -12,7 +12,7 @@ vtk_module_third_party(
       "vtklzma/COPYING"
     SPDX_CUSTOM_LICENSE_NAME
       "PublicDomain-lzma"
-    VERSION       
+    VERSION
       "5.2.5"
     STANDARD_INCLUDE_DIRS
   EXTERNAL

@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     HEADER_ONLY
-    LICENSE_FILES 
+    LICENSE_FILES
       "vtkutf8/LICENSE"
     SPDX_LICENSE_IDENTIFIER
       "BSL-1.0"
