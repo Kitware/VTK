@@ -98,8 +98,6 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
     lastLightComplexity = 0;
   }
 
-  vtkShaderProgram::Substitute(fragmentShader, "//VTK::PositionVC::Impl",
-    "vec4 vertexPositionVC = vertexPositionVCVS;\n", false);
   vtkShaderProgram::Substitute(fragmentShader, "//VTK::Normal::Impl",
     "  vec3 normalizedNormalVCVSOutput = normalize(vertexNormalVCVS);", false);
 
@@ -446,7 +444,7 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
                  "  diffuse += (df * lightColor"
               << i << ");\n"
               << "  sf = sign(df)*pow(max(1e-5, dot( reflect(lightDirectionVC" << i
-              << ", normalizedNormalVCVSOutput), normalize(-vertexPositionVC.xyz))), "
+              << ", normalizedNormalVCVSOutput), normalize(-vertexVC.xyz))), "
                  "power_specular);\n"
                  // if you change the next line also change vtkShadowMapPass
                  "  specular += (sf * lightColor"
@@ -557,59 +555,58 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
                "  float sf;\n";
         for (int i = 0; i < lastLightCount; ++i)
         {
-          oss
-            << "    attenuation = 1.0;\n"
-               "    if (lightPositional"
-            << i
-            << " == 0) {\n"
-               "      vertLightDirectionVC = lightDirectionVC"
-            << i
-            << "; }\n"
-               "    else {\n"
-               "      vertLightDirectionVC = vertexPositionVC.xyz - lightPositionVC"
-            << i
-            << ";\n"
-               "      float distanceVC = length(vertLightDirectionVC);\n"
-               "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
-               "      attenuation = 1.0 /\n"
-               "        (lightAttenuation"
-            << i
-            << ".x\n"
-               "         + lightAttenuation"
-            << i
-            << ".y * distanceVC\n"
-               "         + lightAttenuation"
-            << i
-            << ".z * distanceVC * distanceVC);\n"
-               "      // cone angle is less than 90 for a spot light\n"
-               "      if (lightConeAngle"
-            << i
-            << " < 90.0) {\n"
-               "        float coneDot = dot(vertLightDirectionVC, lightDirectionVC"
-            << i
-            << ");\n"
-               "        // if inside the cone\n"
-               "        if (coneDot >= cos(radians(lightConeAngle"
-            << i
-            << "))) {\n"
-               "          attenuation = attenuation * pow(coneDot, lightExponent"
-            << i
-            << "); }\n"
-               "        else {\n"
-               "          attenuation = 0.0; }\n"
-               "        }\n"
-               "      }\n"
-            << "    df = max(0.0,attenuation*dot(normalizedNormalVCVSOutput, "
-               "-vertLightDirectionVC));\n"
-               // if you change the next line also change vtkShadowMapPass
-               "    diffuse += (df * lightColor"
-            << i
-            << ");\n"
-               "    sf = sign(df)*attenuation*pow( max(1e-5, dot( reflect(vertLightDirectionVC, "
-               "normalizedNormalVCVSOutput), normalize(-vertexPositionVC.xyz))), power_specular);\n"
-               // if you change the next line also change vtkShadowMapPass
-               "      specular += (sf * lightColor"
-            << i << ");\n";
+          oss << "    attenuation = 1.0;\n"
+                 "    if (lightPositional"
+              << i
+              << " == 0) {\n"
+                 "      vertLightDirectionVC = lightDirectionVC"
+              << i
+              << "; }\n"
+                 "    else {\n"
+                 "      vertLightDirectionVC = vertexVC.xyz - lightPositionVC"
+              << i
+              << ";\n"
+                 "      float distanceVC = length(vertLightDirectionVC);\n"
+                 "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
+                 "      attenuation = 1.0 /\n"
+                 "        (lightAttenuation"
+              << i
+              << ".x\n"
+                 "         + lightAttenuation"
+              << i
+              << ".y * distanceVC\n"
+                 "         + lightAttenuation"
+              << i
+              << ".z * distanceVC * distanceVC);\n"
+                 "      // cone angle is less than 90 for a spot light\n"
+                 "      if (lightConeAngle"
+              << i
+              << " < 90.0) {\n"
+                 "        float coneDot = dot(vertLightDirectionVC, lightDirectionVC"
+              << i
+              << ");\n"
+                 "        // if inside the cone\n"
+                 "        if (coneDot >= cos(radians(lightConeAngle"
+              << i
+              << "))) {\n"
+                 "          attenuation = attenuation * pow(coneDot, lightExponent"
+              << i
+              << "); }\n"
+                 "        else {\n"
+                 "          attenuation = 0.0; }\n"
+                 "        }\n"
+                 "      }\n"
+              << "    df = max(0.0,attenuation*dot(normalizedNormalVCVSOutput, "
+                 "-vertLightDirectionVC));\n"
+                 // if you change the next line also change vtkShadowMapPass
+                 "    diffuse += (df * lightColor"
+              << i
+              << ");\n"
+                 "    sf = sign(df)*attenuation*pow( max(1e-5, dot( reflect(vertLightDirectionVC, "
+                 "normalizedNormalVCVSOutput), normalize(-vertexVC.xyz))), power_specular);\n"
+                 // if you change the next line also change vtkShadowMapPass
+                 "      specular += (sf * lightColor"
+              << i << ");\n";
         }
         oss << "  diffuse = diffuse * diffuseColor;\n"
                "  specular = specular * specularColor;\n"
