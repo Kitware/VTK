@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 # SPDX-FileCopyrightText: Copyright 2010-2012 Kitware, Inc.
 # SPDX-FileCopyrightText: Copyright 2012 Rolf Eike Beer <eike@sf-mail.de>
-# SPDX-License-Identifier: BSD-3-Clause 
+# SPDX-License-Identifier: BSD-3-Clause
 # - Find ThreadingBuildingBlocks include dirs and libraries
 # Use this module by invoking find_package with the form:
 #  find_package(TBB

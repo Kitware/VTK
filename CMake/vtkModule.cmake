@@ -5126,7 +5126,7 @@ if (_vtk_module_find_package_enabled)
               TARGET    "${_vtk_export_kit_name}"
               PROPERTY  ALIASED_TARGET)
           endif ()
-          get_property(_vtk_export_module_type 
+          get_property(_vtk_export_module_type
             TARGET "${_vtk_export_kit_name}"
             PROPERTY  TYPE)
         else ()

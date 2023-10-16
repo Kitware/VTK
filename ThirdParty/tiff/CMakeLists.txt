@@ -1,6 +1,6 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES 
+    LICENSE_FILES
       "vtktiff/COPYRIGHT"
     SPDX_LICENSE_IDENTIFIER
       "libtiff"
@@ -9,7 +9,7 @@ vtk_module_third_party(
       "Copyright (c) 1991-1997 Silicon Graphics, Inc."
     SPDX_DOWNLOAD_LOCATION
       "git+https://gitlab.kitware.com/third-party/tiff.git@for/vtk-20210802.1-4.3.0"
-    VERSION       
+    VERSION
       "4.3.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL

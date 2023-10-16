@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: Copyright 2010 Kitware, Inc.
 # SPDX-FileCopyrightText: Copyright 2007 Douglas Gregor <doug.gregor@gmail.com>
 # SPDX-FileCopyrightText: Copyright 2007 Troy Straszheim
-# SPDX-License-Identifier: BSL-1.0 
+# SPDX-License-Identifier: BSL-1.0
 
 # Perform a reverse topological sort on the given LIST.
 #

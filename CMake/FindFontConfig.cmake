@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 # SPDX-FileCopyrightText: Copyright 2012 Kitware, Inc.
-# SPDX-License-Identifier: BSD-3-Clause 
+# SPDX-License-Identifier: BSD-3-Clause
 # - Find FontConfig library
 # Find the FontConfig includes and library
 # This module defines

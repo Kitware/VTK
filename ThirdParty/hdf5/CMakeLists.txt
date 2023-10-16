@@ -2,7 +2,7 @@ set(HDF5_EXTERNALLY_CONFIGURED 1)
 
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES 
+    LICENSE_FILES
       "vtkhdf5/COPYING"
       "vtkhdf5/COPYING_LBNL_HDF5"
     SPDX_LICENSE_IDENTIFIER
