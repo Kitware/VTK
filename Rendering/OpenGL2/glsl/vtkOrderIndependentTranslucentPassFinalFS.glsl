@@ -16,7 +16,7 @@ void main()
   vec4 t1Color = texture(translucentRGBATexture, texCoord);
   float t2Color = texture(translucentRTexture, texCoord).r;
 
-  gl_FragData[0] = vec4(t1Color.rgb/max(t2Color,0.01), t1Color.a);
+  gl_FragData[0] = vec4(t1Color.rgb/max(t2Color,0.01), 1.0-t1Color.a);
   // gl_FragData[0] = vec4(t1Color.a, t1Color.a, t1Color.a, 0.0);
   // gl_FragData[0] = vec4(t2Color, t2Color, t2Color, 0.0);
 }
