@@ -34,7 +34,7 @@ endif ()
 execute_process(
   COMMAND
     "${CMAKE_COMMAND}"
-    -E tar 
+    -E tar
     xf "${openxrremoting_file}"
   WORKING_DIRECTORY ".gitlab/openxrremoting"
   RESULT_VARIABLE res
