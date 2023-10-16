@@ -11,6 +11,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkMatrix3x3.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -198,6 +199,14 @@ void vtkJSONDataSetWriter::Write(vtkDataSet* dataset)
                  << imageData->GetExtent()[1] << ", " << imageData->GetExtent()[2] << ", "
                  << imageData->GetExtent()[3] << ", " << imageData->GetExtent()[4] << ", "
                  << imageData->GetExtent()[5] << "]";
+
+    // Direction
+    // Write the matrix using vtk.js convention for direction matrices (transpose the matrix)
+    auto direction = imageData->GetDirectionMatrix()->GetData();
+    metaJsonFile << ",\n  \"direction\": [" << direction[0] << ", " << direction[3] << ", "
+                 << direction[6] << ", " << direction[1] << ", " << direction[4] << ", "
+                 << direction[7] << ", " << direction[2] << ", " << direction[5] << ", "
+                 << direction[8] << "]";
   }
 
   // PolyData
