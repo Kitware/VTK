@@ -982,7 +982,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (!fp)
   {
     fprintf(stderr, "Error opening output file %s\n", options->OutputFileName);
-    exit(1);
+    return 1;
   }
 
   /* get the main class */
@@ -991,14 +991,16 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   {
     WriteDummyClass(fp, data, options->OutputFileName);
     fclose(fp);
-    exit(0);
+    vtkWrap_WarnEmpty(options);
+    return 0;
   }
 
   if (data->Template)
   {
     WriteDummyClass(fp, data, options->OutputFileName);
     fclose(fp);
-    exit(0);
+    vtkWrap_WarnEmpty(options);
+    return 0;
   }
 
   for (i = 0; i < data->NumberOfSuperClasses; ++i)
@@ -1007,7 +1009,8 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     {
       WriteDummyClass(fp, data, options->OutputFileName);
       fclose(fp);
-      exit(0);
+      vtkWrap_WarnEmpty(options);
+      return 0;
     }
   }
 
@@ -1017,7 +1020,8 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     {
       WriteDummyClass(fp, data, options->OutputFileName);
       fclose(fp);
-      exit(0);
+      vtkWrap_WarnEmpty(options);
+      return 0;
     }
 
     /* resolve using declarations within the header files */

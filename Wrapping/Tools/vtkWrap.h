@@ -10,6 +10,7 @@
 
 #include "vtkParse.h"
 #include "vtkParseHierarchy.h"
+#include "vtkParseMain.h"
 #include "vtkWrappingToolsModule.h"
 
 /**
@@ -286,6 +287,13 @@ extern "C"
    * Return the arg from "templated<T>" as a malloc'd string.
    */
   VTKWRAPPINGTOOLS_EXPORT char* vtkWrap_TemplateArg(const char* name);
+
+  /**
+   * Emit a warning about nothing being wrapped.
+   *
+   * Depends on the warning flag being requested.
+   */
+  VTKWRAPPINGTOOLS_EXPORT void vtkWrap_WarnEmpty(OptionInfo* options);
 
 #ifdef __cplusplus
 }

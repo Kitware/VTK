@@ -1350,7 +1350,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (!fp)
   {
     fprintf(stderr, "Error opening output file %s\n", options->OutputFileName);
-    exit(1);
+    return 1;
   }
 
   /* get the main class */
@@ -1358,13 +1358,14 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (data == NULL || data->IsExcluded)
   {
     fclose(fp);
-    exit(0);
+    return 0;
   }
 
   if (data->Template)
   {
     fclose(fp);
-    exit(0);
+    vtkWrap_WarnEmpty(options);
+    return 0;
   }
 
   for (i = 0; i < data->NumberOfSuperClasses; ++i)
@@ -1372,7 +1373,8 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     if (strchr(data->SuperClasses[i], '<'))
     {
       fclose(fp);
-      exit(0);
+      vtkWrap_WarnEmpty(options);
+      return 0;
     }
   }
 
@@ -1381,7 +1383,8 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     if (!vtkWrap_IsTypeOf(hierarchyInfo, data->Name, "vtkObjectBase"))
     {
       fclose(fp);
-      exit(0);
+      vtkWrap_WarnEmpty(options);
+      return 0;
     }
 
     /* resolve using declarations within the header files */

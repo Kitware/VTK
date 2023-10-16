@@ -1309,3 +1309,11 @@ char* vtkWrap_TemplateArg(const char* name)
 
   return arg;
 }
+
+void vtkWrap_WarnEmpty(OptionInfo* options)
+{
+  if (options->WarningFlags.Empty)
+  {
+    fprintf(stderr, "warning: did not wrap anything from %s [-Wempty]\n", options->InputFileName);
+  }
+}

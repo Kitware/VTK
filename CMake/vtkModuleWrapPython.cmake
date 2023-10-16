@@ -226,6 +226,7 @@ $<$<BOOL:${_vtk_python_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_python_hierar
               "@${_vtk_python_args_file}"
               -o "${_vtk_python_source_output}"
               "${_vtk_python_header}"
+              ${_vtk_python_warning_args}
               ${_vtk_python_macros_args}
       IMPLICIT_DEPENDS
               CXX "${_vtk_python_header}"
@@ -593,6 +594,8 @@ endfunction ()
        [INSTALL_EXPORT <export>]
        [COMPONENT <component>])
        [TARGET_SPECIFIC_COMPONENTS <ON|OFF>]
+
+       [WARNINGS <warning>...]
      )
 
 
@@ -658,12 +661,13 @@ endfunction ()
     libraries to the provided export set.
   * ``COMPONENT``: Defaults to ``python``. All install rules created by this
     function will use this installation component.
+  * ``WARNINGS``: Warnings to enable. Supported warnings: ``empty``.
 #]==]
 function (vtk_module_wrap_python)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_python
     ""
     "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;SOABI;USE_DEBUG_SUFFIX;REPLACE_DEBUG_SUFFIX;UTILITY_TARGET;BUILD_PYI_FILES;HEADERS_DESTINATION;INTERPRETER"
-    "DEPENDS;MODULES")
+    "DEPENDS;MODULES;WARNINGS")
 
   if (_vtk_python_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -676,6 +680,18 @@ function (vtk_module_wrap_python)
       "No modules were requested for Python wrapping.")
     return ()
   endif ()
+
+  set(_vtk_python_known_warnings
+    empty)
+  set(_vtk_python_warning_args)
+  foreach (_vtk_python_warning IN LISTS _vtk_python_WARNINGS)
+    if (NOT _vtk_python_warning IN_LIST _vtk_python_known_warnings)
+      message(FATAL_ERROR
+        "Unrecognized warning: ${_vtk_python_warning}")
+    endif ()
+    list(APPEND _vtk_python_warning_args
+      "-W${_vtk_python_warning}")
+  endforeach ()
 
   _vtk_module_split_module_name("${_vtk_python_TARGET}" _vtk_python)
 
@@ -1091,7 +1107,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}/py.typed")
 
       if (TARGET VTK::vtkpython)
-        set(_vtk_python_exe $<TARGET_FILE:VTK::vtkpython>)
+        set(_vtk_python_exe "$<TARGET_FILE:VTK::vtkpython>")
       else ()
         set(_vtk_python_exe "${Python3_EXECUTABLE}")
       endif ()
