@@ -56,6 +56,10 @@ struct vtkDrawTexturedElements::Internal
   GLenum Primitive;
   /// The total number of vertices.
   GLsizei Count;
+  /// Cull face saver
+  // Turn off face culling (especially when HasTranslucentPolygonalGeometry()
+  // returns true, since this will break depth peeling/OIT).
+  std::unique_ptr<vtkOpenGLState::ScopedglEnableDisable> CullFaceSaver;
 };
 
 vtkDrawTexturedElements::vtkDrawTexturedElements()
@@ -214,7 +218,7 @@ void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapp
   // Turn off face culling (especially when HasTranslucentPolygonalGeometry()
   // returns true, since this will break depth peeling/OIT).
   vtkOpenGLState* ostate = renderWindow->GetState();
-  ostate->vtkglDisable(GL_CULL_FACE);
+  this->P->CullFaceSaver.reset(new vtkOpenGLState::ScopedglEnableDisable(ostate, GL_CULL_FACE));
 #ifndef GL_ES_VERSION_3_0
   // For GLES 3.0, none of these are supported. It is recommended to set gl_PointSize in shader
   // and render wide lines using instanced rendering.
@@ -370,12 +374,11 @@ void vtkDrawTexturedElements::PostDraw(vtkRenderer* ren, vtkActor*, vtkMapper*)
   vtkOpenGLStaticCheckErrorMacro("Just after texture release");
 
   this->VAO->Release();
-  this->ColorTextureGL->PostRender(ren);
-
-  // Turn off face culling (especially when HasTranslucentPolygonalGeometry()
-  // returns true, since this will break depth peeling/OIT).
-  vtkOpenGLState* ostate = renderWindow->GetState();
-  ostate->vtkglEnable(GL_CULL_FACE);
+  if (this->IncludeColormap)
+  {
+    this->ColorTextureGL->PostRender(ren);
+  }
+  this->P->CullFaceSaver.reset(nullptr);
 }
 
 void vtkDrawTexturedElements::DrawInstancedElementsImpl(vtkRenderer* ren, vtkActor*, vtkMapper*)
