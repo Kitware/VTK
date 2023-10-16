@@ -402,7 +402,7 @@ function (_vtk_module_wrap_python_library name)
     OUTPUT  "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
     COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
-            "${_vtk_python_wrap_target}"
+            "$<TARGET_FILE:${_vtk_python_wrap_target}>"
             "${_vtk_python_init_data_file}"
             "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
