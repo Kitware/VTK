@@ -626,16 +626,24 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
       tmpContourData->SetLines(newLines);
       tmpContourData->BuildCells();
 
-      vtkCellArray* tmpPolys = vtkCellArray::New();
-      this->TriangulateContours(
-        tmpContourData, numClipLines, numClipAndContourLines - numClipLines, tmpPolys, pc);
-      tmpContourData->SetPolys(tmpPolys);
-      newPolys->Append(tmpPolys);
       if (this->GenerateClipFaceOutput)
       {
-        clipFacePolys->Append(tmpPolys);
+        vtkCellArray* tmpPolys = vtkCellArray::New();
+        this->TriangulateContours(
+          tmpContourData, numClipLines, numClipAndContourLines - numClipLines, tmpPolys, pc);
+        tmpContourData->SetPolys(tmpPolys);
+        newPolys->Append(tmpPolys);
+        if (this->GenerateClipFaceOutput)
+        {
+          clipFacePolys->Append(tmpPolys);
+        }
+        tmpPolys->Delete();
       }
-      tmpPolys->Delete();
+      else
+      {
+        this->TriangulateContours(
+          tmpContourData, numClipLines, numClipAndContourLines - numClipLines, newPolys, pc);
+      }
 
       // Add scalars for the newly-created polys
       scalars = vtkArrayDownCast<vtkUnsignedCharArray>(outPolyData->GetScalars());
