@@ -36,7 +36,9 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cinttypes>
 #include <cstdarg>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -236,16 +238,6 @@ namespace loguru
 	}();
 
 	static void print_preamble_header(char* out_buff, size_t out_buff_size);
-
-	#if LOGURU_PTLS_NAMES
-		static pthread_once_t s_pthread_key_once = PTHREAD_ONCE_INIT;
-		static pthread_key_t  s_pthread_key_name;
-
-		void make_pthread_key_name()
-		{
-			(void)pthread_key_create(&s_pthread_key_name, free);
-		}
-	#endif
 
 	// ------------------------------------------------------------------------------
 	// Colors
@@ -527,15 +519,17 @@ namespace loguru
 
 	Text errno_as_text()
 	{
-		char buff[256];
 	#if defined(__GLIBC__) && defined(_GNU_SOURCE)
 		// GNU Version
+		char buff[256];
 		return Text(STRDUP(strerror_r(errno, buff, sizeof(buff))));
-	#elif defined(__APPLE__) || _POSIX_C_SOURCE >= 200112L
+	#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
 		// XSI Version
+		char buff[256];
 		strerror_r(errno, buff, sizeof(buff));
 		return Text(strdup(buff));
 	#elif defined(_WIN32)
+		char buff[256];
 		strerror_s(buff, sizeof(buff), errno);
 		return Text(STRDUP(buff));
 	#else
@@ -578,7 +572,7 @@ namespace loguru
 			#elif LOGURU_PTHREADS
 				char old_thread_name[16] = {0};
 				auto this_thread = pthread_self();
-				#if defined(__APPLE__) || defined(__linux__)
+				#if defined(__APPLE__) || defined(__linux__) || defined(__sun)
 					pthread_getname_np(this_thread, old_thread_name, sizeof(old_thread_name));
 				#endif
 				if (old_thread_name[0] == 0) {
@@ -586,7 +580,7 @@ namespace loguru
 						pthread_setname_np(main_thread_name);
 					#elif defined(__FreeBSD__) || defined(__OpenBSD__)
 						pthread_set_name_np(this_thread, main_thread_name);
-					#elif defined(__linux__)
+					#elif defined(__linux__) || defined(__sun)
 						pthread_setname_np(this_thread, main_thread_name);
 					#endif
 				}
@@ -910,8 +904,22 @@ namespace loguru
 			   g_stderr_verbosity : s_max_out_verbosity;
 	}
 
+	// ------------------------------------------------------------------------
+	// Threads names
+
+#if LOGURU_PTLS_NAMES
+	static pthread_once_t s_pthread_key_once = PTHREAD_ONCE_INIT;
+	static pthread_key_t  s_pthread_key_name;
+
+	void make_pthread_key_name()
+	{
+		(void)pthread_key_create(&s_pthread_key_name, free);
+	}
+#endif
+
 #if LOGURU_WINTHREADS
-	char* get_thread_name_win32()
+	// Where we store the custom thread name set by `set_thread_name`
+	char* thread_name_buffer()
 	{
 		__declspec( thread ) static char thread_name[LOGURU_THREADNAME_WIDTH + 1] = {0};
 		return &thread_name[0];
@@ -921,81 +929,83 @@ namespace loguru
 	void set_thread_name(const char* name)
 	{
 		#if LOGURU_PTLS_NAMES
+			// Store thread name in thread-local storage at `s_pthread_key_name`
 			(void)pthread_once(&s_pthread_key_once, make_pthread_key_name);
 			(void)pthread_setspecific(s_pthread_key_name, STRDUP(name));
-
 		#elif LOGURU_PTHREADS
+			// Tell the OS the thread name
 			#ifdef __APPLE__
 				pthread_setname_np(name);
 			#elif defined(__FreeBSD__) || defined(__OpenBSD__)
 				pthread_set_name_np(pthread_self(), name);
-			#elif defined(__linux__)
+			#elif defined(__linux__) || defined(__sun)
 				pthread_setname_np(pthread_self(), name);
 			#endif
 		#elif LOGURU_WINTHREADS
-			strncpy_s(get_thread_name_win32(), LOGURU_THREADNAME_WIDTH + 1, name, _TRUNCATE);
+			// Store thread name in a thread-local storage:
+			strncpy_s(thread_name_buffer(), LOGURU_THREADNAME_WIDTH + 1, name, _TRUNCATE);
 		#else // LOGURU_PTHREADS
+			// TODO: on these weird platforms we should also store the thread name
+			// in a generic thread-local storage.
 			(void)name;
 		#endif // LOGURU_PTHREADS
 	}
 
-#if LOGURU_PTLS_NAMES
-	const char* get_thread_name_ptls()
+	void get_thread_name(char* buffer, unsigned long long length, bool right_align_hex_id)
 	{
-		(void)pthread_once(&s_pthread_key_once, make_pthread_key_name);
-		return static_cast<const char*>(pthread_getspecific(s_pthread_key_name));
-	}
-#endif // LOGURU_PTLS_NAMES
-
-	void get_thread_name(char* buffer, unsigned long long length, bool right_align_hext_id)
-	{
-#ifdef _WIN32
-		(void)right_align_hext_id;
-#endif
 		CHECK_NE_F(length, 0u, "Zero length buffer in get_thread_name");
 		CHECK_NOTNULL_F(buffer, "nullptr in get_thread_name");
-#if LOGURU_PTHREADS
-		auto thread = pthread_self();
+
 		#if LOGURU_PTLS_NAMES
-			if (const char* name = get_thread_name_ptls()) {
-				snprintf(buffer, length, "%s", name);
+			(void)pthread_once(&s_pthread_key_once, make_pthread_key_name);
+			if (const char* name = static_cast<const char*>(pthread_getspecific(s_pthread_key_name))) {
+				snprintf(buffer, static_cast<size_t>(length), "%s", name);
 			} else {
 				buffer[0] = 0;
 			}
-		#elif defined(__APPLE__) || defined(__linux__)
-			pthread_getname_np(thread, buffer, length);
+		#elif defined(__FreeBSD__) || defined(__OpenBSD__)
+			pthread_get_name_np(pthread_self(), buffer, length);
+		#elif LOGURU_PTHREADS
+			// Ask the OS about the thread name.
+			// This is what we *want* to do on all platforms, but
+			// only some platforms support it (currently).
+			pthread_getname_np(pthread_self(), buffer, length);
+		#elif LOGURU_WINTHREADS
+			snprintf(buffer, static_cast<size_t>(length), "%s", thread_name_buffer());
 		#else
+			// Thread names unsupported
 			buffer[0] = 0;
 		#endif
 
 		if (buffer[0] == 0) {
+			// We failed to get a readable thread name.
+			// Write a HEX thread ID instead.
+			// We try to get an ID that is the same as the ID you could
+			// read in your debugger, system monitor etc.
+
 			#ifdef __APPLE__
 				uint64_t thread_id;
-				pthread_threadid_np(thread, &thread_id);
+				pthread_threadid_np(pthread_self(), &thread_id);
 			#elif defined(__FreeBSD__)
 				long thread_id;
 				(void)thr_self(&thread_id);
 			#elif defined(__OpenBSD__)
-				unsigned thread_id = -1;
+				pid_t thread_id = getthrid();
+			#elif LOGURU_PTHREADS
+				// Here we rely on the opaque pthread_t being of integer type, which is the case on linux, but not other platforms.
+				uint64_t thread_id = static_cast<uint64_t>(pthread_self());
 			#else
-				uint64_t thread_id = thread;
+				// This ID does not correllate to anything we can get from the OS,
+				// so this is the worst way to get the ID.
+				const auto thread_id = std::hash<std::thread::id>{}(std::this_thread::get_id());
 			#endif
-			if (right_align_hext_id) {
-				snprintf(buffer, length, "%*X", static_cast<int>(length - 1), static_cast<unsigned>(thread_id));
+
+			if (right_align_hex_id) {
+				snprintf(buffer, static_cast<size_t>(length), "%*" PRIX64, static_cast<int>(length - 1), static_cast<uint64_t>(thread_id));
 			} else {
-				snprintf(buffer, length, "%X", static_cast<unsigned>(thread_id));
+				snprintf(buffer, static_cast<size_t>(length), "%" PRIX64, static_cast<uint64_t>(thread_id));
 			}
 		}
-#elif LOGURU_WINTHREADS
-		if (const char* name = get_thread_name_win32()) {
-			snprintf(buffer, (size_t)length, "%s", name);
-		} else {
-			buffer[0] = 0;
-		}
-#else // !LOGURU_WINTHREADS && !LOGURU_WINTHREADS
-		buffer[0] = 0;
-#endif
-
 	}
 
 	// ------------------------------------------------------------------------
