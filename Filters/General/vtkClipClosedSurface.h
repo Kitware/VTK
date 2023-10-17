@@ -207,6 +207,9 @@ public:
    * implicit function if it lies in front of the clipping plane. When
    * InsideOutside is turned on, a vertex is considered inside if it lies on the
    * back side of the plane.  InsideOut is off by default.
+   *
+   * \note Regardless of the InsideOut flag, it is not possible to generate an
+   * inside (that is, convex) corner by clipping.
    */
   vtkSetMacro(InsideOut, vtkTypeBool);
   vtkGetMacro(InsideOut, vtkTypeBool);
