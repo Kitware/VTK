@@ -64,6 +64,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests data_tests
   BoxClipOrientedPointData.cxx
   BoxClipPointData.cxx
   TestClipClosedSurface1.cxx
+  TestClipClosedSurface2.cxx
   TestDataSetGradient.cxx
   TestDataSetGradientPrecompute.cxx
   TestDateToNumeric.cxx
