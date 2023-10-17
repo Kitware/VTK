@@ -676,9 +676,13 @@ void vtkOpenGLRenderer::Clear()
     }
     else // GradientBackground
     {
-      vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl",
-        "uniform vec3 stopColors[2];\n"
-        "//VTK::FSQ::Decl");
+      vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl", R"(
+uniform bool dither;
+uniform vec3 stopColors[2];
+// Granularity of dither noise set to very small number 0.5 / 255.0 to ensure any shift in color due to dither noise is minimal
+const highp float DITHERING_GRANULARITY = 0.001960784313725;
+float generateRandom (vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); }
+//VTK::FSQ::Decl)");
       switch (this->GradientMode)
       {
         case GradientModes::VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE:
@@ -716,8 +720,11 @@ void vtkOpenGLRenderer::Clear()
         }
       }
       vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Impl",
-        "  gl_FragData[0] = vec4(stopColors[0].xyz * (1.0 - value) + stopColors[1].xyz * "
-        "value, 1.0);");
+        R"(gl_FragData[0] = vec4(mix(stopColors[0].xyz, stopColors[1].xyz, value), 1.0);
+if (dither) {
+  float noise = mix(-DITHERING_GRANULARITY, DITHERING_GRANULARITY, generateRandom(texCoord));
+  gl_FragData[0].xyz += vec3(noise);
+})");
     }
 
     // re-create vtkOpenGLQuadHelper, because fragment shader code might have changed from the last
@@ -742,6 +749,7 @@ void vtkOpenGLRenderer::Clear()
       std::copy(this->Background, this->Background + 3, &stopColors[0][0]);
       std::copy(this->Background2, this->Background2 + 3, &stopColors[1][0]);
       this->BackgroundRenderer->Program->SetUniform3fv("stopColors", 2, stopColors);
+      this->BackgroundRenderer->Program->SetUniformi("dither", this->DitherGradient);
     }
     // draw the background.
     this->BackgroundRenderer->Render();
