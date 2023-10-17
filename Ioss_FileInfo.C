@@ -33,7 +33,7 @@
 #elif defined(__OpenBSD__)
 #include <sys/types.h>
 #include <sys/mount.h>
-#elif defined(__linux__)
+#else
 #include <sys/statfs.h>
 #endif
 #endif
