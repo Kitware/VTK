@@ -3763,12 +3763,19 @@ function (vtk_module_add_module name)
   if (_vtk_add_module_FORCE_STATIC)
     set(_vtk_add_module_type STATIC)
   elseif (_vtk_add_module_FORCE_SHARED)
-    if (NOT EMSCRIPTEN)
+    get_cmake_property(_vtk_add_module_target_has_shared TARGET_SUPPORTS_SHARED_LIBS)
+    if (_vtk_add_module_target_has_shared)
+      set(_vtk_add_module_type SHARED)
+    else()
       # XXX(cmake): Until the emscripten platform supports shared libraries,
       #   do not allow FORCE_SHARED. See [1] and [2] for more information.
       #   [1]: https://github.com/emscripten-core/emscripten/pull/16281
       #   [2]: https://github.com/emscripten-core/emscripten/issues/20340
-      set(_vtk_add_module_type SHARED)
+      #
+      #   If some *other* platform does not support shared libraries, issue a warning:
+      if (NOT EMSCRIPTEN)
+        message(WARNING "Shared library requested by ${name} not allowed on this platform.")
+      endif()
     endif()
   endif ()
 
