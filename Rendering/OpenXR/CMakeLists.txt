@@ -52,7 +52,7 @@ endforeach()
 
 install(
   FILES ${openxr_input_files}
-  DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/vr_actions/"
+  DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/xr_actions/"
   COMPONENT   runtime
 )
 vtk_add_test_mangling(VTK::RenderingOpenXR)
