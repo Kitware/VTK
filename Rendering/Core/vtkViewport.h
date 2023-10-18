@@ -119,6 +119,17 @@ public:
   vtkBooleanMacro(GradientBackground, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get whether this viewport should use dithering to reduce
+   * color banding when using gradient backgrounds.
+   * By default, this feature is enabled.
+   */
+  vtkSetMacro(DitherGradient, bool);
+  vtkGetMacro(DitherGradient, bool);
+  vtkBooleanMacro(DitherGradient, bool);
+  ///@}
+
   enum class GradientModes : int
   {
     // Background color is used at the bottom, Background2 color is used at the top.
@@ -465,6 +476,7 @@ protected:
   double PixelAspect[2];
   double Center[2];
   bool GradientBackground;
+  bool DitherGradient;
   GradientModes GradientMode = GradientModes::VTK_GRADIENT_VERTICAL;
 
   double EnvironmentalBG[3];
