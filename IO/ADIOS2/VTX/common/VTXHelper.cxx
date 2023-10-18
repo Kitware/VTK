@@ -15,8 +15,10 @@
 #include <numeric> //std::accumulate
 #include <sstream>
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
+#endif
 #include "vtkMultiProcessController.h"
 
 #include <vtksys/FStream.hxx>
@@ -28,6 +30,7 @@ namespace helper
 {
 VTK_ABI_NAMESPACE_BEGIN
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 MPI_Comm MPIGetComm()
 {
   MPI_Comm comm = MPI_COMM_NULL;
@@ -42,21 +45,30 @@ MPI_Comm MPIGetComm()
   }
   return comm;
 }
+#endif
 
 int MPIGetRank()
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   MPI_Comm comm = MPIGetComm();
   int rank;
   MPI_Comm_rank(comm, &rank);
   return rank;
+#else
+  return 0;
+#endif
 }
 
 int MPIGetSize()
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   MPI_Comm comm = MPIGetComm();
   int size;
   MPI_Comm_size(comm, &size);
   return size;
+#else
+  return 1;
+#endif
 }
 
 pugi::xml_document XMLDocument(
