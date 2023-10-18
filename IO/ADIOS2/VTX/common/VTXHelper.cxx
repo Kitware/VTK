@@ -295,16 +295,6 @@ std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
   return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<std::size_t>());
 }
 
-// allowed types
-template vtkSmartPointer<vtkDataArray> NewDataArray<int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<long long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<float>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<double>();
-
 adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape)
 {
   adios2::Box<adios2::Dims> selection({ adios2::Dims(shape.size(), 0), shape });
