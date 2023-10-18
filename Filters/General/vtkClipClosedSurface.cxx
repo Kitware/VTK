@@ -716,7 +716,21 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
   // Delete the contour data container
   if (this->GenerateClipFaceOutput)
   {
-    tmpContourData->SetPolys(clipFacePolys);
+    if (!this->GenerateOutline)
+    {
+      // Remove lines from the clip face output if not required
+      tmpContourData->SetLines(nullptr);
+    }
+    if (this->GenerateFaces)
+    {
+      tmpContourData->SetPolys(clipFacePolys);
+    }
+    else
+    {
+      // Remove faces from the clip face output if not required
+      tmpContourData->SetPolys(nullptr);
+    }
+    // Finally, set the clip face output
     this->GetClipFaceOutput()->DeepCopy(tmpContourData);
     clipFacePolys->Delete();
   }
