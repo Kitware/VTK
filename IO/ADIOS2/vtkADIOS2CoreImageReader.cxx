@@ -28,7 +28,7 @@
 #include "vtkLongLongArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
-#include "vtkMultiProcessController.h"
+#include "vtkMultiProcessController.h" // For the MPI controller member
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -46,7 +46,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/SystemTools.hxx"
 
-#ifdef IOADIOS2_HAVE_MPI
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPIController.h"
 #endif
@@ -126,7 +126,7 @@ vtkNew<vtkMultiPieceDataSet> vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderI
   int myLen = static_cast<int>(ibds->GetNumberOfBlocks());
   int* allLens{ nullptr };
   int procId{ 0 }, numProcess{ 0 };
-#ifdef IOADIOS2_HAVE_MPI
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   auto ctrl = vtkMultiProcessController::GetGlobalController();
   if (ctrl)
   {
@@ -286,7 +286,7 @@ const vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAva
 //------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::SetController(vtkMultiProcessController* controller)
 {
-#ifdef IOADIOS2_HAVE_MPI
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkMPIController* mpiController = vtkMPIController::SafeDownCast(controller);
   if (controller && !mpiController)
   {
@@ -337,7 +337,7 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
   // Initialize the ADIOS2 data structures
   if (!this->Impl->Adios)
   {
-#ifdef IOADIOS2_HAVE_MPI
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
     // Make sure the ADIOS subsystem is initialized before processing any
     // sort of request.
     if (!this->Controller)
@@ -361,7 +361,7 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
   // Before processing any request, read the meta data first
   try
   {
-#ifdef IOADIOS2_BP5_RANDOM_ACCESS
+#if IOADIOS2_BP5_RANDOM_ACCESS
     auto mode = adios2::Mode::ReadRandomAccess;
 #else
     auto mode = adios2::Mode::Read;
@@ -910,7 +910,7 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
   auto var = this->Impl->AdiosIO.InquireVariable<T>(varName);
   size_t blockNum = this->Impl->BpReader.BlocksInfo(var, this->Impl->RequestStep).size();
 
-#ifdef IOADIOS2_HAVE_MPI
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   size_t rank = static_cast<size_t>(this->Controller->GetLocalProcessId());
   size_t procs = static_cast<size_t>(this->Controller->GetNumberOfProcesses());
 #else
