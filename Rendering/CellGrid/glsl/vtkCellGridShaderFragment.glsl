@@ -1,14 +1,12 @@
 //VTK::System::Dec
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+//VTK::Camera::Dec
+
 //VTK::Output::Dec
 
-/// Whether camera uses orthographic projection
-uniform int cameraParallel;
 /// View coordinate normal for this vertex.
 smooth in vec3 vertexNormalVCVS;
-/// View coordinate position for this vertex.
-smooth in vec4 vertexPositionVCVS;
 
 // Position of vertex in view coordinates.
 //VTK::PositionVC::Dec

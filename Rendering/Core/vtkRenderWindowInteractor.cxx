@@ -55,6 +55,8 @@ static int vtkTimerId = 1;
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor, Picker, vtkAbstractPicker);
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor, HardwareWindow, vtkHardwareWindow);
 
+bool vtkRenderWindowInteractor::InteractorManagesTheEventLoop = true;
+
 //------------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()

@@ -103,8 +103,8 @@ void vtkArrayRenderer::PrintSelf(ostream& os, vtkIndent indent)
   vtkIndent i2 = indent.GetNextIndent();
   for (const auto& array : this->Arrays)
   {
-    os << i2 << ii << ": " << array.first.Data() << " = " << array.second.Array->GetName() << " "
-       << array.second.Texture << " " << array.second.Buffer << "\n";
+    os << i2 << ii << ": " << array.first.Data() << " = " << array.second.Arrays.front()->GetName()
+       << " " << array.second.Texture << " " << array.second.Buffer << "\n";
     ++ii;
   }
   os << indent << "ShaderProgram: " << this->ShaderProgram << "\n";

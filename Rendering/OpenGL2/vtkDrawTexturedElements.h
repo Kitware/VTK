@@ -17,16 +17,16 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
-#include "vtkMatrix3x3.h"               // for ivar
-#include "vtkMatrix4x4.h"               // for ivar
-#include "vtkNew.h"                     // for ivar
-#include "vtkOpenGLBufferObject.h"      // for ObjectType
-#include "vtkOpenGLIndexBufferObject.h" // for ivar
-#include "vtkOpenGLTexture.h"           // for ivar
-#include "vtkOpenGLVertexArrayObject.h" // for ivar
-#include "vtkShader.h"                  // for ivar
-#include "vtkSmartPointer.h"            // for ivar
-#include "vtkStringToken.h"             // for passing shader and array names
+#include "vtkMatrix3x3.h"                       // for ivar
+#include "vtkMatrix4x4.h"                       // for ivar
+#include "vtkNew.h"                             // for ivar
+#include "vtkOpenGLArrayTextureBufferAdapter.h" // for ivar
+#include "vtkOpenGLBufferObject.h"              // for ObjectType
+#include "vtkOpenGLTexture.h"                   // for ivar
+#include "vtkOpenGLVertexArrayObject.h"         // for ivar
+#include "vtkShader.h"                          // for ivar
+#include "vtkSmartPointer.h"                    // for ivar
+#include "vtkStringToken.h"                     // for passing shader and array names
 
 #include <unordered_map>
 
@@ -38,7 +38,6 @@ class vtkGLSLRuntimeModBase;
 class vtkMapper;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
-class vtkOpenGLIndexBufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexArrayObject;
 class vtkOpenGLTexture;
@@ -75,6 +74,8 @@ public:
   /// image is uploaded where each value is a scalar (row indices are tuple IDs, column
   /// indices are component IDs).
   void BindArrayToTexture(vtkStringToken textureName, vtkDataArray* array, bool asScalars = false);
+  void AppendArrayToTexture(
+    vtkStringToken textureName, vtkDataArray* array, bool asScalars = false);
   bool UnbindArray(vtkStringToken);
 
   /// Set/get the number of element instances to draw.
@@ -119,40 +120,26 @@ public:
   vtkCollection* GetGLSLModCollection() const;
 
 protected:
-  void PrepareIBO();
-  bool UploadIBO();
   /// Set any custom uniforms provided by the actor.
   void SetCustomUniforms(vtkRenderer* ren, vtkActor* a);
-
-  struct ArrayTextureData
-  {
-    vtkSmartPointer<vtkDataArray> Array;
-    vtkSmartPointer<vtkTextureObject> Texture;
-    vtkSmartPointer<vtkOpenGLBufferObject> Buffer;
-    vtkOpenGLBufferObject::ObjectType BufferType;
-    bool IntegerTexture;
-    bool ScalarComponents;
-
-    ArrayTextureData();
-    ArrayTextureData(vtkDataArray* array, bool asScalars, bool* integerTexture = nullptr);
-    ArrayTextureData(const ArrayTextureData&) = default;
-
-    void Upload(vtkOpenGLRenderWindow* renderWindow, bool force = false);
-  };
+  void ReadyShaderProgram(vtkRenderer* ren);
+  void PreDraw(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
+  void DrawInstancedElementsImpl(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
+  void PostDraw(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
 
   using ShaderMap = std::map<vtkShader::Type, vtkShader*>;
   struct Internal;
 
   /// Private data for this class.
   Internal* P{ nullptr };
+  vtkIdType FirstVertexId{ 0 };
   vtkIdType NumberOfInstances{ 1 };
   vtkIdType NumberOfElements{ 1 };
   int ElementType{ ElementShape::TriangleStrip };
   bool IncludeColormap{ true };
-  std::unordered_map<vtkStringToken, ArrayTextureData> Arrays;
+  std::unordered_map<vtkStringToken, vtkOpenGLArrayTextureBufferAdapter> Arrays;
   ShaderMap Shaders;
   vtkSmartPointer<vtkShaderProgram> ShaderProgram;
-  vtkNew<vtkOpenGLIndexBufferObject> IBO;
   vtkNew<vtkOpenGLVertexArrayObject> VAO;
   vtkNew<vtkOpenGLTexture> ColorTextureGL;
   vtkNew<vtkCollection> GLSLMods;

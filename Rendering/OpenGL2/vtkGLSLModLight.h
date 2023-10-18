@@ -34,6 +34,15 @@ public:
 
   static LightStatsBasic GetBasicLightStats(vtkOpenGLRenderer* renderer, vtkActor* actor);
 
+  vtkSetMacro(UsePBRTextures, bool);
+  vtkGetMacro(UsePBRTextures, bool);
+
+  vtkSetMacro(UseAnisotropy, bool);
+  vtkGetMacro(UseAnisotropy, bool);
+
+  vtkSetMacro(UseClearCoat, bool);
+  vtkGetMacro(UseClearCoat, bool);
+
   // vtkGLSLModifierBase virtuals:
   bool ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::string& vertexShader,
     std::string& geometryShader, std::string& fragmentShader, vtkAbstractMapper* mapper,
@@ -46,8 +55,14 @@ protected:
   vtkGLSLModLight();
   ~vtkGLSLModLight() override;
 
+  /// @name Light statistics
   int LastLightComplexity = 0;
   int LastLightCount = 0;
+
+  /// @name PBR settings
+  bool UsePBRTextures = false;
+  bool UseAnisotropy = false;
+  bool UseClearCoat = false;
 
 private:
   vtkGLSLModLight(const vtkGLSLModLight&) = delete;

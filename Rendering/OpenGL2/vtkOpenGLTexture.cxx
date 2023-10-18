@@ -337,6 +337,7 @@ void vtkOpenGLTexture::Load(vtkRenderer* ren)
           this->TextureObject->SetMaximumAnisotropicFiltering(this->MaximumAnisotropicFiltering);
           this->TextureObject->SendParameters();
           glGenerateMipmap(this->TextureObject->GetTarget());
+          vtkOpenGLCheckErrorMacro("Failed glGenerateMipMap. ");
         }
         else
         {

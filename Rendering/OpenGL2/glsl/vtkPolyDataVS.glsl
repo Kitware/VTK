@@ -48,9 +48,9 @@ in vec4 vertexMC;
 
 void main()
 {
-  //VTK::PointSizeGLES30::Impl
-
   //VTK::CustomBegin::Impl
+
+  //VTK::PointSizeGLES30::Impl
 
   //VTK::Color::Impl
 

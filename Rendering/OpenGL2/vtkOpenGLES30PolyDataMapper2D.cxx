@@ -213,12 +213,12 @@ void vtkOpenGLES30PolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActo
     this->UpdateShaders(*cellBOs[primType], ren, actor);
     if (modes[primType] == GL_LINES && this->HaveWideLines(ren, actor))
     {
-      glDrawArraysInstanced(
-        GL_LINES, 0, numVerts, 2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth()));
+      glDrawArraysInstanced(GL_LINES, 0, static_cast<GLsizei>(numVerts),
+        static_cast<GLsizei>(2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth())));
     }
     else
     {
-      glDrawArrays(modes[primType], 0, numVerts);
+      glDrawArrays(modes[primType], 0, static_cast<GLsizei>(numVerts));
     }
   }
 
@@ -462,7 +462,7 @@ void vtkOpenGLES30PolyDataMapper2D::UpdateVBO(vtkActor2D* act, vtkViewport* view
     const auto numPrimitives = numIndices / PrimitiveSizes[primType];
     VertexAttributeArrays newVertexAttrs;
     newVertexAttrs = originalVAttribs;
-    newVertexAttrs.Resize(numIndices);
+    newVertexAttrs.Resize(static_cast<int>(numIndices));
     const auto start = indexArray.data();
     expand(originalVAttribs.colors, newVertexAttrs.colors, start, numIndices);
     expand(originalVAttribs.points, newVertexAttrs.points, start, numIndices);

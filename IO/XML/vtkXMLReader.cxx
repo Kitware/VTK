@@ -5,6 +5,7 @@
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkBitArray.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataCompressor.h"
@@ -120,6 +121,9 @@ static void ReadStringVersion(const char* version, int& major, int& minor)
     }
   }
 }
+
+vtkCxxSetObjectMacro(vtkXMLReader, InputArray, vtkCharArray);
+
 //------------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
 {
@@ -129,6 +133,7 @@ vtkXMLReader::vtkXMLReader()
   this->StringStream = nullptr;
   this->ReadFromInputString = 0;
   this->InputString = "";
+  this->InputArray = nullptr;
   this->XMLParser = nullptr;
   this->ReaderErrorObserver = nullptr;
   this->ParserErrorObserver = nullptr;
@@ -196,6 +201,7 @@ vtkXMLReader::~vtkXMLReader()
   this->ColumnArraySelection->Delete();
   this->TimeDataStringArray->Delete();
   this->SetActiveTimeDataArrayName(nullptr);
+  this->SetInputArray(nullptr);
   if (this->ReaderErrorObserver)
   {
     this->ReaderErrorObserver->Delete();
@@ -251,6 +257,46 @@ vtkDataSet* vtkXMLReader::GetOutputAsDataSet(int index)
 int vtkXMLReader::CanReadFileVersion(int major, int vtkNotUsed(minor))
 {
   return (major > vtkXMLReaderMajorVersion) ? 0 : 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLReader::SetInputString(const char* in)
+{
+  int len = 0;
+  if (in != nullptr)
+  {
+    len = static_cast<int>(strlen(in));
+  }
+  this->SetInputString(in, len);
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLReader::SetBinaryInputString(const char* in, int len)
+{
+  this->SetInputString(in, len);
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLReader::SetInputString(const char* in, int len)
+{
+  if (this->Debug)
+  {
+    vtkDebugMacro(<< "SetInputString len: " << len << " in: " << (in ? in : "(null)"));
+  }
+
+  if (!this->InputString.empty() && in && strncmp(in, this->InputString.c_str(), len) == 0)
+  {
+    return;
+  }
+
+  this->InputString.clear();
+
+  if (in && len > 0)
+  {
+    this->InputString.assign(in, len);
+  }
+
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -324,7 +370,8 @@ int vtkXMLReader::OpenVTKString()
     return 1;
   }
 
-  if (!this->Stream && this->InputString.empty())
+  if (!this->Stream && this->InputString.empty() &&
+    (this->InputArray == nullptr || this->InputArray->GetNumberOfValues() == 0))
   {
     vtkErrorMacro("Input string not specified");
     return 0;
@@ -337,13 +384,32 @@ int vtkXMLReader::OpenVTKString()
   }
 
   // Open the string stream
-  this->StringStream = new std::istringstream(this->InputString);
-  if (!this->StringStream || !(*this->StringStream))
+  if (this->InputArray)
   {
-    vtkErrorMacro("Error opening string stream");
-    delete this->StringStream;
-    this->StringStream = nullptr;
-    return 0;
+    vtkDebugMacro(<< "Reading from InputArray");
+    std::string str(this->InputArray->GetPointer(0),
+      static_cast<size_t>(
+        this->InputArray->GetNumberOfTuples() * this->InputArray->GetNumberOfComponents()));
+    this->StringStream = new std::istringstream(str);
+    if (!this->StringStream || !(*this->StringStream))
+    {
+      vtkErrorMacro("Error opening string stream");
+      delete this->StringStream;
+      this->StringStream = nullptr;
+      return 0;
+    }
+  }
+  else if (!this->InputString.empty())
+  {
+    vtkDebugMacro(<< "Reading from InputString");
+    this->StringStream = new std::istringstream(this->InputString);
+    if (!this->StringStream || !(*this->StringStream))
+    {
+      vtkErrorMacro("Error opening string stream");
+      delete this->StringStream;
+      this->StringStream = nullptr;
+      return 0;
+    }
   }
 
   // Use the string stream.

@@ -48,114 +48,18 @@
 // Uncomment to print shader/color info to cout
 // #define vtkDrawTexturedElements_DEBUG
 
-namespace
-{
-
-thread_local std::vector<GLubyte> iotaByte;
-thread_local std::vector<GLushort> iotaShort;
-thread_local std::vector<GLuint> iotaInt;
-
-// glIota() is a function to create an array to upload into an index-buffer object (IBO).
-// Since this class uses vertex-pulling to assign coordinates and other values in the
-// vertex shader, no vertex array data is used and the IBO is typically minimal (just a
-// few triangles at most). The OpenGL-provided gl_VertexID and gl_InstanceID are used to
-// fetch or compute vertex data as required.
-//
-// glIotaInternal is templated on integer type so that the smallest integer type that
-// supports the required index values can be used.
-template <typename IotaType>
-IotaType* glIotaInternal(vtkOpenGLIndexBufferObject* ibo, GLsizei count);
-
-template <>
-GLubyte* glIotaInternal<GLubyte>(vtkOpenGLIndexBufferObject* ibo, GLsizei count)
-{
-  if (count > 255)
-  {
-    return nullptr;
-  }
-  if (count > static_cast<GLsizei>(iotaByte.size()))
-  {
-    iotaByte.resize(count);
-    std::iota(iotaByte.begin(), iotaByte.end(), 0);
-  }
-  ibo->Upload(iotaByte, vtkOpenGLBufferObject::ObjectType::ElementArrayBuffer);
-  return &iotaByte[0];
-}
-
-template <>
-GLushort* glIotaInternal<GLushort>(vtkOpenGLIndexBufferObject* ibo, GLsizei count)
-{
-  if (count > 255)
-  {
-    return nullptr;
-  }
-  if (count > static_cast<GLsizei>(iotaShort.size()))
-  {
-    iotaShort.resize(count);
-    std::iota(iotaShort.begin(), iotaShort.end(), 0);
-  }
-  ibo->Upload(iotaShort, vtkOpenGLBufferObject::ObjectType::ElementArrayBuffer);
-  return &iotaShort[0];
-}
-
-template <>
-GLuint* glIotaInternal<GLuint>(vtkOpenGLIndexBufferObject* ibo, GLsizei count)
-{
-  if (count > 255)
-  {
-    return nullptr;
-  }
-  if (count > static_cast<GLsizei>(iotaInt.size()))
-  {
-    iotaInt.resize(count);
-    std::iota(iotaInt.begin(), iotaInt.end(), 0);
-  }
-  ibo->Upload(iotaInt, vtkOpenGLBufferObject::ObjectType::ElementArrayBuffer);
-  return &iotaInt[0];
-}
-
-// See documentation for glIotaInternal above for details.
-void glIota(vtkOpenGLIndexBufferObject* ibo, GLenum& indexType, void*& indices, GLsizei count)
-{
-  // We do not support more than 2**30 vertices since OpenGL does not provide an
-  // integer that can distinguish between them. In that case, we will not upload an IBO.
-  if (count > (1 << 30))
-  {
-    indices = nullptr;
-  }
-  if (count > 16383)
-  {
-    indices = glIotaInternal<GLuint>(ibo, count);
-    indexType = GL_UNSIGNED_INT;
-  }
-  else if (count > 255)
-  {
-    indices = glIotaInternal<GLushort>(ibo, count);
-    indexType = GL_UNSIGNED_SHORT;
-  }
-  else
-  {
-    indices = glIotaInternal<GLubyte>(ibo, count);
-    indexType = GL_UNSIGNED_BYTE;
-  }
-  // Unbind after uploading
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-}
-
 VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkDrawTexturedElements::Internal
 {
-  /// True when the IBO has up-to-date data loaded.
-  bool UploadedIndexBuffer{ false };
-  /// The data type for indices in the IBO (one of GL_UNSIGNED_{BYTE,SHORT,INT}).
-  GLenum IndexType;
-  /// The type of primitives represented by the IBO (the default is GL_TRIANGLE_STRIP).
+  /// The type of primitives to draw (the default is GL_TRIANGLE_STRIP).
   GLenum Primitive;
-  /// The number of connectivity entries in the IBO.
+  /// The total number of vertices.
   GLsizei Count;
+  /// Cull face saver
+  // Turn off face culling (especially when HasTranslucentPolygonalGeometry()
+  // returns true, since this will break depth peeling/OIT).
+  std::unique_ptr<vtkOpenGLState::ScopedglEnableDisable> CullFaceSaver;
 };
 
 vtkDrawTexturedElements::vtkDrawTexturedElements()
@@ -196,12 +100,18 @@ void vtkDrawTexturedElements::BindArrayToTexture(
   vtkStringToken textureName, vtkDataArray* array, bool asScalars)
 {
   auto it = this->Arrays.find(textureName);
+#ifdef vtkDrawTexturedElements_DEBUG
+  std::cout << "Bind " << array->GetObjectDescription() << "to texture " << textureName.Data()
+            << std::endl;
+#endif
   if (it == this->Arrays.end())
   {
-    this->Arrays[textureName] = ArrayTextureData(array, asScalars);
+    this->Arrays[textureName] = vtkOpenGLArrayTextureBufferAdapter(array, asScalars);
     return;
   }
-  it->second.Array = array;
+  it->second.Arrays = { array };
+  // needs to be re-uploaded.
+  it->second.Buffer->FlagBufferAsDirty();
   it->second.ScalarComponents = asScalars;
 }
 
@@ -216,6 +126,27 @@ bool vtkDrawTexturedElements::UnbindArray(vtkStringToken textureName)
   return true;
 }
 
+void vtkDrawTexturedElements::AppendArrayToTexture(
+  vtkStringToken textureName, vtkDataArray* array, bool asScalars)
+{
+  auto it = this->Arrays.find(textureName);
+#ifdef vtkDrawTexturedElements_DEBUG
+  std::cout << "Append " << array->GetObjectDescription() << "to texture " << textureName.Data()
+            << std::endl;
+#endif
+  if (it == this->Arrays.end())
+  {
+    this->Arrays[textureName] = vtkOpenGLArrayTextureBufferAdapter(array, asScalars);
+    return;
+  }
+  else
+  {
+    it->second.Arrays.emplace_back(array);
+    // needs to be re-uploaded.
+    it->second.Buffer->FlagBufferAsDirty();
+  }
+}
+
 bool vtkDrawTexturedElements::SetNumberOfElements(vtkIdType numberOfElements)
 {
   if (this->NumberOfElements == numberOfElements)
@@ -224,7 +155,6 @@ bool vtkDrawTexturedElements::SetNumberOfElements(vtkIdType numberOfElements)
   }
   this->NumberOfElements = numberOfElements;
   // this->Modified();
-  this->P->UploadedIndexBuffer = false; // We need to re-upload our IBO.
   return true;
 }
 
@@ -260,111 +190,7 @@ bool vtkDrawTexturedElements::SetIncludeColormap(bool includeColormap)
   return true;
 }
 
-vtkDrawTexturedElements::ArrayTextureData::ArrayTextureData()
-  : Array(nullptr)
-  , Texture(vtkSmartPointer<vtkTextureObject>::New())
-  , Buffer(vtkSmartPointer<vtkOpenGLBufferObject>::New())
-  , BufferType(vtkOpenGLBufferObject::ObjectType::TextureBuffer)
-  , IntegerTexture(true)
-  , ScalarComponents(false)
-{
-}
-
-vtkDrawTexturedElements::ArrayTextureData::ArrayTextureData(
-  vtkDataArray* array, bool asScalars, bool* integerTexture)
-  : Array(array)
-  , Texture(vtkSmartPointer<vtkTextureObject>::New())
-  , Buffer(vtkSmartPointer<vtkOpenGLBufferObject>::New())
-  , BufferType(vtkOpenGLBufferObject::ObjectType::TextureBuffer)
-  , IntegerTexture((integerTexture ? *integerTexture : array->IsIntegral()))
-  , ScalarComponents(asScalars)
-{
-}
-
-void vtkDrawTexturedElements::ArrayTextureData::Upload(
-  vtkOpenGLRenderWindow* renderWindow, bool force)
-{
-  if (this->Buffer->IsReady() && !force)
-  {
-    // We don't need to re-upload.
-    return;
-  }
-  this->Buffer->SetType(this->BufferType);
-  this->Texture->SetRequireTextureInteger(this->IntegerTexture);
-  this->Texture->SetContext(renderWindow);
-  vtkSmartPointer<vtkDataArray> array = this->Array;
-  // Narrow arrays of large values to a precision supported by base-OpenGL:
-  switch (array->GetDataType())
-  {
-    case VTK_DOUBLE:
-    {
-      array = vtkSmartPointer<vtkFloatArray>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    case VTK_ID_TYPE:
-    {
-      // FIXME: We should check that truncating to 32 bits is OK.
-      array = vtkSmartPointer<vtkTypeInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-#if VTK_TYPE_UINT64 == VTK_UNSIGNED_LONG
-    case VTK_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    case VTK_UNSIGNED_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeUInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-#endif
-    case VTK_LONG_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    case VTK_UNSIGNED_LONG_LONG:
-    {
-      array = vtkSmartPointer<vtkTypeUInt32Array>::New();
-      array->DeepCopy(this->Array);
-    }
-    break;
-    default:
-      // Do nothing
-      break;
-  }
-#ifdef vtkDrawTexturedElements_DEBUG
-  std::cout << "Uploading Array: " << this->Array->GetName()
-            << " with MTime: " << this->Array->GetMTime() << " into Buffer: " << this->Buffer
-            << " with MTime: " << this->Texture->GetMTime() << std::endl;
-#endif
-  // Now upload the array
-  switch (array->GetDataType())
-  {
-    vtkTemplateMacro(this->Buffer->Upload(
-      static_cast<VTK_TT*>(array->GetVoidPointer(0)), array->GetMaxId() + 1, this->BufferType));
-  }
-  int numberOfComponents = this->ScalarComponents ? 1 : array->GetNumberOfComponents();
-  vtkIdType numberOfTuples =
-    this->ScalarComponents ? array->GetMaxId() + 1 : array->GetNumberOfTuples();
-  // if (updateInternalTextureFormat)
-  {
-    this->Texture->GetInternalFormat(
-      array->GetDataType(), numberOfComponents, this->IntegerTexture);
-  }
-  this->Texture->CreateTextureBuffer(
-    numberOfTuples, numberOfComponents, array->GetDataType(), this->Buffer);
-  // this->Texture->Activate();
-}
-
-void vtkDrawTexturedElements::DrawInstancedElements(
-  vtkRenderer* ren, vtkActor* actor, vtkMapper* mapper)
+void vtkDrawTexturedElements::ReadyShaderProgram(vtkRenderer* ren)
 {
   auto* renderWindow = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   if (!renderWindow)
@@ -372,12 +198,30 @@ void vtkDrawTexturedElements::DrawInstancedElements(
     vtkWarningWithObjectMacro(ren, "Renderer has no OpenGL render-window.");
     return;
   }
+  this->ShaderProgram = renderWindow->GetShaderCache()->ReadyShaderProgram(this->Shaders);
+  vtkOpenGLStaticCheckErrorMacro("Failed readying shader program");
+}
 
+void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapper* mapper)
+{
+  if (this->ShaderProgram == nullptr)
+  {
+    // can be nullptr if glsl failed to compile or link
+    return;
+  }
+  auto* renderWindow = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  if (!renderWindow)
+  {
+    vtkWarningWithObjectMacro(ren, "Renderer has no OpenGL render-window.");
+    return;
+  }
   // Turn off face culling (especially when HasTranslucentPolygonalGeometry()
   // returns true, since this will break depth peeling/OIT).
   vtkOpenGLState* ostate = renderWindow->GetState();
-  vtkOpenGLState::ScopedglEnableDisable cfsaver(ostate, GL_CULL_FACE);
-  ostate->vtkglDisable(GL_CULL_FACE);
+  this->P->CullFaceSaver.reset(new vtkOpenGLState::ScopedglEnableDisable(ostate, GL_CULL_FACE));
+#ifndef GL_ES_VERSION_3_0
+  // For GLES 3.0, none of these are supported. It is recommended to set gl_PointSize in shader
+  // and render wide lines using instanced rendering.
   switch (this->ElementType)
   {
     case ElementShape::Point:
@@ -390,18 +234,36 @@ void vtkDrawTexturedElements::DrawInstancedElements(
     default:
       break;
   }
+#endif
 
-  this->ShaderProgram = renderWindow->GetShaderCache()->ReadyShaderProgram(this->Shaders);
-  vtkOpenGLStaticCheckErrorMacro("Failed readying shader program");
-  if (this->ShaderProgram == nullptr)
+  // Determine primitive type number of invocations of the vertex shader.
+  switch (this->ElementType)
   {
-    // can be nullptr if glsl failed to compile or link
-    return;
+    case vtkDrawTexturedElements::ElementShape::Point:
+      this->P->Primitive = GL_POINTS;
+      break;
+    case vtkDrawTexturedElements::ElementShape::Line:
+      this->P->Primitive = GL_LINES;
+      break;
+    case vtkDrawTexturedElements::ElementShape::LineStrip:
+      this->P->Primitive = GL_LINE_STRIP;
+      break;
+    case vtkDrawTexturedElements::ElementShape::Triangle:
+      this->P->Primitive = GL_TRIANGLES;
+      break;
+    case vtkDrawTexturedElements::ElementShape::TriangleStrip:
+      this->P->Primitive = GL_TRIANGLE_STRIP;
+      break;
+    case vtkDrawTexturedElements::ElementShape::TriangleFan:
+      this->P->Primitive = GL_TRIANGLE_FAN;
+      break;
+    default:
+    {
+      // vtkErrorMacro("Invalid element type " << this->ElementType << ".");
+      vtkGenericWarningMacro("Invalid element type " << this->ElementType << ".");
+      break;
+    }
   }
-
-  // Either create+bind a new index-buffer or bind an existing index-buffer.
-  this->PrepareIBO();
-
   if (this->IncludeColormap)
   {
     // Upload the colormap (or create one if none exists).
@@ -434,6 +296,9 @@ void vtkDrawTexturedElements::DrawInstancedElements(
   // I. Upload data to texture objects as needed.
   for (auto& entry : this->Arrays)
   {
+#ifdef vtkDrawTexturedElements_DEBUG
+    std::cout << "Attempt to upload \"" << entry.first.Data() << "\"\n";
+#endif
     entry.second.Upload(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
   }
   // II. Activate each texture (bind it).
@@ -447,6 +312,9 @@ void vtkDrawTexturedElements::DrawInstancedElements(
 #endif
       continue;
     }
+#ifdef vtkDrawTexturedElements_DEBUG
+    std::cout << "Activate \"" << entry.first.Data() << " for sampler " << samplerName << "\"\n";
+#endif
     entry.second.Texture->Activate();
     int textureUnit = entry.second.Texture->GetTextureUnit();
     this->ShaderProgram->SetUniformi(samplerName.c_str(), textureUnit);
@@ -478,46 +346,25 @@ void vtkDrawTexturedElements::DrawInstancedElements(
   // Add custom uniforms provided by the actor's shader property.
   this->SetCustomUniforms(ren, actor);
 
-  auto instances = static_cast<GLsizei>(this->NumberOfInstances);
-  vtkOpenGLStaticCheckErrorMacro("Just before draw instanced");
-
   // Bind the (null) VAO and the IBO
   this->VAO->Bind();
-  this->IBO->Bind();
-  vtkOpenGLStaticCheckErrorMacro("Failed after binding VAO and IBO.");
+  vtkOpenGLStaticCheckErrorMacro("Failed after binding VAO.");
+}
 
-  // Render the element instances:
-#ifdef GL_ES_VERSION_3_0
-  glDrawElementsInstanced(
-    this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
-#else
-#if 1
-  if (GLEW_VERSION_3_1)
+void vtkDrawTexturedElements::PostDraw(vtkRenderer* ren, vtkActor*, vtkMapper*)
+{
+  if (this->ShaderProgram == nullptr)
   {
-    glDrawElementsInstanced(
-      this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
+    // can be nullptr if glsl failed to compile or link
+    return;
   }
-  else if (GL_ARB_instanced_arrays)
+  auto* renderWindow = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  if (!renderWindow)
   {
-    glDrawElementsInstancedARB(
-      this->P->Primitive, this->P->Count, this->P->IndexType, nullptr /* indices */, instances);
+    vtkWarningWithObjectMacro(ren, "Renderer has no OpenGL render-window.");
+    return;
   }
-#else
-  if (GLEW_VERSION_3_1)
-  {
-    glDrawArraysInstanced(this->P->Primitive, 0, this->P->Count, instances);
-  }
-  else if (GL_ARB_instanced_arrays && &glDrawArraysInstancedARB)
-  {
-    glDrawArraysInstancedARB(this->P->Primitive, 0, this->P->Count, instances);
-  }
-#endif
-  else
-  {
-    vtkErrorWithObjectMacro(ren, "No support for glDrawElementsInstanced.");
-  }
-#endif
-  vtkOpenGLStaticCheckErrorMacro("Just after draw");
+
 #if 1
   for (const auto& entry : this->Arrays)
   {
@@ -526,14 +373,84 @@ void vtkDrawTexturedElements::DrawInstancedElements(
 #endif
   vtkOpenGLStaticCheckErrorMacro("Just after texture release");
 
-  this->IBO->Release();
   this->VAO->Release();
-  this->ColorTextureGL->PostRender(ren);
+  if (this->IncludeColormap)
+  {
+    this->ColorTextureGL->PostRender(ren);
+  }
+  this->P->CullFaceSaver.reset(nullptr);
+}
+
+void vtkDrawTexturedElements::DrawInstancedElementsImpl(vtkRenderer* ren, vtkActor*, vtkMapper*)
+{
+  if (this->ShaderProgram == nullptr)
+  {
+    // can be nullptr if glsl failed to compile or link
+    return;
+  }
+
+  // Determine number of invocations of the vertex shader.
+  this->P->Count = static_cast<GLsizei>(this->NumberOfElements);
+  switch (this->ElementType)
+  {
+    case vtkDrawTexturedElements::ElementShape::Point:
+      break;
+    case vtkDrawTexturedElements::ElementShape::Line:
+      this->P->Count *= 2;
+      break;
+    case vtkDrawTexturedElements::ElementShape::LineStrip:
+      ++this->P->Count;
+      break;
+    case vtkDrawTexturedElements::ElementShape::Triangle:
+      this->P->Count *= 3;
+      break;
+    case vtkDrawTexturedElements::ElementShape::TriangleStrip:
+      this->P->Count += 2;
+      break;
+    case vtkDrawTexturedElements::ElementShape::TriangleFan:
+      this->P->Count += 2;
+      break;
+    default:
+    {
+      // vtkErrorMacro("Invalid element type " << this->ElementType << ".");
+      vtkGenericWarningMacro("Invalid element type " << this->ElementType << ".");
+      break;
+    }
+  }
+  auto instances = static_cast<GLsizei>(this->NumberOfInstances);
+  vtkOpenGLStaticCheckErrorMacro("Just before draw instanced");
+  // Render the element instances:
+#ifdef GL_ES_VERSION_3_0
+  (void)ren;
+  glDrawArraysInstanced(this->P->Primitive, this->FirstVertexId, this->P->Count, instances);
+#else
+  if (GLEW_VERSION_3_1)
+  {
+    glDrawArraysInstanced(this->P->Primitive, this->FirstVertexId, this->P->Count, instances);
+  }
+  else if (GL_ARB_instanced_arrays)
+  {
+    glDrawArraysInstancedARB(this->P->Primitive, this->FirstVertexId, this->P->Count, instances);
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(ren, "No support for glDrawArraysInstanced.");
+  }
+#endif
+  vtkOpenGLStaticCheckErrorMacro("Just after draw");
+}
+
+void vtkDrawTexturedElements::DrawInstancedElements(
+  vtkRenderer* ren, vtkActor* actor, vtkMapper* mapper)
+{
+  this->ReadyShaderProgram(ren);
+  this->PreDraw(ren, actor, mapper);
+  this->DrawInstancedElementsImpl(ren, actor, mapper);
+  this->PostDraw(ren, actor, mapper);
 }
 
 void vtkDrawTexturedElements::ReleaseResources(vtkWindow* window)
 {
-  this->IBO->ReleaseGraphicsResources();
   this->VAO->ReleaseGraphicsResources();
   this->ColorTextureGL->ReleaseGraphicsResources(window);
   for (auto& entry : this->Arrays)
@@ -551,75 +468,6 @@ vtkShaderProgram* vtkDrawTexturedElements::GetShaderProgram()
 vtkCollection* vtkDrawTexturedElements::GetGLSLModCollection() const
 {
   return this->GLSLMods;
-}
-
-void vtkDrawTexturedElements::PrepareIBO()
-{
-  if (this->P->UploadedIndexBuffer)
-  {
-    return; // Fast path is when we have already uploaded the IBO.
-  }
-
-  // It would be nice to test this in the constructor
-  // but there is no current context at that point.
-  // Instead, we test here to avoid testing on every render.
-#ifndef VTK_MODULE_vtkglew_GLES3
-  if (!GLEW_VERSION_3_1)
-  {
-    vtkErrorWithObjectMacro(this->IBO, "OpenGL 3.1 or newer required.");
-    throw std::runtime_error("OpenGL 3.1 or newer required.");
-  }
-#endif
-
-  this->P->UploadedIndexBuffer = this->UploadIBO();
-  if (!this->P->UploadedIndexBuffer)
-  {
-    vtkErrorWithObjectMacro(this->IBO, "Unable to upload IBO for array renderer.");
-    return;
-  }
-}
-
-bool vtkDrawTexturedElements::UploadIBO()
-{
-  // Create a "connectivity" array (indices) for the elements.
-  // The array renderer assumes these are just a sequence of integers 0..(N-1).
-  this->P->Count = static_cast<GLsizei>(this->NumberOfElements);
-  switch (this->ElementType)
-  {
-    case ElementShape::Point:
-      this->P->Primitive = GL_POINTS;
-      break;
-    case ElementShape::Line:
-      this->P->Primitive = GL_LINES;
-      this->P->Count *= 2;
-      break;
-    case ElementShape::LineStrip:
-      this->P->Primitive = GL_LINE_STRIP;
-      ++this->P->Count;
-      break;
-    case ElementShape::Triangle:
-      this->P->Primitive = GL_TRIANGLES;
-      this->P->Count *= 3;
-      break;
-    case ElementShape::TriangleStrip:
-      this->P->Primitive = GL_TRIANGLE_STRIP;
-      this->P->Count += 2;
-      break;
-    case ElementShape::TriangleFan:
-      this->P->Primitive = GL_TRIANGLE_FAN;
-      this->P->Count += 2;
-      break;
-    default:
-    {
-      // vtkErrorMacro("Invalid element type " << this->ElementType << ".");
-      vtkGenericWarningMacro("Invalid element type " << this->ElementType << ".");
-      return false;
-    }
-  }
-
-  void* indices = nullptr;
-  glIota(this->IBO, this->P->IndexType, indices, this->P->Count);
-  return true;
 }
 
 void vtkDrawTexturedElements::SetCustomUniforms(vtkRenderer* vtkNotUsed(ren), vtkActor* actor)

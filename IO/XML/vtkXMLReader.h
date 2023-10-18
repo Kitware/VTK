@@ -21,6 +21,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkCallbackCommand;
+class vtkCharArray;
 class vtkCommand;
 class vtkDataArray;
 class vtkDataArraySelection;
@@ -60,7 +61,32 @@ public:
   vtkSetMacro(ReadFromInputString, vtkTypeBool);
   vtkGetMacro(ReadFromInputString, vtkTypeBool);
   vtkBooleanMacro(ReadFromInputString, vtkTypeBool);
-  void SetInputString(const std::string& s) { this->InputString = s; }
+  ///@{
+  /**
+   * Specify the InputString for use when reading from a character array.
+   * Optionally include the length for binary strings. Note that a copy
+   * of the string is made and stored. If this causes exceedingly large
+   * memory consumption, consider using InputArray instead.
+   */
+  void SetInputString(const char* in);
+  void SetInputString(const char* in, int len);
+  void SetBinaryInputString(const char*, int len);
+  void SetInputString(const std::string& input)
+  {
+    this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length()));
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Specify the vtkCharArray to be used  when reading from a string.
+   * If set, this array has precedence over InputString.
+   * Use this instead of InputString to avoid the extra memory copy.
+   * It should be noted that if the underlying char* is owned by the
+   * user ( vtkCharArray::SetArray(array, 1); ) and is deleted before
+   * the reader, bad things will happen during a pipeline update.
+   */
+  virtual void SetInputArray(vtkCharArray*);
   ///@}
 
   /**
@@ -394,6 +420,10 @@ protected:
 
   // The input string.
   std::string InputString;
+
+  // The input array. Keeps a low memory footprint by sourcing StringStream from contents of this
+  // array
+  vtkCharArray* InputArray;
 
   // The array selections.
   vtkDataArraySelection* PointDataArraySelection;

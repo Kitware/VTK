@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkRenderWindowInteractor.h"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -246,7 +247,8 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
 
   emscripten_set_resize_callback(
     EMSCRIPTEN_EVENT_TARGET_WINDOW, reinterpret_cast<void*>(this), 1, ::OnSizeChanged);
-  emscripten_set_main_loop_arg(&spinOnce, (void*)this, 0, 0);
+  emscripten_set_main_loop_arg(
+    &spinOnce, (void*)this, 0, vtkRenderWindowInteractor::InteractorManagesTheEventLoop);
 }
 
 //------------------------------------------------------------------------------

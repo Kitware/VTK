@@ -1639,6 +1639,7 @@ bool vtkTextureObject::CreateCubeFromRaw(
   if (this->GenerateMipmap)
   {
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    vtkOpenGLCheckErrorMacro("failed at glGenerateMipmap ");
   }
 
   this->Deactivate();

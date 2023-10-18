@@ -128,12 +128,6 @@ vec3 normalToSideAt(int sideId, vec3 corners[NumIntPt], vec3 rst)
 vertShaderSource = """//VTK::System::Dec
 // camera and actor matrix values
 //VTK::Camera::Dec
-uniform mat4 MCDCMatrix;
-
-/// Model-to-view coordinate transform
-uniform mat4 MCVCMatrix;
-/// matrix used to transform normals from model to view coordinate
-uniform mat3 normalMatrix;
 
 uniform samplerBuffer vertices;
 
@@ -173,7 +167,6 @@ smooth out vec3 EyeNormal;
 flat out int sideIdVS;
 flat out int fieldComponentVS;
 
-smooth out vec4 vertexPositionVCVS;
 /// View coordinate normal for this vertex.
 smooth out vec3 vertexNormalVCVS;
 
@@ -257,12 +250,10 @@ fragShaderSource = """//VTK::System::Dec
 // Lights
 //VTK::Light::Dec
 
-/// Whether camera uses orthographic projection
-uniform int cameraParallel;
 /// View coordinate normal for this vertex.
 smooth in vec3 vertexNormalVCVS;
 /// View coordinate position for this vertex.
-smooth in vec4 vertexPositionVCVS;
+//VTK::PositionVC::Dec
 smooth in vec3 vertexNormalMC;
 
 // basic material shading capabilities

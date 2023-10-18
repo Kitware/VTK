@@ -1,12 +1,7 @@
 //VTK::System::Dec
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-/// Model-to-device coordinate transform
-uniform mat4 MCDCMatrix;
-/// Model-to-view coordinate transform
-uniform mat4 MCVCMatrix;
-/// matrix used to transform normals from model to view coordinate
-uniform mat3 normalMatrix;
+//VTK::Camera::Dec
 /// View coordinate normal for this vertex.
 smooth out vec3 vertexNormalVCVS;
 
@@ -46,7 +41,7 @@ smooth out vec3 pcoordVS;
 /// View coordinate normal for this vertex.
 smooth out vec3 normalVCVS;
 /// View coordinate position for this vertex.
-smooth out vec4 vertexPositionVCVS;
+//VTK::PositionVC::Dec
 
 /// Store coefficients for one finite element's shape and color attributes.
 ///

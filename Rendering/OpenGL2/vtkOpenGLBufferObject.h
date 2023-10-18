@@ -5,6 +5,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // for export macro
+#include <cstddef>                     // for ptrdiff_t
 #include <string>                      // used for std::string
 #include <vector>                      // used for method args
 
@@ -33,18 +34,38 @@ public:
     ElementArrayBuffer,
     TextureBuffer
   };
-
+  enum ObjectUsage
+  {
+    StreamDraw,
+    StreamRead,
+    StreamCopy,
+    StaticDraw,
+    StaticRead,
+    StaticCopy,
+    DynamicDraw,
+    DynamicRead,
+    DynamicCopy
+  };
   /** Get the type of the buffer object. */
   ObjectType GetType() const;
 
   /** Set the type of the buffer object. */
   void SetType(ObjectType value);
 
+  /** Get the usage of the buffer object. */
+  ObjectUsage GetUsage() const;
+
+  /** Set the usage of the buffer object. */
+  void SetUsage(ObjectUsage value);
+
   /** Get the handle of the buffer object. */
   int GetHandle() const;
 
   /** Determine if the buffer object is ready to be used. */
   bool IsReady() const { return this->Dirty == false; }
+
+  /** Indicate that the buffer object needs to be re-uploaded. */
+  void FlagBufferAsDirty() { this->Dirty = true; }
 
   /** Generate the opengl buffer for this Handle */
   bool GenerateBuffer(ObjectType type);
@@ -60,11 +81,17 @@ public:
    */
   template <class T>
   bool Upload(const T& array, ObjectType type);
-
+  template <class T>
+  bool UploadRange(const T& array, ptrdiff_t offset, ObjectType type);
   // non vector version
   template <class T>
   bool Upload(const T* array, size_t numElements, ObjectType type);
-
+  template <class T>
+  bool UploadRange(const T* array, ptrdiff_t offset, size_t numElements, ObjectType type);
+  /**
+   * Allocates a buffer of `type` with `size` bytes.
+   */
+  bool Allocate(size_t size, ObjectType type, ObjectUsage usage);
   /**
    * Bind the buffer object ready for rendering.
    * @note Only one ARRAY_BUFFER and one ELEMENT_ARRAY_BUFFER may be bound at
@@ -93,6 +120,8 @@ protected:
   std::string Error;
 
   bool UploadInternal(const void* buffer, size_t size, ObjectType objectType);
+  bool UploadRangeInternal(
+    const void* buffer, ptrdiff_t offset, ptrdiff_t size, ObjectType objectType);
 
 private:
   vtkOpenGLBufferObject(const vtkOpenGLBufferObject&) = delete;
@@ -126,5 +155,29 @@ inline bool vtkOpenGLBufferObject::Upload(
   return this->UploadInternal(array, numElements * sizeof(T), objectType);
 }
 
+template <class T>
+inline bool vtkOpenGLBufferObject::UploadRange(
+  const T& array, ptrdiff_t offset, vtkOpenGLBufferObject::ObjectType objectType)
+{
+  if (array.empty())
+  {
+    this->Error = "Refusing to upload empty array.";
+    return false;
+  }
+
+  return this->UploadRangeInternal(
+    &array[0], offset, array.size() * sizeof(typename T::value_type), objectType);
+}
+template <class T>
+inline bool vtkOpenGLBufferObject::UploadRange(const T* array, ptrdiff_t offset, size_t numElements,
+  vtkOpenGLBufferObject::ObjectType objectType)
+{
+  if (!array)
+  {
+    this->Error = "Refusing to upload empty array.";
+    return false;
+  }
+  return this->UploadRangeInternal(array, offset, numElements * sizeof(T), objectType);
+}
 VTK_ABI_NAMESPACE_END
 #endif
