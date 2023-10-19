@@ -1,0 +1,21 @@
+vtk_module_test_data(
+  Data/bunny.ply
+  Data/dragon.ply
+  Data/ironProt.vtk
+  Data/many_blocks/many_blocks.vtm
+  Data/many_blocks/many_blocks/,REGEX:.*
+  Data/vase_1comp.vti
+  Data/wintersun.jpg
+  Data/skybox/posx.jpg
+  Data/skybox/negx.jpg
+  Data/skybox/posy.jpg
+  Data/skybox/negy.jpg
+  Data/skybox/posz.jpg
+  Data/skybox/negz.jpg
+  Data/vtk_Material.png
+  Data/vtk_Base_Color.png
+  Data/vtk_Normal.png
+  Data/vtk_Anisotropy.png
+  Data/tooth.nhdr)
+
+add_subdirectory(Cxx)

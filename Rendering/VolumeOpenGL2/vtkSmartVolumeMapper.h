@@ -71,6 +71,7 @@ class vtkGPUVolumeRayCastMapper;
 class vtkImageResample;
 class vtkMultiBlockVolumeMapper;
 class vtkOSPRayVolumeInterface;
+class vtkAnariVolumeInterface;
 class vtkRenderWindow;
 class vtkVolume;
 class vtkVolumeProperty;
@@ -129,8 +130,9 @@ public:
     RayCastRenderMode = 1,
     GPURenderMode = 2,
     OSPRayRenderMode = 3,
-    UndefinedRenderMode = 4,
-    InvalidRenderMode = 5
+    AnariRenderMode = 4,
+    UndefinedRenderMode = 5,
+    InvalidRenderMode = 6
   };
 
   /**
@@ -165,6 +167,12 @@ public:
    * This option will use intel OSPRay to do software rendering exclusively.
    */
   void SetRequestedRenderModeToOSPRay();
+
+  /**
+   * Set the requested render mode to vtkSmartVolumeMapper::AnariRenderMode.
+   * This option will use ANARI to do rendering exclusively.
+   */
+  void SetRequestedRenderModeToAnari();
 
   ///@{
   /**
@@ -584,6 +592,7 @@ private:
   void operator=(const vtkSmartVolumeMapper&) = delete;
 
   vtkOSPRayVolumeInterface* OSPRayMapper;
+  vtkAnariVolumeInterface* AnariMapper;
 };
 
 VTK_ABI_NAMESPACE_END

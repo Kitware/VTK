@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <cassert>
 
+#include "vtkAnariVolumeInterface.h"
 #include "vtkCellData.h"
 #include "vtkCellDataToPointData.h"
 #include "vtkColorTransferFunction.h"
@@ -131,6 +132,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   cb->Delete();
 
   this->OSPRayMapper = nullptr;
+  this->AnariMapper = nullptr;
 
   this->Transfer2DYAxisArray = nullptr;
 
@@ -177,6 +179,11 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
   {
     this->OSPRayMapper->Delete();
     this->OSPRayMapper = nullptr;
+  }
+  if (this->AnariMapper)
+  {
+    this->AnariMapper->Delete();
+    this->AnariMapper = nullptr;
   }
 
   this->SetTransfer2DYAxisArray(nullptr);
@@ -239,6 +246,13 @@ void vtkSmartVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
         this->OSPRayMapper = vtkOSPRayVolumeInterface::New();
       }
       this->OSPRayMapper->Render(ren, vol);
+      break;
+    case vtkSmartVolumeMapper::AnariRenderMode:
+      if (!this->AnariMapper)
+      {
+        this->AnariMapper = vtkAnariVolumeInterface::New();
+      }
+      this->AnariMapper->Render(ren, vol);
       break;
     case vtkSmartVolumeMapper::InvalidRenderMode:
       // Silently fail - a render mode that is not
@@ -393,6 +407,10 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
       this->CurrentRenderMode = vtkSmartVolumeMapper::OSPRayRenderMode;
       break;
 
+    case vtkSmartVolumeMapper::AnariRenderMode:
+      this->CurrentRenderMode = vtkSmartVolumeMapper::AnariRenderMode;
+      break;
+
       // This should never happen since the SetRequestedRenderMode
       // protects against invalid states
     default:
@@ -506,6 +524,9 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
       break;
 
     case vtkSmartVolumeMapper::OSPRayRenderMode:
+      break;
+
+    case vtkSmartVolumeMapper::AnariRenderMode:
       break;
 
       // The user selected a RequestedRenderMode that is
@@ -824,6 +845,12 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToGPU()
 void vtkSmartVolumeMapper::SetRequestedRenderModeToOSPRay()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::OSPRayRenderMode);
+}
+
+//------------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetRequestedRenderModeToAnari()
+{
+  this->SetRequestedRenderMode(vtkSmartVolumeMapper::AnariRenderMode);
 }
 
 //------------------------------------------------------------------------------

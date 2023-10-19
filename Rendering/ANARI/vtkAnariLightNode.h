@@ -1,0 +1,130 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkAnariLightNode.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/**
+ * @class   vtkAnariLightNode
+ * @brief   links vtkLights to ANARI
+ *
+ * Translates vtkLight state into ANARILight state. Lights in ANARI are
+ * virtual objects that emit light into the world and thus illuminate
+ * objects.
+ *
+ * @par Thanks:
+ * Kevin Griffin kgriffin@nvidia.com for creating and contributing the class
+ * and NVIDIA for supporting this work.
+ */
+
+#ifndef vtkAnariLightNode_h
+#define vtkAnariLightNode_h
+
+#include "vtkLightNode.h"
+#include "vtkRenderingAnariModule.h" // For export macro
+
+VTK_ABI_NAMESPACE_BEGIN
+
+class vtkInformationDoubleKey;
+class vtkInformationIntegerKey;
+class vtkLight;
+class vtkAnariLightNodeInternals;
+
+class VTKRENDERINGANARI_EXPORT vtkAnariLightNode : public vtkLightNode
+{
+public:
+  static vtkAnariLightNode* New();
+  vtkTypeMacro(vtkAnariLightNode, vtkLightNode);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Make ANARI calls to render me.
+   */
+  virtual void Render(bool prepass) override;
+
+  /**
+   * Invalidates cached rendering data.
+   */
+  virtual void Invalidate(bool prepass) override;
+
+  /**
+   * A global multiplier to all ANARI lights.
+   * default is 1.0
+   */
+  static vtkInformationDoubleKey* LIGHT_SCALE();
+
+  ///@{
+  /**
+   * Convenience method to set/get LIGHT_SCALE on a vtkLight
+   */
+  static void SetLightScale(double, vtkLight*);
+  static double GetLightScale(vtkLight*);
+  ///@}
+
+  // state beyond rendering core...
+
+  /**
+   * When present on light, the light acts as an ambient source.
+   * An AmbientLight is one that has no specific position in space and for
+   * which only the ambient color term affects the result.
+   */
+  static vtkInformationIntegerKey* IS_AMBIENT();
+
+  //@{
+  /**
+   * Convenience method to set/get IS_AMBIENT on a vtkLight.
+   */
+  static void SetIsAmbient(int, vtkLight*);
+  static int GetIsAmbient(vtkLight*);
+  //@}
+
+  /**
+   * The radius setting, when > 0.0, produces soft shadows in the
+   * path tracer.
+   */
+  static vtkInformationDoubleKey* RADIUS();
+
+  //@{
+  /**
+   * Convenience method to set/get RADIUS on a vtkLight.
+   */
+  static void SetRadius(double, vtkLight*);
+  static double GetRadius(vtkLight*);
+  //@}
+
+  /**
+   * For cone-shaped lights, size (angle in radians) of the region
+   * between the rim (of the illumination cone) and full intensity of
+   * the spot; should be smaller than half of openingAngle
+   */
+  static vtkInformationDoubleKey* FALLOFF_ANGLE();
+
+  //@{
+  /**
+   * Convenience method to set/get FALLOFF_ANGLE on a vtkLight.
+   */
+  static void SetFalloffAngle(double, vtkLight*);
+  static double GetFalloffAngle(vtkLight*);
+  //@}
+
+protected:
+  vtkAnariLightNode();
+  ~vtkAnariLightNode();
+
+private:
+  vtkAnariLightNode(const vtkAnariLightNode&) = delete;
+  void operator=(const vtkAnariLightNode&) = delete;
+
+  vtkAnariLightNodeInternals* Internal;
+};
+
+VTK_ABI_NAMESPACE_END
+#endif
