@@ -839,7 +839,7 @@ bool vtkOpenGLLowMemoryPolyDataMapper::IsShaderUpToDate(vtkRenderer* renderer, v
   // Have the renderpasses changed?
   if (this->ShaderBuildTimeStamp < ::GetRenderPassStageMTime(actor, this->LastRenderPassInfo))
   {
-    vtkDebugWithObjectMacro(debugAttachment, << "RenderPassStage is outdated");
+    vtkDebugMacro(<< "RenderPassStage is outdated");
     return false;
   }
   // Have the mods changed?
@@ -850,7 +850,7 @@ bool vtkOpenGLLowMemoryPolyDataMapper::IsShaderUpToDate(vtkRenderer* renderer, v
     auto mod = static_cast<vtkGLSLModifierBase*>(modsIter->GetCurrentObject());
     if (!mod->IsUpToDate(oglRen, this, actor))
     {
-      vtkDebugWithObjectMacro(nullptr, << mod->GetClassName() << " is outdated");
+      vtkDebugMacro(<< mod->GetClassName() << " is outdated");
       // if any mod is outdated, entire shader program must be re-compiled.
       return false;
     }
