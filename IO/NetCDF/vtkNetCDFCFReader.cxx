@@ -1898,7 +1898,7 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFCFReader::GetTimeValues(int vtkNotUsed(
 }
 
 //------------------------------------------------------------------------------
-inline vtkNetCDFCFReader::vtkDimensionInfo* vtkNetCDFCFReader::GetDimensionInfo(int dimension)
+vtkNetCDFCFReader::vtkDimensionInfo* vtkNetCDFCFReader::GetDimensionInfo(int dimension)
 {
   return &(this->DimensionInfo->v.at(dimension));
 }

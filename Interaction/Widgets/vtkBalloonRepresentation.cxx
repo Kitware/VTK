@@ -163,7 +163,7 @@ void vtkBalloonRepresentation::EndWidgetInteraction(double vtkNotUsed(e)[2])
 }
 
 //------------------------------------------------------------------------------
-inline void vtkBalloonRepresentation::AdjustImageSize(double imageSize[2])
+void vtkBalloonRepresentation::AdjustImageSize(double imageSize[2])
 {
   double r0 = this->ImageSize[0] / imageSize[0];
   double r1 = this->ImageSize[1] / imageSize[1];
@@ -180,7 +180,7 @@ inline void vtkBalloonRepresentation::AdjustImageSize(double imageSize[2])
 }
 
 //------------------------------------------------------------------------------
-inline void vtkBalloonRepresentation::ScaleImage(double imageSize[2], double scale)
+void vtkBalloonRepresentation::ScaleImage(double imageSize[2], double scale)
 {
   imageSize[0] *= scale;
   imageSize[1] *= scale;

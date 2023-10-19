@@ -101,7 +101,7 @@ int vtkProjectedTerrainPath::FillInputPortInformation(int port, vtkInformation* 
 //------------------------------------------------------------------------------
 // Warning: this method may return negative indices. This is expected behavior
 //
-inline void vtkProjectedTerrainPath::GetImageIndex(double x[3], double loc[2], int ij[2])
+void vtkProjectedTerrainPath::GetImageIndex(double x[3], double loc[2], int ij[2])
 {
   loc[0] = (x[0] - this->Origin[0]) / this->Spacing[0];
   ij[0] = (int)(floor(loc[0]));

@@ -1057,7 +1057,7 @@ FT_Error vtkFreeTypeTools::CreateFTCManager()
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkFreeTypeTools::PrepareImageMetaData(
+bool vtkFreeTypeTools::PrepareImageMetaData(
   vtkTextProperty* tprop, vtkImageData* image, ImageMetaData& metaData)
 {
   // Image properties
@@ -1075,7 +1075,7 @@ inline bool vtkFreeTypeTools::PrepareImageMetaData(
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkFreeTypeTools::PrepareMetaData(vtkTextProperty* tprop, int dpi, MetaData& metaData)
+bool vtkFreeTypeTools::PrepareMetaData(vtkTextProperty* tprop, int dpi, MetaData& metaData)
 {
   // Text properties
   metaData.textProperty = tprop;
@@ -2242,7 +2242,7 @@ int vtkFreeTypeTools::FitStringToBBox(
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkFreeTypeTools::GetFace(
+bool vtkFreeTypeTools::GetFace(
   vtkTextProperty* prop, size_t& prop_cache_id, FT_Face& face, bool& face_has_kerning)
 {
   this->MapTextPropertyToId(prop, &prop_cache_id);
@@ -2256,7 +2256,7 @@ inline bool vtkFreeTypeTools::GetFace(
 }
 
 //------------------------------------------------------------------------------
-inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c, size_t prop_cache_id, int prop_font_size,
+FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c, size_t prop_cache_id, int prop_font_size,
   FT_UInt& gindex, FT_BitmapGlyph& bitmap_glyph)
 {
   // Get the glyph index
@@ -2314,8 +2314,8 @@ FT_Bitmap* vtkFreeTypeTools::GetBitmap(
 }
 
 //------------------------------------------------------------------------------
-inline FT_Outline* vtkFreeTypeTools::GetOutline(FT_UInt32 c, size_t prop_cache_id,
-  int prop_font_size, FT_UInt& gindex, FT_OutlineGlyph& outline_glyph)
+FT_Outline* vtkFreeTypeTools::GetOutline(FT_UInt32 c, size_t prop_cache_id, int prop_font_size,
+  FT_UInt& gindex, FT_OutlineGlyph& outline_glyph)
 {
   // Get the glyph index
   if (!this->GetGlyphIndex(prop_cache_id, c, &gindex))

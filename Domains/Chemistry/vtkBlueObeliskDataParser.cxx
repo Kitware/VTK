@@ -451,13 +451,13 @@ void vtkBlueObeliskDataParser::ResizeAndSetValue(
 }
 
 //------------------------------------------------------------------------------
-inline int vtkBlueObeliskDataParser::parseInt(const char* d)
+int vtkBlueObeliskDataParser::parseInt(const char* d)
 {
   return atoi(d);
 }
 
 //------------------------------------------------------------------------------
-inline float vtkBlueObeliskDataParser::parseFloat(const char* d)
+float vtkBlueObeliskDataParser::parseFloat(const char* d)
 {
   float value;
   std::stringstream stream(d);
@@ -472,7 +472,7 @@ inline float vtkBlueObeliskDataParser::parseFloat(const char* d)
 }
 
 //------------------------------------------------------------------------------
-inline void vtkBlueObeliskDataParser::parseFloat3(const char* str, float arr[3])
+void vtkBlueObeliskDataParser::parseFloat3(const char* str, float arr[3])
 {
   unsigned short ind = 0;
 
@@ -491,13 +491,13 @@ inline void vtkBlueObeliskDataParser::parseFloat3(const char* str, float arr[3])
 }
 
 //------------------------------------------------------------------------------
-inline unsigned short vtkBlueObeliskDataParser::parseUnsignedShort(const char* d)
+unsigned short vtkBlueObeliskDataParser::parseUnsignedShort(const char* d)
 {
   return static_cast<unsigned short>(atoi(d));
 }
 
 //------------------------------------------------------------------------------
-inline std::string* vtkBlueObeliskDataParser::ToLower(std::string* str)
+std::string* vtkBlueObeliskDataParser::ToLower(std::string* str)
 {
   for (std::string::iterator it = str->begin(), it_end = str->end(); it != it_end; ++it)
   {

@@ -46,7 +46,7 @@ void vtkOpenGLVolumeLookupTable::Deactivate()
 }
 
 //------------------------------------------------------------------------------
-inline int vtkOpenGLVolumeLookupTable::GetMaximumSupportedTextureWidth(
+int vtkOpenGLVolumeLookupTable::GetMaximumSupportedTextureWidth(
   vtkOpenGLRenderWindow* renWin, int idealWidth)
 {
   if (!this->TextureObject)

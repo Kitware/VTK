@@ -643,7 +643,7 @@ bool vtkContextScene::KeyReleaseEvent(const vtkContextKeyEvent& keyEvent)
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkContextScene::ProcessItem(
+bool vtkContextScene::ProcessItem(
   vtkAbstractContextItem* cur, const vtkContextMouseEvent& event, MouseEvents eventPtr)
 {
   bool res = false;
@@ -664,7 +664,7 @@ inline bool vtkContextScene::ProcessItem(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkContextScene::EventCopy(const vtkContextMouseEvent& e)
+void vtkContextScene::EventCopy(const vtkContextMouseEvent& e)
 {
   vtkContextMouseEvent& event = this->Storage->Event;
   event.SetScreenPos(e.GetScreenPos());

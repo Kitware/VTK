@@ -978,14 +978,14 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
 }
 
 //------------------------------------------------------------------------------
-inline double vtkPolarAxesActor::FFix(double value)
+double vtkPolarAxesActor::FFix(double value)
 {
   int ivalue = static_cast<int>(value);
   return ivalue;
 }
 
 //------------------------------------------------------------------------------
-inline double vtkPolarAxesActor::FSign(double value, double sign)
+double vtkPolarAxesActor::FSign(double value, double sign)
 {
   value = fabs(value);
   if (sign < 0.)

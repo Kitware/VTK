@@ -250,7 +250,7 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2, vtkPoints* newPts,
 }
 
 //------------------------------------------------------------------------------
-inline int vtkBandedPolyDataContourFilter::InsertCell(
+int vtkBandedPolyDataContourFilter::InsertCell(
   vtkCellArray* cells, int npts, const vtkIdType* pts, int cellId, double s, vtkFloatArray* newS)
 {
   int idx = this->ComputeClippedIndex(s);
@@ -263,7 +263,7 @@ inline int vtkBandedPolyDataContourFilter::InsertCell(
 }
 
 //------------------------------------------------------------------------------
-inline int vtkBandedPolyDataContourFilter::InsertLine(
+int vtkBandedPolyDataContourFilter::InsertLine(
   vtkCellArray* cells, vtkIdType pt1, vtkIdType pt2, int cellId, double s, vtkFloatArray* newS)
 {
   int idx = this->ComputeClippedIndex(s);

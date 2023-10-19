@@ -690,7 +690,7 @@ void vtkOpenGLGL2PSHelperImpl::GetTransformParameters(vtkRenderer* ren, vtkMatri
 }
 
 //------------------------------------------------------------------------------
-inline void vtkOpenGLGL2PSHelperImpl::ProjectPoint(
+void vtkOpenGLGL2PSHelperImpl::ProjectPoint(
   double point[3], vtkRenderer* ren, vtkMatrix4x4* actorMatrix)
 {
   vtkNew<vtkMatrix4x4> xform;
@@ -706,7 +706,7 @@ inline void vtkOpenGLGL2PSHelperImpl::ProjectPoint(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkOpenGLGL2PSHelperImpl::ProjectPoint(double point[4], vtkMatrix4x4* transformMatrix,
+void vtkOpenGLGL2PSHelperImpl::ProjectPoint(double point[4], vtkMatrix4x4* transformMatrix,
   double viewportOrigin[2], double halfWidth, double halfHeight, double zfact1, double zfact2)
 {
   // Convert world to clip coordinates:
@@ -724,7 +724,7 @@ inline void vtkOpenGLGL2PSHelperImpl::ProjectPoint(double point[4], vtkMatrix4x4
 }
 
 //------------------------------------------------------------------------------
-inline void vtkOpenGLGL2PSHelperImpl::ProjectPoints(
+void vtkOpenGLGL2PSHelperImpl::ProjectPoints(
   vtkPoints* points, vtkRenderer* ren, vtkMatrix4x4* actorMatrix)
 {
   vtkNew<vtkMatrix4x4> xform;
@@ -746,9 +746,8 @@ inline void vtkOpenGLGL2PSHelperImpl::ProjectPoints(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkOpenGLGL2PSHelperImpl::UnprojectPoint(double point[4],
-  vtkMatrix4x4* invTransformMatrix, double viewportOrigin[2], double halfWidth, double halfHeight,
-  double zfact1, double zfact2)
+void vtkOpenGLGL2PSHelperImpl::UnprojectPoint(double point[4], vtkMatrix4x4* invTransformMatrix,
+  double viewportOrigin[2], double halfWidth, double halfHeight, double zfact1, double zfact2)
 {
   point[0] = (point[0] - viewportOrigin[0] - halfWidth) / halfWidth;
   point[1] = (point[1] - viewportOrigin[1] - halfHeight) / halfHeight;
@@ -762,7 +761,7 @@ inline void vtkOpenGLGL2PSHelperImpl::UnprojectPoint(double point[4],
 }
 
 //------------------------------------------------------------------------------
-inline void vtkOpenGLGL2PSHelperImpl::UnprojectPoints(
+void vtkOpenGLGL2PSHelperImpl::UnprojectPoints(
   double* points3D, vtkIdType numPoints, vtkRenderer* ren, vtkMatrix4x4* actorMatrix)
 {
   vtkNew<vtkMatrix4x4> xform;

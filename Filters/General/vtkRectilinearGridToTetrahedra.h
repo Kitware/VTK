@@ -140,7 +140,7 @@ private:
    * Helper Function for TetrahedraizeVoxel
    * Adds a center point in the middle of the voxel
    */
-  static inline void TetrahedralizeAddCenterPoint(vtkIdList* VoxelCorners, vtkPoints* NodeList);
+  static void TetrahedralizeAddCenterPoint(vtkIdList* VoxelCorners, vtkPoints* NodeList);
 };
 
 VTK_ABI_NAMESPACE_END
