@@ -48,6 +48,7 @@ TEST_DEPENDS
   VTK::IOLegacy
   VTK::IOXML
   VTK::ImagingCore
+  VTK::ImagingGeneral
   VTK::ImagingMath
   VTK::InteractionStyle
   VTK::RenderingAnnotation
