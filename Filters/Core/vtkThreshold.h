@@ -16,7 +16,8 @@
  * control this behavior. See the AttributeMode ivar below.
  *
  * By default only the first scalar value is used in the decision. Use the ComponentMode
- * and SelectedComponent ivars to control this behavior.
+ * and SelectedComponent ivars to control this behavior. Note that magnitude can be
+ * selected if SelectedComponent is set to the number of components of the array.
  *
  * @warning
  * This class is templated. It may run slower than serial execution if the code
@@ -138,7 +139,9 @@ public:
   ///@{
   /**
    * When the component mode is UseSelected, this ivar indicated the selected
-   * component. The default value is 0.
+   * component. If set to the number of components of the array, threshold
+   * will apply on array's magnitude.
+   * The default value is 0.
    */
   vtkSetClampMacro(SelectedComponent, int, 0, VTK_INT_MAX);
   vtkGetMacro(SelectedComponent, int);
@@ -263,6 +266,14 @@ protected:
   int EvaluateCell(TScalarsArray& scalars, int c, const vtkIdType* cellPts, vtkIdType numCellPts);
 
 private:
+  /**
+   * Returns whether magnitude was computed.
+   * Is true if selected component equals number of components
+   * and if number of components > 1.
+   */
+  template <typename TScalarsArray>
+  bool ComputeMagnitude(double& magnitude, const TScalarsArray& scalars, vtkIdType id);
+
   vtkThreshold(const vtkThreshold&) = delete;
   void operator=(const vtkThreshold&) = delete;
 
