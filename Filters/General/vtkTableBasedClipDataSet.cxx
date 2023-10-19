@@ -34,6 +34,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <cstring>
 #include <unordered_set>
 #include <vector>
 
@@ -800,7 +801,8 @@ struct Centroid
 
   Centroid() = default;
 
-  Centroid(const vtkIdType* pointIds, uint8_t numberOfPoints)
+  template <typename TOutputIdType>
+  Centroid(const TOutputIdType* pointIds, uint8_t numberOfPoints)
     : NumberOfPoints(numberOfPoints)
   {
     std::copy(pointIds, pointIds + numberOfPoints, this->PointIds);
@@ -880,12 +882,13 @@ struct ExtractCells
     vtkIdList*& idList = this->TLIdList.Local();
     const auto& pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
     const auto& cellsCase = vtk::DataArrayValueRange<1>(this->CellsCase);
-    auto connectivity = vtk::DataArrayValueRange<1>(this->Connectivity);
+    auto connectivity = this->Connectivity->GetPointer(0);
     auto offsets = vtk::DataArrayValueRange<1>(this->Offsets);
     auto types = vtk::DataArrayValueRange<1>(this->OutputCellTypes);
     const vtkIdType* pointIndices;
-    vtkIdType numberOfPoints, j, cellId, centroidIndex, shapeIds[MAX_CELL_SIZE];
+    vtkIdType numberOfPoints, j, cellId, centroidIndex;
     TInputIdType pointIndex1, pointIndex2;
+    TOutputIdType shapeIds[MAX_CELL_SIZE];
     int cellType;
     uint8_t numberOfOutputs, shape, numberOfCellPoints, p, pointIndex, point1Index, point2Index;
     uint8_t* thisCase = nullptr;
@@ -939,7 +942,7 @@ struct ExtractCells
               // We know pt P0 must be > P0 since we already
               // assume P0 == 0.  This is why we do not
               // bother subtracting P0 from pt here.
-              shapeIds[p] = pointsMap[pointIndices[pointIndex]];
+              shapeIds[p] = static_cast<TOutputIdType>(pointsMap[pointIndices[pointIndex]]);
             }
             else if (/*pointIndex >= TBCCases::EA &&*/ pointIndex <= TBCCases::EL) // Mid-Edge Point
             {
@@ -954,12 +957,12 @@ struct ExtractCells
               pointIndex1 = static_cast<TInputIdType>(pointIndices[point1Index]);
               pointIndex2 = static_cast<TInputIdType>(pointIndices[point2Index]);
 
-              shapeIds[p] = this->NumberOfKeptPoints +
-                this->EdgeLocator.IsInsertedEdge(pointIndex1, pointIndex2);
+              shapeIds[p] = static_cast<TOutputIdType>(this->NumberOfKeptPoints +
+                this->EdgeLocator.IsInsertedEdge(pointIndex1, pointIndex2));
             }
             else // pointIndex == TBCCases::N0 // Centroid Point
             {
-              shapeIds[p] = centroidIndex;
+              shapeIds[p] = static_cast<TOutputIdType>(centroidIndex);
             }
           }
 
@@ -967,78 +970,64 @@ struct ExtractCells
           {
             case TBCCases::ST_HEX:
               types[cellsOffset] = VTK_HEXAHEDRON;
-              offsets[cellsOffset] = static_cast<TOutputIdType>(cellsConnectivityOffset);
-              for (uint8_t i = 0; i < 8; ++i)
-              {
-                connectivity[cellsConnectivityOffset++] = static_cast<TOutputIdType>(shapeIds[i]);
-              }
+              offsets[cellsOffset] = cellsConnectivityOffset;
+              std::memcpy(connectivity + offsets[cellsOffset], shapeIds, 8 * sizeof(TOutputIdType));
+              cellsConnectivityOffset += 8;
               this->CellDataArrays.Copy(cellId, cellsOffset++);
               break;
 
             case TBCCases::ST_WDG:
               types[cellsOffset] = VTK_WEDGE;
-              offsets[cellsOffset] = static_cast<TOutputIdType>(cellsConnectivityOffset);
-              for (uint8_t i = 0; i < 6; ++i)
-              {
-                connectivity[cellsConnectivityOffset++] = static_cast<TOutputIdType>(shapeIds[i]);
-              }
+              offsets[cellsOffset] = cellsConnectivityOffset;
+              std::memcpy(connectivity + offsets[cellsOffset], shapeIds, 6 * sizeof(TOutputIdType));
+              cellsConnectivityOffset += 6;
               this->CellDataArrays.Copy(cellId, cellsOffset++);
               break;
 
             case TBCCases::ST_PYR:
               types[cellsOffset] = VTK_PYRAMID;
-              offsets[cellsOffset] = static_cast<TOutputIdType>(cellsConnectivityOffset);
-              for (uint8_t i = 0; i < 5; ++i)
-              {
-                connectivity[cellsConnectivityOffset++] = static_cast<TOutputIdType>(shapeIds[i]);
-              }
+              offsets[cellsOffset] = cellsConnectivityOffset;
+              std::memcpy(connectivity + offsets[cellsOffset], shapeIds, 5 * sizeof(TOutputIdType));
+              cellsConnectivityOffset += 5;
               this->CellDataArrays.Copy(cellId, cellsOffset++);
               break;
 
             case TBCCases::ST_TET:
               types[cellsOffset] = VTK_TETRA;
-              offsets[cellsOffset] = static_cast<TOutputIdType>(cellsConnectivityOffset);
-              for (uint8_t i = 0; i < 4; ++i)
-              {
-                connectivity[cellsConnectivityOffset++] = static_cast<TOutputIdType>(shapeIds[i]);
-              }
+              offsets[cellsOffset] = cellsConnectivityOffset;
+              std::memcpy(connectivity + offsets[cellsOffset], shapeIds, 4 * sizeof(TOutputIdType));
+              cellsConnectivityOffset += 4;
               this->CellDataArrays.Copy(cellId, cellsOffset++);
               break;
 
             case TBCCases::ST_QUA:
               types[cellsOffset] = VTK_QUAD;
-              offsets[cellsOffset] = static_cast<TOutputIdType>(cellsConnectivityOffset);
-              for (uint8_t i = 0; i < 4; ++i)
-              {
-                connectivity[cellsConnectivityOffset++] = static_cast<TOutputIdType>(shapeIds[i]);
-              }
+              offsets[cellsOffset] = cellsConnectivityOffset;
+              std::memcpy(connectivity + offsets[cellsOffset], shapeIds, 4 * sizeof(TOutputIdType));
+              cellsConnectivityOffset += 4;
               this->CellDataArrays.Copy(cellId, cellsOffset++);
               break;
 
             case TBCCases::ST_TRI:
               types[cellsOffset] = VTK_TRIANGLE;
-              offsets[cellsOffset] = static_cast<TOutputIdType>(cellsConnectivityOffset);
-              for (uint8_t i = 0; i < 3; ++i)
-              {
-                connectivity[cellsConnectivityOffset++] = static_cast<TOutputIdType>(shapeIds[i]);
-              }
+              offsets[cellsOffset] = cellsConnectivityOffset;
+              std::memcpy(connectivity + offsets[cellsOffset], shapeIds, 3 * sizeof(TOutputIdType));
+              cellsConnectivityOffset += 3;
               this->CellDataArrays.Copy(cellId, cellsOffset++);
               break;
 
             case TBCCases::ST_LIN:
               types[cellsOffset] = VTK_LINE;
-              offsets[cellsOffset] = static_cast<TOutputIdType>(cellsConnectivityOffset);
-              for (uint8_t i = 0; i < 2; ++i)
-              {
-                connectivity[cellsConnectivityOffset++] = static_cast<TOutputIdType>(shapeIds[i]);
-              }
+              offsets[cellsOffset] = cellsConnectivityOffset;
+              std::memcpy(connectivity + offsets[cellsOffset], shapeIds, 2 * sizeof(TOutputIdType));
+              cellsConnectivityOffset += 2;
               this->CellDataArrays.Copy(cellId, cellsOffset++);
               break;
 
             case TBCCases::ST_VTX:
               types[cellsOffset] = VTK_VERTEX;
-              offsets[cellsOffset] = static_cast<TOutputIdType>(cellsConnectivityOffset);
-              connectivity[cellsConnectivityOffset++] = static_cast<TOutputIdType>(shapeIds[0]);
+              offsets[cellsOffset] = cellsConnectivityOffset;
+              connectivity[cellsConnectivityOffset++] = shapeIds[0];
               this->CellDataArrays.Copy(cellId, cellsOffset++);
               break;
 
