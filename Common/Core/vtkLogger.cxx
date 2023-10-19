@@ -137,7 +137,7 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
   }
   loguru::Options options;
   options.verbosity_flag = verbosity_flag;
-  options.unsafe_signal_handler = vtkLogger::EnableUnsafeSignalHandler;
+  options.signal_options.unsafe_signal_handler = vtkLogger::EnableUnsafeSignalHandler;
   if (strlen(detail::ThreadName) > 0)
   {
     options.main_thread_name = detail::ThreadName;
