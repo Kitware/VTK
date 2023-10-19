@@ -284,7 +284,7 @@ else ()
     else ()
       message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
     endif ()
-    set_property(SOURCE vtkXOpenGLRenderWindow.cxx APPEND
+    set_property(SOURCE vtkXWebGPURenderWindow.cxx APPEND
       PROPERTY
         COMPILE_DEFINITIONS "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
     )
