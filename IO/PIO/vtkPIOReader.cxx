@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: Copyright (c) 2021, Triad National Security, LLC.
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-LANL-USGov
+
 #include "vtkPIOReader.h"
 
 #include "PIOAdaptor.h"

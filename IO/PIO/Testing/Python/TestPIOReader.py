@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Test the PIO Reader using native binary PIO files
+
 from vtkmodules.vtkCommonCore import vtkLookupTable
 from vtkmodules.vtkFiltersHyperTree import vtkHyperTreeGridGeometry
 from vtkmodules.vtkIOPIO import vtkPIOReader

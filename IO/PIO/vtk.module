@@ -11,6 +11,7 @@ SPDX_LICENSE_IDENTIFIER
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   Copyright (c) 2007, Los Alamos National Security, LLC
+  Copyright (c) 2021, Triad National Security, LLC.
 SPDX_CUSTOM_LICENSE_FILE
   Copyright.txt
 SPDX_CUSTOM_LICENSE_NAME
@@ -23,6 +24,7 @@ PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
   VTK::ParallelCore
+  VTK::hdf5
   VTK::vtksys
 TEST_DEPENDS
   VTK::FiltersGeometry
@@ -30,3 +32,6 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
   VTK::TestingRendering
+  VTK::FiltersParallelMPI
+  VTK::mpi
+  VTK::ParallelMPI

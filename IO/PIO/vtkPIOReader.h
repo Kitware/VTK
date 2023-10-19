@@ -1,14 +1,16 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: Copyright (c) 2021, Triad National Security, LLC.
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-LANL-USGov
 /**
- * @class   vtkPIOReader
+ *
+ * @class vtkPIOReader
  * @brief   class for reading PIO (Parallel Input Output) data files
  *
  * This class reads in dump files generated from xRage, a LANL physics code.
  * The PIO (Parallel Input Output) library is used to create the dump files.
  *
- * @sa
- * vtkMultiBlockReader
+ * @par Thanks:
+ * Developed by Patricia Fasel at Los Alamos National Laboratory
  */
 
 #ifndef vtkPIOReader_h
