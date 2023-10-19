@@ -29,10 +29,6 @@
 #pragma clang diagnostic pop
 #endif
 
-#ifdef VTK_DAWN_ENABLE_BACKEND_METAL
-#include "wgpu_utils_metal.h"
-#endif
-
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace
