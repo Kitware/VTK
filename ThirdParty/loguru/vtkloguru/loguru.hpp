@@ -715,15 +715,15 @@ namespace loguru
 	void set_thread_name(const char* name);
 
 	/* Returns the thread name for this thread.
-	   On OSX this will return the system thread name (settable from both within and without Loguru).
-	   On other systems it will return whatever you set in set_thread_name();
+	   On most *nix systems this will return the system thread name (settable from both within and without Loguru).
+	   On other systems it will return whatever you set in `set_thread_name()`;
 	   If no thread name is set, this will return a hexadecimal thread id.
-	   length should be the number of bytes available in the buffer.
+	   `length` should be the number of bytes available in the buffer.
 	   17 is a good number for length.
-	   right_align_hext_id means any hexadecimal thread id will be written to the end of buffer.
+	   `right_align_hex_id` means any hexadecimal thread id will be written to the end of buffer.
 	*/
 	LOGURU_EXPORT
-	void get_thread_name(char* buffer, unsigned long long length, bool right_align_hext_id);
+	void get_thread_name(char* buffer, unsigned long long length, bool right_align_hex_id);
 
 	/* Generates a readable stacktrace as a string.
 	   'skip' specifies how many stack frames to skip.
