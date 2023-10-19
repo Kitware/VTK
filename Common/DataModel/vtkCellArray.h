@@ -1038,6 +1038,16 @@ public:
 
   /** @} */
 
+  /**
+   * Control the default internal storage size. Useful for saving memory when
+   * most cases can be handled with 32bit indices, but large models may require
+   * a run-time switch to 64bit indices.
+   * @{
+   */
+  static bool GetDefaultStorageIs64Bit() { return vtkCellArray::DefaultStorageIs64Bit; }
+  static void SetDefaultStorageIs64Bit(bool val) { vtkCellArray::DefaultStorageIs64Bit = val; }
+  /** @} */
+
 #endif // __VTK_WRAP__
 
   //=================== Begin Legacy Methods ===================================
@@ -1203,18 +1213,18 @@ protected:
       this->Arrays = new ArraySwitch;
 #endif
 
-      // Default to the compile-time setting:
-#ifdef VTK_USE_64BIT_IDS
+      // Default can be changed, to save memory
+      if (vtkCellArray::GetDefaultStorageIs64Bit())
+      {
+        this->Arrays->Int64 = new VisitState<ArrayType64>;
+        this->StorageIs64Bit = true;
+      }
+      else
+      {
+        this->Arrays->Int32 = new VisitState<ArrayType32>;
+        this->StorageIs64Bit = false;
+      }
 
-      this->Arrays->Int64 = new VisitState<ArrayType64>;
-      this->StorageIs64Bit = true;
-
-#else // VTK_USE_64BIT_IDS
-
-      this->Arrays->Int32 = new VisitState<ArrayType32>;
-      this->StorageIs64Bit = false;
-
-#endif // VTK_USE_64BIT_IDS
 #ifdef VTK_USE_MEMKIND
       if (vtkObjectBase::GetUsingMemkind())
       {
@@ -1327,6 +1337,8 @@ protected:
   vtkIdType TraversalCellId{ 0 };
 
   vtkNew<vtkIdTypeArray> LegacyData; // For GetData().
+
+  static bool DefaultStorageIs64Bit;
 
 private:
   vtkCellArray(const vtkCellArray&) = delete;
