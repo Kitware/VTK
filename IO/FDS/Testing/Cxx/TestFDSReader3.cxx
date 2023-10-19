@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vtkDataAssembly.h>
 #include <vtkFDSReader.h>
+#include <vtkInformation.h>
 #include <vtkPartitionedDataSet.h>
 #include <vtkPartitionedDataSetCollection.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkRectilinearGrid.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkTable.h>
 #include <vtkTesting.h>
 
@@ -190,6 +192,20 @@ int TestFDSReader3(int argc, char* argv[])
   if (!testValue(boundary->GetNumberOfCells(), 16, "number of cells in Mesh01_Blockage_3 boundary"))
   {
     return EXIT_FAILURE;
+  }
+
+  // Test number of timesteps
+  auto outInfo = reader->GetOutputInformation(0);
+  if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+  {
+    std::cerr << "Unable to retrieve timestep information " << std::endl;
+    return EXIT_SUCCESS;
+  }
+
+  auto numberOfTimeSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  if (!testValue(numberOfTimeSteps, 21, "number of timesteps"))
+  {
+    return EXIT_SUCCESS;
   }
 
   return EXIT_SUCCESS;

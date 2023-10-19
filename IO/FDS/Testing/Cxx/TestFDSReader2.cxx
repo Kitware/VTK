@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vtkDataAssembly.h>
 #include <vtkFDSReader.h>
+#include <vtkInformation.h>
 #include <vtkPartitionedDataSet.h>
 #include <vtkPartitionedDataSetCollection.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkRectilinearGrid.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkTable.h>
 #include <vtkTesting.h>
 
@@ -168,6 +170,20 @@ int TestFDSReader2(int argc, char* argv[])
 
   if (!testValue(
         slice->GetPointData()->GetArray("Values")->GetComponent(0, 0), 30.0, "value in SOOT slice"))
+  {
+    return EXIT_FAILURE;
+  }
+
+  // Test number of timesteps
+  auto outInfo = reader->GetOutputInformation(0);
+  if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+  {
+    std::cerr << "Unable to retrieve timestep information " << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto numberOfTimeSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  if (!testValue(numberOfTimeSteps, 1001, "number of timesteps"))
   {
     return EXIT_FAILURE;
   }

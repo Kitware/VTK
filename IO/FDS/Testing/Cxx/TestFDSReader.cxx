@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vtkDataAssembly.h>
 #include <vtkFDSReader.h>
+#include <vtkInformation.h>
 #include <vtkPartitionedDataSet.h>
 #include <vtkPartitionedDataSetCollection.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkRectilinearGrid.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkTable.h>
 #include <vtkTesting.h>
 
@@ -232,6 +234,20 @@ bool TestExampleFile(const std::string& dataRoot)
 
   if (!testValue(std::abs(boundary->GetPointData()->GetArray("gauge")->GetComponent(0, 0)) < 1e-6,
         true, "gauge in Mesh01_Blockage_1 boundary"))
+  {
+    return false;
+  }
+
+  // Test number of timesteps
+  auto outInfo = reader->GetOutputInformation(0);
+  if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+  {
+    std::cerr << "Unable to retrieve timestep information " << std::endl;
+    return false;
+  }
+
+  auto numberOfTimeSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  if (!testValue(numberOfTimeSteps, 31, "number of timesteps"))
   {
     return false;
   }
