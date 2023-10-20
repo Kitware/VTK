@@ -18,6 +18,7 @@
 #include "vtkABINamespace.h"
 
 #include <type_traits> // for type traits
+#include <utility>     // for std::forward
 
 namespace vtkMatrixUtilities
 {
@@ -51,7 +52,7 @@ namespace detail
 template <int ContainerTypeT, class ContainerT>
 struct ScalarTypeExtractor
 {
-  typedef typename ContainerT::value_type value_type;
+  typedef typename std::decay<typename std::decay<ContainerT>::type::value_type>::type value_type;
   static_assert(std::is_integral<value_type>::value || std::is_floating_point<value_type>::value,
     "value_type is not a numeric type");
 };
@@ -60,11 +61,82 @@ struct ScalarTypeExtractor
 template <class ContainerT>
 struct ScalarTypeExtractor<1, ContainerT>
 {
-  typedef typename std::remove_pointer<
-    typename std::remove_all_extents<typename std::remove_pointer<ContainerT>::type>::type>::type
-    value_type;
+private:
+  typedef typename std::remove_reference<ContainerT>::type DerefContainer;
+
+public:
+  typedef typename std::decay<typename std::remove_pointer<typename std::remove_all_extents<
+    typename std::remove_pointer<DerefContainer>::type>::type>::type>::type value_type;
+
   static_assert(std::is_integral<value_type>::value || std::is_floating_point<value_type>::value,
     "value_type is not a numeric type");
+};
+
+//=============================================================================
+template <class MatrixT, int Depth = 0>
+struct ArrayOrPointerDepth
+{
+  static constexpr int Value = Depth;
+};
+
+//=============================================================================
+template <class MatrixT, int Depth>
+struct ArrayOrPointerDepth<MatrixT[], Depth>
+{
+  static constexpr int Value = ArrayOrPointerDepth<MatrixT, Depth + 1>::Value;
+};
+
+//=============================================================================
+template <class MatrixT, int N, int Depth>
+struct ArrayOrPointerDepth<MatrixT[N], Depth>
+{
+  static constexpr int Value = ArrayOrPointerDepth<MatrixT, Depth + 1>::Value;
+};
+
+//=============================================================================
+template <class MatrixT, int Depth>
+struct ArrayOrPointerDepth<MatrixT*, Depth>
+{
+  static constexpr int Value = ArrayOrPointerDepth<MatrixT, Depth + 1>::Value;
+};
+
+//=============================================================================
+template <class MatrixT, int Depth>
+struct ArrayOrPointerDepth<MatrixT&, Depth>
+{
+  static constexpr int Value = ArrayOrPointerDepth<MatrixT, Depth>::Value;
+};
+} // namespace detail
+
+//-----------------------------------------------------------------------------
+/**
+ * At compile time, returns `true` if the templated parameter is a 2D array
+ * (`double[3][3]` for instance), false otherwise.
+ */
+template <class MatrixT>
+static constexpr bool MatrixIs2DArray()
+{
+  return detail::ArrayOrPointerDepth<MatrixT>::Value == 2;
+}
+
+namespace detail
+{
+//=============================================================================
+template <class MatrixT, class = void>
+struct ExtractRawComponentType;
+
+//=============================================================================
+template <class MatrixT>
+struct ExtractRawComponentType<MatrixT, typename std::enable_if<MatrixIs2DArray<MatrixT>()>::type>
+{
+  using Type = decltype(std::declval<MatrixT>()[0][0]);
+};
+
+//=============================================================================
+template <class MatrixT>
+struct ExtractRawComponentType<MatrixT, typename std::enable_if<!MatrixIs2DArray<MatrixT>()>::type>
+{
+  using Type = decltype(std::declval<MatrixT>()[0]);
 };
 } // namespace detail
 
@@ -84,26 +156,28 @@ private:
   typedef typename std::remove_reference<ContainerT>::type DerefContainer;
 
 public:
-  typedef typename detail::ScalarTypeExtractor<
+  /**
+   * `value_type` is the underlying arithmetic type held in `ContainerT`
+   */
+  using value_type = typename detail::ScalarTypeExtractor<
     // This parameter equals 0 or 1
     std::is_array<DerefContainer>::value || std::is_pointer<DerefContainer>::value,
-    ContainerT>::value_type value_type;
+    ContainerT>::value_type;
   static_assert(std::is_integral<value_type>::value || std::is_floating_point<value_type>::value,
     "value_type is not a numeric type");
-};
 
-//-----------------------------------------------------------------------------
-/**
- * At compile time, returns `true` if the templated parameter is a 2D array
- * (`double[3][3]` for instance), false otherwise.
- */
-template <class MatrixT>
-static constexpr bool MatrixIs2DArray()
-{
-  typedef typename std::remove_extent<MatrixT>::type Row;
-  typedef typename std::remove_extent<Row>::type Value;
-  return std::is_array<MatrixT>::value && std::is_array<Row>::value && !std::is_array<Value>::value;
-}
+  /**
+   * `RawComponentType` is the type given by `operator[]` for 1D containers, or `operator[][]` for
+   * 2D containers.
+   */
+  using RawComponentType = typename detail::ExtractRawComponentType<ContainerT>::Type;
+
+  /**
+   * ComponentType is the RawComponentType dereferenced if it was an rvalue reference.
+   */
+  using ComponentType = typename std::conditional<std::is_rvalue_reference<RawComponentType>::value,
+    typename std::remove_reference<RawComponentType>::type, RawComponentType>::type;
+};
 
 //-----------------------------------------------------------------------------
 /**
@@ -127,19 +201,7 @@ static constexpr bool MatrixIsPointerToPointer()
 template <class MatrixT>
 static constexpr bool MatrixLayoutIs2D()
 {
-  typedef typename std::remove_pointer<MatrixT>::type RowPointer;
-  typedef typename std::remove_extent<MatrixT>::type RowArray;
-  typedef typename std::remove_pointer<MatrixT>::type ValuePointerPointer;
-  typedef typename std::remove_extent<MatrixT>::type ValuePointerArray;
-  typedef typename std::remove_pointer<MatrixT>::type ValueArrayPointer;
-  typedef typename std::remove_extent<MatrixT>::type ValueArrayArray;
-  return ((std::is_array<RowPointer>::value && !std::is_same<RowPointer, MatrixT>::value) ||
-           std::is_pointer<RowPointer>::value || std::is_array<RowArray>::value ||
-           (std::is_pointer<RowArray>::value && !std::is_same<RowArray, MatrixT>::value)) &&
-    (!std::is_array<ValuePointerPointer>::value || !std::is_pointer<ValuePointerPointer>::value) &&
-    (!std::is_array<ValueArrayPointer>::value || !std::is_pointer<ValueArrayPointer>::value) &&
-    (!std::is_array<ValuePointerArray>::value || !std::is_pointer<ValuePointerArray>::value) &&
-    (!std::is_array<ValueArrayArray>::value || !std::is_pointer<ValueArrayArray>::value);
+  return MatrixIs2DArray<MatrixT>();
 }
 
 namespace detail
@@ -208,17 +270,11 @@ template <int RowsT, int ColsT, class MatrixT, class LayoutT>
 class Wrapper<RowsT, ColsT, MatrixT, LayoutT, false>
 {
 private:
-  using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type;
+  using ComponentType = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::ComponentType;
 
 public:
-  template <int RowT, int ColT>
-  static const Scalar& Get(const MatrixT& M)
-  {
-    return M[Mapper<RowsT, ColsT, LayoutT>::template GetIndex<RowT, ColT>()];
-  }
-
-  template <int RowT, int ColT>
-  static Scalar& Get(MatrixT& M)
+  template <int RowT, int ColT, class MatrixTT>
+  static ComponentType Get(MatrixTT&& M)
   {
     return M[Mapper<RowsT, ColsT, LayoutT>::template GetIndex<RowT, ColT>()];
   }
@@ -229,17 +285,11 @@ template <int RowsT, int ColsT, class MatrixT>
 class Wrapper<RowsT, ColsT, MatrixT, Layout::Identity, true>
 {
 private:
-  using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type;
+  using ComponentType = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::ComponentType;
 
 public:
-  template <int RowT, int ColT>
-  static const Scalar& Get(const MatrixT& M)
-  {
-    return M[RowT][ColT];
-  }
-
-  template <int RowT, int ColT>
-  static Scalar& Get(MatrixT& M)
+  template <int RowT, int ColT, class MatrixTT>
+  static ComponentType Get(MatrixTT&& M)
   {
     return M[RowT][ColT];
   }
@@ -250,17 +300,11 @@ template <int RowsT, int ColsT, class MatrixT>
 class Wrapper<RowsT, ColsT, MatrixT, Layout::Transpose, true>
 {
 private:
-  using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type;
+  using ComponentType = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::ComponentType;
 
 public:
-  template <int RowT, int ColT>
-  static const Scalar& Get(const MatrixT& M)
-  {
-    return M[ColT][RowT];
-  }
-
-  template <int RowT, int ColT>
-  static Scalar& Get(MatrixT& M)
+  template <int RowT, int ColT, class MatrixTT>
+  static ComponentType Get(MatrixTT&& M)
   {
     return M[ColT][RowT];
   }
@@ -273,34 +317,35 @@ class Wrapper<RowsT, ColsT, MatrixT, Layout::Diag, false>
 {
 private:
   using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type;
+  using ComponentType = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::ComponentType;
 
   template <int RowT, int ColT>
   struct Helper
   {
     static constexpr Scalar ZERO = Scalar(0);
 
-    static Scalar& Get(const MatrixT&) { return ZERO; }
+    template <class MatrixTT>
+    static ComponentType Get(MatrixTT&&)
+    {
+      return ZERO;
+    }
   };
 
   template <int RowT>
   struct Helper<RowT, RowT>
   {
-    static Scalar& Get(MatrixT& M) { return M[RowT]; }
-
-    static const Scalar& Get(const MatrixT& M) { return M[RowT]; }
+    template <class MatrixTT>
+    static ComponentType Get(MatrixTT&& M)
+    {
+      return M[RowT];
+    }
   };
 
 public:
-  template <int RowT, int ColT>
-  const Scalar& Get(const MatrixT& M)
+  template <int RowT, int ColT, class MatrixTT>
+  ComponentType Get(MatrixTT& M)
   {
-    return Helper<RowT, ColT>::Get(M);
-  }
-
-  template <int RowT, int ColT>
-  Scalar& Get(MatrixT& M)
-  {
-    return Helper<RowT, ColT>::Get(M);
+    return Helper<RowT, ColT>::Get(std::forward<MatrixTT>(M));
   }
 };
 } // namespace detail
@@ -325,23 +370,17 @@ class Wrapper
 {
 private:
   using Scalar = typename ScalarTypeExtractor<MatrixT>::value_type;
+  using ComponentType = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::ComponentType;
 
   static_assert(!MatrixLayoutIs2D<MatrixT>() || !std::is_same<LayoutT, Layout::Diag>::value,
     "A diagonal  matrix cannot be a 2D array");
 
 public:
-  template <int RowT, int ColT>
-  static const Scalar& Get(const MatrixT& M)
+  template <int RowT, int ColT, class MatrixTT>
+  static ComponentType Get(MatrixTT&& M)
   {
     return detail::Wrapper<RowsT, ColsT, MatrixT, LayoutT,
-      MatrixLayoutIs2D<MatrixT>()>::template Get<RowT, ColT>(M);
-  }
-
-  template <int RowT, int ColT>
-  static Scalar& Get(MatrixT& M)
-  {
-    return detail::Wrapper<RowsT, ColsT, MatrixT, LayoutT,
-      MatrixLayoutIs2D<MatrixT>()>::template Get<RowT, ColT>(M);
+      MatrixLayoutIs2D<MatrixT>()>::template Get<RowT, ColT>(std::forward<MatrixTT>(M));
   }
 };
 VTK_ABI_NAMESPACE_END
