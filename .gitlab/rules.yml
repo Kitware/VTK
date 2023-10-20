@@ -8,7 +8,7 @@
         - '[a-zA-CE-Z]*/**/*' # any path starting with anything but 'D'
         - 'Domains/*/**/*'    # any path under Domains directory is touched
         - '.*'                # any hidden file is touched
-        - '.*/**'             # any file within a hidden directory
+        - '.*/**/*'           # any file within a hidden directory
       when: on_success
 
 
