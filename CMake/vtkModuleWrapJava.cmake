@@ -290,6 +290,10 @@ function (_vtk_module_wrap_java_library name)
   target_sources("${_vtk_java_target}"
     PRIVATE
       ${_vtk_java_library_sources})
+  # Add a dummy file set to optimize dependencies. See CMP0154.
+  _vtk_module_add_file_set("${_vtk_java_target}"
+    BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}"
+    NAME      dummy)
 
   if (_vtk_java_UTILITY_TARGET)
     target_link_libraries("${_vtk_java_target}"
