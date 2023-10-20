@@ -3589,6 +3589,103 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
   endif ()
 endfunction ()
 
+#[==[.rst:
+.. cmake:command:: _vtk_module_add_file_set
+
+  Add a file set to a target. |module-internal|
+
+  .. code-block:: cmake
+
+    _vtk_module_add_file_set(<target>
+      NAME <name>
+      [VIS <visibility>]
+      [TYPE <type>]
+      [BASE_DIRS <base directory>...]
+      FILES
+        [members...])
+
+  Add a file set to the ``<target>`` named ``<name>``.
+
+  * ``NAME``: The name of the file set.
+  * ``VIS``: The visibility of the file set. Defaults to ``PRIVATE``.
+    Must be a valid CMake visibility (``PUBLIC``, ``PRIVATE``, or
+    ``INTERFACE``).
+  * ``TYPE``: The type of the file set. Defaults to ``HEADERS``. File sets
+    types that are recognized and known to not be supported by the CMake
+    version in use will be added as ``PRIVATE`` sources not part of any file
+    set.
+  * ``BASE_DIRS``: Base directories for the files. Defaults to
+    ``${CMAKE_CURRENT_SOURCE_DIR}`` and ``${CMAKE_CURRENT_BINARY_DIR}`` if not
+    specified.
+  * ``FILES``: The paths to add to the file set.
+
+  Note that prior to CMake 3.19, usage of ``FILE_SET`` with ``INTERFACE``
+  targets is severely restricted and instead this function will do nothing. Any
+  ``PUBLIC`` files specified this way need installed using standard mechanisms.
+
+#]==]
+function (_vtk_module_add_file_set target)
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_file_set
+    ""
+    "NAME;VIS;TYPE"
+    "BASE_DIRS;FILES")
+
+  if (_vtk_add_file_set_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for _vtk_module_add_file_set: "
+      "${_vtk_add_file_set_UNPARSED_ARGUMENTS}")
+  endif ()
+
+  set(_vtk_add_file_set_known_visibilities
+    PRIVATE
+    PUBLIC
+    INTERFACE)
+  if (NOT DEFINED _vtk_add_file_set_VIS)
+    set(_vtk_add_file_set_VIS
+      PRIVATE)
+  endif ()
+  if (NOT _vtk_add_file_set_VIS IN_LIST _vtk_add_file_set_known_visibilities)
+    string(REPLACE ";" ", " _vtk_add_file_set_known_list "${_vtk_add_file_set_known_visibilities}")
+    message(FATAL_ERROR
+      "Unknown visibility '${_vtk_add_file_set_VIS}'. Must be one of "
+      "${_vtk_add_file_set_known_list}")
+  endif ()
+
+  if (NOT DEFINED _vtk_add_file_set_TYPE)
+    set(_vtk_add_file_set_TYPE "HEADERS")
+  endif ()
+
+  if (NOT DEFINED _vtk_add_file_set_BASE_DIRS)
+    set(_vtk_add_file_set_BASE_DIRS
+      "${CMAKE_CURRENT_SOURCE_DIR}"
+      "${CMAKE_CURRENT_BINARY_DIR}")
+  endif ()
+
+  if (CMAKE_VERSION VERSION_LESS "3.23")
+    # XXX(cmake-3.19): Using a non-`INTERACE` `FILE_SET`s with `INTERFACE`
+    # targets was added in CMake 3.19.
+    if (CMAKE_VERSION VERSION_LESS "3.19")
+      get_property(_vtk_add_file_set_type
+        TARGET    "${target}"
+        PROPERTY  TYPE)
+      if (_vtk_add_file_set_type STREQUAL "INTERFACE_LIBRARY")
+        return ()
+      endif ()
+    endif ()
+    target_sources("${target}"
+      PRIVATE
+        ${_vtk_add_file_set_FILES})
+    return ()
+  endif ()
+
+  target_sources("${target}"
+    "${_vtk_add_file_set_VIS}"
+      FILE_SET "${_vtk_add_file_set_NAME}"
+        TYPE      "${_vtk_add_file_set_TYPE}"
+        BASE_DIRS ${_vtk_add_file_set_BASE_DIRS}
+        FILES     ${_vtk_add_file_set_FILES})
+endfunction ()
+
 include(GenerateExportHeader)
 
 #[==[.rst:
