@@ -3845,56 +3845,42 @@ function (vtk_module_add_module name)
           "INTERFACE_vtk_module_library_name" "${_vtk_add_module_library_name}")
 
       add_library("${_vtk_add_module_real_target}-objects" OBJECT)
-      target_sources("${_vtk_add_module_real_target}-objects"
-        PRIVATE
-          ${_vtk_add_module_SOURCES}
-          ${_vtk_add_module_TEMPLATES}
-          ${_vtk_add_module_PRIVATE_TEMPLATES}
-          ${_vtk_add_module_HEADERS}
-          ${_vtk_add_module_NOWRAP_HEADERS}
-          ${_vtk_add_module_PRIVATE_HEADERS})
 
-      if (_vtk_build_UTILITY_TARGET)
-        target_link_libraries("${_vtk_add_module_real_target}-objects"
-          PRIVATE
-            "${_vtk_build_UTILITY_TARGET}")
-      endif ()
-
-      set_target_properties("${_vtk_add_module_real_target}-objects"
-        PROPERTIES
+      set_property(TARGET "${_vtk_add_module_real_target}-objects"
+        PROPERTY
           # Emulate the regular library as much as possible.
-          DEFINE_SYMBOL             "${_vtk_add_module_real_target}_EXPORT"
-          POSITION_INDEPENDENT_CODE ON)
+          DEFINE_SYMBOL             "${_vtk_add_module_real_target}_EXPORT")
       target_compile_definitions("${_vtk_add_module_real_target}-objects"
         PRIVATE
           "${_vtk_add_module_real_target}_EXPORT")
       string(APPEND _vtk_add_module_real_target "-objects")
     else ()
       add_library("${_vtk_add_module_real_target}" ${_vtk_add_module_type})
-      target_sources("${_vtk_add_module_real_target}"
-        PRIVATE
-          ${_vtk_add_module_SOURCES}
-          ${_vtk_add_module_TEMPLATES}
-          ${_vtk_add_module_PRIVATE_TEMPLATES}
-          ${_vtk_add_module_HEADERS}
-          ${_vtk_add_module_NOWRAP_HEADERS}
-          ${_vtk_add_module_PRIVATE_HEADERS})
-
-      if (_vtk_build_UTILITY_TARGET)
-        target_link_libraries("${_vtk_add_module_real_target}"
-          PRIVATE
-            "${_vtk_build_UTILITY_TARGET}")
-      endif ()
-
-      set_property(TARGET "${_vtk_add_module_real_target}"
-        PROPERTY
-          POSITION_INDEPENDENT_CODE ON)
 
       if (NOT _vtk_build_module STREQUAL _vtk_add_module_real_target)
         add_library("${_vtk_build_module}" ALIAS
           "${_vtk_add_module_real_target}")
       endif ()
     endif ()
+
+    target_sources("${_vtk_add_module_real_target}"
+      PRIVATE
+        ${_vtk_add_module_SOURCES}
+        ${_vtk_add_module_TEMPLATES}
+        ${_vtk_add_module_PRIVATE_TEMPLATES}
+        ${_vtk_add_module_HEADERS}
+        ${_vtk_add_module_NOWRAP_HEADERS}
+        ${_vtk_add_module_PRIVATE_HEADERS})
+
+    if (_vtk_build_UTILITY_TARGET)
+      target_link_libraries("${_vtk_add_module_real_target}"
+        PRIVATE
+          "${_vtk_build_UTILITY_TARGET}")
+    endif ()
+
+    set_property(TARGET "${_vtk_add_module_real_target}"
+      PROPERTY
+        POSITION_INDEPENDENT_CODE ON)
   endif ()
 
   set_property(TARGET "${_vtk_add_module_real_target}"
