@@ -8,7 +8,6 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
-  VTK::CommonDataModel
   VTK::Python
   VTK::vtksys
 EXCLUDE_WRAP
