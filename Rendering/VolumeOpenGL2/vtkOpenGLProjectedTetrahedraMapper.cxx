@@ -421,8 +421,8 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer* renderer, vtkVolume
 
 //------------------------------------------------------------------------------
 
-inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(float x, float y, float z1,
-  float z2, const float inverse_projection_mat[16], int use_linear_depth_correction,
+float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(float x, float y, float z1, float z2,
+  const float inverse_projection_mat[16], int use_linear_depth_correction,
   float linear_depth_correction)
 {
   if (use_linear_depth_correction)

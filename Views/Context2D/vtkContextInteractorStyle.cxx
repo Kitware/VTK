@@ -184,7 +184,7 @@ void vtkContextInteractorStyle::OnMouseMove()
   this->EndProcessingEvent();
 }
 
-inline bool vtkContextInteractorStyle::ProcessMousePress(const vtkContextMouseEvent& event)
+bool vtkContextInteractorStyle::ProcessMousePress(const vtkContextMouseEvent& event)
 {
   bool eatEvent(false);
   if (this->Interactor->GetRepeatCount())
@@ -474,7 +474,7 @@ void vtkContextInteractorStyle::OnKeyRelease()
 }
 
 //------------------------------------------------------------------------------
-inline void vtkContextInteractorStyle::ConstructMouseEvent(vtkContextMouseEvent& event, int button)
+void vtkContextInteractorStyle::ConstructMouseEvent(vtkContextMouseEvent& event, int button)
 {
   event.SetInteractor(this->Interactor);
   event.SetScreenPos(vtkVector2i(this->Interactor->GetEventPosition()));

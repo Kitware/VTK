@@ -24,8 +24,7 @@ void vtkBase64InputStream::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-inline int vtkBase64InputStream::DecodeTriplet(
-  unsigned char& c0, unsigned char& c1, unsigned char& c2)
+int vtkBase64InputStream::DecodeTriplet(unsigned char& c0, unsigned char& c1, unsigned char& c2)
 {
   // Read the 4 bytes encoding this triplet from the stream.
 
