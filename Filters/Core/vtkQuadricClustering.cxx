@@ -431,7 +431,7 @@ void vtkQuadricClustering::AddStrips(vtkCellArray* strips, vtkPoints* points, in
 }
 
 //------------------------------------------------------------------------------
-inline void vtkQuadricClustering::InitializeQuadric(double quadric[9])
+void vtkQuadricClustering::InitializeQuadric(double quadric[9])
 {
   quadric[0] = 0.0;
   quadric[1] = 0.0;

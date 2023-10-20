@@ -1852,7 +1852,7 @@ void vtkAxis::CalculateTitlePosition(vtkVector2f& out)
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkAxis::InRange(double value)
+bool vtkAxis::InRange(double value)
 {
   // Figure out which way around the axes are, then see if the value is inside.
   double min(this->Minimum);

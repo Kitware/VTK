@@ -296,7 +296,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid* RectGrid,
 
 //------------------------------------------------------------------------------
 // Helper Function for Tetrahedralize Voxel
-inline void vtkRectilinearGridToTetrahedra::TetrahedralizeAddCenterPoint(
+void vtkRectilinearGridToTetrahedra::TetrahedralizeAddCenterPoint(
   vtkIdList* VoxelCorners, vtkPoints* NodeList)
 {
   // Need to add a center point

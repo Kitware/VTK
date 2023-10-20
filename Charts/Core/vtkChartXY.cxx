@@ -2541,7 +2541,7 @@ bool vtkChartXY::RemovePlotFromCorners(vtkPlot* plot)
 }
 
 //------------------------------------------------------------------------------
-inline void vtkChartXY::TransformBoxOrPolygon(bool polygonMode, vtkTransform2D* transform,
+void vtkChartXY::TransformBoxOrPolygon(bool polygonMode, vtkTransform2D* transform,
   const vtkVector2f& mousePosition, vtkVector2f& min, vtkVector2f& max, vtkContextPolygon& polygon)
 {
   if (polygonMode)

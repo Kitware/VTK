@@ -130,12 +130,12 @@ int vtkTemporalShiftScale::RequestDataObject(
 }
 
 //------------------------------------------------------------------------------
-inline double vtkTemporalShiftScale::ForwardConvert(double T0)
+double vtkTemporalShiftScale::ForwardConvert(double T0)
 {
   return (T0 + this->PreShift) * this->Scale + this->PostShift;
 }
 //------------------------------------------------------------------------------
-inline double vtkTemporalShiftScale::BackwardConvert(double T1)
+double vtkTemporalShiftScale::BackwardConvert(double T1)
 {
   return (T1 - this->PostShift) / this->Scale - this->PreShift;
 }

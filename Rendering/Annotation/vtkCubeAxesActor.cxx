@@ -1622,21 +1622,21 @@ double vtkCubeAxesActor::MaxOf(double a, double b, double c, double d)
 }
 
 //------------------------------------------------------------------------------
-inline double vtkCubeAxesActor::FFix(double value)
+double vtkCubeAxesActor::FFix(double value)
 {
   int ivalue = static_cast<int>(value);
   return ivalue;
 }
 
 //------------------------------------------------------------------------------
-inline int vtkCubeAxesActor::FRound(double value)
+int vtkCubeAxesActor::FRound(double value)
 {
   return value <= 0.5 ? static_cast<int>(this->FFix(value))
                       : static_cast<int>(this->FFix(value) + 1);
 }
 
 //------------------------------------------------------------------------------
-inline int vtkCubeAxesActor::GetNumTicks(double range, double fxt)
+int vtkCubeAxesActor::GetNumTicks(double range, double fxt)
 {
   // Find the number of integral points in the interval.
   double fnt = fxt != 0.0 ? range / fxt : 0.0;
@@ -1645,7 +1645,7 @@ inline int vtkCubeAxesActor::GetNumTicks(double range, double fxt)
 }
 
 //------------------------------------------------------------------------------
-inline double vtkCubeAxesActor::FSign(double value, double sign)
+double vtkCubeAxesActor::FSign(double value, double sign)
 {
   value = fabs(value);
   if (sign < 0.)

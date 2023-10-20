@@ -82,21 +82,21 @@ vtkGreedyTerrainDecimation::vtkGreedyTerrainDecimation()
 vtkGreedyTerrainDecimation::~vtkGreedyTerrainDecimation() = default;
 
 //------------------------------------------------------------------------------
-inline void vtkGreedyTerrainDecimation::GetTerrainPoint(int i, int j, double x[3])
+void vtkGreedyTerrainDecimation::GetTerrainPoint(int i, int j, double x[3])
 {
   x[0] = this->Origin[0] + i * this->Spacing[0];
   x[1] = this->Origin[1] + j * this->Spacing[1];
 }
 
 //------------------------------------------------------------------------------
-inline void vtkGreedyTerrainDecimation::ComputeImageCoordinates(vtkIdType inputPtId, int ij[2])
+void vtkGreedyTerrainDecimation::ComputeImageCoordinates(vtkIdType inputPtId, int ij[2])
 {
   ij[0] = inputPtId % this->Dimensions[0];
   ij[1] = inputPtId / this->Dimensions[0];
 }
 
 //------------------------------------------------------------------------------
-inline vtkIdType vtkGreedyTerrainDecimation::InsertNextPoint(vtkIdType inputPtId, double x[3])
+vtkIdType vtkGreedyTerrainDecimation::InsertNextPoint(vtkIdType inputPtId, double x[3])
 {
   if ((this->CurrentPointId + 1) >= (vtkIdType)this->PointInfo->size())
   {
@@ -115,13 +115,13 @@ inline vtkIdType vtkGreedyTerrainDecimation::InsertNextPoint(vtkIdType inputPtId
 }
 
 //------------------------------------------------------------------------------
-inline double* vtkGreedyTerrainDecimation::GetPoint(vtkIdType id)
+double* vtkGreedyTerrainDecimation::GetPoint(vtkIdType id)
 {
   return this->Points->GetPointer(3 * id);
 }
 
 //------------------------------------------------------------------------------
-inline void vtkGreedyTerrainDecimation::GetPoint(vtkIdType id, double x[3])
+void vtkGreedyTerrainDecimation::GetPoint(vtkIdType id, double x[3])
 {
   double* ptr = this->Points->GetPointer(3 * id);
   x[0] = *ptr++;
