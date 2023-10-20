@@ -224,7 +224,8 @@ void ExtractTimeValuesFromCSV(
     if (arr->GetNumberOfValues() < 2)
     {
       vtkErrorWithObjectMacro(nullptr, << "Failed to read timesteps in file: " << fileName
-                                       << ". The file should contain at least 3 rows.");
+                                       << ". The file should contain at least 2 rows.");
+      return;
     }
     std::string columnName = arr->GetValue(1);
     if (columnName == "Time")
