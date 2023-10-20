@@ -484,6 +484,10 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
     target_sources("${name}"
       PRIVATE
         ${_vtk_python_library_sources})
+    # Add a dummy file set to optimize dependencies. See CMP0154.
+    _vtk_module_add_file_set("${name}"
+      BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}"
+      NAME      dummy)
     if (WIN32 AND NOT CYGWIN)
       # This is enabled explicitly by the USE_DEBUG_SUFFIX argument because
       # there's no reliable way to detect whether we're using a debug build of
@@ -1065,6 +1069,9 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
       target_sources("${_vtk_python_static_importer_name}"
         PRIVATE
           "${_vtk_python_static_importer_file}")
+      _vtk_module_add_file_set("${_vtk_python_static_importer_name}"
+        BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}"
+        NAME      dummy)
       if (WIN32 AND NOT CYGWIN)
         set_property(TARGET "${_vtk_python_static_importer_name}"
           PROPERTY
