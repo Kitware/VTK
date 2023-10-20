@@ -601,9 +601,9 @@ struct EvaluateCells
     const vtkIdType* pointIndices;
     vtkIdType numberOfPoints, cellId, pointId;
     TInputIdType pointIndex1, pointIndex2;
-    int caseIndex, cellType;
+    int cellType;
     double grdDiffs[8], point1ToPoint2, point1ToIso, point1Weight;
-    uint8_t *thisCase, numberOfOutputCells, outputCellId, shape, numberOfCellPoints, p;
+    uint8_t caseIndex, *thisCase, numberOfOutputCells, outputCellId, shape, numberOfCellPoints, p;
     uint8_t pointIndex, point1Index, point2Index;
     const typename TBCCases::EDGEIDXS* edgeVertices = nullptr;
 
@@ -639,12 +639,12 @@ struct EvaluateCells
         }
         this->Input->GetCellPoints(cellId, numberOfPoints, pointIndices, idList);
 
+        // compute case index
         caseIndex = 0;
         for (pointId = numberOfPoints - 1; pointId >= 0; --pointId)
         {
           grdDiffs[pointId] = clipArray[pointIndices[pointId]] - this->IsoValue;
-          caseIndex += ((grdDiffs[pointId] >= 0.0) ? 1 : 0);
-          caseIndex <<= (1 - (!pointId));
+          caseIndex |= (grdDiffs[pointId] >= 0.0) << pointId;
         }
 
         // shape case, number of outputs, and vertices from edges
