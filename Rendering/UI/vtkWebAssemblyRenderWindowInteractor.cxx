@@ -160,7 +160,8 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(void* arg)
 
     case SDL_MOUSEMOTION:
     {
-      this->SetEventInformationFlipY(event->motion.x, event->motion.y, ctrl, shift);
+      const double dpr = emscripten_get_device_pixel_ratio();
+      this->SetEventInformationFlipY(event->motion.x * dpr, event->motion.y * dpr, ctrl, shift);
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
     }
@@ -169,7 +170,8 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(void* arg)
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
     {
-      this->SetEventInformationFlipY(event->button.x, event->button.y, ctrl, shift);
+      const double dpr = emscripten_get_device_pixel_ratio();
+      this->SetEventInformationFlipY(event->button.x * dpr, event->button.y * dpr, ctrl, shift);
       this->SetAltKey(alt);
 
       int ev = -1;
