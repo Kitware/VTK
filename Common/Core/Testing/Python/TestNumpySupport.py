@@ -51,10 +51,6 @@ class TestNumpySupport(Testing.vtkTest):
 
         # Test the different types of arrays.
         t_z.append(numpy.array([-128, 0, 127], numpy.int8))
-
-        # FIXME: character arrays are a problem since there is no
-        # unique mapping to a VTK data type and back.
-        #t_z.append(numpy.array([-128, 0, 127], numpy.character))
         t_z.append(numpy.array([-32768, 0, 32767], numpy.int16))
         t_z.append(numpy.array([-2147483648, 0, 2147483647], numpy.int32))
         t_z.append(numpy.array([0, 255], numpy.uint8))
