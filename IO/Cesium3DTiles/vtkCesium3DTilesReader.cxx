@@ -175,6 +175,7 @@ void vtkCesium3DTilesReader::Implementation::ReadTiles(
       transform->SetMatrix(this->Transforms[i].data());
       vtkSmartPointer<vtkPolyData> tile = ReadTile(tileFileName, transform);
       pd->SetPartition(partitionIndex++, tile);
+      this->Reader->UpdateProgress(static_cast<double>(i) / numberOfPartitions);
     }
   }
 }
