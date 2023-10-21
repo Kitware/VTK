@@ -1143,6 +1143,12 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         set(_generate_pyi_static_importer_arg)
       endif ()
 
+      set(_vtk_python_depends_args)
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+        list(APPEND _vtk_python_depends_args
+          DEPENDS_EXPLICIT_ONLY)
+      endif ()
+
       add_custom_command(
         OUTPUT    ${_vtk_python_pyi_files}
         COMMAND   ${_vtk_python_exe} # Do not quote; may contain arguments.
@@ -1156,7 +1162,8 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         DEPENDS   ${_vtk_python_module_targets}
                   ${_vtk_python_static_importer_name}
                   "${_vtk_pyi_script}"
-        COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}")
+        COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}"
+        ${_vtk_python_depends_args})
 
       install(
         FILES       ${_vtk_python_pyi_files}
