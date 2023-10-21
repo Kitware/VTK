@@ -358,7 +358,7 @@ function (_vtk_module_wrap_python_library name)
       set(_vtk_python_module_file
         "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}/${_vtk_python_library_name}.py")
       set(_vtk_python_module_contents
-          "from ${_vtk_python_import_prefix}${_vtk_python_library_name} import *\n")
+        "from ${_vtk_python_import_prefix}${_vtk_python_library_name} import *\n")
 
       file(GENERATE
         OUTPUT  "${_vtk_python_module_file}"
@@ -807,17 +807,17 @@ function (vtk_module_wrap_python)
   endif ()
   string(REPLACE "." "/" _vtk_python_package_path "${_vtk_python_PYTHON_PACKAGE}")
 
-  if(_vtk_python_BUILD_STATIC)
+  if (_vtk_python_BUILD_STATIC)
     # When doing static builds we want the statically initialized built-ins to be
     # used. It is unclear in the Python-C API how to construct `namespace.module`
     # so instead at the C++ level we import "namespace_module" during startup
     # and than the python modules moving those imports into the correct python
     # module.
     string(REPLACE "." "_" _vtk_python_import_prefix "${_vtk_python_PYTHON_PACKAGE}_")
-  else()
+  else ()
     # We are building dynamic libraries therefore the prefix is simply '.'
     set(_vtk_python_import_prefix ".")
-  endif()
+  endif ()
 
   _vtk_module_check_destinations(_vtk_python_
     MODULE_DESTINATION
@@ -847,7 +847,7 @@ function (vtk_module_wrap_python)
         set(_vtk_python_origin_stem "@loader_path")
       else ()
         set(_vtk_python_origin_stem "$ORIGIN")
-      endif()
+      endif ()
 
       list(APPEND CMAKE_INSTALL_RPATH
         "${_vtk_python_origin_stem}/${_vtk_python_relpath}")
@@ -1052,7 +1052,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         set_property(TARGET "${_vtk_python_static_importer_name}"
           PROPERTY
             SUFFIX ".pyd")
-      endif()
+      endif ()
       set_property(TARGET "${_vtk_python_static_importer_name}"
         PROPERTY
           LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_MODULE_DESTINATION}")
@@ -1254,7 +1254,7 @@ function (vtk_module_add_python_package name)
         FILES       "${_vtk_add_python_package_name}"
         DESTINATION "${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_install_path}"
         COMPONENT   "${_vtk_add_python_package_COMPONENT}")
-    endif()
+    endif ()
   endforeach ()
 
   get_property(_vtk_add_python_package_module GLOBAL
