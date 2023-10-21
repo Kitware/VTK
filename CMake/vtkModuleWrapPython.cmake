@@ -395,9 +395,6 @@ function (_vtk_module_wrap_python_library name)
     set(_vtk_python_wrap_target "VTKCompileTools::WrapPythonInit")
   endif ()
 
-  if(_vtk_python_BUILD_STATIC)
-    set(additonal_options "${_vtk_python_import_prefix}")
-  endif()
   add_custom_command(
     OUTPUT  "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
@@ -406,7 +403,6 @@ function (_vtk_module_wrap_python_library name)
             "${_vtk_python_init_data_file}"
             "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
-            "${additonal_options}"
     COMMENT "Generating the Python module initialization sources for ${name}"
     DEPENDS
       "${_vtk_python_init_data_file}"
