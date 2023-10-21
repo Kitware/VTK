@@ -106,6 +106,9 @@ if (NOT copy_qmlplugintypes)
     endif ()
     set(copy_qmlplugintypes TRUE)
   else ()
+    # Must be `POST_BUILD` so that it is always up-to-date when building the
+    # QML plugin instead of also needing to run a separate custom target as
+    # well.
     add_custom_command(
       TARGET qmlvtkplugin
       POST_BUILD
@@ -123,6 +126,9 @@ if (NOT copy_qmlplugintypes)
   endif ()
 endif()
 if (copy_qmlplugintypes)
+  # Must be `POST_BUILD` so that it is always up-to-date when building the
+  # QML plugin instead of also needing to run a separate custom target as
+  # well.
   add_custom_command(
     TARGET qmlvtkplugin
     POST_BUILD
