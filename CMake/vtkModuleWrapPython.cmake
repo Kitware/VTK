@@ -203,6 +203,8 @@ $<$<BOOL:${_vtk_python_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_python_hierar
 
     set(_vtk_python_source_output
       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python/${_vtk_python_basename}Python.cxx")
+    set(_vtk_python_depfile
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python.dir/${_vtk_python_basename}Python.cxx.d")
     list(APPEND _vtk_python_sources
       "${_vtk_python_source_output}")
 
@@ -223,13 +225,13 @@ $<$<BOOL:${_vtk_python_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_python_hierar
       OUTPUT  "${_vtk_python_source_output}"
       COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
               "$<TARGET_FILE:${_vtk_python_wrap_target}>"
+              -MF "${_vtk_python_depfile}"
               "@${_vtk_python_args_file}"
               -o "${_vtk_python_source_output}"
               "${_vtk_python_header}"
               ${_vtk_python_warning_args}
               ${_vtk_python_macros_args}
-      IMPLICIT_DEPENDS
-              CXX "${_vtk_python_header}"
+      DEPFILE "${_vtk_python_depfile}"
       COMMENT "Generating Python wrapper sources for ${_vtk_python_basename}"
       DEPENDS
         "${_vtk_python_header}"
