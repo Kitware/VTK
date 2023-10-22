@@ -73,6 +73,12 @@ extern "C"
   OptionInfo* vtkParse_GetCommandLineOptions(void);
 
   /**
+   * Perform any finalization required.
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  int vtkParse_Finalize(void);
+
+  /**
    * The main function, parses the file and returns the result.
    */
   VTKWRAPPINGTOOLS_EXPORT

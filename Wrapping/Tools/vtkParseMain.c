@@ -409,6 +409,11 @@ OptionInfo* vtkParse_GetCommandLineOptions(void)
   return &options;
 }
 
+int vtkParse_Finalize(void)
+{
+  return 0;
+}
+
 /* Command-line argument handler for wrapper tools */
 FileInfo* vtkParse_Main(int argc, char* argv[])
 {

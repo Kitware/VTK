@@ -839,5 +839,8 @@ MergeInfo* vtkParseMerge_MergeSuperClasses(
     vtkParseHierarchy_Free(hinfo);
   }
 
+  /* Do not finalize `oinfo` here; we're just peeking at global state to know
+   * what hierarchy files are available. */
+
   return info;
 }

@@ -786,6 +786,8 @@ void vtkWrap_FindNewInstanceMethods(ClassInfo* data, const HierarchyInfo* hinfo)
         fprintf(stderr, "Warning: %s without VTK_NEWINSTANCE hint in %s\n", theFunc->Name,
           options->InputFileName);
         theFunc->ReturnValue->Attributes |= VTK_PARSE_NEWINSTANCE;
+        /* Do not finalize `options` here; we're just peeking at global state
+         * to know when to warn. */
       }
     }
   }
