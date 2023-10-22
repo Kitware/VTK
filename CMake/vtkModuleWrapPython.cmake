@@ -397,6 +397,12 @@ function (_vtk_module_wrap_python_library name)
     set(_vtk_python_wrap_target "VTKCompileTools::WrapPythonInit")
   endif ()
 
+  set(_vtk_python_depends_args)
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+    list(APPEND _vtk_python_depends_args
+      DEPENDS_EXPLICIT_ONLY)
+  endif ()
+
   add_custom_command(
     OUTPUT  "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
@@ -408,7 +414,8 @@ function (_vtk_module_wrap_python_library name)
     COMMENT "Generating the Python module initialization sources for ${name}"
     DEPENDS
       "${_vtk_python_init_data_file}"
-      "$<TARGET_FILE:${_vtk_python_wrap_target}>")
+      "$<TARGET_FILE:${_vtk_python_wrap_target}>"
+    ${_vtk_python_depends_args})
 
   if (_vtk_python_BUILD_STATIC)
     set(_vtk_python_module_header_file
