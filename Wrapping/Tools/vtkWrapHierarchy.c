@@ -857,13 +857,13 @@ static int vtkWrapHierarchy_TryWriteHierarchyFile(const char* file_name, char* c
     if (!output_file)
     {
       fprintf(stderr, "vtkWrapHierarchy: tried %i times to write %s\n", tries, file_name);
-      exit(1);
+      return 1;
     }
     if (!vtkWrapHierarchy_WriteHierarchyFile(output_file, lines))
     {
       fclose(output_file);
       fprintf(stderr, "vtkWrapHierarchy: error writing file %s\n", file_name);
-      exit(1);
+      return 1;
     }
     fclose(output_file);
   }
@@ -880,6 +880,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
 {
   OptionInfo* options;
   int i;
+  int retValue = 0;
   size_t j, n;
   char** lines = 0;
   char** files = 0;
@@ -898,7 +899,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (options->OutputFileName == NULL)
   {
     fprintf(stderr, "No output file was specified\n");
-    exit(1);
+    return 1;
   }
 
   /* read the data file */
@@ -945,7 +946,10 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   qsort(lines, n, sizeof(char*), &string_compare);
 
   /* write the file, if it has changed */
-  vtkWrapHierarchy_TryWriteHierarchyFile(options->OutputFileName, lines);
+  if (vtkWrapHierarchy_TryWriteHierarchyFile(options->OutputFileName, lines))
+  {
+    retValue = 1;
+  }
 
   for (j = 0; j < n; j++)
   {
@@ -961,5 +965,5 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   free(string_cache);
   free(files);
   free(lines);
-  return 0;
+  return retValue;
 }
