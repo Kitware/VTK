@@ -3119,14 +3119,14 @@ function (_vtk_module_standard_includes)
   target_include_directories("${_vtk_standard_includes_TARGET}"
     ${_vtk_standard_includes_system}
     "${_vtk_standard_includes_visibility}"
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>")
 
   if (_vtk_build_INSTALL_HEADERS AND _vtk_standard_includes_HEADERS_DESTINATION AND NOT _vtk_add_module_NO_INSTALL)
     target_include_directories("${_vtk_standard_includes_TARGET}"
       ${_vtk_standard_includes_system}
       "${_vtk_standard_includes_visibility}"
-      $<INSTALL_INTERFACE:${_vtk_standard_includes_HEADERS_DESTINATION}>)
+      "$<INSTALL_INTERFACE:${_vtk_standard_includes_HEADERS_DESTINATION}>")
   endif ()
 endfunction ()
 
@@ -3851,7 +3851,9 @@ function (vtk_module_add_module name)
       add_library("${_vtk_add_module_real_target}" ${_vtk_add_module_type}
         ${_vtk_add_module_SOURCES}
         ${_vtk_add_module_TEMPLATES}
+        ${_vtk_add_module_PRIVATE_TEMPLATES}
         ${_vtk_add_module_HEADERS}
+        ${_vtk_add_module_NOWRAP_HEADERS}
         ${_vtk_add_module_PRIVATE_HEADERS})
 
       if (_vtk_build_UTILITY_TARGET)
@@ -4219,7 +4221,6 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
         COMPONENT   "${_vtk_build_SPDX_COMPONENT}")
     endif ()
   endif ()
-
 endfunction ()
 
 #[==[.rst:
