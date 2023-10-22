@@ -1275,6 +1275,12 @@ function (vtk_module_add_python_package name)
         "${CMAKE_CURRENT_SOURCE_DIR}/")
     endif ()
 
+    set(_vtk_python_package_depends_args)
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+      list(APPEND _vtk_python_package_depends_args
+        DEPENDS_EXPLICIT_ONLY)
+    endif ()
+
     set(_vtk_add_python_package_file_output
       "${CMAKE_BINARY_DIR}/${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_name}")
     add_custom_command(
@@ -1283,7 +1289,8 @@ function (vtk_module_add_python_package name)
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
               "${_vtk_add_python_package_file}"
               "${_vtk_add_python_package_file_output}"
-      COMMENT "Copying ${_vtk_add_python_package_name} to the binary directory")
+      COMMENT "Copying ${_vtk_add_python_package_name} to the binary directory"
+      ${_vtk_python_package_depends_args})
     list(APPEND _vtk_add_python_package_file_outputs
       "${_vtk_add_python_package_file_output}")
     if (BUILD_SHARED_LIBS)
