@@ -10,6 +10,7 @@ This file provides a unified front-end for the wrapper generators.
 #include "vtkParseMain.h"
 #include "vtkParse.h"
 #include "vtkParseData.h"
+#include "vtkParseDependencyTracking.h"
 #include "vtkParseSystem.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -53,6 +54,7 @@ static void parse_print_help(FILE* fp, const char* cmd, int multi)
     "  -D <macro[=def]>  define a preprocessor macro\n"
     "  -U <macro>        undefine a preprocessor macro\n"
     "  -imacros <file>   read macros from a header file\n"
+    "  -MF <file>        write dependency information to a file\n"
     "  -undef            do not predefine platform macros\n"
     "  -Wempty           warn when nothing is wrapped\n"
     "  -Wno-empty        do not warn when nothing is wrapped\n"
@@ -98,6 +100,8 @@ static int read_option_file(StringCache* strings, const char* filename, int* arg
   int j;
   int in_string;
 
+  /* TODO: track this dependency properly; tracking is never active at this
+   * point. */
   fp = vtkParse_FileOpen(filename, "r");
 
   if (fp == NULL)
@@ -269,6 +273,7 @@ static int parse_check_options(int argc, char* argv[], int multi)
   options.NumberOfHintFileNames = 0;
   options.HintFileNames = NULL;
   options.DumpMacros = 0;
+  options.DepFileName = NULL;
   options.WarningFlags.Empty = 0;
 
   for (i = 1; i < argc; i++)
@@ -309,6 +314,15 @@ static int parse_check_options(int argc, char* argv[], int multi)
     else if (strcmp(argv[i], "-Wno-empty") == 0)
     {
       options.WarningFlags.Empty = 0;
+    }
+    else if (strcmp(argv[i], "-MF") == 0)
+    {
+      i++;
+      if (i >= argc || argv[i][0] == '-')
+      {
+        return -1;
+      }
+      options.DepFileName = argv[i];
     }
     else if (argv[i][0] == '-' && isalpha(argv[i][1]))
     {
@@ -411,7 +425,15 @@ OptionInfo* vtkParse_GetCommandLineOptions(void)
 
 int vtkParse_Finalize(void)
 {
-  return 0;
+  int ret = 0;
+
+  if (options.DepFileName && vtkParse_DependencyTrackingWrite(options.DepFileName))
+  {
+    ret = 1;
+  }
+  vtkParse_FinalizeDependencyTracking();
+
+  return ret;
 }
 
 /* Command-line argument handler for wrapper tools */
@@ -479,6 +501,12 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
     fprintf(stderr, "No output file was specified\n");
     fclose(ifile);
     exit(1);
+  }
+
+  if (options.DepFileName && options.OutputFileName)
+  {
+    vtkParse_InitDependencyTracking(options.OutputFileName);
+    /* TODO: register response files read in `read_option_file` here. */
   }
 
   /* parse the input file */

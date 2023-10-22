@@ -816,7 +816,7 @@ static int vtkWrapHierarchy_TryWriteHierarchyFile(const char* file_name, char* c
   FILE* output_file;
   int matched = 0;
 
-  output_file = vtkParse_FileOpen(file_name, "r");
+  output_file = vtkParse_FileOpenNoDependency(file_name, "r");
   if (output_file && vtkWrapHierarchy_CompareHierarchyFile(output_file, lines))
   {
     matched = 1;
@@ -840,7 +840,7 @@ static int vtkWrapHierarchy_TryWriteHierarchyFile(const char* file_name, char* c
 #else
       sleep(1);
 #endif
-      output_file = vtkParse_FileOpen(file_name, "r+");
+      output_file = vtkParse_FileOpenNoDependency(file_name, "r+");
       if (output_file && vtkWrapHierarchy_CompareHierarchyFile(output_file, lines))
       {
         /* if the contents match, no need to write it */

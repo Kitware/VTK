@@ -4814,7 +4814,7 @@ FileInfo* vtkParse_ParseFile(const char* filename, FILE* ifile, FILE* errfile)
 
   /* "preprocessor" is a global struct used by the parser */
   preprocessor = (PreprocessInfo*)malloc(sizeof(PreprocessInfo));
-  vtkParsePreprocess_Init(preprocessor, filename);
+  vtkParsePreprocess_Init(preprocessor, filename, dt);
   preprocessor->Strings = data->Strings;
   preprocessor->System = &system_cache;
   vtkParsePreprocess_AddStandardMacros(

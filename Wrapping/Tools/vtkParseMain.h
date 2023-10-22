@@ -57,6 +57,7 @@ typedef struct OptionInfo_
   int NumberOfHierarchyFileNames; /* the total number of types argument */
   char** HierarchyFileNames;      /* the file preceded by "--types" */
   int DumpMacros;                 /* dump macros to output */
+  char* DepFileName;              /* dependency tracking output file */
 
   Warnings WarningFlags; /* warning flags */
 } OptionInfo;
@@ -74,6 +75,9 @@ extern "C"
 
   /**
    * Perform any finalization required.
+   *
+   * This includes writing the dependency tracker information and cleaning up
+   * memory.
    */
   VTKWRAPPINGTOOLS_EXPORT
   int vtkParse_Finalize(void);
