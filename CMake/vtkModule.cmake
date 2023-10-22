@@ -3760,7 +3760,7 @@ function (vtk_module_add_module name)
   if (NOT _vtk_add_module_HEADER_ONLY AND NOT _vtk_add_module_third_party)
     set(_vtk_add_module_generated_header
       "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_add_module_module_header_name}")
-    list(APPEND _vtk_add_module_HEADERS
+    list(APPEND _vtk_add_module_NOWRAP_HEADERS
       "${_vtk_add_module_generated_header}")
   endif ()
 
