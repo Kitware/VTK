@@ -5960,9 +5960,10 @@ function (_vtk_module_generate_spdx)
       -d "${_vtk_module_generate_spdx_download_location}"
       -k "${_vtk_module_generate_spdx_SKIP_REGEX}"
       ${_vtk_module_generate_spdx_response_arg}
+    DEPENDS ${_vtk_module_generate_spdx_input_paths}
+            ${_vtk_module_generate_spdx_args_file}
     VERBATIM)
   add_custom_target("${_vtk_module_generate_spdx_TARGET}"
     DEPENDS
-      "${_vtk_module_generate_spdx_output_file}"
-      ${_vtk_module_generate_spdx_args_file})
+      "${_vtk_module_generate_spdx_output_file}")
 endfunction ()
