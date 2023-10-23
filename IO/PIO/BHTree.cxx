@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) 2007, Los Alamos National Security, LLC
-// SPDX-FileCopyrightText: Copyright (c) 2021, Triad National Security, LLC.
-// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-LANL-USGov
+// SPDX-FileCopyrightText: Copyright (c) 2021, Triad National Security, LLC
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-LANL-Triad-USGov
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
