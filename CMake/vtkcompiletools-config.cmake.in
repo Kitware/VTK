@@ -13,8 +13,8 @@ set("${CMAKE_FIND_PACKAGE_NAME}_FOUND" 1)
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-properties.cmake")
 
-set(_compile_tools_empty_input_file "${CMAKE_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_empty.h")
-set(_compile_tools_output_file "${CMAKE_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_macros.h")
+set(_compile_tools_empty_input_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_empty.h")
+set(_compile_tools_output_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_macros.h")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR
     CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(_compile_tools_command
@@ -47,6 +47,8 @@ if (_compile_tools_command)
               ${_compile_tools_command}
       DEPENDS "${CMAKE_CXX_COMPILER}"
               "${_compile_tools_empty_input_file}"
+      WORKING_DIRECTORY
+              "${CMAKE_CURRENT_BINARY_DIR}"
       COMMENT "Detecting builtin compiler preprocessor defines for ${CMAKE_FIND_PACKAGE_NAME}")
     add_custom_target("${CMAKE_FIND_PACKAGE_NAME}_macros"
       DEPENDS
