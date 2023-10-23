@@ -16,20 +16,18 @@ example using poly data:
 The underlying serialization of the vtkDatObjects is based on the marshaling capabilities
 found in vtkCommunicator. Importing this module adds entries for the most common data
 objects in the global dispatch table used by pickle. NumPy is required as well since the
-serialized data object gets pickled as a numpy array using the vtkmodules.util.numpy_support
-module.
+-serialized data object gets pickled as a numpy array.
 """
 
 try:
-    import copyreg, pickle
+    import copyreg, pickle, numpy
 except ImportError:
-    raise RuntimeError("This module depends on the pickle and copyreg modules. Please make\
- sure that it is installed properly.")
+    raise RuntimeError("This module depends on the pickle, copyreg, and numpy modules.\
+ Please make sure that it is installed properly.")
 
 from ..vtkParallelCore import vtkCommunicator
 from ..vtkCommonCore import vtkCharArray
 from .. import vtkCommonDataModel
-from . import numpy_support
 
 def unserialize_VTK_data_object(state):
     """Takes a state dictionary with entries:
@@ -49,8 +47,10 @@ def unserialize_VTK_data_object(state):
         DataSetClass = getattr(vtkCommonDataModel, state["Type"])
     except:
         raise TypeError("Could not find type " + type_string + " in vtkCommonDataModel module")
+    serialized_data = state["Serialized"]
     new_data_object = DataSetClass()
-    char_array = numpy_support.numpy_to_vtk(state["Serialized"])
+    char_array = vtkCharArray()
+    char_array.SetVoidArray(serialized_data, memoryview(serialized_data).nbytes, 1)
     if vtkCommunicator.UnMarshalDataObject(char_array, new_data_object) == 0:
         raise RuntimeError("Marshaling data object failed")
     return new_data_object
@@ -70,7 +70,9 @@ def serialize_VTK_data_object(data_object):
     char_array = vtkCharArray()
     if vtkCommunicator.MarshalDataObject(data_object, char_array) == 0:
         raise RuntimeError("UnMarshaling data object failed")
-    return unserialize_VTK_data_object, ({ "Type" : data_object_type, "Serialized" : numpy_support.vtk_to_numpy(char_array) },)
+    return unserialize_VTK_data_object, (
+        { "Type" : data_object_type,
+          "Serialized" : numpy.frombuffer(char_array, numpy.int8, char_array.GetNumberOfValues()) },)
 
 
 # Fill in global dispatch table for most vtkDataObject types
