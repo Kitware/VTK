@@ -134,9 +134,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
 
     # Fail to present D3D resources (see #18657)
     "^VTK::RenderingOpenGL2Cxx-TestWin32OpenGLDXRenderWindow$"
-
-    # emscripten config issue (https://gitlab.kitware.com/paraview/paraview/-/issues/21145)
-    "^VTK::IOXMLCxx-TestXMLLargeUnstructuredGrid$"
   )
 endif ()
 

@@ -18,10 +18,7 @@ int TestXMLLargeUnstructuredGrid(int argc, char* argv[])
   std::string fileName(tempDir);
   delete[] tempDir;
 
-  std::string type = "double";
   fileName += "/XMLLargeUnstructuredGrid.vtu";
-
-  std::cout << "Testing type " << type << std::endl;
 
   // Large file is > 2Gb when written to disk.
   int blocksDimensions[] = { 200, 200, 75 };
@@ -30,14 +27,8 @@ int TestXMLLargeUnstructuredGrid(int argc, char* argv[])
   vtkSmartPointer<vtkCellTypeSource> cellSource = vtkSmartPointer<vtkCellTypeSource>::New();
   cellSource->SetBlocksDimensions(blocksDimensions);
   cellSource->SetCellType(VTK_TETRA);
-  if (type == "float")
-  {
-    cellSource->SetOutputPrecision(vtkAlgorithm::SINGLE_PRECISION);
-  }
-  else
-  {
-    cellSource->SetOutputPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-  }
+  cellSource->SetOutputPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+
   cellSource->Update();
   std::cout << "Write to " << fileName << std::endl;
 
@@ -47,8 +38,8 @@ int TestXMLLargeUnstructuredGrid(int argc, char* argv[])
   writer->SetInputData(cellSource->GetOutput());
   writer->SetFileName(fileName.c_str());
   // large files failed in binary mode on windows,
-  // https://gitlab.kitware.com/paraview/paraview/-/issues/21145 File must be larger than 2^31 to
-  // trigger the bug, don't compress.
+  // https://gitlab.kitware.com/paraview/paraview/-/issues/21145
+  // File must be larger than 2^31 to trigger the bug, don't compress.
   writer->SetDataModeToBinary();
   writer->SetCompressorTypeToNone();
   writer->Write();
@@ -57,6 +48,14 @@ int TestXMLLargeUnstructuredGrid(int argc, char* argv[])
   vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
     vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
   reader->SetFileName(fileName.c_str());
+
+  if (!reader->CanReadFile(fileName.c_str()))
+  {
+    std::cerr
+      << "CanReadFile failed, likely cause: external Expat configured without XML_LARGE_SIZE"
+      << std::endl;
+    return EXIT_FAILURE;
+  }
   reader->Update();
 
   if (cellSource->GetOutput()->GetNumberOfCells() != reader->GetOutput()->GetNumberOfCells())

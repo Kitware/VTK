@@ -1574,6 +1574,18 @@ int vtkXMLReader::CanReadFile(const char* name)
   }
 
   tester->Delete();
+  // sizeof(long) == 4 on _WIN32, check for Expat config that uses 'long long' instead
+  if (VTK_SIZEOF_LONG == 4 && result)
+  {
+    auto fileSize = fs.st_size;
+    if (fileSize > VTK_LONG_MAX && !vtkXMLParser::hasLargeOffsets())
+    {
+      vtkErrorMacro("Unable to read file, Expat must be configured with XML_LARGE_SIZE to read "
+                    "files > 2Gb: "
+        << name);
+      result = 0;
+    }
+  }
   return result;
 }
 

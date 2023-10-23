@@ -26,6 +26,11 @@ else ()
   set(XML_STATIC 1)
 endif ()
 
+# match setting of EXPAT_LARGE_SIZE in our build
+if(NOT VTK_MODULE_USE_EXTERNAL_vtkexpat)
+  set(XML_LARGE_SIZE 1)
+endif()
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_expat.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_expat.h")
