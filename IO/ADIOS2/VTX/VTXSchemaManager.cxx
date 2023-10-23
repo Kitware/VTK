@@ -13,6 +13,7 @@
 #include "schema/vtk/VTXvtkVTI.h"
 #include "schema/vtk/VTXvtkVTU.h"
 
+#include <vtkLogger.h>
 #include <vtk_pugixml.h>
 #include <vtksys/SystemTools.hxx>
 
@@ -29,7 +30,11 @@ void VTXSchemaManager::Update(
   // can't do it in the constructor as it need MPI initialized
   if (!this->ADIOS)
   {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
     this->ADIOS.reset(new adios2::ADIOS(helper::MPIGetComm()));
+#else
+    this->ADIOS.reset(new adios2::ADIOS());
+#endif
   }
 
   if (!this->IO && !this->Engine)

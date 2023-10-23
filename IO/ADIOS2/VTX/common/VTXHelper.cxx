@@ -15,8 +15,10 @@
 #include <numeric> //std::accumulate
 #include <sstream>
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
+#endif
 #include "vtkMultiProcessController.h"
 
 #include <vtksys/FStream.hxx>
@@ -28,6 +30,7 @@ namespace helper
 {
 VTK_ABI_NAMESPACE_BEGIN
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 MPI_Comm MPIGetComm()
 {
   MPI_Comm comm = MPI_COMM_NULL;
@@ -42,21 +45,30 @@ MPI_Comm MPIGetComm()
   }
   return comm;
 }
+#endif
 
 int MPIGetRank()
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   MPI_Comm comm = MPIGetComm();
   int rank;
   MPI_Comm_rank(comm, &rank);
   return rank;
+#else
+  return 0;
+#endif
 }
 
 int MPIGetSize()
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   MPI_Comm comm = MPIGetComm();
   int size;
   MPI_Comm_size(comm, &size);
   return size;
+#else
+  return 1;
+#endif
 }
 
 pugi::xml_document XMLDocument(
@@ -282,16 +294,6 @@ std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
 {
   return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<std::size_t>());
 }
-
-// allowed types
-template vtkSmartPointer<vtkDataArray> NewDataArray<int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<long long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<float>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<double>();
 
 adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape)
 {

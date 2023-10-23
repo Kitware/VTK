@@ -10,6 +10,7 @@
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
+#include "ADIOSTestUtilities.h"
 #include "vtkADIOS2VTXReader.h"
 
 #include <numeric> //std::iota
@@ -21,9 +22,11 @@
 #include "vtkDataSetMapper.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
+#endif
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkMultiProcessController.h"
@@ -40,6 +43,7 @@
 
 namespace
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 MPI_Comm MPIGetComm()
 {
   MPI_Comm comm = MPI_COMM_NULL;
@@ -63,6 +67,7 @@ int MPIGetRank()
   MPI_Comm_rank(comm, &rank);
   return rank;
 }
+#endif
 
 void WriteBP(const std::string& fileName)
 {
@@ -83,7 +88,7 @@ void WriteBP(const std::string& fileName)
   std::vector<double> sol(6);
   std::iota(sol.begin(), sol.end(), 1.);
 
-  adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF);
+  ADIOS_OPEN(fs, fileName);
   fs.write("types", 8);
   fs.write("connectivity", connectivity.data(), {}, {}, { 2, 5 });
   fs.write("vertices", vertices.data(), {}, {}, { 6, 2 });
@@ -115,10 +120,14 @@ void WriteBP(const std::string& fileName)
 
 int TestIOADIOS2VTX_VTU2DRendering(int argc, char* argv[])
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> mpiController;
   mpiController->Initialize(&argc, &argv, 0);
   vtkMultiProcessController::SetGlobalController(mpiController);
   const int rank = MPIGetRank();
+#else
+  const int rank = 0;
+#endif
 
   vtkNew<vtkTesting> testing;
   const std::string rootDirectory(testing->GetTempDirectory());
@@ -167,7 +176,9 @@ int TestIOADIOS2VTX_VTU2DRendering(int argc, char* argv[])
   renderWindowInteractor->SetRenderWindow(renderWindow);
   renderWindow->Render();
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   mpiController->Finalize();
+#endif
 
   return EXIT_SUCCESS;
 }

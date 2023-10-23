@@ -19,7 +19,9 @@
 #include <utility> // std::pair
 #include <vector>
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include <vtk_mpi.h>
+#endif
 
 #include "vtkDataArray.h"
 #include "vtkIdTypeArray.h"
@@ -35,8 +37,10 @@ namespace helper
 {
 VTK_ABI_NAMESPACE_BEGIN
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 /** Get current MPI global communicator from VTK */
 MPI_Comm MPIGetComm();
+#endif
 
 /** Get current MPI rank from MPIGetComm */
 int MPIGetRank();

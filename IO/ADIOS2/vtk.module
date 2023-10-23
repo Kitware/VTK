@@ -20,10 +20,10 @@ DEPENDS
 OPTIONAL_DEPENDS
   VTK::ParallelMPI
   VTK::mpi
-  VTK::vtksys
-  VTK::pugixml
 PRIVATE_DEPENDS
   VTK::CommonDataModel
+  VTK::vtksys
+  VTK::pugixml
 TEST_DEPENDS
   VTK::IOLegacy
   VTK::IOXML

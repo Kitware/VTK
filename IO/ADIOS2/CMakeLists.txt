@@ -25,28 +25,26 @@ list(APPEND private_headers   ${private_headers_core})
 list(APPEND private_templates ${private_templates_core})
 
 # Build VTX Schema for Parallel
-if (TARGET VTK::ParallelMPI)
-  set(classes_vtx vtkADIOS2VTXReader)
-  set(private_classes_vtx
-    VTX/VTXSchemaManager
-    VTX/common/VTXDataArray
-    VTX/common/VTXHelper
-    VTX/schema/VTXSchema
-    VTX/schema/vtk/VTXvtkBase
-    VTX/schema/vtk/VTXvtkVTI
-    VTX/schema/vtk/VTXvtkVTU)
-  set(private_headers_vtx VTX/common/VTXTypes.h)
-  set(private_templates_vtx
-    VTX/common/VTXHelper.txx
-    VTX/schema/VTXSchema.txx
-    VTX/schema/vtk/VTXvtkVTI.txx
-    VTX/schema/vtk/VTXvtkVTU.txx)
+set(classes_vtx vtkADIOS2VTXReader)
+set(private_classes_vtx
+  VTX/VTXSchemaManager
+  VTX/common/VTXDataArray
+  VTX/common/VTXHelper
+  VTX/schema/VTXSchema
+  VTX/schema/vtk/VTXvtkBase
+  VTX/schema/vtk/VTXvtkVTI
+  VTX/schema/vtk/VTXvtkVTU)
+set(private_headers_vtx VTX/common/VTXTypes.h)
+set(private_templates_vtx
+  VTX/common/VTXHelper.txx
+  VTX/schema/VTXSchema.txx
+  VTX/schema/vtk/VTXvtkVTI.txx
+  VTX/schema/vtk/VTXvtkVTU.txx)
 
-  list(APPEND classes   ${classes_vtx})
-  list(APPEND private_classes   ${private_classes_vtx})
-  list(APPEND private_headers   ${private_headers_vtx})
-  list(APPEND private_templates ${private_templates_vtx})
-endif ()
+list(APPEND classes   ${classes_vtx})
+list(APPEND private_classes   ${private_classes_vtx})
+list(APPEND private_headers   ${private_headers_vtx})
+list(APPEND private_templates ${private_templates_vtx})
 
 vtk_module_add_module(VTK::IOADIOS2
   CLASSES   ${classes}

@@ -9,6 +9,7 @@
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
+#include "ADIOSTestUtilities.h"
 #include "vtkADIOS2VTXReader.h"
 
 #include <numeric>
@@ -21,9 +22,11 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
+#endif
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkMultiProcessController.h"
@@ -38,6 +41,7 @@
 
 namespace
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 MPI_Comm MPIGetComm()
 {
   MPI_Comm comm = MPI_COMM_NULL;
@@ -69,6 +73,7 @@ int MPIGetSize()
   MPI_Comm_size(comm, &size);
   return size;
 }
+#endif
 
 std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
 {
@@ -105,7 +110,7 @@ void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,
   std::vector<double> T(totalElements);
   std::iota(T.begin(), T.end(), static_cast<double>(rank * totalElements));
 
-  adios2::fstream fw(fileName, adios2::fstream::out, MPIGetComm());
+  ADIOS_OPEN(fw, fileName);
   fw.write_attribute("vtk.xml", imageSchema);
   fw.write("time", 0);
   fw.write("T", T.data(), shape, start, count);
@@ -116,12 +121,17 @@ void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,
 
 int TestIOADIOS2VTX_VTI3DRendering(int argc, char* argv[])
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> mpiController;
   mpiController->Initialize(&argc, &argv, 0);
   vtkMultiProcessController::SetGlobalController(mpiController);
 
   const int rank = MPIGetRank();
   const int size = MPIGetSize();
+#else
+  const int rank = 0;
+  const int size = 1;
+#endif
 
   vtkNew<vtkTesting> testing;
   const std::string rootDirectory(testing->GetTempDirectory());
@@ -172,7 +182,9 @@ int TestIOADIOS2VTX_VTI3DRendering(int argc, char* argv[])
   renderWindow->Render();
   // renderWindowInteractor->Start();
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   mpiController->Finalize();
+#endif
 
   return EXIT_SUCCESS;
 }
