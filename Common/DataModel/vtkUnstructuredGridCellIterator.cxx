@@ -42,20 +42,20 @@ void vtkUnstructuredGridCellIterator::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Types: (none)" << endl;
   }
 
-  if (this->FaceConn)
+  if (this->PolyFaceConn)
   {
     os << indent << "FaceConn:\n";
-    this->FaceConn->PrintSelf(os, indent.GetNextIndent());
+    this->PolyFaceConn->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "FaceConn: (none)" << endl;
   }
 
-  if (this->FaceLocs)
+  if (this->PolyFaceLocs)
   {
     os << indent << "FaceLocs:\n";
-    this->FaceLocs->PrintSelf(os, indent.GetNextIndent());
+    this->PolyFaceLocs->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -92,8 +92,8 @@ void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(vtkUnstructuredGrid* u
     this->Cells->GoToFirstCell();
 
     this->Types = cellTypeArray;
-    this->FaceConn = ug->GetFaces();
-    this->FaceLocs = ug->GetFaceLocations();
+    this->PolyFaceConn = ug->GetPolyhedronFaces();
+    this->PolyFaceLocs = ug->GetPolyhedronFaceLocations();
     this->Coords = points;
   }
 }
@@ -150,35 +150,95 @@ void vtkUnstructuredGridCellIterator::FetchPoints()
   this->Coords->GetPoints(this->GetPointIds(), this->Points);
 }
 
-//------------------------------------------------------------------------------
-// Given a pointer into a set of faces, traverse the faces and return the total
-// number of ids (including size hints) in the face set.
+//----------------------------------------------------------------------------
+// Supporting functions for FetchFaces()
 namespace
 {
-inline vtkIdType FaceSetSize(const vtkIdType* begin)
+struct GetPolyhedronNPts
 {
-  const vtkIdType* result = begin;
-  vtkIdType numFaces = *(result++);
-  while (numFaces-- > 0)
+  // Insert full cell
+  template <typename CellStateT>
+  vtkIdType operator()(CellStateT& state, const vtkIdType cellId, const vtkCellArray* faces)
   {
-    result += *result + 1;
+    vtkIdType npts = 0;
+
+    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
+    const vtkIdType endOffset = state.GetEndOffset(cellId);
+    const vtkIdType NumberOfFaces = endOffset - beginOffset;
+    const auto cellFaces = state.GetConnectivity()->GetPointer(beginOffset);
+
+    for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
+    {
+      npts += faces->GetCellSize(static_cast<vtkIdType>(cellFaces[faceNum]));
+    }
+    return npts;
   }
-  return result - begin;
+};
+
+template <typename FaceIdType>
+struct FetchFacesVisitor
+{
+  template <typename CellStateT>
+  void operator()(CellStateT& state, const vtkIdType NumberOfFaces, const FaceIdType* cellFaces,
+    vtkIdList* faceStream)
+  {
+    vtkIdType loc = 0;
+    faceStream->SetId(0, NumberOfFaces);
+    for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
+    {
+      const vtkIdType beginOffset = state.GetBeginOffset(cellFaces[faceNum]);
+      const vtkIdType endOffset = state.GetEndOffset(cellFaces[faceNum]);
+      const vtkIdType NumberOfPoints = endOffset - beginOffset;
+      const auto cellPoints = state.GetConnectivity()->GetPointer(beginOffset);
+
+      faceStream->SetId(++loc, NumberOfPoints);
+      for (vtkIdType ptIdx = 0; ptIdx < NumberOfPoints; ++ptIdx)
+      {
+        faceStream->SetId(++loc, static_cast<vtkIdType>(cellPoints[ptIdx]));
+      }
+    }
+  }
+};
+
+struct FetchPolyFacesVisitor
+{
+  template <typename CellStateT>
+  void operator()(
+    CellStateT& state, const vtkIdType cellId, vtkCellArray* faceArray, vtkIdList* faceStream)
+  {
+
+    using ValueType = typename CellStateT::ValueType;
+    using TFetchFaces = FetchFacesVisitor<ValueType>;
+
+    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
+    const vtkIdType endOffset = state.GetEndOffset(cellId);
+    const vtkIdType NumberOfFaces = endOffset - beginOffset;
+
+    if (NumberOfFaces == 0)
+    {
+      return;
+    }
+    const auto cellFaces = state.GetConnectivity()->GetPointer(beginOffset);
+    faceArray->Visit(TFetchFaces{}, NumberOfFaces, cellFaces, faceStream);
+  }
+};
 }
-} // end anon namespace
 
 //------------------------------------------------------------------------------
 void vtkUnstructuredGridCellIterator::FetchFaces()
 {
-  if (this->FaceLocs)
+  if (this->PolyFaceLocs)
   {
     const vtkIdType cellId = this->Cells->GetCurrentCellId();
-    const vtkIdType faceLoc = this->FaceLocs->GetValue(cellId);
-    const vtkIdType* faceSet = this->FaceConn->GetPointer(faceLoc);
-    vtkIdType facesSize = FaceSetSize(faceSet);
+    vtkIdType nfaces = 0;
+    vtkIdType npts = 0;
+    vtkIdType facesSize = 1;
+    nfaces = this->PolyFaceLocs->GetCellSize(cellId);
+    npts = this->PolyFaceLocs->Visit(GetPolyhedronNPts{}, cellId, this->PolyFaceConn);
+    facesSize += nfaces;
+    facesSize += npts;
     this->Faces->SetNumberOfIds(facesSize);
-    vtkIdType* tmpPtr = this->Faces->GetPointer(0);
-    std::copy_n(faceSet, facesSize, tmpPtr);
+    this->PolyFaceLocs->Visit(FetchPolyFacesVisitor{}, cellId, this->PolyFaceConn, this->Faces);
   }
   else
   {
