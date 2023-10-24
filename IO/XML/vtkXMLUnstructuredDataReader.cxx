@@ -1096,6 +1096,223 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells, vtkXMLD
 }
 
 //------------------------------------------------------------------------------
+int vtkXMLUnstructuredDataReader::ReadFaceCellArray(vtkIdType numberOfCells,
+  vtkXMLDataElement* eCells, vtkCellArray* outFaces, vtkCellArray* outFaceOffsets)
+{
+  if (numberOfCells <= 0)
+  {
+    return 1;
+  }
+  else
+  {
+    if (!eCells || !outFaces || !outFaceOffsets)
+    {
+      return 0;
+    }
+  }
+
+  // Split progress range into 1/5 for faces array and 4/5 for
+  // faceoffsets array.  This assumes an average of 4 points per
+  // face.  Unfortunately, we cannot know the length ahead of time
+  // to calculate the real fraction.
+  float progressRange[2] = { 0, 0 };
+  this->GetProgressRange(progressRange);
+  float fractions[3] = { 0, 0.2f, 1 };
+
+  // Set range of progress for offsets array.
+  this->SetProgressRange(progressRange, 0, fractions);
+
+  // Read the cell offsets.
+  vtkXMLDataElement* efaceOffsets = this->FindDataArrayWithName(eCells, "faceoffsets");
+  if (!efaceOffsets)
+  {
+    vtkErrorMacro("Cannot read face offsets from "
+      << eCells->GetName() << " in piece " << this->Piece
+      << " because the \"faceoffsets\" array could not be found.");
+    return 0;
+  }
+  vtkAbstractArray* ac1 = this->CreateArray(efaceOffsets);
+  vtkDataArray* c1 = vtkArrayDownCast<vtkDataArray>(ac1);
+  if (!c1 || (c1->GetNumberOfComponents() != 1))
+  {
+    vtkErrorMacro("Cannot read face offsets from "
+      << eCells->GetName() << " in piece " << this->Piece
+      << " because the \"faceoffsets\" array could not be created"
+      << " with one component.");
+    if (ac1)
+    {
+      ac1->Delete();
+    }
+    return 0;
+  }
+  c1->SetNumberOfTuples(numberOfCells);
+  if (!this->ReadArrayValues(efaceOffsets, 0, c1, 0, numberOfCells))
+  {
+    vtkErrorMacro("Cannot read face offsets from "
+      << eCells->GetName() << " in piece " << this->Piece
+      << " because the \"faceoffsets\" array is not long enough.");
+    return 0;
+  }
+  vtkIdTypeArray* faceOffsets = this->ConvertToIdTypeArray(c1);
+  if (!faceOffsets)
+  {
+    vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName() << " in piece "
+                                                   << this->Piece
+                                                   << " because the \"offsets\" array could not be"
+                                                   << " converted to a vtkIdTypeArray.");
+    return 0;
+  }
+
+  // Note that faceOffsets[i] points to the end of the i-th cell's faces + 1. We
+  // now Extract the size of the faces array from faceOffsets array. We compute
+  // it by subtracting the size of outFaces from the maximum value of faceOffset
+  // array element. The faceOffsets array is incremental, but contains -1 to
+  // indicate a non-polyhedron cell.
+  vtkIdType* faceoffsetPtr = faceOffsets->GetPointer(0);
+  vtkIdType maxOffset = -1;
+  for (vtkIdType i = numberOfCells - 1; i >= 0; i--)
+  {
+    if (faceoffsetPtr[i] > -1)
+    {
+      maxOffset = faceoffsetPtr[i];
+      break;
+    }
+  }
+
+  // Paraview-BUG-13892. The facesArrayLength here should be relative
+  // to the current piece being read, NOT the outFaces already read.
+  vtkIdType facesArrayLength = maxOffset;
+
+  // special handling of the case of all non-polyhedron cells
+  if (facesArrayLength <= 0)
+  {
+    faceOffsets->Delete();
+    return 1;
+  }
+
+  // Set range of progress for faces array.
+  this->SetProgressRange(progressRange, 1, fractions);
+
+  // Read the faces array.
+  vtkXMLDataElement* efaces = this->FindDataArrayWithName(eCells, "faces");
+  if (!efaces)
+  {
+    vtkErrorMacro("Cannot read faces from " << eCells->GetName() << " in piece " << this->Piece
+                                            << " because the \"faces\" array could not be found.");
+    faceOffsets->Delete();
+    return 0;
+  }
+  vtkAbstractArray* ac0 = this->CreateArray(efaces);
+  vtkDataArray* c0 = vtkArrayDownCast<vtkDataArray>(ac0);
+  if (!c0 || (c0->GetNumberOfComponents() != 1))
+  {
+    vtkErrorMacro("Cannot read faces from " << eCells->GetName() << " in piece " << this->Piece
+                                            << " because the \"faces\" array could not be created"
+                                            << " with one component.");
+    faceOffsets->Delete();
+    if (ac0)
+    {
+      ac0->Delete();
+    }
+    return 0;
+  }
+  c0->SetNumberOfTuples(facesArrayLength);
+  if (!this->ReadArrayValues(efaces, 0, c0, 0, facesArrayLength))
+  {
+    vtkErrorMacro("Cannot read faces from " << eCells->GetName() << " in piece " << this->Piece
+                                            << " because the \"faces\" array is not long enough.");
+    faceOffsets->Delete();
+    return 0;
+  }
+  vtkIdTypeArray* faces = this->ConvertToIdTypeArray(c0);
+  if (!faces)
+  {
+    vtkErrorMacro("Cannot read faces from " << eCells->GetName() << " in piece " << this->Piece
+                                            << " because the \"faces\" array could not be"
+                                            << " converted to a vtkIdTypeArray.");
+    faceOffsets->Delete();
+    return 0;
+  }
+
+  // Copy the contents of the faceoffsets array.
+  // Note that faceOffsets[i] points to the end of the i-th cell + 1. While
+  // vtkUnstructuredGrid::FaceLocations[i] points to the beginning of the
+  // i-th cell. Need to convert. Also note that for both arrays, a
+  // non-polyhedron cell has a offset of -1.
+  vtkIdType* facesPtr = faces->GetPointer(0);
+
+  vtkIdType currLoc = 0;
+  vtkIdType currFaceNum = outFaces->GetNumberOfCells();
+  for (vtkIdType i = 0; i < numberOfCells; ++i)
+  {
+    if (faceoffsetPtr[i] < 0)
+    {
+      outFaceOffsets->InsertNextCell(0);
+    }
+    else
+    {
+      // find next offset
+      // read numberOfFaces in a cell
+      vtkIdType numberOfCellFaces = facesPtr[currLoc];
+      currLoc += 1;
+      outFaceOffsets->InsertNextCell(static_cast<int>(numberOfCellFaces));
+      for (vtkIdType j = 0; j < numberOfCellFaces; j++)
+      {
+        // read numberOfPoints in a face
+        vtkIdType numberOfFacePoints = facesPtr[currLoc];
+        // update the point ids with StartPoint (Paraview-BUG-13892)
+        if (this->StartPoint > 0)
+        {
+          for (vtkIdType pidx = currLoc + 1; pidx < currLoc + 1 + numberOfFacePoints; pidx++)
+          {
+            facesPtr[pidx] += this->StartPoint;
+          }
+        }
+        currLoc += numberOfFacePoints + 1;
+        outFaceOffsets->InsertCellPoint(currFaceNum++);
+      }
+    }
+  }
+
+  // sanity check
+  if (currLoc != facesArrayLength)
+  {
+    vtkErrorMacro("Cannot read faces from " << eCells->GetName() << " in piece " << this->Piece
+                                            << " because the \"faces\" and"
+                                            << " \"faceoffsets\" arrays don't match.");
+    faceOffsets->Delete();
+    return 0;
+  }
+
+  // Copy the contents of the faces array.
+  currLoc = 0;
+  for (vtkIdType i = 0; i < numberOfCells; ++i)
+  {
+    if (faceoffsetPtr[i] < 0)
+    {
+      continue;
+    }
+    // read numberOfFaces in a cell
+    vtkIdType numberOfCellFaces = facesPtr[currLoc++];
+    for (vtkIdType j = 0; j < numberOfCellFaces; j++)
+    {
+      // read numberOfPoints in a face
+      vtkIdType numberOfFacePoints = facesPtr[currLoc++];
+      outFaces->InsertNextCell(static_cast<int>(numberOfFacePoints));
+      for (vtkIdType ptidx = 0; ptidx < numberOfFacePoints; ptidx++)
+      {
+        outFaces->InsertCellPoint(facesPtr[currLoc++]);
+      }
+    }
+  }
+
+  faces->Delete();
+  faceOffsets->Delete();
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkXMLUnstructuredDataReader::ReadArrayForPoints(
   vtkXMLDataElement* da, vtkAbstractArray* outArray)
 {

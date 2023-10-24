@@ -98,8 +98,8 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   if (vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
     // This is a bit more efficient and avoids iteration over all cells.
-    this->WriteCellsInline("Cells", grid->GetCells(), grid->GetCellTypesArray(), grid->GetFaces(),
-      grid->GetFaceLocations(), indent);
+    this->WritePolyCellsInline("Cells", grid->GetCells(), grid->GetCellTypesArray(),
+      grid->GetPolyhedronFaces(), grid->GetPolyhedronFaceLocations(), indent);
   }
   else
   {
@@ -153,8 +153,8 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index, vtkIndent inden
   if (vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
     this->ConvertCells(grid->GetCells());
-    this->WriteCellsAppended("Cells", grid->GetCellTypesArray(), grid->GetFaces(),
-      grid->GetFaceLocations(), indent, &this->CellsOM->GetPiece(index));
+    this->WritePolyCellsAppended("Cells", grid->GetCellTypesArray(), grid->GetPolyhedronFaces(),
+      grid->GetPolyhedronFaceLocations(), indent, &this->CellsOM->GetPiece(index));
   }
   else
   {
@@ -203,8 +203,9 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
   // Write the cell specification arrays.
   if (vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
-    this->WriteCellsAppendedData(grid->GetCells(), grid->GetCellTypesArray(), grid->GetFaces(),
-      grid->GetFaceLocations(), this->CurrentTimeIndex, &this->CellsOM->GetPiece(index));
+    this->WritePolyCellsAppendedData(grid->GetCells(), grid->GetCellTypesArray(),
+      grid->GetPolyhedronFaces(), grid->GetPolyhedronFaceLocations(), this->CurrentTimeIndex,
+      &this->CellsOM->GetPiece(index));
   }
   else
   {
