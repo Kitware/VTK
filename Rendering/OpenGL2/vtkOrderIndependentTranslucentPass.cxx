@@ -325,8 +325,9 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState* s)
   // back to the original FO
   this->State->PopFramebufferBindings();
 
+  // Restore blending parameters:
   this->State->vtkglBlendFuncSeparate(
-    GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   // Restore the original viewport and scissor test settings
   this->State->vtkglViewport(
@@ -358,10 +359,6 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState* s)
     this->State->vtkglEnable(GL_MULTISAMPLE);
   }
 #endif
-
-  // Restore blending parameters:
-  this->State->vtkglBlendFuncSeparate(
-    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   this->PostRender(s);
 
