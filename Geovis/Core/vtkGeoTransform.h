@@ -18,6 +18,18 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkGeoProjection;
 
+/**
+ * @class vtkGeoTransform
+ * @brief Describe a geographic transform
+ *
+ * Describe a geographic transform either using PROJ strings or using
+ * vtkGeoProjection classes.
+ *
+ * WARNING:
+ * Normal vectors have to be removed before a transform using this class
+ * otherwise the transform will be a no-operation. See
+ * vtkGeoTransform::InternalTransformDerivative.
+ */
 class VTKGEOVISCORE_EXPORT vtkGeoTransform : public vtkAbstractTransform
 {
 public:
@@ -42,6 +54,10 @@ public:
    * we transform (x, y) and leave z unchanged. Default is false.
    * This is used when converting from/to cartesian (cart) coordinate,
    * but it could be used for other transforms as well.
+   *
+   * WARNING:
+   * 3D transforms work only if the transform is specified using PROJ strings or
+   * using vtkGeoProjection that are specified using PROJ strings.
    */
   vtkSetMacro(TransformZCoordinate, bool);
   vtkGetMacro(TransformZCoordinate, bool);
@@ -54,7 +70,7 @@ public:
    * case the projection is allocated internally.
    */
   void SetDestinationProjection(vtkGeoProjection* dest);
-  void SetDestinationProjection(const char* dest);
+  void SetDestinationProjection(const char* proj);
   vtkGetObjectMacro(DestinationProjection, vtkGeoProjection);
   ///@}
 
