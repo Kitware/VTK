@@ -8,6 +8,15 @@
  * collection of clipping planes.  It will produce a new closed surface
  * by creating new polygonal faces where the input data was clipped.
  *
+ * The orientation of the polygons that form the surface is important.
+ * Polygons have a front face and a back face, and it's the back face that
+ * defines the interior or "solid" region of the closed surface.  When a
+ * clipping plane cuts through a "solid" region, a new cut face is generated,
+ * but not when a clipping plane cuts through a hole or "empty" region.  This
+ * distinction is crucial when dealing with complex surfaces.  Note that if
+ * a simple surface has its back faces pointing outwards, then that surface
+ * defines a hole in a potentially infinite solid.
+ *
  * Non-manifold surfaces should not be used as input for this filter.
  * The input surface should have no open edges, and must not have any
  * edges that are shared by more than two faces.  The vtkFeatureEdges
