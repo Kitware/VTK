@@ -5884,7 +5884,8 @@ function (_vtk_module_generate_spdx)
     PROPERTY "_vtk_module_${_vtk_build_module}_spdx_license_identifier")
   if (NOT _vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER)
     message(AUTHOR_WARNING
-      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a non-empty `SPDX_LICENSE_IDENTIFIER`. Defaulting to NOASSERTION.")
+      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a "
+      "non-empty `SPDX_LICENSE_IDENTIFIER`. Defaulting to NOASSERTION.")
     set(_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER "NOASSERTION")
   endif ()
 
@@ -5892,7 +5893,8 @@ function (_vtk_module_generate_spdx)
     PROPERTY "_vtk_module_${_vtk_build_module}_spdx_copyright_text")
   if (NOT _vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT)
     message(AUTHOR_WARNING
-      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a non-empty `SPDX_COPYRIGHT_TEXT`. Defaulting to NOASSERTION")
+      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a "
+      "non-empty `SPDX_COPYRIGHT_TEXT`. Defaulting to NOASSERTION")
     set(_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT "NOASSERTION")
   endif ()
 
