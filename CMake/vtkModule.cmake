@@ -5925,14 +5925,25 @@ function (_vtk_module_generate_spdx)
 
   set(_vtk_module_generate_spdx_args_file)
   set(_vtk_module_generate_spdx_response_arg)
+  set(_vtk_module_generate_spdx_input_paths)
 
   if (_vtk_module_generate_spdx_INPUT_FILES)
+    foreach (_vtk_module_generate_spdx_input_file IN LISTS _vtk_module_generate_spdx_INPUT_FILES)
+      if (IS_ABSOLUTE "${_vtk_module_generate_spdx_input_file}")
+        list(APPEND _vtk_module_generate_spdx_input_paths
+          "${_vtk_module_generate_spdx_input_file}")
+      else ()
+        list(APPEND _vtk_module_generate_spdx_input_paths
+          "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_module_generate_spdx_input_file}")
+      endif ()
+    endforeach ()
+
     set(_vtk_module_generate_spdx_args_file
       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_module_generate_spdx_TARGET}/${_vtk_module_generate_spdx_MODULE_NAME}-spdx.$<CONFIGURATION>.args")
+    set(_vtk_module_generate_spdx_response_arg "@${_vtk_module_generate_spdx_args_file}")
     file(GENERATE
       OUTPUT  "${_vtk_module_generate_spdx_args_file}"
-      CONTENT "$<JOIN:${_vtk_module_generate_spdx_INPUT_FILES},\n>")
-    set(_vtk_module_generate_spdx_response_arg "@${_vtk_module_generate_spdx_args_file}")
+      CONTENT "$<JOIN:${_vtk_module_generate_spdx_input_paths},\n>")
   endif ()
 
   add_custom_command(
