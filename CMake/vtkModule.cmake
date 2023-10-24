@@ -5908,7 +5908,7 @@ function (_vtk_module_generate_spdx)
       "_vtk_build_SPDX_DOCUMENT_NAMESPACE variable is not defined, defaulting to https://vtk.org/spdx")
     set(_vtk_module_generate_spdx_namespace "https://vtk.org/spdx")
   endif ()
-  set(_vtk_module_generate_spdx_namespace ${_vtk_build_SPDX_DOCUMENT_NAMESPACE}/${_vtk_module_generate_spdx_MODULE_NAME})
+  set(_vtk_module_generate_spdx_namespace "${_vtk_build_SPDX_DOCUMENT_NAMESPACE}/${_vtk_module_generate_spdx_MODULE_NAME}")
 
   get_property(_vtk_module_generate_spdx_download_location GLOBAL
     PROPERTY "_vtk_module_${_vtk_build_module}_spdx_download_location")
@@ -5918,8 +5918,8 @@ function (_vtk_module_generate_spdx)
         "_vtk_build_SPDX_DOWNLOAD_LOCATION variable is not defined, defaulting to NOASSERTION")
       set(_vtk_module_generate_spdx_download_location "NOASSERTION")
     else ()
-      string(REPLACE ${CMAKE_SOURCE_DIR} "" _vtk_module_generate_spdx_download_location_suffix ${CMAKE_CURRENT_SOURCE_DIR})
-      set(_vtk_module_generate_spdx_download_location ${_vtk_build_SPDX_DOWNLOAD_LOCATION}${_vtk_module_generate_spdx_download_location_suffix})
+      string(REPLACE "${CMAKE_SOURCE_DIR}" "" _vtk_module_generate_spdx_download_location_suffix "${CMAKE_CURRENT_SOURCE_DIR}")
+      set(_vtk_module_generate_spdx_download_location "${_vtk_build_SPDX_DOWNLOAD_LOCATION}${_vtk_module_generate_spdx_download_location_suffix}")
     endif ()
   endif ()
 
@@ -5950,8 +5950,8 @@ function (_vtk_module_generate_spdx)
       -k "${_vtk_module_generate_spdx_SKIP_REGEX}"
       ${_vtk_module_generate_spdx_response_arg}
     VERBATIM)
-  add_custom_target(${_vtk_module_generate_spdx_TARGET}
+  add_custom_target("${_vtk_module_generate_spdx_TARGET}"
     DEPENDS
       "${_vtk_module_generate_spdx_output_file}"
-      "${_vtk_module_generate_spdx_args_file}")
+      ${_vtk_module_generate_spdx_args_file})
 endfunction ()
