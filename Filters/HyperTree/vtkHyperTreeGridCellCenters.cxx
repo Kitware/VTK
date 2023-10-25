@@ -179,6 +179,25 @@ void vtkHyperTreeGridCellCenters::ProcessTrees()
     vertices->Delete();
   } // this->VertexCells
 
+  if (this->VertexCells)
+  {
+    vtkIdType numPoints = this->Points->GetNumberOfPoints();
+    vtkNew<vtkIdTypeArray> iArray;
+    iArray->SetNumberOfComponents(1);
+    iArray->SetNumberOfTuples(numPoints * 2);
+    for (vtkIdType i = 0; i < numPoints; i++)
+    {
+      iArray->SetValue(2 * i, 1);
+      iArray->SetValue(2 * i + 1, i);
+    }
+
+    vtkNew<vtkCellArray> verts;
+    verts->AllocateEstimate(numPoints, 1);
+    verts->ImportLegacyFormat(iArray);
+    this->Output->SetVerts(verts);
+    this->Output->GetCellData()->ShallowCopy(this->OutData);
+  }
+
   // Clean up
   this->Points->Delete();
   this->Points = nullptr;
@@ -208,10 +227,7 @@ void vtkHyperTreeGridCellCenters::RecursivelyProcessTree(
     vtkIdType outId = this->Points->InsertNextPoint(pt);
 
     // Copy cell center data from leaf data, when needed
-    if (this->VertexCells)
-    {
-      this->OutData->CopyData(this->InData, id, outId);
-    }
+    this->OutData->CopyData(this->InData, id, outId);
   }
   else
   {
