@@ -135,6 +135,17 @@ public:
   vtkGetMacro(TextureLength, double);
   ///@}
 
+  ///@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings. OutputPointsPrecision is DEFAULT_PRECISION
+   * by default.
+   */
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
+
 protected:
   vtkSplineFilter();
   ~vtkSplineFilter() override;
@@ -152,6 +163,7 @@ protected:
   vtkSpline* ZSpline;
   int GenerateTCoords;
   double TextureLength; // this length is mapped to [0,1) texture space
+  int OutputPointsPrecision;
 
   // helper methods
   int GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkIdType* pts, vtkPoints* inPts,
