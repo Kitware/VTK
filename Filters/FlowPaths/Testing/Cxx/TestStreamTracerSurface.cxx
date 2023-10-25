@@ -19,18 +19,14 @@
 
 int TestStreamTracerSurface(int argc, char* argv[])
 {
-
+  // First test with the wavelet for image data input
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 100, -10, 100, 0, 0);
-
-  vtkNew<vtkWarpScalar> warp;
-  warp->SetScaleFactor(0.1);
-  warp->SetInputConnection(wavelet->GetOutputPort());
 
   vtkNew<vtkArrayCalculator> calc;
   calc->AddScalarArrayName("RTData");
   calc->SetFunction("abs(RTData)*iHat + abs(RTData)*jHat");
-  calc->SetInputConnection(warp->GetOutputPort());
+  calc->SetInputConnection(wavelet->GetOutputPort());
   calc->Update();
 
   vtkNew<vtkPoints> points;
@@ -51,6 +47,26 @@ int TestStreamTracerSurface(int argc, char* argv[])
   stream->SetIntegrationDirection(vtkStreamTracer::BOTH);
   stream->SetInputConnection(calc->GetOutputPort());
   stream->SetSourceData(pointsPolydata);
+  stream->Update();
+
+  // Then test with the warped wavelet for dataset input
+  vtkNew<vtkWarpScalar> warp;
+  warp->SetScaleFactor(0.1);
+  warp->SetInputConnection(wavelet->GetOutputPort());
+
+  calc->SetInputConnection(warp->GetOutputPort());
+  calc->Update();
+
+  points->Reset();
+  calcData = vtkDataSet::SafeDownCast(calc->GetOutput());
+  nLine = static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
+  for (vtkIdType i = 0; i < nLine; i += 10)
+  {
+    points->InsertNextPoint(calcData->GetPoint(i * (nLine - 1) + nLine));
+  }
+
+  pointsPolydata->SetPoints(points);
+  stream->Update();
 
   vtkNew<vtkDataSetMapper> streamMapper;
   streamMapper->SetInputConnection(stream->GetOutputPort());
