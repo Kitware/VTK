@@ -14,7 +14,8 @@ layout(points) in;
 layout(triangle_strip, max_vertices = 4) out;
 
 uniform int cameraParallel;
-uniform float triangleScale;
+uniform float boundScale;
+uniform float scaleFactor;
 
 uniform mat4 VCDCMatrix;
 
@@ -29,12 +30,6 @@ out vec2 offsetVCGSOutput;
 
 void main()
 {
-  // the offsets sent down are positioned
-  // as radius*triangleScale from the center of the
-  // gaussian.  This has to be consistent
-  // with the offsets we build into the VBO
-  float radius = radiusVCVSOutput[0]/triangleScale;
-
   int i = 0;
   vec2 offset;
 
@@ -57,16 +52,16 @@ void main()
 
   //VTK::Picking::Impl
 
-  vec2 offsets[4] = vec2[](vec2(-1., -1.),
-                           vec2(1., -1.),
-                           vec2(-1., 1.),
-                           vec2(1., 1.));
+  vec2 offsets[4] = vec2[](vec2(-boundScale, -boundScale),
+                           vec2(boundScale, -boundScale),
+                           vec2(-boundScale, boundScale),
+                           vec2(boundScale, boundScale));
 
   for (int i = 0; i < 4; i++)
   {
-    vec2 offset = offsets[i] * radiusVCVSOutput[0];
+    vec2 offset = scaleFactor * radiusVCVSOutput[0] * offsets[i];
 
-    offsetVCGSOutput = offset/radius;
+    offsetVCGSOutput = offsets[i];
     gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
     EmitVertex();
   }

@@ -131,7 +131,7 @@ void BuildLookupTable(vtkScalarsToColors* cf, float* table, int size, double sca
 
 //----------------------------------------------------------------------------
 float GetScaledRadius(double radius, float* scaleTable, int scaleTableSize, double scaleScale,
-  double scaleOffset, double scaleFactor, double triangleScale)
+  double scaleOffset, double scaleFactor, double boundScale)
 {
   if (scaleTable)
   {
@@ -153,7 +153,7 @@ float GetScaledRadius(double radius, float* scaleTable, int scaleTableSize, doub
   }
 
   radius *= scaleFactor;
-  radius *= triangleScale;
+  radius *= boundScale;
   if (radius < 1e-3)
   {
     radius *= 1e2;
@@ -166,7 +166,7 @@ float GetScaledRadius(double radius, float* scaleTable, int scaleTableSize, doub
 
 //----------------------------------------------------------------------------
 OSPVolumetricModel RenderAsParticles(osp::vec3f* vertices, std::vector<unsigned int>& indexArray,
-  double pointSize, double scaleFactor, double triangleScale, vtkDataArray* scaleArray,
+  double pointSize, double scaleFactor, double boundScale, vtkDataArray* scaleArray,
   int scaleArrayComponent, float* scaleTable, int scaleTableSize, double scaleScale,
   double scaleOffset, vtkDataArray* vtkNotUsed(opacityArray), float* vtkNotUsed(opacityTable),
   int vtkNotUsed(opacityTableSize), double vtkNotUsed(opacityScale),
@@ -209,7 +209,7 @@ OSPVolumetricModel RenderAsParticles(osp::vec3f* vertices, std::vector<unsigned 
         scaleArray->GetNumberOfComponents(), scaleArrayComponent);
     }
     float r = vtkosp::GetScaledRadius(
-      rDouble, scaleTable, scaleTableSize, scaleScale, scaleOffset, scaleFactor, triangleScale);
+      rDouble, scaleTable, scaleTableSize, scaleScale, scaleOffset, scaleFactor, boundScale);
     radii.emplace_back(r);
 
     float weight = 1.f;
@@ -459,7 +459,7 @@ void vtkOSPRayPointGaussianMapperNode::InternalRender(void* vtkNotUsed(renderer)
   }
 
   this->VolumetricModels.emplace_back(vtkosp::RenderAsParticles(vertices.data(), conn.vertex_index,
-    pointSize, mapper->GetScaleFactor(), mapper->GetTriangleScale(), scaleArray,
+    pointSize, mapper->GetScaleFactor(), mapper->GetBoundScale(), scaleArray,
     mapper->GetScaleArrayComponent(), this->ScaleTable, this->ScaleTableSize, this->ScaleScale,
     this->ScaleOffset, opacityArray, this->OpacityTable, this->OpacityTableSize, this->OpacityScale,
     this->OpacityOffset, scalarArray, lut, this->NumColors, backend));

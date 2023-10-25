@@ -58,7 +58,7 @@ int TestOSPRayPointGaussianMapper(int argc, char* argv[])
   randomAttr->Update();
 
   mapper->SetInputConnection(randomAttr->GetOutputPort());
-  mapper->SetTriangleScale(3.0);
+  mapper->SetBoundScale(3.0);
   mapper->SetScaleFactor(0.75);
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarModeToUsePointFieldData();

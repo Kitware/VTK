@@ -29,7 +29,7 @@ vtkPointGaussianMapper::vtkPointGaussianMapper()
 
   this->ScaleFactor = 1.0;
   this->Emissive = 1;
-  this->TriangleScale = 3.0;
+  this->BoundScale = 3.0;
 }
 
 //------------------------------------------------------------------------------
@@ -57,6 +57,6 @@ void vtkPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Emissive: " << this->Emissive << "\n";
   os << indent << "OpacityTableSize: " << this->OpacityTableSize << "\n";
   os << indent << "ScaleTableSize: " << this->ScaleTableSize << "\n";
-  os << indent << "TriangleScale: " << this->TriangleScale << "\n";
+  os << indent << "BoundScale: " << this->BoundScale << "\n";
 }
 VTK_ABI_NAMESPACE_END
