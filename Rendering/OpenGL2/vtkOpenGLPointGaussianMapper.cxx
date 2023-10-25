@@ -41,6 +41,8 @@
 
 #include "vtk_glew.h"
 
+#include <numeric>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLPointGaussianMapperHelper : public vtkOpenGLPolyDataMapper
 {
@@ -361,33 +363,15 @@ void vtkOpenGLPointGaussianMapperHelperComputeColor(unsigned char* rcolor, unsig
 
 void vtkOpenGLPointGaussianMapperHelperColors(vtkUnsignedCharArray* outColors, vtkIdType numPts,
   unsigned char* colors, int colorComponents, vtkDataArray* opacities, int opacitiesComponent,
-  vtkOpenGLPointGaussianMapperHelper* self, vtkCellArray* verts)
+  vtkOpenGLPointGaussianMapperHelper* self)
 {
   unsigned char* vPtr = static_cast<unsigned char*>(outColors->GetVoidPointer(0));
 
-  // iterate over cells or not
-  if (verts->GetNumberOfCells())
+  for (vtkIdType i = 0; i < numPts; i++)
   {
-    const vtkIdType* indices(nullptr);
-    vtkIdType npts(0);
-    for (verts->InitTraversal(); verts->GetNextCell(npts, indices);)
-    {
-      for (int i = 0; i < npts; ++i)
-      {
-        vtkOpenGLPointGaussianMapperHelperComputeColor(
-          vPtr, colors, colorComponents, indices[i], opacities, opacitiesComponent, self);
-        vPtr += 4;
-      }
-    }
-  }
-  else
-  {
-    for (vtkIdType i = 0; i < numPts; i++)
-    {
-      vtkOpenGLPointGaussianMapperHelperComputeColor(
-        vPtr, colors, colorComponents, i, opacities, opacitiesComponent, self);
-      vPtr += 4;
-    }
+    vtkOpenGLPointGaussianMapperHelperComputeColor(
+      vPtr, colors, colorComponents, i, opacities, opacitiesComponent, self);
+    vPtr += 4;
   }
 }
 
@@ -420,44 +404,20 @@ float vtkOpenGLPointGaussianMapperHelperGetRadius(
 
 template <typename PointDataType>
 void vtkOpenGLPointGaussianMapperHelperSizes(vtkFloatArray* scales, PointDataType* sizes,
-  int nComponent, int component, vtkIdType numPts, vtkOpenGLPointGaussianMapperHelper* self,
-  vtkCellArray* verts)
+  int nComponent, int component, vtkIdType numPts, vtkOpenGLPointGaussianMapperHelper* self)
 {
   float* it = static_cast<float*>(scales->GetVoidPointer(0));
 
-  // iterate over cells or not
-  if (verts->GetNumberOfCells())
+  for (vtkIdType i = 0; i < numPts; i++)
   {
-    const vtkIdType* indices(nullptr);
-    vtkIdType npts(0);
-    for (verts->InitTraversal(); verts->GetNextCell(npts, indices);)
+    PointDataType size = 1.0;
+    if (sizes)
     {
-      for (vtkIdType i = 0; i < npts; ++i)
-      {
-        PointDataType size = 1.0;
-        if (sizes)
-        {
-          size = vtkOpenGLPointGaussianMapperHelperGetComponent<PointDataType>(
-            &sizes[indices[i] * nComponent], nComponent, component);
-        }
-        float radiusFloat = vtkOpenGLPointGaussianMapperHelperGetRadius(size, self);
-        *(it++) = radiusFloat;
-      }
+      size = vtkOpenGLPointGaussianMapperHelperGetComponent<PointDataType>(
+        &sizes[i * nComponent], nComponent, component);
     }
-  }
-  else
-  {
-    for (vtkIdType i = 0; i < numPts; i++)
-    {
-      PointDataType size = 1.0;
-      if (sizes)
-      {
-        size = vtkOpenGLPointGaussianMapperHelperGetComponent<PointDataType>(
-          &sizes[i * nComponent], nComponent, component);
-      }
-      float radiusFloat = vtkOpenGLPointGaussianMapperHelperGetRadius(size, self);
-      *(it++) = radiusFloat;
-    }
+    float radiusFloat = vtkOpenGLPointGaussianMapperHelperGetRadius(size, self);
+    *(it++) = radiusFloat;
   }
 }
 
@@ -518,44 +478,11 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
     splatCount = poly->GetVerts()->GetNumberOfConnectivityIds();
   }
 
-  // need to build points?
-  if (poly->GetVerts()->GetNumberOfCells())
-  {
-    vtkFloatArray* pts = vtkFloatArray::New();
-    pts->SetNumberOfComponents(3);
-    pts->SetNumberOfTuples(splatCount);
-
-    auto srcData = poly->GetPoints()->GetData();
-    const auto srcTuples = vtk::DataArrayTupleRange<3>(srcData);
-    auto dstTuples = vtk::DataArrayTupleRange<3>(pts);
-    auto dstIter = dstTuples.begin();
-    auto verts = poly->GetVerts();
-    const vtkIdType* indices(nullptr);
-    vtkIdType npts(0);
-    for (verts->InitTraversal(); verts->GetNextCell(npts, indices);)
-    {
-      for (vtkIdType i = 0; i < npts; ++i)
-      {
-        auto srcIter = srcTuples[indices[i]];
-        auto dst = *dstIter;
-        dst[0] = srcIter[0];
-        dst[1] = srcIter[1];
-        dst[2] = srcIter[2];
-        ++dstIter;
-      }
-    }
-
-    this->VBOs->CacheDataArray("vertexMC", pts, ren, VTK_FLOAT);
-    pts->Delete();
-  }
-  else // just pass the points
-  {
-    this->VBOs->CacheDataArray("vertexMC", poly->GetPoints()->GetData(), ren, VTK_FLOAT);
-  }
+  this->VBOs->CacheDataArray("vertexMC", poly->GetPoints()->GetData(), ren, VTK_FLOAT);
 
   if (!this->UsingPoints)
   {
-    vtkFloatArray* offsets = vtkFloatArray::New();
+    vtkNew<vtkFloatArray> offsets;
     offsets->SetNumberOfComponents(1);
     offsets->SetNumberOfTuples(splatCount);
 
@@ -566,17 +493,15 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
       {
         vtkTemplateMacro(vtkOpenGLPointGaussianMapperHelperSizes(offsets,
           static_cast<VTK_TT*>(sizes->GetVoidPointer(0)), sizes->GetNumberOfComponents(),
-          this->Owner->GetScaleArrayComponent(), poly->GetPoints()->GetNumberOfPoints(), this,
-          poly->GetVerts()));
+          this->Owner->GetScaleArrayComponent(), poly->GetPoints()->GetNumberOfPoints(), this));
       }
     }
     else
     {
-      vtkOpenGLPointGaussianMapperHelperSizes(offsets, static_cast<float*>(nullptr), 0, 0,
-        poly->GetPoints()->GetNumberOfPoints(), this, poly->GetVerts());
+      vtkOpenGLPointGaussianMapperHelperSizes(
+        offsets, static_cast<float*>(nullptr), 0, 0, poly->GetPoints()->GetNumberOfPoints(), this);
     }
     this->VBOs->CacheDataArray("radiusMC", offsets, ren, VTK_FLOAT);
-    offsets->Delete();
   }
   else
   {
@@ -585,7 +510,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
 
   if (this->Colors)
   {
-    vtkUnsignedCharArray* clrs = vtkUnsignedCharArray::New();
+    vtkNew<vtkUnsignedCharArray> clrs;
     clrs->SetNumberOfComponents(4);
     clrs->SetNumberOfTuples(splatCount);
 
@@ -593,9 +518,8 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
       this->Colors ? (unsigned char*)this->Colors->GetVoidPointer(0) : nullptr,
       this->Colors ? this->Colors->GetNumberOfComponents() : 0,
       hasOpacityArray ? poly->GetPointData()->GetArray(this->Owner->GetOpacityArray()) : nullptr,
-      this->Owner->GetOpacityArrayComponent(), this, poly->GetVerts());
+      this->Owner->GetOpacityArrayComponent(), this);
     this->VBOs->CacheDataArray("scalarColor", clrs, ren, VTK_UNSIGNED_CHAR);
-    clrs->Delete();
   }
 
   this->VBOs->BuildAllVBOs(ren);
@@ -605,7 +529,20 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   {
     this->Primitives[i].IBO->IndexCount = 0;
   }
-  this->Primitives[PrimitiveTris].IBO->IndexCount = splatCount;
+
+  if (poly->GetVerts()->GetNumberOfCells() > 0)
+  {
+    this->Primitives[PrimitivePoints].IBO->CreatePointIndexBuffer(poly->GetVerts());
+  }
+  else
+  {
+    std::vector<unsigned int> verts(splatCount);
+    std::iota(verts.begin(), verts.end(), 0);
+    this->Primitives[PrimitivePoints].IBO->Upload(
+      verts, vtkOpenGLIndexBufferObject::ElementArrayBuffer);
+    this->Primitives[PrimitivePoints].IBO->IndexCount = splatCount;
+  }
+
   this->VBOBuildTime.Modified();
 }
 
@@ -616,8 +553,13 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
   int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
   if (numVerts)
   {
-    this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
-    glDrawArrays(GL_POINTS, 0, static_cast<GLuint>(numVerts));
+    this->UpdateShaders(this->Primitives[PrimitivePoints], ren, actor);
+
+    this->Primitives[PrimitivePoints].IBO->Bind();
+    glDrawRangeElements(GL_POINTS, 0, static_cast<GLuint>(numVerts - 1),
+      static_cast<GLsizei>(this->Primitives[PrimitivePoints].IBO->IndexCount), GL_UNSIGNED_INT,
+      nullptr);
+    this->Primitives[PrimitivePoints].IBO->Release();
   }
 }
 

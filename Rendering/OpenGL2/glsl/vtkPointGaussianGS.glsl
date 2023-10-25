@@ -36,7 +36,7 @@ void main()
   float radius = radiusVCVSOutput[0]/triangleScale;
 
   int i = 0;
-  vec4 offset;
+  vec2 offset;
 
   vec4 base1 = vec4(1.0,0.0,0.0,0.0);
   vec4 base2 = vec4(0.0,1.0,0.0,0.0);
@@ -57,21 +57,21 @@ void main()
 
   // note 1.73205 = 2.0*cos(30)
 
-  offset = vec4(-1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0], 0.0, 0.0);
+  offset = vec2(-1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0]);
 
   //VTK::Picking::Impl
 
-  offsetVCGSOutput = offset.xy/radius;
+  offsetVCGSOutput = offset/radius;
   gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
   EmitVertex();
 
-  offset = vec4(1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0], 0.0, 0.0);
-  offsetVCGSOutput = offset.xy/radius;
+  offset = vec2(1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0]);
+  offsetVCGSOutput = offset/radius;
   gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
   EmitVertex();
 
-  offset = vec4(0.0, 2.0*radiusVCVSOutput[0], 0.0, 0.0);
-  offsetVCGSOutput = offset.xy/radius;
+  offset = vec2(0.0, 2.0*radiusVCVSOutput[0]);
+  offsetVCGSOutput = offset/radius;
   gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
   EmitVertex();
 
