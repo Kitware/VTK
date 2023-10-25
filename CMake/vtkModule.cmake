@@ -3680,7 +3680,7 @@ function (vtk_module_add_module name)
   if (_vtk_add_module_FORCE_SHARED AND _vtk_add_module_FORCE_STATIC)
     message(FATAL_ERROR
       "The ${_vtk_build_module} module cannot be both shared and static.")
-  endif()
+  endif ()
 
   foreach (_vtk_add_module_class IN LISTS _vtk_add_module_CLASSES)
     list(APPEND _vtk_add_module_SOURCES
@@ -3766,7 +3766,7 @@ function (vtk_module_add_module name)
     get_cmake_property(_vtk_add_module_target_has_shared TARGET_SUPPORTS_SHARED_LIBS)
     if (_vtk_add_module_target_has_shared)
       set(_vtk_add_module_type SHARED)
-    else()
+    else ()
       # XXX(cmake): Until the emscripten platform supports shared libraries,
       #   do not allow FORCE_SHARED. See [1] and [2] for more information.
       #   [1]: https://github.com/emscripten-core/emscripten/pull/16281
@@ -3775,8 +3775,8 @@ function (vtk_module_add_module name)
       #   If some *other* platform does not support shared libraries, issue a warning:
       if (NOT EMSCRIPTEN)
         message(WARNING "Shared library requested by ${name} not allowed on this platform.")
-      endif()
-    endif()
+      endif ()
+    endif ()
   endif ()
 
   set(_vtk_add_module_build_with_kit)
@@ -5836,7 +5836,6 @@ endfunction ()
 #]==]
 
 function (_vtk_module_generate_spdx)
-
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_module_generate_spdx
     ""
     "MODULE_NAME;TARGET;OUTPUT;SKIP_REGEX"
@@ -5881,56 +5880,74 @@ function (_vtk_module_generate_spdx)
   set(_vtk_module_generate_spdx_output_file "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_module_generate_spdx_OUTPUT}")
   string(TIMESTAMP _vtk_module_generate_spdx_timestamp UTC)
 
-  get_property(_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER GLOBAL PROPERTY "_vtk_module_${_vtk_build_module}_spdx_license_identifier")
+  get_property(_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_spdx_license_identifier")
   if (NOT _vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER)
     message(AUTHOR_WARNING
-      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a non-empty `SPDX_LICENSE_IDENTIFIER`. Defaulting to NOASSERTION.")
+      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a "
+      "non-empty `SPDX_LICENSE_IDENTIFIER`. Defaulting to NOASSERTION.")
     set(_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER "NOASSERTION")
   endif ()
 
-  get_property(_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT GLOBAL PROPERTY "_vtk_module_${_vtk_build_module}_spdx_copyright_text")
+  get_property(_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_spdx_copyright_text")
   if (NOT _vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT)
     message(AUTHOR_WARNING
-      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a non-empty `SPDX_COPYRIGHT_TEXT`. Defaulting to NOASSERTION")
+      "The ${_vtk_module_generate_spdx_MODULE_NAME} module should have a "
+      "non-empty `SPDX_COPYRIGHT_TEXT`. Defaulting to NOASSERTION")
     set(_vtk_module_generate_spdx_SPDX_COPYRIGHT_TEXT "NOASSERTION")
   endif ()
 
-  get_property(_vtk_module_generate_spdx_SPDX_CUSTOM_LICENSE_FILE GLOBAL PROPERTY "_vtk_module_${_vtk_build_module}_spdx_custom_license_file")
-  get_property(_vtk_module_generate_spdx_SPDX_CUSTOM_LICENSE_NAME GLOBAL PROPERTY "_vtk_module_${_vtk_build_module}_spdx_custom_license_name")
+  get_property(_vtk_module_generate_spdx_SPDX_CUSTOM_LICENSE_FILE GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_spdx_custom_license_file")
+  get_property(_vtk_module_generate_spdx_SPDX_CUSTOM_LICENSE_NAME GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_spdx_custom_license_name")
 
   if (NOT _vtk_build_SPDX_DOCUMENT_NAMESPACE)
     message(AUTHOR_WARNING
       "_vtk_build_SPDX_DOCUMENT_NAMESPACE variable is not defined, defaulting to https://vtk.org/spdx")
     set(_vtk_module_generate_spdx_namespace "https://vtk.org/spdx")
   endif ()
-  set(_vtk_module_generate_spdx_namespace ${_vtk_build_SPDX_DOCUMENT_NAMESPACE}/${_vtk_module_generate_spdx_MODULE_NAME})
+  set(_vtk_module_generate_spdx_namespace "${_vtk_build_SPDX_DOCUMENT_NAMESPACE}/${_vtk_module_generate_spdx_MODULE_NAME}")
 
-  get_property(_vtk_module_generate_spdx_download_location GLOBAL PROPERTY "_vtk_module_${_vtk_build_module}_spdx_download_location")
+  get_property(_vtk_module_generate_spdx_download_location GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_spdx_download_location")
   if (NOT _vtk_module_generate_spdx_download_location)
     if (NOT _vtk_build_SPDX_DOWNLOAD_LOCATION)
       message(AUTHOR_WARNING
         "_vtk_build_SPDX_DOWNLOAD_LOCATION variable is not defined, defaulting to NOASSERTION")
       set(_vtk_module_generate_spdx_download_location "NOASSERTION")
     else ()
-      string(REPLACE ${CMAKE_SOURCE_DIR} "" _vtk_module_generate_spdx_download_location_suffix ${CMAKE_CURRENT_SOURCE_DIR})
-      set(_vtk_module_generate_spdx_download_location ${_vtk_build_SPDX_DOWNLOAD_LOCATION}${_vtk_module_generate_spdx_download_location_suffix})
+      string(REPLACE "${CMAKE_SOURCE_DIR}" "" _vtk_module_generate_spdx_download_location_suffix "${CMAKE_CURRENT_SOURCE_DIR}")
+      set(_vtk_module_generate_spdx_download_location "${_vtk_build_SPDX_DOWNLOAD_LOCATION}${_vtk_module_generate_spdx_download_location_suffix}")
     endif ()
   endif ()
 
-
   set(_vtk_module_generate_spdx_args_file)
   set(_vtk_module_generate_spdx_response_arg)
+  set(_vtk_module_generate_spdx_input_paths)
 
-  if(_vtk_module_generate_spdx_INPUT_FILES)
+  if (_vtk_module_generate_spdx_INPUT_FILES)
+    foreach (_vtk_module_generate_spdx_input_file IN LISTS _vtk_module_generate_spdx_INPUT_FILES)
+      if (IS_ABSOLUTE "${_vtk_module_generate_spdx_input_file}")
+        list(APPEND _vtk_module_generate_spdx_input_paths
+          "${_vtk_module_generate_spdx_input_file}")
+      else ()
+        list(APPEND _vtk_module_generate_spdx_input_paths
+          "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_module_generate_spdx_input_file}")
+      endif ()
+    endforeach ()
+
     set(_vtk_module_generate_spdx_args_file
       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_module_generate_spdx_TARGET}/${_vtk_module_generate_spdx_MODULE_NAME}-spdx.$<CONFIGURATION>.args")
+    set(_vtk_module_generate_spdx_response_arg "@${_vtk_module_generate_spdx_args_file}")
     file(GENERATE
       OUTPUT  "${_vtk_module_generate_spdx_args_file}"
-      CONTENT "$<JOIN:${_vtk_module_generate_spdx_INPUT_FILES},\n>")
-    set(_vtk_module_generate_spdx_response_arg "@${_vtk_module_generate_spdx_args_file}")
-  endif()
+      CONTENT "$<JOIN:${_vtk_module_generate_spdx_input_paths},\n>")
+  endif ()
 
-  add_custom_command(OUTPUT ${_vtk_module_generate_spdx_output_file}
+  add_custom_command(
+    OUTPUT "${_vtk_module_generate_spdx_output_file}"
     COMMAND "$<TARGET_FILE:Python3::Interpreter>" -Xutf8 "${_vtkModule_dir}/SPDX_generate_output.py"
       -m "${_vtk_module_generate_spdx_MODULE_NAME}"
       -l "${_vtk_module_generate_spdx_SPDX_LICENSE_IDENTIFIER}"
@@ -5943,9 +5960,10 @@ function (_vtk_module_generate_spdx)
       -d "${_vtk_module_generate_spdx_download_location}"
       -k "${_vtk_module_generate_spdx_SKIP_REGEX}"
       ${_vtk_module_generate_spdx_response_arg}
-      VERBATIM)
-  add_custom_target(${_vtk_module_generate_spdx_TARGET}
+    DEPENDS ${_vtk_module_generate_spdx_input_paths}
+            ${_vtk_module_generate_spdx_args_file}
+    VERBATIM)
+  add_custom_target("${_vtk_module_generate_spdx_TARGET}"
     DEPENDS
-      "${_vtk_module_generate_spdx_output_file}"
-      "${_vtk_module_generate_spdx_args_file}")
+      "${_vtk_module_generate_spdx_output_file}")
 endfunction ()
