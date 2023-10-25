@@ -11,7 +11,7 @@
 //VTK::Color::Dec
 
 layout(points) in;
-layout(triangle_strip, max_vertices = 3) out;
+layout(triangle_strip, max_vertices = 4) out;
 
 uniform int cameraParallel;
 uniform float triangleScale;
@@ -41,7 +41,7 @@ void main()
   vec4 base1 = vec4(1.0,0.0,0.0,0.0);
   vec4 base2 = vec4(0.0,1.0,0.0,0.0);
 
-  // make the triangle face the camera
+  // make the quad face the camera
   if (cameraParallel == 0)
   {
     vec3 dir = normalize(-gl_in[0].gl_Position.xyz);
@@ -55,25 +55,21 @@ void main()
 
   //VTK::Color::Impl
 
-  // note 1.73205 = 2.0*cos(30)
-
-  offset = vec2(-1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0]);
-
   //VTK::Picking::Impl
 
-  offsetVCGSOutput = offset/radius;
-  gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
-  EmitVertex();
+  vec2 offsets[4] = vec2[](vec2(-1., -1.),
+                           vec2(1., -1.),
+                           vec2(-1., 1.),
+                           vec2(1., 1.));
 
-  offset = vec2(1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0]);
-  offsetVCGSOutput = offset/radius;
-  gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
-  EmitVertex();
+  for (int i = 0; i < 4; i++)
+  {
+    vec2 offset = offsets[i] * radiusVCVSOutput[0];
 
-  offset = vec2(0.0, 2.0*radiusVCVSOutput[0]);
-  offsetVCGSOutput = offset/radius;
-  gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
-  EmitVertex();
+    offsetVCGSOutput = offset/radius;
+    gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
+    EmitVertex();
+  }
 
   EndPrimitive();
 }
