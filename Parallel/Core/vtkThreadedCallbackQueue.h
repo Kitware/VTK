@@ -423,9 +423,8 @@ private:
 
   /**
    * This function should always be used to invoke.
-   * lock should be locked upon calling this function.
    */
-  void Invoke(vtkSharedFutureBase* invoker, std::unique_lock<std::mutex>& lock);
+  void Invoke(vtkSharedFutureBase* invoker);
 
   /**
    * This will try to invoke the invoker owning a reference of `state`. The invoker will be ran if
