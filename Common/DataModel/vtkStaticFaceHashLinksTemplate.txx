@@ -421,11 +421,14 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::PrefixSum
 
   void operator()(vtkIdType beginThread, vtkIdType endThread)
   {
+    const vtkIdType lastThreadId = this->NumberOfThreads - 1;
     auto faceOffsets = this->FaceOffsets.get();
     for (vtkIdType threadId = beginThread; threadId < endThread; ++threadId)
     {
       const vtkIdType begin = threadId * this->NumberOfHashes / this->NumberOfThreads;
-      const vtkIdType end = (threadId + 1) * this->NumberOfHashes / this->NumberOfThreads;
+      const vtkIdType end = lastThreadId != threadId
+        ? (threadId + 1) * this->NumberOfHashes / this->NumberOfThreads
+        : this->NumberOfHashes;
       vtkIdType sum = 0;
       for (vtkIdType pointId = begin; pointId < end; ++pointId)
       {
@@ -443,11 +446,14 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::PrefixSum
       this->ThreadSum[threadId] += this->ThreadSum[threadId - 1];
     }
     vtkSMPTools::For(1, this->NumberOfThreads, [&](vtkIdType beginThread, vtkIdType endThread) {
+      const vtkIdType lastThreadId = this->NumberOfThreads - 1;
       auto faceOffsets = this->FaceOffsets.get();
       for (vtkIdType threadId = beginThread; threadId < endThread; ++threadId)
       {
         const vtkIdType begin = threadId * this->NumberOfHashes / this->NumberOfThreads;
-        const vtkIdType end = (threadId + 1) * this->NumberOfHashes / this->NumberOfThreads;
+        const vtkIdType end = lastThreadId != threadId
+          ? (threadId + 1) * this->NumberOfHashes / this->NumberOfThreads
+          : this->NumberOfHashes;
         const auto& threadLocalSum = this->ThreadSum[threadId - 1];
         for (vtkIdType pointId = begin + 1; pointId <= end; ++pointId)
         {

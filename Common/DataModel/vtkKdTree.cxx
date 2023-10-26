@@ -747,7 +747,7 @@ void vtkKdTree::ComputeCellCenter(vtkCell* cell, double* center, double* weights
 void vtkKdTree::BuildLocator()
 {
   // don't rebuild if build time is newer than modified and dataset modified time
-  if (this->Top && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+  if (this->Top && this->BuildTime > this->MTime && this->NewGeometry() == 0)
   {
     return;
   }
@@ -777,7 +777,7 @@ void vtkKdTree::BuildLocatorInternal()
   int nCells = 0;
   int i;
 
-  if (this->NewGeometry())
+  if (this->NewGeometry() == 0)
   {
     return;
   }
