@@ -1,6 +1,6 @@
 vtk_module_find_package(PRIVATE_IF_SHARED
   PACKAGE PDAL
-  VERSION 2.1)
+  VERSION 2.0)
 
 set(classes
   vtkPDALReader)

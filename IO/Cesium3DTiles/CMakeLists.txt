@@ -1,5 +1,6 @@
 set(classes
   vtkCesium3DTilesWriter
+  vtkCesium3DTilesReader
   vtkCesiumPointCloudWriter)
 
 set(private_classes

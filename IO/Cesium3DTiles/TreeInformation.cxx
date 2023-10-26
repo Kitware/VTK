@@ -38,7 +38,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
-#include "vtkXMLPolyDataWriter.h"
 
 #include "vtksys/SystemTools.hxx"
 #include <vtksys/FStream.hxx>
@@ -734,11 +733,6 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         append->Update();
         vtkPolyData* tileMeshWithoutTexture = vtkPolyData::SafeDownCast(append->GetOutput());
         b->SetBlock(meshBlockIndex++, tileMeshWithoutTexture);
-
-        // vtkNew<vtkXMLPolyDataWriter> writer;
-        // writer->SetInputData(tileMeshWithoutTexture);
-        // writer->SetFileName("tileMeshWithoutTexture.vtp");
-        // writer->Write();
       }
       else
       {
@@ -761,11 +755,6 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         b->SetBlock(meshBlockIndex++, tileMeshWithTexture);
         SetField(tileMeshWithTexture, "texture_uri", mergedFileNames);
         textureBaseDirectory = this->OutputDir + "/" + std::to_string(node->GetID());
-
-        // vtkNew<vtkXMLPolyDataWriter> writer;
-        // writer->SetInputData(tileMeshWithTexture);
-        // writer->SetFileName("tileMeshWithTexture.vtp");
-        // writer->Write();
       }
       else
       {

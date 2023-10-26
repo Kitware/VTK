@@ -18,6 +18,18 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkGeoProjection;
 
+/**
+ * @class vtkGeoTransform
+ * @brief Describe a geographic transform
+ *
+ * Describe a geographic transform either using PROJ strings or using
+ * vtkGeoProjection classes.
+ *
+ * WARNING:
+ * Normal vectors have to be removed before a transform using this class
+ * otherwise the transform will be a no-operation. See
+ * vtkGeoTransform::InternalTransformDerivative.
+ */
 class VTKGEOVISCORE_EXPORT vtkGeoTransform : public vtkAbstractTransform
 {
 public:
@@ -27,17 +39,38 @@ public:
 
   ///@{
   /**
-   * The source geographic projection.
+   * The source geographic projection, which can be set using
+   * an external vtkGeoProjection, or using a proj string, in which
+   * case the projection is allocated internally.
    */
   void SetSourceProjection(vtkGeoProjection* source);
+  void SetSourceProjection(const char* proj);
   vtkGetObjectMacro(SourceProjection, vtkGeoProjection);
   ///@}
 
   ///@{
   /**
-   * The target geographic projection.
+   * If true, we transform (x, y, z) otherwise
+   * we transform (x, y) and leave z unchanged. Default is false.
+   * This is used when converting from/to cartesian (cart) coordinate,
+   * but it could be used for other transforms as well.
+   *
+   * WARNING:
+   * 3D transforms work only if the transform is specified using PROJ strings or
+   * using vtkGeoProjection that are specified using PROJ strings.
+   */
+  vtkSetMacro(TransformZCoordinate, bool);
+  vtkGetMacro(TransformZCoordinate, bool);
+  ///@}
+
+  ///@{
+  /**
+   * The target geographic projection, which can be set using
+   * an external vtkGeoProjection, or using a proj string, in which
+   * case the projection is allocated internally.
    */
   void SetDestinationProjection(vtkGeoProjection* dest);
+  void SetDestinationProjection(const char* proj);
   vtkGetObjectMacro(DestinationProjection, vtkGeoProjection);
   ///@}
 
@@ -95,9 +128,9 @@ protected:
   ~vtkGeoTransform() override;
 
   void InternalTransformPoints(double* ptsInOut, vtkIdType numPts, int stride);
-
   vtkGeoProjection* SourceProjection;
   vtkGeoProjection* DestinationProjection;
+  bool TransformZCoordinate;
 
 private:
   vtkGeoTransform(const vtkGeoTransform&) = delete;

@@ -55,9 +55,7 @@ public:
   }
 
   std::map<std::string, std::string> OptionalParameters;
-#if PROJ_VERSION_MAJOR >= 5
   PJ_PROJ_INFO ProjInfo;
-#endif
 };
 
 //------------------------------------------------------------------------------
@@ -106,11 +104,7 @@ vtkGeoProjection::~vtkGeoProjection()
   this->SetPROJ4String(nullptr);
   if (this->Projection)
   {
-#if PROJ_VERSION_MAJOR >= 5
     proj_destroy(this->Projection);
-#else
-    pj_free(this->Projection);
-#endif
   }
   delete this->Internals;
   this->Internals = nullptr;
@@ -151,11 +145,7 @@ const char* vtkGeoProjection::GetDescription()
   {
     return nullptr;
   }
-#if PROJ_VERSION_MAJOR >= 5
   return this->Internals->ProjInfo.description;
-#else
-  return this->Projection->descr;
-#endif
 }
 //------------------------------------------------------------------------------
 projPJ vtkGeoProjection::GetProjection()
@@ -174,21 +164,13 @@ int vtkGeoProjection::UpdateProjection()
 
   if (this->Projection)
   {
-#if PROJ_VERSION_MAJOR >= 5
     proj_destroy(this->Projection);
-#else
-    pj_free(this->Projection);
-#endif
     this->Projection = nullptr;
   }
 
   if (this->PROJ4String && strlen(this->PROJ4String))
   {
-#if PROJ_VERSION_MAJOR >= 5
     this->Projection = proj_create(PJ_DEFAULT_CTX, this->PROJ4String);
-#else
-    this->Projection = pj_init_plus(this->PROJ4String);
-#endif
     if (!this->Projection)
     {
       vtkErrorMacro("Cannot set projection with string " << this->PROJ4String);
@@ -231,19 +213,13 @@ int vtkGeoProjection::UpdateProjection()
       stringHolder[i] = param.str();
       pjArgs[3 + i] = stringHolder[i].c_str();
     }
-#if PROJ_VERSION_MAJOR >= 5
     this->Projection = proj_create_argv(PJ_DEFAULT_CTX, argSize, const_cast<char**>(pjArgs));
-#else
-    this->Projection = pj_init(argSize, const_cast<char**>(pjArgs));
-#endif
     delete[] pjArgs;
   }
   this->ProjectionMTime = this->GetMTime();
   if (this->Projection)
   {
-#if PROJ_VERSION_MAJOR >= 5
     this->Internals->ProjInfo = proj_pj_info(this->Projection);
-#endif
     return 0;
   }
   return 1;
