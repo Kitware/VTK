@@ -3,6 +3,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   UnstructuredGridCellGradients.cxx
   UnstructuredGridFastGradients.cxx
   UnstructuredGridGradients.cxx
+  TestFLUENTReader.cxx
   TestOBJReaderDouble.cxx
   TestOBJPolyDataWriter.cxx
   TestOBJReaderComments.cxx,NO_VALID
