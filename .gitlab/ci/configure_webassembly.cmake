@@ -53,7 +53,7 @@ set(VTK_MODULE_ENABLE_VTK_RenderingVR NO CACHE STRING "") # gl code incompatible
 set(VTK_MODULE_ENABLE_VTK_RenderingZSpace NO CACHE STRING "") # no zspace
 # ├── ThirdParty
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # no adios2
-set(VTK_MODULE_ENABLE_VTK_hdf5 NO CACHE STRING "") # fails to configure
+set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # no boost
 set(VTK_MODULE_ENABLE_VTK_libproj NO CACHE STRING "") # fails to generate proj.db
 set(VTK_MODULE_ENABLE_VTK_vtkvtkm NO CACHE STRING "") # no execinfo.h in vtkm's loguru
 
