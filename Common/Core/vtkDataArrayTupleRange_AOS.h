@@ -107,6 +107,18 @@ public:
     }
   }
 
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE GetTuple(
+    volatile double* tuple) const noexcept
+  {
+    // Yes, this variable argument is marked volatile. See the explanation in GetTuple.
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    for (ComponentIdType i = 0; i < this->NumComps.value; ++i)
+    {
+      tuple[i] = static_cast<double>(this->Tuple[i]);
+    }
+  }
+
   // skips some runtime checks when both sizes are fixed:
   template <typename OArrayType, ComponentIdType OSize>
   VTK_ITER_INLINE EnableIfStaticTupleSizes<TupleSize, OSize, bool> operator==(
@@ -286,17 +298,41 @@ public:
     }
   }
 
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE GetTuple(
+    volatile double* tuple) const noexcept
+  {
+    // Yes, this variable argument is marked volatile. See the explanation in GetTuple.
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    for (ComponentIdType i = 0; i < this->NumComps.value; ++i)
+    {
+      tuple[i] = static_cast<double>(this->Tuple[i]);
+    }
+  }
+
   // Caller must ensure that there are size() elements in array.
   VTK_ITER_INLINE
   void SetTuple(const APIType* tuple) noexcept
   {
     volatile APIType* out = this->Tuple;
-    // Yes, this variable argument is marked volatile. See the explanation in
-    // GetTuple.
+    // Yes, this variable argument is marked volatile. See the explanation in GetTuple.
     VTK_ITER_ASSUME(this->NumComps.value > 0);
     for (ComponentIdType i = 0; i < this->NumComps.value; ++i)
     {
       out[i] = tuple[i];
+    }
+  }
+
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE SetTuple(
+    const double* tuple) noexcept
+  {
+    volatile APIType* out = this->Tuple;
+    // Yes, this variable argument is marked volatile. See the explanation in GetTuple.
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    for (ComponentIdType i = 0; i < this->NumComps.value; ++i)
+    {
+      out[i] = static_cast<APIType>(tuple[i]);
     }
   }
 
@@ -972,6 +1008,50 @@ public:
     return const_reference{ this->Array->Buffer->GetBuffer() +
         (this->BeginTuple + i) * this->NumComps.value,
       this->NumComps };
+  }
+
+  VTK_ITER_INLINE void GetTuple(size_type i, ValueType* tuple) const noexcept
+  {
+    const ValueType* tuplePtr =
+      this->Array->Buffer->GetBuffer() + (this->BeginTuple + i) * this->NumComps.value;
+    for (ComponentIdType c = 0; c < this->NumComps.value; ++c)
+    {
+      tuple[c] = tuplePtr[c];
+    }
+  }
+
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE GetTuple(
+    size_type i, double* tuple) const noexcept
+  {
+    const ValueType* tuplePtr =
+      this->Array->Buffer->GetBuffer() + (this->BeginTuple + i) * this->NumComps.value;
+    for (ComponentIdType c = 0; c < this->NumComps.value; ++c)
+    {
+      tuple[c] = static_cast<double>(tuplePtr[c]);
+    }
+  }
+
+  VTK_ITER_INLINE void SetTuple(size_type i, const ValueType* tuple) noexcept
+  {
+    ValueType* tuplePtr =
+      this->Array->Buffer->GetBuffer() + (this->BeginTuple + i) * this->NumComps.value;
+    for (ComponentIdType c = 0; c < this->NumComps.value; ++c)
+    {
+      tuplePtr[c] = tuple[c];
+    }
+  }
+
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE SetTuple(
+    size_type i, const double* tuple) noexcept
+  {
+    ValueType* tuplePtr =
+      this->Array->Buffer->GetBuffer() + (this->BeginTuple + i) * this->NumComps.value;
+    for (ComponentIdType c = 0; c < this->NumComps.value; ++c)
+    {
+      tuplePtr[c] = static_cast<ValueType>(tuple[c]);
+    }
   }
 
 private:
