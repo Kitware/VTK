@@ -1,3 +1,9 @@
+/* clang-format off */
+/* clang-format disabled because CMake scripts are very sensitive to the
+ * formatting of this file. configure_file variables of type "@VAR@" are
+ * modified by clang-format and won't be substituted.
+ */
+
 /* libtiff/tif_config.h.cmake.in.  Not generated, but originated from autoheader.  */
 /* This file must be kept up-to-date with needed substitutions from libtiff/tif_config.h.in. */
 
@@ -34,18 +40,6 @@
 /* Define to 1 if you have the `getopt' function. */
 #cmakedefine HAVE_GETOPT 1
 
-/* Define to 1 if you have the <GLUT/glut.h> header file. */
-#cmakedefine HAVE_GLUT_GLUT_H 1
-
-/* Define to 1 if you have the <GL/glut.h> header file. */
-#cmakedefine HAVE_GL_GLUT_H 1
-
-/* Define to 1 if you have the <GL/glu.h> header file. */
-#cmakedefine HAVE_GL_GLU_H 1
-
-/* Define to 1 if you have the <GL/gl.h> header file. */
-#cmakedefine HAVE_GL_GL_H 1
-
 /* Define to 1 if you have the <io.h> header file. */
 #cmakedefine HAVE_IO_H 1
 
@@ -54,12 +48,6 @@
 
 /* Define to 1 if you have the `mmap' function. */
 #cmakedefine HAVE_MMAP 1
-
-/* Define to 1 if you have the <OpenGL/glu.h> header file. */
-#cmakedefine HAVE_OPENGL_GLU_H 1
-
-/* Define to 1 if you have the <OpenGL/gl.h> header file. */
-#cmakedefine HAVE_OPENGL_GL_H 1
 
 /* Define to 1 if you have the `setmode' function. */
 #cmakedefine HAVE_SETMODE 1
@@ -94,29 +82,23 @@
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "@PACKAGE_NAME@"
 
-/* Define to the full name and version of this package. */
-#define PACKAGE_STRING "@PACKAGE_STRING@"
-
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "@PACKAGE_TARNAME@"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL "@PACKAGE_URL@"
 
-/* Define to the version of this package. */
-#define PACKAGE_VERSION "@PACKAGE_VERSION@"
-
 /* Size of size_t */
 #define SIZEOF_SIZE_T @SIZEOF_SIZE_T@
 
 /* Default size of the strip in bytes (when strip chopping enabled) */
-#define STRIP_SIZE_DEFAULT @STRIP_SIZE_DEFAULT@
+#cmakedefine STRIP_SIZE_DEFAULT @STRIP_SIZE_DEFAULT@
+
+/** Maximum number of TIFF IFDs that libtiff can iterate through in a file. */
+#define TIFF_MAX_DIR_COUNT @TIFF_MAX_DIR_COUNT@
 
 /* define to use win32 IO system */
 #cmakedefine USE_WIN32_FILEIO 1
-
-/* Version number of package */
-#define VERSION "@PACKAGE_VERSION@"
 
 /* Support WEBP compression */
 #cmakedefine WEBP_SUPPORT 1
@@ -153,3 +135,5 @@
 #else
 #  error "Unsupported size_t size; please submit a bug report"
 #endif
+
+/* clang-format on */

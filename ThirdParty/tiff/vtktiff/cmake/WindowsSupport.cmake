@@ -26,7 +26,16 @@
 # Debug postfix
 if (FALSE) # XXX(kitware): vtk does postfixes elsewhere.
 if(MSVC)
+    # Debug postfix
     set(CMAKE_DEBUG_POSTFIX "d")
+
+    # disable deprecation warnings
+    add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+    # suppress deprecation warning for MSVC POSIX names
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
+
+    # Don't warn about use of deprecated functions
+    add_compile_options(/wd4996)
 endif()
 endif ()
 
