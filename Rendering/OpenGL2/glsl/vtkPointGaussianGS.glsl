@@ -11,10 +11,11 @@
 //VTK::Color::Dec
 
 layout(points) in;
-layout(triangle_strip, max_vertices = 3) out;
+layout(triangle_strip, max_vertices = 4) out;
 
 uniform int cameraParallel;
-uniform float triangleScale;
+uniform float boundScale;
+uniform float scaleFactor;
 
 uniform mat4 VCDCMatrix;
 
@@ -29,19 +30,13 @@ out vec2 offsetVCGSOutput;
 
 void main()
 {
-  // the offsets sent down are positioned
-  // as radius*triangleScale from the center of the
-  // gaussian.  This has to be consistent
-  // with the offsets we build into the VBO
-  float radius = radiusVCVSOutput[0]/triangleScale;
-
   int i = 0;
-  vec4 offset;
+  vec2 offset;
 
   vec4 base1 = vec4(1.0,0.0,0.0,0.0);
   vec4 base2 = vec4(0.0,1.0,0.0,0.0);
 
-  // make the triangle face the camera
+  // make the quad face the camera
   if (cameraParallel == 0)
   {
     vec3 dir = normalize(-gl_in[0].gl_Position.xyz);
@@ -55,25 +50,21 @@ void main()
 
   //VTK::Color::Impl
 
-  // note 1.73205 = 2.0*cos(30)
-
-  offset = vec4(-1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0], 0.0, 0.0);
-
   //VTK::Picking::Impl
 
-  offsetVCGSOutput = offset.xy/radius;
-  gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
-  EmitVertex();
+  vec2 offsets[4] = vec2[](vec2(-boundScale, -boundScale),
+                           vec2(boundScale, -boundScale),
+                           vec2(-boundScale, boundScale),
+                           vec2(boundScale, boundScale));
 
-  offset = vec4(1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0], 0.0, 0.0);
-  offsetVCGSOutput = offset.xy/radius;
-  gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
-  EmitVertex();
+  for (int i = 0; i < 4; i++)
+  {
+    vec2 offset = scaleFactor * radiusVCVSOutput[0] * offsets[i];
 
-  offset = vec4(0.0, 2.0*radiusVCVSOutput[0], 0.0, 0.0);
-  offsetVCGSOutput = offset.xy/radius;
-  gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
-  EmitVertex();
+    offsetVCGSOutput = offsets[i];
+    gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
+    EmitVertex();
+  }
 
   EndPrimitive();
 }

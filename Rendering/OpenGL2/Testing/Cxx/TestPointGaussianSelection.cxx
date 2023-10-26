@@ -115,7 +115,7 @@ int TestPointGaussianSelection(int argc, char* argv[])
     if (node->GetProperties()->Has(vtkSelectionNode::PROP_ID()) &&
       node->GetProperties()->Get(vtkSelectionNode::PROP()) == actor.Get() &&
       node->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX()) == 1 && selIds &&
-      selIds->GetNumberOfTuples() == 14 && selIds->GetValue(4) == 227)
+      selIds->GetNumberOfTuples() == 12 && selIds->GetValue(3) == 227)
     {
       goodPick = true;
     }
