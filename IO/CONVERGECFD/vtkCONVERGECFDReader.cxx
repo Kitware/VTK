@@ -1139,7 +1139,6 @@ int vtkCONVERGECFDReader::RequestData(
         int parcelsNodeId = hierarchy->AddNode("Parcels", streamNodeId);
 
         // Iterate over the parcel data types/data sets
-        unsigned int parcelDataTypeCount = 0;
         for (hsize_t parcelDataTypeIndex = 0; parcelDataTypeIndex < numParcelDataTypes;
              ++parcelDataTypeIndex)
         {
@@ -1175,8 +1174,6 @@ int vtkCONVERGECFDReader::RequestData(
 
           std::string dataTypeNodeName = vtkDataAssembly::MakeValidNodeName(dataType.c_str());
           int parcelDataTypeNodeId = hierarchy->AddNode(dataTypeNodeName.c_str(), parcelsNodeId);
-
-          parcelDataTypeCount++;
 
           // Iterate over the datasets in the dataset type group
           for (hsize_t i = 0; i < numDataSets; ++i)

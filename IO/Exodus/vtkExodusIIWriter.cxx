@@ -1470,10 +1470,6 @@ int vtkExodusIIWriter::CreateSetsMetadata(vtkModelMetadata* em)
       }
       else if (isASideSet)
       {
-        int hexSides = 0;
-        int wedgeSides = 0;
-        int otherSides = 0;
-        int badSides = 0;
         numSideSets++;
         const char* id_str = name != nullptr ? strstr(name, "ID:") : nullptr;
         if (id_str != nullptr)
@@ -1504,7 +1500,6 @@ int vtkExodusIIWriter::CreateSetsMetadata(vtkModelMetadata* em)
             {
               case -1:
               {
-                badSides++;
                 break;
               }
               case VTK_WEDGE:
@@ -1512,20 +1507,17 @@ int vtkExodusIIWriter::CreateSetsMetadata(vtkModelMetadata* em)
                 int wedgeMapping[5] = { 3, 4, 0, 1, 2 };
                 int side = wedgeMapping[sourceSide->GetValue(c)] + 1;
                 sideSetSideList->InsertNextTuple1(side);
-                wedgeSides++;
                 break;
               }
               case VTK_HEXAHEDRON:
               {
                 int hexMapping[6] = { 3, 1, 0, 2, 4, 5 };
                 sideSetSideList->InsertNextTuple1(hexMapping[sourceSide->GetValue(c)] + 1);
-                hexSides++;
                 break;
               }
               default:
               {
                 sideSetSideList->InsertNextTuple1(sourceSide->GetValue(c) + 1);
-                otherSides++;
                 break;
               }
             }
