@@ -162,6 +162,8 @@ void vtkSDL2OpenGLRenderWindow::SetSize(int x, int y)
     {
       this->Interactor->SetSize(this->Size[0], this->Size[1]);
     }
+    this->Modified();
+    this->InvokeEvent(vtkCommand::WindowResizeEvent, nullptr);
   }
 }
 

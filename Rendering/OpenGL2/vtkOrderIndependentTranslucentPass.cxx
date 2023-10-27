@@ -287,19 +287,29 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState* s)
   this->State->vtkglDepthMask(GL_TRUE);
   this->State->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  bool blitDepthBuffer = true; // by default, attempt to blit the depth buffer.
 #if defined(__APPLE__)
-  this->State->vtkglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   // apple fails if not the upper left corenr of the window
   // blit on apple is fubar, so rerender opaque
   // to get a good depth buffer
-  r->DeviceRenderOpaqueGeometry();
-  this->State->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-#else
-  // blit read buffer depth to FO depth texture
-  this->State->vtkglBlitFramebuffer(this->ViewportX, this->ViewportY,
-    this->ViewportX + this->ViewportWidth, this->ViewportY + this->ViewportHeight, 0, 0,
-    this->ViewportWidth, this->ViewportHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+  blitDepthBuffer = false;
+#elif (defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0))
+  // in OpenGL ES, depth buffer blits from a multisampled read framebuffer don't work.
+  blitDepthBuffer = !s->GetRenderer()->GetRenderWindow()->GetMultiSamples();
 #endif
+  if (blitDepthBuffer)
+  {
+    // blit read buffer depth to FO depth texture
+    this->State->vtkglBlitFramebuffer(this->ViewportX, this->ViewportY,
+      this->ViewportX + this->ViewportWidth, this->ViewportY + this->ViewportHeight, 0, 0,
+      this->ViewportWidth, this->ViewportHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+  }
+  else
+  {
+    this->State->vtkglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    r->DeviceRenderOpaqueGeometry();
+    this->State->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  }
 
   // now bind both read and draw
   this->Framebuffer->Bind();
