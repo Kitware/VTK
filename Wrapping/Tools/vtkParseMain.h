@@ -76,7 +76,7 @@ extern "C"
    * after vtkParse_Main() has been called.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  OptionInfo* vtkParse_GetCommandLineOptions(void);
+  const OptionInfo* vtkParse_GetCommandLineOptions(void);
 
   /**
    * Perform any finalization required.

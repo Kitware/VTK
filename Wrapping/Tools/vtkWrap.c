@@ -755,7 +755,7 @@ void vtkWrap_FindNewInstanceMethods(ClassInfo* data, const HierarchyInfo* hinfo)
 {
   int i;
   FunctionInfo* theFunc;
-  OptionInfo* options;
+  const OptionInfo* options;
 
   for (i = 0; i < data->NumberOfFunctions; i++)
   {
@@ -1312,7 +1312,7 @@ char* vtkWrap_TemplateArg(const char* name)
   return arg;
 }
 
-void vtkWrap_WarnEmpty(OptionInfo* options)
+void vtkWrap_WarnEmpty(const OptionInfo* options)
 {
   if (options->WarningFlags.Empty)
   {
