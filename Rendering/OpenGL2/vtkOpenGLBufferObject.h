@@ -92,6 +92,12 @@ public:
    * Allocates a buffer of `type` with `size` bytes.
    */
   bool Allocate(size_t size, ObjectType type, ObjectUsage usage);
+
+  /**
+   * Get size of the buffer in bytes.
+   */
+  size_t GetSize();
+
   /**
    * Bind the buffer object ready for rendering.
    * @note Only one ARRAY_BUFFER and one ELEMENT_ARRAY_BUFFER may be bound at

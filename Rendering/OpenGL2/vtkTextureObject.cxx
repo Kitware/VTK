@@ -1179,6 +1179,7 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps, int dat
 // Description:
 // Create a texture buffer basically a 1D texture that can be
 // very large for passing data into the fragment shader
+//------------------------------------------------------------------------------
 bool vtkTextureObject::CreateTextureBuffer(
   unsigned int numValues, int numComps, int dataType, vtkOpenGLBufferObject* bo)
 {
@@ -1215,11 +1216,7 @@ bool vtkTextureObject::EmulateTextureBufferWith2DTextures(
     {
       srcTarget = GL_ELEMENT_ARRAY_BUFFER;
     }
-    GLint64 srcNumBytes = 0;
     bo->Bind();
-    glGetBufferParameteri64v(srcTarget, GL_BUFFER_SIZE, &srcNumBytes);
-    vtkOpenGLCheckErrors("glGetBufferParameteri64v ");
-
     // issue 3 (https://registry.khronos.org/OpenGL/extensions/ARB/ARB_pixel_buffer_object.txt)
     // says it's alright to bind any b.o (GL_ARRAY_BUFFER, etc) to unpacked buffer
     // and go ahead with glTexImage,
@@ -1230,11 +1227,12 @@ bool vtkTextureObject::EmulateTextureBufferWith2DTextures(
     pbo->Allocate(dataType, width * height, numComps, vtkPixelBufferObject::UNPACKED_BUFFER);
     pbo->BindToUnPackedBuffer();
     // transfers within gpu memory space on most GL driver implementations.
-    glCopyBufferSubData(srcTarget, dstTarget, 0, 0, srcNumBytes);
+    glCopyBufferSubData(srcTarget, dstTarget, 0, 0, bo->GetSize());
     vtkOpenGLCheckErrors("glCopyBufferSubData ");
 
+    // Get rid of the original buffer data
+    bo->ReleaseGraphicsResources();
     // unbind
-    bo->Release();
     pbo->UnBind();
 
     // source a 2D texture with the pbo.
