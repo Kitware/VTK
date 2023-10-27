@@ -20,13 +20,14 @@
 #include "vtkImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+#include "vtkTextureObject.h" // For texture format enum
+
 #include <vector> // For vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLQuadHelper;
-class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkSSAOPass : public vtkImageProcessingPass
 {
@@ -101,6 +102,12 @@ public:
   vtkBooleanMacro(Blur, bool);
   ///@}
 
+  /**
+   *  Set the format to use for the depth texture
+   *  vtkTextureObject::Float32 and vtkTextureObject::Fixed32 are supported.
+   */
+  vtkSetMacro(DepthFormat, int);
+
 protected:
   vtkSSAOPass() = default;
   ~vtkSSAOPass() override = default;
@@ -117,6 +124,8 @@ protected:
   vtkTextureObject* NormalTexture = nullptr;
   vtkTextureObject* SSAOTexture = nullptr;
   vtkTextureObject* DepthTexture = nullptr;
+
+  int DepthFormat = vtkTextureObject::Float32;
 
   vtkOpenGLFramebufferObject* FrameBufferObject = nullptr;
 
