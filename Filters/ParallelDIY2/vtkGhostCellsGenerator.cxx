@@ -72,7 +72,12 @@ int vtkGhostCellsGenerator::FillInputPortInformation(int vtkNotUsed(port), vtkIn
 int vtkGhostCellsGenerator::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  return this->Execute(vtkDataObject::GetData(inputVector[0], 0), outputVector);
+}
+
+//----------------------------------------------------------------------------
+int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector* outputVector)
+{
   vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
