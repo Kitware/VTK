@@ -15,6 +15,9 @@ set(VTK_LINKER_FATAL_WARNINGS ON CACHE BOOL "")
 
 set(VTK_ENABLE_CATALYST ON CACHE BOOL "")
 
+# Disable ANARI
+set(VTK_MODULE_ENABLE_VTK_RenderingAnari NO CACHE STRING "")
+
 # The install trees on CI machines need help since dependencies are not in a
 # default location.
 set(VTK_RELOCATABLE_INSTALL ON CACHE BOOL "")
