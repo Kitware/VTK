@@ -391,6 +391,11 @@ int vtkPOpenFOAMReader::RequestInformation(
   const bool isParallel = (this->NumProcesses > 1);
   int returnCode = 1;
 
+  // Set handle piece request for all cases. Even if the reconstructed case is not actually
+  // distributed, we need all processes to go through RequestData everytime in order to go through
+  // "Gather" functions.
+  outputVector->GetInformationObject(0)->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+
   if (this->CaseType == RECONSTRUCTED_CASE)
   {
     if (isRootProc)
@@ -589,8 +594,6 @@ int vtkPOpenFOAMReader::RequestInformation(
     this->GatherMetaData();
     this->Superclass::Refresh = false;
   }
-
-  outputVector->GetInformationObject(0)->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   return returnCode;
 }
