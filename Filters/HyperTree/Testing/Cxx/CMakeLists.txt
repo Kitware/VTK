@@ -14,6 +14,7 @@ set(test_sources
   TestHyperTreeGrid3DIntercepts.cxx
   TestHyperTreeGrid3DInterface.cxx
   TestHyperTreeGrid3DSimpleInterface.cxx
+  TestHyperTreeGridBinary1DFeatureEdges.cxx
   TestHyperTreeGridBinary2D.cxx
   TestHyperTreeGridBinary2DAxisClipBox.cxx
   TestHyperTreeGridBinary2DAxisClipEllipse.cxx
@@ -28,6 +29,7 @@ set(test_sources
   TestHyperTreeGridBinary2DContourMaterial.cxx
   TestHyperTreeGridBinary2DDepthLimiter.cxx
   TestHyperTreeGridBinary2DDepthLimiterMaterial.cxx
+  TestHyperTreeGridBinary2DFeatureEdges.cxx
   TestHyperTreeGridBinary2DIJK.cxx
   TestHyperTreeGridBinary2DInterfaceMaterial.cxx
   TestHyperTreeGridBinary2DMaterial.cxx
@@ -43,6 +45,7 @@ set(test_sources
   TestHyperTreeGridBinary2DVectorAxisReflectionYCenter.cxx
   TestHyperTreeGridBinary3DContour.cxx
   TestHyperTreeGridBinary3DContourDecomposePolyhedra.cxx
+  TestHyperTreeGridBinary3DFeatureEdges.cxx
   TestHyperTreeGridBinary3DGeometry.cxx
   TestHyperTreeGridBinaryClipPlanes.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
