@@ -1068,9 +1068,11 @@ int vtkOpenGLRenderWindow::ReadPixels(
   }
 
   // Must clear previous errors first.
+#if VTK_REPORT_OPENGL_ERRORS
   while (glGetError() != GL_NO_ERROR)
   {
   }
+#endif
 
   this->GetState()->vtkglDisable(GL_SCISSOR_TEST);
 
