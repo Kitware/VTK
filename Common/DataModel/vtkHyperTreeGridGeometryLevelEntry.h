@@ -58,6 +58,10 @@ public:
     }
   }
 
+  vtkHyperTreeGridGeometryLevelEntry(vtkHyperTreeGridGeometryLevelEntry const&) = default;
+  vtkHyperTreeGridGeometryLevelEntry& operator=(
+    vtkHyperTreeGridGeometryLevelEntry const&) = default;
+
   /**
    * Destructor
    */
