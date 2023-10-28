@@ -6,6 +6,10 @@ if (POLICY CMP0127)
   cmake_policy(SET CMP0127 NEW) # cmake_dependent_option changes
 endif ()
 
+if (POLICY CMP0154)
+  cmake_policy(SET CMP0154 NEW) # optimize custom commands in PRIVATE filesets
+endif ()
+
 set(vtk_cmake_dir "${VTK_SOURCE_DIR}/CMake")
 list(INSERT CMAKE_MODULE_PATH 0 "${vtk_cmake_dir}")
 
