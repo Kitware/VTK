@@ -235,5 +235,10 @@ int TestComputeBoundingSphere(int, char*[])
     std::cout << "Passed" << std::endl;
   }
 
+  if (status > 0)
+  {
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }
