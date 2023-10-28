@@ -211,5 +211,9 @@ int TestAssignAttribute(int, char*[])
     cerr << "Tensor information not passed when attribute is assigned by type." << endl;
     ++errors;
   }
+  if (errors > 0)
+  {
+    return 1;
+  }
   return 0;
 }
