@@ -8,14 +8,14 @@ readonly name="tiff"
 readonly ownership="Tiff Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/tiff.git"
-readonly tag="for/vtk-20210802.1-4.3.0"
+readonly tag="for/vtk-20231025-4.6.0"
 readonly paths="
 .gitattributes
 CMakeLists.txt
 ChangeLog
-COPYRIGHT
 README.md
 README.kitware.md
+LICENSE.md
 
 cmake/AutotoolsCompat.cmake
 cmake/CXXLibrary.cmake
@@ -31,7 +31,6 @@ cmake/LZMACodec.cmake
 cmake/LargeFileSupport.cmake
 cmake/LibraryFeatures.cmake
 cmake/LinkerChecks.cmake
-cmake/OpenGLChecks.cmake
 cmake/PixarLogCodec.cmake
 cmake/ProcessorChecks.cmake
 cmake/SymbolChecks.cmake
@@ -47,6 +46,7 @@ libtiff/*.c
 libtiff/*.h
 libtiff/tif_config.h.cmake.in
 libtiff/tiffconf.h.cmake.in
+libtiff/tiffvers.h.cmake.in
 
 port/CMakeLists.txt
 port/dummy.c
