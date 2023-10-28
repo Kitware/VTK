@@ -35,6 +35,8 @@ public:
   vtkOpenGLArrayTextureBufferAdapter(
     vtkDataArray* array, bool asScalars, bool* integerTexture = nullptr);
   vtkOpenGLArrayTextureBufferAdapter(const vtkOpenGLArrayTextureBufferAdapter&) = default;
+  vtkOpenGLArrayTextureBufferAdapter& operator=(
+    const vtkOpenGLArrayTextureBufferAdapter&) = default;
 
   void Upload(vtkOpenGLRenderWindow* renderWindow, bool force = false);
 };
