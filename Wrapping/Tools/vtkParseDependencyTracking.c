@@ -42,6 +42,7 @@ void vtkParse_AddFileDependency(const char* dep)
     return;
   }
 
+  // in C++, an unordered set could be used
   vtkParse_AddStringToArray(&DepTracker.Dependencies, &DepTracker.NumberOfDependencies,
     vtkParse_CacheString(&DepTracker.Strings, dep, strlen(dep)));
 }
@@ -76,9 +77,17 @@ static void write_line(FILE* fout, const char* target, const char* dep)
   fputc('\n', fout);
 }
 
+// helper for qsort
+static int string_compare(const void* a, const void* b)
+{
+  return strcmp(*((const char**)a), *((const char**)b));
+}
+
 int vtkParse_DependencyTrackingWrite(const char* fname)
 {
   FILE* fout = NULL;
+  const char* prev_dep = NULL;
+  const char* dep;
   int i;
 
   if (!DepTracker.Target)
@@ -92,9 +101,21 @@ int vtkParse_DependencyTrackingWrite(const char* fname)
     return 1;
   }
 
+  // sort the data so that we can easily identify duplicates
+  if (DepTracker.NumberOfDependencies > 1)
+  {
+    qsort(DepTracker.Dependencies, DepTracker.NumberOfDependencies, sizeof(char*), string_compare);
+  }
+
   for (i = 0; i < DepTracker.NumberOfDependencies; ++i)
   {
-    write_line(fout, DepTracker.Target, DepTracker.Dependencies[i]);
+    // only write if not a duplicate of the previous value
+    dep = DepTracker.Dependencies[i];
+    if (prev_dep == NULL || strcmp(dep, prev_dep) != 0)
+    {
+      write_line(fout, DepTracker.Target, dep);
+      prev_dep = dep;
+    }
   }
 
   if (DepTracker.NumberOfDependencies == 0)
