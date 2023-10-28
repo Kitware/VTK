@@ -36,6 +36,7 @@ struct EdgeEndpoints
   {
   }
 
+  EdgeEndpoints(const EdgeEndpoints&) = default;
   void operator=(const EdgeEndpoints&) = delete;
 
   inline bool operator==(const EdgeEndpoints& other) const
