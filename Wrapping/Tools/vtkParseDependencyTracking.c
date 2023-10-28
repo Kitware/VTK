@@ -137,7 +137,7 @@ int vtkParse_DependencyTrackingWrite(const char* fname)
   return 0;
 }
 
-void vtkParse_FinalizeDependencyTracking()
+void vtkParse_FinalizeDependencyTracking(void)
 {
   char** input;
 
