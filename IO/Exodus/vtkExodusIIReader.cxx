@@ -4624,7 +4624,6 @@ int vtkExodusIIReaderPrivate::SetUpEmptyGrid(vtkMultiBlockDataSet* output)
   // Iterate over all block and set types, creating a
   // multiblock dataset to hold objects of each type.
   int conntypidx;
-  int nbl = 0;
   output->SetNumberOfBlocks(num_conn_types);
   for (conntypidx = 0; conntypidx < num_conn_types; ++conntypidx)
   {
@@ -4655,7 +4654,6 @@ int vtkExodusIIReaderPrivate::SetUpEmptyGrid(vtkMultiBlockDataSet* output)
       vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
       mbds->SetBlock(sortIdx, ug);
       ug->FastDelete();
-      ++nbl;
     }
   }
 #if 0
