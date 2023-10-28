@@ -70,6 +70,8 @@ public:
     BoxValue = value;
   }
   ~ImageDataAABox() = default;
+  ImageDataAABox(ImageDataAABox const&) = default;
+  ImageDataAABox& operator=(ImageDataAABox const&) = default;
 
   void SetValue(double value) { BoxValue = value; }
 
