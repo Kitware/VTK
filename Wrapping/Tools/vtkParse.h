@@ -33,30 +33,37 @@ extern "C"
 
   /**
    * Do not pre-define any macros related to the system or platform.
+   * If you call this before calling vtkParse_ParseFile(), then the
+   * only macros that are defined will be the ones specified on the
+   * command-line (via "-D") or in the header files.  This is called
+   * automatically if "-undef" is given on the command line.
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_UndefinePlatformMacros(void);
 
   /**
-   * Read macros from the provided header file.
+   * Use the preprocessor to read all macros from the provided header file.
+   * This is called when "-imacros <file>" is given on the command line.
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_IncludeMacros(const char* filename);
 
   /**
-   * Dump macros to the specified file (stdout if NULL).
+   * Dump all defined macros to the specified file (stdout if NULL).
+   * This is called when "-dM" is given on the command line.
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_DumpMacros(const char* filename);
 
   /**
-   * Add an include directory, for use with the "-I" option.
+   * Add an include directory, used by the "-I" command line option.
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_IncludeDirectory(const char* dirname);
 
   /**
-   * Return the full path to a header file.
+   * Return the full path to a header file.  Results are cached for
+   * efficiency.
    */
   VTKWRAPPINGTOOLS_EXPORT
   const char* vtkParse_FindIncludeFile(const char* filename);
@@ -68,26 +75,30 @@ extern "C"
   void vtkParse_SetCommandName(const char* name);
 
   /**
-   * Parse a header file and return a FileInfo struct
+   * Parse a header file and return a FileInfo, which must be freed by
+   * calling vtkParse_Free().
    */
   VTKWRAPPINGTOOLS_EXPORT
   FileInfo* vtkParse_ParseFile(const char* filename, FILE* ifile, FILE* errfile);
 
   /**
-   * Read a hints file and update the FileInfo
+   * Read a hints file and update the FileInfo.  Hints files are mostly
+   * obsolete, as they have been replaced by inline hinting.
    */
   VTKWRAPPINGTOOLS_EXPORT
   int vtkParse_ReadHints(FileInfo* data, FILE* hfile, FILE* errfile);
 
   /**
-   * Free the FileInfo struct returned by vtkParse_ParseFile()
+   * Free the FileInfo struct returned by vtkParse_ParseFile().
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_Free(FileInfo* data);
 
   /**
    * Free any caches or buffers, call just before program exits.
-   * This can safely be called multiple times.
+   * This should only be called after vtkParse_Free() has been used
+   * to free all FileInfo objects returned by vtkParse_ParseFile().
+   * This function can safely be called multiple times.
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_FinalCleanup(void);
