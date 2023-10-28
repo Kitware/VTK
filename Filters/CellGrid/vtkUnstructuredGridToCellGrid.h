@@ -98,6 +98,7 @@ public:
     {
       Claim() = default;
       Claim(const Claim&) = default;
+      Claim& operator=(const Claim&) = default;
       Claim(vtkIdType numberOfCells, int priority, vtkStringToken cellType)
         : NumberOfCells(numberOfCells)
         , CellTypePriority(priority)
