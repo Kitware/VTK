@@ -34,7 +34,6 @@ check_symbol_exists(pow "math.h" CMath_HAVE_LIBC_POW)
 if(NOT CMath_HAVE_LIBC_POW)
     find_library(CMath_LIBRARY NAMES m)
     mark_as_advanced(CMath_LIBRARY)
-
     set(CMAKE_REQUIRED_LIBRARIES_SAVE ${CMAKE_REQUIRED_LIBRARIES})
     set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${CMath_LIBRARY})
     check_symbol_exists(pow "math.h" CMath_HAVE_LIBM_POW)

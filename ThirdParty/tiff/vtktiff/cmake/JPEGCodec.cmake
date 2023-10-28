@@ -48,22 +48,49 @@ if (old-jpeg AND JPEG_SUPPORT)
     set(OJPEG_SUPPORT TRUE)
 endif()
 
-# 8/12-bit jpeg mode
 if (FALSE) # XXX(kitware): hardcode settings
-set(JPEG12_INCLUDE_DIR JPEG12_INCLUDE_DIR-NOTFOUND CACHE PATH "Include directory for 12-bit libjpeg")
-set(JPEG12_LIBRARY JPEG12_LIBRARY-NOTFOUND CACHE FILEPATH "12-bit libjpeg library")
-set(JPEG_DUAL_MODE_8_12 FALSE)
-if (JPEG12_INCLUDE_DIR AND JPEG12_LIBRARY)
-    set(JPEG12_LIBRARIES ${JPEG12_LIBRARY})
-    set(JPEG12_FOUND TRUE)
-else()
-    set(JPEG12_FOUND FALSE)
+if (JPEG_SUPPORT)
+    # Check for jpeg12_read_scanlines() which has been added in libjpeg-turbo 2.2
+    # for dual 8/12 bit mode.
+    include(CheckCSourceCompiles)
+    include(CMakePushCheckState)
+    cmake_push_check_state(RESET)
+    set(CMAKE_REQUIRED_INCLUDES "${JPEG_INCLUDE_DIRS}")
+    set(CMAKE_REQUIRED_LIBRARIES "${JPEG_LIBRARIES}")
+    check_c_source_compiles(
+        "
+        #include <stddef.h>
+        #include <stdio.h>
+        #include \"jpeglib.h\"
+        int main()
+        {
+            jpeg_read_scanlines(0,0,0);
+            jpeg12_read_scanlines(0,0,0);
+            return 0;
+        }
+        "
+        HAVE_JPEGTURBO_DUAL_MODE_8_12)
+    cmake_pop_check_state()
 endif()
-option(jpeg12 "enable libjpeg 8/12-bit dual mode (requires separate 12-bit libjpeg build)" ${JPEG12_FOUND})
-else ()
-set(jpeg12 0)
-endif ()
-if (jpeg12 AND JPEG12_FOUND)
-    set(JPEG_DUAL_MODE_8_12 TRUE)
-    set(LIBJPEG_12_PATH "${JPEG12_INCLUDE_DIR}/jpeglib.h")
+
+if (NOT HAVE_JPEGTURBO_DUAL_MODE_8_12)
+
+    # 12-bit jpeg mode in a dedicated libjpeg12 library
+    set(JPEG12_INCLUDE_DIR JPEG12_INCLUDE_DIR-NOTFOUND CACHE PATH "Include directory for 12-bit libjpeg")
+    set(JPEG12_LIBRARY JPEG12_LIBRARY-NOTFOUND CACHE FILEPATH "12-bit libjpeg library")
+    set(JPEG_DUAL_MODE_8_12 FALSE)
+    if (JPEG12_INCLUDE_DIR AND JPEG12_LIBRARY)
+        set(JPEG12_LIBRARIES ${JPEG12_LIBRARY})
+        set(JPEG12_FOUND TRUE)
+    else()
+        set(JPEG12_FOUND FALSE)
+    endif()
+    option(jpeg12 "enable libjpeg 8/12-bit dual mode (requires separate 12-bit libjpeg build)" ${JPEG12_FOUND})
+    if (jpeg12 AND JPEG12_FOUND)
+        set(JPEG_DUAL_MODE_8_12 TRUE)
+        set(LIBJPEG_12_PATH "${JPEG12_INCLUDE_DIR}/jpeglib.h")
+    endif()
+
+endif()
+set(JPEG12_FOUND FALSE)
 endif()

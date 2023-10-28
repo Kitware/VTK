@@ -38,35 +38,53 @@ if (FALSE) # XXX(kitware): just hard-code the version number.
 # Read version information from configure.ac.
 include(AutotoolsVersion)
 message(STATUS "Building tiff version ${LIBTIFF_VERSION_FULL}")
-message(STATUS "libtiff library version ${SO_VERSION}")
-string(TIMESTAMP BUILD_DATE "%Y%m%d")
-message(STATUS "libtiff build date: ${BUILD_DATE}")
 else ()
 # Just copy from configure.ac rather than extracting it.
 set(LIBTIFF_MAJOR_VERSION 4)
-set(LIBTIFF_MINOR_VERSION 1)
+set(LIBTIFF_MINOR_VERSION 6)
 set(LIBTIFF_MICRO_VERSION 0)
 set(LIBTIFF_ALPHA_VERSION)
 set(LIBTIFF_VERSION "${LIBTIFF_MAJOR_VERSION}.${LIBTIFF_MINOR_VERSION}.${LIBTIFF_MICRO_VERSION}")
 set(LIBTIFF_VERSION_FULL "${LIBTIFF_VERSION}${LIBTIFF_ALPHA_VERSION}")
 endif ()
 
-
-# XXX(kitware): build tiff using as how vtk is being built
-if(FALSE)
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
-endif()
-
-
-# Disable deprecated features to ensure clean build
-add_definitions(-DTIFF_DISABLE_DEPRECATED)
-
-
 # Project definition
 set(CMAKE_C_STANDARD 99)
 project(tiff
         VERSION "${LIBTIFF_VERSION}"
         LANGUAGES C CXX)
+
+# XXX(kitware): disable options not relevant to vtk
+if(FALSE)
+if(NOT CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+  # libtiff is being included as a subproject of some other project.
+  set(TIFF_INSTALL_DEFAULT OFF)
+else()
+  set(TIFF_INSTALL_DEFAULT ON)
+  option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+endif()
+
+option(tiff-tools "build TIFF tools" ON)
+option(tiff-tools-unsupported "build unsupported TIFF tools" OFF)
+option(tiff-tests "build TIFF tests" ON)
+option(tiff-contrib "build TIFF contrib" ON)
+option(tiff-docs "build TIFF documentation" ON)
+option(tiff-deprecated "build TIFF deprecated features" OFF)
+option(tiff-install "install TIFF targets" ${TIFF_INSTALL_DEFAULT})
+endif()
+set(tiff-deprecated ON)
+set(tiff-tools OFF)
+set(tiff-tools-unsupported OFF)
+set(tiff-tests OFF)
+set(tiff-contrib OFF)
+set(tiff-docs OFF)
+set(tiff-deprecated OFF)
+set(tiff-install OFF)
+
+# Disable deprecated features to ensure clean build
+if (tiff-deprecated)
+  add_definitions(-DTIFF_DISABLE_DEPRECATED)
+endif()
 
 # Autotools compatibility
 include(AutotoolsCompat)
@@ -89,7 +107,7 @@ include(SymbolChecks)
 # Standard installation paths
 include(GNUInstallDirs)
 # Documentation install directory (default to cmake project docdir)
-set(LIBTIFF_DOCDIR "${CMAKE_INSTALL_FULL_DOCDIR}")
+set(LIBTIFF_DOCDIR "${CMAKE_INSTALL_DOCDIR}")
 
 if (FALSE) # XXX(kitware): VTK handles testing
 # CTest testing
@@ -132,19 +150,12 @@ include(WebPCodec)
 # Option for C++ libtiffxx library
 include(CXXLibrary)
 
-# Checks for OpenGL support
-include(OpenGLChecks)
-
 # Windows support
 include(WindowsSupport)
 
 # Orthogonal features
 include(LibraryFeatures)
 
-# pkg-config support
-if (FALSE) # XXX(kitware): no need for a pkg-config file
-include(PkgConfig)
-endif ()
 
 # math.h/libm portability
 find_package(CMath REQUIRED)
@@ -154,29 +165,55 @@ if (FALSE) # XXX(kitware): no need for release commands
 include(Release)
 endif ()
 
-
 # Process subdirectories
 add_subdirectory(port)
 add_subdirectory(libtiff)
-if (FALSE) # XXX(kitware): ignore non-source directories
-add_subdirectory(tools)
-add_subdirectory(test)
-add_subdirectory(contrib)
+if(tiff-tools)
+  add_subdirectory(tools)
+endif()
+if(tiff-tools-unsupported)
+  add_subdirectory(tools/unsupported)
+endif()
+if(tiff-tests)
+  add_subdirectory(test)
+endif()
+if(tiff-contrib)
+  add_subdirectory(contrib)
+endif()
+if (FALSE) # XXX(kitware): handled by hardcoded options
 add_subdirectory(build)
-add_subdirectory(man)
-add_subdirectory(html)
-endif ()
+endif()
+if(tiff-docs)
+  add_subdirectory(doc)
+endif()
 
+if (FALSE) # XXX(kitware): no need for a pkg-config file
+# pkg-config support
+include(PkgConfig)
+endif()
 
 if (FALSE) # XXX(kitware): hide messages.
 message(STATUS "")
 message(STATUS "Libtiff is now configured for ${CMAKE_SYSTEM}")
+message(STATUS "")
+if (NOT LIBTIFF_RELEASE_VERSION STREQUAL LIBTIFF_VERSION_FULL)
+  message(STATUS "  Libtiff release version      ${LIBTIFF_RELEASE_VERSION} is not equal to build version!")
+endif()
+message(STATUS "  Libtiff build version:       ${LIBTIFF_VERSION_FULL}")
+message(STATUS "  Libtiff library version:     ${SO_VERSION}")
+message(STATUS "  Libtiff release date:        ${LIBTIFF_RELEASE_DATE}")
 message(STATUS "")
 message(STATUS "  Installation directory:             ${prefix}")
 message(STATUS "  Documentation directory:            ${LIBTIFF_DOCDIR}")
 message(STATUS "  C compiler:                         ${CMAKE_C_COMPILER}")
 message(STATUS "  C++ compiler:                       ${CMAKE_CXX_COMPILER}")
 message(STATUS "  Build shared libraries:             ${BUILD_SHARED_LIBS}")
+message(STATUS "  Build tools:                        ${tiff-tools}")
+message(STATUS "  Build tools-unsupported:            ${tiff-tools-unsupported}")
+message(STATUS "  Build tests:                        ${tiff-tests}")
+message(STATUS "  Build contrib:                      ${tiff-contrib}")
+message(STATUS "  Build docs:                         ${tiff-docs}")
+message(STATUS "  Build deprecated features:          ${tiff-deprecated}")
 message(STATUS "  Enable linker symbol versioning:    ${HAVE_LD_VERSION_SCRIPT}")
 message(STATUS "  Support Microsoft Document Imaging: ${mdi}")
 message(STATUS "  Use win32 IO:                       ${USE_WIN32_FILEIO}")
@@ -207,16 +244,22 @@ if(JPEG_SUPPORT)
 else()
   message(STATUS "  Old JPEG support:                   Requested:${old-jpeg} Availability:${JPEG_SUPPORT} Support:${OJPEG_SUPPORT} (Depends on JPEG Support)")
 endif()
-message(STATUS "  JPEG 8/12 bit dual mode:            Requested:${jpeg12} Availability:${JPEG12_FOUND} Support:${JPEG_DUAL_MODE_8_12}")
+if(JPEG_SUPPORT AND HAVE_JPEGTURBO_DUAL_MODE_8_12)
+  message(STATUS "  JPEG 8/12 bit dual mode:            Support: yes (libjpeg turbo >= 2.2 dual mode)")
+else()
+  message(STATUS "  JPEG 8/12 bit dual mode:            Requested:${jpeg12} Availability:${JPEG12_FOUND} Support:${JPEG_DUAL_MODE_8_12}")
+endif()
 message(STATUS "  ISO JBIG support:                   Requested:${jbig} Availability:${JBIG_FOUND} Support:${JBIG_SUPPORT}")
-message(STATUS "  LERC support:                       Requested:${lerc} Availability:${LERC_FOUND} Support:${LERC_SUPPORT}")
-message(STATUS "  LZMA2 support:                      Requested:${lzma} Availability:${LIBLZMA_FOUND} Support:${LZMA_SUPPORT}")
+if(ZLIB_SUPPORT)
+  message(STATUS "  LERC support:                       Requested:${lerc} Availability:${LERC_FOUND} Support:${LERC_SUPPORT}")
+else()
+  message(STATUS "  LERC support:                       Requested:${lerc} Availability:${LERC_FOUND} Support:${LERC_SUPPORT} (Depends on ZLIB Support)")
+endif()
+message(STATUS "  LZMA2 support:                      Requested:${lzma} Availability:${liblzma_FOUND} Support:${LZMA_SUPPORT}")
 message(STATUS "  ZSTD support:                       Requested:${zstd} Availability:${ZSTD_USABLE} Support:${ZSTD_SUPPORT}")
-message(STATUS "  WEBP support:                       Requested:${webp} Availability:${WEBP_FOUND} Support:${WEBP_SUPPORT}")
+message(STATUS "  WEBP support:                       Requested:${webp} Availability:${WebP_FOUND} Support:${WEBP_SUPPORT}")
 message(STATUS "")
 message(STATUS "  C++ support:                        ${cxx} (requested) ${CXX_SUPPORT} (availability)")
-message(STATUS "")
 # message(STATUS "  X Athena Widgets support:           ${HAVE_XAW}")
-message(STATUS "  OpenGL support:                     ${HAVE_OPENGL}")
 message(STATUS "")
 endif ()

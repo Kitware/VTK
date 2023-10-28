@@ -1,6 +1,7 @@
 #ifndef vtk_tiff_mangle_h
 #define vtk_tiff_mangle_h
 
+
 #define TIFFAccessTagMethods vtktiff_TIFFAccessTagMethods
 #define _TIFFBuiltinCODECS vtktiff__TIFFBuiltinCODECS
 #define _TIFFcalloc vtktiff__TIFFcalloc
@@ -13,9 +14,11 @@
 #define TIFFCIELabToRGBInit vtktiff_TIFFCIELabToRGBInit
 #define TIFFCIELabToXYZ vtktiff_TIFFCIELabToXYZ
 #define _TIFFClampDoubleToFloat vtktiff__TIFFClampDoubleToFloat
+#define _TIFFClampDoubleToUInt32 vtktiff__TIFFClampDoubleToUInt32
 #define TIFFCleanup vtktiff_TIFFCleanup
 #define TIFFClientdata vtktiff_TIFFClientdata
 #define TIFFClientOpen vtktiff_TIFFClientOpen
+#define TIFFClientOpenExt vtktiff_TIFFClientOpenExt
 #define TIFFClose vtktiff_TIFFClose
 #define TIFFComputeStrip vtktiff_TIFFComputeStrip
 #define TIFFComputeTile vtktiff_TIFFComputeTile
@@ -39,6 +42,7 @@
 #define TIFFDeferStrileArrayWriting vtktiff_TIFFDeferStrileArrayWriting
 #define TIFFError vtktiff_TIFFError
 #define TIFFErrorExt vtktiff_TIFFErrorExt
+#define TIFFErrorExtR vtktiff_TIFFErrorExtR
 #define _TIFFerrorHandler vtktiff__TIFFerrorHandler
 #define _TIFFerrorHandlerExt vtktiff__TIFFerrorHandlerExt
 #define _TIFFFax3fillruns vtktiff__TIFFFax3fillruns
@@ -48,10 +52,14 @@
 #define TIFFFaxWhiteCodes vtktiff_TIFFFaxWhiteCodes
 #define TIFFFaxWhiteTable vtktiff_TIFFFaxWhiteTable
 #define TIFFFdOpen vtktiff_TIFFFdOpen
+#define TIFFFdOpenExt vtktiff_TIFFFdOpenExt
 #define TIFFFieldDataType vtktiff_TIFFFieldDataType
+#define TIFFFieldIsAnonymous vtktiff_TIFFFieldIsAnonymous
 #define TIFFFieldName vtktiff_TIFFFieldName
 #define TIFFFieldPassCount vtktiff_TIFFFieldPassCount
 #define TIFFFieldReadCount vtktiff_TIFFFieldReadCount
+#define TIFFFieldSetGetCountSize vtktiff_TIFFFieldSetGetCountSize
+#define TIFFFieldSetGetSize vtktiff_TIFFFieldSetGetSize
 #define TIFFFieldTag vtktiff_TIFFFieldTag
 #define TIFFFieldWithName vtktiff_TIFFFieldWithName
 #define TIFFFieldWithTag vtktiff_TIFFFieldWithTag
@@ -106,6 +114,7 @@
 #define TIFFInitThunderScan vtktiff_TIFFInitThunderScan
 #define TIFFInitZIP vtktiff_TIFFInitZIP
 #define TIFFIsBigEndian vtktiff_TIFFIsBigEndian
+#define TIFFIsBigTIFF vtktiff_TIFFIsBigTIFF
 #define TIFFIsByteSwapped vtktiff_TIFFIsByteSwapped
 #define TIFFIsCODECConfigured vtktiff_TIFFIsCODECConfigured
 #define TIFFIsMSB2LSB vtktiff_TIFFIsMSB2LSB
@@ -135,7 +144,14 @@
 #define TIFFNumberOfStrips vtktiff_TIFFNumberOfStrips
 #define TIFFNumberOfTiles vtktiff_TIFFNumberOfTiles
 #define TIFFOpen vtktiff_TIFFOpen
+#define TIFFOpenExt vtktiff_TIFFOpenExt
+#define TIFFOpenOptionsAlloc vtktiff_TIFFOpenOptionsAlloc
+#define TIFFOpenOptionsFree vtktiff_TIFFOpenOptionsFree
+#define TIFFOpenOptionsSetErrorHandlerExtR vtktiff_TIFFOpenOptionsSetErrorHandlerExtR
+#define TIFFOpenOptionsSetMaxSingleMemAlloc vtktiff_TIFFOpenOptionsSetMaxSingleMemAlloc
+#define TIFFOpenOptionsSetWarningHandlerExtR vtktiff_TIFFOpenOptionsSetWarningHandlerExtR
 #define TIFFOpenW vtktiff_TIFFOpenW
+#define TIFFOpenWExt vtktiff_TIFFOpenWExt
 #define TIFFPredictorCleanup vtktiff_TIFFPredictorCleanup
 #define TIFFPredictorInit vtktiff_TIFFPredictorInit
 #define _TIFFprintAscii vtktiff__TIFFprintAscii
@@ -239,6 +255,7 @@
 #define TIFFVTileSize64 vtktiff_TIFFVTileSize64
 #define TIFFWarning vtktiff_TIFFWarning
 #define TIFFWarningExt vtktiff_TIFFWarningExt
+#define TIFFWarningExtR vtktiff_TIFFWarningExtR
 #define _TIFFwarningHandler vtktiff__TIFFwarningHandler
 #define _TIFFwarningHandlerExt vtktiff__TIFFwarningHandlerExt
 #define TIFFWriteBufferSetup vtktiff_TIFFWriteBufferSetup
