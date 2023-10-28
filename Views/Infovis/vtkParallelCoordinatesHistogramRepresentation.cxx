@@ -298,8 +298,6 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
     0); // vtkArrayDownCast<vtkDoubleArray>(polyData->GetCellData()->GetScalars());
 
   // for each histogram, draw a quad for each bin.
-  vtkIdType ptId = 0;
-  //  vtkIdType quadId=0;
   for (int pos = 0; pos < this->NumberOfAxes - 1; pos++)
   {
     int dims[3] = { 0, 0, 0 };
@@ -333,28 +331,22 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
         *(pointsp++) = x1[0];
         *(pointsp++) = x1[1] + binWidth[0];
         *(pointsp++) = 0.;
-        ptId++;
+
         *(pointsp++) = x1[0];
         *(pointsp++) = x1[1];
         *(pointsp++) = 0.;
-        ptId++;
+
         *(pointsp++) = x2[0];
         *(pointsp++) = x2[1];
         *(pointsp++) = 0.;
-        ptId++;
+
         *(pointsp++) = x2[0];
         *(pointsp++) = x2[1] + binWidth[1];
         *(pointsp++) = 0.;
-        ptId++;
-        //      points->SetPoint(ptId++, x1[0], x1[1]+binWidth[0], 0.);
-        //        points->SetPoint(ptId++, x1[0], x1[1], 0.);
-        //        points->SetPoint(ptId++, x2[0], x2[1], 0.);
-        //        points->SetPoint(ptId++, x2[0], x2[1]+binWidth[1], 0.);
 
         // scalars used for lookup table mapping.  More rows
         // in a bin means bright quad.
-        // scalars->SetTuple1(quadId++,v);
-        *(scalarsp++) = v; //->SetTuple1(quadId++,v);
+        *(scalarsp++) = v;
       }
     }
   }
@@ -390,7 +382,6 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
   vtkSmartPointer<vtkDoubleArray> defSplineValues = vtkSmartPointer<vtkDoubleArray>::New();
   this->BuildDefaultSCurve(defSplineValues, this->CurveResolution);
 
-  vtkIdType ptId = 0;
   // vtkIdType stripId = 0;
   for (int pos = 0; pos < this->NumberOfAxes - 1; pos++)
   {
@@ -434,16 +425,13 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
             x1[1]; // spline->Evaluate(x1[0]);//spline->Evaluate(x1[0]);
           w = defSplineValues->GetValue(c) * dw + binWidth[0]; // bwspline->Evaluate(x1[0]);
 
-          //          points->SetPoint(ptId++,   xc[0], xc[1]+w, 0.);
-          //          points->SetPoint(ptId++, xc[0], xc[1], 0.);
           *(pointsp++) = xc[0];
           *(pointsp++) = xc[1] + w;
           *(pointsp++) = 0.0;
-          ptId++;
+
           *(pointsp++) = xc[0];
           *(pointsp++) = xc[1];
           *(pointsp++) = 0.0;
-          ptId++;
         }
 
         *(scalarsp++) = v; //->SetTuple1(stripId++,v);
