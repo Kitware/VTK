@@ -68,10 +68,8 @@ bool RoundTrip(const char* filename, const std::string& tempDir, vtkIdType numCe
     ok = false;
   }
 
-  std::size_t numAtt = 0;
   for (const auto& attData : expectedAttributes)
   {
-    ++numAtt;
     auto* att = cg->GetCellAttributeByName(attData.first);
     if (!att)
     {
