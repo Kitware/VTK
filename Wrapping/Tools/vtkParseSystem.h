@@ -8,6 +8,7 @@
 #ifndef vtkParseSystem_h
 #define vtkParseSystem_h
 
+#include "vtkParseDependencyTracking.h"
 #include "vtkParseString.h"
 #include "vtkWrappingToolsModule.h"
 
@@ -53,6 +54,16 @@ extern "C"
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_FreeFileCache(SystemInfo* info);
+
+  /**
+   * On Win32, this interprets fname as UTF8 and then calls wfopen().
+   * The returned handle must be freed with fclose().
+   *
+   * This variant does not add a dependency on the passed filename to any
+   * dependency tracking.
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  FILE* vtkParse_FileOpenNoDependency(const char* fname, const char* mode);
 
   /**
    * On Win32, this interprets fname as UTF8 and then calls wfopen().

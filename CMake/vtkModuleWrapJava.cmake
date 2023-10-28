@@ -137,6 +137,8 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
 
     set(_vtk_java_source_output
       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_basename}Java.${_vtk_java_ext}")
+    set(_vtk_java_wrap_depfile
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java.dir/${_vtk_java_basename}Java.${_vtk_java_ext}.d")
     list(APPEND _vtk_java_sources
       "${_vtk_java_source_output}")
 
@@ -162,13 +164,13 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
       OUTPUT  "${_vtk_java_source_output}"
       COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
               "$<TARGET_FILE:${_vtk_java_wrap_target}>"
+              -MF "${_vtk_java_wrap_depfile}"
               "@${_vtk_java_args_file}"
               -o "${_vtk_java_source_output}"
               "${_vtk_java_header}"
               ${_vtk_java_warning_args}
               ${_vtk_java_macros_args}
-      IMPLICIT_DEPENDS
-              CXX "${_vtk_java_header}"
+      DEPFILE "${_vtk_java_wrap_depfile}"
       COMMENT "Generating Java wrapper sources for ${_vtk_java_basename}"
       DEPENDS
         "${_vtk_java_header}"
@@ -178,19 +180,21 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
 
     set(_vtk_java_java_source_output
       "${_vtk_java_JAVA_OUTPUT}/${_vtk_java_basename}.java")
+    set(_vtk_java_parse_depfile
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java.dir/${_vtk_java_basename}.java.d")
     list(APPEND _vtk_java_java_sources
       "${_vtk_java_java_source_output}")
 
     add_custom_command(
       OUTPUT  "${_vtk_java_java_source_output}"
       COMMAND "${_vtk_java_parse_target}"
+              -MF "${_vtk_java_parse_depfile}"
               "@${_vtk_java_args_file}"
               -o "${_vtk_java_java_source_output}"
               "${_vtk_java_header}"
               ${_vtk_java_warning_args}
               ${_vtk_java_macros_args}
-      IMPLICIT_DEPENDS
-              CXX "${_vtk_java_header}"
+      DEPFILE "${_vtk_java_parse_depfile}"
       COMMENT "Generating Java sources for ${_vtk_java_basename}"
       DEPENDS
         "${_vtk_java_header}"

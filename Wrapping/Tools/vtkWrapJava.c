@@ -1350,6 +1350,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (!fp)
   {
     fprintf(stderr, "Error opening output file %s\n", options->OutputFileName);
+    vtkParse_Finalize();
     return 1;
   }
 
@@ -1358,6 +1359,10 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (data == NULL || data->IsExcluded)
   {
     fclose(fp);
+    if (vtkParse_Finalize())
+    {
+      return 1;
+    }
     return 0;
   }
 
@@ -1365,6 +1370,10 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   {
     fclose(fp);
     vtkWrap_WarnEmpty(options);
+    if (vtkParse_Finalize())
+    {
+      return 1;
+    }
     return 0;
   }
 
@@ -1374,6 +1383,10 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     {
       fclose(fp);
       vtkWrap_WarnEmpty(options);
+      if (vtkParse_Finalize())
+      {
+        return 1;
+      }
       return 0;
     }
   }
@@ -1384,6 +1397,10 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     {
       fclose(fp);
       vtkWrap_WarnEmpty(options);
+      if (vtkParse_Finalize())
+      {
+        return 1;
+      }
       return 0;
     }
 
@@ -1564,6 +1581,10 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   vtkParse_Free(file_info);
 
   fclose(fp);
+  if (vtkParse_Finalize())
+  {
+    return 1;
+  }
 
   return 0;
 }

@@ -9,6 +9,7 @@ endif ()
 set(sources
   vtkParse.tab.c
   vtkParseData.c
+  vtkParseDependencyTracking.c
   vtkParseExtras.c
   vtkParseHierarchy.c
   vtkParseMain.c
@@ -24,6 +25,7 @@ set(headers
   vtkParse.h
   vtkParseAttributes.h
   vtkParseData.h
+  vtkParseDependencyTracking.h
   vtkParseExtras.h
   vtkParseHierarchy.h
   vtkParseMain.h

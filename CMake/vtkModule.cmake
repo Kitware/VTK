@@ -3397,6 +3397,26 @@ function (_vtk_module_write_wrap_hierarchy)
   set(_vtk_hierarchy_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_library_name}-hierarchy.$<CONFIGURATION>.args")
   set(_vtk_hierarchy_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_library_name}-hierarchy.data")
   set(_vtk_hierarchy_depends_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_library_name}-hierarchy.depends.args")
+  set(_vtk_hierarchy_depfile)
+  get_property(_vtk_hierarchy_is_multi_config GLOBAL
+    PROPERTY GENERATOR_IS_MULTI_CONFIG)
+  # XXX(cmake-3.21): genex support in `DEPFILE` paths.
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.21" OR
+      NOT _vtk_hierarchy_is_multi_config)
+    if (_vtk_hierarchy_is_multi_config)
+      set(_vtk_hierarchy_depfile "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_filename}.$<CONFIGURATION>.d")
+    else ()
+      set(_vtk_hierarchy_depfile "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_filename}.d")
+    endif ()
+  endif ()
+  set(_vtk_hierarchy_depfile_flags)
+  set(_vtk_hierarchy_depfile_args)
+  if (_vtk_hierarchy_depfile)
+    list(APPEND _vtk_hierarchy_depfile_flags
+      -MF "${_vtk_hierarchy_depfile}")
+    list(APPEND _vtk_hierarchy_depfile_args
+      DEPFILE "${_vtk_hierarchy_depfile}")
+  endif ()
 
   set_property(TARGET "${_vtk_add_module_real_target}"
     PROPERTY
@@ -3526,11 +3546,13 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
     OUTPUT  "${_vtk_hierarchy_file}"
     COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
             "$<TARGET_FILE:${_vtk_hierarchy_tool_target}>"
+            ${_vtk_hierarchy_depfile_flags}
             "@${_vtk_hierarchy_args_file}"
             -o "${_vtk_hierarchy_file}"
             "${_vtk_hierarchy_data_file}"
             "@${_vtk_hierarchy_depends_args_file}"
             ${_vtk_hierarchy_macros_args}
+    ${_vtk_hierarchy_depfile_args}
     COMMENT "Generating the wrap hierarchy for ${_vtk_build_module}"
     DEPENDS
       ${_vtk_hierarchy_headers}
