@@ -816,7 +816,7 @@ MergeInfo* vtkParseMerge_MergeSuperClasses(
 {
   HierarchyInfo* hinfo = NULL;
   MergeInfo* info = NULL;
-  OptionInfo* oinfo = vtkParse_GetCommandLineOptions();
+  const OptionInfo* oinfo = vtkParse_GetCommandLineOptions();
   int i, n;
 
   if (oinfo->HierarchyFileNames)

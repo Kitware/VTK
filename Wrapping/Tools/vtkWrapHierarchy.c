@@ -878,7 +878,7 @@ static int string_compare(const void* vp1, const void* vp2)
 
 int VTK_PARSE_MAIN(int argc, char* argv[])
 {
-  OptionInfo* options;
+  const OptionInfo* options;
   int i;
   int retValue = 0;
   size_t j, n;

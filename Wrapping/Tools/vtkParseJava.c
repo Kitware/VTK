@@ -951,7 +951,7 @@ static void WriteDummyClass(FILE* fp, const ClassInfo* data, const char* filenam
 /* print the parsed structures */
 int VTK_PARSE_MAIN(int argc, char* argv[])
 {
-  OptionInfo* options;
+  const OptionInfo* options;
   FileInfo* file_info;
   ClassInfo* data;
   FILE* fp;

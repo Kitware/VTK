@@ -246,7 +246,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   unsigned char* wrapAsVTKObject;
   ClassInfo* data = NULL;
   NamespaceInfo* contents;
-  OptionInfo* options;
+  const OptionInfo* options;
   HierarchyInfo* hinfo = NULL;
   FileInfo* file_info;
   FILE* fp;
