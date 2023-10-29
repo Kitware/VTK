@@ -2,4 +2,6 @@ NAME
   VTK::sqlite
 LIBRARY_NAME
   vtksqlite
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY
