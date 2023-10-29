@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkParseSystem.h"
-#include "vtkParseDependencyTracking.h"
+#include "vtkParseDepends.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -507,7 +507,7 @@ FILE* vtkParse_FileOpen(const char* fname, const char* mode)
   // Only add dependencies if reading the file.
   if (mode && *mode == 'r')
   {
-    vtkParse_AddFileDependency(fname);
+    vtkParse_AddDependency(fname);
   }
 
   return vtkParse_FileOpenNoDependency(fname, mode);

@@ -60,7 +60,7 @@ typedef struct OptionInfo_
   int NumberOfHierarchyFileNames; /* the total number of types argument */
   char** HierarchyFileNames;      /* the file preceded by "--types" */
   int DumpMacros;                 /* dump macros to output */
-  char* DepFileName;              /* dependency tracking output file */
+  char* DependencyFileName;       /* dependency tracking output file */
 
   Warnings WarningFlags; /* warning flags */
 } OptionInfo;

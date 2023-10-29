@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkParseDependencyTracking.h"
+#include "vtkParseDepends.h"
 #include "vtkParseData.h"
 #include "vtkParseString.h"
 #include "vtkParseSystem.h"
@@ -11,16 +11,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct DependencyTracking_
+typedef struct ParseDepends_
 {
   StringCache Strings;
   const char* Target;
   const char** Dependencies;
   int NumberOfDependencies;
-} DependencyTracking;
+} ParseDepends;
 
 // dependency tracking is done globally
-DependencyTracking DepTracker;
+ParseDepends DepTracker;
 
 void vtkParse_InitDependencyTracking(const char* target)
 {
@@ -35,7 +35,7 @@ void vtkParse_InitDependencyTracking(const char* target)
   DepTracker.NumberOfDependencies = 0;
 }
 
-void vtkParse_AddFileDependency(const char* dep)
+void vtkParse_AddDependency(const char* dep)
 {
   if (!DepTracker.Target)
   {
@@ -83,7 +83,7 @@ static int string_compare(const void* a, const void* b)
   return strcmp(*((const char**)a), *((const char**)b));
 }
 
-int vtkParse_DependencyTrackingWrite(const char* fname)
+int vtkParse_WriteDependencyFile(const char* fname)
 {
   FILE* fout = NULL;
   const char* prev_dep = NULL;

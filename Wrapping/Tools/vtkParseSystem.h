@@ -8,7 +8,7 @@
 #ifndef vtkParseSystem_h
 #define vtkParseSystem_h
 
-#include "vtkParseDependencyTracking.h"
+#include "vtkParseDepends.h"
 #include "vtkParseString.h"
 #include "vtkWrappingToolsModule.h"
 
