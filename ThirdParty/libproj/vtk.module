@@ -10,4 +10,6 @@ DEPENDS
   VTK::nlohmannjson
 PRIVATE_DEPENDS
   VTK::sqlite
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY
