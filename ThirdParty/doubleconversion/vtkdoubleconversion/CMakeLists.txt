@@ -23,7 +23,7 @@ set(sources
 vtk_module_add_module(VTK::doubleconversion
   SOURCES ${sources}
   HEADERS ${headers}
-  HEADERS_SUBDIR "vtkdoubleconversion")
+  HEADERS_SUBDIR "vtkdoubleconversion/double-conversion")
 
 include(GenerateExportHeader)
 generate_export_header(doubleconversion
