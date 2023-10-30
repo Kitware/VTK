@@ -76,6 +76,9 @@ public:
    */
   vtkHyperTreeGridEntry() { this->Index = 0; }
 
+  vtkHyperTreeGridEntry(vtkHyperTreeGridEntry const&) = default;
+  vtkHyperTreeGridEntry& operator=(vtkHyperTreeGridEntry const&) = default;
+
   /**
    * Constructor
    */

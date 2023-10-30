@@ -959,6 +959,10 @@ PyMethodDef* vtkPythonOverload::FindConversionMethod(PyMethodDef* methods, PyObj
 
   // if matchCount > 1, there was ambiguity, but we silently use
   // the first match that was found instead of raising an error
+  if (matchCount > 1)
+  {
+    // TODO: possible warning?
+  }
 
   return method;
 }

@@ -34,7 +34,7 @@ extern "C"
    * Finalize the dependency tracking structure.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  void vtkParse_FinalizeDependencyTracking();
+  void vtkParse_FinalizeDependencyTracking(void);
 
 #ifdef __cplusplus
 } /* extern "C" */

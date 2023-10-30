@@ -52,7 +52,7 @@ extern "C"
   };
 
   //----------------------------------------------------------------------------
-  vtkXMLWriterC* vtkXMLWriterC_New()
+  vtkXMLWriterC* vtkXMLWriterC_New(void)
   {
     if (vtkXMLWriterC* self = new vtkXMLWriterC)
     {

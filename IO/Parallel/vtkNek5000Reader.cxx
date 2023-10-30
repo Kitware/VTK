@@ -1691,7 +1691,9 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
         for (int b_index = 0; b_index < this->myNumBlocks; ++b_index)
         {
           // for every point in this element/block
-          // cerr<<"rank= "<<my_rank<<" : b_index= "<< b_index<<endl;
+#ifndef NDEBUG
+          cerr << "rank= " << my_rank << " : b_index= " << b_index << endl;
+#endif
           int mag_block_offset = b_index * this->totalBlockSize;
           int comp_block_offset = mag_block_offset * 3;
 

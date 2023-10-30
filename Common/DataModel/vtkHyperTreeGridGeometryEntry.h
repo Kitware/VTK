@@ -45,6 +45,9 @@ public:
    */
   vtkHyperTreeGridGeometryEntry();
 
+  vtkHyperTreeGridGeometryEntry(vtkHyperTreeGridGeometryEntry const&) = default;
+  vtkHyperTreeGridGeometryEntry& operator=(vtkHyperTreeGridGeometryEntry const&) = default;
+
   /**
    * Constructor
    */

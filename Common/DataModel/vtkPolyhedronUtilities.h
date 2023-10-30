@@ -30,6 +30,9 @@ class vtkUnstructuredGrid;
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyhedronUtilities
 {
 public:
+  vtkPolyhedronUtilities(vtkPolyhedronUtilities const&) = default;
+  vtkPolyhedronUtilities& operator=(vtkPolyhedronUtilities const&) = default;
+
   /**
    * Decompose the input polyhedron into tetrahedrons.
    * This method will generate new points on each faces (faces barycenters) and another that is the

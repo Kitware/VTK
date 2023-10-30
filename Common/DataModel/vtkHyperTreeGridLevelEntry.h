@@ -55,6 +55,9 @@ public:
   {
   }
 
+  vtkHyperTreeGridLevelEntry(vtkHyperTreeGridLevelEntry const&) = default;
+  vtkHyperTreeGridLevelEntry& operator=(vtkHyperTreeGridLevelEntry const&) = default;
+
   /**
    * Constructor
    */
