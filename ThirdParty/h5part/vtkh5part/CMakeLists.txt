@@ -16,6 +16,7 @@ set(headers
   src/H5PartPrivate.h
   src/H5PartTypes.h
   src/Underscore.h
+  src/vtk_h5part_mangle.h
   "${CMAKE_CURRENT_BINARY_DIR}/vtkh5part_export.h")
 
 set(sources
@@ -34,7 +35,7 @@ set(sources
 vtk_module_add_module(VTK::h5part
   SOURCES ${sources}
   HEADERS ${headers}
-  HEADERS_SUBDIR "vtkh5part")
+  HEADERS_SUBDIR "vtkh5part/src")
 
 include(GenerateExportHeader)
 generate_export_header(h5part
