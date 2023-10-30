@@ -1036,27 +1036,25 @@ function (vtk_module_scan)
       # Grab any test dependencies that are required.
       set(_vtk_scan_test_depends)
       set(_vtk_scan_test_wants)
-      if (NOT ${_vtk_scan_module}_THIRD_PARTY)
-        if (_vtk_scan_ENABLE_TESTS STREQUAL "ON")
-          set_property(GLOBAL APPEND
-            PROPERTY
-              "_vtk_module_test_modules" "${_vtk_scan_module}")
-          set(_vtk_scan_test_depends "${${_vtk_scan_module}_TEST_DEPENDS}")
-        elseif (_vtk_scan_ENABLE_TESTS STREQUAL "WANT")
-          set_property(GLOBAL APPEND
-            PROPERTY
-              "_vtk_module_test_modules" "${_vtk_scan_module}")
-          set(_vtk_scan_test_wants _vtk_scan_wants_marker ${${_vtk_scan_module}_TEST_DEPENDS})
-        elseif (_vtk_scan_ENABLE_TESTS STREQUAL "DEFAULT")
-          set_property(GLOBAL APPEND
-            PROPERTY
-              "_vtk_module_test_modules" "${_vtk_scan_module}")
-        elseif (_vtk_scan_ENABLE_TESTS STREQUAL "OFF")
-          # Nothing to do.
-        else ()
-          message(FATAL_ERROR
-            "Unrecognized option for ENABLE_TESTS: ${_vtk_module_ENABLE_TESTS}.")
-        endif ()
+      if (_vtk_scan_ENABLE_TESTS STREQUAL "ON")
+        set_property(GLOBAL APPEND
+          PROPERTY
+            "_vtk_module_test_modules" "${_vtk_scan_module}")
+        set(_vtk_scan_test_depends "${${_vtk_scan_module}_TEST_DEPENDS}")
+      elseif (_vtk_scan_ENABLE_TESTS STREQUAL "WANT")
+        set_property(GLOBAL APPEND
+          PROPERTY
+            "_vtk_module_test_modules" "${_vtk_scan_module}")
+        set(_vtk_scan_test_wants _vtk_scan_wants_marker ${${_vtk_scan_module}_TEST_DEPENDS})
+      elseif (_vtk_scan_ENABLE_TESTS STREQUAL "DEFAULT")
+        set_property(GLOBAL APPEND
+          PROPERTY
+            "_vtk_module_test_modules" "${_vtk_scan_module}")
+      elseif (_vtk_scan_ENABLE_TESTS STREQUAL "OFF")
+        # Nothing to do.
+      else ()
+        message(FATAL_ERROR
+          "Unrecognized option for ENABLE_TESTS: ${_vtk_module_ENABLE_TESTS}.")
       endif ()
 
       # Add all dependent modules to the list of required or provided modules.
