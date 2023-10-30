@@ -25,6 +25,13 @@ if (VTK_MODULE_USE_EXTERNAL_vtkioss)
       "${SEACASIoss_INCLUDE_DIRS}")
 endif ()
 
+if (TARGET VTK::mpi)
+  # The MPI optional dependency is not well-guarded in IOSS headers.
+  vtk_module_link(VTK::ioss
+    INTERFACE
+      VTK::mpi)
+endif ()
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_ioss.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_ioss.h")
