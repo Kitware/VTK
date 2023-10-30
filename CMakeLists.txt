@@ -1,7 +1,8 @@
 set(headers
   verdict.h
   VerdictVector.hpp
-  verdict_defines.hpp)
+  verdict_defines.hpp
+  "${CMAKE_CURRENT_BINARY_DIR}/verdict_config.h")
 
 set(sources
   V_EdgeMetric.cpp
@@ -23,4 +24,5 @@ configure_file(
 
 vtk_module_add_module(VTK::verdict
   HEADERS ${headers}
-  SOURCES ${sources})
+  SOURCES ${sources}
+  HEADERS_SUBDIR "vtkverdict")
