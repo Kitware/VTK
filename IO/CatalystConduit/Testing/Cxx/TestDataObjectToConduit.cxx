@@ -921,6 +921,53 @@ bool TestUnstructuredGrid()
   return is_success;
 }
 
+bool TestPointSet()
+{
+  vtkNew<vtkPointSet> point_set;
+  vtkNew<vtkPoints> points;
+  for (int i = 0; i < 27; i++)
+  {
+    points->InsertPoint(i, unstructured_grid_points_coordinates[i]);
+  }
+  point_set->SetPoints(points);
+
+  conduit_cpp::Node node;
+  bool is_success =
+    vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(point_set), node);
+
+  if (!is_success)
+  {
+    std::cerr << "FillConduitNode failed for TestPointSet" << std::endl;
+    return is_success;
+  }
+
+  conduit_cpp::Node expected_node;
+  auto coords_node = expected_node["coordsets/coords"];
+  coords_node["type"] = "explicit";
+  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
+    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
+    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+
+  auto topologies_node = expected_node["topologies/mesh"];
+  topologies_node["type"] = "points";
+  topologies_node["coordset"] = "coords";
+  topologies_node["elements/shape"] = "point";
+
+  conduit_cpp::Node diff_info;
+  bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
+  if (are_nodes_different)
+  {
+    diff_info.print();
+  }
+
+  is_success = !are_nodes_different;
+
+  return is_success;
+}
+
 int TestDataObjectToConduit(int, char*[])
 {
   bool is_success = true;
@@ -931,6 +978,7 @@ int TestDataObjectToConduit(int, char*[])
   is_success &= TestStructuredGrid();
   is_success &= TestUnstructuredGrid();
   is_success &= TestMixedShapePolyData();
+  is_success &= TestPointSet();
 
   return is_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

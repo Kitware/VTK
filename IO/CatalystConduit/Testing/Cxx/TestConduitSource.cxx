@@ -322,6 +322,33 @@ bool ValidateMeshTypeStructured()
   return true;
 }
 
+void CreatePointsMesh(
+  unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ, conduit_cpp::Node& res)
+{
+  CreateCoords(nptsX, nptsY, nptsZ, res);
+
+  res["topologies/mesh/type"] = "points";
+  res["topologies/mesh/coordset"] = "coords";
+}
+
+bool ValidateMeshTypePoints()
+{
+  conduit_cpp::Node mesh;
+  CreatePointsMesh(3, 3, 3, mesh);
+  auto data = Convert(mesh);
+  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
+    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto ps = vtkPointSet::SafeDownCast(pds->GetPartition(0));
+  VERIFY(ps != nullptr, "missing partition 0");
+
+  VERIFY(ps->GetNumberOfPoints() == 27, "incorrect number of points, expected 27, got %lld",
+    ps->GetNumberOfPoints());
+  return true;
+}
+
 void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& res)
 {
   CreateStructuredMesh(nptsX, nptsY, 1, res);
@@ -1103,7 +1130,7 @@ int TestConduitSource(int argc, char** argv)
       ValidateMeshTypeStructured() && ValidateMeshTypeUnstructured() && ValidateFieldData() &&
       ValidateRectilinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
-      ValidateAscentGhostCellData() && ValidateAscentGhostPointData()
+      ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints()
 
     ? EXIT_SUCCESS
     : EXIT_FAILURE;

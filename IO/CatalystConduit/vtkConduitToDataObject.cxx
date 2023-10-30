@@ -418,6 +418,13 @@ vtkSmartPointer<vtkDataSet> CreateMesh(
     return vtkSmartPointer<vtkUnstructuredGrid>::New();
   }
 
+  if (coords["type"].as_string() == "explicit" && topology["type"].as_string() == "points")
+  {
+    auto pointset = vtkSmartPointer<vtkPointSet>::New();
+    pointset->SetPoints(CreatePoints(coords));
+    return pointset;
+  }
+
   throw std::runtime_error("unsupported topology or coordset");
 }
 
