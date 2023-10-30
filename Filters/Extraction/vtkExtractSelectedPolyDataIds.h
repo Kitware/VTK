@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkExtractSelectedPolyDataIds
- * @brief   extract a list of cells from a polydata
+ * @brief   Extract a list of cells from a polydata.
  *
  * vtkExtractSelectedPolyDataIds extracts all cells in vtkSelection from a
  * vtkPolyData.
@@ -11,21 +11,25 @@
  * vtkSelection
  *
  * @deprecated vtkExtractSelectedPolyDataIds is deprecated in VTK 9.2 and will be removed.
- * Use `vtkExtractSelection` instead of `vtkExtractSelectedPolyDataIds`.
+ * Use vtkExtractSelection instead of vtkExtractSelectedPolyDataIds.
  *
  * Example using vtkExtractSelectedPolyDataIds:
  *
+ * \code{.cpp}
  * vtkNew<vtkExtractSelectedPolyDataIds> selFilter;
  * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
  * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
+ * \endcode
  *
  * Example using vtkExtractSelection:
- *
+ * \code{.cpp}
  * vtkNew<vtkExtractSelection> selFilter;
  * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
  * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
+ * \endcode
  *
- * convert selFilter's output from vtkUnstructuredGrid to vtkPolydata
+ * The above codes convert \verbatim selFilter \endverbatim 's output from vtkUnstructuredGrid
+ * to vtkPolyData.
  */
 
 #ifndef vtkExtractSelectedPolyDataIds_h
