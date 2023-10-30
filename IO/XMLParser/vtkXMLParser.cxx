@@ -399,6 +399,22 @@ int vtkXMLParser::IsSpace(char c)
 }
 
 //------------------------------------------------------------------------------
+bool vtkXMLParser::hasLargeOffsets()
+{
+  // see if expat is configured correctly to use `long long` for file offsets
+  // on Windows, this is necessary for binary xml files > 2Gb.
+  const XML_Feature* xmlFeature = XML_GetFeatureList();
+  for (; xmlFeature && xmlFeature->feature != XML_FEATURE_END; xmlFeature++)
+  {
+    if (xmlFeature->feature == XML_FEATURE_LARGE_SIZE)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkXMLParserStartElement(void* parser, const char* name, const char** atts)
 {
   // Begin element handler that is registered with the XML_Parser.
