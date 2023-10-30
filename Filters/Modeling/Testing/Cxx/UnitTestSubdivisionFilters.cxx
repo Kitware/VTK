@@ -76,8 +76,7 @@ int TestSubdivision()
   subdivision0->SetNumberOfSubdivisions(4);
   subdivision0->Update();
 
-  int status2 = errorObserver->CheckErrorMessage("No data to subdivide");
-  if (status2 == 0)
+  if (subdivision0->GetOutput()->GetNumberOfPoints() == 0)
   {
     std::cout << "PASSED" << std::endl;
   }
