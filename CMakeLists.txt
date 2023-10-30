@@ -337,6 +337,7 @@ set(
 	include/libxml/xpath.h
 	include/libxml/xpathInternals.h
 	include/libxml/xpointer.h
+	"${CMAKE_CURRENT_BINARY_DIR}/include/libxml/xmlversion.h"
 )
 
 set(
