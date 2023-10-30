@@ -42,20 +42,22 @@ stages:
 # skipped due to certain rules
 
 dummy:build:
-   stage: build
-   image: alpine:latest
-   tags:
+    stage: build
+    image: alpine:latest
+    tags:
         - build
         - docker
         - linux-x86_64
-   rules:
+    rules:
         - if: '$CI_MERGE_REQUEST_ID'
           when: on_success
         - if: '$CI_PROJECT_PATH == "vtk/vtk"'
           when: on_success
         - when: never
-   script:
+    script:
         - echo "dummy"
+    variables:
+        GIT_STRATEGY: none
 
 ## Basic builds
 
