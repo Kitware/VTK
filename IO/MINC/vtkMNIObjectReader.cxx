@@ -296,8 +296,8 @@ int vtkMNIObjectReader::ParseIdValue(vtkIdType* value)
 
   char* cp = this->CharPointer;
 
-  long lval = strtol(cp, &cp, 10);
-  if (lval > static_cast<long>(VTK_INT_MAX) || lval < static_cast<long>(VTK_INT_MIN))
+  long long lval = strtoll(cp, &cp, 10);
+  if (lval > static_cast<long long>(VTK_INT_MAX) || lval < static_cast<long long>(VTK_INT_MIN))
   {
     vtkErrorMacro(
       "Value " << lval << " is too large for int " << this->FileName << ":" << this->LineNumber);
