@@ -72,6 +72,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestPBRTextureInterpolateScalars.cxx
   TestPointFillPass.cxx
   TestPointGaussianMapper.cxx
+  TestPointGaussianMapperAnisotropic.cxx
   TestPointGaussianMapperOpacity.cxx
   TestPointGaussianSelection.cxx,NO_DATA
   TestProgramPointSize.cxx
