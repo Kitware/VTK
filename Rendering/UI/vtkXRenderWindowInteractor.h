@@ -78,6 +78,12 @@ public:
    */
   void GetMousePosition(int* x, int* y) override;
 
+  /**
+   * A X11 specific method to recover mouse position and modifier keys
+   * keys is a Xorg specified mask of modifier states
+   */
+  void GetMousePositionAndModifierKeysState(int* x, int* y, unsigned int* keys);
+
   void DispatchEvent(XEvent*);
 
 protected:

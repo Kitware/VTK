@@ -586,14 +586,15 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         // just getting the last configure event
         event = &result;
       }
-      int width = (reinterpret_cast<XConfigureEvent*>(event))->width;
-      int height = (reinterpret_cast<XConfigureEvent*>(event))->height;
+      XConfigureEvent* configureEvent = reinterpret_cast<XConfigureEvent*>(event);
+      int width = configureEvent->width;
+      int height = configureEvent->height;
       if (width != this->Size[0] || height != this->Size[1])
       {
         bool resizeSmaller = width <= this->Size[0] && height <= this->Size[1];
         this->UpdateSizeNoXResize(width, height);
-        xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-        yp = (reinterpret_cast<XButtonEvent*>(event))->y;
+        xp = configureEvent->x;
+        yp = configureEvent->y;
         this->SetEventPosition(xp, this->Size[1] - yp - 1);
         // only render if we are currently accepting events
         if (this->Enabled)
@@ -623,17 +624,18 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       {
         return;
       }
-      int ctrl = ((reinterpret_cast<XButtonEvent*>(event))->state & ControlMask) ? 1 : 0;
-      int shift = ((reinterpret_cast<XButtonEvent*>(event))->state & ShiftMask) ? 1 : 0;
-      int alt = ((reinterpret_cast<XButtonEvent*>(event))->state & Mod1Mask) ? 1 : 0;
-      xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-      yp = (reinterpret_cast<XButtonEvent*>(event))->y;
+      XButtonEvent* buttonEvent = reinterpret_cast<XButtonEvent*>(event);
+      int ctrl = (buttonEvent->state & ControlMask) ? 1 : 0;
+      int shift = (buttonEvent->state & ShiftMask) ? 1 : 0;
+      int alt = (buttonEvent->state & Mod1Mask) ? 1 : 0;
+      xp = buttonEvent->x;
+      yp = buttonEvent->y;
 
       // check for double click
       static int MousePressTime = 0;
       int repeat = 0;
       // 400 ms threshold by default is probably good to start
-      int eventTime = static_cast<int>(reinterpret_cast<XButtonEvent*>(event)->time);
+      int eventTime = static_cast<int>(buttonEvent->time);
       if ((eventTime - MousePressTime) < 400)
       {
         MousePressTime -= 2000; // no double click next time
@@ -646,7 +648,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
 
       this->SetEventInformationFlipY(xp, yp, ctrl, shift, 0, repeat);
       this->SetAltKey(alt);
-      switch ((reinterpret_cast<XButtonEvent*>(event))->button)
+      switch (buttonEvent->button)
       {
         case Button1:
           this->InvokeEvent(vtkCommand::LeftButtonPressEvent, nullptr);
@@ -673,14 +675,15 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       {
         return;
       }
-      int ctrl = ((reinterpret_cast<XButtonEvent*>(event))->state & ControlMask) ? 1 : 0;
-      int shift = ((reinterpret_cast<XButtonEvent*>(event))->state & ShiftMask) ? 1 : 0;
-      int alt = ((reinterpret_cast<XButtonEvent*>(event))->state & Mod1Mask) ? 1 : 0;
-      xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-      yp = (reinterpret_cast<XButtonEvent*>(event))->y;
+      XButtonEvent* buttonEvent = reinterpret_cast<XButtonEvent*>(event);
+      int ctrl = (buttonEvent->state & ControlMask) ? 1 : 0;
+      int shift = (buttonEvent->state & ShiftMask) ? 1 : 0;
+      int alt = (buttonEvent->state & Mod1Mask) ? 1 : 0;
+      xp = buttonEvent->x;
+      yp = buttonEvent->y;
       this->SetEventInformationFlipY(xp, yp, ctrl, shift);
       this->SetAltKey(alt);
-      switch ((reinterpret_cast<XButtonEvent*>(event))->button)
+      switch (buttonEvent->button)
       {
         case Button1:
           this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, nullptr);
@@ -704,7 +707,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         XEnterWindowEvent* e = reinterpret_cast<XEnterWindowEvent*>(event);
         this->SetEventInformationFlipY(
           e->x, e->y, (e->state & ControlMask) != 0, (e->state & ShiftMask) != 0);
-        this->SetAltKey(((reinterpret_cast<XButtonEvent*>(event))->state & Mod1Mask) ? 1 : 0);
+        this->SetAltKey((e->state & Mod1Mask) ? 1 : 0);
         this->InvokeEvent(vtkCommand::EnterEvent, nullptr);
       }
     }
@@ -717,7 +720,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         XLeaveWindowEvent* e = reinterpret_cast<XLeaveWindowEvent*>(event);
         this->SetEventInformationFlipY(
           e->x, e->y, (e->state & ControlMask) != 0, (e->state & ShiftMask) != 0);
-        this->SetAltKey(((reinterpret_cast<XButtonEvent*>(event))->state & Mod1Mask) ? 1 : 0);
+        this->SetAltKey((e->state & Mod1Mask) ? 1 : 0);
         this->InvokeEvent(vtkCommand::LeaveEvent, nullptr);
       }
     }
@@ -729,13 +732,14 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       {
         return;
       }
-      int ctrl = ((reinterpret_cast<XButtonEvent*>(event))->state & ControlMask) ? 1 : 0;
-      int shift = ((reinterpret_cast<XButtonEvent*>(event))->state & ShiftMask) ? 1 : 0;
-      int alt = ((reinterpret_cast<XButtonEvent*>(event))->state & Mod1Mask) ? 1 : 0;
-      vtkKeySym keySym = XLookupKeysym(reinterpret_cast<XKeyEvent*>(event), 0);
+      XKeyEvent* keyEvent = reinterpret_cast<XKeyEvent*>(event);
+      int ctrl = (keyEvent->state & ControlMask) ? 1 : 0;
+      int shift = (keyEvent->state & ShiftMask) ? 1 : 0;
+      int alt = (keyEvent->state & Mod1Mask) ? 1 : 0;
+      vtkKeySym keySym = XLookupKeysym(keyEvent, 0);
       char keyCode = keySym < 128 ? static_cast<char>(keySym) : 0;
-      xp = (reinterpret_cast<XKeyEvent*>(event))->x;
-      yp = (reinterpret_cast<XKeyEvent*>(event))->y;
+      xp = keyEvent->x;
+      yp = keyEvent->y;
       this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, XKeysymToString(keySym));
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
@@ -749,13 +753,14 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       {
         return;
       }
-      int ctrl = ((reinterpret_cast<XButtonEvent*>(event))->state & ControlMask) ? 1 : 0;
-      int shift = ((reinterpret_cast<XButtonEvent*>(event))->state & ShiftMask) ? 1 : 0;
-      int alt = ((reinterpret_cast<XButtonEvent*>(event))->state & Mod1Mask) ? 1 : 0;
-      vtkKeySym keySym = XLookupKeysym(reinterpret_cast<XKeyEvent*>(event), 0);
+      XKeyEvent* keyEvent = reinterpret_cast<XKeyEvent*>(event);
+      int ctrl = (keyEvent->state & ControlMask) ? 1 : 0;
+      int shift = (keyEvent->state & ShiftMask) ? 1 : 0;
+      int alt = (keyEvent->state & Mod1Mask) ? 1 : 0;
+      vtkKeySym keySym = XLookupKeysym(keyEvent, 0);
       char keyCode = keySym < 128 ? static_cast<char>(keySym) : 0;
-      xp = (reinterpret_cast<XKeyEvent*>(event))->x;
-      yp = (reinterpret_cast<XKeyEvent*>(event))->y;
+      xp = keyEvent->x;
+      yp = keyEvent->y;
       this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, XKeysymToString(keySym));
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
@@ -768,9 +773,10 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       {
         return;
       }
-      int ctrl = ((reinterpret_cast<XButtonEvent*>(event))->state & ControlMask) ? 1 : 0;
-      int shift = ((reinterpret_cast<XButtonEvent*>(event))->state & ShiftMask) ? 1 : 0;
-      int alt = ((reinterpret_cast<XButtonEvent*>(event))->state & Mod1Mask) ? 1 : 0;
+      XMotionEvent* motionEvent = reinterpret_cast<XMotionEvent*>(event);
+      int ctrl = (motionEvent->state & ControlMask) ? 1 : 0;
+      int shift = (motionEvent->state & ShiftMask) ? 1 : 0;
+      int alt = (motionEvent->state & Mod1Mask) ? 1 : 0;
 
       // Note that even though the (x,y) location of the pointer is event structure,
       // we must call XQueryPointer for the hints (motion event compression) to
@@ -917,18 +923,14 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         }
 
         // Recover the position
-        int xWindow, yWindow;
-        int xRoot = event->xclient.data.l[2] >> 16;
-        int yRoot = event->xclient.data.l[2] & 0xffff;
-        Window root = DefaultRootWindow(this->DisplayId);
-        Window child;
-        XTranslateCoordinates(
-          this->DisplayId, root, this->WindowId, xRoot, yRoot, &xWindow, &yWindow, &child);
-
-        // Convert it to VTK compatible location
-        double location[2];
-        location[0] = static_cast<double>(xWindow);
-        location[1] = static_cast<double>(this->Size[1] - yWindow - 1);
+        int location[2];
+        unsigned int keys;
+        this->GetMousePositionAndModifierKeysState(&location[0], &location[1], &keys);
+        int ctrl = keys & ControlMask ? 1 : 0;
+        int shift = keys & ShiftMask ? 1 : 0;
+        int alt = keys & Mod1Mask ? 1 : 0;
+        this->SetEventInformationFlipY(location[0], location[1], ctrl, shift);
+        this->SetAltKey(alt);
         this->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
 
         // Reply that we are ready to copy the dragged data
@@ -993,12 +995,17 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
 //------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::GetMousePosition(int* x, int* y)
 {
+  unsigned int keys;
+  this->GetMousePositionAndModifierKeysState(x, y, &keys);
+}
+
+//------------------------------------------------------------------------------
+void vtkXRenderWindowInteractor::GetMousePositionAndModifierKeysState(
+  int* x, int* y, unsigned int* keys)
+{
   Window root, child;
   int root_x, root_y;
-  unsigned int keys;
-
-  XQueryPointer(this->DisplayId, this->WindowId, &root, &child, &root_x, &root_y, x, y, &keys);
-
+  XQueryPointer(this->DisplayId, this->WindowId, &root, &child, &root_x, &root_y, x, y, keys);
   *y = this->Size[1] - *y - 1;
 }
 
