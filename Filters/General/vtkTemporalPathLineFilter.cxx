@@ -5,7 +5,9 @@
 #define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkTemporalPathLineFilter.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -31,6 +33,7 @@
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
+
 //------------------------------------------------------------------------------
 //
 struct Position_t
@@ -98,6 +101,68 @@ public:
 
   std::vector<double> TimeSteps;
 };
+
+namespace
+{
+//==============================================================================
+struct SelectionIdsWorker
+{
+  template <class T>
+  struct GetIntegralValueType
+  {
+    // We can have T as double when SelectionIdsWorker is called with vtkDataArray* inputs.
+    // In such instance, we cast to vtkIdType because of the modulo operation in operator()
+    using Type = typename std::conditional<std::is_integral<T>::value, T, vtkIdType>::type;
+  };
+
+  template <class Array1T, class Array2T, class ProcessTrailT>
+  void operator()(Array1T* selectionIdsArray, Array2T* idsArray, vtkDataSet* input, int maskPoints,
+    ProcessTrailT&& processTrail)
+  {
+    auto selectionIds = vtk::DataArrayValueRange<1>(selectionIdsArray);
+    auto ids = vtk::DataArrayValueRange<1>(idsArray);
+
+    using ValueType =
+      typename GetIntegralValueType<typename decltype(selectionIds)::ValueType>::Type;
+
+    std::unordered_set<ValueType> selectionIdsSet;
+
+    for (vtkIdType i = 0; i < selectionIds.size(); ++i)
+    {
+      selectionIdsSet.emplace(selectionIds[i]);
+    }
+
+    for (vtkIdType pointId = 0; pointId < input->GetNumberOfPoints(); pointId++)
+    {
+      vtkIdType pointGlobalId = ids[pointId];
+      if (pointGlobalId % maskPoints == 0)
+      {
+        if (selectionIdsSet.count(pointGlobalId))
+        {
+          processTrail(input, pointId, pointGlobalId);
+        }
+      }
+    }
+  }
+
+  template <class ArrayT, class ProcessTrailT>
+  void operator()(ArrayT* idsArray, vtkDataSet* input, int maskPoints, ProcessTrailT&& processTrail)
+  {
+    auto ids = vtk::DataArrayValueRange<1>(idsArray);
+    using ValueType = typename GetIntegralValueType<typename decltype(ids)::ValueType>::Type;
+
+    for (vtkIdType pointId = 0; pointId < ids.size(); ++pointId)
+    {
+      ValueType pointGlobalId = ids[pointId];
+      if (pointGlobalId % maskPoints == 0)
+      {
+        processTrail(input, pointId, pointGlobalId);
+      }
+    }
+  }
+};
+} // anonymous namespace
+
 vtkStandardNewMacro(vtkTemporalPathLineFilterInternals);
 
 typedef std::map<int, double>::iterator TimeStepIterator;
@@ -373,27 +438,25 @@ void vtkTemporalPathLineFilter::InitializeExecute(vtkDataSet* input, vtkPolyData
 void vtkTemporalPathLineFilter::AccumulateTrails(vtkDataSet* input, vtkDataSet* selection)
 {
   vtkPointData* inputPD = input->GetPointData();
-  vtkIdTypeArray* ids = vtkArrayDownCast<vtkIdTypeArray>(inputPD->GetArray(this->IdChannelArray));
-  vtkIdTypeArray* selectionIds = vtkArrayDownCast<vtkIdTypeArray>([&selection, &ids, this] {
+
+  // ids is IdChannelArray in the input, or the global ids, or nullptr
+  vtkDataArray* ids = this->IdChannelArray ? inputPD->GetArray(this->IdChannelArray) : nullptr;
+  ids = ids ? ids : inputPD->GetGlobalIds();
+
+  // selectionIds is:
+  // * ids if there is no selection dataset
+  // * IdChannelArray in the selection, or the global ids, or nullptr if there is a selection
+  // dataset
+  vtkDataArray* selectionIds = [&selection, this] {
     if (!selection)
     {
       return (vtkDataArray*)(nullptr);
     }
     vtkPointData* selectionPD = selection->GetPointData();
-    return ids ? selectionPD->GetArray(this->IdChannelArray) : selectionPD->GetGlobalIds();
-  }());
-  ids = ids ? ids : vtkArrayDownCast<vtkIdTypeArray>(inputPD->GetGlobalIds());
-  selectionIds = ids ? selectionIds : nullptr;
-
-  std::unordered_set<vtkIdType> selectionIdsSet;
-
-  if (selectionIds)
-  {
-    for (vtkIdType i = 0; i < selectionIds->GetNumberOfTuples(); ++i)
-    {
-      selectionIdsSet.emplace(selectionIds->GetValue(i));
-    }
-  }
+    vtkDataArray* result =
+      this->IdChannelArray ? selectionPD->GetArray(this->IdChannelArray) : nullptr;
+    return result ? result : selectionPD->GetGlobalIds();
+  }();
 
   for (std::size_t i = 0; i < this->Internals->InputFieldArrays.size(); ++i)
   {
@@ -413,20 +476,29 @@ void vtkTemporalPathLineFilter::AccumulateTrails(vtkDataSet* input, vtkDataSet* 
     t->second->updated = false;
   }
 
-  //
-  // If the user provided a valid selection, we will use the IDs from it
-  // to choose particles for building trails
-  //
-  if (selectionIds)
+  ::SelectionIdsWorker worker;
+
+  // This is a way to give limited friendness privileges to the worker without making them friends.
+  // The worker is able to call processTrail without issues if you pass it as a parameter.
+  auto processTrail = [this](vtkDataSet* ds, vtkIdType pointId, vtkIdType gid) {
+    return this->IncrementTrail(this->GetTrail(gid), ds, pointId);
+  };
+
+  if (selectionIds && ids)
   {
-    for (vtkIdType pointId = 0; pointId < input->GetNumberOfPoints(); pointId++)
+    using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Integrals,
+      vtkArrayDispatch::Integrals>;
+    if (Dispatcher::Execute(selectionIds, ids, worker, input, this->MaskPoints, processTrail))
     {
-      vtkIdType pointGlobalId = ids->GetValue(pointId);
-      if (selectionIdsSet.count(ids->GetValue(pointGlobalId)))
-      {
-        TrailPointer trail = this->GetTrail(pointGlobalId);
-        IncrementTrail(trail, input, pointId);
-      }
+      worker(selectionIds, ids, input, this->MaskPoints, processTrail);
+    }
+  }
+  else if (ids)
+  {
+    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>;
+    if (Dispatcher::Execute(ids, worker, input, this->MaskPoints, processTrail))
+    {
+      worker(ids, input, this->MaskPoints, processTrail);
     }
   }
   else
