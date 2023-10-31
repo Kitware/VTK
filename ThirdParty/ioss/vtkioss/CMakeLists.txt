@@ -359,6 +359,7 @@ configure_file(
   COPYONLY)
 
 vtk_module_add_module(VTK::ioss
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkioss")
