@@ -18211,6 +18211,15 @@ typedef void (GLAPIENTRY * PFNGLRESUMETRANSFORMFEEDBACKNVPROC) (void);
 
 #endif /* GL_NV_transform_feedback2 */
 
+/* ------------------- GL_NV_uniform_buffer_std430_layout ------------------ */
+
+#ifndef GL_NV_uniform_buffer_std430_layout
+#define GL_NV_uniform_buffer_std430_layout 1
+
+#define GLEW_NV_uniform_buffer_std430_layout GLEW_GET_VAR(__GLEW_NV_uniform_buffer_std430_layout)
+
+#endif /* GL_NV_uniform_buffer_std430_layout */
+
 /* ------------------ GL_NV_uniform_buffer_unified_memory ------------------ */
 
 #ifndef GL_NV_uniform_buffer_unified_memory
@@ -20354,6 +20363,15 @@ typedef void (GLAPIENTRY * PFNGLTEXESTIMATEMOTIONREGIONSQCOMPROC) (GLuint ref, G
 
 #endif /* GL_QCOM_perfmon_global_mode */
 
+/* ----------------------- GL_QCOM_render_sRGB_R8_RG8 ---------------------- */
+
+#ifndef GL_QCOM_render_sRGB_R8_RG8
+#define GL_QCOM_render_sRGB_R8_RG8 1
+
+#define GLEW_QCOM_render_sRGB_R8_RG8 GLEW_GET_VAR(__GLEW_QCOM_render_sRGB_R8_RG8)
+
+#endif /* GL_QCOM_render_sRGB_R8_RG8 */
+
 /* --------------------- GL_QCOM_render_shared_exponent -------------------- */
 
 #ifndef GL_QCOM_render_shared_exponent
@@ -20454,6 +20472,17 @@ typedef void (GLAPIENTRY * PFNGLTEXTUREFOVEATIONPARAMETERSQCOMPROC) (GLuint text
 #define GLEW_QCOM_texture_foveated_subsampled_layout GLEW_GET_VAR(__GLEW_QCOM_texture_foveated_subsampled_layout)
 
 #endif /* GL_QCOM_texture_foveated_subsampled_layout */
+
+/* ------------------------ GL_QCOM_texture_lod_bias ----------------------- */
+
+#ifndef GL_QCOM_texture_lod_bias
+#define GL_QCOM_texture_lod_bias 1
+
+#define GL_TEXTURE_LOD_BIAS_QCOM 0x8C96
+
+#define GLEW_QCOM_texture_lod_bias GLEW_GET_VAR(__GLEW_QCOM_texture_lod_bias)
+
+#endif /* GL_QCOM_texture_lod_bias */
 
 /* ------------------------ GL_QCOM_tiled_rendering ------------------------ */
 
@@ -26433,6 +26462,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_NV_texture_shader3;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_timeline_semaphore;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_transform_feedback;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_transform_feedback2;
+GLEW_VAR_EXPORT GLboolean __GLEW_NV_uniform_buffer_std430_layout;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_uniform_buffer_unified_memory;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_vdpau_interop;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_vdpau_interop2;
@@ -26530,6 +26560,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_frame_extrapolation;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_framebuffer_foveated;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_motion_estimation;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_perfmon_global_mode;
+GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_render_sRGB_R8_RG8;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_render_shared_exponent;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_shader_framebuffer_fetch_noncoherent;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_shader_framebuffer_fetch_rate;
@@ -26537,6 +26568,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_shading_rate;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_texture_foveated;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_texture_foveated2;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_texture_foveated_subsampled_layout;
+GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_texture_lod_bias;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_tiled_rendering;
 GLEW_VAR_EXPORT GLboolean __GLEW_QCOM_writeonly_rendering;
 GLEW_VAR_EXPORT GLboolean __GLEW_REGAL_ES1_0_compatibility;

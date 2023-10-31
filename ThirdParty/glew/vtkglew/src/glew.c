@@ -4207,6 +4207,7 @@ GLboolean __GLEW_NV_texture_shader3 = GL_FALSE;
 GLboolean __GLEW_NV_timeline_semaphore = GL_FALSE;
 GLboolean __GLEW_NV_transform_feedback = GL_FALSE;
 GLboolean __GLEW_NV_transform_feedback2 = GL_FALSE;
+GLboolean __GLEW_NV_uniform_buffer_std430_layout = GL_FALSE;
 GLboolean __GLEW_NV_uniform_buffer_unified_memory = GL_FALSE;
 GLboolean __GLEW_NV_vdpau_interop = GL_FALSE;
 GLboolean __GLEW_NV_vdpau_interop2 = GL_FALSE;
@@ -4304,6 +4305,7 @@ GLboolean __GLEW_QCOM_frame_extrapolation = GL_FALSE;
 GLboolean __GLEW_QCOM_framebuffer_foveated = GL_FALSE;
 GLboolean __GLEW_QCOM_motion_estimation = GL_FALSE;
 GLboolean __GLEW_QCOM_perfmon_global_mode = GL_FALSE;
+GLboolean __GLEW_QCOM_render_sRGB_R8_RG8 = GL_FALSE;
 GLboolean __GLEW_QCOM_render_shared_exponent = GL_FALSE;
 GLboolean __GLEW_QCOM_shader_framebuffer_fetch_noncoherent = GL_FALSE;
 GLboolean __GLEW_QCOM_shader_framebuffer_fetch_rate = GL_FALSE;
@@ -4311,6 +4313,7 @@ GLboolean __GLEW_QCOM_shading_rate = GL_FALSE;
 GLboolean __GLEW_QCOM_texture_foveated = GL_FALSE;
 GLboolean __GLEW_QCOM_texture_foveated2 = GL_FALSE;
 GLboolean __GLEW_QCOM_texture_foveated_subsampled_layout = GL_FALSE;
+GLboolean __GLEW_QCOM_texture_lod_bias = GL_FALSE;
 GLboolean __GLEW_QCOM_tiled_rendering = GL_FALSE;
 GLboolean __GLEW_QCOM_writeonly_rendering = GL_FALSE;
 GLboolean __GLEW_REGAL_ES1_0_compatibility = GL_FALSE;
@@ -6534,6 +6537,9 @@ static const char * _glewExtensionLookup[] = {
 #ifdef GL_NV_transform_feedback2
   "GL_NV_transform_feedback2",
 #endif
+#ifdef GL_NV_uniform_buffer_std430_layout
+  "GL_NV_uniform_buffer_std430_layout",
+#endif
 #ifdef GL_NV_uniform_buffer_unified_memory
   "GL_NV_uniform_buffer_unified_memory",
 #endif
@@ -6825,6 +6831,9 @@ static const char * _glewExtensionLookup[] = {
 #ifdef GL_QCOM_perfmon_global_mode
   "GL_QCOM_perfmon_global_mode",
 #endif
+#ifdef GL_QCOM_render_sRGB_R8_RG8
+  "GL_QCOM_render_sRGB_R8_RG8",
+#endif
 #ifdef GL_QCOM_render_shared_exponent
   "GL_QCOM_render_shared_exponent",
 #endif
@@ -6845,6 +6854,9 @@ static const char * _glewExtensionLookup[] = {
 #endif
 #ifdef GL_QCOM_texture_foveated_subsampled_layout
   "GL_QCOM_texture_foveated_subsampled_layout",
+#endif
+#ifdef GL_QCOM_texture_lod_bias
+  "GL_QCOM_texture_lod_bias",
 #endif
 #ifdef GL_QCOM_tiled_rendering
   "GL_QCOM_tiled_rendering",
@@ -7295,7 +7307,7 @@ static const char * _glewExtensionLookup[] = {
 
 
 /* Detected in the extension string or strings */
-static GLboolean  _glewExtensionString[949];
+static GLboolean  _glewExtensionString[952];
 /* Detected via extension string or experimental mode */
 static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_3DFX_multisample
@@ -9389,6 +9401,9 @@ static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_NV_transform_feedback2
   &__GLEW_NV_transform_feedback2,
 #endif
+#ifdef GL_NV_uniform_buffer_std430_layout
+  &__GLEW_NV_uniform_buffer_std430_layout,
+#endif
 #ifdef GL_NV_uniform_buffer_unified_memory
   &__GLEW_NV_uniform_buffer_unified_memory,
 #endif
@@ -9680,6 +9695,9 @@ static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_QCOM_perfmon_global_mode
   &__GLEW_QCOM_perfmon_global_mode,
 #endif
+#ifdef GL_QCOM_render_sRGB_R8_RG8
+  &__GLEW_QCOM_render_sRGB_R8_RG8,
+#endif
 #ifdef GL_QCOM_render_shared_exponent
   &__GLEW_QCOM_render_shared_exponent,
 #endif
@@ -9700,6 +9718,9 @@ static GLboolean* _glewExtensionEnabled[] = {
 #endif
 #ifdef GL_QCOM_texture_foveated_subsampled_layout
   &__GLEW_QCOM_texture_foveated_subsampled_layout,
+#endif
+#ifdef GL_QCOM_texture_lod_bias
+  &__GLEW_QCOM_texture_lod_bias,
 #endif
 #ifdef GL_QCOM_tiled_rendering
   &__GLEW_QCOM_tiled_rendering,
@@ -19834,6 +19855,7 @@ GLboolean __EGLEW_EXT_device_persistent_id = GL_FALSE;
 GLboolean __EGLEW_EXT_device_query = GL_FALSE;
 GLboolean __EGLEW_EXT_device_query_name = GL_FALSE;
 GLboolean __EGLEW_EXT_explicit_device = GL_FALSE;
+GLboolean __EGLEW_EXT_gl_colorspace_bt2020_hlg = GL_FALSE;
 GLboolean __EGLEW_EXT_gl_colorspace_bt2020_linear = GL_FALSE;
 GLboolean __EGLEW_EXT_gl_colorspace_bt2020_pq = GL_FALSE;
 GLboolean __EGLEW_EXT_gl_colorspace_display_p3 = GL_FALSE;
@@ -19954,6 +19976,8 @@ GLboolean __EGLEW_NV_stream_sync = GL_FALSE;
 GLboolean __EGLEW_NV_sync = GL_FALSE;
 GLboolean __EGLEW_NV_system_time = GL_FALSE;
 GLboolean __EGLEW_NV_triple_buffer = GL_FALSE;
+GLboolean __EGLEW_QNX_image_native_buffer = GL_FALSE;
+GLboolean __EGLEW_QNX_platform_screen = GL_FALSE;
 GLboolean __EGLEW_TIZEN_image_native_buffer = GL_FALSE;
 GLboolean __EGLEW_TIZEN_image_native_surface = GL_FALSE;
 GLboolean __EGLEW_WL_bind_wayland_display = GL_FALSE;
@@ -21003,6 +21027,9 @@ GLenum eglewInit (EGLDisplay display)
 #ifdef EGL_EXT_explicit_device
   EGLEW_EXT_explicit_device = _glewSearchExtension("EGL_EXT_explicit_device", extStart, extEnd);
 #endif /* EGL_EXT_explicit_device */
+#ifdef EGL_EXT_gl_colorspace_bt2020_hlg
+  EGLEW_EXT_gl_colorspace_bt2020_hlg = _glewSearchExtension("EGL_EXT_gl_colorspace_bt2020_hlg", extStart, extEnd);
+#endif /* EGL_EXT_gl_colorspace_bt2020_hlg */
 #ifdef EGL_EXT_gl_colorspace_bt2020_linear
   EGLEW_EXT_gl_colorspace_bt2020_linear = _glewSearchExtension("EGL_EXT_gl_colorspace_bt2020_linear", extStart, extEnd);
 #endif /* EGL_EXT_gl_colorspace_bt2020_linear */
@@ -21402,6 +21429,12 @@ GLenum eglewInit (EGLDisplay display)
 #ifdef EGL_NV_triple_buffer
   EGLEW_NV_triple_buffer = _glewSearchExtension("EGL_NV_triple_buffer", extStart, extEnd);
 #endif /* EGL_NV_triple_buffer */
+#ifdef EGL_QNX_image_native_buffer
+  EGLEW_QNX_image_native_buffer = _glewSearchExtension("EGL_QNX_image_native_buffer", extStart, extEnd);
+#endif /* EGL_QNX_image_native_buffer */
+#ifdef EGL_QNX_platform_screen
+  EGLEW_QNX_platform_screen = _glewSearchExtension("EGL_QNX_platform_screen", extStart, extEnd);
+#endif /* EGL_QNX_platform_screen */
 #ifdef EGL_TIZEN_image_native_buffer
   EGLEW_TIZEN_image_native_buffer = _glewSearchExtension("EGL_TIZEN_image_native_buffer", extStart, extEnd);
 #endif /* EGL_TIZEN_image_native_buffer */
@@ -28616,6 +28649,13 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
           continue;
         }
 #endif
+#ifdef GL_NV_uniform_buffer_std430_layout
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"uniform_buffer_std430_layout", 28))
+        {
+          ret = GLEW_NV_uniform_buffer_std430_layout;
+          continue;
+        }
+#endif
 #ifdef GL_NV_uniform_buffer_unified_memory
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"uniform_buffer_unified_memory", 29))
         {
@@ -29310,6 +29350,13 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
           continue;
         }
 #endif
+#ifdef GL_QCOM_render_sRGB_R8_RG8
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"render_sRGB_R8_RG8", 18))
+        {
+          ret = GLEW_QCOM_render_sRGB_R8_RG8;
+          continue;
+        }
+#endif
 #ifdef GL_QCOM_render_shared_exponent
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"render_shared_exponent", 22))
         {
@@ -29356,6 +29403,13 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"texture_foveated_subsampled_layout", 34))
         {
           ret = GLEW_QCOM_texture_foveated_subsampled_layout;
+          continue;
+        }
+#endif
+#ifdef GL_QCOM_texture_lod_bias
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"texture_lod_bias", 16))
+        {
+          ret = GLEW_QCOM_texture_lod_bias;
           continue;
         }
 #endif
@@ -31652,6 +31706,13 @@ GLboolean eglewIsSupported (const char* name)
           continue;
         }
 #endif
+#ifdef EGL_EXT_gl_colorspace_bt2020_hlg
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_colorspace_bt2020_hlg", 24))
+        {
+          ret = EGLEW_EXT_gl_colorspace_bt2020_hlg;
+          continue;
+        }
+#endif
 #ifdef EGL_EXT_gl_colorspace_bt2020_linear
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_colorspace_bt2020_linear", 27))
         {
@@ -32507,6 +32568,23 @@ GLboolean eglewIsSupported (const char* name)
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"triple_buffer", 13))
         {
           ret = EGLEW_NV_triple_buffer;
+          continue;
+        }
+#endif
+      }
+      if (_glewStrSame2(&pos, &len, (const GLubyte*)"QNX_", 4))
+      {
+#ifdef EGL_QNX_image_native_buffer
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_native_buffer", 19))
+        {
+          ret = EGLEW_QNX_image_native_buffer;
+          continue;
+        }
+#endif
+#ifdef EGL_QNX_platform_screen
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_screen", 15))
+        {
+          ret = EGLEW_QNX_platform_screen;
           continue;
         }
 #endif
