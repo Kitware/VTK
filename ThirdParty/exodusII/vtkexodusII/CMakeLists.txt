@@ -317,9 +317,10 @@ set(headers
 vtk_module_find_package(PACKAGE Threads)
 
 vtk_module_add_module(VTK::exodusII
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  HEADERS_SUBDIR "vtkexodusII/include")
+  HEADERS_SUBDIR "vtkexodusII")
 vtk_module_definitions(VTK::exodusII
   PRIVATE
     exoIIc_EXPORTS)
