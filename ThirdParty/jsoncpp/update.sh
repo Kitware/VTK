@@ -17,7 +17,7 @@ LICENSE
 " # We amalgamate jsoncpp
 
 extract_source () {
-    python2 amalgamate.py
+    python3 amalgamate.py
     [ -n "$paths" ] && \
         mv -v $paths "dist"
     mv -v "json/vtkjsoncpp_config.h.in" "dist/json"
