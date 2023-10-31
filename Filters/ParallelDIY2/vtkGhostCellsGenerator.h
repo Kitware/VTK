@@ -79,6 +79,7 @@
 #include "vtkWeakPointer.h"               // for vtkWeakPointer
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataObject;
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkGhostCellsGenerator : public vtkPassInputTypeAlgorithm
@@ -169,6 +170,11 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  /**
+   * Runs the filter using custom inputs.
+   */
+  virtual int Execute(vtkDataObject* inputDO, vtkInformationVector* outputVector);
 
   /**
    * Local controller.
