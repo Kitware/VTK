@@ -603,6 +603,12 @@ StringCache* vtkParse_MainMulti(int argc, char* argv[])
     exit(1);
   }
 
+  if (options.DepFileName && options.OutputFileName)
+  {
+    vtkParse_InitDependencyTracking(options.OutputFileName);
+    /* TODO: register response files read in `read_option_file` here. */
+  }
+
   /* the input file */
   options.InputFileName = options.Files[0];
   return strings;
