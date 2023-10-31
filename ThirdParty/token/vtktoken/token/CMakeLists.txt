@@ -55,6 +55,7 @@ target_link_libraries(token
 )
 else()
   vtk_module_add_module(VTK::token
+    HEADER_DIRECTORIES
     FORCE_SHARED
     SOURCES ${sources}
     HEADERS ${headers}
