@@ -31,7 +31,7 @@
 #if VTK_MODULE_USE_EXTERNAL_VTK_fmt
 # define VTK_FMT(header) <header>
 #else
-# define VTK_FMT(header) <vtk##header>
+# define VTK_FMT(header) <vtkfmt/vtk##header>
 #endif
 
 #endif // #ifndef vtk_fmt_h
