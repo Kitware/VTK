@@ -8,7 +8,7 @@ readonly name="expat"
 readonly ownership="Expat Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/expat.git"
-readonly tag="for/vtk-20231023-2.4.8"
+readonly tag="for/vtk-20231030-2.4.8"
 readonly paths="
 expat/.gitattributes
 expat/CMakeLists.txt
