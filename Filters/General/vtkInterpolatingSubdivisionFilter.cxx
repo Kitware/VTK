@@ -60,7 +60,7 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
     // Copy points from input. The new points will include the old points
     // and points calculated by the subdivision algorithm
     outputPts = vtkPoints::New();
-    outputPts->GetData()->DeepCopy(inputDS->GetPoints()->GetData());
+    outputPts->DeepCopy(inputDS->GetPoints());
 
     // Copy pointdata structure from input
     outputPD = vtkPointData::New();
