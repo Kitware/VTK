@@ -36,16 +36,17 @@ set(headers
   include/theora/theoradec.h
   include/theora/theoraenc.h
   include/theora/vtk_theora_mangle.h
-  "${CMAKE_CURRENT_BINARY_DIR}/vtktheora_export.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/include/theora/vtktheora_export.h")
 
 vtk_module_add_module(VTK::theora
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  HEADERS_SUBDIR "vtktheora/include/theora")
+  HEADERS_SUBDIR "vtktheora")
 target_include_directories(theora
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include/theora>")
 set_target_properties(theora
   PROPERTIES
     C_VISIBILITY_PRESET "hidden")
@@ -53,7 +54,7 @@ set_target_properties(theora
 include(GenerateExportHeader)
 generate_export_header(theora
   EXPORT_MACRO_NAME VTKTHEORA_EXPORT
-  EXPORT_FILE_NAME  vtktheora_export.h)
+  EXPORT_FILE_NAME  include/theora/vtktheora_export.h)
 
 include(CheckCCompilerFlag)
 function (vtktheora_suppress_warning warning)
