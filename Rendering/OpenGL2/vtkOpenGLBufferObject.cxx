@@ -61,10 +61,12 @@ struct vtkOpenGLBufferObject::Private
     this->Handle = 0;
     this->Type = GL_ARRAY_BUFFER;
     this->Usage = GL_STATIC_DRAW;
+    this->Size = 0;
   }
   GLenum Type;
   GLenum Usage;
   GLuint Handle;
+  size_t Size;
 };
 
 vtkOpenGLBufferObject::vtkOpenGLBufferObject()
@@ -164,7 +166,13 @@ bool vtkOpenGLBufferObject::Allocate(size_t size, ObjectType objectType, ObjectU
   glBufferData(
     this->Internal->Type, static_cast<GLsizeiptr>(size), nullptr, convertUsage(objectUsage));
   this->Dirty = true;
+  this->Internal->Size = size;
   return true;
+}
+
+size_t vtkOpenGLBufferObject::GetSize()
+{
+  return this->Internal->Size;
 }
 
 bool vtkOpenGLBufferObject::Bind()
