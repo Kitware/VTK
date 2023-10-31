@@ -232,9 +232,10 @@ set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 include(CPack)
 else ()
 vtk_module_add_module(VTK::ogg
+    HEADER_DIRECTORIES
     SOURCES ${OGG_SOURCES}
     HEADERS ${OGG_HEADERS}
-    HEADERS_SUBDIR "vtkogg/include/ogg")
+    HEADERS_SUBDIR "vtkogg")
 include(GenerateExportHeader)
 generate_export_header(ogg
     EXPORT_MACRO_NAME   vtkogg_EXPORT
