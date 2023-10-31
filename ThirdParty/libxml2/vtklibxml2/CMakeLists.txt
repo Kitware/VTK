@@ -439,9 +439,10 @@ target_include_directories(
 )
 else ()
 vtk_module_add_module(VTK::libxml2
+  HEADER_DIRECTORIES
   SOURCES ${LIBXML2_SRCS}
   HEADERS ${LIBXML2_HDRS}
-  HEADERS_SUBDIR "vtklibxml2/include/libxml")
+  HEADERS_SUBDIR "vtklibxml2")
 target_compile_definitions(libxml2
   PRIVATE
     _GNU_SOURCE
