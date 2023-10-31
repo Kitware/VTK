@@ -9211,6 +9211,15 @@ static void _glewInfo_GL_NV_transform_feedback2 (void)
 
 #endif /* GL_NV_transform_feedback2 */
 
+#ifdef GL_NV_uniform_buffer_std430_layout
+
+static void _glewInfo_GL_NV_uniform_buffer_std430_layout (void)
+{
+  glewPrintExt("GL_NV_uniform_buffer_std430_layout", GLEW_NV_uniform_buffer_std430_layout, glewIsSupported("GL_NV_uniform_buffer_std430_layout"), glewGetExtension("GL_NV_uniform_buffer_std430_layout"));
+}
+
+#endif /* GL_NV_uniform_buffer_std430_layout */
+
 #ifdef GL_NV_uniform_buffer_unified_memory
 
 static void _glewInfo_GL_NV_uniform_buffer_unified_memory (void)
@@ -10354,6 +10363,15 @@ static void _glewInfo_GL_QCOM_perfmon_global_mode (void)
 
 #endif /* GL_QCOM_perfmon_global_mode */
 
+#ifdef GL_QCOM_render_sRGB_R8_RG8
+
+static void _glewInfo_GL_QCOM_render_sRGB_R8_RG8 (void)
+{
+  glewPrintExt("GL_QCOM_render_sRGB_R8_RG8", GLEW_QCOM_render_sRGB_R8_RG8, glewIsSupported("GL_QCOM_render_sRGB_R8_RG8"), glewGetExtension("GL_QCOM_render_sRGB_R8_RG8"));
+}
+
+#endif /* GL_QCOM_render_sRGB_R8_RG8 */
+
 #ifdef GL_QCOM_render_shared_exponent
 
 static void _glewInfo_GL_QCOM_render_shared_exponent (void)
@@ -10422,6 +10440,15 @@ static void _glewInfo_GL_QCOM_texture_foveated_subsampled_layout (void)
 }
 
 #endif /* GL_QCOM_texture_foveated_subsampled_layout */
+
+#ifdef GL_QCOM_texture_lod_bias
+
+static void _glewInfo_GL_QCOM_texture_lod_bias (void)
+{
+  glewPrintExt("GL_QCOM_texture_lod_bias", GLEW_QCOM_texture_lod_bias, glewIsSupported("GL_QCOM_texture_lod_bias"), glewGetExtension("GL_QCOM_texture_lod_bias"));
+}
+
+#endif /* GL_QCOM_texture_lod_bias */
 
 #ifdef GL_QCOM_tiled_rendering
 
@@ -12305,6 +12332,15 @@ static void _glewInfo_EGL_EXT_explicit_device (void)
 
 #endif /* EGL_EXT_explicit_device */
 
+#ifdef EGL_EXT_gl_colorspace_bt2020_hlg
+
+static void _glewInfo_EGL_EXT_gl_colorspace_bt2020_hlg (void)
+{
+  glewPrintExt("EGL_EXT_gl_colorspace_bt2020_hlg", EGLEW_EXT_gl_colorspace_bt2020_hlg, eglewIsSupported("EGL_EXT_gl_colorspace_bt2020_hlg"), eglewGetExtension("EGL_EXT_gl_colorspace_bt2020_hlg"));
+}
+
+#endif /* EGL_EXT_gl_colorspace_bt2020_hlg */
+
 #ifdef EGL_EXT_gl_colorspace_bt2020_linear
 
 static void _glewInfo_EGL_EXT_gl_colorspace_bt2020_linear (void)
@@ -13507,6 +13543,24 @@ static void _glewInfo_EGL_NV_triple_buffer (void)
 }
 
 #endif /* EGL_NV_triple_buffer */
+
+#ifdef EGL_QNX_image_native_buffer
+
+static void _glewInfo_EGL_QNX_image_native_buffer (void)
+{
+  glewPrintExt("EGL_QNX_image_native_buffer", EGLEW_QNX_image_native_buffer, eglewIsSupported("EGL_QNX_image_native_buffer"), eglewGetExtension("EGL_QNX_image_native_buffer"));
+}
+
+#endif /* EGL_QNX_image_native_buffer */
+
+#ifdef EGL_QNX_platform_screen
+
+static void _glewInfo_EGL_QNX_platform_screen (void)
+{
+  glewPrintExt("EGL_QNX_platform_screen", EGLEW_QNX_platform_screen, eglewIsSupported("EGL_QNX_platform_screen"), eglewGetExtension("EGL_QNX_platform_screen"));
+}
+
+#endif /* EGL_QNX_platform_screen */
 
 #ifdef EGL_TIZEN_image_native_buffer
 
@@ -17198,6 +17252,9 @@ static void glewInfo (void)
 #ifdef GL_NV_transform_feedback2
   _glewInfo_GL_NV_transform_feedback2();
 #endif /* GL_NV_transform_feedback2 */
+#ifdef GL_NV_uniform_buffer_std430_layout
+  _glewInfo_GL_NV_uniform_buffer_std430_layout();
+#endif /* GL_NV_uniform_buffer_std430_layout */
 #ifdef GL_NV_uniform_buffer_unified_memory
   _glewInfo_GL_NV_uniform_buffer_unified_memory();
 #endif /* GL_NV_uniform_buffer_unified_memory */
@@ -17489,6 +17546,9 @@ static void glewInfo (void)
 #ifdef GL_QCOM_perfmon_global_mode
   _glewInfo_GL_QCOM_perfmon_global_mode();
 #endif /* GL_QCOM_perfmon_global_mode */
+#ifdef GL_QCOM_render_sRGB_R8_RG8
+  _glewInfo_GL_QCOM_render_sRGB_R8_RG8();
+#endif /* GL_QCOM_render_sRGB_R8_RG8 */
 #ifdef GL_QCOM_render_shared_exponent
   _glewInfo_GL_QCOM_render_shared_exponent();
 #endif /* GL_QCOM_render_shared_exponent */
@@ -17510,6 +17570,9 @@ static void glewInfo (void)
 #ifdef GL_QCOM_texture_foveated_subsampled_layout
   _glewInfo_GL_QCOM_texture_foveated_subsampled_layout();
 #endif /* GL_QCOM_texture_foveated_subsampled_layout */
+#ifdef GL_QCOM_texture_lod_bias
+  _glewInfo_GL_QCOM_texture_lod_bias();
+#endif /* GL_QCOM_texture_lod_bias */
 #ifdef GL_QCOM_tiled_rendering
   _glewInfo_GL_QCOM_tiled_rendering();
 #endif /* GL_QCOM_tiled_rendering */
@@ -18442,6 +18505,9 @@ static void eglewInfo ()
 #ifdef EGL_EXT_explicit_device
   _glewInfo_EGL_EXT_explicit_device();
 #endif /* EGL_EXT_explicit_device */
+#ifdef EGL_EXT_gl_colorspace_bt2020_hlg
+  _glewInfo_EGL_EXT_gl_colorspace_bt2020_hlg();
+#endif /* EGL_EXT_gl_colorspace_bt2020_hlg */
 #ifdef EGL_EXT_gl_colorspace_bt2020_linear
   _glewInfo_EGL_EXT_gl_colorspace_bt2020_linear();
 #endif /* EGL_EXT_gl_colorspace_bt2020_linear */
@@ -18802,6 +18868,12 @@ static void eglewInfo ()
 #ifdef EGL_NV_triple_buffer
   _glewInfo_EGL_NV_triple_buffer();
 #endif /* EGL_NV_triple_buffer */
+#ifdef EGL_QNX_image_native_buffer
+  _glewInfo_EGL_QNX_image_native_buffer();
+#endif /* EGL_QNX_image_native_buffer */
+#ifdef EGL_QNX_platform_screen
+  _glewInfo_EGL_QNX_platform_screen();
+#endif /* EGL_QNX_platform_screen */
 #ifdef EGL_TIZEN_image_native_buffer
   _glewInfo_EGL_TIZEN_image_native_buffer();
 #endif /* EGL_TIZEN_image_native_buffer */
