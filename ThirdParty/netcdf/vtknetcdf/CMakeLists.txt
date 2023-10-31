@@ -285,9 +285,10 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_netcdf_config.h")
 
 vtk_module_add_module(VTK::netcdf
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  HEADERS_SUBDIR "vtknetcdf/include")
+  HEADERS_SUBDIR "vtknetcdf")
 target_compile_definitions(netcdf
   PRIVATE
     HAVE_CONFIG_H)
