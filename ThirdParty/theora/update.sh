@@ -8,7 +8,7 @@ readonly name="theora"
 readonly ownership="theora Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/theora.git"
-readonly tag="for/vtk-20220517-1.1.1"
+readonly tag="for/vtk-20231030-1.1.1"
 readonly paths="
 .gitattributes
 COPYING

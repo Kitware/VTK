@@ -459,9 +459,10 @@ set(expat_headers
   lib/vtk_expat_mangle.h)
 
 vtk_module_add_module(VTK::expat
+  HEADER_DIRECTORIES
   SOURCES ${_EXPAT_C_SOURCES}
   HEADERS ${expat_headers}
-  HEADERS_SUBDIR "vtkexpat/lib")
+  HEADERS_SUBDIR "vtkexpat")
 endif ()
 
 if (FALSE) # XXX(kitware): VTK handles installation

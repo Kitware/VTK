@@ -21,6 +21,7 @@ set (headers
 include(support/cmake/cxx14.cmake)
 
 vtk_module_add_module(VTK::fmt
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkfmt")

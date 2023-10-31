@@ -8,9 +8,10 @@ set(headers
   include/GL/wglew.h)
 
 vtk_module_add_module(VTK::glew
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  HEADERS_SUBDIR "vtkglew/include/GL")
+  HEADERS_SUBDIR "vtkglew")
 target_compile_definitions(glew
   PRIVATE
     GLEW_NO_GLU)

@@ -8,7 +8,7 @@ readonly name="jsoncpp"
 readonly ownership="JsonCpp Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/jsoncpp.git"
-readonly tag="for/vtk-20210908-1.9.4"
+readonly tag="for/vtk-20231030-1.9.4"
 readonly paths="
 .gitattributes
 CMakeLists.vtk.txt
@@ -17,7 +17,7 @@ LICENSE
 " # We amalgamate jsoncpp
 
 extract_source () {
-    python2 amalgamate.py
+    python3 amalgamate.py
     [ -n "$paths" ] && \
         mv -v $paths "dist"
     mv -v "json/vtkjsoncpp_config.h.in" "dist/json"

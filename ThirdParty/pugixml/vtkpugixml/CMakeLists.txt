@@ -215,15 +215,19 @@ install(
 else ()
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/src/pugiconfig.hpp.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/pugiconfig.hpp"
+  "${CMAKE_CURRENT_BINARY_DIR}/src/pugiconfig.hpp"
   @ONLY)
 
 vtk_module_add_module(VTK::pugixml
+  HEADER_DIRECTORIES
   SOURCES src/pugixml.cpp
   HEADERS src/pugixml.hpp
-          "${CMAKE_CURRENT_BINARY_DIR}/pugiconfig.hpp"
+          "${CMAKE_CURRENT_BINARY_DIR}/src/pugiconfig.hpp"
           src/vtk_pugixml_mangle.h
-  HEADERS_SUBDIR "vtkpugixml/src")
+  HEADERS_SUBDIR "vtkpugixml")
+vtk_module_include(VTK::pugixml
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>")
 target_compile_features(pugixml
   PUBLIC
     cxx_std_11)

@@ -8,7 +8,7 @@ readonly name="glew"
 readonly ownership="glew Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/glew.git"
-readonly tag="for/vtk-20230328-2.2.0"
+readonly tag="for/vtk-20231030-2.2.0"
 readonly paths="
 auto
 config/version
@@ -26,7 +26,7 @@ extract_source () {
     pushd "$extractdir/$name-reduced"
     mkdir -v src
     pushd "auto"
-    make PYTHON=python2
+    make PYTHON=python3
     popd
     rm -rvf auto config
     popd

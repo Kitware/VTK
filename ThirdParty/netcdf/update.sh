@@ -8,7 +8,7 @@ readonly name="netcdf"
 readonly ownership="netcdf Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/netcdf.git"
-readonly tag="for/vtk-20230505-4.9.2"
+readonly tag="for/vtk-20231030-4.9.2"
 readonly paths="
 include/*.h
 include/netcdf_dispatch.h.in

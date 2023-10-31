@@ -8,7 +8,7 @@ readonly name="pugixml"
 readonly ownership="Proj Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/pugixml.git"
-readonly tag="for/vtk-20210727-1.11.4"
+readonly tag="for/vtk-20231030-1.11.4"
 readonly paths="
 .gitattributes
 LICENSE.md
