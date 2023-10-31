@@ -26,7 +26,7 @@ extract_source () {
     pushd "$extractdir/$name-reduced"
     mkdir -v src
     pushd "auto"
-    make PYTHON=python2
+    make PYTHON=python3
     popd
     rm -rvf auto config
     popd
