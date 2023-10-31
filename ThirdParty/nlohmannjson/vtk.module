@@ -2,4 +2,6 @@ NAME
   VTK::nlohmannjson
 LIBRARY_NAME
   vtknlohmannjson
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY

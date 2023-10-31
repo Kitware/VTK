@@ -39,7 +39,7 @@ freely, subject to the following restrictions:
 // Check if we can support the assembly language level implementation (otherwise
 // revert to the system API)
 #if (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))) || \
-    (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) || \
+    (defined(_MSC_VER) && defined(_M_IX86)) || \
     (defined(__GNUC__) && (defined(__ppc__)))
   #define _FAST_MUTEX_ASM_
 #else
@@ -159,7 +159,7 @@ class fast_mutex {
         :
         : "%eax", "memory"
       );
-  #elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+  #elif defined(_MSC_VER) && defined(_M_IX86)
       int *ptrLock = &mLock;
       __asm {
         mov eax,1
@@ -207,7 +207,7 @@ class fast_mutex {
         :
         : "%eax", "memory"
       );
-  #elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+  #elif defined(_MSC_VER) && defined(_M_IX86)
       int *ptrLock = &mLock;
       __asm {
         mov eax,0

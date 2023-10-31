@@ -8,4 +8,6 @@ PRIVATE_DEPENDS
   VTK::opengl
   VTK::png
   VTK::zlib
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY

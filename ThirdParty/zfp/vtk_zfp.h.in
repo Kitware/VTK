@@ -9,7 +9,7 @@
 #if VTK_MODULE_USE_EXTERNAL_vtkzfp
 # include <zfp.h>
 #else
-# include <vtkzfp/inc/zfp.h>
+# include <vtkzfp/include/zfp.h>
 #endif
 
 #endif

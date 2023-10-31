@@ -848,7 +848,7 @@ order_gids()
         order.limit = order.size();
     else
         // average number of queues per block * in-memory block limit
-        order.limit = std::max((size_t) 1, order.size() / size() * limit_);
+        order.limit = (std::max)((size_t) 1, order.size() / size() * limit_);
 
     return order;
 }
@@ -1122,7 +1122,7 @@ send_different_rank(int from, int to, int proc, MemoryBuffer& bb, bool remote, I
         {
             detail::VectorWindow<char> window;
             window.begin = &buffer->buffer[msg_buff_idx];
-            window.count = std::min(MAX_MPI_MESSAGE_COUNT, buffer->size() - msg_buff_idx);
+            window.count = (std::min)(MAX_MPI_MESSAGE_COUNT, buffer->size() - msg_buff_idx);
 
             inflight_sends().emplace_back();
             auto& inflight_send = inflight_sends().back();
