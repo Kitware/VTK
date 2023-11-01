@@ -48,6 +48,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestCompositePolyDataMapperScalars.cxx,NO_DATA
   TestCompositePolyDataMapperScalarsSurfaceOpacity.cxx,NO_DATA
   TestCompositePolyDataMapperSharedArray.cxx,NO_DATA
+  TestCompositePolyDataMapperStaticBounds.cxx,NO_DATA,NO_VALID
   TestCompositePolyDataMapperSpheres.cxx,NO_DATA
   TestCompositePolyDataMapperVertices.cxx,NO_DATA
   TestDirectScalarsToColors.cxx
