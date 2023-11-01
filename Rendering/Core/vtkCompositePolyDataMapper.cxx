@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 // Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#include "vtkSetGet.h"
 #define VTK_DEPRECATION_LEVEL 0
 #include "vtkLegacy.h"
 
@@ -152,7 +153,12 @@ double* vtkCompositePolyDataMapper::GetBounds()
     // only compute bounds when the input data has changed
     vtkCompositeDataPipeline* executive =
       vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
-    if (executive->GetPipelineMTime() > this->BoundsMTime.GetMTime())
+    auto dobj = this->GetExecutive()->GetInputData(0, 0);
+    // it's not sufficient to check pipeline MTime because input data could also be specified via
+    // vtkMapper::SetInputDataObject(). In that case, the executive's pipeline MTime is zero and
+    // bounds must still be computed if they weren't already.
+    if ((executive->GetPipelineMTime() > this->BoundsMTime.GetMTime()) ||
+      (dobj->GetMTime() > this->BoundsMTime.GetMTime()))
     {
       this->ComputeBounds();
     }
