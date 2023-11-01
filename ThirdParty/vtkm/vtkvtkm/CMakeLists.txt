@@ -63,6 +63,16 @@ set(VTKm_NO_DEPRECATED_VIRTUAL ON)
 # Ignore existing CMake variable in vtk-m
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+# vtk-m prior to v2.2 does not set rpath
+set(CMAKE_BUILD_RPATH_USE_ORIGIN 1)
+if (UNIX)
+  if (APPLE)
+    set(CMAKE_INSTALL_RPATH "@loader_path")
+  else ()
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+  endif ()
+endif ()
+
 add_subdirectory(vtk-m)
 vtkm_setup_job_pool()
 
