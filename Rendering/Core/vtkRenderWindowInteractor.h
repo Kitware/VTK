@@ -522,6 +522,8 @@ public:
   ///@{
   /**
    * Set/get whether control modifier key was pressed.
+   * On MacOS, pressing either Cmd or Control turn this
+   * modifier on.
    */
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
@@ -537,7 +539,24 @@ public:
 
   ///@{
   /**
-   * Set/get the key code for the key that was pressed.
+   * Set/get the key code for the key that was pressed, on the extended ascii table.
+   *
+   * Despite being a char, the keycode value on the *extended ascii* table, so one can cast this
+   * value to an unsigned char to recover the correct value.
+   *
+   * Please note KeyCode is impacted by modifiers:
+   *
+   * "A" -> 'a'
+   * "Shift" + "A" -> 'A'
+   * "Alt" + "A" -> 'a'
+   * "Ctrl" + "A" -> 1
+   *
+   * The behavior with Control modifier is related to classic control codes.
+   *
+   * Please note KeyCode IS NOT reliable across platforms, especially for special characters with
+   * modifiers. Using KeySym should be more reliable.
+   *
+   * Default is 0.
    */
   vtkSetMacro(KeyCode, char);
   vtkGetMacro(KeyCode, char);
@@ -558,6 +577,19 @@ public:
    * symbol as defined by the relevant X headers. On X based platforms this
    * corresponds to the installed X server, whereas on other platforms the
    * native key codes are translated into a string representation.
+   *
+   * Please note the KeySym is impacted by modifiers:
+   *
+   * "A" -> "a"
+   * "Shift" + "A" -> "A"
+   * "Alt" + "A" -> "a"
+   * "Ctrl" + "A" -> "a"
+   *
+   * Please note KeySym may NOT be fully reliable across platforms, especially for special
+   * characters with modifiers. Please check the actual KeySym on supported platform before relying
+   * on it.
+   *
+   * Default is nullptr.
    */
   vtkSetStringMacro(KeySym);
   vtkGetStringMacro(KeySym);
