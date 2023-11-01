@@ -47,26 +47,38 @@ vtkImplicitCylinderWidget::vtkImplicitCylinderWidget()
     "Left", vtkWidgetEvent::Down, this, vtkImplicitCylinderWidget::MoveCylinderAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'x', 1,
     "x", vtkWidgetEvent::ModifyEvent, this, vtkImplicitCylinderWidget::TranslationAxisLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 24, 1,
+    "x", vtkWidgetEvent::ModifyEvent, this, vtkImplicitCylinderWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'X', 1,
     "X", vtkWidgetEvent::ModifyEvent, this, vtkImplicitCylinderWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'y', 1,
+    "y", vtkWidgetEvent::ModifyEvent, this, vtkImplicitCylinderWidget::TranslationAxisLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 25, 1,
     "y", vtkWidgetEvent::ModifyEvent, this, vtkImplicitCylinderWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'Y', 1,
     "Y", vtkWidgetEvent::ModifyEvent, this, vtkImplicitCylinderWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'z', 1,
     "z", vtkWidgetEvent::ModifyEvent, this, vtkImplicitCylinderWidget::TranslationAxisLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 26, 1,
+    "z", vtkWidgetEvent::ModifyEvent, this, vtkImplicitCylinderWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'Z', 1,
     "Z", vtkWidgetEvent::ModifyEvent, this, vtkImplicitCylinderWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'x',
     1, "x", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 24, 1,
+    "x", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'X',
     1, "X", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'y',
     1, "y", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 25, 1,
+    "y", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'Y',
     1, "Y", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'z',
     1, "z", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 26, 1,
+    "z", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'Z',
     1, "Z", vtkWidgetEvent::Reset, this, vtkImplicitCylinderWidget::TranslationAxisUnLock);
 }
@@ -340,15 +352,17 @@ void vtkImplicitCylinderWidget::TranslationAxisLock(vtkAbstractWidget* widget)
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(widget);
   vtkImplicitCylinderRepresentation* rep =
     vtkImplicitCylinderRepresentation::SafeDownCast(self->WidgetRep);
-  if (self->Interactor->GetKeyCode() == 'x' || self->Interactor->GetKeyCode() == 'X')
+  std::string keySym(self->Interactor->GetKeySym());
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (keySym == "X")
   {
     rep->SetXTranslationAxisOn();
   }
-  if (self->Interactor->GetKeyCode() == 'y' || self->Interactor->GetKeyCode() == 'Y')
+  else if (keySym == "Y")
   {
     rep->SetYTranslationAxisOn();
   }
-  if (self->Interactor->GetKeyCode() == 'z' || self->Interactor->GetKeyCode() == 'Z')
+  else if (keySym == "Z")
   {
     rep->SetZTranslationAxisOn();
   }

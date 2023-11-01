@@ -32,6 +32,8 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
@@ -400,8 +402,9 @@ void vtkImagePlaneWidget::ProcessEvents(
 void vtkImagePlaneWidget::OnChar()
 {
   vtkRenderWindowInteractor* i = this->Interactor;
-
-  if (i->GetKeyCode() == 'r' || i->GetKeyCode() == 'R')
+  std::string keySym(i->GetKeySym());
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (keySym == "R")
   {
     if (i->GetShiftKey() || i->GetControlKey())
     {
