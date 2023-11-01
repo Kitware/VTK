@@ -23,9 +23,11 @@ endif ()
 
 # The interpreters are not supported in wheel builds, so skip them.
 if (NOT VTK_WHEEL_BUILD)
-  add_executable(vtkpython
-    vtkpython.rc
-    vtkPythonAppInit.cxx)
+  add_executable(vtkpython)
+  target_sources(vtkpython
+    PRIVATE
+      vtkpython.rc
+      vtkPythonAppInit.cxx)
   target_link_libraries(vtkpython
     PRIVATE
       VTK::WrappingPythonCore
@@ -42,8 +44,10 @@ if (NOT VTK_WHEEL_BUILD)
   endif ()
 
   if (TARGET VTK::ParallelMPI)
-    add_executable(pvtkpython
-      vtkPythonAppInit.cxx)
+    add_executable(pvtkpython)
+    target_sources(pvtkpython
+      PRIVATE
+        vtkPythonAppInit.cxx)
     target_compile_definitions(pvtkpython
       PRIVATE
         VTK_COMPILED_USING_MPI)

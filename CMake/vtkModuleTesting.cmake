@@ -72,7 +72,10 @@ Creating test executables
   convenience functions.
 #]==]
 function (vtk_module_test_executable name)
-  add_executable("${name}" ${ARGN})
+  add_executable("${name}")
+  target_sources("${name}"
+    PRIVATE
+      ${ARGN})
   get_property(test_depends GLOBAL
     PROPERTY "_vtk_module_${_vtk_build_test}_test_depends")
   get_property(test_optional_depends GLOBAL

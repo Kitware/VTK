@@ -439,16 +439,30 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
       PROPERTY
         GENERATED 1)
 
-    if (_vtk_python_INSTALL_HEADERS)
-      install(
-        FILES       "${_vtk_python_module_header_file}"
+    set(_vtk_python_header_set_install_args)
+    # XXX(cmake-3.23): filesets
+    if (CMAKE_VERSION VERSION_LESS "3.23")
+      if (_vtk_python_INSTALL_HEADERS)
+        install(
+          FILES       "${_vtk_python_module_header_file}"
+          DESTINATION "${_vtk_python_HEADERS_DESTINATION}"
+          COMPONENT   "${_vtk_python_headers_component}")
+      endif ()
+    else ()
+      list(APPEND _vtk_python_header_set_install_args
+        FILE_SET vtk_module_python_header_files
         DESTINATION "${_vtk_python_HEADERS_DESTINATION}"
         COMPONENT   "${_vtk_python_headers_component}")
     endif ()
 
-    add_library("${name}" STATIC
-      ${_vtk_python_library_sources}
-      "${_vtk_python_module_header_file}")
+    add_library("${name}" STATIC)
+    target_sources("${name}"
+      PRIVATE
+        ${_vtk_python_library_sources})
+    _vtk_module_add_file_set("${name}"
+      NAME      vtk_module_python_headers
+      BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_python_HEADERS_DESTINATION}"
+      FILES     "${_vtk_python_module_header_file}")
     target_include_directories("${name}"
       INTERFACE
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/${_vtk_python_HEADERS_DESTINATION}>")
@@ -466,8 +480,14 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
       PROPERTY
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_python_STATIC_MODULE_DESTINATION}")
   else ()
-    add_library("${name}" MODULE
-      ${_vtk_python_library_sources})
+    add_library("${name}" MODULE)
+    target_sources("${name}"
+      PRIVATE
+        ${_vtk_python_library_sources})
+    # Add a dummy file set to optimize dependencies. See CMP0154.
+    _vtk_module_add_file_set("${name}"
+      BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}"
+      NAME      dummy)
     if (WIN32 AND NOT CYGWIN)
       # This is enabled explicitly by the USE_DEBUG_SUFFIX argument because
       # there's no reliable way to detect whether we're using a debug build of
@@ -553,7 +573,8 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
     COMPONENT           "${_vtk_python_wrap_component}"
     RUNTIME DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
     LIBRARY DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
-    ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
+    ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}"
+    ${_vtk_python_header_set_install_args})
 endfunction ()
 
 #[==[.rst:
@@ -1044,8 +1065,13 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         OUTPUT  "${_vtk_python_static_importer_file}"
         CONTENT "${_vtk_python_static_importer_content}")
 
-      add_library("${_vtk_python_static_importer_name}" MODULE
-        ${_vtk_python_static_importer_file})
+      add_library("${_vtk_python_static_importer_name}" MODULE)
+      target_sources("${_vtk_python_static_importer_name}"
+        PRIVATE
+          "${_vtk_python_static_importer_file}")
+      _vtk_module_add_file_set("${_vtk_python_static_importer_name}"
+        BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}"
+        NAME      dummy)
       if (WIN32 AND NOT CYGWIN)
         set_property(TARGET "${_vtk_python_static_importer_name}"
           PROPERTY

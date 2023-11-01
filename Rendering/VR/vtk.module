@@ -16,10 +16,10 @@ DEPENDS
   VTK::InteractionWidgets
   VTK::RenderingOpenGL2
   VTK::RenderingVolumeOpenGL2
+  VTK::glew
   VTK::vtksys
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::opengl
-  VTK::glew
   VTK::IOXML
   VTK::ImagingSources

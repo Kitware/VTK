@@ -3589,6 +3589,103 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
   endif ()
 endfunction ()
 
+#[==[.rst:
+.. cmake:command:: _vtk_module_add_file_set
+
+  Add a file set to a target. |module-internal|
+
+  .. code-block:: cmake
+
+    _vtk_module_add_file_set(<target>
+      NAME <name>
+      [VIS <visibility>]
+      [TYPE <type>]
+      [BASE_DIRS <base directory>...]
+      FILES
+        [members...])
+
+  Add a file set to the ``<target>`` named ``<name>``.
+
+  * ``NAME``: The name of the file set.
+  * ``VIS``: The visibility of the file set. Defaults to ``PRIVATE``.
+    Must be a valid CMake visibility (``PUBLIC``, ``PRIVATE``, or
+    ``INTERFACE``).
+  * ``TYPE``: The type of the file set. Defaults to ``HEADERS``. File sets
+    types that are recognized and known to not be supported by the CMake
+    version in use will be added as ``PRIVATE`` sources not part of any file
+    set.
+  * ``BASE_DIRS``: Base directories for the files. Defaults to
+    ``${CMAKE_CURRENT_SOURCE_DIR}`` and ``${CMAKE_CURRENT_BINARY_DIR}`` if not
+    specified.
+  * ``FILES``: The paths to add to the file set.
+
+  Note that prior to CMake 3.19, usage of ``FILE_SET`` with ``INTERFACE``
+  targets is severely restricted and instead this function will do nothing. Any
+  ``PUBLIC`` files specified this way need installed using standard mechanisms.
+
+#]==]
+function (_vtk_module_add_file_set target)
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_file_set
+    ""
+    "NAME;VIS;TYPE"
+    "BASE_DIRS;FILES")
+
+  if (_vtk_add_file_set_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for _vtk_module_add_file_set: "
+      "${_vtk_add_file_set_UNPARSED_ARGUMENTS}")
+  endif ()
+
+  set(_vtk_add_file_set_known_visibilities
+    PRIVATE
+    PUBLIC
+    INTERFACE)
+  if (NOT DEFINED _vtk_add_file_set_VIS)
+    set(_vtk_add_file_set_VIS
+      PRIVATE)
+  endif ()
+  if (NOT _vtk_add_file_set_VIS IN_LIST _vtk_add_file_set_known_visibilities)
+    string(REPLACE ";" ", " _vtk_add_file_set_known_list "${_vtk_add_file_set_known_visibilities}")
+    message(FATAL_ERROR
+      "Unknown visibility '${_vtk_add_file_set_VIS}'. Must be one of "
+      "${_vtk_add_file_set_known_list}")
+  endif ()
+
+  if (NOT DEFINED _vtk_add_file_set_TYPE)
+    set(_vtk_add_file_set_TYPE "HEADERS")
+  endif ()
+
+  if (NOT DEFINED _vtk_add_file_set_BASE_DIRS)
+    set(_vtk_add_file_set_BASE_DIRS
+      "${CMAKE_CURRENT_SOURCE_DIR}"
+      "${CMAKE_CURRENT_BINARY_DIR}")
+  endif ()
+
+  if (CMAKE_VERSION VERSION_LESS "3.23")
+    # XXX(cmake-3.19): Using a non-`INTERACE` `FILE_SET`s with `INTERFACE`
+    # targets was added in CMake 3.19.
+    if (CMAKE_VERSION VERSION_LESS "3.19")
+      get_property(_vtk_add_file_set_type
+        TARGET    "${target}"
+        PROPERTY  TYPE)
+      if (_vtk_add_file_set_type STREQUAL "INTERFACE_LIBRARY")
+        return ()
+      endif ()
+    endif ()
+    target_sources("${target}"
+      PRIVATE
+        ${_vtk_add_file_set_FILES})
+    return ()
+  endif ()
+
+  target_sources("${target}"
+    "${_vtk_add_file_set_VIS}"
+      FILE_SET "${_vtk_add_file_set_NAME}"
+        TYPE      "${_vtk_add_file_set_TYPE}"
+        BASE_DIRS ${_vtk_add_file_set_BASE_DIRS}
+        FILES     ${_vtk_add_file_set_FILES})
+endfunction ()
+
 include(GenerateExportHeader)
 
 #[==[.rst:
@@ -3760,7 +3857,7 @@ function (vtk_module_add_module name)
   if (NOT _vtk_add_module_HEADER_ONLY AND NOT _vtk_add_module_third_party)
     set(_vtk_add_module_generated_header
       "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_add_module_module_header_name}")
-    list(APPEND _vtk_add_module_HEADERS
+    list(APPEND _vtk_add_module_NOWRAP_HEADERS
       "${_vtk_add_module_generated_header}")
   endif ()
 
@@ -3771,12 +3868,56 @@ function (vtk_module_add_module name)
   endif ()
 
   if (NOT _vtk_add_module_NO_INSTALL)
-    vtk_module_install_headers(
-      ${_vtk_add_module_use_relative_paths}
-      FILES   ${_vtk_add_module_HEADERS}
-              ${_vtk_add_module_NOWRAP_HEADERS}
-              ${_vtk_add_module_TEMPLATES}
-      SUBDIR  "${_vtk_add_module_HEADERS_SUBDIR}")
+    # Warn if `HEADER_DIRECTORIES` is not specified and directories are found
+    # in the source listings. But ignore third party packages; they have other
+    # mechanisms.
+    get_property(_vtk_add_module_is_third_party GLOBAL
+      PROPERTY  "_vtk_module_${_vtk_build_module}_third_party")
+    if (NOT _vtk_add_module_HEADER_DIRECTORIES)
+      foreach (_vtk_add_module_header_path IN LISTS _vtk_add_module_HEADERS _vtk_add_module_NOWRAP_HEADERS _vtk_add_module_TEMPLATES)
+        set(_vtk_add_module_header_path_orig "${_vtk_add_module_header_path}")
+        set(_vtk_add_module_header_path_base "source")
+        if (IS_ABSOLUTE "${_vtk_add_module_header_path}")
+          file(RELATIVE_PATH _vtk_add_module_header_path
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            "${_vtk_add_module_header_path}")
+          if (_vtk_add_module_header_path MATCHES "^\\.\\./")
+            message(AUTHOR_WARNING
+              "The `${_vtk_add_module_header_path_orig}` source appears to "
+              "be outside of the module's source or binary directory. "
+              "Please relocate the source to be underneath one of the two "
+              "directories.")
+            continue ()
+          endif ()
+          set(_vtk_add_module_header_path_base "binary")
+        endif ()
+        if (_vtk_add_module_header_path MATCHES "/")
+          message(AUTHOR_WARNING
+            "The `${_vtk_add_module_header_path_orig}` source contains a "
+            "directory between the ${_vtk_add_module_header_path_base} "
+            "directory and its location. Newer CMake prefers to use "
+            "`FILE_SET` installation which will keep this directory "
+            "structure within the install tree. This module likely has a "
+            "custom include directory setting to support consuming this "
+            "header. Please update to support `HEADER_DIRECTORIES` as "
+            "needed.")
+        endif ()
+      endforeach ()
+    endif ()
+
+    # XXX(cmake-3.23): file sets
+    if (CMAKE_VERSION VERSION_LESS "3.23" OR
+        # XXX(cmake-3.19): Using a non-`INTERACE` `FILE_SET`s with `INTERFACE`
+        # targets is not yet supported.
+        (CMAKE_VERSION VERSION_LESS "3.19" AND
+         _vtk_add_module_HEADER_ONLY))
+      vtk_module_install_headers(
+        ${_vtk_add_module_use_relative_paths}
+        FILES   ${_vtk_add_module_HEADERS}
+                ${_vtk_add_module_NOWRAP_HEADERS}
+                ${_vtk_add_module_TEMPLATES}
+        SUBDIR  "${_vtk_add_module_HEADERS_SUBDIR}")
+    endif ()
   endif ()
 
   set(_vtk_add_module_type)
@@ -3819,6 +3960,18 @@ function (vtk_module_add_module name)
     endif ()
 
     add_library("${_vtk_add_module_real_target}" INTERFACE)
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_templates
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_TEMPLATES})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_headers
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_HEADERS})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_nowrap_headers
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_NOWRAP_HEADERS})
 
     if (NOT _vtk_build_module STREQUAL _vtk_add_module_real_target)
       add_library("${_vtk_build_module}" ALIAS
@@ -3844,53 +3997,56 @@ function (vtk_module_add_module name)
         PROPERTY
           "INTERFACE_vtk_module_library_name" "${_vtk_add_module_library_name}")
 
-      add_library("${_vtk_add_module_real_target}-objects" OBJECT
-        ${_vtk_add_module_SOURCES}
-        ${_vtk_add_module_TEMPLATES}
-        ${_vtk_add_module_PRIVATE_TEMPLATES}
-        ${_vtk_add_module_HEADERS}
-        ${_vtk_add_module_NOWRAP_HEADERS}
-        ${_vtk_add_module_PRIVATE_HEADERS})
+      add_library("${_vtk_add_module_real_target}-objects" OBJECT)
 
-      if (_vtk_build_UTILITY_TARGET)
-        target_link_libraries("${_vtk_add_module_real_target}-objects"
-          PRIVATE
-            "${_vtk_build_UTILITY_TARGET}")
-      endif ()
-
-      set_target_properties("${_vtk_add_module_real_target}-objects"
-        PROPERTIES
+      set_property(TARGET "${_vtk_add_module_real_target}-objects"
+        PROPERTY
           # Emulate the regular library as much as possible.
-          DEFINE_SYMBOL             "${_vtk_add_module_real_target}_EXPORT"
-          POSITION_INDEPENDENT_CODE ON)
+          DEFINE_SYMBOL             "${_vtk_add_module_real_target}_EXPORT")
       target_compile_definitions("${_vtk_add_module_real_target}-objects"
         PRIVATE
           "${_vtk_add_module_real_target}_EXPORT")
       string(APPEND _vtk_add_module_real_target "-objects")
     else ()
-      add_library("${_vtk_add_module_real_target}" ${_vtk_add_module_type}
-        ${_vtk_add_module_SOURCES}
-        ${_vtk_add_module_TEMPLATES}
-        ${_vtk_add_module_PRIVATE_TEMPLATES}
-        ${_vtk_add_module_HEADERS}
-        ${_vtk_add_module_NOWRAP_HEADERS}
-        ${_vtk_add_module_PRIVATE_HEADERS})
-
-      if (_vtk_build_UTILITY_TARGET)
-        target_link_libraries("${_vtk_add_module_real_target}"
-          PRIVATE
-            "${_vtk_build_UTILITY_TARGET}")
-      endif ()
-
-      set_property(TARGET "${_vtk_add_module_real_target}"
-        PROPERTY
-          POSITION_INDEPENDENT_CODE ON)
+      add_library("${_vtk_add_module_real_target}" ${_vtk_add_module_type})
 
       if (NOT _vtk_build_module STREQUAL _vtk_add_module_real_target)
         add_library("${_vtk_build_module}" ALIAS
           "${_vtk_add_module_real_target}")
       endif ()
     endif ()
+
+    target_sources("${_vtk_add_module_real_target}"
+      PRIVATE
+        ${_vtk_add_module_SOURCES})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_private_templates
+      FILES ${_vtk_add_module_PRIVATE_TEMPLATES})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_templates
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_TEMPLATES})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_private_headers
+      FILES ${_vtk_add_module_PRIVATE_HEADERS})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_headers
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_HEADERS})
+    _vtk_module_add_file_set("${_vtk_add_module_real_target}"
+      NAME  vtk_module_nowrap_headers
+      VIS   PUBLIC
+      FILES ${_vtk_add_module_NOWRAP_HEADERS})
+
+    if (_vtk_build_UTILITY_TARGET)
+      target_link_libraries("${_vtk_add_module_real_target}"
+        PRIVATE
+          "${_vtk_build_UTILITY_TARGET}")
+    endif ()
+
+    set_property(TARGET "${_vtk_add_module_real_target}"
+      PROPERTY
+        POSITION_INDEPENDENT_CODE ON)
   endif ()
 
   set_property(TARGET "${_vtk_add_module_real_target}"
@@ -4042,10 +4198,14 @@ function (vtk_module_add_module name)
           "${_vtk_add_module_private_depends_forward_link}")
     endif ()
   endif ()
-  _vtk_module_standard_includes(
-    TARGET  "${_vtk_add_module_real_target}"
-    ${_vtk_add_module_includes_interface}
-    HEADERS_DESTINATION "${_vtk_build_HEADERS_DESTINATION}")
+  # Not needed for CMake 3.23+ as FILE_SET installation handles this
+  # automatically.
+  if (CMAKE_VERSION VERSION_LESS "3.23")
+    _vtk_module_standard_includes(
+      TARGET  "${_vtk_add_module_real_target}"
+      ${_vtk_add_module_includes_interface}
+      HEADERS_DESTINATION "${_vtk_build_HEADERS_DESTINATION}")
+  endif ()
 
   vtk_module_autoinit(
     MODULES ${_vtk_add_module_depends}
@@ -4549,6 +4709,26 @@ function (_vtk_module_install target)
     endif ()
   endif ()
 
+  set(_vtk_install_file_set_args)
+  # XXX(cmake-3.23): file sets
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23")
+    set(_vtk_install_file_sets_destination "${_vtk_build_HEADERS_DESTINATION}")
+    if (_vtk_add_module_HEADERS_SUBDIR)
+      string(APPEND _vtk_install_file_sets_destination
+        "/${_vtk_add_module_HEADERS_SUBDIR}")
+    endif ()
+
+    get_property(_vtk_install_available_file_sets
+      TARGET    "${target}"
+      PROPERTY  INTERFACE_HEADER_SETS)
+    foreach (_vtk_install_file_set IN LISTS _vtk_install_available_file_sets)
+      list(APPEND _vtk_install_file_set_args
+        FILE_SET "${_vtk_install_file_set}"
+          DESTINATION "${_vtk_install_file_sets_destination}"
+          COMPONENT   "${_vtk_install_headers_component}")
+    endforeach ()
+  endif ()
+
   install(
     TARGETS             "${target}"
     ${_vtk_install_export}
@@ -4562,7 +4742,8 @@ function (_vtk_module_install target)
       NAMELINK_COMPONENT "${_vtk_build_HEADERS_COMPONENT}"
     RUNTIME
       DESTINATION "${_vtk_build_RUNTIME_DESTINATION}"
-      COMPONENT   "${_vtk_install_targets_component}")
+      COMPONENT   "${_vtk_install_targets_component}"
+    ${_vtk_install_file_set_args})
 endfunction ()
 
 #[==[.rst:
@@ -4652,8 +4833,10 @@ function (vtk_module_add_executable name)
       "${_vtk_add_executable_origin_rpath_prefix}/${_vtk_add_executable_relpath}")
   endif ()
 
-  add_executable("${_vtk_add_executable_target_name}"
-    ${_vtk_add_executable_UNPARSED_ARGUMENTS})
+  add_executable("${_vtk_add_executable_target_name}")
+  target_sources("${_vtk_add_executable_target_name}"
+    PRIVATE
+      ${_vtk_add_executable_UNPARSED_ARGUMENTS})
 
   if (name STREQUAL _vtk_build_module AND NOT _vtk_add_executable_target_name STREQUAL _vtk_build_module)
     add_executable("${_vtk_build_module}" ALIAS
