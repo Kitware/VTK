@@ -319,7 +319,7 @@ void CloseDLLDirectoryCookie()
 /**
  * Add paths to VTK's Python modules.
  */
-void SetupVTKPythonPaths(bool isolated)
+void SetupPythonPaths(bool isolated, std::string vtklib, const char* landmark)
 {
   // Check if we're using an isolated Python.
   if (isolated)
@@ -329,7 +329,6 @@ void SetupVTKPythonPaths(bool isolated)
   }
 
   using systools = vtksys::SystemTools;
-  std::string vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
   if (vtklib.empty())
   {
     VTKPY_DEBUG_MESSAGE(
@@ -384,7 +383,7 @@ void SetupVTKPythonPaths(bool isolated)
 #endif
 
 #if defined(VTK_BUILD_SHARED_LIBS)
-  vtkPythonInterpreter::PrependPythonPath(vtkdir.c_str(), "vtkmodules/__init__.py");
+  vtkPythonInterpreter::PrependPythonPath(vtkdir.c_str(), landmark);
 #else
   // since there may be other packages not zipped (e.g. mpi4py), we added path to _vtk.zip
   // to the search path as well.
@@ -395,8 +394,8 @@ void SetupVTKPythonPaths(bool isolated)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPythonInterpreter::InitializeWithArgs(
-  int initsigs, int argc, char* argv[], const char* programName)
+bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv[],
+  const char* programName, const char* libraryPath, const char* landmark)
 {
   bool isolated = vtkPythonPreConfig();
 
@@ -517,7 +516,12 @@ bool vtkPythonInterpreter::InitializeWithArgs(
     // We call this before processing any of Python paths added by the
     // application using `PrependPythonPath`. This ensures that application
     // specified paths are preferred to the ones `vtkPythonInterpreter` adds.
-    SetupVTKPythonPaths(isolated);
+    std::string vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
+    SetupPythonPaths(isolated, vtklib, "vtkmodules/__init__.py");
+    if (libraryPath)
+    {
+      SetupPythonPaths(isolated, libraryPath, landmark);
+    }
 
     for (size_t cc = 0; cc < PythonPaths.size(); cc++)
     {
