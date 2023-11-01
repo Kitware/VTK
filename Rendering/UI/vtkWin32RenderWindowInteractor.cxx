@@ -384,7 +384,7 @@ int vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags, int X, i
   }
 
   this->SetEventInformationFlipY(X, Y, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   if (!this->MouseInWindow && (X >= 0 && X < this->Size[0] && Y >= 0 && Y < this->Size[1]))
   {
     this->InvokeEvent(vtkCommand::EnterEvent, nullptr);
@@ -410,7 +410,7 @@ int vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags, int X, int 
 
   const int* pos = this->RenderWindow->GetPosition();
   this->SetEventInformationFlipY(X - pos[0], Y - pos[1], nFlags & MK_CONTROL, nFlags & MK_SHIFT);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   const int ret = this->InvokeEvent(vtkCommand::LeaveEvent, nullptr);
   this->MouseInWindow = 0;
   return ret;
@@ -424,7 +424,7 @@ int vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND, UINT nFlags, int X
     return 0;
   }
   this->SetEventInformationFlipY(X, Y, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   return this->InvokeEvent(vtkCommand::MouseWheelForwardEvent, nullptr);
 }
 
@@ -436,7 +436,7 @@ int vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND, UINT nFlags, int 
     return 0;
   }
   this->SetEventInformationFlipY(X, Y, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   return this->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, nullptr);
 }
 
@@ -457,7 +457,7 @@ int vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd, UINT nFlags, int X, 
   SetFocus(wnd);
   SetCapture(wnd);
   this->SetEventInformationFlipY(X, Y, nFlags & MK_CONTROL, nFlags & MK_SHIFT, 0, repeat);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   return this->InvokeEvent(vtkCommand::LeftButtonPressEvent, nullptr);
 }
 
@@ -474,7 +474,7 @@ int vtkWin32RenderWindowInteractor::OnLButtonUp(HWND, UINT nFlags, int X, int Y)
     return 0;
   }
   this->SetEventInformationFlipY(X, Y, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   const int ret = this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, nullptr);
   ReleaseCapture();
   return ret;
@@ -490,7 +490,7 @@ int vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd, UINT nFlags, int X, 
   SetFocus(wnd);
   SetCapture(wnd);
   this->SetEventInformationFlipY(X, Y, nFlags & MK_CONTROL, nFlags & MK_SHIFT, 0, repeat);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   return this->InvokeEvent(vtkCommand::MiddleButtonPressEvent, nullptr);
 }
 
@@ -502,7 +502,7 @@ int vtkWin32RenderWindowInteractor::OnMButtonUp(HWND, UINT nFlags, int X, int Y)
     return 0;
   }
   this->SetEventInformationFlipY(X, Y, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   const int ret = this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, nullptr);
   ReleaseCapture();
   return ret;
@@ -518,7 +518,7 @@ int vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd, UINT nFlags, int X, 
   SetFocus(wnd);
   SetCapture(wnd);
   this->SetEventInformationFlipY(X, Y, nFlags & MK_CONTROL, nFlags & MK_SHIFT, 0, repeat);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   return this->InvokeEvent(vtkCommand::RightButtonPressEvent, nullptr);
 }
 
@@ -530,7 +530,7 @@ int vtkWin32RenderWindowInteractor::OnRButtonUp(HWND, UINT nFlags, int X, int Y)
     return 0;
   }
   this->SetEventInformationFlipY(X, Y, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
-  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+  this->SetAltKey((GetKeyState(VK_MENU) & 0x8000) != 0);
   const int ret = this->InvokeEvent(vtkCommand::RightButtonReleaseEvent, nullptr);
   ReleaseCapture();
   return ret;
@@ -573,29 +573,59 @@ int vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UI
   {
     return 0;
   }
-  int ctrl = GetKeyState(VK_CONTROL) & (~1);
-  int shift = GetKeyState(VK_SHIFT) & (~1);
-  int alt = GetKeyState(VK_MENU) & (~1);
+  int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+  int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+  int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
   WORD nChar = 0;
+  WORD nCharWithoutMod = 0;
   {
 #ifndef _WIN32_WCE
     BYTE keyState[256];
     GetKeyboardState(keyState);
+    // ToAscii is assumed to provide a keycode in Latin1 (ISO/IEC 8859-1)
     if (ToAscii(vCode, nFlags & 0xff, keyState, &nChar, 0) == 0)
     {
       nChar = 0;
     }
+    nCharWithoutMod = nChar;
+    if (ctrl != 0 || alt != 0)
+    {
+      // When using modifiers, recover a keyCode without modifiers
+      // except Shift in order to unsure behavior consistency with
+      // other OSes.
+      keyState[VK_CONTROL] = 0;
+      keyState[VK_MENU] = 0;
+      if (ToAscii(vCode, nFlags & 0xff, keyState, &nCharWithoutMod, 0) == 0)
+      {
+        nCharWithoutMod = 0;
+      }
+    }
 #endif
   }
+
+  // keyCode is the modified one except when it is 0
+  // in that case, fallback on the version without modifiers
+  char keyCode = nChar;
+  if (keyCode == 0)
+  {
+    keyCode = nCharWithoutMod;
+  }
+
+  // Try to recover any valid keySym
   const char* keysym = AsciiToKeySymTable[(unsigned char)nChar];
-  if (keysym == 0)
+  if (keysym == nullptr)
+  {
+    keysym = AsciiToKeySymTable[(unsigned char)nCharWithoutMod];
+  }
+  if (keysym == nullptr)
   {
     keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
   }
-  if (keysym == 0)
+  if (keysym == nullptr)
   {
     keysym = "None";
   }
+
   this->SetKeyEventInformation(ctrl, shift, nChar, nRepCnt, keysym);
   this->SetAltKey(alt);
   return this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
@@ -608,29 +638,59 @@ int vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UINT
   {
     return 0;
   }
-  int ctrl = GetKeyState(VK_CONTROL) & (~1);
-  int shift = GetKeyState(VK_SHIFT) & (~1);
-  int alt = GetKeyState(VK_MENU) & (~1);
+  int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+  int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+  int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
   WORD nChar = 0;
+  WORD nCharWithoutMod = 0;
   {
-    BYTE keyState[256];
 #ifndef _WIN32_WCE
+    BYTE keyState[256];
     GetKeyboardState(keyState);
+    // ToAscii is assumed to provide a keycode in Latin1 (ISO/IEC 8859-1)
     if (ToAscii(vCode, nFlags & 0xff, keyState, &nChar, 0) == 0)
     {
       nChar = 0;
     }
+    nCharWithoutMod = nChar;
+    if (ctrl != 0 || alt != 0)
+    {
+      // When using modifiers, recover a keyCode without modifiers
+      // except Shift in order to unsure behavior consistency with
+      // other OSes.
+      keyState[VK_CONTROL] = 0;
+      keyState[VK_MENU] = 0;
+      if (ToAscii(vCode, nFlags & 0xff, keyState, &nCharWithoutMod, 0) == 0)
+      {
+        nCharWithoutMod = 0;
+      }
+    }
 #endif
   }
+
+  // keyCode is the modified one except when it is 0
+  // in that case, fallback on the version without modifiers
+  char keyCode = nChar;
+  if (keyCode == 0)
+  {
+    keyCode = nCharWithoutMod;
+  }
+
+  // Try to recover any valid keySym
   const char* keysym = AsciiToKeySymTable[(unsigned char)nChar];
-  if (keysym == 0)
+  if (keysym == nullptr)
+  {
+    keysym = AsciiToKeySymTable[(unsigned char)nCharWithoutMod];
+  }
+  if (keysym == nullptr)
   {
     keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
   }
-  if (keysym == 0)
+  if (keysym == nullptr)
   {
     keysym = "None";
   }
+
   this->SetKeyEventInformation(ctrl, shift, nChar, nRepCnt, keysym);
   this->SetAltKey(alt);
   return this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
@@ -643,9 +703,9 @@ int vtkWin32RenderWindowInteractor::OnChar(HWND, UINT nChar, UINT nRepCnt, UINT)
   {
     return 0;
   }
-  int ctrl = GetKeyState(VK_CONTROL) & (~1);
-  int shift = GetKeyState(VK_SHIFT) & (~1);
-  int alt = GetKeyState(VK_MENU) & (~1);
+  int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+  int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+  int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
   this->SetKeyEventInformation(ctrl, shift, nChar, nRepCnt);
   this->SetAltKey(alt);
   return this->InvokeEvent(vtkCommand::CharEvent, nullptr);
@@ -701,9 +761,10 @@ int vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam)
   PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
   if (pInputs)
   {
-    int ctrl = GetKeyState(VK_CONTROL) & (~1);
-    int shift = GetKeyState(VK_SHIFT) & (~1);
-    this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+    int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+    int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+    int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
+    this->SetAltKey(alt);
     GetTouchInputInfoType GTII =
       (GetTouchInputInfoType)GetProcAddress(GetModuleHandle(TEXT("user32")), "GetTouchInputInfo");
     if (GTII((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT)))
@@ -780,10 +841,11 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
     location[0] = static_cast<double>(pt.x);
     location[1] = static_cast<double>(this->Size[1] - pt.y - 1); // flip Y
 
-    int ctrl = GetKeyState(VK_CONTROL) & (~1);
-    int shift = GetKeyState(VK_SHIFT) & (~1);
+    int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+    int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+    int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
     this->SetEventInformationFlipY(location[0], location[1], ctrl, shift);
-    this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+    this->SetAltKey(alt);
     this->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
   }
 
