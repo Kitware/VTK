@@ -227,7 +227,9 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
   int controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
   int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
+  unsigned char keyCode = '\0';
   unsigned char charCode = '\0';
+  unsigned char charCodeWithoutMod = '\0';
   const char* keySym = nullptr;
 
   NSEventType type = [theEvent type];
@@ -235,12 +237,27 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 
   if (type == NSEventTypeKeyUp || type == NSEventTypeKeyDown)
   {
-    // Try to get the characters associated with the key event as an ASCII string.
-    const char* keyedChars = [[theEvent characters] cStringUsingEncoding:NSASCIIStringEncoding];
+    // Try to get the characters associated with the key event as an Latin1 (ISO/IEC 8859-1) string.
+    const char* keyedChars = [[theEvent characters] cStringUsingEncoding:NSISOLatin1StringEncoding];
     if (keyedChars)
     {
       charCode = static_cast<unsigned char>(keyedChars[0]);
     }
+    keyedChars =
+      [[theEvent charactersIgnoringModifiers] cStringUsingEncoding:NSISOLatin1StringEncoding];
+    if (keyedChars)
+    {
+      charCodeWithoutMod = static_cast<unsigned char>(keyedChars[0]);
+    }
+
+    // Recover keyCode, fallback on code without mod
+    // if keyCode is invalid.
+    keyCode = charCode;
+    if (charCode == 0)
+    {
+      keyCode = charCodeWithoutMod;
+    }
+
     // Get the virtual key code and convert it to a keysym as best we can.
     unsigned short macKeyCode = [theEvent keyCode];
     if (macKeyCode < 128)
@@ -250,6 +267,14 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
     if (keySym == nullptr && charCode < 128)
     {
       keySym = vtkMacCharCodeToKeySymTable[charCode];
+    }
+    if (keySym == nullptr && charCodeWithoutMod < 128)
+    {
+      keySym = vtkMacCharCodeToKeySymTable[charCodeWithoutMod];
+    }
+    if (keySym == nullptr)
+    {
+      keySym = "None";
     }
   }
   else if (type == NSEventTypeFlagsChanged)
@@ -288,11 +313,11 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
   }
 
   interactor->SetEventInformation(static_cast<int>(backingLoc.x), static_cast<int>(backingLoc.y),
-    controlDown, shiftDown, charCode, 1, keySym);
+    controlDown, shiftDown, static_cast<char>(keyCode), 1, keySym);
   interactor->SetAltKey(altDown);
 
   interactor->InvokeEvent(theEventId, nullptr);
-  if (isPress && charCode != '\0')
+  if (isPress && keyCode != '\0')
   {
     interactor->InvokeEvent(vtkCommand::CharEvent, nullptr);
   }
