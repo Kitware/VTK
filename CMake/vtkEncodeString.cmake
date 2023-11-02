@@ -138,6 +138,12 @@ function (vtk_encode_string)
       "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_encode_string_INPUT}")
   endif ()
 
+  set(_vtk_encode_string_depends_args)
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+    list(APPEND _vtk_encode_string_depends_args
+      DEPENDS_EXPLICIT_ONLY)
+  endif ()
+
   add_custom_command(
     OUTPUT  ${_vtk_encode_string_header}
             ${_vtk_encode_string_source}
@@ -156,7 +162,8 @@ function (vtk_encode_string)
             "-Dbinary=${_vtk_encode_string_BINARY}"
             "-Dnul_terminate=${_vtk_encode_string_NUL_TERMINATE}"
             "-D_vtk_encode_string_run=ON"
-            -P "${_vtkEncodeString_script_file}")
+            -P "${_vtkEncodeString_script_file}"
+    ${_vtk_encode_string_depends_args})
 
   if (DEFINED _vtk_encode_string_SOURCE_OUTPUT)
     set("${_vtk_encode_string_SOURCE_OUTPUT}"

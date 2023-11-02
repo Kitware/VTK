@@ -70,6 +70,12 @@ function (vtk_hash_source)
   set(_vtk_hash_source_header
     "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_hash_source_NAME}.h")
 
+  set(_vtk_hash_source_depends_args)
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+    list(APPEND _vtk_hash_source_depends_args
+      DEPENDS_EXPLICIT_ONLY)
+  endif ()
+
   add_custom_command(
     OUTPUT  "${_vtk_hash_source_header}"
     DEPENDS "${_vtkHashSource_script_file}"
@@ -80,7 +86,8 @@ function (vtk_hash_source)
             "-Doutput_name=${_vtk_hash_source_NAME}"
             "-Dalgorithm=${_vtk_hash_source_ALGORITHM}"
             "-D_vtk_hash_source_run=ON"
-            -P "${_vtkHashSource_script_file}")
+            -P "${_vtkHashSource_script_file}"
+    ${_vtk_hash_source_depends_args})
 
   if (DEFINED _vtk_hash_source_HEADER_OUTPUT)
     set("${_vtk_hash_source_HEADER_OUTPUT}"

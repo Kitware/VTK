@@ -162,6 +162,12 @@ foreach (python_file IN LISTS python_files)
   endif ()
 endforeach ()
 
+set(_vtk_python_depends_args)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+  list(APPEND _vtk_python_depends_args
+    DEPENDS_EXPLICIT_ONLY)
+endif ()
+
 set(python_copied_modules)
 foreach (python_file IN LISTS python_files)
   set(output_python_file
@@ -179,7 +185,8 @@ foreach (python_file IN LISTS python_files)
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
               "${CMAKE_CURRENT_SOURCE_DIR}/${python_file}"
               "${output_python_file}"
-      COMMENT "Copying ${python_file} to the binary directory")
+      COMMENT "Copying ${python_file} to the binary directory"
+      ${_vtk_python_depends_args})
   endif ()
   if (BUILD_SHARED_LIBS)
     get_filename_component(python_file_directory "${python_file}" DIRECTORY)
@@ -224,7 +231,8 @@ if (NOT BUILD_SHARED_LIBS)
                       "${_vtk_python_zip}" --format=zip ${_vtk_python_files}
     DEPENDS           ${_vtk_python_files}
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
-    COMMENT           "Creating _vtk.zip Python modules archive")
+    COMMENT           "Creating _vtk.zip Python modules archive"
+    ${_vtk_python_depends_args})
   install(
     FILES       "${_vtk_python_zip}"
     DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/"

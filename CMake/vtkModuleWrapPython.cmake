@@ -397,6 +397,12 @@ function (_vtk_module_wrap_python_library name)
     set(_vtk_python_wrap_target "VTKCompileTools::WrapPythonInit")
   endif ()
 
+  set(_vtk_python_depends_args)
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+    list(APPEND _vtk_python_depends_args
+      DEPENDS_EXPLICIT_ONLY)
+  endif ()
+
   add_custom_command(
     OUTPUT  "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
@@ -408,7 +414,8 @@ function (_vtk_module_wrap_python_library name)
     COMMENT "Generating the Python module initialization sources for ${name}"
     DEPENDS
       "${_vtk_python_init_data_file}"
-      "$<TARGET_FILE:${_vtk_python_wrap_target}>")
+      "$<TARGET_FILE:${_vtk_python_wrap_target}>"
+    ${_vtk_python_depends_args})
 
   if (_vtk_python_BUILD_STATIC)
     set(_vtk_python_module_header_file
@@ -1143,6 +1150,12 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         set(_generate_pyi_static_importer_arg)
       endif ()
 
+      set(_vtk_python_depends_args)
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+        list(APPEND _vtk_python_depends_args
+          DEPENDS_EXPLICIT_ONLY)
+      endif ()
+
       add_custom_command(
         OUTPUT    ${_vtk_python_pyi_files}
         COMMAND   ${_vtk_python_exe} # Do not quote; may contain arguments.
@@ -1156,7 +1169,8 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         DEPENDS   ${_vtk_python_module_targets}
                   ${_vtk_python_static_importer_name}
                   "${_vtk_pyi_script}"
-        COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}")
+        COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}"
+        ${_vtk_python_depends_args})
 
       install(
         FILES       ${_vtk_python_pyi_files}
@@ -1261,6 +1275,12 @@ function (vtk_module_add_python_package name)
         "${CMAKE_CURRENT_SOURCE_DIR}/")
     endif ()
 
+    set(_vtk_python_package_depends_args)
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+      list(APPEND _vtk_python_package_depends_args
+        DEPENDS_EXPLICIT_ONLY)
+    endif ()
+
     set(_vtk_add_python_package_file_output
       "${CMAKE_BINARY_DIR}/${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_name}")
     add_custom_command(
@@ -1269,7 +1289,8 @@ function (vtk_module_add_python_package name)
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
               "${_vtk_add_python_package_file}"
               "${_vtk_add_python_package_file_output}"
-      COMMENT "Copying ${_vtk_add_python_package_name} to the binary directory")
+      COMMENT "Copying ${_vtk_add_python_package_name} to the binary directory"
+      ${_vtk_python_package_depends_args})
     list(APPEND _vtk_add_python_package_file_outputs
       "${_vtk_add_python_package_file_output}")
     if (BUILD_SHARED_LIBS)

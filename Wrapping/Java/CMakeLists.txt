@@ -109,6 +109,12 @@ if (TARGET VTK::FiltersModeling AND TARGET VTK::IOImage)
     vtk/sample/ImagePlaneWidget)
 endif ()
 
+set(_vtk_java_depends_args)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+  list(APPEND _vtk_java_depends_args
+    DEPENDS_EXPLICIT_ONLY)
+endif ()
+
 set(java_input_files)
 set(java_class_files)
 foreach (java_file IN LISTS java_sources)
@@ -119,7 +125,8 @@ foreach (java_file IN LISTS java_sources)
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different
             "${CMAKE_CURRENT_SOURCE_DIR}/${java_file}.java"
             "${output_file}"
-    COMMENT "Copying ${java_file} to the binary directory")
+    COMMENT "Copying ${java_file} to the binary directory"
+    ${_vtk_java_depends_args})
 
   list(APPEND java_input_files
     "${output_file}")
