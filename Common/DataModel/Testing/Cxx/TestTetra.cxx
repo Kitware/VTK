@@ -23,7 +23,7 @@
       vtkLogF(ERROR, "'%s' => %s", #cond, msg);                                                    \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
-  } while (false);
+  } while (false)
 
 //-----------------------------------------------------------------------------
 template <typename T>

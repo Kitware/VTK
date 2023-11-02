@@ -20,7 +20,7 @@
       vtkLogF(ERROR, "'%s' => %s", #cond, msg);                                                    \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
-  } while (false);
+  } while (false)
 
 //-----------------------------------------------------------------------------
 template <typename T>
@@ -51,7 +51,7 @@ int TestPyramid(int, char*[])
   // Testing vtkPyramid::ComputeCentroid and vtkPyramid::GetCentroid
   std::array<double, 3> centroid;
   bool res = pyramid->GetCentroid(centroid.data());
-  VTK_REQUIRE(res, "vtkPyramid::GetCentroid FAILED: couldn't determine centroid")
+  VTK_REQUIRE(res, "vtkPyramid::GetCentroid FAILED: couldn't determine centroid");
   VTK_REQUIRE(FuzzyCompare(centroid, { 0.0, 0.0, 0.75 }, tol),
     "vtkPyramid::GetCentroid FAILED: wrong centroid");
   return EXIT_SUCCESS;
