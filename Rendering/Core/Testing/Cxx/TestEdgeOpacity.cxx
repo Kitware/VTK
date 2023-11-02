@@ -40,7 +40,7 @@ int TestEdgeOpacity(int argc, char* argv[])
   ::SetupActorWithEdgeOpacity(actor1, mapper, pos, opacity);
 
   VTK_CREATE(vtkActor, actor2);
-  pos[0] = 1.5;
+  pos[0] = 1;
   opacity = 0.66;
   ::SetupActorWithEdgeOpacity(actor2, mapper, pos, opacity);
 
