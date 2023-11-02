@@ -209,6 +209,9 @@ More advanced options:
      and installed for each module and third party, in order to be able to create a SBOM.
      See [](/api/cmake/ModuleSystem.md#spdx-files-generation) and
      [](/advanced/spdx_and_sbom.md) for more info.
+  * `VTK_ANARI_ENABLE_NVTX` (default `OFF`; requires CUDA Toolkit): If `ON`, enables the NVIDIA
+     Tools Extension Library (NVTX) for profiling the ANARI rendering code and visualizing
+     these events in tools like [NSight Systems][nsight].
 
 `vtkArrayDispatch` related options:
 
@@ -284,3 +287,4 @@ If any `YES` module requires a `NO` module, an error is raised.
 [cuda]: https://developer.nvidia.com/cuda-zone
 [hip]: https://en.wikipedia.org/wiki/ROCm
 [mpi]: https://www.mcs.anl.gov/research/projects/mpi
+[nsight]: https://developer.nvidia.com/nsight-systems

@@ -14,6 +14,7 @@ set(classes
   vtkGPUVolumeRayCastMapper
   vtkMultiVolume
   vtkOSPRayVolumeInterface
+  vtkAnariVolumeInterface
   vtkProjectedTetrahedraMapper
   vtkRayCastImageDisplayHelper
   vtkRecursiveSphereDirectionEncoder
