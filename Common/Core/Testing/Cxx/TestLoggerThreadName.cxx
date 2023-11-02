@@ -10,8 +10,8 @@
 #include <thread>
 
 // Control the order of operations between the threads
-std::atomic_bool wait1;
-std::atomic_bool wait2;
+static std::atomic_bool wait1;
+static std::atomic_bool wait2;
 
 void Thread1()
 {

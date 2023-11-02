@@ -40,8 +40,8 @@ public:
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-std::mutex InstanceLock; // XXX(c++17): use a `shared_mutex`
-vtkSmartPointer<vtkOutputWindow> vtkOutputWindowGlobalInstance;
+static std::mutex InstanceLock; // XXX(c++17): use a `shared_mutex`
+static vtkSmartPointer<vtkOutputWindow> vtkOutputWindowGlobalInstance;
 
 // helps accessing private members in vtkOutputWindow.
 class vtkOutputWindowPrivateAccessor

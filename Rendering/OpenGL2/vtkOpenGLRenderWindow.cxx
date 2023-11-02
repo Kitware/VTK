@@ -77,9 +77,9 @@ static const vtkOpenGLRenderWindowDriverInfo vtkOpenGLRenderWindowMSAATextureBug
   { "X.Org", "", "AMD" },
 };
 
-const char* defaultWindowName = "Visualization Toolkit - OpenGL";
+static const char* defaultWindowName = "Visualization Toolkit - OpenGL";
 
-const char* ResolveShader =
+static const char* ResolveShader =
   R"***(
   //VTK::System::Dec
   in vec2 texCoord;
@@ -110,7 +110,7 @@ const char* ResolveShader =
   }
   )***";
 
-const char* DepthBlitShader =
+static const char* DepthBlitShader =
   R"***(
   //VTK::System::Dec
   in vec2 texCoord;
@@ -125,7 +125,7 @@ const char* DepthBlitShader =
   }
   )***";
 
-const char* DepthReadShader =
+static const char* DepthReadShader =
   R"***(//VTK::System::Dec
   in vec2 texCoord;
   uniform sampler2D tex;
@@ -156,7 +156,7 @@ const char* DepthReadShader =
   }
   )***";
 
-const char* FlipShader =
+static const char* FlipShader =
   R"***(
   //VTK::System::Dec
   in vec2 texCoord;

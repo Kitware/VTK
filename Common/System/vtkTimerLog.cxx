@@ -39,7 +39,7 @@
 //==============================================================================
 VTK_ABI_NAMESPACE_BEGIN
 static unsigned int vtkTimerLogCleanupCounter = 0;
-std::vector<vtkTimerLogEntry>* vtkTimerLogEntryVectorPtr = nullptr;
+static std::vector<vtkTimerLogEntry>* vtkTimerLogEntryVectorPtr = nullptr;
 
 vtkTimerLogCleanup::vtkTimerLogCleanup()
 {
