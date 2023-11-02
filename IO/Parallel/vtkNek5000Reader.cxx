@@ -80,8 +80,8 @@ void ByteSwap64(void* aVals, int nVals)
 
 int compare_ids(const void* id1, const void* id2)
 {
-  int* a = (int*)id1;
-  int* b = (int*)id2;
+  const int* a = (const int*)id1;
+  const int* b = (const int*)id2;
 
   if (*a < *b)
     return (-1);
