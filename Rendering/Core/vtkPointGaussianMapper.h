@@ -65,6 +65,18 @@ public:
 
   ///@{
   /**
+   * If enabled, the gaussian can be stretched and oriented on some direction.
+   * A 3x3 covariance matrix is built using the scale array and the rotation array.
+   * Since a 3D vector is expected, the value in ScaleArrayComponent is ignored.
+   * Default value is false.
+   */
+  vtkSetMacro(Anisotropic, bool);
+  vtkGetMacro(Anisotropic, bool);
+  vtkBooleanMacro(Anisotropic, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set the default scale factor of the point gaussians.  This
    * defaults to 1.0. All radius computations will be scaled by the factor
    * including the ScaleArray. If a vtkPiecewideFunction is used the
@@ -74,6 +86,17 @@ public:
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set the array containing the rotation of each point.
+   * The array must contain quaternions (4 components).
+   * Must be specified is Anisotropic is true.
+   * Default value is nullptr.
+   */
+  vtkSetStringMacro(RotationArray);
+  vtkGetStringMacro(RotationArray);
   ///@}
 
   ///@{
@@ -155,6 +178,20 @@ public:
   vtkGetMacro(BoundScale, float);
   ///@}
 
+  ///@{
+  /**
+   * Once the 2D covariance matrix is computed, it's possible to add a custom
+   * low pass matrix to apply a convolution to the splat.
+   * It's useful to make sure the splat is at least one pixel wide for example.
+   * The 2x2 matrix to apply is stored as a 3D vector because it's symmetric.
+   * The first element is the first diagonal value, the second element is the
+   * off diagonal value, and the third element is the second diagonal value.
+   * Default is zero, meaning no convolution is applied.
+   */
+  vtkSetVector3Macro(LowpassMatrix, float);
+  vtkGetVector3Macro(LowpassMatrix, float);
+  ///@}
+
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -187,6 +224,10 @@ protected:
 private:
   vtkPointGaussianMapper(const vtkPointGaussianMapper&) = delete;
   void operator=(const vtkPointGaussianMapper&) = delete;
+
+  char* RotationArray = nullptr;
+  float LowpassMatrix[3] = { 0.f, 0.f, 0.f };
+  bool Anisotropic = false;
 };
 
 VTK_ABI_NAMESPACE_END

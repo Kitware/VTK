@@ -23,7 +23,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkUnsignedCharArray.h"
 
-#include "vtkPointGaussianVS.h"
+#include "vtkSimpleSplatVS.h"
 #include "vtkStickMapperGS.h"
 
 #include "vtk_glew.h"
@@ -45,7 +45,7 @@ void vtkOpenGLStickMapper::GetShaderTemplate(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
   this->Superclass::GetShaderTemplate(shaders, ren, actor);
-  shaders[vtkShader::Vertex]->SetSource(vtkPointGaussianVS);
+  shaders[vtkShader::Vertex]->SetSource(vtkSimpleSplatVS);
   shaders[vtkShader::Geometry]->SetSource(vtkStickMapperGS);
 }
 

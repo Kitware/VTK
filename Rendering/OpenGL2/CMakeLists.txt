@@ -173,6 +173,7 @@ set(shader_files
   glsl/vtkPolyDataWideLineGS.glsl
   glsl/vtkSSAAPassFS.glsl
   glsl/vtkSimpleMotionBlurPassFS.glsl
+  glsl/vtkSimpleSplatVS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
   glsl/vtkSphereMapperGS.glsl

@@ -162,6 +162,24 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderPositionVC(
       "uniform mat4 VCDCMatrix;\n"
       "uniform mat4 MCVCMatrix;");
 
+    if (this->Owner->GetAnisotropic())
+    {
+      vtkShaderProgram::Substitute(VSSource, "//VTK::Covariance::Dec",
+        "in vec3 radiusMC;\n"
+        "in vec4 rotationMC;");
+
+      vtkShaderProgram::Substitute(VSSource, "//VTK::Covariance::Impl",
+        "mat3 cov = T * computeCov3D(radiusMC, rotationMC) * transpose(T);");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(VSSource, "//VTK::Covariance::Dec", "in float radiusMC;");
+
+      vtkShaderProgram::Substitute(VSSource, "//VTK::Covariance::Impl",
+        "float radius = scaleFactor * radiusMC;\n"
+        "mat3 cov = (radius * radius) * T * transpose(T);");
+    }
+
     shaders[vtkShader::Vertex]->SetSource(VSSource);
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }
@@ -283,6 +301,7 @@ void vtkOpenGLPointGaussianMapperHelper::SetMapperShaderParameters(
   {
     cellBO.Program->SetUniformf("boundScale", this->BoundScale);
     cellBO.Program->SetUniformf("scaleFactor", this->Owner->GetScaleFactor());
+    cellBO.Program->SetUniform3f("lowpassMatrix", this->Owner->GetLowpassMatrix());
   }
   this->Superclass::SetMapperShaderParameters(cellBO, ren, actor);
 }
@@ -479,7 +498,15 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
 
   this->VBOs->CacheDataArray("vertexMC", poly->GetPoints()->GetData(), ren, VTK_FLOAT);
 
-  if (!this->UsingPoints)
+  if (this->Owner->GetAnisotropic())
+  {
+    this->VBOs->CacheDataArray(
+      "radiusMC", poly->GetPointData()->GetArray(this->Owner->GetScaleArray()), ren, VTK_FLOAT);
+
+    this->VBOs->CacheDataArray("rotationMC",
+      poly->GetPointData()->GetArray(this->Owner->GetRotationArray()), ren, VTK_FLOAT);
+  }
+  else if (!this->UsingPoints)
   {
     vtkNew<vtkFloatArray> offsets;
     offsets->SetNumberOfComponents(1);
@@ -523,7 +550,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
 
   this->VBOs->BuildAllVBOs(ren);
 
-  // we use no IBO
+  // reset all IBOs
   for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
   {
     this->Primitives[i].IBO->IndexCount = 0;

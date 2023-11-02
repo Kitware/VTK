@@ -13,13 +13,9 @@
 layout(points) in;
 layout(triangle_strip, max_vertices = 4) out;
 
-uniform int cameraParallel;
 uniform float boundScale;
-uniform float scaleFactor;
 
-uniform mat4 VCDCMatrix;
-
-in float radiusVCVSOutput[];
+in mat2 transformVCVSOutput[];
 out vec2 offsetVCGSOutput;
 
 // clipping plane vars
@@ -31,18 +27,6 @@ out vec2 offsetVCGSOutput;
 void main()
 {
   int i = 0;
-  vec2 offset;
-
-  vec4 base1 = vec4(1.0,0.0,0.0,0.0);
-  vec4 base2 = vec4(0.0,1.0,0.0,0.0);
-
-  // make the quad face the camera
-  if (cameraParallel == 0)
-  {
-    vec3 dir = normalize(-gl_in[0].gl_Position.xyz);
-    base2 = vec4(normalize(cross(dir,vec3(1.0,0.0,0.0))), 0.0);
-    base1 = vec4(cross(base2.xyz,dir),0.0);
-  }
 
   //VTK::PrimID::Impl
 
@@ -57,12 +41,14 @@ void main()
                            vec2(-boundScale, boundScale),
                            vec2(boundScale, boundScale));
 
+  vec4 posNDC = gl_in[0].gl_Position;
+  posNDC = posNDC / posNDC.w;
+
   for (int i = 0; i < 4; i++)
   {
-    vec2 offset = scaleFactor * radiusVCVSOutput[0] * offsets[i];
-
+    vec2 offset = transformVCVSOutput[0] * offsets[i];
     offsetVCGSOutput = offsets[i];
-    gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
+    gl_Position = vec4(posNDC.xy + offset, posNDC.zw);
     EmitVertex();
   }
 
