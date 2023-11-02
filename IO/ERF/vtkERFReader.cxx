@@ -409,29 +409,17 @@ void vtkERFReader::AppendSystemBlock(
       continue;
     }
 
-    vtkHDF::ScopedH5AHandle attributeHandler = H5Aopen(systemHandle, attribute, H5P_DEFAULT);
-    vtkHDF::ScopedH5THandle rawType = H5Aget_type(attributeHandler);
-    vtkHDF::ScopedH5THandle dataType = H5Tget_native_type(rawType, H5T_DIR_ASCEND);
-
-    if (H5Tget_class(dataType) != H5T_STRING)
+    std::string value = this->GetAttributeValueAsStr(systemHandle, attribute);
+    if (value.empty())
     {
       continue;
     }
 
-    hsize_t stringLength = H5Aget_storage_size(attributeHandler);
-    std::vector<char> value;
-    value.reserve(stringLength);
-    if (H5Aread(attributeHandler, dataType, value.data()) >= 0)
-    {
-      std::string content(value.data());
-      content.erase(std::remove_if(content.begin(), content.end(), isspace), content.end());
-
-      vtkNew<vtkStringArray> stringArr;
-      stringArr->SetName(attribute);
-      stringArr->SetNumberOfValues(1);
-      stringArr->SetValue(0, content);
-      output->GetFieldData()->AddArray(stringArr);
-    }
+    vtkNew<vtkStringArray> stringArr;
+    stringArr->SetName(attribute);
+    stringArr->SetNumberOfValues(1);
+    stringArr->SetValue(0, value);
+    output->GetFieldData()->AddArray(stringArr);
   }
 
   // Check Datasets
@@ -677,7 +665,7 @@ void vtkERFReader::AppendPoints(
   if (H5Tequal(nodeDataType, H5T_NATIVE_DOUBLE))
   {
     std::vector<double> resData;
-    resData.reserve(numberOfPoints * 3);
+    resData.resize(numberOfPoints * 3);
     H5Dread(arrayId, nodeDataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, resData.data());
     for (int i = 0; i < numberOfPoints; i++)
     {
@@ -716,21 +704,6 @@ void vtkERFReader::AppendCells(
   {
     vtkWarningMacro("'entid' point data array is empty, we can't recreate cell by indice.");
     return;
-  }
-
-  // Retrieve attributes information about number of points
-  vtkHDF::ScopedH5AHandle etypHandler = H5Aopen(fileId, "etyp", H5P_DEFAULT);
-  vtkHDF::ScopedH5THandle rawType = H5Aget_type(etypHandler);
-  vtkHDF::ScopedH5THandle dataType = H5Tget_native_type(rawType, H5T_DIR_ASCEND);
-
-  hsize_t stringLength = H5Aget_storage_size(etypHandler);
-  std::vector<char> value;
-  value.reserve(stringLength + 1);
-  if (H5Aread(etypHandler, dataType, value.data()) >= 0)
-  {
-    value[stringLength] = '\0';
-    std::string content(value.data());
-    content.erase(std::remove_if(content.begin(), content.end(), isspace), content.end());
   }
 
   int numberOfDimensions = this->GetAttributeValueAsInt(fileId, "ndim");
@@ -791,7 +764,7 @@ void vtkERFReader::FillCellsByType(vtkCellArray* cellArray, vtkUnsignedCharArray
   int numberOfIndicePerCell, int numberOfCell)
 {
   std::vector<int> resData;
-  resData.reserve(numberOfCell * numberOfIndicePerCell);
+  resData.resize(numberOfCell * numberOfIndicePerCell);
   H5Dread(arrayId, shellDataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, resData.data());
 
   switch (numberOfDimensions)
@@ -829,9 +802,9 @@ void vtkERFReader::Fill0DCellType(vtkCellArray* cellArray, vtkUnsignedCharArray*
 
   for (int i = 0; i < numberOfCell; i++)
   {
-    int pointId1 = entid->LookupValue(resData[i]);
+    vtkIdType pointId1 = static_cast<vtkIdType>(entid->LookupValue(resData[i]));
 
-    cellArray->InsertNextCell({ pointId1 });
+    cellArray->InsertNextCell(1, &pointId1);
     cellTypes->InsertNextValue(VTK_VERTEX);
   }
 }
@@ -940,28 +913,30 @@ void vtkERFReader::Fill3DCellType(vtkCellArray* cellArray, vtkUnsignedCharArray*
 std::string vtkERFReader::GetAttributeValueAsStr(
   const hid_t& erfIdx, const std::string& attributeName) const
 {
-  std::string etypnode;
   vtkHDF::ScopedH5AHandle attributeHandler = H5Aopen(erfIdx, attributeName.c_str(), H5P_DEFAULT);
   vtkHDF::ScopedH5THandle rawType = H5Aget_type(attributeHandler);
   vtkHDF::ScopedH5THandle dataType = H5Tget_native_type(rawType, H5T_DIR_ASCEND);
 
   if (H5Tget_class(dataType) != H5T_STRING)
   {
-    return etypnode;
+    return "";
   }
 
   hsize_t stringLength = H5Aget_storage_size(attributeHandler);
-  std::vector<char> value;
+  std::string value;
   value.resize(stringLength + 1);
-  if (H5Aread(attributeHandler, dataType, value.data()) >= 0)
+  if (H5Aread(attributeHandler, dataType, &value[0]) >= 0)
   {
-    etypnode = std::string(value.data());
-    etypnode.erase(std::remove_if(etypnode.begin(), etypnode.end(),
-                     [](char c) { return std::isspace(c) || !std::isalpha(c); }),
-      etypnode.end());
+    value.erase(std::remove_if(value.begin(), value.end(),
+                  [](char c) {
+                    // convert it to avoid potential issue wit negative char
+                    unsigned char uc = static_cast<unsigned char>(c);
+                    return std::isspace(uc) || !std::isalpha(uc);
+                  }),
+      value.end());
   }
 
-  return etypnode;
+  return value;
 }
 
 //----------------------------------------------------------------------------
