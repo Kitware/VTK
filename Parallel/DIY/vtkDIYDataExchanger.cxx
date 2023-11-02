@@ -120,7 +120,7 @@ bool vtkDIYDataExchanger::AllToAll(const std::vector<vtkSmartPointer<vtkDataSet>
       // cp.enqueue(neighbor, static_cast<int>(vector_of_ds.size()));
       for (auto& ds : vector_of_ds)
       {
-        vtkLogF(TRACE, "enqueue for %d (%p)", neighbor.gid, ds.GetPointer());
+        vtkLogF(TRACE, "enqueue for %d (%p)", neighbor.gid, static_cast<void*>(ds.GetPointer()));
         cp.enqueue<vtkDataSet*>(neighbor, ds.GetPointer());
       }
       vector_of_ds.clear();
