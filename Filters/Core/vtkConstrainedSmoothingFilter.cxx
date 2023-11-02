@@ -73,9 +73,6 @@ struct BuildStencil
       *o++ = links->GetOffset(ptId);
     }
   }
-
-  void Reduce() {}
-
 }; // BuildStencil
 
 // Create stencils if none were provided. Leverage the vtkExtractEdges filter
