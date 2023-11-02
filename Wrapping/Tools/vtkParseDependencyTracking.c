@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkParseDependencyTracking.h"
+#include "vtkParseData.h"
+#include "vtkParseString.h"
 #include "vtkParseSystem.h"
 
 #include <stdio.h>
@@ -11,11 +13,13 @@
 
 typedef struct DependencyTracking_
 {
-  char* Target;
-  char** Dependencies;
-  size_t NumberOfDependencies;
-  size_t DependenciesCapacity;
+  StringCache Strings;
+  const char* Target;
+  const char** Dependencies;
+  int NumberOfDependencies;
 } DependencyTracking;
+
+// dependency tracking is done globally
 DependencyTracking DepTracker;
 
 void vtkParse_InitDependencyTracking(const char* target)
@@ -25,62 +29,29 @@ void vtkParse_InitDependencyTracking(const char* target)
     return;
   }
 
-  DepTracker.Target = strdup(target);
+  vtkParse_InitStringCache(&DepTracker.Strings);
+  DepTracker.Target = vtkParse_CacheString(&DepTracker.Strings, target, strlen(target));
   DepTracker.Dependencies = NULL;
   DepTracker.NumberOfDependencies = 0;
-  DepTracker.DependenciesCapacity = 0;
 }
 
 void vtkParse_AddFileDependency(const char* dep)
 {
-  size_t newSize = DepTracker.NumberOfDependencies + 1;
-
   if (!DepTracker.Target)
   {
     return;
   }
 
-  if (newSize + 1 >= DepTracker.DependenciesCapacity)
-  {
-    char** newDeps = NULL;
-    /* Allocate 2 for the first call. */
-    size_t newCapacity =
-      DepTracker.DependenciesCapacity ? (DepTracker.DependenciesCapacity << 1) : 2;
-    size_t i;
-
-    newDeps = (char**)realloc(DepTracker.Dependencies, newCapacity * sizeof(char*));
-    if (!newDeps)
-    {
-      fprintf(stderr, "error: out of memory (DepTracker.Dependencies @ %zu)", newCapacity);
-      return;
-    }
-
-    /* Initialize new memory. */
-    for (i = DepTracker.NumberOfDependencies; i < newCapacity; ++i)
-    {
-      newDeps[i] = NULL;
-    }
-    DepTracker.Dependencies = newDeps;
-    DepTracker.DependenciesCapacity = newCapacity;
-  }
-
-  DepTracker.Dependencies[DepTracker.NumberOfDependencies] = strdup(dep);
-  if (!DepTracker.Dependencies[DepTracker.NumberOfDependencies])
-  {
-    fprintf(stderr, "error: out of memory (DepTracker.Dependencies[%zu] = %s)",
-      DepTracker.NumberOfDependencies, dep);
-    return;
-  }
-
-  ++DepTracker.NumberOfDependencies;
+  // in C++, an unordered set could be used
+  vtkParse_AddStringToArray(&DepTracker.Dependencies, &DepTracker.NumberOfDependencies,
+    vtkParse_CacheString(&DepTracker.Strings, dep, strlen(dep)));
 }
 
 static void write_path(FILE* fout, const char* path)
 {
   const char* c;
 
-  c = path;
-  while (*c)
+  for (c = path; *c != '\0'; ++c)
   {
     if (*c == ':')
     {
@@ -94,22 +65,30 @@ static void write_path(FILE* fout, const char* path)
     {
       fputc(*c, fout);
     }
-    ++c;
   }
 }
 
-static void write_line(FILE* fout, const char* target, const char* input)
+static void write_line(FILE* fout, const char* target, const char* dep)
 {
+  // format: "target: dependency\n" (escape ':' and ' ' in filenames)
   write_path(fout, target);
   fprintf(fout, ": ");
-  write_path(fout, input);
+  write_path(fout, dep);
   fputc('\n', fout);
+}
+
+// helper for qsort
+static int string_compare(const void* a, const void* b)
+{
+  return strcmp(*((const char**)a), *((const char**)b));
 }
 
 int vtkParse_DependencyTrackingWrite(const char* fname)
 {
   FILE* fout = NULL;
-  char** input;
+  const char* prev_dep = NULL;
+  const char* dep;
+  int i;
 
   if (!DepTracker.Target)
   {
@@ -122,16 +101,24 @@ int vtkParse_DependencyTrackingWrite(const char* fname)
     return 1;
   }
 
-  input = DepTracker.Dependencies;
-  if (input)
+  // sort the data so that we can easily identify duplicates
+  if (DepTracker.NumberOfDependencies > 1)
   {
-    while (*input)
+    qsort(DepTracker.Dependencies, DepTracker.NumberOfDependencies, sizeof(char*), string_compare);
+  }
+
+  for (i = 0; i < DepTracker.NumberOfDependencies; ++i)
+  {
+    // only write if not a duplicate of the previous value
+    dep = DepTracker.Dependencies[i];
+    if (prev_dep == NULL || strcmp(dep, prev_dep) != 0)
     {
-      write_line(fout, DepTracker.Target, *input);
-      ++input;
+      write_line(fout, DepTracker.Target, dep);
+      prev_dep = dep;
     }
   }
-  else
+
+  if (DepTracker.NumberOfDependencies == 0)
   {
     write_line(fout, DepTracker.Target, "");
   }
@@ -143,27 +130,14 @@ int vtkParse_DependencyTrackingWrite(const char* fname)
 
 void vtkParse_FinalizeDependencyTracking(void)
 {
-  char** input;
-
   if (!DepTracker.Target)
   {
     return;
   }
 
-  input = DepTracker.Dependencies;
-  if (input)
-  {
-    while (*input)
-    {
-      free(*input);
-      ++input;
-    }
-  }
-
   free(DepTracker.Dependencies);
   DepTracker.Dependencies = NULL;
   DepTracker.NumberOfDependencies = 0;
-  DepTracker.DependenciesCapacity = 0;
-  free(DepTracker.Target);
   DepTracker.Target = NULL;
+  vtkParse_FreeStringCache(&DepTracker.Strings);
 }
