@@ -13,9 +13,9 @@
 #include <chrono>
 #include <thread>
 
-vtkContourGrid* contour = nullptr;
-bool returnFailure = false;
-std::atomic<bool> runUpdate{ false };
+static vtkContourGrid* contour = nullptr;
+static bool returnFailure = false;
+static std::atomic<bool> runUpdate{ false };
 
 void runPipeline()
 {
