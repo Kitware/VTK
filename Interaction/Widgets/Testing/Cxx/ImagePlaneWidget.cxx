@@ -492,9 +492,11 @@ int ImagePlaneWidget(int argc, char* argv[])
   renWin->Render();
   iren->SetEventPosition(175, 175);
   iren->SetKeyCode('r');
+  iren->SetKeySym("r");
   iren->InvokeEvent(vtkCommand::CharEvent, nullptr);
   iren->SetEventPosition(475, 175);
   iren->SetKeyCode('r');
+  iren->SetKeySym("r");
   iren->InvokeEvent(vtkCommand::CharEvent, nullptr);
   renWin->Render();
 
@@ -515,8 +517,10 @@ int ImagePlaneWidget(int argc, char* argv[])
   // Test SetKeyPressActivationValue for one of the widgets
   //
   iren->SetKeyCode('z');
+  iren->SetKeySym("z");
   iren->InvokeEvent(vtkCommand::CharEvent, nullptr);
   iren->SetKeyCode('z');
+  iren->SetKeySym("z");
   iren->InvokeEvent(vtkCommand::CharEvent, nullptr);
 
   recorder->Play();
