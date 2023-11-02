@@ -25,9 +25,9 @@ int TestCustomCursorShape(int argc, char* argv[])
   iren->SetRenderWindow(renWin.GetPointer());
 
   const char* fileName = nullptr;
-#ifdef _WIN32
+#if defined(_WIN32)
   fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/pen_1.cur");
-#elif __linux
+#elif defined(__linux)
   fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/pen_1.xcursor");
 #endif
   renWin->Render();

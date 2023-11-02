@@ -5,15 +5,19 @@
 #if defined(_MSC_VER)
 #  define token_COMPILER MSC
 #  define token_COMPILER_MSC 1
+#  define token_SPACE_BEFORE_SUFFIX 0
 #elif defined(__INTEL_COMPILER)
 #  define token_COMPILER INTEL
 #  define token_COMPILER_INTEL 1
+#  define token_SPACE_BEFORE_SUFFIX 0
 #elif defined (__PGI)
 #  define token_COMPILER PGI
 #  define token_COMPILER_PGI 1
+#  define token_SPACE_BEFORE_SUFFIX 0
 #elif defined (__clang__)
 #  define token_COMPILER CLANG
 #  define token_COMPILER_CLANG 1
+#  define token_SPACE_BEFORE_SUFFIX 0
 #elif defined(__GNUC__)
 #  define token_COMPILER GCC
 #  define token_COMPILER_GCC 1
@@ -32,6 +36,7 @@
 #else
 #  define token_COMPILER UNKNOWN
 #  define token_COMPILER_UNKNOWN 1
+#  define token_SPACE_BEFORE_SUFFIX 0
 #endif
 
 #if __cplusplus >= 201402L || (defined(token_COMPILER_MSC) && _MSC_VER >= 1910)

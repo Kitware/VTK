@@ -40,7 +40,7 @@
 // the vertex and edge tables.
 //#define SHOW_QT_DATA_TABLES 1
 
-#if SHOW_QT_DATA_TABLES
+#ifdef SHOW_QT_DATA_TABLES
 #include "vtkQtTableView.h"
 #include <QApplication>
 #endif
@@ -129,7 +129,7 @@ void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg, int test, 
 
 int TestTableToGraph(int argc, char* argv[])
 {
-#if SHOW_QT_DATA_TABLES
+#ifdef SHOW_QT_DATA_TABLES
   QApplication app(argc, argv);
 #endif
 
@@ -313,7 +313,7 @@ int TestTableToGraph(int argc, char* argv[])
   //  view->GetRenderer()->ResetCamera();
   //  view->Update();
 
-#if SHOW_QT_DATA_TABLES
+#ifdef SHOW_QT_DATA_TABLES
   VTK_CREATE(vtkQtTableView, mergeView);
   mergeView->SetRepresentationFromInputConnection(merge->GetOutputPort());
   mergeView->GetWidget()->show();
@@ -337,7 +337,7 @@ int TestTableToGraph(int argc, char* argv[])
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-#if SHOW_QT_DATA_TABLES
+#ifdef SHOW_QT_DATA_TABLES
     QApplication::exec();
 #else
     iren->Initialize();
