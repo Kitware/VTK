@@ -26,6 +26,7 @@ vtkSplineFilter::vtkSplineFilter()
   this->Length = 0.1;
   this->GenerateTCoords = VTK_TCOORDS_FROM_NORMALIZED_LENGTH;
   this->TextureLength = 1.0;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   this->Spline = vtkCardinalSpline::New();
   this->TCoordMap = vtkFloatArray::New();
@@ -95,6 +96,20 @@ int vtkSplineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Create the geometry and topology
   numNewPts = this->NumberOfSubdivisions * numLines;
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+  {
+    newPts->SetDataType(input->GetPoints()->GetDataType());
+  }
+  else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  {
+    newPts->SetDataType(VTK_FLOAT);
+  }
+  else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  {
+    newPts->SetDataType(VTK_DOUBLE);
+  }
   newPts->Allocate(numNewPts);
   newLines = vtkCellArray::New();
   newLines->AllocateEstimate(1, numNewPts);
@@ -363,5 +378,6 @@ void vtkSplineFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Spline: " << this->Spline << "\n";
   os << indent << "Generate TCoords: " << this->GetGenerateTCoordsAsString() << endl;
   os << indent << "Texture Length: " << this->TextureLength << endl;
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
 VTK_ABI_NAMESPACE_END
