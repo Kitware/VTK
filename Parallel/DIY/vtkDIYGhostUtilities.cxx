@@ -6055,7 +6055,7 @@ void vtkDIYGhostUtilities::ExchangeFieldData(
     diy::Link* link = cp.link();
     for (int id = 0; id < link->size(); ++id)
     {
-      const diy::BlockID& blockId = link->target(id);;
+      const diy::BlockID& blockId = link->target(id);
       // we need this extra check because incoming is not empty when using only one block
       // also because attributes may have no data to transfer (no transferable array)
       if (cp.incoming(blockId.gid).empty())

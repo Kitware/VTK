@@ -22,7 +22,7 @@ int TestCLI11(int argc, char* argv[])
   double value{ 0.0 }; // = 3.14;
   app.add_option("-d,--double", value, "Some Value");
 
-  CLI11_PARSE(app, argc, argv);
+  CLI11_PARSE(app, argc, argv)
 
   vtkLog(INFO,
     "Working on file: " << file << ", direct count: " << app.count("--file")
