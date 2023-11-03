@@ -37,37 +37,37 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageOneSimpleNN(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN();
-  VTKKWRCHelper_InitializeCompositeOneNN();
-  VTKKWRCHelper_InitializeCompositeShadeNN();
-  VTKKWRCHelper_InitializeCompositeGONN();
-  VTKKWRCHelper_SpaceLeapSetup();
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN
+  VTKKWRCHelper_InitializeCompositeOneNN
+  VTKKWRCHelper_InitializeCompositeShadeNN
+  VTKKWRCHelper_InitializeCompositeGONN
+  VTKKWRCHelper_SpaceLeapSetup
 
   for (k = 0; k < numSteps; k++)
   {
     if (k)
     {
-      VTKKWRCHelper_MoveToNextSampleGOShadeNN();
+      VTKKWRCHelper_MoveToNextSampleGOShadeNN
     }
 
-    VTKKWRCHelper_SpaceLeapCheck();
-    VTKKWRCHelper_CroppingCheckNN(pos);
+    VTKKWRCHelper_SpaceLeapCheck
+    VTKKWRCHelper_CroppingCheckNN(pos)
     unsigned short val = static_cast<unsigned short>(((*dptr)));
     unsigned char mag = *magPtr;
 
     VTKKWRCHelper_LookupColorGOUS(
-      colorTable[0], scalarOpacityTable[0], gradientOpacityTable[0], val, mag, tmp);
+      colorTable[0], scalarOpacityTable[0], gradientOpacityTable[0], val, mag, tmp)
 
     if (tmp[3])
     {
       unsigned short normal = *dirPtr;
-      VTKKWRCHelper_LookupShading(diffuseShadingTable[0], specularShadingTable[0], normal, tmp);
-      VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+      VTKKWRCHelper_LookupShading(diffuseShadingTable[0], specularShadingTable[0], normal, tmp)
+      VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
     }
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 // This method is used when the interpolation type is nearest neighbor and
@@ -81,37 +81,37 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageOneNN(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN();
-  VTKKWRCHelper_InitializeCompositeOneNN();
-  VTKKWRCHelper_InitializeCompositeShadeNN();
-  VTKKWRCHelper_InitializeCompositeGONN();
-  VTKKWRCHelper_SpaceLeapSetup();
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN
+  VTKKWRCHelper_InitializeCompositeOneNN
+  VTKKWRCHelper_InitializeCompositeShadeNN
+  VTKKWRCHelper_InitializeCompositeGONN
+  VTKKWRCHelper_SpaceLeapSetup
 
   for (k = 0; k < numSteps; k++)
   {
     if (k)
     {
-      VTKKWRCHelper_MoveToNextSampleGOShadeNN();
+      VTKKWRCHelper_MoveToNextSampleGOShadeNN
     }
 
-    VTKKWRCHelper_SpaceLeapCheck();
-    VTKKWRCHelper_CroppingCheckNN(pos);
+    VTKKWRCHelper_SpaceLeapCheck
+    VTKKWRCHelper_CroppingCheckNN(pos)
     unsigned short val = static_cast<unsigned short>(((*dptr) + shift[0]) * scale[0]);
     unsigned char mag = *magPtr;
 
     VTKKWRCHelper_LookupColorGOUS(
-      colorTable[0], scalarOpacityTable[0], gradientOpacityTable[0], val, mag, tmp);
+      colorTable[0], scalarOpacityTable[0], gradientOpacityTable[0], val, mag, tmp)
 
     if (tmp[3])
     {
       unsigned short normal = *dirPtr;
-      VTKKWRCHelper_LookupShading(diffuseShadingTable[0], specularShadingTable[0], normal, tmp);
-      VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+      VTKKWRCHelper_LookupShading(diffuseShadingTable[0], specularShadingTable[0], normal, tmp)
+      VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
     }
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 // This method is used when the interpolation type is nearest neighbor and
@@ -126,21 +126,21 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageTwoDependentNN(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN();
-  VTKKWRCHelper_InitializeCompositeOneNN();
-  VTKKWRCHelper_InitializeCompositeShadeNN();
-  VTKKWRCHelper_InitializeCompositeGONN();
-  VTKKWRCHelper_SpaceLeapSetup();
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN
+  VTKKWRCHelper_InitializeCompositeOneNN
+  VTKKWRCHelper_InitializeCompositeShadeNN
+  VTKKWRCHelper_InitializeCompositeGONN
+  VTKKWRCHelper_SpaceLeapSetup
 
   for (k = 0; k < numSteps; k++)
   {
     if (k)
     {
-      VTKKWRCHelper_MoveToNextSampleGOShadeNN();
+      VTKKWRCHelper_MoveToNextSampleGOShadeNN
     }
 
-    VTKKWRCHelper_SpaceLeapCheck();
-    VTKKWRCHelper_CroppingCheckNN(pos);
+    VTKKWRCHelper_SpaceLeapCheck
+    VTKKWRCHelper_CroppingCheckNN(pos)
     unsigned short val[2];
 
     val[1] = static_cast<unsigned short>(((*(dptr + 1)) + shift[1]) * scale[1]);
@@ -163,13 +163,13 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageTwoDependentNN(
     tmp[2] = static_cast<unsigned short>(
       (colorTable[0][3 * val[0] + 2] * tmp[3] + 0x7fff) >> (VTKKW_FP_SHIFT));
 
-    VTKKWRCHelper_LookupShading(diffuseShadingTable[0], specularShadingTable[0], normal, tmp);
+    VTKKWRCHelper_LookupShading(diffuseShadingTable[0], specularShadingTable[0], normal, tmp)
 
-    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 // This method is used when the interpolation type is nearest neighbor and
@@ -186,21 +186,21 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentNN(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN();
-  VTKKWRCHelper_InitializeCompositeOneNN();
-  VTKKWRCHelper_InitializeCompositeShadeNN();
-  VTKKWRCHelper_InitializeCompositeGONN();
-  VTKKWRCHelper_SpaceLeapSetup();
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN
+  VTKKWRCHelper_InitializeCompositeOneNN
+  VTKKWRCHelper_InitializeCompositeShadeNN
+  VTKKWRCHelper_InitializeCompositeGONN
+  VTKKWRCHelper_SpaceLeapSetup
 
   for (k = 0; k < numSteps; k++)
   {
     if (k)
     {
-      VTKKWRCHelper_MoveToNextSampleGOShadeNN();
+      VTKKWRCHelper_MoveToNextSampleGOShadeNN
     }
 
-    VTKKWRCHelper_SpaceLeapCheck();
-    VTKKWRCHelper_CroppingCheckNN(pos);
+    VTKKWRCHelper_SpaceLeapCheck
+    VTKKWRCHelper_CroppingCheckNN(pos)
     unsigned short val[4];
 
     val[3] = static_cast<unsigned short>(((*(dptr + 3)) + shift[3]) * scale[3]);
@@ -223,13 +223,13 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentNN(
     tmp[1] = (val[1] * tmp[3] + 0x7f) >> (8);
     tmp[2] = (val[2] * tmp[3] + 0x7f) >> (8);
 
-    VTKKWRCHelper_LookupShading(diffuseShadingTable[0], specularShadingTable[0], normal, tmp);
+    VTKKWRCHelper_LookupShading(diffuseShadingTable[0], specularShadingTable[0], normal, tmp)
 
-    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 // This method is used when the interpolation type is nearest neighbor and
@@ -245,20 +245,20 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentNN(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializeWeights();
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN();
-  VTKKWRCHelper_InitializeCompositeMultiNN();
-  VTKKWRCHelper_InitializeCompositeShadeNN();
-  VTKKWRCHelper_InitializeCompositeGONN();
+  VTKKWRCHelper_InitializeWeights
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeNN
+  VTKKWRCHelper_InitializeCompositeMultiNN
+  VTKKWRCHelper_InitializeCompositeShadeNN
+  VTKKWRCHelper_InitializeCompositeGONN
 
   for (k = 0; k < numSteps; k++)
   {
     if (k)
     {
-      VTKKWRCHelper_MoveToNextSampleGOShadeNN();
+      VTKKWRCHelper_MoveToNextSampleGOShadeNN
     }
 
-    VTKKWRCHelper_CroppingCheckNN(pos);
+    VTKKWRCHelper_CroppingCheckNN(pos)
     unsigned short normal[4];
     unsigned char mag[4] = { 1, 1, 1, 1 };
     for (c = 0; c < components; c++)
@@ -270,16 +270,16 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentNN(
 
     VTKKWRCHelper_LookupAndCombineIndependentColorsGOShadeUS(colorTable, scalarOpacityTable,
       gradientOpacityTable, diffuseShadingTable, specularShadingTable, val, mag, normal, weights,
-      components, tmp);
+      components, tmp)
 
     if (tmp[3])
     {
-      VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+      VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
     }
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 // This method is used when the interpolation type is linear and the data
@@ -297,11 +297,11 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageOneSimpleTrilin(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeOneTrilin();
-  VTKKWRCHelper_InitializeCompositeOneShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeOneGOTrilin();
-  VTKKWRCHelper_SpaceLeapSetup();
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin
+  VTKKWRCHelper_InitializeCompositeOneTrilin
+  VTKKWRCHelper_InitializeCompositeOneShadeTrilin
+  VTKKWRCHelper_InitializeCompositeOneGOTrilin
+  VTKKWRCHelper_SpaceLeapSetup
 
   int needToSampleDirection = 0;
   int needToSampleMagnitude = 0;
@@ -312,8 +312,8 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneSimpleTrilin(
       mapper->FixedPointIncrement(pos, dir);
     }
 
-    VTKKWRCHelper_SpaceLeapCheck();
-    VTKKWRCHelper_CroppingCheckTrilin(pos);
+    VTKKWRCHelper_SpaceLeapCheck
+    VTKKWRCHelper_CroppingCheckTrilin(pos)
 
     mapper->ShiftVectorDown(pos, spos);
     if (spos[0] != oldSPos[0] || spos[1] != oldSPos[1] || spos[2] != oldSPos[2])
@@ -323,7 +323,7 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneSimpleTrilin(
       oldSPos[2] = spos[2];
 
       dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];
-      VTKKWRCHelper_GetCellScalarValuesSimple(dptr);
+      VTKKWRCHelper_GetCellScalarValuesSimple(dptr)
 
       magPtrABCD = gradientMag[spos[2]] + spos[0] * mInc[0] + spos[1] * mInc[1];
       magPtrEFGH = gradientMag[spos[2] + 1] + spos[0] * mInc[0] + spos[1] * mInc[1];
@@ -334,8 +334,8 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneSimpleTrilin(
       needToSampleDirection = 1;
     }
 
-    VTKKWRCHelper_ComputeWeights(pos);
-    VTKKWRCHelper_InterpolateScalar(val);
+    VTKKWRCHelper_ComputeWeights(pos)
+    VTKKWRCHelper_InterpolateScalar(val)
 
     tmp[3] = scalarOpacityTable[0][val];
     if (!tmp[3])
@@ -345,10 +345,10 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneSimpleTrilin(
 
     if (needToSampleMagnitude)
     {
-      VTKKWRCHelper_GetCellMagnitudeValues(magPtrABCD, magPtrEFGH);
+      VTKKWRCHelper_GetCellMagnitudeValues(magPtrABCD, magPtrEFGH)
       needToSampleMagnitude = 0;
     }
-    VTKKWRCHelper_InterpolateMagnitude(mag);
+    VTKKWRCHelper_InterpolateMagnitude(mag)
     tmp[3] = (tmp[3] * gradientOpacityTable[0][mag] + 0x7fff) >> VTKKW_FP_SHIFT;
     if (!tmp[3])
     {
@@ -364,16 +364,16 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneSimpleTrilin(
 
     if (needToSampleDirection)
     {
-      VTKKWRCHelper_GetCellDirectionValues(dirPtrABCD, dirPtrEFGH);
+      VTKKWRCHelper_GetCellDirectionValues(dirPtrABCD, dirPtrEFGH)
       needToSampleDirection = 0;
     }
 
-    VTKKWRCHelper_InterpolateShading(diffuseShadingTable[0], specularShadingTable[0], tmp);
-    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+    VTKKWRCHelper_InterpolateShading(diffuseShadingTable[0], specularShadingTable[0], tmp)
+    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 // This method is used when the interpolation type is linear and the data
@@ -390,11 +390,11 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageOneTrilin(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeOneTrilin();
-  VTKKWRCHelper_InitializeCompositeOneShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeOneGOTrilin();
-  VTKKWRCHelper_SpaceLeapSetup();
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin
+  VTKKWRCHelper_InitializeCompositeOneTrilin
+  VTKKWRCHelper_InitializeCompositeOneShadeTrilin
+  VTKKWRCHelper_InitializeCompositeOneGOTrilin
+  VTKKWRCHelper_SpaceLeapSetup
 
   int needToSampleDirection = 0;
   int needToSampleMagnitude = 0;
@@ -405,8 +405,8 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneTrilin(
       mapper->FixedPointIncrement(pos, dir);
     }
 
-    VTKKWRCHelper_SpaceLeapCheck();
-    VTKKWRCHelper_CroppingCheckTrilin(pos);
+    VTKKWRCHelper_SpaceLeapCheck
+    VTKKWRCHelper_CroppingCheckTrilin(pos)
 
     mapper->ShiftVectorDown(pos, spos);
     if (spos[0] != oldSPos[0] || spos[1] != oldSPos[1] || spos[2] != oldSPos[2])
@@ -416,7 +416,7 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneTrilin(
       oldSPos[2] = spos[2];
 
       dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];
-      VTKKWRCHelper_GetCellScalarValues(dptr, scale[0], shift[0]);
+      VTKKWRCHelper_GetCellScalarValues(dptr, scale[0], shift[0])
 
       magPtrABCD = gradientMag[spos[2]] + spos[0] * mInc[0] + spos[1] * mInc[1];
       magPtrEFGH = gradientMag[spos[2] + 1] + spos[0] * mInc[0] + spos[1] * mInc[1];
@@ -427,8 +427,8 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneTrilin(
       needToSampleDirection = 1;
     }
 
-    VTKKWRCHelper_ComputeWeights(pos);
-    VTKKWRCHelper_InterpolateScalar(val);
+    VTKKWRCHelper_ComputeWeights(pos)
+    VTKKWRCHelper_InterpolateScalar(val)
 
     tmp[3] = scalarOpacityTable[0][val];
     if (!tmp[3])
@@ -438,10 +438,10 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneTrilin(
 
     if (needToSampleMagnitude)
     {
-      VTKKWRCHelper_GetCellMagnitudeValues(magPtrABCD, magPtrEFGH);
+      VTKKWRCHelper_GetCellMagnitudeValues(magPtrABCD, magPtrEFGH)
       needToSampleMagnitude = 0;
     }
-    VTKKWRCHelper_InterpolateMagnitude(mag);
+    VTKKWRCHelper_InterpolateMagnitude(mag)
     tmp[3] = (tmp[3] * gradientOpacityTable[0][mag] + 0x7fff) >> VTKKW_FP_SHIFT;
     if (!tmp[3])
     {
@@ -450,7 +450,7 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneTrilin(
 
     if (needToSampleDirection)
     {
-      VTKKWRCHelper_GetCellDirectionValues(dirPtrABCD, dirPtrEFGH);
+      VTKKWRCHelper_GetCellDirectionValues(dirPtrABCD, dirPtrEFGH)
       needToSampleDirection = 0;
     }
 
@@ -461,12 +461,12 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageOneTrilin(
     tmp[2] = static_cast<unsigned short>(
       (colorTable[0][3 * val + 2] * tmp[3] + 0x7fff) >> (VTKKW_FP_SHIFT));
 
-    VTKKWRCHelper_InterpolateShading(diffuseShadingTable[0], specularShadingTable[0], tmp);
-    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+    VTKKWRCHelper_InterpolateShading(diffuseShadingTable[0], specularShadingTable[0], tmp)
+    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 // This method is used when the interpolation type is linear, the data has
@@ -485,11 +485,11 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageTwoDependentTrilin(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeMultiTrilin();
-  VTKKWRCHelper_InitializeCompositeOneShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeOneGOTrilin();
-  VTKKWRCHelper_SpaceLeapSetup();
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin
+  VTKKWRCHelper_InitializeCompositeMultiTrilin
+  VTKKWRCHelper_InitializeCompositeOneShadeTrilin
+  VTKKWRCHelper_InitializeCompositeOneGOTrilin
+  VTKKWRCHelper_SpaceLeapSetup
 
   int needToSampleDirection = 0;
   int needToSampleMagnitude = 0;
@@ -500,8 +500,8 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageTwoDependentTrilin(
       mapper->FixedPointIncrement(pos, dir);
     }
 
-    VTKKWRCHelper_SpaceLeapCheck();
-    VTKKWRCHelper_CroppingCheckTrilin(pos);
+    VTKKWRCHelper_SpaceLeapCheck
+    VTKKWRCHelper_CroppingCheckTrilin(pos)
 
     mapper->ShiftVectorDown(pos, spos);
     if (spos[0] != oldSPos[0] || spos[1] != oldSPos[1] || spos[2] != oldSPos[2])
@@ -511,10 +511,10 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageTwoDependentTrilin(
       oldSPos[2] = spos[2];
 
       dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];
-      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 0, scale[0], shift[0]);
+      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 0, scale[0], shift[0])
 
       dptr++;
-      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 1, scale[1], shift[1]);
+      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 1, scale[1], shift[1])
 
       magPtrABCD = gradientMag[spos[2]] + spos[0] * mInc[0] + spos[1] * mInc[1];
       magPtrEFGH = gradientMag[spos[2] + 1] + spos[0] * mInc[0] + spos[1] * mInc[1];
@@ -525,8 +525,8 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageTwoDependentTrilin(
       needToSampleDirection = 1;
     }
 
-    VTKKWRCHelper_ComputeWeights(pos);
-    VTKKWRCHelper_InterpolateScalarComponent(val, c, 2);
+    VTKKWRCHelper_ComputeWeights(pos)
+    VTKKWRCHelper_InterpolateScalarComponent(val, c, 2)
 
     tmp[3] = scalarOpacityTable[0][val[1]];
     if (!tmp[3])
@@ -536,10 +536,10 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageTwoDependentTrilin(
 
     if (needToSampleMagnitude)
     {
-      VTKKWRCHelper_GetCellMagnitudeValues(magPtrABCD, magPtrEFGH);
+      VTKKWRCHelper_GetCellMagnitudeValues(magPtrABCD, magPtrEFGH)
       needToSampleMagnitude = 0;
     }
-    VTKKWRCHelper_InterpolateMagnitude(mag);
+    VTKKWRCHelper_InterpolateMagnitude(mag)
     tmp[3] = (0x7fff + tmp[3] * gradientOpacityTable[0][mag]) >> (VTKKW_FP_SHIFT);
     if (!tmp[3])
     {
@@ -548,7 +548,7 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageTwoDependentTrilin(
 
     if (needToSampleDirection)
     {
-      VTKKWRCHelper_GetCellDirectionValues(dirPtrABCD, dirPtrEFGH);
+      VTKKWRCHelper_GetCellDirectionValues(dirPtrABCD, dirPtrEFGH)
       needToSampleDirection = 0;
     }
 
@@ -559,13 +559,13 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageTwoDependentTrilin(
     tmp[2] = static_cast<unsigned short>(
       (colorTable[0][3 * val[0] + 2] * tmp[3] + 0x7fff) >> (VTKKW_FP_SHIFT));
 
-    VTKKWRCHelper_InterpolateShading(diffuseShadingTable[0], specularShadingTable[0], tmp);
+    VTKKWRCHelper_InterpolateShading(diffuseShadingTable[0], specularShadingTable[0], tmp)
 
-    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 // This method is used when the interpolation type is linear, the data has
@@ -585,11 +585,11 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentTrilin(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeMultiTrilin();
-  VTKKWRCHelper_InitializeCompositeOneShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeOneGOTrilin();
-  VTKKWRCHelper_SpaceLeapSetup();
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin
+  VTKKWRCHelper_InitializeCompositeMultiTrilin
+  VTKKWRCHelper_InitializeCompositeOneShadeTrilin
+  VTKKWRCHelper_InitializeCompositeOneGOTrilin
+  VTKKWRCHelper_SpaceLeapSetup
 
   int needToSampleDirection = 0;
   int needToSampleMagnitude = 0;
@@ -600,8 +600,8 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentTrilin(
       mapper->FixedPointIncrement(pos, dir);
     }
 
-    VTKKWRCHelper_SpaceLeapCheck();
-    VTKKWRCHelper_CroppingCheckTrilin(pos);
+    VTKKWRCHelper_SpaceLeapCheck
+    VTKKWRCHelper_CroppingCheckTrilin(pos)
 
     mapper->ShiftVectorDown(pos, spos);
     if (spos[0] != oldSPos[0] || spos[1] != oldSPos[1] || spos[2] != oldSPos[2])
@@ -611,16 +611,16 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentTrilin(
       oldSPos[2] = spos[2];
 
       dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];
-      VTKKWRCHelper_GetCellComponentRawScalarValues(dptr, 0);
+      VTKKWRCHelper_GetCellComponentRawScalarValues(dptr, 0)
 
       dptr++;
-      VTKKWRCHelper_GetCellComponentRawScalarValues(dptr, 1);
+      VTKKWRCHelper_GetCellComponentRawScalarValues(dptr, 1)
 
       dptr++;
-      VTKKWRCHelper_GetCellComponentRawScalarValues(dptr, 2);
+      VTKKWRCHelper_GetCellComponentRawScalarValues(dptr, 2)
 
       dptr++;
-      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 3, scale[3], shift[3]);
+      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 3, scale[3], shift[3])
 
       magPtrABCD = gradientMag[spos[2]] + spos[0] * mInc[0] + spos[1] * mInc[1];
       magPtrEFGH = gradientMag[spos[2] + 1] + spos[0] * mInc[0] + spos[1] * mInc[1];
@@ -631,8 +631,8 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentTrilin(
       needToSampleDirection = 1;
     }
 
-    VTKKWRCHelper_ComputeWeights(pos);
-    VTKKWRCHelper_InterpolateScalarComponent(val, c, components);
+    VTKKWRCHelper_ComputeWeights(pos)
+    VTKKWRCHelper_InterpolateScalarComponent(val, c, components)
 
     tmp[3] = scalarOpacityTable[0][val[3]];
     if (!tmp[3])
@@ -642,10 +642,10 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentTrilin(
 
     if (needToSampleMagnitude)
     {
-      VTKKWRCHelper_GetCellMagnitudeValues(magPtrABCD, magPtrEFGH);
+      VTKKWRCHelper_GetCellMagnitudeValues(magPtrABCD, magPtrEFGH)
       needToSampleMagnitude = 0;
     }
-    VTKKWRCHelper_InterpolateMagnitude(mag);
+    VTKKWRCHelper_InterpolateMagnitude(mag)
     tmp[3] = (0x7fff + tmp[3] * gradientOpacityTable[0][mag]) >> (VTKKW_FP_SHIFT);
     if (!tmp[3])
     {
@@ -654,7 +654,7 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentTrilin(
 
     if (needToSampleDirection)
     {
-      VTKKWRCHelper_GetCellDirectionValues(dirPtrABCD, dirPtrEFGH);
+      VTKKWRCHelper_GetCellDirectionValues(dirPtrABCD, dirPtrEFGH)
       needToSampleDirection = 0;
     }
 
@@ -662,12 +662,12 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentTrilin(
     tmp[1] = (val[1] * tmp[3] + 0x7f) >> 8;
     tmp[2] = (val[2] * tmp[3] + 0x7f) >> 8;
 
-    VTKKWRCHelper_InterpolateShading(diffuseShadingTable[0], specularShadingTable[0], tmp);
-    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+    VTKKWRCHelper_InterpolateShading(diffuseShadingTable[0], specularShadingTable[0], tmp)
+    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 // This method is used when the interpolation type is linear, the data has
@@ -686,11 +686,11 @@ template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentTrilin(
   T* data, int threadID, int threadCount, vtkFixedPointVolumeRayCastMapper* mapper, vtkVolume* vol)
 {
-  VTKKWRCHelper_InitializeWeights();
-  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeMultiTrilin();
-  VTKKWRCHelper_InitializeCompositeMultiShadeTrilin();
-  VTKKWRCHelper_InitializeCompositeMultiGOTrilin();
+  VTKKWRCHelper_InitializeWeights
+  VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin
+  VTKKWRCHelper_InitializeCompositeMultiTrilin
+  VTKKWRCHelper_InitializeCompositeMultiShadeTrilin
+  VTKKWRCHelper_InitializeCompositeMultiGOTrilin
 
   for (k = 0; k < numSteps; k++)
   {
@@ -699,7 +699,7 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentTrilin(
       mapper->FixedPointIncrement(pos, dir);
     }
 
-    VTKKWRCHelper_CroppingCheckTrilin(pos);
+    VTKKWRCHelper_CroppingCheckTrilin(pos)
 
     mapper->ShiftVectorDown(pos, spos);
     if (spos[0] != oldSPos[0] || spos[1] != oldSPos[1] || spos[2] != oldSPos[2])
@@ -709,78 +709,78 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentTrilin(
       oldSPos[2] = spos[2];
 
       dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];
-      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 0, scale[0], shift[0]);
+      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 0, scale[0], shift[0])
 
       dptr++;
-      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 1, scale[1], shift[1]);
+      VTKKWRCHelper_GetCellComponentScalarValues(dptr, 1, scale[1], shift[1])
 
       if (components > 2)
       {
         dptr++;
-        VTKKWRCHelper_GetCellComponentScalarValues(dptr, 2, scale[2], shift[2]);
+        VTKKWRCHelper_GetCellComponentScalarValues(dptr, 2, scale[2], shift[2])
         if (components > 3)
         {
           dptr++;
-          VTKKWRCHelper_GetCellComponentScalarValues(dptr, 3, scale[3], shift[3]);
+          VTKKWRCHelper_GetCellComponentScalarValues(dptr, 3, scale[3], shift[3])
         }
       }
 
       magPtrABCD = gradientMag[spos[2]] + spos[0] * mInc[0] + spos[1] * mInc[1];
       magPtrEFGH = gradientMag[spos[2] + 1] + spos[0] * mInc[0] + spos[1] * mInc[1];
-      VTKKWRCHelper_GetCellComponentMagnitudeValues(magPtrABCD, magPtrEFGH, 0);
+      VTKKWRCHelper_GetCellComponentMagnitudeValues(magPtrABCD, magPtrEFGH, 0)
 
       magPtrABCD++;
       magPtrEFGH++;
-      VTKKWRCHelper_GetCellComponentMagnitudeValues(magPtrABCD, magPtrEFGH, 1);
+      VTKKWRCHelper_GetCellComponentMagnitudeValues(magPtrABCD, magPtrEFGH, 1)
 
       if (components > 2)
       {
         magPtrABCD++;
         magPtrEFGH++;
-        VTKKWRCHelper_GetCellComponentMagnitudeValues(magPtrABCD, magPtrEFGH, 2);
+        VTKKWRCHelper_GetCellComponentMagnitudeValues(magPtrABCD, magPtrEFGH, 2)
         if (components > 3)
         {
           magPtrABCD++;
           magPtrEFGH++;
-          VTKKWRCHelper_GetCellComponentMagnitudeValues(magPtrABCD, magPtrEFGH, 3);
+          VTKKWRCHelper_GetCellComponentMagnitudeValues(magPtrABCD, magPtrEFGH, 3)
         }
       }
 
       dirPtrABCD = gradientDir[spos[2]] + spos[0] * dInc[0] + spos[1] * dInc[1];
       dirPtrEFGH = gradientDir[spos[2] + 1] + spos[0] * dInc[0] + spos[1] * dInc[1];
-      VTKKWRCHelper_GetCellComponentDirectionValues(dirPtrABCD, dirPtrEFGH, 0);
+      VTKKWRCHelper_GetCellComponentDirectionValues(dirPtrABCD, dirPtrEFGH, 0)
 
       dirPtrABCD++;
       dirPtrEFGH++;
-      VTKKWRCHelper_GetCellComponentDirectionValues(dirPtrABCD, dirPtrEFGH, 1);
+      VTKKWRCHelper_GetCellComponentDirectionValues(dirPtrABCD, dirPtrEFGH, 1)
 
       if (components > 2)
       {
         dirPtrABCD++;
         dirPtrEFGH++;
-        VTKKWRCHelper_GetCellComponentDirectionValues(dirPtrABCD, dirPtrEFGH, 2);
+        VTKKWRCHelper_GetCellComponentDirectionValues(dirPtrABCD, dirPtrEFGH, 2)
         if (components > 3)
         {
           dirPtrABCD++;
           dirPtrEFGH++;
-          VTKKWRCHelper_GetCellComponentDirectionValues(dirPtrABCD, dirPtrEFGH, 3);
+          VTKKWRCHelper_GetCellComponentDirectionValues(dirPtrABCD, dirPtrEFGH, 3)
         }
       }
     }
 
-    VTKKWRCHelper_ComputeWeights(pos);
-    VTKKWRCHelper_InterpolateScalarComponent(val, c, components);
-    VTKKWRCHelper_InterpolateMagnitudeComponent(mag, c, components);
+    VTKKWRCHelper_ComputeWeights(pos)
+    VTKKWRCHelper_InterpolateScalarComponent(val, c, components)
+    VTKKWRCHelper_InterpolateMagnitudeComponent(mag, c, components)
 
     VTKKWRCHelper_LookupAndCombineIndependentColorsGOInterpolateShadeUS(colorTable,
       scalarOpacityTable, gradientOpacityTable, diffuseShadingTable, specularShadingTable, val, mag,
-      weights, components, tmp);
+      weights, components, tmp)
 
-    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity);
+    VTKKWRCHelper_CompositeColorAndCheckEarlyTermination(color, tmp, remainingOpacity)
   }
 
-  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity);
-  VTKKWRCHelper_IncrementAndLoopEnd();
+  VTKKWRCHelper_SetPixelColor(imagePtr, color, remainingOpacity)
+  VTKKWRCHelper_IncrementAndLoopEnd
 }
 
 void vtkFixedPointVolumeRayCastCompositeGOShadeHelper::GenerateImage(

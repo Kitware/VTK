@@ -22,7 +22,7 @@
   E = static_cast<unsigned int>(SCALE * (*(DATA + Einc) + SHIFT));                                 \
   F = static_cast<unsigned int>(SCALE * (*(DATA + Finc) + SHIFT));                                 \
   G = static_cast<unsigned int>(SCALE * (*(DATA + Ginc) + SHIFT));                                 \
-  H = static_cast<unsigned int>(SCALE * (*(DATA + Hinc) + SHIFT))
+  H = static_cast<unsigned int>(SCALE * (*(DATA + Hinc) + SHIFT));
 
 #define VTKKWRCHelper_GetCellScalarValuesSimple(DATA)                                              \
   A = static_cast<unsigned int>(*(DATA));                                                          \
@@ -32,7 +32,7 @@
   E = static_cast<unsigned int>(*(DATA + Einc));                                                   \
   F = static_cast<unsigned int>(*(DATA + Finc));                                                   \
   G = static_cast<unsigned int>(*(DATA + Ginc));                                                   \
-  H = static_cast<unsigned int>(*(DATA + Hinc))
+  H = static_cast<unsigned int>(*(DATA + Hinc));
 
 #define VTKKWRCHelper_GetCellMagnitudeValues(ABCD, EFGH)                                           \
   mA = static_cast<unsigned int>(*(ABCD));                                                         \
@@ -42,7 +42,7 @@
   mE = static_cast<unsigned int>(*(EFGH));                                                         \
   mF = static_cast<unsigned int>(*(EFGH + mBFinc));                                                \
   mG = static_cast<unsigned int>(*(EFGH + mCGinc));                                                \
-  mH = static_cast<unsigned int>(*(EFGH + mDHinc))
+  mH = static_cast<unsigned int>(*(EFGH + mDHinc));
 
 #define VTKKWRCHelper_GetCellDirectionValues(ABCD, EFGH)                                           \
   normalA = static_cast<unsigned int>(*(ABCD));                                                    \
@@ -62,7 +62,7 @@
   E[CIDX] = static_cast<unsigned int>(SCALE * (*(DATA + Einc) + SHIFT));                           \
   F[CIDX] = static_cast<unsigned int>(SCALE * (*(DATA + Finc) + SHIFT));                           \
   G[CIDX] = static_cast<unsigned int>(SCALE * (*(DATA + Ginc) + SHIFT));                           \
-  H[CIDX] = static_cast<unsigned int>(SCALE * (*(DATA + Hinc) + SHIFT))
+  H[CIDX] = static_cast<unsigned int>(SCALE * (*(DATA + Hinc) + SHIFT));
 
 #define VTKKWRCHelper_GetCellComponentRawScalarValues(DATA, CIDX)                                  \
   A[CIDX] = static_cast<unsigned int>((*(DATA)));                                                  \
@@ -72,7 +72,7 @@
   E[CIDX] = static_cast<unsigned int>((*(DATA + Einc)));                                           \
   F[CIDX] = static_cast<unsigned int>((*(DATA + Finc)));                                           \
   G[CIDX] = static_cast<unsigned int>((*(DATA + Ginc)));                                           \
-  H[CIDX] = static_cast<unsigned int>((*(DATA + Hinc)))
+  H[CIDX] = static_cast<unsigned int>((*(DATA + Hinc)));
 
 #define VTKKWRCHelper_GetCellComponentMagnitudeValues(ABCD, EFGH, CIDX)                            \
   mA[CIDX] = static_cast<unsigned int>(*(ABCD));                                                   \
@@ -82,7 +82,7 @@
   mE[CIDX] = static_cast<unsigned int>(*(EFGH));                                                   \
   mF[CIDX] = static_cast<unsigned int>(*(EFGH + mBFinc));                                          \
   mG[CIDX] = static_cast<unsigned int>(*(EFGH + mCGinc));                                          \
-  mH[CIDX] = static_cast<unsigned int>(*(EFGH + mDHinc))
+  mH[CIDX] = static_cast<unsigned int>(*(EFGH + mDHinc));
 
 #define VTKKWRCHelper_GetCellComponentDirectionValues(ABCD, EFGH, CIDX)                            \
   normalA[CIDX] = static_cast<unsigned int>(*(ABCD));                                              \
@@ -593,7 +593,7 @@
         _tmpC[2] = static_cast<unsigned short>(                                                    \
           ((COLORTABLE[_idx][3 * SCALAR[_idx] + 2]) * _alpha[_idx] + 0x7fff) >> (VTKKW_FP_SHIFT)); \
         _tmpC[3] = _alpha[_idx];                                                                   \
-        VTKKWRCHelper_InterpolateShadingComponent(DTABLE, STABLE, _tmpC, _idx);                    \
+        VTKKWRCHelper_InterpolateShadingComponent(DTABLE, STABLE, _tmpC, _idx)                     \
         _tmp[0] += _tmpC[0];                                                                       \
         _tmp[1] += _tmpC[1];                                                                       \
         _tmp[2] += _tmpC[2];                                                                       \
@@ -720,7 +720,7 @@
         _tmpC[2] = static_cast<unsigned short>(                                                    \
           ((COLORTABLE[_idx][3 * SCALAR[_idx] + 2]) * _alpha[_idx] + 0x7fff) >> (VTKKW_FP_SHIFT)); \
         _tmpC[3] = _alpha[_idx];                                                                   \
-        VTKKWRCHelper_InterpolateShadingComponent(DTABLE, STABLE, _tmpC, _idx);                    \
+        VTKKWRCHelper_InterpolateShadingComponent(DTABLE, STABLE, _tmpC, _idx)                     \
         _tmp[0] += _tmpC[0];                                                                       \
         _tmp[1] += _tmpC[1];                                                                       \
         _tmp[2] += _tmpC[2];                                                                       \
@@ -744,7 +744,7 @@
   unsigned int tmpAlpha = (~REMAININGOPACITY) & VTKKW_FP_MASK;                                     \
   IMAGEPTR[3] = (tmpAlpha > 32767) ? (32767) : (tmpAlpha);
 
-#define VTKKWRCHelper_MoveToNextSampleNN()                                                         \
+#define VTKKWRCHelper_MoveToNextSampleNN                                                           \
   if (k < numSteps - 1)                                                                            \
   {                                                                                                \
     mapper->FixedPointIncrement(pos, dir);                                                         \
@@ -752,7 +752,7 @@
     dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];                          \
   }
 
-#define VTKKWRCHelper_MoveToNextSampleGONN()                                                       \
+#define VTKKWRCHelper_MoveToNextSampleGONN                                                         \
   if (k < numSteps - 1)                                                                            \
   {                                                                                                \
     mapper->FixedPointIncrement(pos, dir);                                                         \
@@ -761,7 +761,7 @@
     magPtr = gradientMag[spos[2]] + spos[0] * mInc[0] + spos[1] * mInc[1];                         \
   }
 
-#define VTKKWRCHelper_MoveToNextSampleShadeNN()                                                    \
+#define VTKKWRCHelper_MoveToNextSampleShadeNN                                                      \
   if (k < numSteps - 1)                                                                            \
   {                                                                                                \
     mapper->FixedPointIncrement(pos, dir);                                                         \
@@ -770,7 +770,7 @@
     dirPtr = gradientDir[spos[2]] + spos[0] * dInc[0] + spos[1] * dInc[1];                         \
   }
 
-#define VTKKWRCHelper_MoveToNextSampleGOShadeNN()                                                  \
+#define VTKKWRCHelper_MoveToNextSampleGOShadeNN                                                    \
   if (k < numSteps - 1)                                                                            \
   {                                                                                                \
     mapper->FixedPointIncrement(pos, dir);                                                         \
@@ -780,7 +780,7 @@
     dirPtr = gradientDir[spos[2]] + spos[0] * dInc[0] + spos[1] * dInc[1];                         \
   }
 
-#define VTKKWRCHelper_InitializeVariables()                                                        \
+#define VTKKWRCHelper_InitializeVariables                                                          \
   int i, j;                                                                                        \
   unsigned short* imagePtr;                                                                        \
                                                                                                    \
@@ -840,14 +840,14 @@
   inc[1] = inc[0] * dim[0];                                                                        \
   inc[2] = inc[1] * dim[1];
 
-#define VTKKWRCHelper_InitializeWeights()                                                          \
+#define VTKKWRCHelper_InitializeWeights                                                            \
   float weights[4] = {};                                                                           \
   weights[0] = vol->GetProperty()->GetComponentWeight(0);                                          \
   weights[1] = vol->GetProperty()->GetComponentWeight(1);                                          \
   weights[2] = vol->GetProperty()->GetComponentWeight(2);                                          \
   weights[3] = vol->GetProperty()->GetComponentWeight(3);
 
-#define VTKKWRCHelper_InitializeVariablesGO()                                                      \
+#define VTKKWRCHelper_InitializeVariablesGO                                                        \
   unsigned short* gradientOpacityTable[4];                                                         \
   for (c = 0; c < 4; c++)                                                                          \
   {                                                                                                \
@@ -869,7 +869,7 @@
     mInc[2] = mInc[1] * dim[1];                                                                    \
   }
 
-#define VTKKWRCHelper_InitializeVariablesShade()                                                   \
+#define VTKKWRCHelper_InitializeVariablesShade                                                     \
   unsigned short* diffuseShadingTable[4];                                                          \
   unsigned short* specularShadingTable[4];                                                         \
   for (c = 0; c < 4; c++)                                                                          \
@@ -892,7 +892,7 @@
     dInc[2] = dInc[1] * dim[1];                                                                    \
   }
 
-#define VTKKWRCHelper_InitializeTrilinVariables()                                                  \
+#define VTKKWRCHelper_InitializeTrilinVariables                                                    \
   vtkIdType Binc = components;                                                                     \
   vtkIdType Cinc = Binc * dim[0];                                                                  \
   vtkIdType Dinc = Cinc + Binc;                                                                    \
@@ -901,7 +901,7 @@
   vtkIdType Ginc = Einc + Cinc;                                                                    \
   vtkIdType Hinc = Ginc + Binc;
 
-#define VTKKWRCHelper_InitializeTrilinVariablesGO()                                                \
+#define VTKKWRCHelper_InitializeTrilinVariablesGO                                                  \
   vtkIdType magOffset;                                                                             \
   if (vol->GetProperty()->GetIndependentComponents())                                              \
   {                                                                                                \
@@ -916,7 +916,7 @@
   vtkIdType mCGinc = dim[0] * magOffset;                                                           \
   vtkIdType mDHinc = dim[0] * magOffset + magOffset;
 
-#define VTKKWRCHelper_InitializeTrilinVariablesShade()                                             \
+#define VTKKWRCHelper_InitializeTrilinVariablesShade                                               \
   vtkIdType dirOffset;                                                                             \
   if (vol->GetProperty()->GetIndependentComponents())                                              \
   {                                                                                                \
@@ -931,7 +931,7 @@
   vtkIdType dCGinc = dim[0] * dirOffset;                                                           \
   vtkIdType dDHinc = dim[0] * dirOffset + dirOffset;
 
-#define VTKKWRCHelper_OuterInitialization()                                                        \
+#define VTKKWRCHelper_OuterInitialization                                                          \
   if (j % threadCount != threadID)                                                                 \
   {                                                                                                \
     continue;                                                                                      \
@@ -949,7 +949,7 @@
   }                                                                                                \
   imagePtr = image + 4 * (j * imageMemorySize[0] + rowBounds[j * 2]);
 
-#define VTKKWRCHelper_InnerInitialization()                                                        \
+#define VTKKWRCHelper_InnerInitialization                                                          \
   unsigned int numSteps;                                                                           \
   unsigned int pos[3];                                                                             \
   unsigned int dir[3];                                                                             \
@@ -966,12 +966,12 @@
   unsigned int spos[3];                                                                            \
   unsigned int k;
 
-#define VTKKWRCHelper_InitializeMIPOneNN()                                                         \
+#define VTKKWRCHelper_InitializeMIPOneNN                                                           \
   mapper->ShiftVectorDown(pos, spos);                                                              \
   T* dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];                         \
   T maxValue = *(dptr);
 
-#define VTKKWRCHelper_InitializeMIPMultiNN()                                                       \
+#define VTKKWRCHelper_InitializeMIPMultiNN                                                         \
   mapper->ShiftVectorDown(pos, spos);                                                              \
   T* dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];                         \
   T maxValue[4] = {};                                                                              \
@@ -980,7 +980,7 @@
     maxValue[c] = *(dptr + c);                                                                     \
   }
 
-#define VTKKWRCHelper_InitializeMIPOneTrilin()                                                     \
+#define VTKKWRCHelper_InitializeMIPOneTrilin                                                       \
   T* dptr;                                                                                         \
   unsigned int oldSPos[3];                                                                         \
                                                                                                    \
@@ -996,7 +996,7 @@
   unsigned short val;                                                                              \
   unsigned int A = 0, B = 0, C = 0, D = 0, E = 0, F = 0, G = 0, H = 0;
 
-#define VTKKWRCHelper_InitializeMIPMultiTrilin()                                                   \
+#define VTKKWRCHelper_InitializeMIPMultiTrilin                                                     \
   T* dptr;                                                                                         \
   unsigned int oldSPos[3];                                                                         \
                                                                                                    \
@@ -1013,20 +1013,20 @@
   unsigned int A[4] = {}, B[4] = {}, C[4] = {}, D[4] = {}, E[4] = {}, F[4] = {}, G[4] = {},        \
                H[4] = {};
 
-#define VTKKWRCHelper_InitializeCompositeGONN()                                                    \
+#define VTKKWRCHelper_InitializeCompositeGONN                                                      \
   unsigned char* magPtr = gradientMag[spos[2]] + spos[0] * mInc[0] + spos[1] * mInc[1];
 
-#define VTKKWRCHelper_InitializeCompositeShadeNN()                                                 \
+#define VTKKWRCHelper_InitializeCompositeShadeNN                                                   \
   unsigned short* dirPtr = gradientDir[spos[2]] + spos[0] * dInc[0] + spos[1] * dInc[1];
 
-#define VTKKWRCHelper_InitializeCompositeOneNN()                                                   \
+#define VTKKWRCHelper_InitializeCompositeOneNN                                                     \
   mapper->ShiftVectorDown(pos, spos);                                                              \
   T* dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];                         \
   unsigned int color[3] = { 0, 0, 0 };                                                             \
   unsigned short remainingOpacity = 0x7fff;                                                        \
   unsigned short tmp[4];
 
-#define VTKKWRCHelper_InitializeCompositeMultiNN()                                                 \
+#define VTKKWRCHelper_InitializeCompositeMultiNN                                                   \
   mapper->ShiftVectorDown(pos, spos);                                                              \
   T* dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];                         \
   unsigned int color[3] = { 0, 0, 0 };                                                             \
@@ -1034,7 +1034,7 @@
   unsigned short tmp[4] = {};                                                                      \
   unsigned short val[4] = {};
 
-#define VTKKWRCHelper_InitializeCompositeOneTrilin()                                               \
+#define VTKKWRCHelper_InitializeCompositeOneTrilin                                                 \
   T* dptr;                                                                                         \
   unsigned int oldSPos[3];                                                                         \
                                                                                                    \
@@ -1053,17 +1053,17 @@
   unsigned short remainingOpacity = 0x7fff;                                                        \
   unsigned short tmp[4];
 
-#define VTKKWRCHelper_InitializeCompositeOneGOTrilin()                                             \
+#define VTKKWRCHelper_InitializeCompositeOneGOTrilin                                               \
   unsigned char *magPtrABCD = nullptr, *magPtrEFGH = nullptr;                                      \
   unsigned short mag;                                                                              \
   unsigned int mA = 0, mB = 0, mC = 0, mD = 0, mE = 0, mF = 0, mG = 0, mH = 0;
 
-#define VTKKWRCHelper_InitializeCompositeOneShadeTrilin()                                          \
+#define VTKKWRCHelper_InitializeCompositeOneShadeTrilin                                            \
   unsigned short *dirPtrABCD = nullptr, *dirPtrEFGH = nullptr;                                     \
   unsigned int normalA = 0, normalB = 0, normalC = 0, normalD = 0;                                 \
   unsigned int normalE = 0, normalF = 0, normalG = 0, normalH = 0;
 
-#define VTKKWRCHelper_InitializeCompositeMultiTrilin()                                             \
+#define VTKKWRCHelper_InitializeCompositeMultiTrilin                                               \
   T* dptr;                                                                                         \
   unsigned int oldSPos[3];                                                                         \
                                                                                                    \
@@ -1089,106 +1089,106 @@
   unsigned short remainingOpacity = 0x7fff;                                                        \
   unsigned short tmp[4];
 
-#define VTKKWRCHelper_InitializeCompositeMultiGOTrilin()                                           \
+#define VTKKWRCHelper_InitializeCompositeMultiGOTrilin                                             \
   unsigned char *magPtrABCD = nullptr, *magPtrEFGH = nullptr;                                      \
   unsigned short mag[4] = {};                                                                      \
   unsigned int mA[4] = {}, mB[4] = {}, mC[4] = {}, mD[4] = {}, mE[4] = {}, mF[4] = {}, mG[4] = {}, \
                mH[4] = {};
 
-#define VTKKWRCHelper_InitializeCompositeMultiShadeTrilin()                                        \
+#define VTKKWRCHelper_InitializeCompositeMultiShadeTrilin                                          \
   unsigned short *dirPtrABCD = nullptr, *dirPtrEFGH = nullptr;                                     \
   unsigned int normalA[4], normalB[4], normalC[4], normalD[4];                                     \
   unsigned int normalE[4], normalF[4], normalG[4], normalH[4];
 
-#define VTKKWRCHelper_InitializationAndLoopStartNN()                                               \
-  VTKKWRCHelper_InitializeVariables();                                                             \
+#define VTKKWRCHelper_InitializationAndLoopStartNN                                                 \
+  VTKKWRCHelper_InitializeVariables                                                                \
   for (j = 0; j < imageInUseSize[1]; j++)                                                          \
   {                                                                                                \
-    VTKKWRCHelper_OuterInitialization();                                                           \
+    VTKKWRCHelper_OuterInitialization                                                              \
     for (i = rowBounds[j * 2]; i <= rowBounds[j * 2 + 1]; i++)                                     \
     {                                                                                              \
-      VTKKWRCHelper_InnerInitialization();
+      VTKKWRCHelper_InnerInitialization
 
-#define VTKKWRCHelper_InitializationAndLoopStartGONN()                                             \
-  VTKKWRCHelper_InitializeVariables();                                                             \
-  VTKKWRCHelper_InitializeVariablesGO();                                                           \
+#define VTKKWRCHelper_InitializationAndLoopStartGONN                                               \
+  VTKKWRCHelper_InitializeVariables                                                                \
+  VTKKWRCHelper_InitializeVariablesGO                                                              \
   for (j = 0; j < imageInUseSize[1]; j++)                                                          \
   {                                                                                                \
-    VTKKWRCHelper_OuterInitialization();                                                           \
+    VTKKWRCHelper_OuterInitialization                                                              \
     for (i = rowBounds[j * 2]; i <= rowBounds[j * 2 + 1]; i++)                                     \
     {                                                                                              \
-      VTKKWRCHelper_InnerInitialization();
+      VTKKWRCHelper_InnerInitialization
 
-#define VTKKWRCHelper_InitializationAndLoopStartShadeNN()                                          \
-  VTKKWRCHelper_InitializeVariables();                                                             \
-  VTKKWRCHelper_InitializeVariablesShade();                                                        \
+#define VTKKWRCHelper_InitializationAndLoopStartShadeNN                                            \
+  VTKKWRCHelper_InitializeVariables                                                                \
+  VTKKWRCHelper_InitializeVariablesShade                                                           \
   for (j = 0; j < imageInUseSize[1]; j++)                                                          \
   {                                                                                                \
-    VTKKWRCHelper_OuterInitialization();                                                           \
+    VTKKWRCHelper_OuterInitialization                                                              \
     for (i = rowBounds[j * 2]; i <= rowBounds[j * 2 + 1]; i++)                                     \
     {                                                                                              \
-      VTKKWRCHelper_InnerInitialization();
+      VTKKWRCHelper_InnerInitialization
 
-#define VTKKWRCHelper_InitializationAndLoopStartGOShadeNN()                                        \
-  VTKKWRCHelper_InitializeVariables();                                                             \
-  VTKKWRCHelper_InitializeVariablesGO();                                                           \
-  VTKKWRCHelper_InitializeVariablesShade();                                                        \
+#define VTKKWRCHelper_InitializationAndLoopStartGOShadeNN                                          \
+  VTKKWRCHelper_InitializeVariables                                                                \
+  VTKKWRCHelper_InitializeVariablesGO                                                              \
+  VTKKWRCHelper_InitializeVariablesShade                                                           \
   for (j = 0; j < imageInUseSize[1]; j++)                                                          \
   {                                                                                                \
-    VTKKWRCHelper_OuterInitialization();                                                           \
+    VTKKWRCHelper_OuterInitialization                                                              \
     for (i = rowBounds[j * 2]; i <= rowBounds[j * 2 + 1]; i++)                                     \
     {                                                                                              \
-      VTKKWRCHelper_InnerInitialization();
+      VTKKWRCHelper_InnerInitialization
 
-#define VTKKWRCHelper_InitializationAndLoopStartTrilin()                                           \
-  VTKKWRCHelper_InitializeVariables();                                                             \
-  VTKKWRCHelper_InitializeTrilinVariables();                                                       \
+#define VTKKWRCHelper_InitializationAndLoopStartTrilin                                             \
+  VTKKWRCHelper_InitializeVariables                                                                \
+  VTKKWRCHelper_InitializeTrilinVariables                                                          \
   for (j = 0; j < imageInUseSize[1]; j++)                                                          \
   {                                                                                                \
-    VTKKWRCHelper_OuterInitialization();                                                           \
+    VTKKWRCHelper_OuterInitialization                                                              \
     for (i = rowBounds[j * 2]; i <= rowBounds[j * 2 + 1]; i++)                                     \
     {                                                                                              \
-      VTKKWRCHelper_InnerInitialization();
+      VTKKWRCHelper_InnerInitialization
 
-#define VTKKWRCHelper_InitializationAndLoopStartGOTrilin()                                         \
-  VTKKWRCHelper_InitializeVariables();                                                             \
-  VTKKWRCHelper_InitializeVariablesGO();                                                           \
-  VTKKWRCHelper_InitializeTrilinVariables();                                                       \
-  VTKKWRCHelper_InitializeTrilinVariablesGO();                                                     \
+#define VTKKWRCHelper_InitializationAndLoopStartGOTrilin                                           \
+  VTKKWRCHelper_InitializeVariables                                                                \
+  VTKKWRCHelper_InitializeVariablesGO                                                              \
+  VTKKWRCHelper_InitializeTrilinVariables                                                          \
+  VTKKWRCHelper_InitializeTrilinVariablesGO                                                        \
   for (j = 0; j < imageInUseSize[1]; j++)                                                          \
   {                                                                                                \
-    VTKKWRCHelper_OuterInitialization();                                                           \
+    VTKKWRCHelper_OuterInitialization                                                              \
     for (i = rowBounds[j * 2]; i <= rowBounds[j * 2 + 1]; i++)                                     \
     {                                                                                              \
-      VTKKWRCHelper_InnerInitialization();
+      VTKKWRCHelper_InnerInitialization
 
-#define VTKKWRCHelper_InitializationAndLoopStartShadeTrilin()                                      \
-  VTKKWRCHelper_InitializeVariables();                                                             \
-  VTKKWRCHelper_InitializeVariablesShade();                                                        \
-  VTKKWRCHelper_InitializeTrilinVariables();                                                       \
-  VTKKWRCHelper_InitializeTrilinVariablesShade();                                                  \
+#define VTKKWRCHelper_InitializationAndLoopStartShadeTrilin                                        \
+  VTKKWRCHelper_InitializeVariables                                                                \
+  VTKKWRCHelper_InitializeVariablesShade                                                           \
+  VTKKWRCHelper_InitializeTrilinVariables                                                          \
+  VTKKWRCHelper_InitializeTrilinVariablesShade                                                     \
   for (j = 0; j < imageInUseSize[1]; j++)                                                          \
   {                                                                                                \
-    VTKKWRCHelper_OuterInitialization();                                                           \
+    VTKKWRCHelper_OuterInitialization                                                              \
     for (i = rowBounds[j * 2]; i <= rowBounds[j * 2 + 1]; i++)                                     \
     {                                                                                              \
-      VTKKWRCHelper_InnerInitialization();
+      VTKKWRCHelper_InnerInitialization
 
-#define VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin()                                    \
-  VTKKWRCHelper_InitializeVariables();                                                             \
-  VTKKWRCHelper_InitializeVariablesShade();                                                        \
-  VTKKWRCHelper_InitializeVariablesGO();                                                           \
-  VTKKWRCHelper_InitializeTrilinVariables();                                                       \
-  VTKKWRCHelper_InitializeTrilinVariablesShade();                                                  \
-  VTKKWRCHelper_InitializeTrilinVariablesGO();                                                     \
+#define VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin                                      \
+  VTKKWRCHelper_InitializeVariables                                                                \
+  VTKKWRCHelper_InitializeVariablesShade                                                           \
+  VTKKWRCHelper_InitializeVariablesGO                                                              \
+  VTKKWRCHelper_InitializeTrilinVariables                                                          \
+  VTKKWRCHelper_InitializeTrilinVariablesShade                                                     \
+  VTKKWRCHelper_InitializeTrilinVariablesGO                                                        \
   for (j = 0; j < imageInUseSize[1]; j++)                                                          \
   {                                                                                                \
-    VTKKWRCHelper_OuterInitialization();                                                           \
+    VTKKWRCHelper_OuterInitialization                                                              \
     for (i = rowBounds[j * 2]; i <= rowBounds[j * 2 + 1]; i++)                                     \
     {                                                                                              \
-      VTKKWRCHelper_InnerInitialization();
+      VTKKWRCHelper_InnerInitialization
 
-#define VTKKWRCHelper_IncrementAndLoopEnd()                                                        \
+#define VTKKWRCHelper_IncrementAndLoopEnd                                                          \
   imagePtr += 4;                                                                                   \
   }                                                                                                \
   if ((j / threadCount) % 8 == 7 && threadID == 0)                                                 \
@@ -1217,21 +1217,21 @@
     }                                                                                              \
   }
 
-#define VTKKWRCHelper_SpaceLeapSetup()                                                             \
+#define VTKKWRCHelper_SpaceLeapSetup                                                               \
   unsigned int mmpos[3];                                                                           \
   mmpos[0] = (pos[0] >> VTKKW_FPMM_SHIFT) + 1;                                                     \
   mmpos[1] = 0;                                                                                    \
   mmpos[2] = 0;                                                                                    \
   int mmvalid = 0;
 
-#define VTKKWRCHelper_SpaceLeapSetupMulti()                                                        \
+#define VTKKWRCHelper_SpaceLeapSetupMulti                                                          \
   unsigned int mmpos[3];                                                                           \
   mmpos[0] = (pos[0] >> VTKKW_FPMM_SHIFT) + 1;                                                     \
   mmpos[1] = 0;                                                                                    \
   mmpos[2] = 0;                                                                                    \
   int mmvalid[4] = { 0, 0, 0, 0 };
 
-#define VTKKWRCHelper_SpaceLeapCheck()                                                             \
+#define VTKKWRCHelper_SpaceLeapCheck                                                               \
   if (pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] || pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||          \
     pos[2] >> VTKKW_FPMM_SHIFT != mmpos[2])                                                        \
   {                                                                                                \
