@@ -52,6 +52,11 @@ bool vtkShader::Compile()
       type = GL_GEOMETRY_SHADER;
       break;
 #endif
+#ifdef GL_COMPUTE_SHADER
+    case vtkShader::Compute:
+      type = GL_COMPUTE_SHADER;
+      break;
+#endif
     case vtkShader::Fragment:
       type = GL_FRAGMENT_SHADER;
       break;
@@ -110,6 +115,16 @@ void vtkShader::Cleanup()
   glDeleteShader(static_cast<GLuint>(this->Handle));
   this->Handle = 0;
   this->Dirty = true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkShader::IsComputeShaderSupported()
+{
+#if defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0)
+  return false;
+#else
+  return glewIsSupported("GL_ARB_compute_shader") != 0;
+#endif
 }
 
 //------------------------------------------------------------------------------

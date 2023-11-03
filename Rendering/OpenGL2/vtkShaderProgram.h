@@ -4,7 +4,9 @@
  * @class   vtkShaderProgram
  * @brief   a glsl shader program
  *
- * This class contains the vertex, fragment, geometry shaders that combine to make a shader program
+ * This class contains the vertex, fragment, geometry shaders that combine to make a rendering
+ * shader program. Alternatively, it can also contain a compute shader to make a compute shader
+ * program (OpenGL >= 4.3 required).
  */
 
 #ifndef vtkShaderProgram_h
@@ -27,8 +29,10 @@ class vtkWindow;
 /**
  * @brief The ShaderProgram uses one or more Shader objects.
  *
- * This class creates a Vertex or Fragment shader, that can be attached to a
- * ShaderProgram in order to render geometry etc.
+ * This class creates a shader program using the given shader objects.
+ * It can be a rendering program in which case a vertex and fragment shader must be provided (plus
+ * an optional geometry shader). It can also be a compute program in which case a compute shader
+ * must be provided.
  */
 
 class VTKRENDERINGOPENGL2_EXPORT vtkShaderProgram : public vtkObject
@@ -40,7 +44,7 @@ public:
 
   ///@{
   /**
-   * Get the vertex shader for this program
+   * Get/set the vertex shader for this program
    */
   vtkGetObjectMacro(VertexShader, vtkShader);
   void SetVertexShader(vtkShader*);
@@ -48,7 +52,7 @@ public:
 
   ///@{
   /**
-   * Get the fragment shader for this program
+   * Get/set the fragment shader for this program
    */
   vtkGetObjectMacro(FragmentShader, vtkShader);
   void SetFragmentShader(vtkShader*);
@@ -56,10 +60,18 @@ public:
 
   ///@{
   /**
-   * Get the geometry shader for this program
+   * Get/set the geometry shader for this program
    */
   vtkGetObjectMacro(GeometryShader, vtkShader);
   void SetGeometryShader(vtkShader*);
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the compute shader for this program
+   */
+  vtkGetObjectMacro(ComputeShader, vtkShader);
+  void SetComputeShader(vtkShader*);
   ///@}
 
   ///@{
@@ -347,6 +359,7 @@ protected:
   vtkShader* VertexShader;
   vtkShader* FragmentShader;
   vtkShader* GeometryShader;
+  vtkShader* ComputeShader;
   vtkTransformFeedback* TransformFeedback;
 
   // hash of the shader program
@@ -358,6 +371,7 @@ protected:
   int VertexShaderHandle;
   int FragmentShaderHandle;
   int GeometryShaderHandle;
+  int ComputeShaderHandle;
 
   bool Linked;
   bool Bound;
@@ -384,6 +398,9 @@ protected:
 private:
   vtkShaderProgram(const vtkShaderProgram&) = delete;
   void operator=(const vtkShaderProgram&) = delete;
+
+  // print shader code and report error
+  void ReportShaderError(vtkShader* shader);
 
   char* FileNamePrefixForDebugging;
 };
