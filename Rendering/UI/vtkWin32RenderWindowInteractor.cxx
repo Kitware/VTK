@@ -76,6 +76,108 @@ void (*vtkWin32RenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*
 void* vtkWin32RenderWindowInteractor::ClassExitMethodArg = nullptr;
 void (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)(void*) = (void (*)(void*)) nullptr;
 
+namespace
+{
+//-------------------------------------------------------------
+// Virtual Key Code to Unix KeySym Conversion
+//-------------------------------------------------------------
+
+// this ascii code to keysym table is meant to mimic Tk
+
+static const char* AsciiToKeySymTable[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "space", "exclam", "quotedbl", "numbersign", "dollar",
+  "percent", "ampersand", "quoteright", "parenleft", "parenright", "asterisk", "plus", "comma",
+  "minus", "period", "slash", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "colon",
+  "semicolon", "less", "equal", "greater", "question", "at", "A", "B", "C", "D", "E", "F", "G", "H",
+  "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+  "bracketleft", "backslash", "bracketright", "asciicircum", "underscore", "quoteleft", "a", "b",
+  "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
+  "v", "w", "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete", 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+// this virtual key code to keysym table is meant to mimic Tk
+
+static const char* VKeyCodeToKeySymTable[] = { 0, 0, 0, "Cancel", 0, 0, 0, 0, "BackSpace", "Tab", 0,
+  0, "Clear", "Return", 0, 0, "Shift_L", "Control_L", "Alt_L", "Pause", "Caps_Lock", 0, 0, 0, 0, 0,
+  0, "Escape", 0, 0, 0, 0, "space", "Prior", "Next", "End", "Home", "Left", "Up", "Right", "Down",
+  "Select", 0, "Execute", "Snapshot", "Insert", "Delete", "Help", "0", "1", "2", "3", "4", "5", "6",
+  "7", "8", "9", 0, 0, 0, 0, 0, 0, 0, "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
+  "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "Win_L", "Win_R", "App", 0,
+  0, "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5", "KP_6", "KP_7", "KP_8", "KP_9", "asterisk",
+  "plus", "bar", "minus", "period", "slash", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
+  "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "F21", "F22", "F23",
+  "F24", 0, 0, 0, 0, 0, 0, 0, 0, "Num_Lock", "Scroll_Lock", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+void RecoverModifiersStatus(int& ctrl, int& shift, int& alt)
+{
+  ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+  shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+  alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
+}
+
+void RecoverKeyEventInformation(
+  UINT vCode, UINT nFlags, int& ctrl, int& shift, int& alt, char& keyCode, const char*& keySym)
+{
+  RecoverModifiersStatus(ctrl, shift, alt);
+  WORD nChar = 0;
+  WORD nCharWithoutMod = 0;
+  {
+#ifndef _WIN32_WCE
+    BYTE keyState[256];
+    GetKeyboardState(keyState);
+    // ToAscii is assumed to provide a keycode in Latin1 (ISO/IEC 8859-1)
+    if (ToAscii(vCode, nFlags & 0xff, keyState, &nChar, 0) == 0)
+    {
+      nChar = 0;
+    }
+    nCharWithoutMod = nChar;
+    if (ctrl != 0 || alt != 0)
+    {
+      // When using modifiers, recover a keyCode without modifiers
+      // except Shift in order to unsure behavior consistency with
+      // other OSes.
+      keyState[VK_CONTROL] = 0;
+      keyState[VK_MENU] = 0;
+      if (ToAscii(vCode, nFlags & 0xff, keyState, &nCharWithoutMod, 0) == 0)
+      {
+        nCharWithoutMod = 0;
+      }
+    }
+#endif
+  }
+
+  // keyCode is the modified one except when it is 0
+  // in that case, fallback on the version without modifiers
+  keyCode = nChar;
+  if (keyCode == 0)
+  {
+    keyCode = nCharWithoutMod;
+  }
+
+  // Try to recover any valid keySym
+  keySym = AsciiToKeySymTable[(unsigned char)nChar];
+  if (keySym == nullptr)
+  {
+    keySym = AsciiToKeySymTable[(unsigned char)nCharWithoutMod];
+  }
+  if (keySym == nullptr)
+  {
+    keySym = VKeyCodeToKeySymTable[(unsigned char)vCode];
+  }
+  if (keySym == nullptr)
+  {
+    keySym = "None";
+  }
+}
+
+}
+
 //------------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
@@ -332,42 +434,6 @@ int vtkWin32RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 }
 
 //-------------------------------------------------------------
-// Virtual Key Code to Unix KeySym Conversion
-//-------------------------------------------------------------
-
-// this ascii code to keysym table is meant to mimic Tk
-
-static const char* AsciiToKeySymTable[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "space", "exclam", "quotedbl", "numbersign", "dollar",
-  "percent", "ampersand", "quoteright", "parenleft", "parenright", "asterisk", "plus", "comma",
-  "minus", "period", "slash", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "colon",
-  "semicolon", "less", "equal", "greater", "question", "at", "A", "B", "C", "D", "E", "F", "G", "H",
-  "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-  "bracketleft", "backslash", "bracketright", "asciicircum", "underscore", "quoteleft", "a", "b",
-  "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
-  "v", "w", "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete", 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-// this virtual key code to keysym table is meant to mimic Tk
-
-static const char* VKeyCodeToKeySymTable[] = { 0, 0, 0, "Cancel", 0, 0, 0, 0, "BackSpace", "Tab", 0,
-  0, "Clear", "Return", 0, 0, "Shift_L", "Control_L", "Alt_L", "Pause", "Caps_Lock", 0, 0, 0, 0, 0,
-  0, "Escape", 0, 0, 0, 0, "space", "Prior", "Next", "End", "Home", "Left", "Up", "Right", "Down",
-  "Select", 0, "Execute", "Snapshot", "Insert", "Delete", "Help", "0", "1", "2", "3", "4", "5", "6",
-  "7", "8", "9", 0, 0, 0, 0, 0, 0, 0, "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
-  "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "Win_L", "Win_R", "App", 0,
-  0, "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5", "KP_6", "KP_7", "KP_8", "KP_9", "asterisk",
-  "plus", "bar", "minus", "period", "slash", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
-  "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "F21", "F22", "F23",
-  "F24", 0, 0, 0, 0, 0, 0, 0, 0, "Num_Lock", "Scroll_Lock", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-//-------------------------------------------------------------
 // Event loop handlers
 //-------------------------------------------------------------
 int vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags, int X, int Y)
@@ -573,60 +639,11 @@ int vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UI
   {
     return 0;
   }
-  int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
-  int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
-  int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
-  WORD nChar = 0;
-  WORD nCharWithoutMod = 0;
-  {
-#ifndef _WIN32_WCE
-    BYTE keyState[256];
-    GetKeyboardState(keyState);
-    // ToAscii is assumed to provide a keycode in Latin1 (ISO/IEC 8859-1)
-    if (ToAscii(vCode, nFlags & 0xff, keyState, &nChar, 0) == 0)
-    {
-      nChar = 0;
-    }
-    nCharWithoutMod = nChar;
-    if (ctrl != 0 || alt != 0)
-    {
-      // When using modifiers, recover a keyCode without modifiers
-      // except Shift in order to unsure behavior consistency with
-      // other OSes.
-      keyState[VK_CONTROL] = 0;
-      keyState[VK_MENU] = 0;
-      if (ToAscii(vCode, nFlags & 0xff, keyState, &nCharWithoutMod, 0) == 0)
-      {
-        nCharWithoutMod = 0;
-      }
-    }
-#endif
-  }
-
-  // keyCode is the modified one except when it is 0
-  // in that case, fallback on the version without modifiers
-  char keyCode = nChar;
-  if (keyCode == 0)
-  {
-    keyCode = nCharWithoutMod;
-  }
-
-  // Try to recover any valid keySym
-  const char* keysym = AsciiToKeySymTable[(unsigned char)nChar];
-  if (keysym == nullptr)
-  {
-    keysym = AsciiToKeySymTable[(unsigned char)nCharWithoutMod];
-  }
-  if (keysym == nullptr)
-  {
-    keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
-  }
-  if (keysym == nullptr)
-  {
-    keysym = "None";
-  }
-
-  this->SetKeyEventInformation(ctrl, shift, nChar, nRepCnt, keysym);
+  int ctrl, shift, alt;
+  char keyCode;
+  const char* keySym;
+  ::RecoverKeyEventInformation(vCode, nFlags, ctrl, shift, alt, keyCode, keySym);
+  this->SetKeyEventInformation(ctrl, shift, keyCode, nRepCnt, keySym);
   this->SetAltKey(alt);
   return this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
 }
@@ -638,60 +655,11 @@ int vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UINT
   {
     return 0;
   }
-  int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
-  int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
-  int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
-  WORD nChar = 0;
-  WORD nCharWithoutMod = 0;
-  {
-#ifndef _WIN32_WCE
-    BYTE keyState[256];
-    GetKeyboardState(keyState);
-    // ToAscii is assumed to provide a keycode in Latin1 (ISO/IEC 8859-1)
-    if (ToAscii(vCode, nFlags & 0xff, keyState, &nChar, 0) == 0)
-    {
-      nChar = 0;
-    }
-    nCharWithoutMod = nChar;
-    if (ctrl != 0 || alt != 0)
-    {
-      // When using modifiers, recover a keyCode without modifiers
-      // except Shift in order to unsure behavior consistency with
-      // other OSes.
-      keyState[VK_CONTROL] = 0;
-      keyState[VK_MENU] = 0;
-      if (ToAscii(vCode, nFlags & 0xff, keyState, &nCharWithoutMod, 0) == 0)
-      {
-        nCharWithoutMod = 0;
-      }
-    }
-#endif
-  }
-
-  // keyCode is the modified one except when it is 0
-  // in that case, fallback on the version without modifiers
-  char keyCode = nChar;
-  if (keyCode == 0)
-  {
-    keyCode = nCharWithoutMod;
-  }
-
-  // Try to recover any valid keySym
-  const char* keysym = AsciiToKeySymTable[(unsigned char)nChar];
-  if (keysym == nullptr)
-  {
-    keysym = AsciiToKeySymTable[(unsigned char)nCharWithoutMod];
-  }
-  if (keysym == nullptr)
-  {
-    keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
-  }
-  if (keysym == nullptr)
-  {
-    keysym = "None";
-  }
-
-  this->SetKeyEventInformation(ctrl, shift, nChar, nRepCnt, keysym);
+  int ctrl, shift, alt;
+  char keyCode;
+  const char* keySym;
+  ::RecoverKeyEventInformation(vCode, nFlags, ctrl, shift, alt, keyCode, keySym);
+  this->SetKeyEventInformation(ctrl, shift, keyCode, nRepCnt, keySym);
   this->SetAltKey(alt);
   return this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
 }
@@ -703,9 +671,8 @@ int vtkWin32RenderWindowInteractor::OnChar(HWND, UINT nChar, UINT nRepCnt, UINT)
   {
     return 0;
   }
-  int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
-  int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
-  int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
+  int ctrl, shift, alt;
+  ::RecoverModifiersStatus(ctrl, shift, alt);
   this->SetKeyEventInformation(ctrl, shift, nChar, nRepCnt);
   this->SetAltKey(alt);
   return this->InvokeEvent(vtkCommand::CharEvent, nullptr);
@@ -761,9 +728,8 @@ int vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam)
   PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
   if (pInputs)
   {
-    int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
-    int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
-    int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
+    int ctrl, shift, alt;
+    ::RecoverModifiersStatus(ctrl, shift, alt);
     this->SetAltKey(alt);
     GetTouchInputInfoType GTII =
       (GetTouchInputInfoType)GetProcAddress(GetModuleHandle(TEXT("user32")), "GetTouchInputInfo");
@@ -841,9 +807,8 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
     location[0] = static_cast<double>(pt.x);
     location[1] = static_cast<double>(this->Size[1] - pt.y - 1); // flip Y
 
-    int ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
-    int shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
-    int alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
+    int ctrl, shift, alt;
+    ::RecoverModifiersStatus(ctrl, shift, alt);
     this->SetEventInformationFlipY(location[0], location[1], ctrl, shift);
     this->SetAltKey(alt);
     this->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
