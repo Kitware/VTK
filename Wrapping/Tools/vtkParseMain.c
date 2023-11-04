@@ -420,6 +420,26 @@ static int parse_check_options(int argc, char* argv[], int multi)
   return i;
 }
 
+/* Free memory used by OptionInfo struct, and clear all pointers */
+static void parse_free_options(void)
+{
+  free(options.Files);
+  options.Files = NULL;
+  options.NumberOfFiles = 0;
+
+  options.InputFileName = NULL;
+  options.OutputFileName = NULL;
+  options.DependencyFileName = NULL;
+
+  free(options.HintFileNames);
+  options.HintFileNames = NULL;
+  options.NumberOfHintFileNames = 0;
+
+  free(options.HierarchyFileNames);
+  options.HierarchyFileNames = NULL;
+  options.NumberOfHierarchyFileNames = 0;
+}
+
 /* Return a pointer to the static OptionInfo struct */
 const OptionInfo* vtkParse_GetCommandLineOptions(void)
 {
@@ -434,6 +454,7 @@ int vtkParse_FinalizeMain(int ret)
   }
   vtkParse_FinalizeDependencyTracking();
   vtkParse_FreeStringCache(&argv_strings);
+  parse_free_options();
 
   return ret;
 }
