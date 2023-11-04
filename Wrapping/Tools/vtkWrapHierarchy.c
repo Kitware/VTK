@@ -899,8 +899,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (options->OutputFileName == NULL)
   {
     fprintf(stderr, "No output file was specified\n");
-    vtkParse_Finalize();
-    return 1;
+    return vtkParse_FinalizeMain(1);
   }
 
   /* read the data file */
@@ -966,9 +965,6 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   free(string_cache);
   free(files);
   free(lines);
-  if (vtkParse_Finalize())
-  {
-    return 1;
-  }
-  return retValue;
+
+  return vtkParse_FinalizeMain(retValue);
 }

@@ -1350,8 +1350,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (!fp)
   {
     fprintf(stderr, "Error opening output file %s\n", options->OutputFileName);
-    vtkParse_Finalize();
-    return 1;
+    return vtkParse_FinalizeMain(1);
   }
 
   /* get the main class */
@@ -1359,22 +1358,14 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   if (data == NULL || data->IsExcluded)
   {
     fclose(fp);
-    if (vtkParse_Finalize())
-    {
-      return 1;
-    }
-    return 0;
+    return vtkParse_FinalizeMain(0);
   }
 
   if (data->Template)
   {
     fclose(fp);
     vtkWrap_WarnEmpty(options);
-    if (vtkParse_Finalize())
-    {
-      return 1;
-    }
-    return 0;
+    return vtkParse_FinalizeMain(0);
   }
 
   for (i = 0; i < data->NumberOfSuperClasses; ++i)
@@ -1383,11 +1374,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     {
       fclose(fp);
       vtkWrap_WarnEmpty(options);
-      if (vtkParse_Finalize())
-      {
-        return 1;
-      }
-      return 0;
+      return vtkParse_FinalizeMain(0);
     }
   }
 
@@ -1397,11 +1384,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     {
       fclose(fp);
       vtkWrap_WarnEmpty(options);
-      if (vtkParse_Finalize())
-      {
-        return 1;
-      }
-      return 0;
+      return vtkParse_FinalizeMain(0);
     }
 
     /* resolve using declarations within the header files */
@@ -1581,10 +1564,6 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   vtkParse_Free(file_info);
 
   fclose(fp);
-  if (vtkParse_Finalize())
-  {
-    return 1;
-  }
 
-  return 0;
+  return vtkParse_FinalizeMain(0);
 }

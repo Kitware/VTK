@@ -82,10 +82,12 @@ extern "C"
    * Perform any finalization required.
    *
    * This includes writing the dependency tracker information and cleaning up
-   * memory.
+   * memory.  Call this at the end of any program that calls vtkParse_Main().
+   * The return value is zero if finalization was successful and nonzero
+   * if finalization encountered an error.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  int vtkParse_Finalize(void);
+  int vtkParse_FinalizeMain(int ret);
 
   /**
    * The main function, which parses the input file and returns the result.

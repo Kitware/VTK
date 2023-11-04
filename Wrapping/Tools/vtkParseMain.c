@@ -188,7 +188,7 @@ static int read_option_file(StringCache* strings, const char* filename, int* arg
         if (option_file_stack_size == option_file_stack_max)
         {
           fprintf(stderr, "%s: @file recursion is too deep.\n", (*args)[0]);
-          exit(1);
+          exit(vtkParse_FinalizeMain(1));
         }
         /* avoid reading the same file recursively */
         option_file_stack[option_file_stack_size++] = filename;
@@ -423,13 +423,11 @@ const OptionInfo* vtkParse_GetCommandLineOptions(void)
   return &options;
 }
 
-int vtkParse_Finalize(void)
+int vtkParse_FinalizeMain(int ret)
 {
-  int ret = 0;
-
-  if (options.DependencyFileName && vtkParse_WriteDependencyFile(options.DependencyFileName))
+  if (ret == 0 && options.DependencyFileName)
   {
-    ret = 1;
+    ret = vtkParse_WriteDependencyFile(options.DependencyFileName);
   }
   vtkParse_FinalizeDependencyTracking();
 
@@ -470,12 +468,12 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
   if (argi == 0)
   {
     free(args);
-    exit(0);
+    exit(vtkParse_FinalizeMain(0));
   }
   else if (argi < 0 || options.NumberOfFiles != 1)
   {
     parse_print_help(stderr, args[0], 0);
-    exit(1);
+    exit(vtkParse_FinalizeMain(1));
   }
 
   /* open the input file */
@@ -484,7 +482,7 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
   if (!(ifile = vtkParse_FileOpen(options.InputFileName, "r")))
   {
     fprintf(stderr, "Error opening input file %s\n", options.InputFileName);
-    exit(1);
+    exit(vtkParse_FinalizeMain(1));
   }
 
   /* free the expanded args */
@@ -500,7 +498,7 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
   {
     fprintf(stderr, "No output file was specified\n");
     fclose(ifile);
-    exit(1);
+    exit(vtkParse_FinalizeMain(1));
   }
 
   if (options.DependencyFileName && options.OutputFileName)
@@ -525,7 +523,7 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
   if (options.DumpMacros)
   {
     /* do nothing (the dump occurred in ParseFile above) */
-    exit(0);
+    exit(vtkParse_FinalizeMain(0));
   }
 
   /* open and parse each hint file, if given on the command line */
@@ -540,7 +538,7 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
         fprintf(stderr, "Error opening hint file %s\n", hfilename);
         fclose(ifile);
         vtkParse_FreeFile(data);
-        exit(1);
+        exit(vtkParse_FinalizeMain(1));
       }
 
       /* fill in some blanks by using the hints file */
@@ -595,12 +593,12 @@ StringCache* vtkParse_MainMulti(int argc, char* argv[])
 
   if (argi == 0)
   {
-    exit(0);
+    exit(vtkParse_FinalizeMain(0));
   }
   else if (argi < 0 || options.NumberOfFiles == 0)
   {
     parse_print_help(stderr, argv[0], 1);
-    exit(1);
+    exit(vtkParse_FinalizeMain(1));
   }
 
   if (options.DependencyFileName && options.OutputFileName)
