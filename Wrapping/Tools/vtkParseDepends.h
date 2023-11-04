@@ -20,7 +20,7 @@ extern "C"
    * Add a dependency to the output.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  void vtkParse_AddFileDependency(const char* dep);
+  void vtkParse_AddDependency(const char* dep);
 
   /**
    * Write dependency tracking information to a file.
@@ -28,7 +28,7 @@ extern "C"
    * Returns non-zero on error.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  int vtkParse_DependencyTrackingWrite(const char* fname);
+  int vtkParse_WriteDependencyFile(const char* fname);
 
   /**
    * Finalize the dependency tracking structure.
@@ -39,4 +39,4 @@ extern "C"
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
-/* VTK-HeaderTest-Exclude: vtkParseDependencyTracking.h */
+/* VTK-HeaderTest-Exclude: vtkParseDepends.h */

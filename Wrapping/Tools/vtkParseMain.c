@@ -10,7 +10,7 @@ This file provides a unified front-end for the wrapper generators.
 #include "vtkParseMain.h"
 #include "vtkParse.h"
 #include "vtkParseData.h"
-#include "vtkParseDependencyTracking.h"
+#include "vtkParseDepends.h"
 #include "vtkParseSystem.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -273,7 +273,7 @@ static int parse_check_options(int argc, char* argv[], int multi)
   options.NumberOfHintFileNames = 0;
   options.HintFileNames = NULL;
   options.DumpMacros = 0;
-  options.DepFileName = NULL;
+  options.DependencyFileName = NULL;
   options.WarningFlags.Empty = 0;
 
   for (i = 1; i < argc; i++)
@@ -322,7 +322,7 @@ static int parse_check_options(int argc, char* argv[], int multi)
       {
         return -1;
       }
-      options.DepFileName = argv[i];
+      options.DependencyFileName = argv[i];
     }
     else if (argv[i][0] == '-' && isalpha(argv[i][1]))
     {
@@ -427,7 +427,7 @@ int vtkParse_Finalize(void)
 {
   int ret = 0;
 
-  if (options.DepFileName && vtkParse_DependencyTrackingWrite(options.DepFileName))
+  if (options.DependencyFileName && vtkParse_WriteDependencyFile(options.DependencyFileName))
   {
     ret = 1;
   }
@@ -503,7 +503,7 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
     exit(1);
   }
 
-  if (options.DepFileName && options.OutputFileName)
+  if (options.DependencyFileName && options.OutputFileName)
   {
     vtkParse_InitDependencyTracking(options.OutputFileName);
     /* TODO: register response files read in `read_option_file` here. */
@@ -603,7 +603,7 @@ StringCache* vtkParse_MainMulti(int argc, char* argv[])
     exit(1);
   }
 
-  if (options.DepFileName && options.OutputFileName)
+  if (options.DependencyFileName && options.OutputFileName)
   {
     vtkParse_InitDependencyTracking(options.OutputFileName);
     /* TODO: register response files read in `read_option_file` here. */
