@@ -339,7 +339,8 @@ void vtkLineWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* cli
 {
   vtkLineWidget2* self = static_cast<vtkLineWidget2*>(clientdata);
   vtkLineRepresentation* rep = vtkLineRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(iren->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (event == vtkCommand::KeyPressEvent)
   {

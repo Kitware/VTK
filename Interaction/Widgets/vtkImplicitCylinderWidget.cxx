@@ -291,8 +291,10 @@ void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget* w)
 
   // Move the cylinder
   double factor = (self->Interactor->GetControlKey() ? 0.5 : 1.0);
-  if (!strcmp(self->Interactor->GetKeySym(), "Down") ||
-    !strcmp(self->Interactor->GetKeySym(), "Left"))
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+
+  if (keySym == "Down" || keySym == "Left")
   {
     self->GetCylinderRepresentation()->BumpCylinder(-1, factor);
   }
@@ -352,7 +354,8 @@ void vtkImplicitCylinderWidget::TranslationAxisLock(vtkAbstractWidget* widget)
   vtkImplicitCylinderWidget* self = reinterpret_cast<vtkImplicitCylinderWidget*>(widget);
   vtkImplicitCylinderRepresentation* rep =
     vtkImplicitCylinderRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (keySym == "X")
   {

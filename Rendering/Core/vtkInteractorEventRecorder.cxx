@@ -7,6 +7,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStringArray.h"
 
+#include <algorithm>
 #include <cassert>
 #include <locale>
 #include <sstream>
@@ -317,36 +318,34 @@ void vtkInteractorEventRecorder::ProcessEvents(
   // all events are processed
   if (self->State == vtkInteractorEventRecorder::Recording)
   {
-    switch (event)
+    if (event != vtkCommand::ModifiedEvent)
     {
-      case vtkCommand::ModifiedEvent: // don't want these
-        break;
-
-      default:
-        // A 'e' or a 'q' will stop the recording
-        if (rwi->GetKeySym() &&
-          (rwi->GetKeySym() == std::string("e") || rwi->GetKeySym() == std::string("q")))
+      char* cKeySym = rwi->GetKeySym();
+      std::string keySym = cKeySym != nullptr ? cKeySym : "";
+      std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+      // A 'e' or a 'q' will stop the recording
+      if (keySym == "E" || keySym == "Q")
+      {
+        self->Off();
+      }
+      else
+      {
+        int m = 0;
+        if (rwi->GetShiftKey())
         {
-          self->Off();
+          m |= ModifierKey::ShiftKey;
         }
-        else
+        if (rwi->GetControlKey())
         {
-          int m = 0;
-          if (rwi->GetShiftKey())
-          {
-            m |= ModifierKey::ShiftKey;
-          }
-          if (rwi->GetControlKey())
-          {
-            m |= ModifierKey::ControlKey;
-          }
-          if (rwi->GetAltKey())
-          {
-            m |= ModifierKey::AltKey;
-          }
-          self->WriteEvent(vtkCommand::GetStringFromEventId(event), rwi->GetEventPosition(), m,
-            rwi->GetKeyCode(), rwi->GetRepeatCount(), rwi->GetKeySym(), callData);
+          m |= ModifierKey::ControlKey;
         }
+        if (rwi->GetAltKey())
+        {
+          m |= ModifierKey::AltKey;
+        }
+        self->WriteEvent(vtkCommand::GetStringFromEventId(event), rwi->GetEventPosition(), m,
+          rwi->GetKeyCode(), rwi->GetRepeatCount(), cKeySym, callData);
+      }
     }
     self->OutputStream->flush();
   }

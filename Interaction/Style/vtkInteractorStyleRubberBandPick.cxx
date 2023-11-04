@@ -44,7 +44,8 @@ void vtkInteractorStyleRubberBandPick::StartSelect()
 //------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::OnChar()
 {
-  std::string keySym(this->Interactor->GetKeySym());
+  char* cKeySym = this->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (keySym == "R")
   {

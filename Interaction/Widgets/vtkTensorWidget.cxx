@@ -507,7 +507,8 @@ void vtkTensorWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* cl
 {
   vtkTensorWidget* self = static_cast<vtkTensorWidget*>(clientdata);
   vtkTensorRepresentation* rep = vtkTensorRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (event == vtkCommand::KeyPressEvent)
   {

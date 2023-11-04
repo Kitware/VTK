@@ -506,7 +506,8 @@ void vtkBoxWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clie
 {
   vtkBoxWidget2* self = static_cast<vtkBoxWidget2*>(clientdata);
   vtkBoxRepresentation* rep = vtkBoxRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (event == vtkCommand::KeyPressEvent)
   {

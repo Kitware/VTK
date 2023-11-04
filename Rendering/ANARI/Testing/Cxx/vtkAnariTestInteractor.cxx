@@ -94,7 +94,8 @@ void vtkAnariTestInteractor::OnKeyPress()
 
   // Get the keypress
   vtkRenderWindowInteractor* rwi = this->Interactor;
-  std::string key = rwi->GetKeySym();
+  char* ckey = rwi->GetKeySym();
+  std::string key = ckey != nullptr ? ckey : "";
 
   if (key == "c")
   {

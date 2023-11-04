@@ -309,7 +309,8 @@ void vtkSphereWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* c
 {
   vtkSphereWidget2* self = static_cast<vtkSphereWidget2*>(clientdata);
   vtkSphereRepresentation* rep = vtkSphereRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (event == vtkCommand::KeyPressEvent)
   {

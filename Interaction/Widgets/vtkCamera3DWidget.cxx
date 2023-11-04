@@ -203,7 +203,8 @@ void vtkCamera3DWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* 
 {
   vtkCamera3DWidget* self = static_cast<vtkCamera3DWidget*>(clientdata);
   vtkCamera3DRepresentation* rep = vtkCamera3DRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (event == vtkCommand::KeyPressEvent)
   {

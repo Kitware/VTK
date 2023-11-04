@@ -94,9 +94,11 @@ public:
   void Execute(vtkObject* caller, unsigned long, void*) override
   {
     vtkRenderWindowInteractor* iren = static_cast<vtkRenderWindowInteractor*>(caller);
+    char* cKeySym = iren->GetKeySym();
+    std::string keySym = cKeySym != nullptr ? cKeySym : "";
 
     // Reorganize the cube
-    if (!strcmp(iren->GetKeySym(), "space"))
+    if (keySym == "space")
     {
       const int baseCube = static_cast<int>(pow(this->Seeds.size(), 1. / 3.) / 2 + 0.5);
       std::list<vtkSmartPointer<vtkHandleWidget>>::iterator it = this->Seeds.begin();
@@ -120,7 +122,7 @@ public:
       }
     }
     // Disable every other seed
-    if (!strcmp(iren->GetKeySym(), "Alt_L") || !strcmp(iren->GetKeySym(), "Alt_R"))
+    if (keySym == "Alt_L" || keySym == "Alt_R")
     {
       const int baseCube = static_cast<int>(pow(this->Seeds.size(), 1. / 3.) / 2 + 0.5);
       int n = 0;

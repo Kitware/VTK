@@ -427,7 +427,8 @@ void vtkCoordinateFrameWidget::TranslationAxisLock(vtkAbstractWidget* widget)
   vtkCoordinateFrameWidget* self = reinterpret_cast<vtkCoordinateFrameWidget*>(widget);
   vtkCoordinateFrameRepresentation* rep =
     vtkCoordinateFrameRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (keySym == "X")
   {

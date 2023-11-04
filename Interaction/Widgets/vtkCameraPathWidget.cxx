@@ -271,7 +271,8 @@ void vtkCameraPathWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void
 {
   vtkCameraPathWidget* self = static_cast<vtkCameraPathWidget*>(clientdata);
   vtkCameraPathRepresentation* rep = vtkCameraPathRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (event == vtkCommand::KeyPressEvent)
   {

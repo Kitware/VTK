@@ -1329,8 +1329,8 @@ bool vtkChartXYZ::Spin(const vtkContextMouseEvent& mouse)
 //------------------------------------------------------------------------------
 bool vtkChartXYZ::KeyPressEvent(const vtkContextKeyEvent& evt)
 {
-  std::string key = evt.GetInteractor()->GetKeySym();
-
+  char* ckey = evt.GetInteractor()->GetKeySym();
+  std::string key = ckey != nullptr ? ckey : "";
   if (key == "x")
   {
     this->LookDownX();

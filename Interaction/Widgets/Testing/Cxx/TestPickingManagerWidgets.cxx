@@ -95,9 +95,10 @@ public:
   void Execute(vtkObject* caller, unsigned long, void*) override
   {
     vtkRenderWindowInteractor* iren = static_cast<vtkRenderWindowInteractor*>(caller);
+    char* cKeySym = iren->GetKeySym();
+    std::string keySym = cKeySym != nullptr ? cKeySym : "";
 
-    if ((!strcmp(iren->GetKeySym(), "Control_L") || !strcmp(iren->GetKeySym(), "Control_R")) &&
-      iren->GetPickingManager())
+    if ((keySym == "Control_L" || keySym == "Control_R") && iren->GetPickingManager())
     {
       if (!iren->GetPickingManager()->GetEnabled())
       {
@@ -111,7 +112,7 @@ public:
       }
     }
     // Enable/Disable the Optimization on render events.
-    else if (!strcmp(iren->GetKeySym(), "o") && iren->GetPickingManager())
+    else if (keySym == "o" && iren->GetPickingManager())
     {
       if (!iren->GetPickingManager()->GetOptimizeOnInteractorEvents())
       {

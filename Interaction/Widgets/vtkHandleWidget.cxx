@@ -465,7 +465,8 @@ void vtkHandleWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* cl
 {
   vtkHandleWidget* self = static_cast<vtkHandleWidget*>(clientdata);
   vtkHandleRepresentation* rep = vtkHandleRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (event == vtkCommand::KeyPressEvent)
   {

@@ -316,7 +316,8 @@ void vtkInteractorStyleTerrain::Dolly()
 void vtkInteractorStyleTerrain::OnChar()
 {
   vtkRenderWindowInteractor* rwi = this->Interactor;
-  std::string keySym(rwi->GetKeySym());
+  char* cKeySym = rwi->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (keySym == "L")
   {

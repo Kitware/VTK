@@ -271,7 +271,8 @@ void vtkSplineWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* c
 {
   vtkSplineWidget2* self = static_cast<vtkSplineWidget2*>(clientdata);
   vtkSplineRepresentation* rep = vtkSplineRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (event == vtkCommand::KeyPressEvent)
   {

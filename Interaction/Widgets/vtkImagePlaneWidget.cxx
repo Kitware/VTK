@@ -402,7 +402,8 @@ void vtkImagePlaneWidget::ProcessEvents(
 void vtkImagePlaneWidget::OnChar()
 {
   vtkRenderWindowInteractor* i = this->Interactor;
-  std::string keySym(i->GetKeySym());
+  char* cKeySym = i->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (keySym == "R")
   {

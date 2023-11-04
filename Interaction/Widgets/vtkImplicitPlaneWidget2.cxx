@@ -435,8 +435,10 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget* w)
 
   // Move the plane
   double factor = (self->Interactor->GetControlKey() ? 0.5 : 1.0);
-  if (!strcmp(self->Interactor->GetKeySym(), "Down") ||
-    !strcmp(self->Interactor->GetKeySym(), "Left"))
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+
+  if (keySym == "Down" || keySym == "Left")
   {
     self->GetImplicitPlaneRepresentation()->BumpPlane(-1, factor);
   }
@@ -558,7 +560,8 @@ void vtkImplicitPlaneWidget2::TranslationAxisLock(vtkAbstractWidget* widget)
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(widget);
   vtkImplicitPlaneRepresentation* rep =
     vtkImplicitPlaneRepresentation::SafeDownCast(self->WidgetRep);
-  std::string keySym(self->Interactor->GetKeySym());
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
   std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (keySym == "X")
   {
