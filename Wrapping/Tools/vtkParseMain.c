@@ -24,6 +24,9 @@ This file provides a unified front-end for the wrapper generators.
 /* This is the struct that contains the options */
 static OptionInfo options;
 
+/* This holds the expanded command-line arguments */
+StringCache argv_strings;
+
 /* Get the base filename */
 static const char* parse_exename(const char* cmd)
 {
@@ -430,6 +433,7 @@ int vtkParse_FinalizeMain(int ret)
     ret = vtkParse_WriteDependencyFile(options.DependencyFileName);
   }
   vtkParse_FinalizeDependencyTracking();
+  vtkParse_FreeStringCache(&argv_strings);
 
   return ret;
 }
@@ -444,7 +448,6 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
   int ihfiles;
   const char* hfilename;
   FileInfo* data;
-  StringCache strings;
   int argn;
   char** args;
 
@@ -458,8 +461,8 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
   vtkParse_DefineMacro("__VTK_WRAP__", 0);
 
   /* expand any "@file" args */
-  vtkParse_InitStringCache(&strings);
-  parse_expand_args(&strings, argc, argv, &argn, &args);
+  vtkParse_InitStringCache(&argv_strings);
+  parse_expand_args(&argv_strings, argc, argv, &argn, &args);
 
   /* read the args into the static OptionInfo struct */
   argi = parse_check_options(argn, args, 0);
@@ -512,12 +515,8 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
 
   if (!data)
   {
-    vtkParse_FreeStringCache(&strings);
-    exit(1);
+    exit(vtkParse_FinalizeMain(1));
   }
-
-  /* merge into a single string cache to avoid leaking strings */
-  vtkParse_MergeStringCache(data->Strings, &strings);
 
   /* check whether -dM option was set */
   if (options.DumpMacros)
@@ -567,12 +566,11 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
 }
 
 /* Command-line argument handler for wrapper tools */
-StringCache* vtkParse_MainMulti(int argc, char* argv[])
+void vtkParse_MainMulti(int argc, char* argv[])
 {
   int argi;
   int argn;
   char** args;
-  StringCache* strings = (StringCache*)malloc(sizeof(StringCache));
 
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));
@@ -584,8 +582,8 @@ StringCache* vtkParse_MainMulti(int argc, char* argv[])
   vtkParse_DefineMacro("__VTK_WRAP__", 0);
 
   /* expand any "@file" args */
-  vtkParse_InitStringCache(strings);
-  parse_expand_args(strings, argc, argv, &argn, &args);
+  vtkParse_InitStringCache(&argv_strings);
+  parse_expand_args(&argv_strings, argc, argv, &argn, &args);
 
   /* read the args into the static OptionInfo struct */
   argi = parse_check_options(argn, args, 1);
@@ -609,7 +607,6 @@ StringCache* vtkParse_MainMulti(int argc, char* argv[])
 
   /* the input file */
   options.InputFileName = options.Files[0];
-  return strings;
 }
 
 #ifdef _WIN32

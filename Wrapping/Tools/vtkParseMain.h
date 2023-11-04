@@ -102,13 +102,12 @@ extern "C"
   /**
    * An alternative main function that can take multiple input files.
    * It does not parse the files itself, but files can be parsed by calling
-   * vtkParse_ParseFile().  The returned StringCache memory must be freed
-   * by a call to vtkParse_FreeStringCache(), followed by a call to free()
-   * on the pointer itself, before the program exits.  Note that this
-   * function will call exit() if it encounters an error.
+   * vtkParse_ParseFile().  This function may call exit() if it encounters
+   * an error loading the input file, parsing the input file, or while
+   * handling the command-line options.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  StringCache* vtkParse_MainMulti(int argc, char* argv[]);
+  void vtkParse_MainMulti(int argc, char* argv[]);
 
 #ifdef _WIN32
 
