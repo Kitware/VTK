@@ -533,6 +533,7 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
 
   /* parse the input file */
   data = vtkParse_ParseFile(options.InputFileName, ifile, stderr);
+  fclose(ifile);
 
   if (!data)
   {
