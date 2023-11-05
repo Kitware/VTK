@@ -246,7 +246,7 @@ inline bool vtkPythonGetValue(PyObject* o, std::string& a)
 
 inline bool vtkPythonGetValue(PyObject* o, char& a)
 {
-  static const char exctext[] = "a string of length 1 is required";
+  static const char exctext[] = "string of length 1, ord < 256 is required";
   const char* b;
   if (vtkPythonGetStringValue(o, b, exctext))
   {
@@ -255,7 +255,22 @@ inline bool vtkPythonGetValue(PyObject* o, char& a)
       a = b[0];
       return true;
     }
-    PyErr_SetString(PyExc_TypeError, exctext);
+    else if (PyUnicode_Check(o))
+    {
+      if (b[0] == '\xc2' && b[2] == '\0')
+      {
+        // one unicode character, and in the range [128,191]
+        a = b[1];
+        return true;
+      }
+      else if (b[0] == '\xc3' && b[2] == '\0')
+      {
+        // one unicode character, and in the range [192,255]
+        a = b[1] | '\x40';
+        return true;
+      }
+    }
+    PyErr_SetString(PyExc_ValueError, exctext);
   }
   return false;
 }
