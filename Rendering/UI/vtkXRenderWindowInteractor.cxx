@@ -736,8 +736,13 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       int ctrl = (keyEvent->state & ControlMask) ? 1 : 0;
       int shift = (keyEvent->state & ShiftMask) ? 1 : 0;
       int alt = (keyEvent->state & Mod1Mask) ? 1 : 0;
-      vtkKeySym keySym = XLookupKeysym(keyEvent, 0);
-      char keyCode = keySym < 128 ? static_cast<char>(keySym) : 0;
+
+      // XLookupString provide a keycode in Latin1 (ISO/IEC 8859-1)
+      // We care only for the first char of the keycode
+      char keyCode;
+      vtkKeySym keySym;
+      XLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);
+
       xp = keyEvent->x;
       yp = keyEvent->y;
       this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, XKeysymToString(keySym));
@@ -757,8 +762,13 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       int ctrl = (keyEvent->state & ControlMask) ? 1 : 0;
       int shift = (keyEvent->state & ShiftMask) ? 1 : 0;
       int alt = (keyEvent->state & Mod1Mask) ? 1 : 0;
-      vtkKeySym keySym = XLookupKeysym(keyEvent, 0);
-      char keyCode = keySym < 128 ? static_cast<char>(keySym) : 0;
+
+      // XLookupString provide a keycode in Latin1 (ISO/IEC 8859-1)
+      // We care only for the first char of the keycode
+      char keyCode;
+      vtkKeySym keySym;
+      XLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);
+
       xp = keyEvent->x;
       yp = keyEvent->y;
       this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, XKeysymToString(keySym));

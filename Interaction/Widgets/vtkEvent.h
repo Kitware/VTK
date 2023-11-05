@@ -65,6 +65,7 @@ public:
   ///@{
   /**
    * Set the KeyCode for the event.
+   * Default is 0.
    */
   vtkSetMacro(KeyCode, char);
   vtkGetMacro(KeyCode, char);
@@ -81,6 +82,7 @@ public:
   ///@{
   /**
    * Set the complex key symbol (compound key strokes) for the event.
+   * Default is nullptr.
    */
   vtkSetStringMacro(KeySym);
   vtkGetStringMacro(KeySym);

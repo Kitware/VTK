@@ -17,6 +17,8 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCamera3DWidget);
 
@@ -200,78 +202,71 @@ void vtkCamera3DWidget::EndSelectAction(vtkAbstractWidget* w)
 void vtkCamera3DWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
   vtkCamera3DWidget* self = static_cast<vtkCamera3DWidget*>(clientdata);
-  vtkRenderWindowInteractor* iren = self->GetInteractor();
   vtkCamera3DRepresentation* rep = vtkCamera3DRepresentation::SafeDownCast(self->WidgetRep);
-  switch (event)
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (event == vtkCommand::KeyPressEvent)
   {
-    case vtkCommand::KeyPressEvent:
-      switch (iren->GetKeyCode())
+    if (keySym == "X")
+    {
+      if (rep->GetTranslationAxis() == vtkWidgetRepresentation::XAxis)
       {
-        case 'x':
-        case 'X':
-          if (rep->GetTranslationAxis() == vtkWidgetRepresentation::XAxis)
-          {
-            rep->SetTranslationAxisToNone();
-          }
-          else
-          {
-            rep->SetTranslationAxisToXAxis();
-          }
-          break;
-        case 'y':
-        case 'Y':
-          if (rep->GetTranslationAxis() == vtkWidgetRepresentation::YAxis)
-          {
-            rep->SetTranslationAxisToNone();
-          }
-          else
-          {
-            rep->SetTranslationAxisToYAxis();
-          }
-          break;
-        case 'z':
-        case 'Z':
-          if (rep->GetTranslationAxis() == vtkWidgetRepresentation::ZAxis)
-          {
-            rep->SetTranslationAxisToNone();
-          }
-          else
-          {
-            rep->SetTranslationAxisToZAxis();
-          }
-          break;
-        case 'o':
-        case 'O':
-          rep->SetTranslationAxisToNone();
-          break;
-        case 'a':
-        case 'A':
-          if (rep->GetTranslatingAll())
-          {
-            rep->TranslatingAllOff();
-          }
-          else
-          {
-            rep->TranslatingAllOn();
-          }
-          break;
-        case 'c':
-        case 'C':
-          if (rep->GetFrustumVisibility())
-          {
-            rep->FrustumVisibilityOff();
-          }
-          else
-          {
-            rep->FrustumVisibilityOn();
-          }
-          break;
-        default:
-          break;
+        rep->SetTranslationAxisToNone();
       }
-      break;
-    default:
-      break;
+      else
+      {
+        rep->SetTranslationAxisToXAxis();
+      }
+    }
+    else if (keySym == "Y")
+    {
+      if (rep->GetTranslationAxis() == vtkWidgetRepresentation::YAxis)
+      {
+        rep->SetTranslationAxisToNone();
+      }
+      else
+      {
+        rep->SetTranslationAxisToYAxis();
+      }
+    }
+    else if (keySym == "Z")
+    {
+      if (rep->GetTranslationAxis() == vtkWidgetRepresentation::ZAxis)
+      {
+        rep->SetTranslationAxisToNone();
+      }
+      else
+      {
+        rep->SetTranslationAxisToZAxis();
+      }
+    }
+    else if (keySym == "O")
+    {
+      rep->SetTranslationAxisToNone();
+    }
+    else if (keySym == "A")
+    {
+      if (rep->GetTranslatingAll())
+      {
+        rep->TranslatingAllOff();
+      }
+      else
+      {
+        rep->TranslatingAllOn();
+      }
+    }
+    else if (keySym == "C")
+    {
+      if (rep->GetFrustumVisibility())
+      {
+        rep->FrustumVisibilityOff();
+      }
+      else
+      {
+        rep->FrustumVisibilityOn();
+      }
+    }
   }
 }
 VTK_ABI_NAMESPACE_END

@@ -15,6 +15,8 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
@@ -314,36 +316,36 @@ void vtkInteractorStyleTerrain::Dolly()
 void vtkInteractorStyleTerrain::OnChar()
 {
   vtkRenderWindowInteractor* rwi = this->Interactor;
-
-  switch (rwi->GetKeyCode())
+  char* cKeySym = rwi->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (keySym == "L")
   {
-    case 'l':
-      this->FindPokedRenderer(rwi->GetEventPosition()[0], rwi->GetEventPosition()[1]);
-      this->CreateLatLong();
-      if (this->LatLongLines)
-      {
-        this->LatLongLinesOff();
-      }
-      else
-      {
-        double bounds[6];
-        this->CurrentRenderer->ComputeVisiblePropBounds(bounds);
-        double radius = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
-                          (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
-                          (bounds[5] - bounds[4]) * (bounds[5] - bounds[4])) /
-          2.0;
-        this->LatLongSphere->SetRadius(radius);
-        this->LatLongSphere->SetCenter((bounds[0] + bounds[1]) / 2.0, (bounds[2] + bounds[3]) / 2.0,
-          (bounds[4] + bounds[5]) / 2.0);
-        this->LatLongLinesOn();
-      }
-      this->SelectRepresentation();
-      rwi->Render();
-      break;
-
-    default:
-      this->Superclass::OnChar();
-      break;
+    this->FindPokedRenderer(rwi->GetEventPosition()[0], rwi->GetEventPosition()[1]);
+    this->CreateLatLong();
+    if (this->LatLongLines)
+    {
+      this->LatLongLinesOff();
+    }
+    else
+    {
+      double bounds[6];
+      this->CurrentRenderer->ComputeVisiblePropBounds(bounds);
+      double radius = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+                        (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+                        (bounds[5] - bounds[4]) * (bounds[5] - bounds[4])) /
+        2.0;
+      this->LatLongSphere->SetRadius(radius);
+      this->LatLongSphere->SetCenter((bounds[0] + bounds[1]) / 2.0, (bounds[2] + bounds[3]) / 2.0,
+        (bounds[4] + bounds[5]) / 2.0);
+      this->LatLongLinesOn();
+    }
+    this->SelectRepresentation();
+    rwi->Render();
+  }
+  else
+  {
+    this->Superclass::OnChar();
   }
 }
 

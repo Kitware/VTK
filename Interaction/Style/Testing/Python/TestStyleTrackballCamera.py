@@ -45,10 +45,10 @@ class TestStyleTrackballCamera(vtkmodules.test.Testing.vtkTest):
 
         # Switch to Trackball+Actor mode
 
-        iRen.SetKeyEventInformation(0, 0, 't', 0, '0')
+        iRen.SetKeyEventInformation(0, 0, 't', 0, 't')
         iRen.InvokeEvent("CharEvent")
 
-        iRen.SetKeyEventInformation(0, 0, 'c', 0, '0')
+        iRen.SetKeyEventInformation(0, 0, 'c', 0, 'c')
         iRen.InvokeEvent("CharEvent")
 
         # Test style

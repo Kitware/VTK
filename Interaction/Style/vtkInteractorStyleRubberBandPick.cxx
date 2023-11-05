@@ -11,6 +11,8 @@
 #include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
@@ -42,35 +44,35 @@ void vtkInteractorStyleRubberBandPick::StartSelect()
 //------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::OnChar()
 {
-  switch (this->Interactor->GetKeyCode())
+  char* cKeySym = this->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (keySym == "R")
   {
-    case 'r':
-    case 'R':
-      // r toggles the rubber band selection mode for mouse button 1
-      if (this->CurrentMode == VTKISRBP_ORIENT)
-      {
-        this->CurrentMode = VTKISRBP_SELECT;
-      }
-      else
-      {
-        this->CurrentMode = VTKISRBP_ORIENT;
-      }
-      break;
-    case 'p':
-    case 'P':
+    // r toggles the rubber band selection mode for mouse button 1
+    if (this->CurrentMode == VTKISRBP_ORIENT)
     {
-      vtkRenderWindowInteractor* rwi = this->Interactor;
-      int* eventPos = rwi->GetEventPosition();
-      this->FindPokedRenderer(eventPos[0], eventPos[1]);
-      this->StartPosition[0] = eventPos[0];
-      this->StartPosition[1] = eventPos[1];
-      this->EndPosition[0] = eventPos[0];
-      this->EndPosition[1] = eventPos[1];
-      this->Pick();
-      break;
+      this->CurrentMode = VTKISRBP_SELECT;
     }
-    default:
-      this->Superclass::OnChar();
+    else
+    {
+      this->CurrentMode = VTKISRBP_ORIENT;
+    }
+  }
+  else if (keySym == "P")
+  {
+    vtkRenderWindowInteractor* rwi = this->Interactor;
+    int* eventPos = rwi->GetEventPosition();
+    this->FindPokedRenderer(eventPos[0], eventPos[1]);
+    this->StartPosition[0] = eventPos[0];
+    this->StartPosition[1] = eventPos[1];
+    this->EndPosition[0] = eventPos[0];
+    this->EndPosition[1] = eventPos[1];
+    this->Pick();
+  }
+  else
+  {
+    this->Superclass::OnChar();
   }
 }
 

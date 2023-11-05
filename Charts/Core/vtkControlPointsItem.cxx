@@ -1488,50 +1488,47 @@ bool vtkControlPointsItem::MouseButtonReleaseEvent(const vtkContextMouseEvent& m
 //------------------------------------------------------------------------------
 bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent& key)
 {
-  bool move = key.GetInteractor()->GetAltKey() != 0 ||
-    key.GetInteractor()->GetKeySym() == std::string("plus") ||
-    key.GetInteractor()->GetKeySym() == std::string("minus");
+  char* cKeySym = key.GetInteractor()->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+
+  bool move = key.GetInteractor()->GetAltKey() != 0 || keySym == "plus" || keySym == "minus";
   bool select = !move && key.GetInteractor()->GetShiftKey() != 0;
   bool control = key.GetInteractor()->GetControlKey() != 0;
   bool current = !select && !move && !control;
   if (current)
   {
-    if (key.GetInteractor()->GetKeySym() == std::string("Right") ||
-      key.GetInteractor()->GetKeySym() == std::string("Up"))
+    if (keySym == "Right" || keySym == "Up")
     {
       this->SetCurrentPoint(std::min(this->GetNumberOfPoints() - 1, this->GetCurrentPoint() + 1));
     }
-    else if (key.GetInteractor()->GetKeySym() == std::string("Left") ||
-      key.GetInteractor()->GetKeySym() == std::string("Down"))
+    else if (keySym == "Left" || keySym == "Down")
     {
       this->SetCurrentPoint(std::max(0, static_cast<int>(this->GetCurrentPoint()) - 1));
     }
-    else if (key.GetInteractor()->GetKeySym() == std::string("End"))
+    else if (keySym == "End")
     {
       this->SetCurrentPoint(this->GetNumberOfPoints() - 1);
     }
-    else if (key.GetInteractor()->GetKeySym() == std::string("Home"))
+    else if (keySym == "Home")
     {
       this->SetCurrentPoint(0);
     }
   }
   else if (select)
   {
-    if (key.GetInteractor()->GetKeySym() == std::string("Right") ||
-      key.GetInteractor()->GetKeySym() == std::string("Up"))
+    if (keySym == "Right" || keySym == "Up")
     {
       this->SelectPoint(this->CurrentPoint);
       this->SetCurrentPoint(std::min(this->GetNumberOfPoints() - 1, this->GetCurrentPoint() + 1));
       this->SelectPoint(this->CurrentPoint);
     }
-    else if (key.GetInteractor()->GetKeySym() == std::string("Left") ||
-      key.GetInteractor()->GetKeySym() == std::string("Down"))
+    else if (keySym == "Left" || keySym == "Down")
     {
       this->SelectPoint(this->CurrentPoint);
       this->SetCurrentPoint(std::max(0, static_cast<int>(this->GetCurrentPoint()) - 1));
       this->SelectPoint(this->CurrentPoint);
     }
-    else if (key.GetInteractor()->GetKeySym() == std::string("End"))
+    else if (keySym == "End")
     {
       vtkIdType newCurrentPointId = this->GetNumberOfPoints() - 1;
       for (vtkIdType pointId = this->CurrentPoint; pointId < newCurrentPointId; ++pointId)
@@ -1541,7 +1538,7 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent& key)
       this->SelectPoint(newCurrentPointId);
       this->SetCurrentPoint(newCurrentPointId);
     }
-    else if (key.GetInteractor()->GetKeySym() == std::string("Home"))
+    else if (keySym == "Home")
     {
       vtkIdType newCurrentPointId = 0;
       for (vtkIdType pointId = this->CurrentPoint; pointId > newCurrentPointId; --pointId)
@@ -1555,19 +1552,19 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent& key)
   else if (move)
   {
     vtkVector2f translate(0, 0);
-    if (key.GetInteractor()->GetKeySym() == std::string("Up"))
+    if (keySym == "Up")
     {
       translate = translate + vtkVector2f(0., 1.);
     }
-    if (key.GetInteractor()->GetKeySym() == std::string("Down"))
+    if (keySym == "Down")
     {
       translate = translate + vtkVector2f(0., -1.);
     }
-    if (key.GetInteractor()->GetKeySym() == std::string("Right"))
+    if (keySym == "Right")
     {
       translate = translate + vtkVector2f(1., 0.);
     }
-    if (key.GetInteractor()->GetKeySym() == std::string("Left"))
+    if (keySym == "Left")
     {
       translate = translate + vtkVector2f(-1., 0.);
     }
@@ -1600,7 +1597,7 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent& key)
         this->Interaction();
       }
     }
-    else if (key.GetInteractor()->GetKeySym() == std::string("plus"))
+    else if (keySym == "plus")
     {
       this->StartInteractionIfNotStarted();
 
@@ -1613,7 +1610,7 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent& key)
 
       this->Interaction();
     }
-    else if (key.GetInteractor()->GetKeySym() == std::string("minus"))
+    else if (keySym == "minus")
     {
       this->StartInteractionIfNotStarted();
 
@@ -1629,16 +1626,16 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent& key)
   }
   else if (control)
   {
-    if (key.GetInteractor()->GetKeySym() == std::string("a"))
+    if (keySym == "a")
     {
       this->SelectAllPoints();
     }
   }
-  if (key.GetInteractor()->GetKeySym() == std::string("space"))
+  if (keySym == "space")
   {
     this->ToggleSelectPoint(this->GetCurrentPoint());
   }
-  else if (key.GetInteractor()->GetKeySym() == std::string("Escape"))
+  else if (keySym == "Escape")
   {
     this->DeselectAllPoints();
   }
@@ -1648,11 +1645,12 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent& key)
 //------------------------------------------------------------------------------
 bool vtkControlPointsItem::KeyReleaseEvent(const vtkContextKeyEvent& key)
 {
-  if (key.GetInteractor()->GetKeySym() == std::string("Delete") ||
-    key.GetInteractor()->GetKeySym() == std::string("BackSpace"))
+  char* cKeySym = key.GetInteractor()->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  if (keySym == "Delete" || keySym == "BackSpace")
   {
     vtkIdType removedPoint = this->RemovePoint(this->GetCurrentPoint());
-    if (key.GetInteractor()->GetKeySym() == std::string("BackSpace"))
+    if (keySym == "BackSpace")
     {
       this->SetCurrentPoint(removedPoint > 0 ? removedPoint - 1 : 0);
     }

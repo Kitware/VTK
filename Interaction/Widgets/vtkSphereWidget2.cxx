@@ -13,6 +13,8 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereWidget2);
 
@@ -306,46 +308,31 @@ void vtkSphereWidget2::CreateDefaultRepresentation()
 void vtkSphereWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
   vtkSphereWidget2* self = static_cast<vtkSphereWidget2*>(clientdata);
-  vtkRenderWindowInteractor* iren = self->GetInteractor();
   vtkSphereRepresentation* rep = vtkSphereRepresentation::SafeDownCast(self->WidgetRep);
-  switch (event)
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (event == vtkCommand::KeyPressEvent)
   {
-    case vtkCommand::KeyPressEvent:
-      switch (iren->GetKeyCode())
-      {
-        case 'x':
-        case 'X':
-          rep->SetXTranslationAxisOn();
-          break;
-        case 'y':
-        case 'Y':
-          rep->SetYTranslationAxisOn();
-          break;
-        case 'z':
-        case 'Z':
-          rep->SetZTranslationAxisOn();
-          break;
-        default:
-          break;
-      }
-      break;
-    case vtkCommand::KeyReleaseEvent:
-      switch (iren->GetKeyCode())
-      {
-        case 'x':
-        case 'X':
-        case 'y':
-        case 'Y':
-        case 'z':
-        case 'Z':
-          rep->SetTranslationAxisOff();
-          break;
-        default:
-          break;
-      }
-      break;
-    default:
-      break;
+    if (keySym == "X")
+    {
+      rep->SetXTranslationAxisOn();
+    }
+    else if (keySym == "Y")
+    {
+      rep->SetYTranslationAxisOn();
+    }
+    else if (keySym == "Z")
+    {
+      rep->SetZTranslationAxisOn();
+    }
+  }
+  else if (event == vtkCommand::KeyReleaseEvent)
+  {
+    if (keySym == "X" || keySym == "Y" || keySym == "Z")
+    {
+      rep->SetTranslationAxisOff();
+    }
   }
 }
 

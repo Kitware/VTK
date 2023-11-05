@@ -17,6 +17,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
@@ -378,78 +380,65 @@ void vtkInteractorStyleImage::OnRightButtonUp()
 void vtkInteractorStyleImage::OnChar()
 {
   vtkRenderWindowInteractor* rwi = this->Interactor;
-
-  switch (rwi->GetKeyCode())
+  char* cKeySym = rwi->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (keySym == "F")
   {
-    case 'f':
-    case 'F':
+    this->AnimState = VTKIS_ANIM_ON;
+    vtkAssemblyPath* path = nullptr;
+    this->FindPokedRenderer(rwi->GetEventPosition()[0], rwi->GetEventPosition()[1]);
+    rwi->GetPicker()->Pick(
+      rwi->GetEventPosition()[0], rwi->GetEventPosition()[1], 0.0, this->CurrentRenderer);
+    vtkAbstractPropPicker* picker;
+    if ((picker = vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())))
     {
-      this->AnimState = VTKIS_ANIM_ON;
-      vtkAssemblyPath* path = nullptr;
-      this->FindPokedRenderer(rwi->GetEventPosition()[0], rwi->GetEventPosition()[1]);
-      rwi->GetPicker()->Pick(
-        rwi->GetEventPosition()[0], rwi->GetEventPosition()[1], 0.0, this->CurrentRenderer);
-      vtkAbstractPropPicker* picker;
-      if ((picker = vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())))
-      {
-        path = picker->GetPath();
-      }
-      if (path != nullptr)
-      {
-        rwi->FlyToImage(this->CurrentRenderer, picker->GetPickPosition());
-      }
-      this->AnimState = VTKIS_ANIM_OFF;
-      break;
+      path = picker->GetPath();
     }
-
-    case 'r':
-    case 'R':
-      // Allow either shift/ctrl to trigger the usual 'r' binding
-      // otherwise trigger reset window level event
-      if (rwi->GetShiftKey() || rwi->GetControlKey())
-      {
-        this->Superclass::OnChar();
-      }
-      else if (this->HandleObservers && this->HasObserver(vtkCommand::ResetWindowLevelEvent))
-      {
-        this->InvokeEvent(vtkCommand::ResetWindowLevelEvent, this);
-      }
-      else if (this->CurrentImageProperty)
-      {
-        vtkImageProperty* property = this->CurrentImageProperty;
-        property->SetColorWindow(this->WindowLevelInitial[0]);
-        property->SetColorLevel(this->WindowLevelInitial[1]);
-        this->Interactor->Render();
-      }
-      break;
-
-    case 'x':
-    case 'X':
+    if (path != nullptr)
     {
-      this->SetImageOrientation(this->XViewRightVector, this->XViewUpVector);
-      this->Interactor->Render();
+      rwi->FlyToImage(this->CurrentRenderer, picker->GetPickPosition());
     }
-    break;
-
-    case 'y':
-    case 'Y':
+    this->AnimState = VTKIS_ANIM_OFF;
+  }
+  else if (keySym == "R")
+  {
+    // Allow either shift/ctrl to trigger the usual 'r' binding
+    // otherwise trigger reset window level event
+    if (rwi->GetShiftKey() || rwi->GetControlKey())
     {
-      this->SetImageOrientation(this->YViewRightVector, this->YViewUpVector);
-      this->Interactor->Render();
-    }
-    break;
-
-    case 'z':
-    case 'Z':
-    {
-      this->SetImageOrientation(this->ZViewRightVector, this->ZViewUpVector);
-      this->Interactor->Render();
-    }
-    break;
-
-    default:
       this->Superclass::OnChar();
-      break;
+    }
+    else if (this->HandleObservers && this->HasObserver(vtkCommand::ResetWindowLevelEvent))
+    {
+      this->InvokeEvent(vtkCommand::ResetWindowLevelEvent, this);
+    }
+    else if (this->CurrentImageProperty)
+    {
+      vtkImageProperty* property = this->CurrentImageProperty;
+      property->SetColorWindow(this->WindowLevelInitial[0]);
+      property->SetColorLevel(this->WindowLevelInitial[1]);
+      this->Interactor->Render();
+    }
+  }
+  else if (keySym == "X")
+  {
+    this->SetImageOrientation(this->XViewRightVector, this->XViewUpVector);
+    this->Interactor->Render();
+  }
+  else if (keySym == "Y")
+  {
+    this->SetImageOrientation(this->YViewRightVector, this->YViewUpVector);
+    this->Interactor->Render();
+  }
+  else if (keySym == "Z")
+  {
+    this->SetImageOrientation(this->ZViewRightVector, this->ZViewUpVector);
+    this->Interactor->Render();
+  }
+  else
+  {
+    this->Superclass::OnChar();
   }
 }
 

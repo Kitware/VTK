@@ -12,6 +12,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
@@ -121,37 +123,37 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToMultiTouchCamera()
 //------------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnChar()
 {
-  switch (this->Interactor->GetKeyCode())
+  char* cKeySym = this->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (keySym == "J")
   {
-    case 'j':
-    case 'J':
-      this->JoystickOrTrackball = VTKIS_JOYSTICK;
-      this->MultiTouch = false;
-      this->EventCallbackCommand->SetAbortFlag(1);
-      break;
-    case 't':
-    case 'T':
-      this->JoystickOrTrackball = VTKIS_TRACKBALL;
-      this->MultiTouch = false;
-      this->EventCallbackCommand->SetAbortFlag(1);
-      break;
-    case 'c':
-    case 'C':
-      this->CameraOrActor = VTKIS_CAMERA;
-      this->MultiTouch = false;
-      this->EventCallbackCommand->SetAbortFlag(1);
-      break;
-    case 'a':
-    case 'A':
-      this->CameraOrActor = VTKIS_ACTOR;
-      this->MultiTouch = false;
-      this->EventCallbackCommand->SetAbortFlag(1);
-      break;
-    case 'm':
-    case 'M':
-      this->MultiTouch = true;
-      this->EventCallbackCommand->SetAbortFlag(1);
-      break;
+    this->JoystickOrTrackball = VTKIS_JOYSTICK;
+    this->MultiTouch = false;
+    this->EventCallbackCommand->SetAbortFlag(1);
+  }
+  else if (keySym == "T")
+  {
+    this->JoystickOrTrackball = VTKIS_TRACKBALL;
+    this->MultiTouch = false;
+    this->EventCallbackCommand->SetAbortFlag(1);
+  }
+  else if (keySym == "C")
+  {
+    this->CameraOrActor = VTKIS_CAMERA;
+    this->MultiTouch = false;
+    this->EventCallbackCommand->SetAbortFlag(1);
+  }
+  else if (keySym == "A")
+  {
+    this->CameraOrActor = VTKIS_ACTOR;
+    this->MultiTouch = false;
+    this->EventCallbackCommand->SetAbortFlag(1);
+  }
+  else if (keySym == "M")
+  {
+    this->MultiTouch = true;
+    this->EventCallbackCommand->SetAbortFlag(1);
   }
   // Set the CurrentStyle pointer to the picked style
   this->SetCurrentStyle();

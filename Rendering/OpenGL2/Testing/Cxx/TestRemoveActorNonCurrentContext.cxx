@@ -41,7 +41,7 @@ public:
 
     char* pressedKey = interactor->GetKeySym();
 
-    if (strcmp(pressedKey, "9") == 0)
+    if (pressedKey && strcmp(pressedKey, "9") == 0)
     {
       renderer2->RemoveAllViewProps();
       renderWindow1->Render();

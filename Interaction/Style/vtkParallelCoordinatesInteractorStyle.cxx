@@ -11,6 +11,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkViewport.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParallelCoordinatesInteractorStyle);
 
@@ -272,21 +274,16 @@ void vtkParallelCoordinatesInteractorStyle::OnLeave()
 void vtkParallelCoordinatesInteractorStyle::OnChar()
 {
   vtkRenderWindowInteractor* rwi = this->Interactor;
-
-  switch (rwi->GetKeyCode())
+  char* cKeySym = rwi->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (keySym == "R")
   {
-    case 'f':
-    case 'F':
-      break;
-
-    case 'r':
-    case 'R':
-      this->InvokeEvent(vtkCommand::UpdateEvent, nullptr);
-      break;
-
-    default:
-      this->Superclass::OnChar();
-      break;
+    this->InvokeEvent(vtkCommand::UpdateEvent, nullptr);
+  }
+  else if (keySym != "F")
+  {
+    this->Superclass::OnChar();
   }
 }
 

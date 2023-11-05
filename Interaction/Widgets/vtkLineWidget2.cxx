@@ -15,6 +15,8 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLineWidget2);
 
@@ -336,79 +338,67 @@ void vtkLineWidget2::SetProcessEvents(vtkTypeBool pe)
 void vtkLineWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
   vtkLineWidget2* self = static_cast<vtkLineWidget2*>(clientdata);
-  vtkRenderWindowInteractor* iren = self->GetInteractor();
   vtkLineRepresentation* rep = vtkLineRepresentation::SafeDownCast(self->WidgetRep);
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
   if (event == vtkCommand::KeyPressEvent)
   {
-    switch (iren->GetKeyCode())
+    if (keySym == "X")
     {
-      case 'x':
-      case 'X':
-        rep->GetPoint1Representation()->SetXTranslationAxisOn();
-        rep->GetPoint2Representation()->SetXTranslationAxisOn();
-        rep->GetLineHandleRepresentation()->SetXTranslationAxisOn();
-        rep->GetPoint1Representation()->SetConstrained(true);
-        rep->GetPoint2Representation()->SetConstrained(true);
-        rep->GetLineHandleRepresentation()->SetConstrained(true);
-        break;
-      case 'y':
-      case 'Y':
-        rep->GetPoint1Representation()->SetYTranslationAxisOn();
-        rep->GetPoint2Representation()->SetYTranslationAxisOn();
-        rep->GetLineHandleRepresentation()->SetYTranslationAxisOn();
-        rep->GetPoint1Representation()->SetConstrained(true);
-        rep->GetPoint2Representation()->SetConstrained(true);
-        rep->GetLineHandleRepresentation()->SetConstrained(true);
-        break;
-      case 'z':
-      case 'Z':
-        rep->GetPoint1Representation()->SetZTranslationAxisOn();
-        rep->GetPoint2Representation()->SetZTranslationAxisOn();
-        rep->GetLineHandleRepresentation()->SetZTranslationAxisOn();
-        rep->GetPoint1Representation()->SetConstrained(true);
-        rep->GetPoint2Representation()->SetConstrained(true);
-        rep->GetLineHandleRepresentation()->SetConstrained(true);
-        break;
-      case 'l':
-      case 'L':
-        double p1[3], p2[3], v[3];
-        rep->GetPoint1WorldPosition(p1);
-        rep->GetPoint2WorldPosition(p2);
-        vtkMath::Subtract(p2, p1, v);
-        vtkMath::Normalize(v);
-        rep->GetPoint1Representation()->SetCustomTranslationAxisOn();
-        rep->GetPoint1Representation()->SetCustomTranslationAxis(v);
-        rep->GetPoint2Representation()->SetCustomTranslationAxisOn();
-        rep->GetPoint2Representation()->SetCustomTranslationAxis(v);
-        rep->GetLineHandleRepresentation()->SetCustomTranslationAxisOn();
-        rep->GetLineHandleRepresentation()->SetCustomTranslationAxis(v);
-        rep->GetPoint1Representation()->SetConstrained(true);
-        rep->GetPoint2Representation()->SetConstrained(true);
-        rep->GetLineHandleRepresentation()->SetConstrained(true);
-        break;
+      rep->GetPoint1Representation()->SetXTranslationAxisOn();
+      rep->GetPoint2Representation()->SetXTranslationAxisOn();
+      rep->GetLineHandleRepresentation()->SetXTranslationAxisOn();
+      rep->GetPoint1Representation()->SetConstrained(true);
+      rep->GetPoint2Representation()->SetConstrained(true);
+      rep->GetLineHandleRepresentation()->SetConstrained(true);
+    }
+    else if (keySym == "Y")
+    {
+      rep->GetPoint1Representation()->SetYTranslationAxisOn();
+      rep->GetPoint2Representation()->SetYTranslationAxisOn();
+      rep->GetLineHandleRepresentation()->SetYTranslationAxisOn();
+      rep->GetPoint1Representation()->SetConstrained(true);
+      rep->GetPoint2Representation()->SetConstrained(true);
+      rep->GetLineHandleRepresentation()->SetConstrained(true);
+    }
+    else if (keySym == "Z")
+    {
+      rep->GetPoint1Representation()->SetZTranslationAxisOn();
+      rep->GetPoint2Representation()->SetZTranslationAxisOn();
+      rep->GetLineHandleRepresentation()->SetZTranslationAxisOn();
+      rep->GetPoint1Representation()->SetConstrained(true);
+      rep->GetPoint2Representation()->SetConstrained(true);
+      rep->GetLineHandleRepresentation()->SetConstrained(true);
+    }
+    else if (keySym == "L")
+    {
+      double p1[3], p2[3], v[3];
+      rep->GetPoint1WorldPosition(p1);
+      rep->GetPoint2WorldPosition(p2);
+      vtkMath::Subtract(p2, p1, v);
+      vtkMath::Normalize(v);
+      rep->GetPoint1Representation()->SetCustomTranslationAxisOn();
+      rep->GetPoint1Representation()->SetCustomTranslationAxis(v);
+      rep->GetPoint2Representation()->SetCustomTranslationAxisOn();
+      rep->GetPoint2Representation()->SetCustomTranslationAxis(v);
+      rep->GetLineHandleRepresentation()->SetCustomTranslationAxisOn();
+      rep->GetLineHandleRepresentation()->SetCustomTranslationAxis(v);
+      rep->GetPoint1Representation()->SetConstrained(true);
+      rep->GetPoint2Representation()->SetConstrained(true);
+      rep->GetLineHandleRepresentation()->SetConstrained(true);
     }
   }
   else if (event == vtkCommand::KeyReleaseEvent)
   {
-    switch (iren->GetKeyCode())
+    if (keySym == "L" || keySym == "X" || keySym == "Y" || keySym == "Z")
     {
-      case 'l':
-      case 'L':
-      case 'x':
-      case 'X':
-      case 'y':
-      case 'Y':
-      case 'z':
-      case 'Z':
-        rep->GetPoint1Representation()->SetTranslationAxisOff();
-        rep->GetPoint2Representation()->SetTranslationAxisOff();
-        rep->GetLineHandleRepresentation()->SetTranslationAxisOff();
-        rep->GetPoint1Representation()->SetConstrained(false);
-        rep->GetPoint2Representation()->SetConstrained(false);
-        rep->GetLineHandleRepresentation()->SetConstrained(false);
-        break;
-      default:
-        break;
+      rep->GetPoint1Representation()->SetTranslationAxisOff();
+      rep->GetPoint2Representation()->SetTranslationAxisOff();
+      rep->GetLineHandleRepresentation()->SetTranslationAxisOff();
+      rep->GetPoint1Representation()->SetConstrained(false);
+      rep->GetPoint2Representation()->SetConstrained(false);
+      rep->GetLineHandleRepresentation()->SetConstrained(false);
     }
   }
 }

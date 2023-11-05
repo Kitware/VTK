@@ -15,6 +15,8 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCoordinateFrameWidget);
 
@@ -60,38 +62,57 @@ vtkCoordinateFrameWidget::vtkCoordinateFrameWidget()
     "p", vtkWidgetEvent::PickPoint, this, vtkCoordinateFrameWidget::PickOriginAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'P', 1,
     "P", vtkWidgetEvent::PickPoint, this, vtkCoordinateFrameWidget::PickOriginAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 16, 1,
+    "p", vtkWidgetEvent::PickPoint, this, vtkCoordinateFrameWidget::PickOriginAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'n', 1,
     "n", vtkWidgetEvent::PickNormal, this, vtkCoordinateFrameWidget::PickNormalAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'N', 1,
     "N", vtkWidgetEvent::PickNormal, this, vtkCoordinateFrameWidget::PickNormalAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 14, 1,
+    "n", vtkWidgetEvent::PickNormal, this, vtkCoordinateFrameWidget::PickNormalAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'd', 1,
     "d", vtkWidgetEvent::PickDirectionPoint, this,
     vtkCoordinateFrameWidget::PickDirectionPointAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'D', 1,
     "D", vtkWidgetEvent::PickDirectionPoint, this,
     vtkCoordinateFrameWidget::PickDirectionPointAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 4, 1,
+    "d", vtkWidgetEvent::PickDirectionPoint, this,
+    vtkCoordinateFrameWidget::PickDirectionPointAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'x', 1,
+    "x", vtkWidgetEvent::ModifyEvent, this, vtkCoordinateFrameWidget::TranslationAxisLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 24, 1,
     "x", vtkWidgetEvent::ModifyEvent, this, vtkCoordinateFrameWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'X', 1,
     "X", vtkWidgetEvent::ModifyEvent, this, vtkCoordinateFrameWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'y', 1,
     "y", vtkWidgetEvent::ModifyEvent, this, vtkCoordinateFrameWidget::TranslationAxisLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 25, 1,
+    "y", vtkWidgetEvent::ModifyEvent, this, vtkCoordinateFrameWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'Y', 1,
     "Y", vtkWidgetEvent::ModifyEvent, this, vtkCoordinateFrameWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'z', 1,
+    "z", vtkWidgetEvent::ModifyEvent, this, vtkCoordinateFrameWidget::TranslationAxisLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 26, 1,
     "z", vtkWidgetEvent::ModifyEvent, this, vtkCoordinateFrameWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'Z', 1,
     "Z", vtkWidgetEvent::ModifyEvent, this, vtkCoordinateFrameWidget::TranslationAxisLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'x',
     1, "x", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 24, 1,
+    "x", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'X',
     1, "X", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'y',
     1, "y", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 25, 1,
+    "y", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'Y',
     1, "Y", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'z',
     1, "z", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 26, 1,
+    "z", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'Z',
     1, "Z", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
 
@@ -406,15 +427,18 @@ void vtkCoordinateFrameWidget::TranslationAxisLock(vtkAbstractWidget* widget)
   vtkCoordinateFrameWidget* self = reinterpret_cast<vtkCoordinateFrameWidget*>(widget);
   vtkCoordinateFrameRepresentation* rep =
     vtkCoordinateFrameRepresentation::SafeDownCast(self->WidgetRep);
-  if (self->Interactor->GetKeyCode() == 'x' || self->Interactor->GetKeyCode() == 'X')
+  char* cKeySym = self->Interactor->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (keySym == "X")
   {
     rep->SetXTranslationAxisOn();
   }
-  if (self->Interactor->GetKeyCode() == 'y' || self->Interactor->GetKeyCode() == 'Y')
+  if (keySym == "Y")
   {
     rep->SetYTranslationAxisOn();
   }
-  if (self->Interactor->GetKeyCode() == 'z' || self->Interactor->GetKeyCode() == 'Z')
+  if (keySym == "Z")
   {
     rep->SetZTranslationAxisOn();
   }

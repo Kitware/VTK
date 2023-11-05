@@ -37,8 +37,10 @@ struct KeyCallbackBridgeData
 void HideNextBlock(vtkObject* caller, unsigned long, void* clientdata, void*)
 {
   auto iren = reinterpret_cast<vtkRenderWindowInteractor*>(caller);
-  const char key = iren->GetKeySym()[0];
-  if (key != 'n' && key != 'N')
+  const char* cKeySym = iren->GetKeySym();
+  std::string keySym = cKeySym != nullptr ? cKeySym : "";
+  std::transform(keySym.begin(), keySym.end(), keySym.begin(), ::toupper);
+  if (keySym != "N")
   {
     return;
   }
