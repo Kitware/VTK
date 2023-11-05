@@ -28,8 +28,8 @@
  * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
  * \endcode
  *
- * The above codes convert \verbatim selFilter \endverbatim 's output from vtkUnstructuredGrid
- * to vtkPolyData.
+ * The above codes convert `selFilter`'s output from vtkUnstructuredGrid to
+ * vtkPolyData.
  */
 
 #ifndef vtkExtractSelectedPolyDataIds_h
