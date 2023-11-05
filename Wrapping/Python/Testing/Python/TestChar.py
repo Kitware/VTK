@@ -21,12 +21,12 @@ class TestChar(Testing.vtkTest):
         """Pass a unicode string and get it back.
         """
         a = vtkCharArray()
-        a.InsertNextValue('')
+        a.InsertNextValue('\0')
         a.InsertNextValue('%')
         a.InsertNextValue('\u00b5') # MICRON
         a.InsertNextValue('\u00d7') # MULTIPLICATION SIGN
         c = a.GetValue(0)
-        self.assertEqual(c, '')
+        self.assertEqual(c, '\0')
         c = a.GetValue(1)
         self.assertEqual(c, '%')
         c = a.GetValue(2)
@@ -38,12 +38,12 @@ class TestChar(Testing.vtkTest):
         """Pass a bytes object, get back a unicode object
         """
         a = vtkCharArray()
-        a.InsertNextValue(b'')
+        a.InsertNextValue(b'\0')
         a.InsertNextValue(b'%')
         a.InsertNextValue(b'\xb5') # MICRON
         a.InsertNextValue(b'\xd7') # MULTIPLICATION SIGN
         c = a.GetValue(0)
-        self.assertEqual(c, '')
+        self.assertEqual(c, '\0')
         c = a.GetValue(1)
         self.assertEqual(c, '%')
         c = a.GetValue(2)
