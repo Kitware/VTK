@@ -250,24 +250,27 @@ inline bool vtkPythonGetValue(PyObject* o, char& a)
   const char* b;
   if (vtkPythonGetStringValue(o, b, exctext))
   {
-    if (b[0] == '\0' || b[1] == '\0')
+    if (PyObject_Length(o) == 1)
     {
-      a = b[0];
-      return true;
-    }
-    else if (PyUnicode_Check(o))
-    {
-      if (b[0] == '\xc2' && b[2] == '\0')
+      if (b[0] == '\0' || b[1] == '\0')
       {
-        // one unicode character, and in the range [128,191]
-        a = b[1];
+        a = b[0];
         return true;
       }
-      else if (b[0] == '\xc3' && b[2] == '\0')
+      else if (PyUnicode_Check(o))
       {
-        // one unicode character, and in the range [192,255]
-        a = b[1] | '\x40';
-        return true;
+        if (b[0] == '\xc2' && b[2] == '\0')
+        {
+          // one unicode character, and in the range [128,191]
+          a = b[1];
+          return true;
+        }
+        else if (b[0] == '\xc3' && b[2] == '\0')
+        {
+          // one unicode character, and in the range [192,255]
+          a = b[1] | '\x40';
+          return true;
+        }
       }
     }
     PyErr_SetString(PyExc_ValueError, exctext);
