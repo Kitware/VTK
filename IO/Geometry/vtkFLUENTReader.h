@@ -4,8 +4,8 @@
  * @class   vtkFLUENTReader
  * @brief   reads a dataset in Fluent file format
  *
- * vtkFLUENTReader creates an unstructured grid dataset. It reads .cas and
- * .dat files stored in FLUENT native format.
+ * vtkFLUENTReader creates an unstructured grid dataset.
+ * It reads .cas (with associated .dat) and .msh files stored in FLUENT native format.
  *
  * @par Thanks:
  * Thanks to Brian W. Dotson & Terry E. Jordan (Department of Energy, National
@@ -238,6 +238,17 @@ protected:
   int NumberOfVectors;
 
 private:
+  /**
+   * @brief Create an output multi block dataset using only the faces of the file
+   *
+   * This function is used to generate an output when reading a FLUENT Mesh file
+   * that only contains faces without cells.
+   * It supports triangles and quads.
+   *
+   * @param output Multiblock to be filled with faces information
+   */
+  void FillMultiBlockFromFaces(vtkMultiBlockDataSet* output);
+
   vtkFLUENTReader(const vtkFLUENTReader&) = delete;
   void operator=(const vtkFLUENTReader&) = delete;
 };
