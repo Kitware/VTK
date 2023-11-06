@@ -891,10 +891,23 @@ inline PyObject* vtkPythonArgs::BuildValue(const std::string& a)
 
 inline PyObject* vtkPythonArgs::BuildValue(char a)
 {
-  char b[2];
-  b[0] = a;
-  b[1] = '\0';
-  return PyUnicode_FromString(b);
+  char b[2] = { a, '\0' };
+  Py_ssize_t n = 1;
+  if ((static_cast<unsigned char>(a) & 0xc0) == 0x80)
+  {
+    // convert value [128,191] to equivalent utf-8 sequence
+    b[0] = '\xc2';
+    b[1] = a;
+    n = 2;
+  }
+  else if ((static_cast<unsigned char>(a) & 0xc0) == 0xc0)
+  {
+    // convert value [192,255] to equivalent utf-8 sequence
+    b[0] = '\xc3';
+    b[1] = a ^ '\x40';
+    n = 2;
+  }
+  return PyUnicode_FromStringAndSize(b, n);
 }
 
 inline PyObject* vtkPythonArgs::BuildValue(double a)
