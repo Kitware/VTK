@@ -737,8 +737,8 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       int shift = (keyEvent->state & ShiftMask) ? 1 : 0;
       int alt = (keyEvent->state & Mod1Mask) ? 1 : 0;
 
-      // XLookupString provide a keycode in Latin1 (ISO/IEC 8859-1)
-      // We care only for the first char of the keycode
+      // XLookupString provide a keycode as a char in Basic Latin and Latin1
+      // unicode blocks. We care only for the first char of the keycode.
       char keyCode;
       vtkKeySym keySym;
       XLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);
@@ -763,8 +763,8 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       int shift = (keyEvent->state & ShiftMask) ? 1 : 0;
       int alt = (keyEvent->state & Mod1Mask) ? 1 : 0;
 
-      // XLookupString provide a keycode in Latin1 (ISO/IEC 8859-1)
-      // We care only for the first char of the keycode
+      // XLookupString provide a keycode as a char in Basic Latin and Latin1
+      // unicode blocks. We care only for the first char of the keycode.
       char keyCode;
       vtkKeySym keySym;
       XLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);

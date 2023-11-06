@@ -82,37 +82,54 @@ namespace
 // Virtual Key Code to Unix KeySym Conversion
 //-------------------------------------------------------------
 
-// this ascii code to keysym table is meant to mimic Tk
+// clang-format off
+// this unicode code to keysym table is meant to provide keysym similar to XLookupString,
+// for Basic Latin and Latin1 unicode blocks.
+// Generated from xlib/X11/keysymdef.h
+// Duplicated in Rendering/OpenGL2/vtkCocoaGLView.mm
+static const char* UnicodeToKeySymTable[256] = {
+  // Basic Latin
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  "space", "exclam", "quotedbl", "numbersign", "dollar", "percent", "ampersand", "apostrophe", "parenleft", "parenright", "asterisk", "plus", "comma", "minus", "period", "slash",
+  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "colon", "semicolon", "less", "equal", "greater", "question", "at",
+  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+  "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "bracketleft", "backslash", "bracketright", "asciicircum", "underscore", "grave",
+  "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+  "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 
-static const char* AsciiToKeySymTable[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "space", "exclam", "quotedbl", "numbersign", "dollar",
-  "percent", "ampersand", "quoteright", "parenleft", "parenright", "asterisk", "plus", "comma",
-  "minus", "period", "slash", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "colon",
-  "semicolon", "less", "equal", "greater", "question", "at", "A", "B", "C", "D", "E", "F", "G", "H",
-  "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-  "bracketleft", "backslash", "bracketright", "asciicircum", "underscore", "quoteleft", "a", "b",
-  "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
-  "v", "w", "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete", 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  // Latin1
+  "nobreakspace", "exclamdown", "cent", "sterling", "currency", "yen", "brokenbar", "section", "diaeresis", "copyright", "ordfeminine", "guillemotleft", "notsign", "hyphen", "registered", "macron",
+  "degree", "plusminus", "twosuperior", "threesuperior", "acute", "mu", "paragraph", "periodcentered", "cedilla", "onesuperior", "masculine", "guillemotright", "onequarter", "onehalf", "threequarters", "questiondown",
+  "Agrave", "Aacute", "Acircumflex", "Atilde", "Adiaeresis", "Aring", "AE", "Ccedilla", "Egrave", "Eacute", "Ecircumflex", "Ediaeresis", "Igrave", "Iacute", "Icircumflex", "Idiaeresis",
+  "ETH", "Ntilde", "Ograve", "Oacute", "Ocircumflex", "Otilde", "Odiaeresis", "multiply", "Ooblique", "Ugrave", "Uacute", "Ucircumflex", "Udiaeresis", "Yacute", "THORN", "ssharp",
+  "agrave", "aacute", "acircumflex", "atilde", "adiaeresis", "aring", "ae", "ccedilla", "egrave", "eacute", "ecircumflex", "ediaeresis", "igrave", "iacute", "icircumflex", "idiaeresis",
+  "eth", "ntilde", "ograve", "oacute", "ocircumflex", "otilde", "odiaeresis", "division", "oslash", "ugrave", "uacute", "ucircumflex", "udiaeresis", "yacute", "thorn", "ydiaeresis"
+};
 
-// this virtual key code to keysym table is meant to mimic Tk
-
-static const char* VKeyCodeToKeySymTable[] = { 0, 0, 0, "Cancel", 0, 0, 0, 0, "BackSpace", "Tab", 0,
-  0, "Clear", "Return", 0, 0, "Shift_L", "Control_L", "Alt_L", "Pause", "Caps_Lock", 0, 0, 0, 0, 0,
-  0, "Escape", 0, 0, 0, 0, "space", "Prior", "Next", "End", "Home", "Left", "Up", "Right", "Down",
-  "Select", 0, "Execute", "Snapshot", "Insert", "Delete", "Help", "0", "1", "2", "3", "4", "5", "6",
-  "7", "8", "9", 0, 0, 0, 0, 0, 0, 0, "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
-  "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "Win_L", "Win_R", "App", 0,
-  0, "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5", "KP_6", "KP_7", "KP_8", "KP_9", "asterisk",
-  "plus", "bar", "minus", "period", "slash", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
-  "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "F21", "F22", "F23",
-  "F24", 0, 0, 0, 0, 0, 0, 0, 0, "Num_Lock", "Scroll_Lock", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+// This table is meant to provide keysym similar to XLookupString from Windows VKeys (Winuser.h)
+// that are not mapped in the unicode table above.
+static const char* VKeyCodeToKeySymTable[256] = { 
+  nullptr, nullptr, nullptr, "Cancel", nullptr, nullptr, nullptr, nullptr, "BackSpace", "Tab", nullptr, nullptr, "Clear", "Return", nullptr, nullptr, 
+  "Shift_L", "Control_L", "Alt_L", "Pause", "Caps_Lock", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, "Escape", nullptr, nullptr, nullptr, nullptr, 
+  "space", "Prior", "Next", "End", "Home", "Left", "Up", "Right", "Down", "Select", nullptr, "Execute", "Snapshot", "Insert", "Delete", "Help", 
+  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", 
+  "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "Win_L", "Win_R", "App", nullptr, nullptr, 
+  "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5", "KP_6", "KP_7", "KP_8", "KP_9", "asterisk", "plus", "bar", "minus", "period", "slash", 
+  "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16", 
+  "F17", "F18", "F19", "F20", "F21", "F22", "F23", "F24", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
+  "Num_Lock", "Scroll_Lock", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr
+};
+// clang-format on
 
 void RecoverModifiersStatus(int& ctrl, int& shift, int& alt)
 {
@@ -125,13 +142,13 @@ void RecoverKeyEventInformation(
   UINT vCode, UINT nFlags, int& ctrl, int& shift, int& alt, char& keyCode, const char*& keySym)
 {
   RecoverModifiersStatus(ctrl, shift, alt);
+  // WORD is unsigned short
   WORD nChar = 0;
   WORD nCharWithoutMod = 0;
   {
 #ifndef _WIN32_WCE
     BYTE keyState[256];
     GetKeyboardState(keyState);
-    // ToAscii is assumed to provide a keycode in Latin1 (ISO/IEC 8859-1)
     if (ToAscii(vCode, nFlags & 0xff, keyState, &nChar, 0) == 0)
     {
       nChar = 0;
@@ -154,21 +171,24 @@ void RecoverKeyEventInformation(
 
   // keyCode is the modified one except when it is 0
   // in that case, fallback on the version without modifiers
-  keyCode = nChar;
+  keyCode = static_cast<char>(nChar);
   if (keyCode == 0)
   {
-    keyCode = nCharWithoutMod;
+    keyCode = static_cast<char>(nCharWithoutMod);
   }
 
   // Try to recover any valid keySym
-  keySym = AsciiToKeySymTable[(unsigned char)nChar];
-  if (keySym == nullptr)
+  if (nChar < 256)
   {
-    keySym = AsciiToKeySymTable[(unsigned char)nCharWithoutMod];
+    keySym = UnicodeToKeySymTable[nChar];
   }
-  if (keySym == nullptr)
+  if (keySym == nullptr && nCharWithoutMod < 256)
   {
-    keySym = VKeyCodeToKeySymTable[(unsigned char)vCode];
+    keySym = UnicodeToKeySymTable[nCharWithoutMod];
+  }
+  if (keySym == nullptr && vCode < 256)
+  {
+    keySym = VKeyCodeToKeySymTable[vCode];
   }
   if (keySym == nullptr)
   {
