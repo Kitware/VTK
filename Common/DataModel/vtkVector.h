@@ -117,6 +117,36 @@ public:
 
   ///@{
   /**
+   * Substraction operation of this and the supplied vector.
+   */
+  vtkVector<T, Size> operator-(const vtkVector<T, Size>& other) const
+  {
+    vtkVector<T, Size> result(*this);
+    for (int i = 0; i < Size; ++i)
+    {
+      result[i] = this->Data[i] - other[i];
+    }
+    return result;
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Multiply this vector by a scalar value.
+   */
+  vtkVector<T, Size> operator*(const T& other) const
+  {
+    vtkVector<T, Size> result(*this);
+    for (int i = 0; i < Size; ++i)
+    {
+      result[i] = this->Data[i] * other;
+    }
+    return result;
+  }
+  ///@}
+
+  ///@{
+  /**
    * Cast the vector to the specified type, returning the result.
    */
   template <typename TR>
