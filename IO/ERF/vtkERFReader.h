@@ -227,6 +227,36 @@ private:
 
   ///@{
   /**
+   * Recreate the mesh.
+   */
+  void BuildMesh(const hid_t& fileId);
+  void AppendPoints(
+    vtkUnstructuredGrid* output, const std::string& nodeAttributePath, const hid_t& fileId);
+  void AppendCells(
+    vtkUnstructuredGrid* output, const std::string& shellAttributePath, const hid_t& fileId);
+  ///@}
+
+  /**
+   * Append all mesh containing in the Meshs into the pdc.
+   */
+  void AppendMeshs(vtkPartitionedDataSetCollection* pdc, vtkDataAssembly* hierarchy,
+    int& streamNodeId, int& meshNodeId, int& meshStartId);
+
+  /**
+   * Get the index of the current time values selected by the user in the TimeValues.
+   */
+  int GetTimeValuesIndex();
+
+  ///@{
+  /**
+   * Get the value of an attribute on a ERF Block.
+   */
+  std::string GetAttributeValueAsStr(const hid_t& erfIdx, const std::string& attributeName) const;
+  int GetAttributeValueAsInt(const hid_t& erfIdx, const std::string& attributeName) const;
+  ///@}
+
+  ///@{
+  /**
    * Return true if the cell type is supported depending of the number of dimensions and the number
    * of nodes.
    *
@@ -246,44 +276,6 @@ private:
   bool Is1DCellSupported(int npelem);
   bool Is2DCellSupported(int npelem);
   bool Is3DCellSupported(int npelem);
-  ///@}
-
-  ///@{
-  /**
-   * Recreate the mesh.
-   */
-  void BuildMesh(const hid_t& fileId);
-  void AppendPoints(
-    vtkUnstructuredGrid* output, const std::string& nodeAttributePath, const hid_t& fileId);
-  void AppendCells(
-    vtkUnstructuredGrid* output, const std::string& shellAttributePath, const hid_t& fileId);
-  ///@}
-
-  /**
-   * Append all mesh containing in the Meshs into the pdc.
-   */
-  void AppendMeshs(vtkPartitionedDataSetCollection* pdc, vtkDataAssembly* hierarchy,
-    int& streamNodeId, int& meshNodeId, int& meshStartId);
-
-  /**
-   * Return true if the group name will be equal to 'erfblock'.
-   *
-   * In the standard, all possible path leads at the end to a 'erfblock' which will then contents
-   * attributes and dataset.
-   */
-  bool IsLastGroup(const std::string& groupname) const;
-
-  /**
-   * Get the index of the current time values selected by the user in the TimeValues.
-   */
-  int GetTimeValuesIndex();
-
-  ///@{
-  /**
-   * Get the value of an attribute on a ERF Block.
-   */
-  std::string GetAttributeValueAsStr(const hid_t& erfIdx, const std::string& attributeName) const;
-  int GetAttributeValueAsInt(const hid_t& erfIdx, const std::string& attributeName) const;
   ///@}
 
   /**
