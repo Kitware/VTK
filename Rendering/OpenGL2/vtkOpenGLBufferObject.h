@@ -99,11 +99,24 @@ public:
   size_t GetSize();
 
   /**
+   * Download data from the buffer object.
+   */
+  template <class T>
+  bool Download(T* array, size_t numElements);
+  template <class T>
+  bool DownloadRange(T* array, ptrdiff_t offset, size_t numElements);
+
+  /**
    * Bind the buffer object ready for rendering.
    * @note Only one ARRAY_BUFFER and one ELEMENT_ARRAY_BUFFER may be bound at
    * any time.
    */
   bool Bind();
+
+  /**
+   * Bind the buffer to a shader storage point.
+   */
+  bool BindShaderStorage(int index);
 
   /**
    * Release the buffer. This should be done after rendering is complete.
@@ -130,6 +143,8 @@ protected:
     const void* buffer, ptrdiff_t offset, ptrdiff_t size, ObjectType objectType);
 
 private:
+  bool DownloadRangeInternal(void* buffer, ptrdiff_t offset, size_t size);
+
   vtkOpenGLBufferObject(const vtkOpenGLBufferObject&) = delete;
   void operator=(const vtkOpenGLBufferObject&) = delete;
   struct Private;
@@ -185,5 +200,18 @@ inline bool vtkOpenGLBufferObject::UploadRange(const T* array, ptrdiff_t offset,
   }
   return this->UploadRangeInternal(array, offset, numElements * sizeof(T), objectType);
 }
+
+template <class T>
+inline bool vtkOpenGLBufferObject::Download(T* array, size_t numElements)
+{
+  return this->DownloadRangeInternal(array, 0, numElements * sizeof(T));
+}
+
+template <class T>
+inline bool vtkOpenGLBufferObject::DownloadRange(T* array, ptrdiff_t offset, size_t numElements)
+{
+  return this->DownloadRangeInternal(array, offset, numElements * sizeof(T));
+}
+
 VTK_ABI_NAMESPACE_END
 #endif

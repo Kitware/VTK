@@ -24,6 +24,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCompositePolyDataMapper2SharedArray.cxx,NO_DATA
   TestCompositePolyDataMapper2Spheres.cxx,NO_DATA
   TestCompositePolyDataMapper2Vertices.cxx,NO_DATA
+  TestComputeShader.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestCubeMap.cxx
   TestCubeMap2.cxx
   TestCubeMapRerender.cxx
