@@ -400,7 +400,7 @@ int vtkCesium3DTilesReader::CanReadFile(const char* filename)
     j = fileJson.at("root");
     j = j.at("geometricError");
   }
-  catch (std::exception& e)
+  catch (std::exception& vtkNotUsed(e))
   {
     return 0;
   }
