@@ -16,6 +16,11 @@
  * `vtkDataSetAttributes::DUPLICATECELL` correctly on all but one of the
  * partitions using the ghost cell array (@sa `vtkDataSetAttributes::GhostArrayName`).
  *
+ * @warning Generated duplicate ghost cells do not span entire layers of ghosts.
+ * They are sparse, only appearing where cells overlap at the new boundaries between
+ * partitions. If one wants to have full layers of ghost cells, one should use
+ * `vtkGhostCellsGenerator`.
+ *
  * Besides redistributing the data, the filter can optionally generate global
  * cell ids. This is provided since it relative easy to generate these
  * on when it is known that the data is spatially partitioned as is the case
