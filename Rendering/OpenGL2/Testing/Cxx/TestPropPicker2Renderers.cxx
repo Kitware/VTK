@@ -22,12 +22,11 @@
 #include <vtkRendererCollection.h>
 #include <vtkSphereSource.h>
 
-bool corner = true;
+static bool corner = true;
 // bool corner = false;
 
-double sphereColor[3] = { 0.73, 0.33, 0.83 };
-double sphereColorPicked[3] = { 1.0, 1., 0.0 };
-double sphereColor2[3] = { 0.33, 0.73, 0.83 };
+static double sphereColor[3] = { 0.73, 0.33, 0.83 };
+static double sphereColorPicked[3] = { 1.0, 1., 0.0 };
 
 // Handle mouse events
 class MouseInteractorStyle2 : public vtkInteractorStyleTrackballCamera

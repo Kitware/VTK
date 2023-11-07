@@ -225,7 +225,7 @@ vtkSmartPointer<vtkMultiBlockDataSet> ReadCityGMLBuildings(int numberOfBuildings
 //------------------------------------------------------------------------------
 using ReaderType = vtkSmartPointer<vtkMultiBlockDataSet> (*)(int numberOfBuildings, int lod,
   const std::vector<std::string>& files, std::array<double, 3>& fileOffset);
-std::map<std::string, ReaderType> READER = { { ".obj", ReadOBJBuildings },
+static std::map<std::string, ReaderType> READER = { { ".obj", ReadOBJBuildings },
   { ".gml", ReadCityGMLBuildings } };
 
 //------------------------------------------------------------------------------
@@ -457,7 +457,7 @@ bool JsonEqual(nlohmann::json& l, nlohmann::json& r) noexcept
   return false;
 }
 
-std::array<std::array<double, 3>, 3> triangleJacksonville = {
+static std::array<std::array<double, 3>, 3> triangleJacksonville = {
   { { { 799099.7216079829959199, -5452032.6613515587523580, 3201501.3033391013741493 } },
     { { 797899.9930383440805599, -5452124.7368548354133964, 3201444.7161126118153334 } },
     { { 797971.0970941731939092, -5452573.6701772613450885, 3200667.5626786206848919 } } }

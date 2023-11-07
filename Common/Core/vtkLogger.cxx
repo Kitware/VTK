@@ -97,7 +97,7 @@ static void pop_scope(const char* id)
     LOG_F(ERROR, "Mismatched scope! expected (%s), got (%s)", vector.back().first.c_str(), id);
   }
 }
-VTK_THREAD_LOCAL char ThreadName[128] = {};
+static VTK_THREAD_LOCAL char ThreadName[128] = {};
 #endif
 
 VTK_ABI_NAMESPACE_END
