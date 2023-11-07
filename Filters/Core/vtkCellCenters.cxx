@@ -261,13 +261,20 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSMPTools::For(0, numPoints, finder);
     if (finder.HasInputGhostCells)
     {
-      vtkNew<vtkUnsignedCharArray> ghostPoints;
-      ghostPoints->SetNumberOfValues(numPoints);
-      ghostPoints->SetName(vtkDataSetAttributes::GhostArrayName());
+      if (this->ConvertGhostCellsToGhostPoints)
+      {
+        vtkNew<vtkUnsignedCharArray> ghostPoints;
+        ghostPoints->SetNumberOfValues(numPoints);
+        ghostPoints->SetName(vtkDataSetAttributes::GhostArrayName());
 
-      ::GhostCellsToGhostPointsConverter worker(inputGhostCells, ghostPoints, cellIdList);
-      vtkSMPTools::For(0, numPoints, worker);
-      outPD->AddArray(ghostPoints);
+        ::GhostCellsToGhostPointsConverter worker(inputGhostCells, ghostPoints, cellIdList);
+        vtkSMPTools::For(0, numPoints, worker);
+        outPD->AddArray(ghostPoints);
+      }
+      else
+      {
+        outPD->SetGhostsToSkip(inCD->GetGhostsToSkip());
+      }
     }
   }
 
