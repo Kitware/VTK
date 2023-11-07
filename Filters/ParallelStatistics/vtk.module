@@ -24,5 +24,6 @@ PRIVATE_DEPENDS
   VTK::ParallelCore
 TEST_DEPENDS
   VTK::CommonSystem
-  VTK::ParallelMPI
   VTK::TestingCore
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
