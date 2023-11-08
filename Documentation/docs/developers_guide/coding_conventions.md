@@ -123,8 +123,12 @@ rules that say "All code".
 
     Rationale: Doxygen generated documentation (http://www.vtk.org/doc/nightly/html/) is generated from these comments and should be consistently readable.
 
-1. Public instance variables are allowed only in exceptional situations. Protected (or if necessary Private) variables should be used instead with public access given via Set/Get macro methods.
-   Rationale: Consistent API, and SetMacro takes part in reference counting.
+1. Public and even Protected instance variables are allowed only in exceptional situations. Private variables should be used instead with public access given via Set/Get macro methods when needed.
+   Rationale: Consistent API, ease of deprecation, and SetMacro takes part in reference counting.
+
+1. Protected methods are allowed only when they are intended to be used by inheriting classes and overridden by inheriting classes. Private methods should be the default for any method.
+   Please note this is not true in many classes but should be followed when adding new code.
+   Rationale: Consistent API, ease of deprecation.
 
 1. Accessors to `vtkObject` instance variables should be declared in the header file, and defined in the implementation file with the vtkCxxSetObjectMacro.
    Rationale: Reduces header file bloat and assists in reference counting.
