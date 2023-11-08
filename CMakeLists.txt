@@ -509,6 +509,7 @@ vtk_module_build(
   ${vtk_library_version_info}
   TEST_DATA_TARGET    VTKData
   INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
+  USE_FILE_SETS       ON
   BUILD_WITH_KITS     "${VTK_ENABLE_KITS}"
   USE_EXTERNAL        "${VTK_USE_EXTERNAL}"
   ENABLE_WRAPPING     "${VTK_ENABLE_WRAPPING}"
