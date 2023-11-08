@@ -887,7 +887,7 @@ struct ExtractCells
     TOutputIdType shapeIds[MAX_CELL_SIZE];
     int cellType;
     uint8_t *thisCase, numberOfOutputCells, shape, outputCellId, numberOfCellPoints, p;
-    uint8_t pointIndex, point1Index, point2Index;
+    uint8_t pointIndex;
     const typename TBCCases::EDGEIDXS* edgeVertices = nullptr;
     // Used to map the voxel/pixel indices to the hexahedron/quad indices
     static constexpr uint8_t voxelMap[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
@@ -975,15 +975,8 @@ struct ExtractCells
             else if (/*pointIndex >= TBCCases::EA &&*/ pointIndex <= TBCCases::EL) // Mid-Edge Point
             {
               const auto& edgePoints = edgeVertices[pointIndex - TBCCases::EA];
-              point1Index = edgePoints[0];
-              point2Index = edgePoints[1];
-              if (point1Index > point2Index)
-              {
-                std::swap(point1Index, point2Index);
-              }
-
-              pointIndex1 = static_cast<TInputIdType>(pointIndices[point1Index]);
-              pointIndex2 = static_cast<TInputIdType>(pointIndices[point2Index]);
+              pointIndex1 = static_cast<TInputIdType>(pointIndices[edgePoints[0]]);
+              pointIndex2 = static_cast<TInputIdType>(pointIndices[edgePoints[1]]);
 
               shapeIds[p] = static_cast<TOutputIdType>(this->NumberOfKeptPoints +
                 this->EdgeLocator.IsInsertedEdge(pointIndex1, pointIndex2));
