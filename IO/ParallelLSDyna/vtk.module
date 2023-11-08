@@ -25,7 +25,8 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::InteractionStyle
-  VTK::ParallelMPI
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
