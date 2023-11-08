@@ -76,8 +76,14 @@
 #if defined(VTK_COMPILER_GCC) //------------------------------------------------
 
 #define VTK_ALWAYS_INLINE __attribute__((always_inline)) inline
+// CUDA does not recognize pragma options
+#if defined(__CUDACC__)
+#define VTK_ALWAYS_OPTIMIZE_START
+#define VTK_ALWAYS_OPTIMIZE_END
+#else
 #define VTK_ALWAYS_OPTIMIZE_START _Pragma("GCC push_options") _Pragma("GCC optimize (\"O3\")")
 #define VTK_ALWAYS_OPTIMIZE_END _Pragma("GCC pop_options")
+#endif
 
 #elif defined(VTK_COMPILER_CLANG) //--------------------------------------------
 
