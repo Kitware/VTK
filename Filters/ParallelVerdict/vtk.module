@@ -15,5 +15,6 @@ DEPENDS
   VTK::ParallelCore
 TEST_DEPENDS
   VTK::IOLegacy
-  VTK::ParallelMPI
   VTK::TestingCore
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
