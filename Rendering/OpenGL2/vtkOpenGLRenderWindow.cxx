@@ -36,10 +36,14 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
+#include "vtksys/SystemTools.hxx"
+
 #include "BlueNoiseTexture64x64.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+#include <cstdlib>
 #include <sstream>
+#include <string>
 #include <type_traits>
 using std::ostringstream;
 
@@ -397,7 +401,10 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->Initialized = false;
   this->GlewInitValid = false;
 
-  this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
+  this->MultiSamples = vtksys::SystemTools::GetEnv("VTK_TESTING")
+    ? 0
+    : vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
+
   delete[] this->WindowName;
   this->WindowName = new char[strlen(defaultWindowName) + 1];
   strcpy(this->WindowName, defaultWindowName);

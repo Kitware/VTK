@@ -20,6 +20,8 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <cmath>
+#include <cstdlib>
+#include <string>
 #include <utility> // for std::swap
 
 //------------------------------------------------------------------------------
