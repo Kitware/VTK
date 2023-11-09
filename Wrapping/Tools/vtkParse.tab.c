@@ -10096,7 +10096,7 @@ void vtkParse_UndefineMacro(const char* name)
 }
 
 /** Do not define any platform-specific macros.  */
-void vtkParse_UndefinePlatformMacros()
+void vtkParse_UndefinePlatformMacros(void)
 {
   PredefinePlatformMacros = 0;
 }
