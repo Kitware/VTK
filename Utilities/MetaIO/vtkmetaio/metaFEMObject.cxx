@@ -73,7 +73,6 @@ FEMObjectLoad::~FEMObjectLoad()
 // MetaFEMObject Constructors
 //
 MetaFEMObject::MetaFEMObject()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaFEMObject()" );
 
@@ -107,7 +106,6 @@ MetaFEMObject::MetaFEMObject()
 
 //
 MetaFEMObject::MetaFEMObject(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaFEMObject()" );
   MetaFEMObject::Clear();
@@ -117,7 +115,6 @@ MetaFEMObject::MetaFEMObject(const char * _headerName)
 
 //
 MetaFEMObject::MetaFEMObject(const MetaFEMObject * _mesh)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaFEMObject()" );
   MetaFEMObject::Clear();

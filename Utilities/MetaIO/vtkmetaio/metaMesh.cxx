@@ -71,7 +71,6 @@ MeshCell::~MeshCell()
 // MetaMesh Constructors
 //
 MetaMesh::MetaMesh()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaMesh()" );
   m_NPoints = 0;
@@ -85,7 +84,6 @@ MetaMesh::MetaMesh()
 
 //
 MetaMesh::MetaMesh(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaMesh()" );
   m_NPoints = 0;
@@ -100,7 +98,6 @@ MetaMesh::MetaMesh(const char * _headerName)
 
 //
 MetaMesh::MetaMesh(const MetaMesh * _mesh)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaMesh()" );
   m_NPoints = 0;

@@ -238,7 +238,6 @@ MetaTube::MetaTube()
 
 
 MetaTube::MetaTube(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaTube()" );
   MetaTube::Clear();
@@ -247,7 +246,6 @@ MetaTube::MetaTube(const char * _headerName)
 
 
 MetaTube::MetaTube(const MetaTube * Tube)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaTube()" );
   MetaTube::Clear();

@@ -52,7 +52,6 @@ ContourControlPnt::~ContourControlPnt()
 
 /** Constructor */
 MetaContour::MetaContour()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaContour()" );
   MetaContour::Clear();
@@ -60,7 +59,6 @@ MetaContour::MetaContour()
 
 /** Constructor */
 MetaContour::MetaContour(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaContour()" );
   MetaContour::Clear();
@@ -69,7 +67,6 @@ MetaContour::MetaContour(const char * _headerName)
 
 //
 MetaContour::MetaContour(const MetaContour * _contour)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaContour()" );
   MetaContour::Clear();
