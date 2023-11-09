@@ -17,25 +17,25 @@
 #define PREPROC_DEBUG 0
 
 /** Block size for reading files */
-const size_t FILE_BUFFER_SIZE = 8192;
+static const size_t FILE_BUFFER_SIZE = 8192;
 
 /** Size of hash table must be a power of two */
-const unsigned int PREPROC_HASH_TABLE_SIZE = 1 << 10;
+static const unsigned int PREPROC_HASH_TABLE_SIZE = 1 << 10;
 
 /** Hashes for preprocessor keywords */
-const unsigned int HASH_IFDEF = 0x0fa4b283u;
-const unsigned int HASH_IFNDEF = 0x04407ab1u;
-const unsigned int HASH_IF = 0x00597834u;
-const unsigned int HASH_ELIF = 0x7c964b25u;
-const unsigned int HASH_ELSE = 0x7c964c6eu;
-const unsigned int HASH_ENDIF = 0x0f60b40bu;
-const unsigned int HASH_DEFINED = 0x088998d4u;
-const unsigned int HASH_DEFINE = 0xf8804a70u;
-const unsigned int HASH_UNDEF = 0x10823b97u;
-const unsigned int HASH_INCLUDE = 0x9e36af89u;
-const unsigned int HASH_ERROR = 0x0f6321efu;
-const unsigned int HASH_LINE = 0x7c9a15adu;
-const unsigned int HASH_PRAGMA = 0x1566a9fdu;
+static const unsigned int HASH_IFDEF = 0x0fa4b283u;
+static const unsigned int HASH_IFNDEF = 0x04407ab1u;
+static const unsigned int HASH_IF = 0x00597834u;
+static const unsigned int HASH_ELIF = 0x7c964b25u;
+static const unsigned int HASH_ELSE = 0x7c964c6eu;
+static const unsigned int HASH_ENDIF = 0x0f60b40bu;
+static const unsigned int HASH_DEFINED = 0x088998d4u;
+static const unsigned int HASH_DEFINE = 0xf8804a70u;
+static const unsigned int HASH_UNDEF = 0x10823b97u;
+static const unsigned int HASH_INCLUDE = 0x9e36af89u;
+// static const unsigned int HASH_ERROR = 0x0f6321efu;
+// static const unsigned int HASH_LINE = 0x7c9a15adu;
+// static const unsigned int HASH_PRAGMA = 0x1566a9fdu;
 
 /** Extend dynamic arrays in a progression of powers of two.
  * Whenever "n" reaches a power of two, then the array size is

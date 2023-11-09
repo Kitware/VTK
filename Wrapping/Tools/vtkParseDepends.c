@@ -20,7 +20,7 @@ typedef struct ParseDepends_
 } ParseDepends;
 
 // dependency tracking is done globally
-ParseDepends DepTracker;
+static ParseDepends DepTracker;
 
 void vtkParse_InitDependencyTracking(const char* target)
 {

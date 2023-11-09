@@ -22,7 +22,7 @@ This file provides a unified front-end for the wrapper generators.
 #endif
 
 /* This is the struct that contains the options */
-OptionInfo options;
+static OptionInfo options;
 
 /* Get the base filename */
 static const char* parse_exename(const char* cmd)
