@@ -515,9 +515,18 @@ int vtkRedistributeDataSetFilter::RequestData(
   std::vector<vtkDataSet*> resultVector = vtkCompositeDataSet::GetDataSets(result);
   for (vtkDataSet* ds : resultVector)
   {
-    // Ghost arrays become irrelevant after this filter is done, we remove them.
-    ds->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-    ds->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+    // We cannot keep duplicate ghost points as the partitionning changed, invalidating previous
+    // duplicate ghost tagging
+    if (vtkUnsignedCharArray* ghostArray = ds->GetPointData()->GetGhostArray())
+    {
+      auto ghosts = vtk::DataArrayValueRange<1>(ghostArray);
+      vtkSMPTools::For(0, ghosts.size(), [&](vtkIdType begin, vtkIdType end) {
+        for (vtkIdType id = begin; id < end; ++id)
+        {
+          ghosts[id] &= ~vtkDataSetAttributes::DUPLICATEPOINT;
+        }
+      });
+    };
   }
 
   // ******************************************************

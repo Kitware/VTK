@@ -11,7 +11,9 @@
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkRandomAttributeGenerator.h"
 #include "vtkRedistributeDataSetFilter.h"
@@ -118,6 +120,23 @@ bool ValidateDataset(
     return false;
   }
 
+  std::vector<vtkDataSet*> datasets = vtkCompositeDataSet::GetDataSets(output);
+  for (vtkDataSet* ds : datasets)
+  {
+    vtkUnsignedCharArray* ghosts = ds->GetPointData()->GetGhostArray();
+    for (vtkIdType i = 0; i < ghosts->GetNumberOfValues(); ++i)
+    {
+      if (ghosts->GetValue(i) != vtkDataSetAttributes::HIDDENPOINT)
+      {
+        vtkLog(ERROR, "Output ghost points has wrong value.");
+        return false;
+      }
+    }
+
+    // We need to not have a ghost array down the road
+    ds->GetPointData()->RemoveArray(ghosts->GetName());
+  }
+
   return true;
 }
 }
@@ -149,7 +168,7 @@ int TestRedistributeDataSetFilter(int argc, char* argv[])
   const int rank = controller->GetLocalProcessId();
   vtkLogger::SetThreadName("rank:" + std::to_string(rank));
 
-  vtkSmartPointer<vtkUnstructuredGrid> data;
+  vtkNew<vtkUnstructuredGrid> data;
   if (rank == 0)
   {
     char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/disk_out_ref.ex2");
@@ -170,12 +189,20 @@ int TestRedistributeDataSetFilter(int argc, char* argv[])
     delete[] fname;
     rdr->Update();
 
-    data = vtkUnstructuredGrid::SafeDownCast(
-      vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput()->GetBlock(0))->GetBlock(0));
-  }
-  else
-  {
-    data = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    data->ShallowCopy(vtkUnstructuredGrid::SafeDownCast(
+      vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput()->GetBlock(0))->GetBlock(0)));
+
+    std::vector<vtkDataSet*> datasets = vtkCompositeDataSet::GetDataSets(data);
+    for (vtkDataSet* ds : datasets)
+    {
+      // Adding some duplicate ghost cells and ghost points.
+      // The filter is supposed to only remove duplicates from the output.
+      vtkNew<vtkUnsignedCharArray> ghosts;
+      ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+      ghosts->SetNumberOfValues(ds->GetNumberOfPoints());
+      ghosts->Fill(vtkDataSetAttributes::DUPLICATEPOINT | vtkDataSetAttributes::HIDDENPOINT);
+      ds->GetPointData()->AddArray(ghosts);
+    }
   }
 
   vtkNew<vtkRedistributeDataSetFilter> rdsf;
