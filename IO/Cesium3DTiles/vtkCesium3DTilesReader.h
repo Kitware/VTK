@@ -67,6 +67,11 @@ public:
   vtkGetMacro(NumberOfLevels, int);
   ///@}
 
+  /**
+   * Returns true if it can read the json file (it is a 3D Tiles tileset), false otherwise
+   */
+  virtual int CanReadFile(VTK_FILEPATH const char* name);
+
 protected:
   vtkCesium3DTilesReader();
   ~vtkCesium3DTilesReader() override;

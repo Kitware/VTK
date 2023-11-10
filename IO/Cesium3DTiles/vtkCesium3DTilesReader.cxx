@@ -88,21 +88,29 @@ bool vtkCesium3DTilesReader::Implementation::Open(const char* fileName)
 {
   try
   {
+    if (!fileName || std::string(fileName).empty())
+    {
+      vtkErrorWithObjectMacro(this->Reader, "Invalid input filename: nullptr or empty");
+      return false;
+    }
     if (this->IsOpen())
     {
+      if (this->Reader->GetFileName() == fileName)
+      {
+        return true;
+      }
       TileFileNames.clear();
       Transforms.clear();
       this->Close();
     }
+    this->Reader->SetFileName(fileName);
     this->TilesetStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     this->TilesetStream.open(fileName);
     this->Tileset = json::parse(this->TilesetStream);
     this->Reader->NumberOfLevels = this->GetNumberOfLevels(this->GetRoot());
     std::array<double, 16> transform;
-    vtkMatrix4x4::Identity(&transform[0]);
+    vtkMatrix4x4::Identity(transform.data());
     this->AddPartitions(this->GetRoot(), 0, transform);
-    std::cerr << "The number of tiles on level " << this->Reader->Level << " is "
-              << TileFileNames.size() << std::endl;
     this->DirectoryName = vtksys::SystemTools::GetParentDirectory(fileName);
   }
   catch (std::exception& e)
@@ -243,7 +251,7 @@ void vtkCesium3DTilesReader::Implementation::AddContentPartition(
   std::string contentString("content");
   std::array<double, 16> transformYUpToZUp{ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 1.0 };
-  vtkMatrix4x4::Multiply4x4(&transform[0], &transformYUpToZUp[0], &transform[0]);
+  vtkMatrix4x4::Multiply4x4(transform.data(), transformYUpToZUp.data(), transform.data());
   // there is a tile at the current node
   std::string tileFileName = node[contentString]["uri"];
   this->TileFileNames.push_back(tileFileName);
@@ -277,8 +285,8 @@ bool vtkCesium3DTilesReader::Implementation::AddPartitions(
   {
     auto columnNodeTransform = node[transformString].get<std::array<double, 16>>();
     std::array<double, 16> nodeTransform;
-    vtkMatrix4x4::Transpose(&columnNodeTransform[0], &nodeTransform[0]);
-    vtkMatrix4x4::Multiply4x4(&transform[0], &nodeTransform[0], &transform[0]);
+    vtkMatrix4x4::Transpose(columnNodeTransform.data(), nodeTransform.data());
+    vtkMatrix4x4::Multiply4x4(transform.data(), nodeTransform.data(), transform.data());
   }
   if (!node.contains(contentString) && !node.contains(childrenString))
   {
@@ -368,6 +376,34 @@ int vtkCesium3DTilesReader::RequestData(
   vtkPartitionedDataSet* output = vtkPartitionedDataSet::GetData(outputVector);
   vtkNew<vtkTransform> transform;
   this->Impl->ReadTiles(output, numberOfRanks, rank);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkCesium3DTilesReader::CanReadFile(const char* filename)
+{
+  try
+  {
+    if (!filename || std::string(filename).empty())
+    {
+      vtkErrorWithObjectMacro(this, "Invalid input filename: nullptr or empty");
+      return 0;
+    }
+    std::ifstream s;
+    s.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    s.open(filename);
+    json fileJson = json::parse(s);
+    // check for {asset: {version: ...}}
+    json j = fileJson.at("asset");
+    j = j.at("version");
+    // check for {root: {geometricError: ...}}
+    j = fileJson.at("root");
+    j = j.at("geometricError");
+  }
+  catch (std::exception& vtkNotUsed(e))
+  {
+    return 0;
+  }
   return 1;
 }
 
