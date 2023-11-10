@@ -23,4 +23,13 @@ vtk_module_add_module(VTK::IOPDAL
 vtk_module_link(VTK::IOPDAL
   PRIVATE
     ${pdal_libraries})
+
+# PDAL 2.0 didn't include interfaces to its exported targets.
+# Resolved in https://github.com/PDAL/PDAL/issues/2262.
+if (PDAL_VERSION VERSION_LESS "2.1")
+  vtk_module_include(VTK::IOPDAL
+    PRIVATE
+      ${PDAL_INCLUDE_DIRS})
+endif ()
+
 vtk_add_test_mangling(VTK::IOPDAL)
