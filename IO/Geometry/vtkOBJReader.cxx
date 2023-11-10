@@ -500,8 +500,8 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
     else if (command == "f") // face
     {
       const auto globalVertexCount = points->GetNumberOfPoints();
-      const auto globalTcoordCount = normals->GetNumberOfTuples();
-      const auto globalNormalCount = tcoords->GetNumberOfTuples();
+      const auto globalTcoordCount = tcoords->GetNumberOfTuples();
+      const auto globalNormalCount = normals->GetNumberOfTuples();
 
       // We don't yet know how many points are to come
       vertexPolys->InsertNextCell(0);
@@ -711,7 +711,11 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   const bool hasMaterial =
     materialCount > 1 || (materialCount == 1 && materialNames->GetValue(0) != noMaterialName);
 
-  if (!normalsMatchVertices || !tcoordsMatchVertices)
+  // Fixing the OBJ is done because OBJ files can index normals, vertices and tcoords independently
+  // but VTK cannot.
+  const bool needFix = !normalsMatchVertices || !tcoordsMatchVertices;
+
+  if (needFix)
   {
     vtkDebugMacro(<< "Duplicating vertices so that tcoords and normals are correct");
 
@@ -909,12 +913,14 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Fill output
   output->SetPoints(points);
 
-  if (pointElems->GetNumberOfCells() > 0)
+  // TODO: Support fixing for points
+  if (pointElems->GetNumberOfCells() > 0 && !needFix)
   {
     output->SetVerts(pointElems);
   }
 
-  if (lineElems->GetNumberOfCells() > 0)
+  // TODO: Support fixing for lines
+  if (lineElems->GetNumberOfCells() > 0 && !needFix)
   {
     output->SetLines(lineElems);
   }
