@@ -62,9 +62,7 @@ public:
 
     bool useHDRI = ren->GetUseImageBasedLighting() && ren->GetEnvironmentTexture() &&
       extensions.ANARI_KHR_LIGHT_HDRI;
-    // The framebuffer is linear, a conversion to sRGB is required
-    ss << "gl_FragData[0] = vec4(pow(color.rgb, vec3(1.0/2.2)), " << (useHDRI ? "1.0)" : "color.a)")
-       << ";\n";
+    ss << "gl_FragData[0] = vec4(color.rgb, " << (useHDRI ? "1.0)" : "color.a)") << ";\n";
 
     vtkShaderProgram::Substitute(fragShader, "//VTK::FSQ::Impl", ss.str());
     this->OpenGLQuadHelper = new vtkOpenGLQuadHelper(openGLRenderWindow,
