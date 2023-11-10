@@ -91,6 +91,7 @@ vtkAnariViewNodeFactory::vtkAnariViewNodeFactory()
   this->RegisterOverride("vtkPVLODVolume", vol_maker);
   this->RegisterOverride("vtkSmartVolumeMapper", vm_maker);
   this->RegisterOverride("vtkAnariVolumeMapper", vm_maker);
+  this->RegisterOverride("vtkMultiBlockVolumeMapper", vm_maker);
   this->RegisterOverride("vtkOpenGLGPUVolumeRayCastMapper", vm_maker);
 }
 
