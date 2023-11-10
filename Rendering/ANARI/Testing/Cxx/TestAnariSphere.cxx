@@ -235,7 +235,7 @@ int TestAnariSphere(int argc, char* argv[])
   renderer->GetActiveCamera()->Elevation(30); // adjust to show more
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 80.0);
+  int retVal = vtkRegressionTestImage(renWin);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

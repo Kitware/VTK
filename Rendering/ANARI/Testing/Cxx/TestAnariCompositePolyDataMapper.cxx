@@ -164,7 +164,7 @@ int TestAnariCompositePolyDataMapper(int argc, char* argv[])
   double t = timer->GetElapsedTime();
   cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
 
-  int retVal = vtkRegressionTestImageThreshold(win, 1.0);
+  int retVal = vtkRegressionTestImage(win);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

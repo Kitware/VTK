@@ -253,7 +253,7 @@ int TestAnariImplicits(int argc, char* argv[])
   renWin->Render();
   renderer->ResetCamera();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 50.0);
+  int retVal = vtkRegressionTestImage(renWin);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
