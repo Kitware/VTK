@@ -2355,6 +2355,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
 
       [INSTALL_HEADERS    <ON|OFF>]
       [HEADERS_COMPONENT  <component>]
+      [USE_FILE_SETS      <ON|OFF>]
 
       [TARGETS_COMPONENT  <component>]
       [INSTALL_EXPORT     <export>]
@@ -2410,6 +2411,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
   * ``HEADERS_COMPONENT``: (Defaults to ``development``) The install component to
     use for header installation. Note that other SDK-related bits use the same
     component (e.g., CMake module files).
+  * ``USE_FILE_SETS``: (Defaults to ``OFF``) Whether to use ``FILE_SET`` source
+    specification or not.
   * ``TARGETS_COMPONENT``: ``Defaults to ``runtime``) The install component to use
     for the libraries built.
   * ``TARGET_SPECIFIC_COMPONENTS``: (Defaults to ``OFF``) If ``ON``, place artifacts
@@ -2475,6 +2478,7 @@ function (vtk_module_build)
     # Headers
     INSTALL_HEADERS
     HEADERS_COMPONENT
+    USE_FILE_SETS
 
     # Targets
     INSTALL_EXPORT
@@ -2546,6 +2550,10 @@ function (vtk_module_build)
 
   if (NOT DEFINED _vtk_build_INSTALL_HEADERS)
     set(_vtk_build_INSTALL_HEADERS ON)
+  endif ()
+
+  if (NOT DEFINED _vtk_build_USE_FILE_SETS)
+    set(_vtk_build_USE_FILE_SETS OFF)
   endif ()
 
   if (NOT DEFINED _vtk_build_ENABLE_WRAPPING)
@@ -3661,7 +3669,8 @@ function (_vtk_module_add_file_set target)
       "${CMAKE_CURRENT_BINARY_DIR}")
   endif ()
 
-  if (CMAKE_VERSION VERSION_LESS "3.23")
+  if ((DEFINED _vtk_build_USE_FILE_SETS AND NOT _vtk_build_USE_FILE_SETS) OR
+      CMAKE_VERSION VERSION_LESS "3.23")
     # XXX(cmake-3.19): Using a non-`INTERACE` `FILE_SET`s with `INTERFACE`
     # targets was added in CMake 3.19.
     if (CMAKE_VERSION VERSION_LESS "3.19")
@@ -3906,7 +3915,8 @@ function (vtk_module_add_module name)
     endif ()
 
     # XXX(cmake-3.23): file sets
-    if (CMAKE_VERSION VERSION_LESS "3.23" OR
+    if (NOT _vtk_build_USE_FILE_SETS OR
+        CMAKE_VERSION VERSION_LESS "3.23" OR
         # XXX(cmake-3.19): Using a non-`INTERACE` `FILE_SET`s with `INTERFACE`
         # targets is not yet supported.
         (CMAKE_VERSION VERSION_LESS "3.19" AND
@@ -4200,7 +4210,8 @@ function (vtk_module_add_module name)
   endif ()
   # Not needed for CMake 3.23+ as FILE_SET installation handles this
   # automatically.
-  if (CMAKE_VERSION VERSION_LESS "3.23")
+  if (NOT _vtk_build_USE_FILE_SETS OR
+      CMAKE_VERSION VERSION_LESS "3.23")
     _vtk_module_standard_includes(
       TARGET  "${_vtk_add_module_real_target}"
       ${_vtk_add_module_includes_interface}
@@ -4711,7 +4722,8 @@ function (_vtk_module_install target)
 
   set(_vtk_install_file_set_args)
   # XXX(cmake-3.23): file sets
-  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23")
+  if (_vtk_build_USE_FILE_SETS AND
+      CMAKE_VERSION VERSION_GREATER_EQUAL "3.23")
     set(_vtk_install_file_sets_destination "${_vtk_build_HEADERS_DESTINATION}")
     if (_vtk_add_module_HEADERS_SUBDIR)
       string(APPEND _vtk_install_file_sets_destination
