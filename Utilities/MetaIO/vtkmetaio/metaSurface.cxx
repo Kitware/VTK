@@ -49,7 +49,6 @@ SurfacePnt::~SurfacePnt()
 // MetaSurface Constructors
 //
 MetaSurface::MetaSurface()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaSurface()" );
   MetaSurface::Clear();
@@ -57,7 +56,6 @@ MetaSurface::MetaSurface()
 
 //
 MetaSurface::MetaSurface(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaSurface()" );
   MetaSurface::Clear();
@@ -66,7 +64,6 @@ MetaSurface::MetaSurface(const char * _headerName)
 
 //
 MetaSurface::MetaSurface(const MetaSurface * _surface)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaSurface()" );
   MetaSurface::Clear();

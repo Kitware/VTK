@@ -26,11 +26,8 @@
 #ifndef _WIN32
 #  include <climits>
 #  include <csignal> /* sigprocmask */
-#  include <pwd.h>
 #  include <sys/ioctl.h>
 #  include <sys/param.h>
-#  include <sys/wait.h>
-#  include <termios.h>
 #  include <unistd.h>
 #endif
 
@@ -91,7 +88,6 @@ static const std::streamoff MaxIOChunk = 1024 * 1024 * 1024;
 // MetaImage Constructors
 //
 MetaImage::MetaImage()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaImage()" );
 
@@ -103,7 +99,6 @@ MetaImage::MetaImage()
 
 //
 MetaImage::MetaImage(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaImage()" );
 
@@ -117,7 +112,6 @@ MetaImage::MetaImage(const char * _headerName)
 
 //
 MetaImage::MetaImage(MetaImage * _im)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaImage()" );
 
@@ -169,7 +163,6 @@ MetaImage::MetaImage(int               _nDims,
                      MET_ValueEnumType _elementType,
                      int               _elementNumberOfChannels,
                      void *            _elementData)
-  : MetaObject()
 {
   // Only consider at most 10 element of spacing:
   // See MetaObject::InitializeEssential(_nDims)
@@ -189,7 +182,6 @@ MetaImage::MetaImage(int               _nDims,
                      MET_ValueEnumType _elementType,
                      int               _elementNumberOfChannels,
                      void *            _elementData)
-  : MetaObject()
 {
   InitHelper(_nDims, _dimSize, _elementSpacing, _elementType, _elementNumberOfChannels, _elementData);
 }
@@ -202,7 +194,6 @@ MetaImage::MetaImage(int               _x,
                      MET_ValueEnumType _elementType,
                      int               _elementNumberOfChannels,
                      void *            _elementData)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaImage()" );
 
@@ -239,7 +230,6 @@ MetaImage::MetaImage(int               _x,
                      MET_ValueEnumType _elementType,
                      int               _elementNumberOfChannels,
                      void *            _elementData)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaImage()" );
 
@@ -1214,7 +1204,10 @@ MetaImage::ReadStream(int _nDims, std::ifstream * _stream, bool _readElements, v
 
     if ("Local" == m_ElementDataFileName || "LOCAL" == m_ElementDataFileName || "local" == m_ElementDataFileName)
     {
-      M_ReadElements(_stream, m_ElementData, m_Quantity);
+      if (!M_ReadElements(_stream, m_ElementData, m_Quantity))
+      {
+        return false;
+      }
     }
     else if ("LIST" == m_ElementDataFileName.substr(0, 4))
     {
@@ -1270,11 +1263,18 @@ MetaImage::ReadStream(int _nDims, std::ifstream * _stream, bool _readElements, v
           if (!readStreamTemp->is_open())
           {
             std::cerr << "MetaImage: Read: cannot open slice" << std::endl;
-            continue;
+            delete readStreamTemp;
+            return false;
           }
-          M_ReadElements(readStreamTemp,
-                         &((static_cast<char *>(m_ElementData))[i * m_SubQuantity[fileImageDim] * elementSize]),
-                         m_SubQuantity[fileImageDim]);
+          if (!M_ReadElements(readStreamTemp,
+                              &((static_cast<char *>(m_ElementData))[i * m_SubQuantity[fileImageDim] * elementSize]),
+                              m_SubQuantity[fileImageDim]))
+          {
+            readStreamTemp->close();
+            delete readStreamTemp;
+            return false;
+          }
+
           readStreamTemp->close();
         }
       }
@@ -1321,8 +1321,8 @@ MetaImage::ReadStream(int _nDims, std::ifstream * _stream, bool _readElements, v
           {
             if (!isdigit(wrds[i][j]))
             {
-              std::cerr << "MetaImage: Read: Last three arguments must be numbers!" << std::endl;
-              continue;
+              std::cerr << "MetaImage: Read: Last three arguments in element data filename must be numbers!" << std::endl;
+              return false;
             }
           }
         }
@@ -1361,12 +1361,27 @@ MetaImage::ReadStream(int _nDims, std::ifstream * _stream, bool _readElements, v
         if (!readStreamTemp->is_open())
         {
           std::cerr << "MetaImage: Read: cannot construct file" << std::endl;
-          continue;
+          delete readStreamTemp;
+          for (i = 0; i < nWrds; i++)
+          {
+            delete[] wrds[i];
+          }
+          return false;
         }
 
-        M_ReadElements(readStreamTemp,
-                       &((static_cast<char *>(m_ElementData))[cnt * m_SubQuantity[m_NDims - 1] * elementSize]),
-                       m_SubQuantity[m_NDims - 1]);
+        if (!M_ReadElements(readStreamTemp,
+                            &((static_cast<char *>(m_ElementData))[cnt * m_SubQuantity[m_NDims - 1] * elementSize]),
+                            m_SubQuantity[m_NDims - 1]))
+        {
+          readStreamTemp->close();
+          delete readStreamTemp;
+          for (i = 0; i < nWrds; i++)
+          {
+            delete[] wrds[i];
+          }
+          return false;
+        }
+
         cnt++;
 
         readStreamTemp->close();
@@ -1417,7 +1432,12 @@ MetaImage::ReadStream(int _nDims, std::ifstream * _stream, bool _readElements, v
         }
         return false;
       }
-      M_ReadElements(readStreamTemp, m_ElementData, m_Quantity);
+      if (!M_ReadElements(readStreamTemp, m_ElementData, m_Quantity))
+      {
+        readStreamTemp->close();
+        delete readStreamTemp;
+        return false;
+      }
 
       readStreamTemp->close();
       delete readStreamTemp;
@@ -1565,14 +1585,18 @@ MetaImage::WriteStream(std::ofstream * _stream, bool _writeElements, const void 
 
   M_SetupWriteFields();
 
-  M_Write();
+  if (!M_Write())
+  {
+    return false;
+  }
 
+  bool writeResult = true;
   if (_writeElements)
   {
     if (m_BinaryData && m_CompressedData && m_ElementDataFileName.find('%') == std::string::npos)
     // compressed & !slice/file
     {
-      M_WriteElements(m_WriteStream, compressedElementData, m_CompressedDataSize);
+      writeResult = M_WriteElements(m_WriteStream, compressedElementData, m_CompressedDataSize);
 
       delete[] compressedElementData;
       m_CompressedDataSize = 0;
@@ -1581,18 +1605,18 @@ MetaImage::WriteStream(std::ofstream * _stream, bool _writeElements, const void 
     {
       if (_constElementData == nullptr)
       {
-        M_WriteElements(m_WriteStream, m_ElementData, m_Quantity);
+        writeResult = M_WriteElements(m_WriteStream, m_ElementData, m_Quantity);
       }
       else
       {
-        M_WriteElements(m_WriteStream, _constElementData, m_Quantity);
+        writeResult = M_WriteElements(m_WriteStream, _constElementData, m_Quantity);
       }
     }
   }
 
   m_WriteStream = nullptr;
 
-  return true;
+  return writeResult;
 }
 
 
@@ -1615,6 +1639,8 @@ MetaImage::WriteROI(int *        _indexMin,
   {
     return false;
   }
+
+  bool writeResult = true;
 
   // Check if the file exists
   if (M_FileExists(_headName))
@@ -1719,7 +1745,7 @@ MetaImage::WriteROI(int *        _indexMin,
       return false;
     }
 
-    M_WriteElementsROI(tmpWriteStream, elementData, dataPos, _indexMin, _indexMax);
+    writeResult = M_WriteElementsROI(tmpWriteStream, elementData, dataPos, _indexMin, _indexMax);
 
     tmpWriteStream->close();
     delete tmpWriteStream;
@@ -1822,7 +1848,12 @@ MetaImage::WriteROI(int *        _indexMin,
 
     m_WriteStream = tmpWriteStream;
     M_SetupWriteFields();
-    M_Write();
+    if (!M_Write())
+    {
+      tmpWriteStream->close();
+      delete tmpWriteStream;
+      return false;
+    }
 
     std::streampos dataPos = m_WriteStream->tellp();
 
@@ -1861,7 +1892,7 @@ MetaImage::WriteROI(int *        _indexMin,
     const char zerobyte = 0;
     m_WriteStream->write(&zerobyte, 1);
 
-    M_WriteElementsROI(m_WriteStream, elementData, dataPos, _indexMin, _indexMax);
+    writeResult = M_WriteElementsROI(m_WriteStream, elementData, dataPos, _indexMin, _indexMax);
 
     m_WriteStream = nullptr;
 
@@ -1874,7 +1905,7 @@ MetaImage::WriteROI(int *        _indexMin,
     delete tmpWriteStream;
   }
 
-  return true;
+  return writeResult;
 }
 
 bool
@@ -1922,7 +1953,11 @@ MetaImage::M_WriteElementsROI(std::ofstream * _fstream,
     }
     _fstream->seekp(seekoff, std::ios::beg);
 
-    M_WriteElementData(_fstream, data, elementsToWrite);
+    if (!M_WriteElementData(_fstream, data, elementsToWrite))
+    {
+      delete[] currentIndex;
+      return false;
+    }
     data += elementsToWrite * elementNumberOfBytes;
 
     // check if there is only one write needed
@@ -2333,7 +2368,11 @@ MetaImage::M_ReadElements(std::ifstream * _fstream, void * _data, std::streamoff
 
     auto * compr = new unsigned char[static_cast<size_t>(m_CompressedDataSize)];
 
-    M_ReadElementData(_fstream, compr, m_CompressedDataSize);
+    if (!M_ReadElementData(_fstream, compr, m_CompressedDataSize))
+    {
+      delete[] compr;
+      return false;
+    }
 
     MET_PerformUncompression(compr, m_CompressedDataSize, static_cast<unsigned char *>(_data), readSize);
 
@@ -2348,8 +2387,10 @@ MetaImage::M_ReadElements(std::ifstream * _fstream, void * _data, std::streamoff
   {
     if (!m_BinaryData)
     {
-
-      M_ReadElementData(_fstream, _data, _dataQuantity);
+      if (!M_ReadElementData(_fstream, _data, _dataQuantity))
+      {
+        return false;
+      }
     }
     else
     {
@@ -2370,7 +2411,10 @@ MetaImage::M_WriteElements(std::ofstream * _fstream, const void * _data, std::st
 
   if (m_ElementDataFileName == "LOCAL")
   {
-    MetaImage::M_WriteElementData(_fstream, _data, _dataQuantity);
+    if (!MetaImage::M_WriteElementData(_fstream, _data, _dataQuantity))
+    {
+      return false;
+    }
   }
   else // write the data in a separate file
   {
@@ -2406,8 +2450,13 @@ MetaImage::M_WriteElements(std::ofstream * _fstream, const void * _data, std::st
         {
           // BUG? This looks wrong to me as the third parameter should
           // contain the number of elements/quantity, not number of bytes -BCL
-          MetaImage::M_WriteElementData(
-            writeStreamTemp, &((static_cast<const char *>(_data))[(i - 1) * sliceNumberOfBytes]), sliceNumberOfBytes);
+          if (!MetaImage::M_WriteElementData(
+               writeStreamTemp, &((static_cast<const char *>(_data))[(i - 1) * sliceNumberOfBytes]), sliceNumberOfBytes))
+          {
+            writeStreamTemp->close();
+            delete writeStreamTemp;
+            return false;
+          }
         }
         else
         {
@@ -2421,7 +2470,13 @@ MetaImage::M_WriteElements(std::ofstream * _fstream, const void * _data, std::st
                                                   m_CompressionLevel);
 
           // Write the compressed data
-          MetaImage::M_WriteElementData(writeStreamTemp, compressedData, compressedDataSize);
+          if (!MetaImage::M_WriteElementData(writeStreamTemp, compressedData, compressedDataSize))
+          {
+            delete[] compressedData;
+            writeStreamTemp->close();
+            delete writeStreamTemp;
+            return false;
+          }
 
           delete[] compressedData;
         }
@@ -2436,7 +2491,12 @@ MetaImage::M_WriteElements(std::ofstream * _fstream, const void * _data, std::st
       auto * writeStreamTemp = new std::ofstream;
       openWriteStream(*writeStreamTemp, dataFileName, false);
 
-      MetaImage::M_WriteElementData(writeStreamTemp, _data, _dataQuantity);
+      if (!MetaImage::M_WriteElementData(writeStreamTemp, _data, _dataQuantity))
+      {
+        writeStreamTemp->close();
+        delete writeStreamTemp;
+        return false;
+      }
 
       writeStreamTemp->close();
       delete writeStreamTemp;
@@ -2600,7 +2660,10 @@ MetaImage::ReadROIStream(int *           _indexMin,
 
     if ("Local" == m_ElementDataFileName || "LOCAL" == m_ElementDataFileName || "local" == m_ElementDataFileName)
     {
-      M_ReadElementsROI(_stream, m_ElementData, quantity, _indexMin, _indexMax, subSamplingFactor, m_Quantity);
+      if (!M_ReadElementsROI(_stream, m_ElementData, quantity, _indexMin, _indexMax, subSamplingFactor, m_Quantity))
+      {
+        return false;
+      }
     }
     else if ("LIST" == m_ElementDataFileName.substr(0, 4))
     {
@@ -2652,7 +2715,8 @@ MetaImage::ReadROIStream(int *           _indexMin,
           if (!readStreamTemp->is_open())
           {
             std::cerr << "MetaImage: Read: cannot open slice" << std::endl;
-            continue;
+            delete readStreamTemp;
+            return false;
           }
 
           // read only one slice
@@ -2668,13 +2732,18 @@ MetaImage::ReadROIStream(int *           _indexMin,
           indexMin[m_NDims - 1] = 0;
           indexMax[m_NDims - 1] = 0;
 
-          M_ReadElementsROI(readStreamTemp,
-                            &((static_cast<char *>(m_ElementData))[cnt * quantity * elementSize]),
-                            quantity,
-                            indexMin,
-                            indexMax,
-                            subSamplingFactor,
-                            m_SubQuantity[m_NDims - 1]);
+          if (!M_ReadElementsROI(readStreamTemp,
+                                 &((static_cast<char *>(m_ElementData))[cnt * quantity * elementSize]),
+                                 quantity,
+                                 indexMin,
+                                 indexMax,
+                                 subSamplingFactor,
+                                 m_SubQuantity[m_NDims - 1]))
+          {
+            readStreamTemp->close();
+            delete readStreamTemp;
+            return false;
+          }
 
           cnt++;
           readStreamTemp->close();
@@ -2758,7 +2827,14 @@ MetaImage::ReadROIStream(int *           _indexMin,
         if (!readStreamTemp->is_open())
         {
           std::cerr << "MetaImage: Read: cannot construct file" << std::endl;
-          continue;
+          for (i = 0; i < nWrds; i++)
+          {
+            delete[] wrds[i];
+          }
+          delete[] wrds;
+          delete readStreamTemp;
+          return false;
+          return false;
         }
 
         // read only one slice
@@ -2774,13 +2850,25 @@ MetaImage::ReadROIStream(int *           _indexMin,
         indexMin[m_NDims - 1] = 0;
         indexMax[m_NDims - 1] = 0;
 
-        M_ReadElementsROI(readStreamTemp,
-                          &((static_cast<char *>(m_ElementData))[cnt * quantity * elementSize]),
-                          quantity,
-                          indexMin,
-                          indexMax,
-                          subSamplingFactor,
-                          m_SubQuantity[m_NDims - 1]);
+        if (!M_ReadElementsROI(readStreamTemp,
+                               &((static_cast<char *>(m_ElementData))[cnt * quantity * elementSize]),
+                               quantity,
+                               indexMin,
+                               indexMax,
+                               subSamplingFactor,
+                               m_SubQuantity[m_NDims - 1]))
+        {
+          delete[] indexMin;
+          delete[] indexMax;
+          readStreamTemp->close();
+          for (i = 0; i < nWrds; i++)
+          {
+            delete[] wrds[i];
+          }
+          delete[] wrds;
+          delete readStreamTemp;
+          return false;
+        }
 
         cnt++;
 
@@ -2839,7 +2927,12 @@ MetaImage::ReadROIStream(int *           _indexMin,
         return false;
       }
 
-      M_ReadElementsROI(readStreamTemp, m_ElementData, quantity, _indexMin, _indexMax, subSamplingFactor, m_Quantity);
+      if (!M_ReadElementsROI(readStreamTemp, m_ElementData, quantity, _indexMin, _indexMax, subSamplingFactor, m_Quantity))
+      {
+        readStreamTemp->close();
+        delete readStreamTemp;
+        return false;
+      }
 
       readStreamTemp->close();
       delete readStreamTemp;
@@ -2978,8 +3071,8 @@ MetaImage::M_ReadElementsROI(std::ifstream * _fstream,
           delete[] currentIndex;
           return false;
         }
+        gc += bytesToRead;
         data += bytesToRead;
-        gc += rOff;
       }
 
       if (gc == readSize)
@@ -3016,7 +3109,7 @@ MetaImage::M_ReadElementsROI(std::ifstream * _fstream,
 
     if (gc != readSize)
     {
-      std::cerr << "MetaImage: M_ReadElementsROI: data not read completely" << std::endl;
+      std::cerr << "MetaImage: M_ReadElementsROI: compressed data not read completely" << std::endl;
       std::cerr << "   ideal = " << readSize << " : actual = " << gc << std::endl;
       delete[] currentIndex;
       return false;
@@ -3108,13 +3201,20 @@ MetaImage::M_ReadElementsROI(std::ifstream * _fstream,
           // does this work? what about incrementing data?
           // what about data sizes and random access of file?
           std::streamoff blockSize = elementsToRead * m_ElementNumberOfChannels * elementSize;
-          M_ReadElementData(_fstream, data, static_cast<size_t>(blockSize));
+          if (!M_ReadElementData(_fstream, data, static_cast<size_t>(blockSize)))
+          {
+            delete[] currentIndex;
+            return false;
+          }
           gc += blockSize;
         }
         else // binary data
         {
-
-          M_ReadElementData(_fstream, data, elementsToRead);
+          if (!M_ReadElementData(_fstream, data, elementsToRead))
+          {
+            delete[] currentIndex;
+            return false;
+          }
           gc += elementsToRead * elementNumberOfBytes;
           data += elementsToRead * elementNumberOfBytes;
         }

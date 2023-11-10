@@ -32,7 +32,8 @@ IsBlank(int c)
 
 #include <cassert>
 #include <cstddef>
-
+#include <limits>
+#include <cmath>
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #  define NOMINMAX
@@ -1004,6 +1005,39 @@ MET_IsComplete(std::vector<MET_FieldRecordType *> * fields)
   return true;
 }
 
+/*
+ * libc++ may set 'fail' bit for value less than min
+ */
+bool
+readFloatValue(std::istream & fp,
+               double &       v,
+               bool           less_than_min_to_zero = true)
+{
+  double x;
+  fp >> x;
+  if (fabs(x) < std::numeric_limits<double>::min())
+  {
+    if (less_than_min_to_zero)
+    {
+      x = 0;
+    }
+    if (fp.fail())
+    {
+      try
+      {
+        fp.clear();
+      }
+      catch (std::istream::failure & e)
+      {
+        std::cerr << "Error in readFloatValue\n" << e.what() << std::endl;
+        return false;
+      }
+    }
+  }
+  v = x;
+  return true;
+}
+
 //
 bool
 MET_Read(std::istream &                       fp,
@@ -1091,6 +1125,16 @@ MET_Read(std::istream &                       fp,
           case MET_ULONG:
           case MET_LONG_LONG:
           case MET_ULONG_LONG:
+          {
+            MET_SkipToVal(fp);
+            if (fp.eof())
+            {
+              break;
+            }
+            fp >> (*fieldIter)->value[0];
+            fp.getline(s, 500);
+            break;
+          }
           case MET_FLOAT:
           case MET_DOUBLE:
           {
@@ -1099,7 +1143,10 @@ MET_Read(std::istream &                       fp,
             {
               break;
             }
-            fp >> (*fieldIter)->value[0];
+            if (!readFloatValue(fp, (*fieldIter)->value[0]))
+            {
+              return false;
+            }
             fp.getline(s, 500);
             break;
           }
@@ -1126,8 +1173,6 @@ MET_Read(std::istream &                       fp,
           case MET_ULONG_ARRAY:
           case MET_LONG_LONG_ARRAY:
           case MET_ULONG_LONG_ARRAY:
-          case MET_FLOAT_ARRAY:
-          case MET_DOUBLE_ARRAY:
           {
             MET_SkipToVal(fp);
             if (fp.eof())
@@ -1157,6 +1202,43 @@ MET_Read(std::istream &                       fp,
             fp.getline(s, 500);
             break;
           }
+          case MET_FLOAT_ARRAY:
+          case MET_DOUBLE_ARRAY:
+          {
+            MET_SkipToVal(fp);
+            if (fp.eof())
+            {
+              break;
+            }
+            if ((*fieldIter)->dependsOn >= 0)
+            {
+              (*fieldIter)->length = static_cast<int>((*fields)[(*fieldIter)->dependsOn]->value[0]);
+              for (j = 0; j < static_cast<size_t>((*fieldIter)->length); j++)
+              {
+                if (!readFloatValue(fp, (*fieldIter)->value[j]))
+                {
+                  return false;
+                }
+              }
+            }
+            else
+            {
+              if ((*fieldIter)->length <= 0)
+              {
+                std::cerr << "Arrays must have dependency or pre-specified lengths" << std::endl;
+                return false;
+              }
+              for (j = 0; j < static_cast<size_t>((*fieldIter)->length); j++)
+              {
+                if (!readFloatValue(fp, (*fieldIter)->value[j]))
+                {
+                  return false;
+                }
+              }
+            }
+            fp.getline(s, 500);
+            break;
+          }
           case MET_FLOAT_MATRIX:
           {
             MET_SkipToVal(fp);
@@ -1169,7 +1251,10 @@ MET_Read(std::istream &                       fp,
               (*fieldIter)->length = static_cast<int>((*fields)[(*fieldIter)->dependsOn]->value[0]);
               for (j = 0; j < static_cast<size_t>((*fieldIter)->length) * (*fieldIter)->length; j++)
               {
-                fp >> (*fieldIter)->value[j];
+                if (!readFloatValue(fp, (*fieldIter)->value[j]))
+                {
+                  return false;
+                }
               }
             }
             else
@@ -1181,7 +1266,10 @@ MET_Read(std::istream &                       fp,
               }
               for (j = 0; j < static_cast<size_t>((*fieldIter)->length) * (*fieldIter)->length; j++)
               {
-                fp >> (*fieldIter)->value[j];
+                if (!readFloatValue(fp, (*fieldIter)->value[j]))
+                {
+                  return false;
+                }
               }
             }
             fp.getline(s, 500);

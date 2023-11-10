@@ -22,7 +22,6 @@ namespace METAIO_NAMESPACE
 
 /** MetaTubeGraph Constructors */
 MetaTubeGraph::MetaTubeGraph()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaTubeGraph()" );
   MetaTubeGraph::Clear();
@@ -30,7 +29,6 @@ MetaTubeGraph::MetaTubeGraph()
 
 
 MetaTubeGraph::MetaTubeGraph(const char * _headerName)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaTubeGraph()" );
   MetaTubeGraph::Clear();
@@ -39,7 +37,6 @@ MetaTubeGraph::MetaTubeGraph(const char * _headerName)
 
 
 MetaTubeGraph::MetaTubeGraph(const MetaTubeGraph * _tube)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaTubeGraph()" );
   MetaTubeGraph::Clear();

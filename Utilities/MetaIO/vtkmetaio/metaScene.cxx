@@ -42,7 +42,6 @@ namespace METAIO_NAMESPACE
 
 // MetaScene Constructors
 MetaScene::MetaScene()
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaScene()" );
   MetaScene::Clear();
@@ -50,7 +49,6 @@ MetaScene::MetaScene()
 
 
 MetaScene::MetaScene(const MetaScene * _scene)
-  : MetaObject()
 {
   META_DEBUG_PRINT( "MetaScene()" );
   MetaScene::Clear();
