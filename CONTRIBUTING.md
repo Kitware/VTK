@@ -63,16 +63,16 @@ documentation. Our API is documented using [Doxygen] with updated
 documentation generated nightly. We have a [VTK Discourse] forum
 to coordinate development and to provide support.
 
-[VTK Git README]: Documentation/dev/git/README.md
-[developer instructions]: Documentation/dev/git/develop.md
+[VTK Git README]: Documentation/docs/developers_guide/git/README.md
+[developer instructions]: Documentation/docs/developers_guide/git/develop.md
 [Create an account]: https://gitlab.kitware.com/users/sign_in
 [Fork VTK]: https://gitlab.kitware.com/vtk/vtk/-/forks/new
-[download instructions]: Documentation/dev/git/download.md#clone
+[download instructions]: Documentation/docs/developers_guide/git/download.md#clone
 [developer setup script]: /Utilities/SetupForDevelopment.sh
-[Setup]: Documentation/dev/git/develop_quickstart.md#initial-setup
-[Create a Topic]: Documentation/dev/git/develop.md#create-a-topic
-[Share a Topic]: Documentation/dev/git/develop.md#share-a-topic
-[Create a Merge Request]: Documentation/dev/git/develop.md#create-a-merge-request
+[Setup]: Documentation/docs/developers_guide/develop_quickstart.md#initial-setup
+[Create a Topic]: Documentation/docs/developers_guide/git/develop.md#create-a-topic
+[Share a Topic]: Documentation/docs/developers_guide/git/develop.md#share-a-topic
+[Create a Merge Request]: Documentation/docs/developers_guide/git/develop.md#create-a-merge-request
 
 [Wiki]: http://www.vtk.org/Wiki/VTK
 [Doxygen]: http://www.vtk.org/doc/nightly/html
