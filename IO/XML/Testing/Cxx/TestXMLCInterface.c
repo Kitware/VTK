@@ -6,7 +6,7 @@
 #define NPOINTS 8
 #define NTIMESTEPS 8
 
-int main()
+int main(void)
 {
   int i, j;
   {

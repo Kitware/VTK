@@ -10,11 +10,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-HierarchyInfo* hierarchyInfo = NULL;
-StringCache* stringCache = NULL;
-int numberOfWrappedFunctions = 0;
-FunctionInfo* wrappedFunctions[1000];
-FunctionInfo* thisFunction;
+static HierarchyInfo* hierarchyInfo = NULL;
+static StringCache* stringCache = NULL;
+static int numberOfWrappedFunctions = 0;
+static FunctionInfo* wrappedFunctions[1000];
+static FunctionInfo* thisFunction;
 
 void outputScalarParamDeclarations(FILE* fp, int i, unsigned int aType)
 {

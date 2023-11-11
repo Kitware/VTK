@@ -44,7 +44,7 @@
 #endif
 
 /* Use hash table size that is a power of two */
-const unsigned int FILE_HASH_TABLE_SIZE = 1 << 10;
+static const unsigned int FILE_HASH_TABLE_SIZE = 1 << 10;
 
 /* Whether to use wide filenames on WIN32 */
 #if defined(_WIN32) && !defined(__MINGW32__)

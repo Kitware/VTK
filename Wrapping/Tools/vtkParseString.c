@@ -16,7 +16,7 @@
  */
 
 /** Array for quick lookup of char types */
-const unsigned char parse_charbits[256] = {
+static const unsigned char parse_charbits[256] = {
   0,
   0,
   0,
