@@ -278,16 +278,27 @@ public:
     return *this;
   }
 
-  VTK_ITER_INLINE
-  operator APIType() const noexcept
+  VTK_ITER_INLINE operator APIType() const noexcept { return this->castOperator(); }
+
+protected:
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
+  castOperator() const noexcept
   {
     VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
-    vtkDataArrayAccessor<ArrayType> acc{ this->Array };
-    return acc.Get(this->Id.GetTupleId(), this->Id.GetComponentId());
+    return this->Array->GetComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
   }
 
-protected:
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
+  castOperator() const noexcept
+  {
+    VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
+    return this->Array->GetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
+  }
+
   mutable ArrayType* Array;
   IdStorageType Id;
 };
@@ -364,22 +375,27 @@ public:
     return *this = std::move(tmp);
   }
 
-  VTK_ITER_INLINE
-  operator APIType() const noexcept
+  VTK_ITER_INLINE operator APIType() const noexcept { return this->castOperator(); }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value, ValueReference>::type
+    VTK_ITER_INLINE
+    operator=(APIType val) noexcept
   {
     VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
-    vtkDataArrayAccessor<ArrayType> acc{ this->Array };
-    return acc.Get(this->Id.GetTupleId(), this->Id.GetComponentId());
+    this->Array->SetComponent(this->Id.GetTupleId(), this->Id.GetComponentId(), val);
+    return *this;
   }
 
-  VTK_ITER_INLINE
-  ValueReference operator=(APIType val) noexcept
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value, ValueReference>::type
+    VTK_ITER_INLINE
+    operator=(APIType val) noexcept
   {
     VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
-    vtkDataArrayAccessor<ArrayType> acc{ this->Array };
-    acc.Set(this->Id.GetTupleId(), this->Id.GetComponentId(), val);
+    this->Array->SetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId(), val);
     return *this;
   }
 
@@ -480,6 +496,24 @@ public:
   friend struct ValueIterator<ArrayType, TupleSize>;
 
 protected:
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
+  castOperator() const noexcept
+  {
+    VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
+    return this->Array->GetComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
+  }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
+  castOperator() const noexcept
+  {
+    VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
+    return this->Array->GetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
+  }
+
   void CopyReference(const ValueReference& o) noexcept
   {
     this->Array = o.Array;

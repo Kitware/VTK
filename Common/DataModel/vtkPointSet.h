@@ -44,7 +44,6 @@
 #include "vtkDataSet.h"
 
 #include "vtkCellTypes.h"   // For GetCellType
-#include "vtkEmptyCell.h"   // For GetCell
 #include "vtkGenericCell.h" // For GetCell
 #include "vtkPoints.h"      // Needed for inline methods
 
@@ -106,7 +105,6 @@ public:
   vtkIdType GetNumberOfPoints() override;
   void GetPoint(vtkIdType ptId, double x[3]) override { this->Points->GetPoint(ptId, x); }
   vtkIdType FindPoint(double x[3]) override;
-  vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z); }
   vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
     double pcoords[3], double* weights) override;
   vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
@@ -222,7 +220,7 @@ public:
    * Specify point array to define point coordinates.
    */
   virtual void SetPoints(vtkPoints*);
-  vtkGetObjectMacro(Points, vtkPoints);
+  vtkPoints* GetPoints() override { return this->Points; }
   ///@}
 
   /**
@@ -271,7 +269,6 @@ protected:
 
 private:
   void Cleanup();
-  vtkEmptyCell* EmptyCell;
 
   vtkPointSet(const vtkPointSet&) = delete;
   void operator=(const vtkPointSet&) = delete;

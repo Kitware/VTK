@@ -23,7 +23,21 @@
 #include "vtkBuild.h"            // For VTK_BUILD_SHARED_LIBS
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCompiler.h"         // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkDataArrayMeta.h"    // For vtkDataArrayMeta::ComponentType
 #include "vtkGenericDataArray.h"
+
+namespace vtk
+{
+namespace detail
+{
+VTK_ABI_NAMESPACE_BEGIN
+template <typename ArrayType, ComponentIdType TupleSize>
+struct TupleRange;
+template <typename ArrayType, ComponentIdType TupleSize>
+struct ValueRange;
+VTK_ABI_NAMESPACE_END
+} // namespace detail
+} // namespace vtk
 
 // The export macro below makes no sense, but is necessary for older compilers
 // when we export instantiations of this class from vtkCommonCore.
@@ -33,6 +47,13 @@ class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate
   : public vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT>
 {
   typedef vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT> GenericDataArrayType;
+
+  // Friendship required by vtkDataArray(Value/Tuple)Range so that it can access the memory buffer
+  // which is required to avoid accessing raw pointers that might no longer be valid.
+  template <typename ArrayType, vtk::ComponentIdType TupleSize>
+  friend struct vtk::detail::TupleRange;
+  template <typename ArrayType, vtk::ComponentIdType TupleSize>
+  friend struct vtk::detail::ValueRange;
 
 public:
   typedef vtkAOSDataArrayTemplate<ValueTypeT> SelfType;

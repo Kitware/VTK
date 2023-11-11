@@ -107,6 +107,18 @@ public:
     }
   }
 
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE GetTuple(
+    volatile double* tuple) const noexcept
+  {
+    // Yes, this variable argument is marked volatile. See the explanation in GetTuple.
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    for (ComponentIdType i = 0; i < this->NumComps.value; ++i)
+    {
+      tuple[i] = static_cast<double>(this->Tuple[i]);
+    }
+  }
+
   // skips some runtime checks when both sizes are fixed:
   template <typename OArrayType, ComponentIdType OSize>
   VTK_ITER_INLINE EnableIfStaticTupleSizes<TupleSize, OSize, bool> operator==(
@@ -286,17 +298,41 @@ public:
     }
   }
 
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE GetTuple(
+    volatile double* tuple) const noexcept
+  {
+    // Yes, this variable argument is marked volatile. See the explanation in GetTuple.
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    for (ComponentIdType i = 0; i < this->NumComps.value; ++i)
+    {
+      tuple[i] = static_cast<double>(this->Tuple[i]);
+    }
+  }
+
   // Caller must ensure that there are size() elements in array.
   VTK_ITER_INLINE
   void SetTuple(const APIType* tuple) noexcept
   {
     volatile APIType* out = this->Tuple;
-    // Yes, this variable argument is marked volatile. See the explanation in
-    // GetTuple.
+    // Yes, this variable argument is marked volatile. See the explanation in GetTuple.
     VTK_ITER_ASSUME(this->NumComps.value > 0);
     for (ComponentIdType i = 0; i < this->NumComps.value; ++i)
     {
       out[i] = tuple[i];
+    }
+  }
+
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE SetTuple(
+    const double* tuple) noexcept
+  {
+    volatile APIType* out = this->Tuple;
+    // Yes, this variable argument is marked volatile. See the explanation in GetTuple.
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    for (ComponentIdType i = 0; i < this->NumComps.value; ++i)
+    {
+      out[i] = static_cast<APIType>(tuple[i]);
     }
   }
 
@@ -877,8 +913,8 @@ public:
   TupleRange(ArrayType* arr, TupleIdType beginTuple, TupleIdType endTuple) noexcept
     : Array(arr)
     , NumComps(arr)
-    , BeginTuple(TupleRange::GetTuplePointer(arr, beginTuple))
-    , EndTuple(TupleRange::GetTuplePointer(arr, endTuple))
+    , BeginTuple(beginTuple)
+    , EndTuple(endTuple)
   {
     assert(this->Array);
     assert(beginTuple >= 0 && beginTuple <= endTuple);
@@ -888,10 +924,10 @@ public:
   VTK_ITER_INLINE
   TupleRange GetSubRange(TupleIdType beginTuple = 0, TupleIdType endTuple = -1) const noexcept
   {
-    const TupleIdType curBegin = this->GetTupleId(this->BeginTuple);
+    const TupleIdType curBegin = this->GetTupleId(this->GetTuplePointer(this->BeginTuple));
     const TupleIdType realBegin = curBegin + beginTuple;
     const TupleIdType realEnd =
-      endTuple >= 0 ? curBegin + endTuple : this->GetTupleId(this->EndTuple);
+      endTuple >= 0 ? curBegin + endTuple : this->GetTupleId(this->GetTuplePointer(this->EndTuple));
 
     return TupleRange{ this->Array, realBegin, realEnd };
   }
@@ -903,56 +939,126 @@ public:
   ComponentIdType GetTupleSize() const noexcept { return this->NumComps.value; }
 
   VTK_ITER_INLINE
-  TupleIdType GetBeginTupleId() const noexcept { return this->GetTupleId(this->BeginTuple); }
+  TupleIdType GetBeginTupleId() const noexcept
+  {
+    return this->GetTupleId(this->GetTuplePointer(this->BeginTuple));
+  }
 
   VTK_ITER_INLINE
-  TupleIdType GetEndTupleId() const noexcept { return this->GetTupleId(this->EndTuple); }
+  TupleIdType GetEndTupleId() const noexcept
+  {
+    return this->GetTupleId(this->GetTuplePointer(this->EndTuple));
+  }
 
   VTK_ITER_INLINE
   size_type size() const noexcept
   {
-    return static_cast<size_type>(this->EndTuple - this->BeginTuple) /
+    return static_cast<size_type>(
+             this->GetTuplePointer(this->EndTuple) - this->GetTuplePointer(this->BeginTuple)) /
       static_cast<size_type>(this->NumComps.value);
   }
 
   VTK_ITER_INLINE
-  iterator begin() noexcept { return iterator(this->BeginTuple, this->NumComps); }
+  iterator begin() noexcept
+  {
+    return iterator(this->GetTuplePointer(this->BeginTuple), this->NumComps);
+  }
 
   VTK_ITER_INLINE
-  iterator end() noexcept { return iterator(this->EndTuple, this->NumComps); }
+  iterator end() noexcept
+  {
+    return iterator(this->GetTuplePointer(this->EndTuple), this->NumComps);
+  }
 
   VTK_ITER_INLINE
-  const_iterator begin() const noexcept { return const_iterator(this->BeginTuple, this->NumComps); }
+  const_iterator begin() const noexcept
+  {
+    return const_iterator(this->GetTuplePointer(this->BeginTuple), this->NumComps);
+  }
 
   VTK_ITER_INLINE
-  const_iterator end() const noexcept { return const_iterator(this->EndTuple, this->NumComps); }
+  const_iterator end() const noexcept
+  {
+    return const_iterator(this->GetTuplePointer(this->EndTuple), this->NumComps);
+  }
 
   VTK_ITER_INLINE
   const_iterator cbegin() const noexcept
   {
-    return const_iterator(this->BeginTuple, this->NumComps);
+    return const_iterator(this->GetTuplePointer(this->BeginTuple), this->NumComps);
   }
 
   VTK_ITER_INLINE
-  const_iterator cend() const noexcept { return const_iterator(this->EndTuple, this->NumComps); }
+  const_iterator cend() const noexcept
+  {
+    return const_iterator(this->GetTuplePointer(this->EndTuple), this->NumComps);
+  }
 
   VTK_ITER_INLINE
   reference operator[](size_type i) noexcept
   {
-    return reference{ this->BeginTuple + i * this->NumComps.value, this->NumComps };
+    return reference{ this->Array->Buffer->GetBuffer() +
+        (this->BeginTuple + i) * this->NumComps.value,
+      this->NumComps };
   }
 
   VTK_ITER_INLINE
   const_reference operator[](size_type i) const noexcept
   {
-    return const_reference{ this->BeginTuple + i * this->NumComps.value, this->NumComps };
+    return const_reference{ this->Array->Buffer->GetBuffer() +
+        (this->BeginTuple + i) * this->NumComps.value,
+      this->NumComps };
+  }
+
+  VTK_ITER_INLINE void GetTuple(size_type i, ValueType* tuple) const noexcept
+  {
+    const ValueType* tuplePtr =
+      this->Array->Buffer->GetBuffer() + (this->BeginTuple + i) * this->NumComps.value;
+    for (ComponentIdType c = 0; c < this->NumComps.value; ++c)
+    {
+      tuple[c] = tuplePtr[c];
+    }
+  }
+
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE GetTuple(
+    size_type i, double* tuple) const noexcept
+  {
+    const ValueType* tuplePtr =
+      this->Array->Buffer->GetBuffer() + (this->BeginTuple + i) * this->NumComps.value;
+    for (ComponentIdType c = 0; c < this->NumComps.value; ++c)
+    {
+      tuple[c] = static_cast<double>(tuplePtr[c]);
+    }
+  }
+
+  VTK_ITER_INLINE void SetTuple(size_type i, const ValueType* tuple) noexcept
+  {
+    ValueType* tuplePtr =
+      this->Array->Buffer->GetBuffer() + (this->BeginTuple + i) * this->NumComps.value;
+    for (ComponentIdType c = 0; c < this->NumComps.value; ++c)
+    {
+      tuplePtr[c] = tuple[c];
+    }
+  }
+
+  template <typename VT = ValueType>
+  typename std::enable_if<!std::is_same<VT, double>::value>::type VTK_ITER_INLINE SetTuple(
+    size_type i, const double* tuple) noexcept
+  {
+    ValueType* tuplePtr =
+      this->Array->Buffer->GetBuffer() + (this->BeginTuple + i) * this->NumComps.value;
+    for (ComponentIdType c = 0; c < this->NumComps.value; ++c)
+    {
+      tuplePtr[c] = static_cast<ValueType>(tuple[c]);
+    }
   }
 
 private:
   VTK_ITER_INLINE
-  ValueType* GetTuplePointer(ArrayType* array, vtkIdType tuple) const noexcept
+  ValueType* GetTuplePointer(vtkIdType tuple) const noexcept
   {
-    return array->GetPointer(tuple * this->NumComps.value);
+    return this->Array->Buffer->GetBuffer() + (tuple * this->NumComps.value);
   }
 
   VTK_ITER_INLINE
@@ -963,8 +1069,8 @@ private:
 
   mutable ArrayType* Array{ nullptr };
   NumCompsType NumComps{};
-  ValueType* BeginTuple{ nullptr };
-  ValueType* EndTuple{ nullptr };
+  TupleIdType BeginTuple{ 0 };
+  TupleIdType EndTuple{ 0 };
 };
 
 // Unimplemented, only used inside decltype in SelectTupleRange:

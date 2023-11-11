@@ -6,6 +6,7 @@
 #include "vtkActor.h"
 #include "vtkArrayCalculator.h"
 #include "vtkCamera.h"
+#include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSet.h"
 #include "vtkExodusIIReader.h"
@@ -50,7 +51,10 @@ int TestResampleWithDataSet2(int argc, char* argv[])
   resample->SetSourceConnection(reader->GetOutputPort());
   resample->UpdateTimeStep(0.00199999);
 
-  vtkDataSet* result = static_cast<vtkDataSet*>(resample->GetOutput());
+  auto result = vtkImageData::SafeDownCast(resample->GetOutput());
+  // remove ghost array since we want to preserve the ghosts
+  result->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+  result->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
 
   // Render
   vtkNew<vtkContourFilter> toPoly;

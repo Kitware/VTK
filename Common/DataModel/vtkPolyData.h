@@ -58,15 +58,6 @@
 #include "vtkPolyDataInternals.h" // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkVertex;
-class vtkPolyVertex;
-class vtkLine;
-class vtkPolyLine;
-class vtkTriangle;
-class vtkQuad;
-class vtkPolygon;
-class vtkTriangleStrip;
-class vtkEmptyCell;
 struct vtkPolyDataDummyContainter;
 class vtkIncrementalPointLocator;
 
@@ -711,17 +702,6 @@ protected:
   using CellMap = vtkPolyData_detail::CellMap;
 
   vtkCellArray* GetCellArrayInternal(TaggedCellId tag);
-
-  // constant cell objects returned by GetCell called.
-  vtkSmartPointer<vtkVertex> Vertex;
-  vtkSmartPointer<vtkPolyVertex> PolyVertex;
-  vtkSmartPointer<vtkLine> Line;
-  vtkSmartPointer<vtkPolyLine> PolyLine;
-  vtkSmartPointer<vtkTriangle> Triangle;
-  vtkSmartPointer<vtkQuad> Quad;
-  vtkSmartPointer<vtkPolygon> Polygon;
-  vtkSmartPointer<vtkTriangleStrip> TriangleStrip;
-  vtkSmartPointer<vtkEmptyCell> EmptyCell;
 
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited

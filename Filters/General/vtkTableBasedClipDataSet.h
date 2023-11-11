@@ -80,6 +80,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkDoubleArray;
 class vtkImplicitFunction;
+class vtkPolyData;
 
 class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipDataSet : public vtkUnstructuredGridAlgorithm
 {
@@ -229,59 +230,30 @@ private:
   void ClipDataSet(vtkDataSet* pDataSet, vtkUnstructuredGrid* outputUG);
 
   /**
-   * This function clips a vtkImageData object based on a specified iso-value
-   * (isoValue) using a scalar point data array that is either just an
-   * input scalar point data array or the result of evaluating an implicit function
-   * (provided via SetClipFunction()). The clipping result is exported to outputUG.
-   */
-  void ClipImageData(vtkDataSet* inputGrid, vtkImplicitFunction* implicitFunction,
-    vtkDoubleArray* scalars, double isoValue, vtkUnstructuredGrid* outputUG);
-
-  /**
    * This function clips a vtkPolyData object based on a specified iso-value
    * (isoValue) using a scalar point data array that is either just an
    * input scalar point data array or the result of evaluating an implicit function
    * (provided via SetClipFunction()). The clipping result is exported to outputUG.
    */
-  void ClipPolyData(vtkDataSet* inputGrid, vtkImplicitFunction* implicitFunction,
+  void ClipPolyData(vtkPolyData* inputGrid, vtkImplicitFunction* implicitFunction,
     vtkDoubleArray* scalars, double isoValue, vtkUnstructuredGrid* outputUG);
 
   /**
-   * This function clips a vtkRectilinear object based on a specified iso-value
+   * This function clips a DataSet based on a specified iso-value
    * (isoValue) using a scalar point data array that is either just an
    * input scalar point data array or the result of evaluating an implicit function
    * (provided via SetClipFunction()). The clipping result is exported to outputUG.
    */
-  void ClipRectilinearGrid(vtkDataSet* inputGrid, vtkImplicitFunction* implicitFunction,
+  template <class TGrid>
+  void ClipTDataSet(TGrid* inputGrid, vtkImplicitFunction* implicitFunction,
     vtkDoubleArray* scalars, double isoValue, vtkUnstructuredGrid* outputUG);
 
   /**
-   * This function clips a vtkStructuredGrid object based on a specified iso-value
-   * (isoValue) using a scalar point data array that is either just an
-   * input scalar point data array or the result of evaluating an implicit function
-   * (provided via SetClipFunction()). The clipping result is exported to outputUG.
+   * This function handles the actual steps of the clipping operation.
    */
-  void ClipStructuredGrid(vtkDataSet* inputGrid, vtkImplicitFunction* implicitFunction,
-    vtkDoubleArray* scalars, double isoValue, vtkUnstructuredGrid* outputUG);
-
-  /**
-   * This function clips a vtkUnstructuredGrid based on a specified iso-value
-   * (isoValue) using a scalar point data array that is either just an
-   * input scalar point data array or the result of evaluating an implicit function
-   * (provided via SetClipFunction()). The clipping result is exported to outputUG.
-   */
-  void ClipUnstructuredGrid(vtkDataSet* inputGrid, vtkImplicitFunction* implicitFunction,
-    vtkDoubleArray* scalars, double isoValue, vtkUnstructuredGrid* outputUG);
-
   template <typename TGrid, typename TInputIdType>
-  vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoints* inputPoints,
-    vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue, bool insideOut,
-    bool generateClipScalars, int outputPointsPrecision, unsigned int batchSize);
-
-  template <typename TGrid, typename TInputIdType>
-  vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints* inputPoints,
-    vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue, bool insideOut,
-    bool generateClipScalars, int outputPointsPrecision, unsigned int batchSize);
+  vtkSmartPointer<vtkUnstructuredGrid> ClipTDataSet(
+    TGrid* input, vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue);
 
   /**
    * Register a callback function with the InternalProgressObserver.

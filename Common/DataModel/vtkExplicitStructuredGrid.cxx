@@ -109,13 +109,8 @@ vtkIdType vtkExplicitStructuredGrid::GetNumberOfCells()
 //------------------------------------------------------------------------------
 vtkCell* vtkExplicitStructuredGrid::GetCell(vtkIdType cellId)
 {
-  // see whether the cell is blanked
-  if (!this->IsCellVisible(cellId))
-  {
-    return this->EmptyCell;
-  }
-  this->GetCell(cellId, this->Hexahedron);
-  return this->Hexahedron;
+  this->GetCell(cellId, this->GenericCell);
+  return this->GenericCell->GetRepresentativeCell();
 }
 
 //------------------------------------------------------------------------------
@@ -127,36 +122,8 @@ void vtkExplicitStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
     return;
   }
   cell->SetCellTypeToHexahedron();
-  this->GetCell(cellId, static_cast<vtkCell*>(cell));
-}
-
-//------------------------------------------------------------------------------
-void vtkExplicitStructuredGrid::GetCell(vtkIdType cellId, vtkCell* cell)
-{
-  // Make sure data is defined
-  if (!this->Points || !this->Cells)
-  {
-    vtkErrorMacro(<< "No geometry or topology found!");
-    return;
-  }
-
-  // See whether the cell is blanked
-  if (!this->IsCellVisible(cellId))
-  {
-    return;
-  }
-
-  // Extract point coordinates and point ids. NOTE: the ordering of the
-  // vtkHexahedron cells are tricky.
-  vtkIdType* indices = this->GetCellPoints(cellId);
-  for (int i = 0; i < 8; i++)
-  {
-    vtkIdType idx = indices[i];
-    double x[3];
-    this->Points->GetPoint(idx, x);
-    cell->Points->SetPoint(i, x);
-    cell->PointIds->SetId(i, idx);
-  }
+  this->Cells->GetCellAtId(cellId, cell->PointIds);
+  this->Points->GetPoints(cell->PointIds, cell->Points);
 }
 
 //------------------------------------------------------------------------------

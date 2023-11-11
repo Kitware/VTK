@@ -6,6 +6,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkDataArrayRange.h"
 #include "vtkMath.h"
+#include "vtkSMPTools.h"
 #include "vtkTransform.h"
 
 #include <algorithm>
@@ -46,16 +47,17 @@ struct FunctionWorker
     auto dstValues = vtk::DataArrayValueRange<1>(output);
 
     using DstValueT = typename decltype(dstValues)::ValueType;
-
-    double in[3];
-    auto destIter = dstValues.begin();
-    for (auto tuple = srcTuples.cbegin(); tuple != srcTuples.cend(); ++tuple, ++destIter)
-    {
-      in[0] = static_cast<double>((*tuple)[0]);
-      in[1] = static_cast<double>((*tuple)[1]);
-      in[2] = static_cast<double>((*tuple)[2]);
-      *destIter = static_cast<DstValueT>(this->F(in));
-    }
+    vtkSMPTools::For(0, numTuples, [&](vtkIdType begin, vtkIdType end) {
+      double tuple[3];
+      for (vtkIdType pointId = begin; pointId < end; ++pointId)
+      {
+        // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+        // we do that since the input points can be implicit points, and GetTypedTuple is faster
+        // than accessing the component of the TupleReference using GetTypedComponent internally.
+        srcTuples.GetTuple(pointId, tuple);
+        dstValues[pointId] = static_cast<DstValueT>(this->F(tuple));
+      }
+    });
   }
 };
 
@@ -82,7 +84,7 @@ public:
   }
   double operator()(double in[3])
   {
-    Transform->TransformPoint(in, in);
+    this->Transform->TransformPoint(in, in);
     return this->Function->EvaluateFunction(in);
   }
 
@@ -104,7 +106,9 @@ void vtkImplicitFunction::FunctionValue(vtkDataArray* input, vtkDataArray* outpu
     FunctionWorker<TransformFunction> worker(TransformFunction(this, this->Transform));
     typedef vtkTypeList::Create<float, double> InputTypes;
     typedef vtkTypeList::Create<float, double> OutputTypes;
-    typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes> MyDispatch;
+    typedef vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+      InputTypes, OutputTypes>
+      MyDispatch;
     if (!MyDispatch::Execute(input, output, worker))
     {
       worker(input, output); // Use vtkDataArray API if dispatch fails.
@@ -114,7 +118,6 @@ void vtkImplicitFunction::FunctionValue(vtkDataArray* input, vtkDataArray* outpu
 
 void vtkImplicitFunction::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
 {
-
   // defend against uninitialized output datasets.
   output->SetNumberOfComponents(1);
   output->SetNumberOfTuples(input->GetNumberOfTuples());
@@ -122,7 +125,9 @@ void vtkImplicitFunction::EvaluateFunction(vtkDataArray* input, vtkDataArray* ou
   FunctionWorker<SimpleFunction> worker(SimpleFunction(this));
   typedef vtkTypeList::Create<float, double> InputTypes;
   typedef vtkTypeList::Create<float, double> OutputTypes;
-  typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes> MyDispatch;
+  typedef vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays, InputTypes,
+    OutputTypes>
+    MyDispatch;
   if (!MyDispatch::Execute(input, output, worker))
   {
     worker(input, output); // Use vtkDataArray API if dispatch fails.

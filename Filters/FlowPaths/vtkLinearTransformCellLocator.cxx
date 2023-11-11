@@ -64,40 +64,6 @@ void vtkLinearTransformCellLocator::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-static vtkSmartPointer<vtkPoints> GetPoints(vtkDataSet* ds)
-{
-  vtkSmartPointer<vtkPoints> points;
-  if (auto pointSet = vtkPointSet::SafeDownCast(ds))
-  {
-    points = pointSet->GetPoints();
-  }
-  else if (auto imageData = vtkImageData::SafeDownCast(ds))
-  {
-    points = vtkSmartPointer<vtkPoints>::New();
-    points->SetDataTypeToDouble();
-    points->SetNumberOfPoints(imageData->GetNumberOfPoints());
-    vtkSMPTools::For(0, imageData->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-      double point[3];
-      for (vtkIdType i = begin; i < end; ++i)
-      {
-        imageData->GetPoint(i, point);
-        points->SetPoint(i, point);
-      }
-    });
-  }
-  else if (auto recGrid = vtkRectilinearGrid::SafeDownCast(ds))
-  {
-    points = vtkSmartPointer<vtkPoints>::New();
-    recGrid->GetPoints(points);
-  }
-  else
-  {
-    vtkGenericWarningMacro(<< "Unsupported dataset type: " << ds->GetClassName());
-  }
-  return points;
-}
-
-//------------------------------------------------------------------------------
 struct ComputeTransformationWorker
 {
   Eigen::Matrix3d RotationMatrix;
@@ -253,8 +219,8 @@ bool vtkLinearTransformCellLocator::ComputeTransformation()
     vtkErrorMacro("Number of points in the dataset is less than 2.");
     return false;
   }
-  auto initialPoints = GetPoints(this->CellLocator->GetDataSet());
-  auto newPoints = GetPoints(this->DataSet);
+  auto initialPoints = this->CellLocator->GetDataSet()->GetPoints();
+  auto newPoints = this->DataSet->GetPoints();
   vtkSmartPointer<vtkPoints> initialPointsSample, newPointsSample;
   vtkDataArray* initialPointsSampleData;
   vtkDataArray* newPointsSampleData;

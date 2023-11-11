@@ -20,10 +20,9 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLagrangeQuadrilateral.h"
-#include "vtkLagrangeWedge.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredData.h"
@@ -73,6 +72,10 @@ void vtkDataSet::Initialize()
   // no modification when initialized.
   vtkDataObject::Initialize();
 
+  if (this->TempPoints)
+  {
+    this->TempPoints->Initialize();
+  }
   this->CellData->Initialize();
   this->PointData->Initialize();
 }
@@ -154,6 +157,27 @@ struct ComputeBoundsFunctor
     }
   }
 };
+
+//------------------------------------------------------------------------------
+vtkPoints* vtkDataSet::GetPoints()
+{
+  vtkWarningMacro("GetPoints() called on a dataset that does not define GetPoints."
+                  "Don't modify this object.");
+  this->TempPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkDoubleArray> array;
+  array->SetNumberOfComponents(3);
+  array->SetNumberOfTuples(this->GetNumberOfPoints());
+  vtkSMPTools::For(0, this->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
+    double x[3];
+    for (vtkIdType pointId = begin; pointId < end; ++pointId)
+    {
+      this->GetPoint(pointId, x);
+      array->SetTypedTuple(pointId, x);
+    }
+  });
+  this->TempPoints->SetData(array);
+  return this->TempPoints;
+}
 
 //------------------------------------------------------------------------------
 // Compute the data bounding box from data points.
@@ -472,11 +496,12 @@ public:
     {
       return;
     }
+    auto& localDistinctCellTypes = this->LocalDistinctCellTypes.Local();
 
     for (vtkIdType idx = begin; idx < end; ++idx)
     {
       unsigned char cellType = static_cast<unsigned char>(this->DS->GetCellType(idx));
-      this->LocalDistinctCellTypes.Local().insert(cellType);
+      localDistinctCellTypes.insert(cellType);
     }
   }
 
@@ -647,6 +672,10 @@ unsigned long vtkDataSet::GetActualMemorySize()
   unsigned long size = this->vtkDataObject::GetActualMemorySize();
   size += this->PointData->GetActualMemorySize();
   size += this->CellData->GetActualMemorySize();
+  if (this->TempPoints)
+  {
+    size += this->TempPoints->GetActualMemorySize();
+  }
   return size;
 }
 

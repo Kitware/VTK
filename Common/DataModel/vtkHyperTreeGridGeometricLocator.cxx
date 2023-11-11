@@ -24,6 +24,12 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridGeometricLocator);
 
 //------------------------------------------------------------------------------
+void vtkHyperTreeGridGeometricLocator::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometricLocator::SetHTG(vtkHyperTreeGrid* cand)
 {
   this->Superclass::SetHTG(cand);

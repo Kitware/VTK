@@ -19,10 +19,21 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArray;
 class vtkIdList;
+class vtkPoints;
+class vtkStructuredCellArray;
 class vtkUnsignedCharArray;
+
+template <typename T>
+class vtkImplicitArray;
+template <typename Type>
+struct vtkConstantImplicitBackend;
+template <typename Type>
+using vtkConstantArray = vtkImplicitArray<vtkConstantImplicitBackend<Type>>;
 
 #define VTK_UNCHANGED 0
 #define VTK_SINGLE_POINT 1
@@ -214,6 +225,13 @@ public:
     vtkIdType cellId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
 
   /**
+   * Given a cellId and grid dimensions 'dim', get the min and max structured coordinates
+   * (i-j-k). This method does not adjust for the beginning of the extent.
+   */
+  static void ComputeCellStructuredMinMaxCoords(vtkIdType cellId, const int dim[3], int ijkMin[3],
+    int ijkMax[3], int dataDescription = VTK_EMPTY);
+
+  /**
    * Given a pointId and the grid extent ext, get the structured coordinates
    * (i-j-k). This method adjusts for the beginning of the extent.
    * The dataDescription argument is not used.
@@ -228,6 +246,25 @@ public:
    */
   static void ComputePointStructuredCoords(
     vtkIdType ptId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
+
+  /**
+   * Get the implicit cell array for structured data.
+   */
+  static vtkSmartPointer<vtkStructuredCellArray> GetCellArray(
+    int extent[6], bool usePixelVoxelOrientation);
+
+  /**
+   * Given 3 arrays describing the xCoords, yCoords, and zCoords, the extent, and the direction
+   * matrix, create an implicit vtkPoints object.
+   */
+  static vtkSmartPointer<vtkPoints> GetPoints(vtkDataArray* xCoords, vtkDataArray* yCoords,
+    vtkDataArray* zCoords, int extent[6], double dirMatrix[9]);
+
+  /**
+   * Get the implicit cell array types for structured data.
+   */
+  VTK_WRAPEXCLUDE static vtkSmartPointer<vtkConstantArray<int>> GetCellTypesArray(
+    int extent[6], bool usePixelVoxelOrientation);
 
 protected:
   vtkStructuredData() = default;
@@ -305,13 +342,12 @@ inline vtkIdType vtkStructuredData::GetNumberOfPoints(const int ext[6], int)
 //------------------------------------------------------------------------------
 inline vtkIdType vtkStructuredData::GetNumberOfCells(const int ext[6], int)
 {
-  int cellDims[3];
-  vtkStructuredData::GetCellDimensionsFromExtent(ext, cellDims);
+  int dims[3];
+  vtkStructuredData::GetDimensionsFromExtent(ext, dims);
 
-  // Replace 0's with 1's so we can just multiply them regardless of cell type.
-  cellDims[0] = vtkStructuredData::Max(cellDims[0], 1);
-  cellDims[1] = vtkStructuredData::Max(cellDims[1], 1);
-  cellDims[2] = vtkStructuredData::Max(cellDims[2], 1);
+  // if any of the dimensions is 0, then there are no cells
+  const int cellDims[3] = { dims[0] != 0 ? std::max(dims[0] - 1, 1) : 0,
+    dims[1] != 0 ? std::max(dims[1] - 1, 1) : 0, dims[2] != 0 ? std::max(dims[2] - 1, 1) : 0 };
 
   // Note, when we compute the result below, we statically cast to vtkIdType to
   // ensure the compiler will generate a 32x32=64 instruction.

@@ -263,7 +263,8 @@ int vtkContourFilter::RequestData(
   int sType = inScalars->GetDataType();
 
   // handle 2D images
-  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT && !vtkUniformGrid::SafeDownCast(input))
+  auto uG = vtkUniformGrid::SafeDownCast(input);
+  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT && (!uG || uG->GetDataDimension() == 3))
   {
     int dim = 3;
     int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
@@ -303,6 +304,7 @@ int vtkContourFilter::RequestData(
     }
     else if (dim == 3)
     {
+      int retVal = 1;
       if (this->FastMode && this->GenerateTriangles)
       {
         this->FlyingEdges3D->SetNumberOfContours(numContours);
@@ -313,7 +315,7 @@ int vtkContourFilter::RequestData(
         this->FlyingEdges3D->SetComputeScalars(this->ComputeScalars);
         this->FlyingEdges3D->SetInterpolateAttributes(true);
         this->FlyingEdges3D->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
-        return this->FlyingEdges3D->ProcessRequest(request, inputVector, outputVector);
+        retVal = this->FlyingEdges3D->ProcessRequest(request, inputVector, outputVector);
       }
       else
       {
@@ -325,8 +327,14 @@ int vtkContourFilter::RequestData(
         this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);
         this->SynchronizedTemplates3D->SetGenerateTriangles(this->GenerateTriangles);
         this->SynchronizedTemplates3D->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
-        return this->SynchronizedTemplates3D->ProcessRequest(request, inputVector, outputVector);
+        retVal = this->SynchronizedTemplates3D->ProcessRequest(request, inputVector, outputVector);
       }
+      output = vtkPolyData::GetData(outputVector);
+      if (output->GetCellGhostArray())
+      {
+        output->RemoveGhostCells();
+      }
+      return retVal;
     }
   } // if image data
 

@@ -183,7 +183,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestIndexedArray.cxx
   TestIndexedImplicitBackend.cxx
   TestStdFunctionArray.cxx
-  )
+  TestStructuredPointArray.cxx)
 
 # Special test to check whether disabling loguru signal handling, i.e.,
 # stack trace printing when it catches a signal, works. We add an

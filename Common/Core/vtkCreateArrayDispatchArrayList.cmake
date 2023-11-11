@@ -25,6 +25,9 @@
 # - VTK_DISPATCH_STD_FUNCTION_ARRAYS (default: OFF)
 #   Include vtkStdFunctionArray<ValueType> for the basic types supported
 #   by VTK.
+# - VTK_DISPATCH_STRUCTURED_POINT_ARRAYS (default: ON)
+#   Include vtkStructuredPointArray<ValueType> for the basic types supported
+#   by VTK. This should probably not be turned off.
 #
 # At a lower level, specific arrays can be added to the list individually in
 # two ways:
@@ -193,6 +196,11 @@ _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_CONSTANT_ARRAYS "vtkConstantArray"
 
 _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STD_FUNCTION_ARRAYS "vtkStdFunctionArray"
   "${vtkArrayDispatch_all_types}")
+
+# we only need to dispatch on double for implicit point arrays
+set(vtkArrayDispatchImplicit_structured_point_types "double")
+_vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STRUCTURED_POINT_ARRAYS "vtkStructuredPointArray"
+  "${vtkArrayDispatchImplicit_structured_point_types}")
 
 endmacro()
 

@@ -321,7 +321,7 @@ void vtkAMRUtilities::StripGhostLayers(
         assert(strippedBox ==
           vtkAMRBox(strippedGrid->GetOrigin(), strippedGrid->GetDimensions(),
             strippedGrid->GetSpacing(), strippedAMRData->GetOrigin(),
-            strippedGrid->GetGridDescription()));
+            strippedGrid->GetDataDescription()));
         strippedAMRData->SetAMRBox(levelIdx, dataIdx, strippedBox);
         strippedAMRData->SetDataSet(levelIdx, dataIdx, strippedGrid);
         strippedGrid->Delete();

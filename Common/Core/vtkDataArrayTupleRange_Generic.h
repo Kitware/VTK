@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * Generic implementation of value ranges and iterators, suitable for
+ * Generic implementation of tuple ranges and iterators, suitable for
  * vtkDataArray and all subclasses.
  */
 
@@ -122,16 +122,27 @@ public:
     this->ComponentId = std::move(o.ComponentId);
   }
 
-  VTK_ITER_INLINE
-  operator APIType() const noexcept
+  VTK_ITER_INLINE operator APIType() const noexcept { return this->castOperator(); }
+
+protected:
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
+  castOperator() const noexcept
   {
     VTK_ITER_ASSUME(this->NumComps.value > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
-    vtkDataArrayAccessor<ArrayType> acc{ this->Array };
-    return acc.Get(this->TupleId, this->ComponentId);
+    return this->Array->GetComponent(this->TupleId, this->ComponentId);
   }
 
-protected:
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
+  castOperator() const noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    return this->Array->GetTypedComponent(this->TupleId, this->ComponentId);
+  }
+
   mutable ArrayType* Array;
   NumCompsType NumComps;
   TupleIdType TupleId;
@@ -226,22 +237,27 @@ public:
     return *this = std::move(tmp);
   }
 
-  VTK_ITER_INLINE
-  operator APIType() const noexcept
+  VTK_ITER_INLINE operator APIType() const noexcept { return this->castOperator(); }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value, ComponentReference>::type
+    VTK_ITER_INLINE
+    operator=(APIType val) noexcept
   {
     VTK_ITER_ASSUME(this->NumComps.value > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
-    vtkDataArrayAccessor<ArrayType> acc{ this->Array };
-    return acc.Get(this->TupleId, this->ComponentId);
+    this->Array->SetComponent(this->TupleId, this->ComponentId, val);
+    return *this;
   }
 
-  VTK_ITER_INLINE
-  ComponentReference operator=(APIType val) noexcept
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value, ComponentReference>::type
+    VTK_ITER_INLINE
+    operator=(APIType val) noexcept
   {
     VTK_ITER_ASSUME(this->NumComps.value > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
-    vtkDataArrayAccessor<ArrayType> acc{ this->Array };
-    acc.Set(this->TupleId, this->ComponentId, val);
+    this->Array->SetTypedComponent(this->TupleId, this->ComponentId, val);
     return *this;
   }
 
@@ -344,6 +360,24 @@ public:
   friend struct ComponentIterator<ArrayType, TupleSize>;
 
 protected:
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
+  castOperator() const noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    return this->Array->GetComponent(this->TupleId, this->ComponentId);
+  }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
+  castOperator() const noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    return this->Array->GetTypedComponent(this->TupleId, this->ComponentId);
+  }
+
   VTK_ITER_INLINE
   void CopyReference(const ComponentReference& o) noexcept
   {
@@ -791,13 +825,48 @@ public:
   const ConstTupleReference* operator->() const noexcept { return this; }
 
   // Caller must ensure that there are size() elements in array.
-  VTK_ITER_INLINE
-  void GetTuple(APIType* tuple) const noexcept
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE GetTuple(
+    APIType* tuple) const noexcept
   {
     VTK_ITER_ASSUME(this->NumComps.value > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
-    vtkDataArrayAccessor<ArrayType> acc{ this->Array };
-    acc.Get(this->TupleId, tuple);
+    this->Array->GetTuple(this->TupleId, tuple);
+  }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE GetTuple(
+    APIType* tuple) const noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    this->Array->GetTypedTuple(this->TupleId, tuple);
+  }
+
+  template <typename VT = APIType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  GetTuple(double* tuple) const noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      tuple[comp] = static_cast<double>(this->Array->GetComponent(this->TupleId, comp));
+    }
+  }
+
+  template <typename VT = APIType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    !std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  GetTuple(double* tuple) const noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      tuple[comp] = static_cast<double>(this->Array->GetTypedComponent(this->TupleId, comp));
+    }
   }
 
   // skips some runtime checks when both sizes are fixed:
@@ -974,23 +1043,91 @@ public:
   const TupleReference* operator->() const noexcept { return this; }
 
   // Caller must ensure that there are size() elements in array.
-  VTK_ITER_INLINE
-  void GetTuple(APIType* tuple) const noexcept
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE GetTuple(
+    APIType* tuple) const noexcept
   {
     VTK_ITER_ASSUME(this->NumComps.value > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
-    vtkDataArrayAccessor<ArrayType> acc{ this->Array };
-    acc.Get(this->TupleId, tuple);
+    this->Array->GetTuple(this->TupleId, tuple);
+  }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE GetTuple(
+    APIType* tuple) const noexcept
+  {
+    this->Array->GetTypedTuple(this->TupleId, tuple);
+  }
+
+  template <typename VT = APIType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  GetTuple(double* tuple) const noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      tuple[comp] = static_cast<double>(this->Array->GetComponent(this->TupleId, comp));
+    }
+  }
+
+  template <typename VT = APIType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    !std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  GetTuple(double* tuple) const noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      tuple[comp] = static_cast<double>(this->Array->GetTypedComponent(this->TupleId, comp));
+    }
   }
 
   // Caller must ensure that there are size() elements in array.
-  VTK_ITER_INLINE
-  void SetTuple(const APIType* tuple) noexcept
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE SetTuple(
+    const APIType* tuple) noexcept
   {
     VTK_ITER_ASSUME(this->NumComps.value > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
-    vtkDataArrayAccessor<ArrayType> acc{ this->Array };
-    acc.Set(this->TupleId, tuple);
+    this->Array->SetTuple(this->TupleId, tuple);
+  }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE SetTuple(
+    const APIType* tuple) noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    this->Array->SetTypedTuple(this->TupleId, tuple);
+  }
+
+  template <typename VT = APIType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  SetTuple(const double* tuple) noexcept
+  {
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      VTK_ITER_ASSUME(this->NumComps.value > 0);
+      VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+      this->Array->SetComponent(this->TupleId, comp, tuple[comp]);
+    }
+  }
+
+  template <typename VT = APIType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    !std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  SetTuple(const double* tuple) noexcept
+  {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      this->Array->SetTypedComponent(this->TupleId, comp, static_cast<APIType>(tuple[comp]));
+    }
   }
 
   VTK_ITER_INLINE
@@ -1621,14 +1758,17 @@ protected:
 template <typename ArrayTypeT, ComponentIdType TupleSize>
 struct TupleRange
 {
+  using ArrayType = ArrayTypeT;
+  using APIType = GetAPIType<ArrayType>;
+  using ValueType = APIType;
+
 private:
-  using NumCompsType = GenericTupleSize<TupleSize>;
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
   static_assert(IsVtkDataArray<ArrayTypeT>::value, "Invalid array type.");
 
+  using NumCompsType = GenericTupleSize<TupleSize>;
+
 public:
-  using ArrayType = ArrayTypeT;
-  using APIType = GetAPIType<ArrayType>;
   using TupleIteratorType = TupleIterator<ArrayType, TupleSize>;
   using ConstTupleIteratorType = ConstTupleIterator<ArrayType, TupleSize>;
   using TupleReferenceType = TupleReference<ArrayType, TupleSize>;
@@ -1709,6 +1849,79 @@ public:
   const_reference operator[](size_type i) const noexcept
   {
     return const_reference{ this->Array, this->NumComps, this->BeginTuple + i };
+  }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE GetTuple(
+    size_type i, ValueType* tuple) const noexcept
+  {
+    this->Array->GetTuple(this->BeginTuple + i, tuple);
+  }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE GetTuple(
+    size_type i, ValueType* tuple) const noexcept
+  {
+    this->Array->GetTypedTuple(this->BeginTuple + i, tuple);
+  }
+
+  template <typename VT = ValueType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  GetTuple(size_type i, double* tuple) const noexcept
+  {
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      tuple[comp] = static_cast<double>(this->Array->GetComponent(i, comp));
+    }
+  }
+
+  template <typename VT = ValueType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    !std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  GetTuple(size_type i, double* tuple) const noexcept
+  {
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      tuple[comp] = static_cast<double>(this->Array->GetTypedComponent(i, comp));
+    }
+  }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE SetTuple(
+    size_type i, const ValueType* tuple) noexcept
+  {
+    this->Array->SetTuple(this->BeginTuple + i, tuple);
+  }
+
+  template <typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE SetTuple(
+    size_type i, const ValueType* tuple) noexcept
+  {
+    this->Array->SetTypedTuple(this->BeginTuple + i, tuple);
+  }
+
+  template <typename VT = ValueType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  SetTuple(size_type i, const double* tuple) noexcept
+  {
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      this->Array->SetComponent(this->BeginTuple + i, comp, static_cast<ValueType>(tuple[comp]));
+    }
+  }
+
+  template <typename VT = ValueType, typename AT = ArrayType>
+  typename std::enable_if<!std::is_same<VT, double>::value &&
+    !std::is_same<AT, vtkDataArray>::value>::type VTK_ITER_INLINE
+  SetTuple(size_type i, const double* tuple) noexcept
+  {
+    for (ComponentIdType comp = 0; comp < this->NumComps.value; ++comp)
+    {
+      this->Array->SetTypedComponent(
+        this->BeginTuple + i, comp, static_cast<ValueType>(tuple[comp]));
+    }
   }
 
 private:

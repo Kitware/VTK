@@ -1,6 +1,7 @@
 set(classes
   vtkAMRBox
   vtkAMRUtilities
+  vtkAbstractCellArray
   vtkAbstractCellLinks
   vtkAbstractCellLocator
   vtkAbstractElectronicData
@@ -226,6 +227,7 @@ set(classes
   vtkStaticCellLocator
   vtkStaticPointLocator
   vtkStaticPointLocator2D
+  vtkStructuredCellArray
   vtkStructuredData
   vtkStructuredExtent
   vtkStructuredGrid

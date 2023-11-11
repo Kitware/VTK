@@ -75,7 +75,7 @@ public:
       unsigned int level = this->Levels[i];
       vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(this->DataSets[i]);
       assert(grid);
-      gridDescription = grid->GetGridDescription();
+      gridDescription = grid->GetDataDescription();
       double* gridOrigin = grid->GetOrigin();
       for (int d = 0; d < 3; d++)
       {
