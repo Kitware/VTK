@@ -41,6 +41,13 @@ public:
    */
   void Render(const vtkRenderState* s) override;
 
+  /**
+   * Release graphics resources and ask components to release their own
+   * resources.
+   * \pre w_exists: w!=0
+   */
+  void ReleaseGraphicsResources(vtkWindow* w) override;
+
   vtkGetObjectMacro(FXAAOptions, vtkFXAAOptions);
   virtual void SetFXAAOptions(vtkFXAAOptions*);
 
