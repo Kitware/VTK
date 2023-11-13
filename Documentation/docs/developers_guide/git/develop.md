@@ -435,7 +435,7 @@ Before the merge, all the jobs, including tidy, must be run and reviewed, see be
 
 If you have any question about the CI process, do not hesitate to ask a CI maintainer:
  - @ben.boeckel
- - @mathieu.westphal
+ - @mwestphal
 
 ### Reading CI Results ###
 
