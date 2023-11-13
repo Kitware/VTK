@@ -272,9 +272,7 @@ to be merged in a reasonable timeframe.
  * @cory.quammen: readers, filters, data modeling, general usage, documentation.
  * @seanm: macOS, Cocoa, cppcheck, clang.
  * @spiros.tsalikis: filters, SMP, computational geometry.
- * @tiffany.chhim: filters, algorithms, VR.
  * @thomas.galland: readers, filters, selection, VR.
- * @julien.fausty: computational geometry, high-order, simulation methods.
 
 If you would like to be included in this list, juste create a merge request.
 
@@ -437,7 +435,7 @@ Before the merge, all the jobs, including tidy, must be run and reviewed, see be
 
 If you have any question about the CI process, do not hesitate to ask a CI maintainer:
  - @ben.boeckel
- - @mathieu.westphal
+ - @mwestphal
 
 ### Reading CI Results ###
 
