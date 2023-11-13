@@ -272,9 +272,7 @@ to be merged in a reasonable timeframe.
  * @cory.quammen: readers, filters, data modeling, general usage, documentation.
  * @seanm: macOS, Cocoa, cppcheck, clang.
  * @spiros.tsalikis: filters, SMP, computational geometry.
- * @tiffany.chhim: filters, algorithms, VR.
  * @thomas.galland: readers, filters, selection, VR.
- * @julien.fausty: computational geometry, high-order, simulation methods.
 
 If you would like to be included in this list, juste create a merge request.
 
