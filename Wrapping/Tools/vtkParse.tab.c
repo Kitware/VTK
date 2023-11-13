@@ -169,15 +169,15 @@ static int PredefinePlatformMacros = 1;
 
 /* include dirs specified on the command line */
 static int NumberOfIncludeDirectories = 0;
-static const char** IncludeDirectories;
+static const char** IncludeDirectories = NULL;
 
 /* macros specified on the command line */
 static int NumberOfDefinitions = 0;
-static const char** Definitions;
+static const char** Definitions = NULL;
 
 /* include specified on the command line */
 static int NumberOfMacroIncludes = 0;
-static const char** MacroIncludes;
+static const char** MacroIncludes = NULL;
 
 /* for dumping diagnostics about macros */
 static int DumpMacros = 0;
@@ -10039,6 +10039,18 @@ void vtkParse_FinalCleanup(void)
 {
   vtkParse_FreeFileCache(&system_cache);
   vtkParse_FreeStringCache(&system_strings);
+
+  free(IncludeDirectories);
+  IncludeDirectories = NULL;
+  NumberOfIncludeDirectories = 0;
+
+  free(Definitions);
+  Definitions = NULL;
+  NumberOfDefinitions = 0;
+
+  free(MacroIncludes);
+  MacroIncludes = NULL;
+  NumberOfMacroIncludes = 0;
 }
 
 /* Free the FileInfo struct returned by vtkParse_ParseFile() */
@@ -10067,7 +10079,7 @@ void vtkParse_DefineMacro(const char* name, const char* definition)
   }
 
   l = n + strlen(definition) + 2;
-  cp = (char*)malloc(l + 1);
+  cp = vtkParse_NewString(&system_strings, l);
   cp[0] = 'D';
   strncpy(&cp[1], name, n);
   cp[n + 1] = '\0';
@@ -10087,7 +10099,7 @@ void vtkParse_UndefineMacro(const char* name)
   size_t n = vtkParse_SkipId(name);
   char* cp;
 
-  cp = (char*)malloc(n + 2);
+  cp = vtkParse_NewString(&system_strings, n + 1);
   cp[0] = 'U';
   strncpy(&cp[1], name, n);
   cp[n + 1] = '\0';
@@ -10104,12 +10116,9 @@ void vtkParse_UndefinePlatformMacros(void)
 /** Add an include file to read macros from, for use with -imacro. */
 void vtkParse_IncludeMacros(const char* filename)
 {
-  size_t n = strlen(filename);
-  char* cp;
+  const char* cp;
 
-  cp = (char*)malloc(n + 1);
-  strcpy(cp, filename);
-
+  cp = vtkParse_CacheString(&system_strings, filename, strlen(filename));
   vtkParse_AddStringToArray(&MacroIncludes, &NumberOfMacroIncludes, cp);
 }
 
@@ -10124,7 +10133,7 @@ void vtkParse_DumpMacros(const char* filename)
 void vtkParse_IncludeDirectory(const char* dirname)
 {
   size_t n = strlen(dirname);
-  char* cp;
+  const char* cp;
   int i;
 
   for (i = 0; i < NumberOfIncludeDirectories; i++)
@@ -10135,9 +10144,7 @@ void vtkParse_IncludeDirectory(const char* dirname)
     }
   }
 
-  cp = (char*)malloc(n + 1);
-  strcpy(cp, dirname);
-
+  cp = vtkParse_CacheString(&system_strings, dirname, n);
   vtkParse_AddStringToArray(&IncludeDirectories, &NumberOfIncludeDirectories, cp);
 }
 

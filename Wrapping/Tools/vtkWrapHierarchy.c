@@ -886,21 +886,19 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   char** files = 0;
   char* flags;
   char* module_name;
-  StringCache* string_cache;
 
   /* pre-define a macro to identify the language */
   vtkParse_DefineMacro("__VTK_WRAP_HIERARCHY__", 0);
 
   /* parse command-line options */
-  string_cache = vtkParse_MainMulti(argc, argv);
+  vtkParse_MainMulti(argc, argv);
   options = vtkParse_GetCommandLineOptions();
 
   /* make sure than an output file was given on the command line */
   if (options->OutputFileName == NULL)
   {
     fprintf(stderr, "No output file was specified\n");
-    vtkParse_Finalize();
-    return 1;
+    return vtkParse_FinalizeMain(1);
   }
 
   /* read the data file */
@@ -962,13 +960,8 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     free(files[j]);
   }
 
-  vtkParse_FreeStringCache(string_cache);
-  free(string_cache);
   free(files);
   free(lines);
-  if (vtkParse_Finalize())
-  {
-    return 1;
-  }
-  return retValue;
+
+  return vtkParse_FinalizeMain(retValue);
 }

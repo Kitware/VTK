@@ -1421,6 +1421,11 @@ int pop_buffer(void)
   }
   yy_delete_buffer(YY_CURRENT_BUFFER);
   yy_switch_to_buffer(buffer_stack[--buffer_stack_size]);
+  if (buffer_stack_size == 0)
+  {
+    free(buffer_stack);
+    buffer_stack = NULL;
+  }
   return 1;
 }
 
@@ -1561,6 +1566,11 @@ void pop_macro(void)
     if (macro)
     {
       macro->IsExcluded = 0;
+    }
+    if (macro_stack_size == 0)
+    {
+      free(macro_stack);
+      macro_stack = NULL;
     }
   }
   macroEnded = 1;

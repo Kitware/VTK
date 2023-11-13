@@ -82,10 +82,12 @@ extern "C"
    * Perform any finalization required.
    *
    * This includes writing the dependency tracker information and cleaning up
-   * memory.
+   * memory.  Call this at the end of any program that calls vtkParse_Main().
+   * The return value is zero if finalization was successful and nonzero
+   * if finalization encountered an error.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  int vtkParse_Finalize(void);
+  int vtkParse_FinalizeMain(int ret);
 
   /**
    * The main function, which parses the input file and returns the result.
@@ -100,13 +102,12 @@ extern "C"
   /**
    * An alternative main function that can take multiple input files.
    * It does not parse the files itself, but files can be parsed by calling
-   * vtkParse_ParseFile().  The returned StringCache memory must be freed
-   * by a call to vtkParse_FreeStringCache(), followed by a call to free()
-   * on the pointer itself, before the program exits.  Note that this
-   * function will call exit() if it encounters an error.
+   * vtkParse_ParseFile().  This function may call exit() if it encounters
+   * an error loading the input file, parsing the input file, or while
+   * handling the command-line options.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  StringCache* vtkParse_MainMulti(int argc, char* argv[]);
+  void vtkParse_MainMulti(int argc, char* argv[]);
 
 #ifdef _WIN32
 
