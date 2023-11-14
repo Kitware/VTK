@@ -1,7 +1,7 @@
 # Put all files into a single directory.
-ls release/
 mv -v build/dist/*.whl release/
 mv -v build/*-wheel-sdk-*.tar.xz release/
+ls release/
 
 # Print the hashes of everything to be uploaded.
 sha256sum release/*
