@@ -56,6 +56,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestMultiTexturing.cxx
   TestMultiTexturingInterpolateScalars.cxx
   TestNormalMapping.cxx
+  TestNormalMappingWithEdges.cxx
   TestOffscreenRenderingResize.cxx
   TestOutlineGlowPass.cxx
   TestOrderIndependentTranslucentPass.cxx
