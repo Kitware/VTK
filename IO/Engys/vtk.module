@@ -1,0 +1,27 @@
+NAME
+  VTK::IOEngys
+LIBRARY_NAME
+  vtkIOEngys
+KIT
+  VTK::IO
+DESCRIPTION
+  Reader for Engys files
+IMPLEMENTABLE
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) 2019-2023 Engys Ltd.
+DEPENDS
+  VTK::vtksys
+  VTK::CommonExecutionModel
+  VTK::CommonMisc
+PRIVATE_DEPENDS
+  VTK::IOCore
+TEST_DEPENDS
+  VTK::TestingCore
+  VTK::IOXML
+  VTK::IOParallelXML
+  VTK::TestingRendering
