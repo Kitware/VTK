@@ -353,8 +353,10 @@ void vtkAnariVolumeMapperNode::Render(bool prepass)
         anari::newObject<anari::SpatialField>(anariDevice, "structuredRegular");
 
       double origin[3];
-      data->GetOrigin(origin);
-
+      const double* bds = vol->GetBounds();
+      origin[0] = bds[0];
+      origin[1] = bds[2];
+      origin[2] = bds[4];
       vec3 gridOrigin = { static_cast<float>(origin[0]), static_cast<float>(origin[1]),
         static_cast<float>(origin[2]) };
       anari::setParameter(anariDevice, anariSpatialField, "origin", gridOrigin);
