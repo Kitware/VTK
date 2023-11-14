@@ -3,6 +3,7 @@
 
 #include "vtkPolyhedronUtilities.h"
 #include "vtkArrayDispatch.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
@@ -186,16 +187,18 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
   // inside the workers in order to reduce the number of dispatches (that are costly)
 
   // Global faces are faces with global point indexes
-  vtkIdType* globalFaces = polyhedron->GetFaces();
-  vtkIdType facesNb = globalFaces[0];
-  vtkIdType* globalFace = globalFaces + 1;
+  vtkCellArray* globalFaces = polyhedron->GetCellFaces();
+  const vtkIdType* globalFace = nullptr;
+  vtkIdType facesNb = globalFaces->GetNumberOfCells();
   vtkIdType numberOfNewCells = 0; // Account for the number of cells of the output UG
+  vtkNew<vtkIdList> faceIds;
 
   vtkNew<vtkPoints> barycenters;
   // Iterate on each face to compute face barycenters and barycenters data (point data)
-  for (vtkIdType faceCount = 0; faceCount < facesNb; faceCount++)
+  for (vtkIdType faceCount = 0; faceCount < facesNb; ++faceCount)
   {
-    vtkIdType nbFacePts = globalFace[0];
+    vtkIdType nbFacePts;
+    globalFaces->GetCellAtId(faceCount, nbFacePts, globalFace, faceIds);
 
     // Add a new value for each output array, init to 0.0
     for (vtkIdType arrayId = 0; arrayId < outPd->GetNumberOfArrays(); arrayId++)
@@ -223,7 +226,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
 
     std::array<double, 3> barycenter = { 0.0, 0.0, 0.0 };
 
-    for (vtkIdType i = 1; i <= nbFacePts; i++)
+    for (vtkIdType i = 0; i < nbFacePts; i++)
     {
       // Accumulate face points coordinates
       auto globalPtId = globalFace[i];
@@ -274,7 +277,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
     }
 
     numberOfNewCells += nbFacePts;
-    globalFace += nbFacePts + 1; // Go to next face
+    // Go to next face
   }
 
   // Compute polyhedron barycenter from faces barycenters

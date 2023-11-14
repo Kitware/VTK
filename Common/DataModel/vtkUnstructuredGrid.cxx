@@ -18,6 +18,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPolyhedron.h"
 #include "vtkStaticCellLinks.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGridCellIterator.h"
@@ -356,7 +357,7 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
   // Explicit face representation
   if (cell->RequiresExplicitFaceRepresentation())
   {
-    cell->SetFaces(this->GetFaces(cellId));
+    this->GetPolyhedronFaces(cellId, cell->GetCellFaces());
   }
 
   // Some cells require special initialization to build data structures and such.

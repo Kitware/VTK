@@ -59,6 +59,9 @@ public:
   int RequiresExplicitFaceRepresentation() override;
   void SetFaces(vtkIdType* faces) override;
   vtkIdType* GetFaces() override;
+  int SetCellFaces(vtkCellArray* faces);
+  vtkCellArray* GetCellFaces();
+  void GetCellFaces(vtkCellArray* faces);
   int GetNumberOfEdges() override;
   int GetNumberOfFaces() override;
   vtkCell* GetEdge(int edgeId) override;

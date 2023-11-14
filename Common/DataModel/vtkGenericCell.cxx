@@ -143,6 +143,39 @@ vtkIdType* vtkGenericCell::GetFaces()
 }
 
 //------------------------------------------------------------------------------
+int vtkGenericCell::SetCellFaces(vtkCellArray* faces)
+{
+  vtkPolyhedron* cell = vtkPolyhedron::SafeDownCast(this->Cell);
+  if (!cell)
+  {
+    vtkErrorMacro("SafeDownCast to vtkPolyhedron failed, the cell is not a polyhedron");
+  }
+  return cell->SetCellFaces(faces);
+}
+
+//------------------------------------------------------------------------------
+vtkCellArray* vtkGenericCell::GetCellFaces()
+{
+  vtkPolyhedron* cell = vtkPolyhedron::SafeDownCast(this->Cell);
+  if (!cell)
+  {
+    vtkErrorMacro("SafeDownCast to vtkPolyhedron failed, the cell is not a polyhedron");
+  }
+  return cell->GetCellFaces();
+}
+
+//------------------------------------------------------------------------------
+void vtkGenericCell::GetCellFaces(vtkCellArray* faces)
+{
+  vtkPolyhedron* cell = vtkPolyhedron::SafeDownCast(this->Cell);
+  if (!cell)
+  {
+    vtkErrorMacro("SafeDownCast to vtkPolyhedron failed, the cell is not a polyhedron");
+  }
+  cell->GetCellFaces(faces);
+}
+
+//------------------------------------------------------------------------------
 void vtkGenericCell::Initialize()
 {
   this->Cell->Initialize();
