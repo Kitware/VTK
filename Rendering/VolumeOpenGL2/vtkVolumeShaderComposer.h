@@ -1558,6 +1558,7 @@ inline std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkV
 
   shaderStr += std::string("\
       \n  finalColor.a = color.a;\
+      \n  //VTK::ComputeLighting::Exit\
       \n  return finalColor;\
       \n  }");
 
@@ -1699,6 +1700,7 @@ inline std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren),
 
   shaderStr += std::string("\
       \n  finalColor.a = color.a;\
+      \n  //VTK::ComputeLighting::Exit\
       \n  return clamp(finalColor, 0.0, 1.0);\
       \n  }");
 
