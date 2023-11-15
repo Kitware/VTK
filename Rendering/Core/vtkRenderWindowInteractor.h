@@ -186,7 +186,8 @@ public:
    * group, the create methods take a timer duration argument (in
    * milliseconds) and return a timer id. Thus the ResetTimer(timerId) and
    * DestroyTimer(timerId) methods take this timer id and operate on the
-   * timer as appropriate. Methods are also available for determining
+   * timer as appropriate. Make sure you run Initialize() before creating
+   * the timer in order for it to work.
    */
   virtual int CreateTimer(int timerType); // first group, for backward compatibility
   virtual int DestroyTimer();             // first group, for backward compatibility
