@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAppendDataSets.h"
-#include "vtkArrayDispatch.h"
+#include "vtkDataTestUtilities.h"
 #include "vtkFloatArray.h"
 #include "vtkHDFReader.h"
 #include "vtkImageData.h"
@@ -26,59 +26,7 @@
 #include <iterator>
 #include <string>
 
-struct CompareVectorWorker
-{
-  CompareVectorWorker()
-    : ExitValue(EXIT_SUCCESS)
-  {
-  }
-  template <typename ArrayT, typename ExpectedArrayT>
-  void operator()(ArrayT* array, ExpectedArrayT* expectedArray)
-  {
-    const auto range = vtk::DataArrayTupleRange(array);
-    const auto expectedRange = vtk::DataArrayTupleRange(expectedArray);
-
-    const vtk::TupleIdType numTuples = range.size();
-    const vtk::ComponentIdType numComps = range.GetTupleSize();
-
-    std::cout << "Compare " << array->GetName() << std::endl;
-    this->ExitValue = EXIT_SUCCESS;
-    for (vtk::TupleIdType tupleId = 0; tupleId < numTuples; ++tupleId)
-    {
-      const auto tuple = range[tupleId];
-      auto expectedTuple = expectedRange[tupleId];
-
-      for (vtk::ComponentIdType compId = 0; compId < numComps; ++compId)
-      {
-        if (tuple[compId] != expectedTuple[compId])
-        {
-          std::cerr << "Expecting " << expectedTuple[compId] << " for tuple/component: " << tupleId
-                    << "/" << compId << " but got: " << tuple[compId] << std::endl;
-          this->ExitValue = EXIT_FAILURE;
-          break;
-        }
-      }
-    }
-  }
-  int ExitValue;
-};
-
-int CompareVectors(vtkDataArray* array, vtkDataArray* expectedArray)
-{
-  using Dispatcher = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>;
-
-  // Create the functor:
-  CompareVectorWorker worker;
-
-  if (!Dispatcher::Execute(array, expectedArray, worker))
-  {
-    // If Execute(...) fails, the arrays don't match the constraints.
-    // Run the algorithm using the slower vtkDataArray double API instead:
-    worker(array, expectedArray);
-  }
-  return worker.ExitValue;
-}
-
+//----------------------------------------------------------------------------
 vtkSmartPointer<vtkImageData> ReadImageData(const std::string& fileName)
 {
   vtkNew<vtkXMLImageDataReader> reader;
@@ -88,99 +36,7 @@ vtkSmartPointer<vtkImageData> ReadImageData(const std::string& fileName)
   return data;
 }
 
-struct ArrayTypeTester
-{
-  template <class ArrayT1, class ArrayT2>
-  void operator()(ArrayT1*, ArrayT2*)
-  {
-    using ValueType1 = typename ArrayT1::ValueType;
-    using ValueType2 = typename ArrayT2::ValueType;
-    this->ArraysArePointerCompatible = (sizeof(ValueType1) == sizeof(ValueType2)) &&
-      (std::is_integral<ValueType1>::value == std::is_integral<ValueType2>::value);
-  }
-
-  vtkAbstractArray* Array;
-  bool ArraysArePointerCompatible;
-};
-
-int TestDataSet(vtkDataSet* data, vtkDataSet* expectedData, bool includeFieldData = false)
-{
-  if (data == nullptr || expectedData == nullptr)
-  {
-    std::cerr << "Error: Data not in the format expected." << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  if (data->GetNumberOfPoints() != expectedData->GetNumberOfPoints())
-  {
-    std::cerr << "Expecting " << expectedData->GetNumberOfPoints()
-              << " points but got: " << data->GetNumberOfPoints() << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  if (data->GetNumberOfCells() != expectedData->GetNumberOfCells())
-  {
-    std::cerr << "Expecting " << expectedData->GetNumberOfCells()
-              << " cells but got: " << data->GetNumberOfCells() << std::endl;
-    return EXIT_FAILURE;
-  }
-  for (int attributeType = 0; attributeType < vtkDataObject::FIELD + (includeFieldData ? 1 : 0);
-       ++attributeType)
-  {
-    int numberRead = data->GetAttributesAsFieldData(attributeType)->GetNumberOfArrays();
-    int numberExpected = expectedData->GetAttributesAsFieldData(attributeType)->GetNumberOfArrays();
-    if (numberRead != numberExpected)
-    {
-      std::cerr << "Expecting " << numberExpected << " arrays of type " << attributeType
-                << " but got " << numberRead << std::endl;
-      return EXIT_FAILURE;
-    }
-    vtkFieldData* fieldData = data->GetAttributesAsFieldData(attributeType);
-    vtkFieldData* expectedFieldData = expectedData->GetAttributesAsFieldData(attributeType);
-    for (int i = 0; i < numberRead; ++i)
-    {
-      // the arrays are not in the same order because listing arrays in creation
-      // order fails. See vtkHDFReader::Implementation::GetArrayNames
-      vtkDataArray* expectedArray = expectedFieldData->GetArray(i);
-      vtkDataArray* array = fieldData->GetArray(expectedArray->GetName());
-
-      using Dispatcher = vtkArrayDispatch::Dispatch2;
-      ArrayTypeTester tester;
-      Dispatcher::Execute(array, expectedArray, tester);
-      if (!tester.ArraysArePointerCompatible)
-      {
-        vtkLog(ERROR,
-          "Read array and expected arrays do not have compatible pointers for "
-            << expectedArray->GetName() << "."
-            << " Read array: " << array->GetClassName()
-            << " Expected array: " << expectedArray->GetClassName());
-        return EXIT_FAILURE;
-      }
-
-      if (array->GetNumberOfTuples() != expectedArray->GetNumberOfTuples() ||
-        array->GetNumberOfComponents() != expectedArray->GetNumberOfComponents())
-      {
-        std::cerr << "Array " << array->GetName() << " has a different number of "
-                  << "tuples/components: " << array->GetNumberOfTuples() << "/"
-                  << array->GetNumberOfComponents()
-                  << " than expected: " << expectedArray->GetNumberOfTuples() << "/"
-                  << expectedArray->GetNumberOfComponents() << std::endl;
-        return EXIT_FAILURE;
-      }
-      vtkDataArray* a = vtkDataArray::SafeDownCast(array);
-      vtkDataArray* ea = vtkDataArray::SafeDownCast(expectedArray);
-      if (a)
-      {
-        if (CompareVectors(a, ea))
-        {
-          return EXIT_FAILURE;
-        }
-      }
-    }
-  }
-  return EXIT_SUCCESS;
-}
-
+//----------------------------------------------------------------------------
 int TestImageData(const std::string& dataRoot)
 {
   // ImageData file
@@ -209,9 +65,10 @@ int TestImageData(const std::string& dataRoot)
     return EXIT_FAILURE;
   }
 
-  return TestDataSet(data, expectedData, true);
+  return vtk::TestDataSet(data, expectedData, true);
 }
 
+//----------------------------------------------------------------------------
 int TestImageCellData(const std::string& dataRoot)
 {
   // ImageData file with cell data
@@ -241,9 +98,10 @@ int TestImageCellData(const std::string& dataRoot)
     return EXIT_FAILURE;
   }
 
-  return TestDataSet(data, expectedData);
+  return vtk::TestDataSet(data, expectedData);
 }
 
+//----------------------------------------------------------------------------
 int TestUnstructuredGrid(const std::string& dataRoot, bool parallel)
 {
   std::string fileName, expectedName;
@@ -276,9 +134,10 @@ int TestUnstructuredGrid(const std::string& dataRoot, bool parallel)
   oreader->Update();
   vtkUnstructuredGrid* expectedData =
     vtkUnstructuredGrid::SafeDownCast(oreader->GetOutputAsDataSet());
-  return TestDataSet(data, expectedData);
+  return vtk::TestDataSet(data, expectedData);
 }
 
+//----------------------------------------------------------------------------
 int TestPartitionedUnstructuredGrid(const std::string& dataRoot, bool parallel)
 {
   std::string fileName, expectedName;
@@ -326,9 +185,10 @@ int TestPartitionedUnstructuredGrid(const std::string& dataRoot, bool parallel)
   oreader->Update();
   vtkUnstructuredGrid* expectedData =
     vtkUnstructuredGrid::SafeDownCast(oreader->GetOutputAsDataSet());
-  return TestDataSet(data, expectedData);
+  return vtk::TestDataSet(data, expectedData);
 }
 
+//----------------------------------------------------------------------------
 int TestPolyData(const std::string& dataRoot)
 {
   const std::string expectedName = dataRoot + "/Data/hdf_poly_data_twin.vtp";
@@ -343,9 +203,10 @@ int TestPolyData(const std::string& dataRoot)
   reader->Update();
   auto data = vtkPolyData::SafeDownCast(reader->GetOutputAsDataSet());
 
-  return TestDataSet(data, expectedData);
+  return vtk::TestDataSet(data, expectedData);
 }
 
+//----------------------------------------------------------------------------
 int TestPartitionedPolyData(const std::string& dataRoot)
 {
   const std::string expectedName = dataRoot + "/Data/hdf_poly_data_twin.vtp";
@@ -376,9 +237,10 @@ int TestPartitionedPolyData(const std::string& dataRoot)
 
   auto data = vtkPolyData::SafeDownCast(appender->GetOutput());
 
-  return TestDataSet(data, expectedData);
+  return vtk::TestDataSet(data, expectedData);
 }
 
+//----------------------------------------------------------------------------
 int TestOverlappingAMR(const std::string& dataRoot)
 {
   std::string fileName = dataRoot + "/Data/amr_gaussian_pulse.hdf";
@@ -421,7 +283,7 @@ int TestOverlappingAMR(const std::string& dataRoot)
     {
       auto dataset = data->GetDataSet(levelIndex, datasetIndex);
       auto expectedDataset = expectedData->GetDataSet(levelIndex, datasetIndex);
-      if (TestDataSet(dataset, expectedDataset))
+      if (vtk::TestDataSet(dataset, expectedDataset))
       {
         std::cerr << "Datasets does not match for level " << levelIndex << " dataset "
                   << datasetIndex << std::endl;
@@ -433,6 +295,7 @@ int TestOverlappingAMR(const std::string& dataRoot)
   return EXIT_SUCCESS;
 }
 
+//----------------------------------------------------------------------------
 int TestHDFReader(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;
