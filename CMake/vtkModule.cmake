@@ -3375,6 +3375,135 @@ function (vtk_module_autoinit)
 endfunction ()
 
 #[==[.rst:
+.. cmake:command:: _vtk_module_depfile_args
+
+  Compute supported depfile tracking arguments. |module-internal|
+
+  Support for ``add_custom_command(DEPFILE)`` has changed over the CMake
+  timeline. Generate the required arguments as supported for the current CMake
+  version and generator.
+
+  .. code-block:: cmake
+
+    _vtk_module_depfile_args(
+      [MULTI_CONFIG_NEEDS_GENEX]
+      TOOL_ARGS <variable>
+      CUSTOM_COMMAND_ARGS <variable>
+      DEPFILE_PATH <path>
+      [SOURCE <path>]
+      [SOURCE_LANGUAGE <lang>]
+      [DEPFILE_NO_GENEX_PATH <path>]
+      [TOOL_FLAGS <flag>...])
+
+  The arguments to pass to the tool are returned in the variable given to
+  ``TOOL_ARGS`` while the arguments for ``add_custom_command`` itself are
+  returned in the variable given to ``CUSTOM_COMMAND_ARGS``. ``DEPFILE_PATH``
+  is the path to the depfile to use. If a generator expression can optionally
+  be used, ``DEPFILE_NO_GENEX_PATH`` can be specified as a fallback in case of
+  no generator expression support (unless ``MULTI_CONFIG_NEEDS_GENEX`` is
+  specified and a multi-config generator is used). ``TOOL_FLAGS`` specifies the
+  flags the tool needs to specify the depfile if used. If support is not
+  available, the path given to ``SOURCE`` is used for ``IMPLICIT_DEPENDS``
+  using ``SOURCE_LANGUAGE`` (which defaults to ``CXX``).
+#]==]
+function (_vtk_module_depfile_args)
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_depfile_args
+    "MULTI_CONFIG_NEEDS_GENEX"
+    "TOOL_ARGS;CUSTOM_COMMAND_ARGS;DEPFILE_PATH;DEPFILE_NO_GENEX_PATH;SOURCE;SOURCE_LANGUAGE"
+    "TOOL_FLAGS")
+  if (_vtk_depfile_args_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unrecognized arguments for _vtk_module_depfile_args: "
+      "${_vtk_depfile_args_UNPARSED_ARGUMENTS}.")
+  endif ()
+
+  if (NOT _vtk_depfile_args_TOOL_ARGS)
+    message(FATAL_ERROR
+      "The `TOOL_ARGS` argument is required.")
+  endif ()
+
+  if (NOT _vtk_depfile_args_CUSTOM_COMMAND_ARGS)
+    message(FATAL_ERROR
+      "The `CUSTOM_COMMAND_ARGS` argument is required.")
+  endif ()
+
+  if (NOT _vtk_depfile_args_DEPFILE_PATH)
+    message(FATAL_ERROR
+      "The `DEPFILE_PATH` argument is required.")
+  endif ()
+
+  if (DEFINED _vtk_depfile_args_SOURCE_LANGUAGE AND
+      NOT _vtk_depfile_args_SOURCE)
+    message(FATAL_ERROR
+      "Specifying `SOURCE_LANGUAGE` requires a `SOURCE` argument.")
+  endif ()
+
+  if (NOT DEFINED _vtk_depfile_args_SOURCE_LANGUAGE)
+    set(_vtk_depfile_args_SOURCE_LANGUAGE "CXX")
+  endif ()
+
+  if (_vtk_depfile_args_DEPFILE_NO_GENEX_PATH AND
+      _vtk_depfile_args_DEPFILE_NO_GENEX_PATH MATCHES "\\$<")
+    message(FATAL_ERROR
+      "The `DEPFILE_NO_GENEX_PATH` cannot contain a generator expression.")
+  endif ()
+
+  # Detect the required CMake version for `DEPFILE` support in the current
+  # generator.
+  if (CMAKE_GENERATOR STREQUAL "Ninja")
+    set(_vtk_depfile_args_req_cmake "3.7")
+  elseif (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config")
+    set(_vtk_depfile_args_req_cmake "3.17")
+  elseif (CMAKE_GENERATOR MATCHES "Makefiles")
+    set(_vtk_depfile_args_req_cmake "3.20")
+  elseif (CMAKE_GENERATOR MATCHES "Xcode|Visual Studio")
+    set(_vtk_depfile_args_req_cmake "3.21")
+  else ()
+    set(_vtk_depfile_args_req_cmake "99")
+  endif ()
+
+  # Check for generator expression requirements.
+  set(_vtk_depfile_args_depfile_path "${_vtk_depfile_args_DEPFILE_PATH}")
+  if (_vtk_depfile_args_req_cmake VERSION_LESS "3.21" AND
+      _vtk_depfile_args_DEPFILE_PATH MATCHES "\\$<")
+    get_property(_vtk_depfile_args_is_multi_config GLOBAL
+      PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    if (_vtk_depfile_args_DEPFILE_NO_GENEX_PATH AND
+        NOT (_vtk_depfile_args_MULTI_CONFIG_NEEDS_GENEX AND
+             _vtk_depfile_args_is_multi_config))
+      set(_vtk_depfile_args_depfile_path "${_vtk_depfile_args_DEPFILE_NO_GENEX_PATH}")
+    else ()
+      set(_vtk_depfile_args_req_cmake "3.21")
+    endif ()
+  endif ()
+
+  # Generate the arguments supported.
+  if (CMAKE_VERSION VERSION_LESS _vtk_depfile_args_req_cmake)
+    set(_vtk_depfile_args_tool_args)
+    set(_vtk_depfile_args_custom_command_args)
+    if (_vtk_depfile_args_SOURCE)
+      list(APPEND _vtk_depfile_args_custom_command_args
+        IMPLICIT_DEPENDS
+          "${_vtk_depfile_args_SOURCE_LANGUAGE}" "${_vtk_depfile_args_SOURCE}")
+    endif ()
+  else ()
+    set(_vtk_depfile_args_tool_args
+      ${_vtk_depfile_args_TOOL_FLAGS}
+      "${_vtk_depfile_args_depfile_path}")
+    set(_vtk_depfile_args_custom_command_args
+      DEPFILE "${_vtk_depfile_args_depfile_path}")
+  endif ()
+
+  # Return the computed arguments.
+  set("${_vtk_depfile_args_TOOL_ARGS}"
+    ${_vtk_depfile_args_tool_args}
+    PARENT_SCOPE)
+  set("${_vtk_depfile_args_CUSTOM_COMMAND_ARGS}"
+    ${_vtk_depfile_args_custom_command_args}
+    PARENT_SCOPE)
+endfunction ()
+
+#[==[.rst:
 .. cmake:command:: _vtk_module_write_wrap_hierarchy
 
   Generate the hierarchy for a module. |module-impl|
