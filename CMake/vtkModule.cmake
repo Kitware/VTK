@@ -3526,26 +3526,15 @@ function (_vtk_module_write_wrap_hierarchy)
   set(_vtk_hierarchy_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_library_name}-hierarchy.$<CONFIGURATION>.args")
   set(_vtk_hierarchy_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_library_name}-hierarchy.data")
   set(_vtk_hierarchy_depends_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_library_name}-hierarchy.depends.args")
-  set(_vtk_hierarchy_depfile)
-  get_property(_vtk_hierarchy_is_multi_config GLOBAL
-    PROPERTY GENERATOR_IS_MULTI_CONFIG)
-  # XXX(cmake-3.21): genex support in `DEPFILE` paths.
-  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.21" OR
-      NOT _vtk_hierarchy_is_multi_config)
-    if (_vtk_hierarchy_is_multi_config)
-      set(_vtk_hierarchy_depfile "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_filename}.$<CONFIGURATION>.d")
-    else ()
-      set(_vtk_hierarchy_depfile "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_filename}.d")
-    endif ()
-  endif ()
-  set(_vtk_hierarchy_depfile_flags)
-  set(_vtk_hierarchy_depfile_args)
-  if (_vtk_hierarchy_depfile)
-    list(APPEND _vtk_hierarchy_depfile_flags
-      -MF "${_vtk_hierarchy_depfile}")
-    list(APPEND _vtk_hierarchy_depfile_args
-      DEPFILE "${_vtk_hierarchy_depfile}")
-  endif ()
+  set(_vtk_hierarchy_depfile_genex "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_filename}.$<CONFIGURATION>.d")
+  set(_vtk_hierarchy_depfile_nogenex "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_filename}.d")
+  _vtk_module_depfile_args(
+    MULTI_CONFIG_NEEDS_GENEX
+    TOOL_ARGS _vtk_hierarchy_depfile_flags
+    CUSTOM_COMMAND_ARGS _vtk_hierarchy_depfile_args
+    DEPFILE_PATH "${_vtk_hierarchy_depfile_genex}"
+    DEPFILE_NO_GENEX_PATH "${_vtk_hierarchy_depfile_nogenex}"
+    TOOL_FLAGS "-MF")
 
   set_property(TARGET "${_vtk_add_module_real_target}"
     PROPERTY
