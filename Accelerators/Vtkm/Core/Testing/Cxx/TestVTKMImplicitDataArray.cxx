@@ -1,15 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include <vtkDataSetMapper.h>
-#include <vtkGenericImageInterpolator.h>
+#include <vtkExtractVOI.h>
 #include <vtkImageData.h>
-#include <vtkImagePlaneWidget.h>
-#include <vtkImageReslice.h>
+#include <vtkMathUtilities.h>
 #include <vtkPointData.h>
-#include <vtkProperty.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
 
 #include <vtkmDataArray.h>
 
@@ -52,34 +46,54 @@ int TestVTKMImplicitDataArray(int, char*[])
     vtkm::cont::ArrayHandleUniformPointCoordinates(dim3, origin, spacing), TransformFnctr{}));
   imageData->GetPointData()->SetScalars(array);
 
-  vtkNew<vtkRenderWindow> renderWindow;
-  vtkNew<vtkRenderer> renderer;
-  renderWindow->AddRenderer(renderer);
-  renderer->ResetCamera();
+  vtkNew<vtkExtractVOI> extractor;
+  extractor->SetInputData(imageData);
+  int dim = dimension;
+  int extent[6] = { 0, dim - 1, 0, dim - 1, dim - 1, dim - 1 };
+  extractor->SetVOI(extent);
+  extractor->Update();
+  auto slice = extractor->GetOutput();
+  auto outScalars = slice->GetPointData()->GetScalars();
+  auto outDataArray = vtkDataArray::SafeDownCast(outScalars);
 
-  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow);
+  if (!outDataArray)
+  {
+    std::cerr << "Error: no output data array" << std::endl;
+  }
 
-  vtkNew<vtkImagePlaneWidget> planeWidgetZ;
+  auto nbOfTuples = outDataArray->GetNumberOfTuples();
+  auto value1 = outDataArray->GetTuple1(0);
+  auto value2 = outDataArray->GetTuple1(dim);
+  auto value3 = outDataArray->GetTuple1(2 * dim + 5);
+  double range[2];
+  outDataArray->GetRange(range);
 
-  planeWidgetZ->GetReslice()->SetInterpolator(vtkNew<vtkGenericImageInterpolator>());
-  vtkGenericImageInterpolator::SafeDownCast(planeWidgetZ->GetReslice()->GetInterpolator())
-    ->SetInterpolationModeToLinear();
-  planeWidgetZ->GetReslice()->GetInterpolator()->Update();
-  planeWidgetZ->SetInteractor(renderWindowInteractor);
-  planeWidgetZ->SetKeyPressActivationValue('x');
-  planeWidgetZ->SetUseContinuousCursor(true);
-  planeWidgetZ->GetPlaneProperty()->SetColor(1, 0, 0);
-  planeWidgetZ->SetInputData(imageData);
-  planeWidgetZ->SetPlaneOrientationToZAxes();
-  planeWidgetZ->SetSliceIndex(1);
-  planeWidgetZ->DisplayTextOn();
-  planeWidgetZ->On();
-  planeWidgetZ->InteractionOff();
-  planeWidgetZ->InteractionOn();
+  if (nbOfTuples != 100)
+  {
+    std::cerr << "Error: expecting 100 tuples, has " << nbOfTuples << std::endl;
+  }
 
-  renderWindow->Render();
-  renderWindowInteractor->Start();
+  if (!vtkMathUtilities::NearlyEqual(range[0], 1.8) ||
+    !vtkMathUtilities::NearlyEqual(range[1], 4.22137))
+  {
+    std::cerr << "Error: range should be [1.8, 4.22137], has " << range[0] << " " << range[1]
+              << std::endl;
+  }
+
+  if (!vtkMathUtilities::NearlyEqual(value1, 1.8))
+  {
+    std::cerr << "Error: value 0 should be 1.8 has " << value1 << std::endl;
+  }
+
+  if (!vtkMathUtilities::NearlyEqual(value2, 1.82483))
+  {
+    std::cerr << "Error: value 0 should be 1.82483 has " << value1 << std::endl;
+  }
+
+  if (!vtkMathUtilities::NearlyEqual(value3, 2.42868))
+  {
+    std::cerr << "Error: value 0 should be 2.42868 has " << value1 << std::endl;
+  }
 
   return EXIT_SUCCESS;
 }
