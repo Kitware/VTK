@@ -693,7 +693,7 @@ std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int attribu
 hid_t vtkHDFReader::Implementation::OpenDataSet(
   hid_t group, const char* name, hid_t* nativeType, std::vector<hsize_t>& dims)
 {
-  vtkHDF::ScopedH5DHandle dataset = H5Dopen(group, name, H5P_DEFAULT);
+  hid_t dataset = H5Dopen(group, name, H5P_DEFAULT);
   if (dataset < 0)
   {
     vtkErrorWithObjectMacro(this->Reader, << std::string("Cannot open ") + name);
@@ -733,9 +733,7 @@ hid_t vtkHDFReader::Implementation::OpenDataSet(
     return -1;
   }
 
-  hid_t datasetIDToReturn = dataset;
-  dataset = -1;
-  return datasetIDToReturn;
+  return dataset;
 }
 
 //------------------------------------------------------------------------------

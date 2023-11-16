@@ -15,6 +15,7 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::FiltersCore
+  VTK::IOCore
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::hdf5

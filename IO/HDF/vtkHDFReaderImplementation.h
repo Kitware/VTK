@@ -10,6 +10,7 @@
 #define vtkHDFReaderImplementation_h
 
 #include "vtkHDFReader.h"
+#include "vtkHDFUtilities.h"
 #include "vtk_hdf5.h"
 #include <array>
 #include <map>
@@ -155,9 +156,10 @@ protected:
   };
 
   /**
-   * Opens the hdf5 dataset given the 'group'
-   * and 'name'.
+   * Opens the hdf5 dataset given the 'group' and 'name'.
    * Returns the hdf dataset and sets 'nativeType' and 'dims'.
+   * The caller needs to close the returned hid_t manually using H5Dclose or a Scoped Handle if it
+   * is not an invalid hid.
    */
   hid_t OpenDataSet(hid_t group, const char* name, hid_t* nativeType, std::vector<hsize_t>& dims);
   /**

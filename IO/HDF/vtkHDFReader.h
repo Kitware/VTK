@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHDFReader
- * @brief   VTKHDF format reader.
+ * @brief   Read VTK HDF files.
  *
  */
 
@@ -31,9 +31,6 @@ class vtkPolyData;
 class vtkUnstructuredGrid;
 
 /**
- * @class vtkHDFReader
- * @brief  Read VTK HDF files.
- *
  * Reads data saved using the VTK HDF format which supports all
  * vtkDataSet types (image data, poly data, unstructured grid and
  * overlapping AMR are currently implemented) and serial as well
@@ -42,6 +39,11 @@ class vtkUnstructuredGrid;
  * Can also read transient data with directions and offsets present
  * in a supplemental 'VTKHDF/Steps' group for vtkUnstructuredGrid
  * vtkPolyData, and vtkImageData.
+ *
+ * Major version should be incremented when older readers can no
+ * longer read files written for this reader. Minor versions are
+ * for added functionality that can be safely ignored by older
+ * readers.
  *
  * @note vtkHDF file format is defined here :
  * https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#hdf-file-formats
@@ -157,12 +159,6 @@ public:
 protected:
   vtkHDFReader();
   ~vtkHDFReader() override;
-
-  /**
-   * How many attribute types we have. This returns 3: point, cell and field
-   * attribute types.
-   */
-  constexpr static int GetNumberOfAttributeTypes() { return 3; }
 
   /**
    * Test if the reader can read a file with the given version number.

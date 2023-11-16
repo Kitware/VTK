@@ -11,7 +11,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkHDFReaderImplementation.h"
-#include "vtkHDFReaderVersion.h"
+#include "vtkHDFVersion.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -43,15 +43,6 @@ vtkStandardNewMacro(vtkHDFReader);
 namespace
 {
 //----------------------------------------------------------------------------
-constexpr std::size_t NUM_POLY_DATA_TOPOS = 4;
-const std::vector<std::string> POLY_DATA_TOPOS{ "Vertices", "Lines", "Polygons", "Strips" };
-/*
- * Attribute tag used in the cache storage to indicate arrays related to the geometry of the data
- * set and not fields of the data set
- */
-constexpr int GEOMETRY_ATTRIBUTE_TAG = -42;
-
-//----------------------------------------------------------------------------
 int GetNDims(int* extent)
 {
   int ndims = 3;
@@ -79,61 +70,6 @@ std::vector<hsize_t> ReduceDimension(int* updateExtent, int* wholeExtent)
   }
   return v;
 }
-
-//----------------------------------------------------------------------------
-struct TransientGeometryOffsets
-{
-public:
-  bool Success = true;
-  vtkIdType PartOffset = 0;
-  vtkIdType PointOffset = 0;
-  std::vector<vtkIdType> CellOffsets;
-  std::vector<vtkIdType> ConnectivityOffsets;
-
-  template <class T>
-  TransientGeometryOffsets(T* impl, vtkIdType step)
-  {
-    auto recupMultiOffset = [&](std::string path, std::vector<vtkIdType>& val) {
-      val = impl->GetMetadata(path.c_str(), 1, step);
-      if (val.empty())
-      {
-        vtkErrorWithObjectMacro(
-          nullptr, << path.c_str() << " array cannot be empty when there is transient data");
-        return false;
-      }
-      return true;
-    };
-    auto recupSingleOffset = [&](std::string path, vtkIdType& val) {
-      std::vector<vtkIdType> buffer;
-      if (!recupMultiOffset(path, buffer))
-      {
-        return false;
-      }
-      val = buffer[0];
-      return true;
-    };
-    if (!recupSingleOffset("Steps/PartOffsets", this->PartOffset))
-    {
-      this->Success = false;
-      return;
-    }
-    if (!recupSingleOffset("Steps/PointOffsets", this->PointOffset))
-    {
-      this->Success = false;
-      return;
-    }
-    if (!recupMultiOffset("Steps/CellOffsets", this->CellOffsets))
-    {
-      this->Success = false;
-      return;
-    }
-    if (!recupMultiOffset("Steps/ConnectivityIdOffsets", this->ConnectivityOffsets))
-    {
-      this->Success = false;
-      return;
-    }
-  }
-};
 
 template <typename ImplT, typename CacheT>
 vtkSmartPointer<vtkDataArray> ReadFromFileOrCache(ImplT* impl, std::shared_ptr<CacheT> cache,
@@ -180,8 +116,8 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
   };
   vtkNew<vtkPoints> points;
   vtkSmartPointer<vtkDataArray> pointArray;
-  if ((pointArray = readFromFileOrCache(
-         ::GEOMETRY_ATTRIBUTE_TAG, "Points", pointOffset, numberOfPoints)) == nullptr)
+  if ((pointArray = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG, "Points",
+         pointOffset, numberOfPoints)) == nullptr)
   {
     vtkErrorWithObjectMacro(nullptr, "Cannot read the Points array");
     return false;
@@ -190,19 +126,20 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
   pieceData->SetPoints(points);
 
   std::vector<vtkSmartPointer<vtkCellArray>> cArrays;
-  for (std::size_t iTopo = 0; iTopo < ::NUM_POLY_DATA_TOPOS; ++iTopo)
+  for (std::size_t iTopo = 0; iTopo < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; ++iTopo)
   {
-    const auto& name = ::POLY_DATA_TOPOS[iTopo];
+    const auto& name = vtkHDFUtilities::POLY_DATA_TOPOS[iTopo];
     vtkSmartPointer<vtkDataArray> offsetsArray;
-    if ((offsetsArray = readFromFileOrCache(::GEOMETRY_ATTRIBUTE_TAG, (name + "/Offsets"),
-           cellOffsets[iTopo], numberOfCells[iTopo] + 1)) == nullptr)
+    if ((offsetsArray = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG,
+           (name + "/Offsets"), cellOffsets[iTopo], numberOfCells[iTopo] + 1)) == nullptr)
     {
       vtkErrorWithObjectMacro(nullptr, "Cannot read the Offsets array for " + name);
       return false;
     }
     vtkSmartPointer<vtkDataArray> connectivityArray;
-    if ((connectivityArray = readFromFileOrCache(::GEOMETRY_ATTRIBUTE_TAG, (name + "/Connectivity"),
-           connectivityOffsets[iTopo], numberOfConnectivityIds[iTopo])) == nullptr)
+    if ((connectivityArray = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG,
+           (name + "/Connectivity"), connectivityOffsets[iTopo], numberOfConnectivityIds[iTopo])) ==
+      nullptr)
     {
       vtkErrorWithObjectMacro(nullptr, "Cannot read the Connectivity array for " + name);
       return false;
@@ -323,7 +260,7 @@ vtkHDFReader::vtkHDFReader()
   this->SelectionObserver = vtkCallbackCommand::New();
   this->SelectionObserver->SetCallback(&vtkHDFReader::SelectionModifiedCallback);
   this->SelectionObserver->SetClientData(this);
-  for (int i = 0; i < vtkHDFReader::GetNumberOfAttributeTypes(); ++i)
+  for (int i = 0; i < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++i)
   {
     this->DataArraySelection[i] = vtkDataArraySelection::New();
     this->DataArraySelection[i]->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
@@ -343,7 +280,7 @@ vtkHDFReader::~vtkHDFReader()
 {
   delete this->Impl;
   this->SetFileName(nullptr);
-  for (int i = 0; i < vtkHDFReader::GetNumberOfAttributeTypes(); ++i)
+  for (int i = 0; i < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++i)
   {
     this->DataArraySelection[i]->RemoveObserver(this->SelectionObserver);
     this->DataArraySelection[i]->Delete();
@@ -385,7 +322,7 @@ vtkDataSet* vtkHDFReader::GetOutputAsDataSet(int index)
 // functionality that can be safely ignored by older readers.
 int vtkHDFReader::CanReadFileVersion(int major, int vtkNotUsed(minor))
 {
-  return (major > vtkHDFReaderMajorVersion) ? 0 : 1;
+  return (major > vtkHDFMajorVersion) ? 0 : 1;
 }
 
 //----------------------------------------------------------------------------
@@ -482,8 +419,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     vtkWarningMacro("File version: " << version[0] << "." << version[1]
                                      << " is higher than "
                                         "this reader supports "
-                                     << vtkHDFReaderMajorVersion << "."
-                                     << vtkHDFReaderMinorVersion);
+                                     << vtkHDFMajorVersion << "." << vtkHDFMinorVersion);
   }
   this->NumberOfSteps = this->Impl->GetNumberOfSteps();
   this->HasTransientData = (this->NumberOfSteps > 1);
@@ -527,7 +463,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
       return 0;
     }
     info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
-    for (int i = 0; i < vtkHDFReader::GetNumberOfAttributeTypes(); ++i)
+    for (int i = 0; i < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++i)
     {
       this->DataArraySelection[i]->RemoveAllArrays();
       std::vector<std::string> arrayNames = this->Impl->GetArrayNames(i);
@@ -816,8 +752,8 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   vtkSmartPointer<vtkDataArray> pointArray;
   vtkIdType pointOffset =
     std::accumulate(numberOfPoints.data(), &numberOfPoints[filePiece], startingPointOffset);
-  if ((pointArray = readFromFileOrCache(::GEOMETRY_ATTRIBUTE_TAG, "Points", pointOffset,
-         numberOfPoints[filePiece], true)) == nullptr)
+  if ((pointArray = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG, "Points",
+         pointOffset, numberOfPoints[filePiece], true)) == nullptr)
   {
     vtkErrorMacro("Cannot read the Points array");
     return 0;
@@ -832,16 +768,16 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   // the offsets array has (numberOfCells[part] + 1) elements per part.
   vtkIdType offset = std::accumulate(
     numberOfCells.data(), &numberOfCells[filePiece], startingCellOffset + partOffset + filePiece);
-  if ((offsetsArray = readFromFileOrCache(::GEOMETRY_ATTRIBUTE_TAG, "Offsets", offset,
-         numberOfCells[filePiece] + 1, true)) == nullptr)
+  if ((offsetsArray = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG, "Offsets",
+         offset, numberOfCells[filePiece] + 1, true)) == nullptr)
   {
     vtkErrorMacro("Cannot read the Offsets array");
     return 0;
   }
   offset = std::accumulate(numberOfConnectivityIds.data(), &numberOfConnectivityIds[filePiece],
     startingConnectivityIdOffset);
-  if ((connectivityArray = readFromFileOrCache(::GEOMETRY_ATTRIBUTE_TAG, "Connectivity", offset,
-         numberOfConnectivityIds[filePiece], true)) == nullptr)
+  if ((connectivityArray = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG,
+         "Connectivity", offset, numberOfConnectivityIds[filePiece], true)) == nullptr)
   {
     vtkErrorMacro("Cannot read the Connectivity array");
     return 0;
@@ -850,8 +786,8 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
 
   vtkIdType cellOffset =
     std::accumulate(numberOfCells.data(), &numberOfCells[filePiece], startingCellOffset);
-  if ((p = readFromFileOrCache(
-         ::GEOMETRY_ATTRIBUTE_TAG, "Types", cellOffset, numberOfCells[filePiece], true)) == nullptr)
+  if ((p = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG, "Types", cellOffset,
+         numberOfCells[filePiece], true)) == nullptr)
   {
     vtkErrorMacro("Cannot read the Types array");
     return 0;
@@ -911,7 +847,7 @@ int vtkHDFReader::Read(
   vtkIdType startingConnectivityIdOffset = 0;
   if (this->HasTransientData)
   {
-    ::TransientGeometryOffsets geoOffs(this->Impl, this->Step);
+    vtkHDFUtilities::TransientGeometryOffsets geoOffs(this->Impl, this->Step);
     if (!geoOffs.Success)
     {
       vtkErrorMacro("Error in reading transient geometry offsets");
@@ -1006,12 +942,12 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
   // The initial offsetting with which to read the step in particular
   vtkIdType partOffset = 0;
   vtkIdType startingPointOffset = 0;
-  std::vector<vtkIdType> startingCellOffsets(::NUM_POLY_DATA_TOPOS, 0);
-  std::vector<vtkIdType> startingConnectivityIdOffsets(::NUM_POLY_DATA_TOPOS, 0);
+  std::vector<vtkIdType> startingCellOffsets(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
+  std::vector<vtkIdType> startingConnectivityIdOffsets(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
   if (this->HasTransientData)
   {
     // Read the time offsets for this step
-    ::TransientGeometryOffsets geoOffs(this->Impl, this->Step);
+    vtkHDFUtilities::TransientGeometryOffsets geoOffs(this->Impl, this->Step);
     if (!geoOffs.Success)
     {
       vtkErrorMacro("Error in reading transient geometry offsets");
@@ -1036,7 +972,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
   std::map<std::string, std::vector<vtkIdType>> numberOfCells;
   std::map<std::string, std::vector<vtkIdType>> numberOfCellsBefore;
   std::map<std::string, std::vector<vtkIdType>> numberOfConnectivityIds;
-  for (const auto& name : ::POLY_DATA_TOPOS)
+  for (const auto& name : vtkHDFUtilities::POLY_DATA_TOPOS)
   {
     // extract the array containing the number of cells of this topology for this step
     numberOfCells[name] =
@@ -1076,16 +1012,16 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     // determine the exact offsetting for the piece that needs to be read
     vtkIdType pointOffset =
       std::accumulate(numberOfPoints.data(), &numberOfPoints[filePiece], startingPointOffset);
-    std::vector<vtkIdType> cellOffsets(::NUM_POLY_DATA_TOPOS, 0);
-    std::vector<vtkIdType> pieceNumberOfCells(::NUM_POLY_DATA_TOPOS, 0);
-    std::vector<vtkIdType> connectivityOffsets(::NUM_POLY_DATA_TOPOS, 0);
-    std::vector<vtkIdType> pieceNumberOfConnectivityIds(::NUM_POLY_DATA_TOPOS, 0);
-    for (std::size_t iTopo = 0; iTopo < ::NUM_POLY_DATA_TOPOS; ++iTopo)
+    std::vector<vtkIdType> cellOffsets(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
+    std::vector<vtkIdType> pieceNumberOfCells(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
+    std::vector<vtkIdType> connectivityOffsets(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
+    std::vector<vtkIdType> pieceNumberOfConnectivityIds(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
+    for (std::size_t iTopo = 0; iTopo < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; ++iTopo)
     {
-      const auto& nCells = numberOfCells[::POLY_DATA_TOPOS[iTopo]];
+      const auto& nCells = numberOfCells[vtkHDFUtilities::POLY_DATA_TOPOS[iTopo]];
       vtkIdType connectivityPartOffset = 0;
       vtkIdType numCellSum = 0;
-      for (const auto& numCell : numberOfCellsBefore[::POLY_DATA_TOPOS[iTopo]])
+      for (const auto& numCell : numberOfCellsBefore[vtkHDFUtilities::POLY_DATA_TOPOS[iTopo]])
       {
         // No need to iterate if there is no offsetting on the connectivity. Otherwise, we
         // accumulate the number of part until we reach the current offset, it's usefull to retrieve
@@ -1103,7 +1039,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
       cellOffsets[iTopo] = std::accumulate(nCells.begin(), nCells.begin() + filePiece,
         startingCellOffsets[iTopo] + connectivityPartOffset + filePiece);
       pieceNumberOfCells[iTopo] = nCells[filePiece];
-      const auto& nConnectivity = numberOfConnectivityIds[::POLY_DATA_TOPOS[iTopo]];
+      const auto& nConnectivity = numberOfConnectivityIds[vtkHDFUtilities::POLY_DATA_TOPOS[iTopo]];
       connectivityOffsets[iTopo] = std::accumulate(nConnectivity.begin(),
         nConnectivity.begin() + filePiece, startingConnectivityIdOffsets[iTopo]);
       pieceNumberOfConnectivityIds[iTopo] = nConnectivity[filePiece];
@@ -1123,7 +1059,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
 
     // sum over topologies to get total offsets for fields
     vtkIdType cellOffset = startingCellOffset;
-    for (const auto& name : ::POLY_DATA_TOPOS)
+    for (const auto& name : vtkHDFUtilities::POLY_DATA_TOPOS)
     {
       const auto& nCells = numberOfCells[name];
       cellOffset = std::accumulate(nCells.begin(), nCells.begin() + filePiece, cellOffset);

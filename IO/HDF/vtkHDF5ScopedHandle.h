@@ -3,6 +3,10 @@
 #ifndef vtkHDF5ScopedHandle_h
 #define vtkHDF5ScopedHandle_h
 
+#include "vtk_hdf5.h"
+
+#include <algorithm>
+
 namespace vtkHDF
 {
 VTK_ABI_NAMESPACE_BEGIN
@@ -14,8 +18,22 @@ VTK_ABI_NAMESPACE_BEGIN
   class ScopedH5##name##Handle                                                                     \
   {                                                                                                \
   public:                                                                                          \
-    ScopedH5##name##Handle(const ScopedH5##name##Handle& other) { this->Handle = other.Handle; }   \
-    ScopedH5##name##Handle& operator=(const ScopedH5##name##Handle& other) = default;              \
+    ScopedH5##name##Handle()                                                                       \
+      : Handle(H5I_INVALID_HID)                                                                    \
+    {                                                                                              \
+    }                                                                                              \
+    ScopedH5##name##Handle(ScopedH5##name##Handle&& other) noexcept                                \
+    {                                                                                              \
+      this->Handle = other.Handle;                                                                 \
+      other.Handle = H5I_INVALID_HID;                                                              \
+    }                                                                                              \
+    ScopedH5##name##Handle& operator=(ScopedH5##name##Handle&& other) noexcept                     \
+    {                                                                                              \
+      std::swap(this->Handle, other.Handle);                                                       \
+      return *this;                                                                                \
+    }                                                                                              \
+    ScopedH5##name##Handle(const ScopedH5##name##Handle& other) = delete;                          \
+    ScopedH5##name##Handle& operator=(const ScopedH5##name##Handle&) = delete;                     \
     ScopedH5##name##Handle(hid_t handle)                                                           \
       : Handle(handle)                                                                             \
     {                                                                                              \
@@ -45,6 +63,9 @@ DefineScopedHandle(F);
 
 // Defines ScopedH5GHandle closed with H5Gclose
 DefineScopedHandle(G);
+
+// Defines ScopedH5PHandle closed with H5Pclose
+DefineScopedHandle(P);
 
 // Defines ScopedH5SHandle closed with H5Sclose
 DefineScopedHandle(S);
