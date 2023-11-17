@@ -324,6 +324,12 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
   }
 
   vtkShaderProgram* program = this->QHelper->Program;
+  if (!program)
+  {
+    vtkWarningMacro(
+      "Unable to retrieve shader program from internal vtkOpenGLQuadHelper instance.");
+    return;
+  }
   program->SetUniformi("Input", this->Input->GetTextureUnit());
   float invTexSize[2] = { 1.f / static_cast<float>(this->Viewport[2]),
     1.f / static_cast<float>(this->Viewport[3]) };
