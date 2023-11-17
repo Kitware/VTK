@@ -51,6 +51,15 @@ void vtkOpenGLFXAAPass::Render(const vtkRenderState* s)
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLFXAAPass::ReleaseGraphicsResources(vtkWindow* w)
+{
+  assert("pre: w_exists" && w != nullptr);
+
+  this->FXAAFilter->ReleaseGraphicsResources();
+  this->Superclass::ReleaseGraphicsResources(w);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLFXAAPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
