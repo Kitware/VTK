@@ -1,4 +1,5 @@
 set(headers
+  vtkDataTestUtilities.h
   vtkPermuteOptions.h
   vtkTestDriver.h
   vtkTestErrorObserver.h
