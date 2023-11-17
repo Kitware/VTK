@@ -2,6 +2,8 @@ NAME
   VTK::FiltersTemporal
 LIBRARY_NAME
   vtkFiltersTemporal
+KIT
+  VTK::Filters
 GROUPS
   StandAlone
 SPDX_LICENSE_IDENTIFIER
