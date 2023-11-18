@@ -131,6 +131,10 @@ int vtkParse_DependencyTrackingWrite(const char* fname)
       ++input;
     }
   }
+  else
+  {
+    write_line(fout, DepTracker.Target, "");
+  }
 
   fclose(fout);
 
