@@ -160,17 +160,24 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
       set(_vtk_java_parse_target "VTKCompileTools::ParseJava")
     endif ()
 
+    _vtk_module_depfile_args(
+      TOOL_ARGS _vtk_java_depfile_flags
+      CUSTOM_COMMAND_ARGS _vtk_java_depfile_args
+      SOURCE "${_vtk_java_header}"
+      DEPFILE_PATH "${_vtk_java_wrap_depfile}"
+      TOOL_FLAGS "-MF")
+
     add_custom_command(
       OUTPUT  "${_vtk_java_source_output}"
       COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
               "$<TARGET_FILE:${_vtk_java_wrap_target}>"
-              -MF "${_vtk_java_wrap_depfile}"
+              ${_vtk_java_depfile_flags}
               "@${_vtk_java_args_file}"
               -o "${_vtk_java_source_output}"
               "${_vtk_java_header}"
               ${_vtk_java_warning_args}
               ${_vtk_java_macros_args}
-      DEPFILE "${_vtk_java_wrap_depfile}"
+      ${_vtk_java_depfile_args}
       COMMENT "Generating Java wrapper sources for ${_vtk_java_basename}"
       DEPENDS
         "${_vtk_java_header}"
@@ -185,16 +192,23 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
     list(APPEND _vtk_java_java_sources
       "${_vtk_java_java_source_output}")
 
+    _vtk_module_depfile_args(
+      TOOL_ARGS _vtk_java_depfile_flags
+      CUSTOM_COMMAND_ARGS _vtk_java_depfile_args
+      SOURCE "${_vtk_java_header}"
+      DEPFILE_PATH "${_vtk_java_parse_depfile}"
+      TOOL_FLAGS "-MF")
+
     add_custom_command(
       OUTPUT  "${_vtk_java_java_source_output}"
       COMMAND "${_vtk_java_parse_target}"
-              -MF "${_vtk_java_parse_depfile}"
+              ${_vtk_java_depfile_flags}
               "@${_vtk_java_args_file}"
               -o "${_vtk_java_java_source_output}"
               "${_vtk_java_header}"
               ${_vtk_java_warning_args}
               ${_vtk_java_macros_args}
-      DEPFILE "${_vtk_java_parse_depfile}"
+      ${_vtk_java_depfile_args}
       COMMENT "Generating Java sources for ${_vtk_java_basename}"
       DEPENDS
         "${_vtk_java_header}"

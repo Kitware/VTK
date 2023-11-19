@@ -221,17 +221,24 @@ $<$<BOOL:${_vtk_python_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_python_hierar
       endif ()
     endif ()
 
+    _vtk_module_depfile_args(
+      TOOL_ARGS _vtk_python_depfile_flags
+      CUSTOM_COMMAND_ARGS _vtk_python_depfile_args
+      SOURCE "${_vtk_python_header}"
+      DEPFILE_PATH "${_vtk_python_depfile}"
+      TOOL_FLAGS "-MF")
+
     add_custom_command(
       OUTPUT  "${_vtk_python_source_output}"
       COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
               "$<TARGET_FILE:${_vtk_python_wrap_target}>"
-              -MF "${_vtk_python_depfile}"
+              ${_vtk_python_depfile_flags}
               "@${_vtk_python_args_file}"
               -o "${_vtk_python_source_output}"
               "${_vtk_python_header}"
               ${_vtk_python_warning_args}
               ${_vtk_python_macros_args}
-      DEPFILE "${_vtk_python_depfile}"
+      ${_vtk_python_depfile_args}
       COMMENT "Generating Python wrapper sources for ${_vtk_python_basename}"
       DEPENDS
         "${_vtk_python_header}"
