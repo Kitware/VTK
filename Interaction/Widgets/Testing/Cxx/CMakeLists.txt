@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   BoxWidget.cxx
   BoxWidget2.cxx
   ImagePlaneWidget.cxx
+  ImagePlaneWidgetOriented.cxx
   TerrainPolylineEditor.cxx
   TestAffineWidget.cxx
   TestAngleWidget2D.cxx

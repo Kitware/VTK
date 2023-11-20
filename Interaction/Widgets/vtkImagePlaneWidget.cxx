@@ -16,6 +16,7 @@
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPickingManager.h"
@@ -31,6 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkVectorOperators.h"
 
 #include <algorithm>
 
@@ -43,6 +45,57 @@ vtkCxxSetObjectMacro(vtkImagePlaneWidget, CursorProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, MarginProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, TexturePlaneProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, ColorMap, vtkImageMapToColors);
+
+namespace details
+{
+/**
+ * Clamp plane center inside image data.
+ *
+ * Takes image data orientation into account.
+ * Uses Push method of plane to avoid shift in other directions
+ * due to numerical errors in coordinates computation.
+ */
+void clampPlaneCenterInImage(vtkPlaneSource* plane, vtkImageData* image)
+{
+  double planeCenter[3];
+  plane->GetCenter(planeCenter);
+  int extent[6];
+  image->GetExtent(extent);
+
+  double indices[3];
+  image->TransformPhysicalPointToContinuousIndex(planeCenter, indices);
+  double clampedIndices[3];
+  clampedIndices[0] =
+    vtkMath::ClampValue(indices[0], static_cast<double>(extent[0]), static_cast<double>(extent[1]));
+  clampedIndices[1] =
+    vtkMath::ClampValue(indices[1], static_cast<double>(extent[2]), static_cast<double>(extent[3]));
+  clampedIndices[2] =
+    vtkMath::ClampValue(indices[2], static_cast<double>(extent[4]), static_cast<double>(extent[5]));
+
+  // check if there are any change to avoid unecessary computation.
+  bool identity = true;
+  for (int idx = 0; idx < 3; idx++)
+  {
+    identity = vtkMathUtilities::NearlyEqual(indices[idx], clampedIndices[idx]) && identity;
+  }
+  if (identity)
+  {
+    return;
+  }
+
+  double clampedCenter[3];
+  image->TransformContinuousIndexToPhysicalPoint(clampedIndices, clampedCenter);
+  double clampMove[3] = { clampedCenter[0] - planeCenter[0], clampedCenter[1] - planeCenter[1],
+    clampedCenter[2] - planeCenter[2] };
+
+  double planeNormal[3];
+  plane->GetNormal(planeNormal);
+
+  double shift = vtkMath::Dot(clampMove, planeNormal);
+  // Use push method to avoid extra shift due to numerical errors.
+  plane->Push(shift);
+}
+};
 
 //------------------------------------------------------------------------------
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -1381,62 +1434,44 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
     return;
   }
 
-  vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
-  inpAlg->UpdateInformation();
-  vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
-  int extent[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
-  double origin[3];
-  outInfo->Get(vtkDataObject::ORIGIN(), origin);
-  double spacing[3];
-  outInfo->Get(vtkDataObject::SPACING(), spacing);
+  int dims[3];
+  this->ImageData->GetDimensions(dims);
 
-  // Prevent obscuring voxels by offsetting the plane geometry
-  //
-  double xbounds[] = { origin[0] + spacing[0] * (extent[0] - 0.5),
-    origin[0] + spacing[0] * (extent[1] + 0.5) };
-  double ybounds[] = { origin[1] + spacing[1] * (extent[2] - 0.5),
-    origin[1] + spacing[1] * (extent[3] + 0.5) };
-  double zbounds[] = { origin[2] + spacing[2] * (extent[4] - 0.5),
-    origin[2] + spacing[2] * (extent[5] + 0.5) };
-
-  if (spacing[0] < 0.0)
-  {
-    double t = xbounds[0];
-    xbounds[0] = xbounds[1];
-    xbounds[1] = t;
-  }
-  if (spacing[1] < 0.0)
-  {
-    double t = ybounds[0];
-    ybounds[0] = ybounds[1];
-    ybounds[1] = t;
-  }
-  if (spacing[2] < 0.0)
-  {
-    double t = zbounds[0];
-    zbounds[0] = zbounds[1];
-    zbounds[1] = t;
-  }
+  double origin[3], dir1[3], dir2[3], point1[3], point2[3];
+  this->ImageData->TransformIndexToPhysicalPoint(0, 0, 0, origin);
 
   if (i == 2) // XY, z-normal
   {
-    this->PlaneSource->SetOrigin(xbounds[0], ybounds[0], zbounds[0]);
-    this->PlaneSource->SetPoint1(xbounds[1], ybounds[0], zbounds[0]);
-    this->PlaneSource->SetPoint2(xbounds[0], ybounds[1], zbounds[0]);
+    this->ImageData->TransformIndexToPhysicalPoint(1, 0, 0, dir1);
+    this->ImageData->TransformIndexToPhysicalPoint(0, 1, 0, dir2);
+    this->ImageData->TransformIndexToPhysicalPoint(dims[0] - 1, 0, 0, point1);
+    this->ImageData->TransformIndexToPhysicalPoint(0, dims[1] - 1, 0, point2);
   }
   else if (i == 0) // YZ, x-normal
   {
-    this->PlaneSource->SetOrigin(xbounds[0], ybounds[0], zbounds[0]);
-    this->PlaneSource->SetPoint1(xbounds[0], ybounds[1], zbounds[0]);
-    this->PlaneSource->SetPoint2(xbounds[0], ybounds[0], zbounds[1]);
+    this->ImageData->TransformIndexToPhysicalPoint(0, 1, 0, dir1);
+    this->ImageData->TransformIndexToPhysicalPoint(0, 0, 1, dir2);
+    this->ImageData->TransformIndexToPhysicalPoint(0, dims[1] - 1, 0, point1);
+    this->ImageData->TransformIndexToPhysicalPoint(0, 0, dims[2] - 1, point2);
   }
   else // ZX, y-normal
   {
-    this->PlaneSource->SetOrigin(xbounds[0], ybounds[0], zbounds[0]);
-    this->PlaneSource->SetPoint1(xbounds[0], ybounds[0], zbounds[1]);
-    this->PlaneSource->SetPoint2(xbounds[1], ybounds[0], zbounds[0]);
+    this->ImageData->TransformIndexToPhysicalPoint(0, 0, 1, dir1);
+    this->ImageData->TransformIndexToPhysicalPoint(1, 0, 0, dir2);
+    this->ImageData->TransformIndexToPhysicalPoint(0, 0, dims[2] - 1, point1);
+    this->ImageData->TransformIndexToPhysicalPoint(dims[0] - 1, 0, 0, point2);
   }
+
+  vtkVector3d vOrigin(origin), vDir1(dir1), vDir2(dir2), vPoint1(point1), vPoint2(point2);
+  vDir1 -= vOrigin;
+  vDir2 -= vOrigin;
+  vOrigin -= 0.5 * (vDir1 + vDir2);
+  vPoint1 += 0.5 * (vDir1 - vDir2);
+  vPoint2 += 0.5 * (vDir2 - vDir1);
+
+  this->PlaneSource->SetOrigin(vOrigin.GetData());
+  this->PlaneSource->SetPoint1(vPoint1.GetData());
+  this->PlaneSource->SetPoint2(vPoint2.GetData());
 
   this->UpdatePlane();
   this->BuildRepresentation();
@@ -1515,10 +1550,10 @@ void vtkImagePlaneWidget::UpdatePlane()
   outInfo->Get(vtkDataObject::ORIGIN(), origin);
   int extent[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
+  double direction[9];
+  outInfo->Get(vtkDataObject::DIRECTION(), direction);
 
-  int i;
-
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     if (extent[2 * i] > extent[2 * i + 1])
     {
@@ -1532,50 +1567,7 @@ void vtkImagePlaneWidget::UpdatePlane()
 
   if (this->RestrictPlaneToVolume)
   {
-    double bounds[] = { origin[0] + spacing[0] * extent[0], // xmin
-      origin[0] + spacing[0] * extent[1],                   // xmax
-      origin[1] + spacing[1] * extent[2],                   // ymin
-      origin[1] + spacing[1] * extent[3],                   // ymax
-      origin[2] + spacing[2] * extent[4],                   // zmin
-      origin[2] + spacing[2] * extent[5] };                 // zmax
-
-    for (i = 0; i <= 4; i += 2) // reverse bounds if necessary
-    {
-      if (bounds[i] > bounds[i + 1])
-      {
-        double t = bounds[i + 1];
-        bounds[i + 1] = bounds[i];
-        bounds[i] = t;
-      }
-    }
-
-    double abs_normal[3];
-    this->PlaneSource->GetNormal(abs_normal);
-    double planeCenter[3];
-    this->PlaneSource->GetCenter(planeCenter);
-    double nmax = 0.0;
-    int k = 0;
-    for (i = 0; i < 3; i++)
-    {
-      abs_normal[i] = fabs(abs_normal[i]);
-      if (abs_normal[i] > nmax)
-      {
-        nmax = abs_normal[i];
-        k = i;
-      }
-    }
-    // Force the plane to lie within the true image bounds along its normal
-    //
-    if (planeCenter[k] > bounds[2 * k + 1])
-    {
-      planeCenter[k] = bounds[2 * k + 1];
-    }
-    else if (planeCenter[k] < bounds[2 * k])
-    {
-      planeCenter[k] = bounds[2 * k];
-    }
-
-    this->PlaneSource->SetCenter(planeCenter);
+    details::clampPlaneCenterInImage(this->PlaneSource, this->ImageData);
   }
 
   double planeAxis1[3];
@@ -1596,17 +1588,15 @@ void vtkImagePlaneWidget::UpdatePlane()
   //
 
   this->ResliceAxes->Identity();
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     this->ResliceAxes->SetElement(0, i, planeAxis1[i]);
     this->ResliceAxes->SetElement(1, i, planeAxis2[i]);
     this->ResliceAxes->SetElement(2, i, normal[i]);
   }
 
-  double planeOrigin[4];
+  double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
-
-  planeOrigin[3] = 1.0;
 
   this->ResliceAxes->Transpose();
   this->ResliceAxes->SetElement(0, 3, planeOrigin[0]);
@@ -1667,6 +1657,7 @@ void vtkImagePlaneWidget::UpdatePlane()
   this->Reslice->SetOutputSpacing(outputSpacingX, outputSpacingY, 1);
   this->Reslice->SetOutputOrigin(0.5 * outputSpacingX, 0.5 * outputSpacingY, 0);
   this->Reslice->SetOutputExtent(0, extentX - 1, 0, extentY - 1, 0, 0);
+  this->Reslice->SetOutputDirection(1, 0, 0, 0, 1, 0, 0, 0, 1);
 }
 
 //------------------------------------------------------------------------------
@@ -1820,29 +1811,7 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
 //------------------------------------------------------------------------------
 void vtkImagePlaneWidget::SetSlicePosition(double position)
 {
-  double amount = 0.0;
-  double planeOrigin[3];
-  this->PlaneSource->GetOrigin(planeOrigin);
-
-  if (this->PlaneOrientation == 2) // z axis
-  {
-    amount = position - planeOrigin[2];
-  }
-  else if (this->PlaneOrientation == 0) // x axis
-  {
-    amount = position - planeOrigin[0];
-  }
-  else if (this->PlaneOrientation == 1) // y axis
-  {
-    amount = position - planeOrigin[1];
-  }
-  else
-  {
-    vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
-    return;
-  }
-
-  this->PlaneSource->Push(amount);
+  this->PlaneSource->Push(position - this->GetSlicePosition());
   this->UpdatePlane();
   this->BuildRepresentation();
   this->Modified();
@@ -1853,25 +1822,12 @@ double vtkImagePlaneWidget::GetSlicePosition()
 {
   double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
+  double planeNormal[3];
+  this->PlaneSource->GetNormal(planeNormal);
 
-  if (this->PlaneOrientation == 2)
-  {
-    return planeOrigin[2];
-  }
-  else if (this->PlaneOrientation == 1)
-  {
-    return planeOrigin[1];
-  }
-  else if (this->PlaneOrientation == 0)
-  {
-    return planeOrigin[0];
-  }
-  else
-  {
-    vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
-  }
-
-  return 0.0;
+  double movement[3] = { planeOrigin[0] * planeNormal[0], planeOrigin[1] * planeNormal[1],
+    planeOrigin[2] * planeNormal[2] };
+  return vtkMath::Norm(movement);
 }
 
 //------------------------------------------------------------------------------
@@ -1898,29 +1854,16 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
   this->PlaneSource->GetPoint1(pt1);
   double pt2[3];
   this->PlaneSource->GetPoint2(pt2);
+  double normal[3];
+  this->PlaneSource->GetNormal(normal);
 
-  if (this->PlaneOrientation == 2)
+  for (int i = 0; i < 3; ++i)
   {
-    planeOrigin[2] = origin[2] + index * spacing[2];
-    pt1[2] = planeOrigin[2];
-    pt2[2] = planeOrigin[2];
-  }
-  else if (this->PlaneOrientation == 1)
-  {
-    planeOrigin[1] = origin[1] + index * spacing[1];
-    pt1[1] = planeOrigin[1];
-    pt2[1] = planeOrigin[1];
-  }
-  else if (this->PlaneOrientation == 0)
-  {
-    planeOrigin[0] = origin[0] + index * spacing[0];
-    pt1[0] = planeOrigin[0];
-    pt2[0] = planeOrigin[0];
-  }
-  else
-  {
-    vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
-    return;
+    const double newPlaneOrigin = origin[i] + index * spacing[i] * normal[i];
+    const double translation = newPlaneOrigin - planeOrigin[i];
+    planeOrigin[i] = newPlaneOrigin;
+    pt1[i] += translation;
+    pt2[i] += translation;
   }
 
   this->PlaneSource->SetOrigin(planeOrigin);
@@ -1951,22 +1894,15 @@ int vtkImagePlaneWidget::GetSliceIndex()
   outInfo->Get(vtkDataObject::SPACING(), spacing);
   double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
+  double normal[3];
+  this->PlaneSource->GetNormal(normal);
 
-  if (this->PlaneOrientation == 2)
+  for (int i = 0; i < 3; ++i)
   {
-    return static_cast<int>(std::round((planeOrigin[2] - origin[2]) / spacing[2]));
-  }
-  else if (this->PlaneOrientation == 1)
-  {
-    return static_cast<int>(std::round((planeOrigin[1] - origin[1]) / spacing[1]));
-  }
-  else if (this->PlaneOrientation == 0)
-  {
-    return static_cast<int>(std::round((planeOrigin[0] - origin[0]) / spacing[0]));
-  }
-  else
-  {
-    vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
+    if (normal[i] != 0.0)
+    {
+      return std::round((planeOrigin[i] - origin[i]) / spacing[i] / normal[i]);
+    }
   }
 
   return 0;
