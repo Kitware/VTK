@@ -1,6 +1,7 @@
 vtk_add_test_cxx(vtkRenderingAnariCxxTests tests
   # Surface Rendering Tests
   TestAnariPass.cxx
+  TestAnariPassVisibility.cxx
   TestAnariMaterials.cxx
   TestAnariSphere.cxx
   TestAnariDynamicObject.cxx
