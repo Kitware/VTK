@@ -1877,7 +1877,6 @@ void vtkAnariRendererNode::Build(bool prepass)
 //----------------------------------------------------------------------------
 void vtkAnariRendererNode::Render(bool prepass)
 {
-  this->DebugOn();
   vtkAnariProfiling startProfiling("vtkAnariRendererNode::Render", vtkAnariProfiling::BLUE);
 
   vtkRenderer* ren = this->GetRenderer();
