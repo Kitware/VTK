@@ -61,10 +61,12 @@ void vtkOpenXRRemotingRenderWindow::Initialize()
 
   vtkWin32OpenGLDXRenderWindow* helperWindow =
     vtkWin32OpenGLDXRenderWindow::SafeDownCast(this->HelperWindow);
+
   // Register this window display framebuffer with the helper window D3D texture.
   // We use the display buffer to benefit from FramebufferFlipY.
   helperWindow->RegisterSharedTexture(
-    this->GetDisplayFramebuffer()->GetColorAttachmentAsTextureObject(0)->GetHandle());
+    this->GetDisplayFramebuffer()->GetColorAttachmentAsTextureObject(0)->GetHandle(),
+    this->GetDisplayFramebuffer()->GetDepthAttachmentAsTextureObject()->GetHandle());
 
   // Resize shared texture
   this->HelperWindow->SetSize(this->Size[0], this->Size[1]);
@@ -119,7 +121,7 @@ void vtkOpenXRRemotingRenderWindow::RenderOneEye(uint32_t eye)
 {
   ID3D11Texture2D* colorTexture = nullptr;
   ID3D11Texture2D* depthTexture = nullptr;
-  if (!vtkOpenXRManager::GetInstance().PrepareRendering(eye, &colorTexture, &depthTexture))
+  if (!vtkOpenXRManager::GetInstance().PrepareRendering(this, &colorTexture, &depthTexture))
   {
     return;
   }
@@ -128,7 +130,7 @@ void vtkOpenXRRemotingRenderWindow::RenderOneEye(uint32_t eye)
   vtkWin32OpenGLDXRenderWindow* helperWindow =
     vtkWin32OpenGLDXRenderWindow::SafeDownCast(this->HelperWindow);
   helperWindow->Unlock();
-  helperWindow->BlitToTexture(colorTexture);
+  helperWindow->BlitToTexture(colorTexture, depthTexture);
   helperWindow->Lock();
 
   // Release this swapchain image

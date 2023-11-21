@@ -42,10 +42,10 @@ public:
 
   ///@{
   /**
-   * Register/Unregister the OpenGL texture designated by \p textureHandle with
-   * this render window internal D3D shared texture.
+   * Register/Unregister the OpenGL textures designated by \p colorId  and \p depthId with
+   * this render window internal D3D shared textures. depthId is optional
    */
-  void RegisterSharedTexture(unsigned int textureHandle);
+  void RegisterSharedTexture(unsigned int colorId, unsigned int depthId = 0);
   void UnregisterSharedTexture();
   ///@}
 
@@ -65,9 +65,9 @@ public:
 
   ///@{
   /**
-   * Blits the internal D3D shared texture into \p texture.
+   * Blits the internal D3D shared texture into \p color and optionally \p depth.
    */
-  void BlitToTexture(ID3D11Texture2D* texture);
+  void BlitToTexture(ID3D11Texture2D* color, ID3D11Texture2D* depth = nullptr);
   ///@}
 
   ///@{
@@ -82,6 +82,7 @@ public:
    * Returns the D3D texture shared with this render window
    */
   ID3D11Texture2D* GetD3DSharedTexture();
+  ID3D11Texture2D* GetD3DSharedDepthTexture();
   ///@}
 
   ///@{
@@ -89,7 +90,7 @@ public:
    * Specify the DGXI adapter to be used for initialization.
    * If left unspecified, the first available adapter is used.
    */
-  void SetAdapterId(LUID uid) { this->AdapterId = uid; }
+  void SetAdapterId(LUID uid);
   ///@}
 
 protected:
@@ -105,17 +106,11 @@ private:
   vtkWin32OpenGLDXRenderWindow(const vtkWin32OpenGLDXRenderWindow&) = delete;
   void operator=(const vtkWin32OpenGLDXRenderWindow&) = delete;
 
-  // Hide D3D resources managed by Microsoft::WRL::ComPtr
-  class PIMPL;
-  PIMPL* Private;
+  bool CreateTexture(UINT format, UINT bindFlags, ID3D11Texture2D** output);
+  void UpdateTextures();
 
-  HANDLE DeviceHandle = 0;
-
-  unsigned int TextureId = 0; // OpenGL texture id to be shared with the D3D texture
-
-  HANDLE GLSharedTextureHandle = 0; // OpenGL-D3D shared texture id
-
-  LUID AdapterId = { 0, 0 }; // DGXI adapter id
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Impl;
 };
 VTK_ABI_NAMESPACE_END
 #endif
