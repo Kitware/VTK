@@ -9,6 +9,9 @@ template <bool TInsideOut>
 constexpr bool vtkTableBasedClipCases<TInsideOut>::SupportedCellTypes[VTK_NUMBER_OF_CELL_TYPES];
 
 template <bool TInsideOut>
+constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellMaxCase[9];
+
+template <bool TInsideOut>
 constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellEdges[17][12][2];
 
 template <bool TInsideOut>

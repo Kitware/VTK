@@ -633,8 +633,8 @@ struct EvaluateCells
           {
             unsupportedCellTypes.insert(cellType);
           }
-          // here we set that this cell does not generate any output
-          cellsCase[cellId] = TInsideOut ? 255 : 0;
+          // here we set that this cell is discarded
+          cellsCase[cellId] = TBCCases::DISCARDED_CELL_CASE;
           continue;
         }
         this->Input->GetCellPoints(cellId, numberOfPoints, pointIndices, idList);
@@ -646,6 +646,23 @@ struct EvaluateCells
           grdDiffs[pointId] = clipArray[pointIndices[pointId]] - this->IsoValue;
           caseIndex |= (grdDiffs[pointId] >= 0.0) << pointId;
         }
+
+        // Keep the cell (Fast path)
+        if (TBCCases::IsCellKept(numberOfPoints, caseIndex))
+        {
+          cellsCase[cellId] = caseIndex;
+          batchNumberOfCells++;
+          batchCellsConnectivity += numberOfPoints;
+          continue;
+        }
+        // Discard the cell (Fast path)
+        else if (TBCCases::IsCellDiscarded(numberOfPoints, caseIndex))
+        {
+          cellsCase[cellId] = TBCCases::DISCARDED_CELL_CASE;
+          continue;
+        }
+        // Clip the cell
+        cellsCase[cellId] = caseIndex;
 
         // shape case, number of outputs, and vertices from edges
         thisCase = TBCCases::GetCellCase(cellType, caseIndex);
@@ -696,8 +713,6 @@ struct EvaluateCells
             batchNumberOfCentroids++;
           }
         }
-        cellsCase[cellId] = static_cast<unsigned char>(
-          TInsideOut ? (numberOfOutputCells == 0 ? 255 : caseIndex) : caseIndex);
       }
     }
   }
@@ -874,6 +889,8 @@ struct ExtractCells
     uint8_t *thisCase, numberOfOutputCells, shape, outputCellId, numberOfCellPoints, p;
     uint8_t pointIndex, point1Index, point2Index;
     const typename TBCCases::EDGEIDXS* edgeVertices = nullptr;
+    // Used to map the voxel/pixel indices to the hexahedron/quad indices
+    static constexpr uint8_t voxelMap[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
     const bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
@@ -895,14 +912,44 @@ struct ExtractCells
       {
         // process cells that has output cells (either itself or at least because it's clipped)
         const auto& caseIndex = cellsCase[cellId];
-        // Discard the whole cell (Fast path without using numberOfPoints)
-        if (caseIndex == TInsideOut ? 255 : 0)
+        // Discard the cell (Fast path without using numberOfPoints)
+        if (caseIndex == TBCCases::DISCARDED_CELL_CASE)
         {
           continue;
         }
 
         cellType = this->Input->GetCellType(cellId);
         this->Input->GetCellPoints(cellId, numberOfPoints, pointIndices, idList);
+
+        // Keep the cell (Fast path)
+        if (TBCCases::IsCellKept(numberOfPoints, caseIndex))
+        {
+          offsets[cellsOffset] = cellsConnectivityOffset;
+          switch (cellType)
+          {
+            case VTK_VOXEL:
+            case VTK_PIXEL:
+              for (pointId = 0; pointId < numberOfPoints; ++pointId)
+              {
+                connectivity[cellsConnectivityOffset++] =
+                  static_cast<TOutputIdType>(pointsMap[pointIndices[voxelMap[pointId]]]);
+              }
+              // change cell type to VTK_HEXAHEDRON/VTK_QUAD
+              types[cellsOffset] = cellType + 1;
+              break;
+            default:
+              for (pointId = 0; pointId < numberOfPoints; ++pointId)
+              {
+                connectivity[cellsConnectivityOffset++] =
+                  static_cast<TOutputIdType>(pointsMap[pointIndices[pointId]]);
+              }
+              types[cellsOffset] = cellType;
+              break;
+          }
+          this->CellDataArrays.Copy(cellId, cellsOffset++);
+          continue;
+        }
+        // Clip the cell
 
         // shape case, number of outputs, and vertices from edges
         thisCase = TBCCases::GetCellCase(cellType, caseIndex);

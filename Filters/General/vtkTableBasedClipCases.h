@@ -17,6 +17,8 @@ template <bool TInsideOut>
 class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipCases
 {
 public:
+  static constexpr uint8_t DISCARDED_CELL_CASE = TInsideOut * 255;
+
   // Points of original cell (up to 8, for the hex)
   // Note: we assume P0 is zero in several places.
   // Note: we assume these values are contiguous and monotonic.
@@ -70,6 +72,9 @@ private:
     /*VTK_VOXEL*/ T, /*VTK_HEXAHEDRON*/ T, /*VTK_WEDGE*/ T, /*VTK_PYRAMID*/ T, F, F, F, F, F, F, F,
     F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
     F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F };
+
+  // Cell Max Case based on the number of points
+  static constexpr uint8_t CellMaxCase[9] = { 0, 1, 3, 7, 15, 31, 63, 127, 255 };
 
   static constexpr uint8_t NUM_CELL_TYPES = 17;
   static constexpr uint8_t N = 255;
@@ -9069,6 +9074,42 @@ public:
   {
     return SupportedCellTypes[cellType];
   }
+
+  ///@{
+  /**
+   * Given the number of points and a case index, return if the cell is kept.
+   */
+  template <bool InOut = TInsideOut>
+  typename std::enable_if<InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellKept(
+    vtkIdType vtkNotUsed(numberOfPoints), uint8_t caseIndex)
+  {
+    return caseIndex == 0;
+  }
+  template <bool InOut = TInsideOut>
+  typename std::enable_if<!InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellKept(
+    vtkIdType numberOfPoints, uint8_t caseIndex)
+  {
+    return caseIndex == CellMaxCase[numberOfPoints];
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Given the number of points and a case index, return if the cell is discarded.
+   */
+  template <bool InOut = TInsideOut>
+  typename std::enable_if<InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellDiscarded(
+    vtkIdType numberOfPoints, uint8_t caseIndex)
+  {
+    return caseIndex == CellMaxCase[numberOfPoints];
+  }
+  template <bool InOut = TInsideOut>
+  typename std::enable_if<!InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellDiscarded(
+    vtkIdType vtkNotUsed(numberOfPoints), uint8_t caseIndex)
+  {
+    return caseIndex == 0;
+  }
+  ///@}
 
   ///@{
   /**
