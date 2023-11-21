@@ -62,6 +62,15 @@ public:
   using EDGEIDXS = uint8_t[2];
 
 private:
+  static constexpr bool F = false;
+  static constexpr bool T = true;
+  // Supported Cell Types
+  static constexpr bool SupportedCellTypes[VTK_NUMBER_OF_CELL_TYPES] = { F, /*VTK_VERTEX*/ T, F,
+    /*VTK_LINE*/ T, F, /*VTK_TRIANGLE*/ T, F, F, /*VTK_PIXEL*/ T, /*VTK_QUAD*/ T, /*VTK_TETRA*/ T,
+    /*VTK_VOXEL*/ T, /*VTK_HEXAHEDRON*/ T, /*VTK_WEDGE*/ T, /*VTK_PYRAMID*/ T, F, F, F, F, F, F, F,
+    F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+    F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F };
+
   static constexpr uint8_t NUM_CELL_TYPES = 17;
   static constexpr uint8_t N = 255;
   static constexpr uint8_t MAX_NUM_EDGES = 12; // VTK_HEXAHEDRON
@@ -9052,6 +9061,14 @@ public:
 #else
 #define VTK_CLIP_INLINE VTK_ALWAYS_INLINE
 #endif
+
+  /**
+   * Given a cell type return if it's supported by this class.
+   */
+  VTK_CLIP_INLINE static constexpr bool IsCellTypeSupported(int cellType)
+  {
+    return SupportedCellTypes[cellType];
+  }
 
   ///@{
   /**

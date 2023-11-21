@@ -606,7 +606,6 @@ struct EvaluateCells
     uint8_t *thisCase, numberOfOutputCells, outputCellId, shape, numberOfCellPoints, p;
     uint8_t pointIndex, point1Index, point2Index;
     const typename TBCCases::EDGEIDXS* edgeVertices = nullptr;
-    bool canBeClippedFast;
 
     const bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
@@ -628,30 +627,12 @@ struct EvaluateCells
       {
         cellType = this->Input->GetCellType(cellId);
         // check if the cell type is supported
-        switch (cellType)
+        if (!TBCCases::IsCellTypeSupported(cellType))
         {
-          case VTK_VOXEL:
-          case VTK_HEXAHEDRON:
-          case VTK_WEDGE:
-          case VTK_PYRAMID:
-          case VTK_TETRA:
-          case VTK_PIXEL:
-          case VTK_QUAD:
-          case VTK_TRIANGLE:
-          case VTK_LINE:
-          case VTK_VERTEX:
-            canBeClippedFast = true;
-            break;
-          case VTK_EMPTY_CELL:
-            canBeClippedFast = false;
-            break;
-          default:
-            canBeClippedFast = false;
+          if (cellType != VTK_EMPTY_CELL)
+          {
             unsupportedCellTypes.insert(cellType);
-            break;
-        }
-        if (!canBeClippedFast)
-        {
+          }
           // here we set that this cell does not generate any output
           cellsCase[cellId] = TInsideOut ? 255 : 0;
           continue;
