@@ -6,63 +6,56 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkErrorCode.h"
-#include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFWriterImplementation.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-
-#include "vtk_hdf5.h"
+#include "vtkUnstructuredGrid.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHDFWriter);
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::WritePolyDataToRoot(vtkPolyData* input)
+bool vtkHDFWriter::WriteDatasetToFile(vtkPolyData* input)
 {
-  // Create file, root and write header
-  if (!this->Impl->OpenRoot(this->Overwrite))
-  {
-    return false;
-  }
+  bool writeSuccess = true;
 
-  if (!this->Impl->WriteHeader("PolyData"))
-  {
-    return false;
-  }
+  writeSuccess &= this->Impl->OpenRoot(this->Overwrite);
+  hid_t rootGroup = this->Impl->GetRoot();
 
-  if (!this->AppendNumberOfPoints(input))
-  {
-    return false;
-  }
-
-  if (!this->AppendPoints(input))
-  {
-    return false;
-  }
-
-  if (!this->AppendCells(input))
-  {
-    return false;
-  }
-
-  if (!this->AppendDataArrays(input))
-  {
-    return false;
-  }
-
-  return true;
+  writeSuccess &= this->Impl->WriteHeader("PolyData");
+  writeSuccess &= this->AppendNumberOfPoints(rootGroup, input);
+  writeSuccess &= this->AppendPoints(rootGroup, input);
+  writeSuccess &= this->AppendPrimitiveCells(rootGroup, input);
+  writeSuccess &= this->AppendDataArrays(rootGroup, input);
+  return writeSuccess;
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendNumberOfPoints(vtkPointSet* input)
+bool vtkHDFWriter::WriteDatasetToFile(vtkUnstructuredGrid* input)
 {
-  const hid_t root = this->Impl->GetRoot();
-  const int nPoints = input->GetNumberOfPoints();
-  hsize_t nPointsDimensions[1] = { 1 };
-  const vtkHDF::ScopedH5DHandle result = this->Impl->createAndWriteHdfDataset(
-    root, H5T_STD_I64LE, H5T_NATIVE_INT, "NumberOfPoints", 1, nPointsDimensions, &nPoints);
-  if (result == H5I_INVALID_HID)
+  vtkCellArray* cells = input->GetCells();
+  bool writeSuccess = true;
+
+  writeSuccess &= this->Impl->OpenRoot(this->Overwrite);
+  hid_t rootGroup = this->Impl->GetRoot();
+
+  writeSuccess &= this->Impl->WriteHeader("UnstructuredGrid");
+  writeSuccess &= this->AppendNumberOfPoints(rootGroup, input);
+  writeSuccess &= this->AppendPoints(rootGroup, input);
+  writeSuccess &= this->AppendNumberOfCells(rootGroup, cells);
+  writeSuccess &= this->AppendCellTypes(rootGroup, input);
+  writeSuccess &= this->AppendNumberOfConnectivityIds(rootGroup, cells);
+  writeSuccess &= this->AppendConnectivity(rootGroup, cells);
+  writeSuccess &= this->AppendOffsets(rootGroup, cells);
+  writeSuccess &= this->AppendDataArrays(rootGroup, input);
+  return writeSuccess;
+}
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendNumberOfPoints(hid_t group, vtkPointSet* input)
+{
+  if (this->Impl->createSingleValueDataset(group, "NumberOfPoints", input->GetNumberOfPoints()) ==
+    H5I_INVALID_HID)
   {
     vtkErrorMacro(<< "Can not create NumberOfPoints dataset when creating: " << this->FileName);
     return false;
@@ -71,20 +64,79 @@ bool vtkHDFWriter::AppendNumberOfPoints(vtkPointSet* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendPoints(vtkPointSet* input)
+bool vtkHDFWriter::AppendNumberOfCells(hid_t group, vtkCellArray* input)
 {
-  const hid_t root = this->Impl->GetRoot();
+  if (this->Impl->createSingleValueDataset(group, "NumberOfCells", input->GetNumberOfCells()) ==
+    H5I_INVALID_HID)
+  {
+    vtkErrorMacro(<< "Can not create NumberOfCells dataset when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendNumberOfConnectivityIds(hid_t group, vtkCellArray* input)
+{
+  if (this->Impl->createSingleValueDataset(
+        group, "NumberOfConnectivityIds", input->GetNumberOfConnectivityIds()) == H5I_INVALID_HID)
+  {
+    vtkErrorMacro(<< "Can not create NumberOfConnectivityIds dataset when creating: "
+                  << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendCellTypes(hid_t group, vtkUnstructuredGrid* input)
+{
+  if (this->Impl->createDatasetFromDataArray(
+        group, "Types", H5T_STD_U8LE, input->GetCellTypesArray()) == H5I_INVALID_HID)
+  {
+    vtkErrorMacro(<< "Can not create Types dataset when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
+{
+  if (this->Impl->createDatasetFromDataArray(
+        group, "Offsets", H5T_STD_I64LE, input->GetOffsetsArray()) == H5I_INVALID_HID)
+  {
+    vtkErrorMacro(<< "Can not create Offsets dataset when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
+{
+  if (this->Impl->createDatasetFromDataArray(
+        group, "Connectivity", H5T_STD_I64LE, input->GetConnectivityArray()) == H5I_INVALID_HID)
+  {
+    vtkErrorMacro(<< "Can not create Connectivity dataset when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
+{
   const int nPoints = input->GetNumberOfPoints();
   hid_t dataset{ H5I_INVALID_HID };
   if (input->GetPoints() != nullptr && input->GetPoints()->GetData() != nullptr)
   {
     dataset = this->Impl->createDatasetFromDataArray(
-      root, "Points", H5T_IEEE_F32LE, input->GetPoints()->GetData());
+      group, "Points", H5T_IEEE_F32LE, input->GetPoints()->GetData());
   }
   else if (nPoints == 0)
   {
     hsize_t pointsDimensions[2] = { 0, 3 };
-    dataset = this->Impl->createHdfDataset(root, "Points", H5T_IEEE_F32LE, 2, pointsDimensions);
+    dataset = this->Impl->createHdfDataset(group, "Points", H5T_IEEE_F32LE, 2, pointsDimensions);
   }
 
   if (dataset == H5I_INVALID_HID)
@@ -97,9 +149,8 @@ bool vtkHDFWriter::AppendPoints(vtkPointSet* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendCells(vtkPolyData* input)
+bool vtkHDFWriter::AppendPrimitiveCells(hid_t baseGroup, vtkPolyData* input)
 {
-  const hid_t root = this->Impl->GetRoot();
   // On group per primitive: Polygons, Strips, Vertices, Lines
   auto cellArrayTopos = this->Impl->getCellArraysForTopos(input);
   for (const auto& cellArrayTopo : cellArrayTopos)
@@ -109,7 +160,7 @@ bool vtkHDFWriter::AppendCells(vtkPolyData* input)
 
     // Create group
     vtkHDF::ScopedH5GHandle group{ H5Gcreate(
-      root, groupName, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+      baseGroup, groupName, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
     if (group == H5I_INVALID_HID)
     {
       vtkErrorMacro(<< "Can not create " << groupName
@@ -117,46 +168,28 @@ bool vtkHDFWriter::AppendCells(vtkPolyData* input)
       return false;
     }
 
-    // Number of cells
+    if (!this->AppendNumberOfCells(group, cells))
     {
-      int nCells = cells->GetNumberOfCells();
-      hsize_t dimensions[1] = { 1 };
-      const vtkHDF::ScopedH5DHandle nCellsDataset = this->Impl->createAndWriteHdfDataset(
-        group, H5T_STD_I64LE, H5T_NATIVE_INT, "NumberOfCells", 1, dimensions, &nCells);
-      if (nCellsDataset == H5I_INVALID_HID)
-      {
-        vtkErrorMacro(<< "Can not create NumberOfCells dataset in group " << groupName
-                      << " when creating: " << this->FileName);
-        return false;
-      }
+      vtkErrorMacro(<< "Can not create NumberOfCells dataset in group " << groupName
+                    << " when creating: " << this->FileName);
+      return false;
     }
 
-    // Number of connectivityIds
+    if (!this->AppendNumberOfConnectivityIds(group, cells))
     {
-      int nConnectivityIds = cells->GetNumberOfConnectivityIds();
-      hsize_t dimensions[1] = { 1 };
-      const vtkHDF::ScopedH5DHandle nConnIdsDataset = this->Impl->createAndWriteHdfDataset(group,
-        H5T_STD_I64LE, H5T_NATIVE_INT, "NumberOfConnectivityIds", 1, dimensions, &nConnectivityIds);
-      if (nConnIdsDataset == H5I_INVALID_HID)
-      {
-        vtkErrorMacro(<< "Can not create NumberOfConnectivityIds dataset in group " << groupName
-                      << " when creating: " << this->FileName);
-        return false;
-      }
+      vtkErrorMacro(<< "Can not create NumberOfConnectivityIds dataset in group " << groupName
+                    << " when creating: " << this->FileName);
+      return false;
     }
 
-    // Offsets
-    if (this->Impl->createDatasetFromDataArray(
-          group, "Offsets", H5T_STD_I64LE, cells->GetOffsetsArray()) == H5I_INVALID_HID)
+    if (!this->AppendOffsets(group, cells))
     {
       vtkErrorMacro(<< "Can not create Offsets dataset in group " << groupName
                     << " when creating: " << this->FileName);
       return false;
     }
 
-    // Connectivity
-    if (this->Impl->createDatasetFromDataArray(
-          group, "Connectivity", H5T_STD_I64LE, cells->GetConnectivityArray()) == H5I_INVALID_HID)
+    if (!this->AppendConnectivity(group, cells))
     {
       vtkErrorMacro(<< "Can not create Connectivity dataset in group " << groupName
                     << " when creating: " << this->FileName);
@@ -167,9 +200,8 @@ bool vtkHDFWriter::AppendCells(vtkPolyData* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendDataArrays(vtkDataObject* input)
+bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input)
 {
-  const hid_t root = this->Impl->GetRoot();
   constexpr std::array<const char*, 3> groupNames = { "PointData", "CellData", "FieldData" };
   for (int iAttribute = 0; iAttribute < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++iAttribute)
   {
@@ -188,7 +220,7 @@ bool vtkHDFWriter::AppendDataArrays(vtkDataObject* input)
     // Create the group
     const char* groupName = groupNames[iAttribute];
     vtkHDF::ScopedH5GHandle group{ H5Gcreate(
-      root, groupName, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+      baseGroup, groupName, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
     if (group == H5I_INVALID_HID)
     {
       vtkErrorMacro(<< "Can not create " << groupName
@@ -244,12 +276,24 @@ void vtkHDFWriter::WriteData()
     return;
   }
 
+  // The writer can handle polydata and unstructured grids.
   vtkPolyData* polydata = vtkPolyData::SafeDownCast(input);
   if (polydata != nullptr)
   {
-    if (!this->WritePolyDataToRoot(polydata))
+    if (!this->WriteDatasetToFile(polydata))
     {
       vtkErrorMacro(<< "Can't write polydata to file:" << this->FileName);
+      return;
+    }
+    return;
+  }
+
+  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
+  if (unstructuredGrid != nullptr)
+  {
+    if (!this->WriteDatasetToFile(unstructuredGrid))
+    {
+      vtkErrorMacro(<< "Can't write unstructuredGrid to file:" << this->FileName);
       return;
     }
     return;

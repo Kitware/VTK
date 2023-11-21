@@ -103,6 +103,12 @@ public:
   vtkHDF::ScopedH5DHandle createDatasetFromDataArray(
     hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray);
 
+  /*
+   * Creates a single-value dataset and write a value to it.
+   * Returned scoped handle may be invalid
+   */
+  vtkHDF::ScopedH5DHandle createSingleValueDataset(hid_t group, const char* name, int value);
+
   Implementation(vtkHDFWriter* writer);
   virtual ~Implementation();
 
