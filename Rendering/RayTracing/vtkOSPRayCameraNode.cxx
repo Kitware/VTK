@@ -138,7 +138,6 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     ospSetVec2f(ospCamera, "imageStart", (float)vp[0], (float)vp[1]);
     ospSetVec2f(ospCamera, "imageEnd", (float)vp[2], (float)vp[3]);
     ospCommit(ospCamera);
-    ospRelease(ospCamera);
     this->oCamera = ospCamera;
   }
 }
