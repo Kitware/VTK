@@ -599,12 +599,12 @@ struct EvaluateCells
     const auto& clipArray = vtk::DataArrayValueRange<1>(this->ClipArray);
     auto cellsCase = vtk::DataArrayValueRange<1>(this->CellsCase);
     const vtkIdType* pointIndices;
-    vtkIdType numberOfPoints, j, cellId;
+    vtkIdType numberOfPoints, cellId, pointId;
     TInputIdType pointIndex1, pointIndex2;
     int caseIndex, cellType;
     double grdDiffs[8], point1ToPoint2, point1ToIso, point1Weight;
-    uint8_t numberOfOutputs, shape, numberOfCellPoints, p, pointIndex, point1Index, point2Index;
-    uint8_t* thisCase = nullptr;
+    uint8_t *thisCase, numberOfOutputCells, outputCellId, shape, numberOfCellPoints, p;
+    uint8_t pointIndex, point1Index, point2Index;
     const typename TBCCases::EDGEIDXS* edgeVertices = nullptr;
     bool canBeClippedFast;
 
@@ -659,19 +659,19 @@ struct EvaluateCells
         this->Input->GetCellPoints(cellId, numberOfPoints, pointIndices, idList);
 
         caseIndex = 0;
-        for (j = numberOfPoints - 1; j >= 0; --j)
+        for (pointId = numberOfPoints - 1; pointId >= 0; --pointId)
         {
-          grdDiffs[j] = clipArray[pointIndices[j]] - this->IsoValue;
-          caseIndex += ((grdDiffs[j] >= 0.0) ? 1 : 0);
-          caseIndex <<= (1 - (!j));
+          grdDiffs[pointId] = clipArray[pointIndices[pointId]] - this->IsoValue;
+          caseIndex += ((grdDiffs[pointId] >= 0.0) ? 1 : 0);
+          caseIndex <<= (1 - (!pointId));
         }
 
         // shape case, number of outputs, and vertices from edges
         thisCase = TBCCases::GetCellCase(cellType, caseIndex);
-        numberOfOutputs = *thisCase++;
+        numberOfOutputCells = *thisCase++;
         edgeVertices = TBCCases::GetCellEdges(cellType);
 
-        for (j = 0; j < numberOfOutputs; j++)
+        for (outputCellId = 0; outputCellId < numberOfOutputCells; ++outputCellId)
         {
           shape = *thisCase++;
           numberOfCellPoints = *thisCase++;
@@ -716,7 +716,7 @@ struct EvaluateCells
           }
         }
         cellsCase[cellId] = static_cast<unsigned char>(
-          TInsideOut ? (numberOfOutputs == 0 ? 255 : caseIndex) : caseIndex);
+          TInsideOut ? (numberOfOutputCells == 0 ? 255 : caseIndex) : caseIndex);
       }
     }
   }
@@ -886,12 +886,12 @@ struct ExtractCells
     auto offsets = vtk::DataArrayValueRange<1>(this->Offsets);
     auto types = vtk::DataArrayValueRange<1>(this->OutputCellTypes);
     const vtkIdType* pointIndices;
-    vtkIdType numberOfPoints, j, cellId, centroidIndex;
+    vtkIdType numberOfPoints, cellId, pointId, centroidIndex = -1;
     TInputIdType pointIndex1, pointIndex2;
     TOutputIdType shapeIds[MAX_CELL_SIZE];
     int cellType;
-    uint8_t numberOfOutputs, shape, numberOfCellPoints, p, pointIndex, point1Index, point2Index;
-    uint8_t* thisCase = nullptr;
+    uint8_t *thisCase, numberOfOutputCells, shape, outputCellId, numberOfCellPoints, p;
+    uint8_t pointIndex, point1Index, point2Index;
     const typename TBCCases::EDGEIDXS* edgeVertices = nullptr;
 
     const bool isFirst = vtkSMPTools::GetSingleThread();
@@ -925,10 +925,10 @@ struct ExtractCells
 
         // shape case, number of outputs, and vertices from edges
         thisCase = TBCCases::GetCellCase(cellType, caseIndex);
-        numberOfOutputs = *thisCase++;
+        numberOfOutputCells = *thisCase++;
         edgeVertices = TBCCases::GetCellEdges(cellType);
 
-        for (j = 0; j < numberOfOutputs; j++)
+        for (outputCellId = 0; outputCellId < numberOfOutputCells; ++outputCellId)
         {
           shape = *thisCase++;
           numberOfCellPoints = *thisCase++;
