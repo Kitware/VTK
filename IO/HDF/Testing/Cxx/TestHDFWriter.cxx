@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkDataTestUtilities.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkImageData.h"
@@ -51,7 +50,7 @@ bool TestWriteAndRead(vtkDataSet* data, const char* tempPath)
     return false;
   }
 
-  if (vtk::TestDataSet(output, data))
+  if (!vtkTestUtilities::CompareDataObjects(output, data))
   {
     std::cerr << "vtkDataset does not match: " << tempPath << std::endl;
     return false;

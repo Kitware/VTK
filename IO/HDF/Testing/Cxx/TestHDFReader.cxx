@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAppendDataSets.h"
-#include "vtkDataTestUtilities.h"
 #include "vtkFloatArray.h"
 #include "vtkHDFReader.h"
 #include "vtkImageData.h"
@@ -13,6 +12,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
@@ -65,7 +65,7 @@ int TestImageData(const std::string& dataRoot)
     return EXIT_FAILURE;
   }
 
-  return vtk::TestDataSet(data, expectedData, true);
+  return !vtkTestUtilities::CompareDataObjects(data, expectedData, true);
 }
 
 //----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ int TestImageCellData(const std::string& dataRoot)
     return EXIT_FAILURE;
   }
 
-  return vtk::TestDataSet(data, expectedData);
+  return !vtkTestUtilities::CompareDataObjects(data, expectedData);
 }
 
 //----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ int TestUnstructuredGrid(const std::string& dataRoot, bool parallel)
   oreader->Update();
   vtkUnstructuredGrid* expectedData =
     vtkUnstructuredGrid::SafeDownCast(oreader->GetOutputAsDataSet());
-  return vtk::TestDataSet(data, expectedData);
+  return !vtkTestUtilities::CompareDataObjects(data, expectedData);
 }
 
 //----------------------------------------------------------------------------
@@ -185,7 +185,7 @@ int TestPartitionedUnstructuredGrid(const std::string& dataRoot, bool parallel)
   oreader->Update();
   vtkUnstructuredGrid* expectedData =
     vtkUnstructuredGrid::SafeDownCast(oreader->GetOutputAsDataSet());
-  return vtk::TestDataSet(data, expectedData);
+  return !vtkTestUtilities::CompareDataObjects(data, expectedData);
 }
 
 //----------------------------------------------------------------------------
@@ -203,7 +203,7 @@ int TestPolyData(const std::string& dataRoot)
   reader->Update();
   auto data = vtkPolyData::SafeDownCast(reader->GetOutputAsDataSet());
 
-  return vtk::TestDataSet(data, expectedData);
+  return !vtkTestUtilities::CompareDataObjects(data, expectedData);
 }
 
 //----------------------------------------------------------------------------
@@ -237,7 +237,7 @@ int TestPartitionedPolyData(const std::string& dataRoot)
 
   auto data = vtkPolyData::SafeDownCast(appender->GetOutput());
 
-  return vtk::TestDataSet(data, expectedData);
+  return !vtkTestUtilities::CompareDataObjects(data, expectedData);
 }
 
 //----------------------------------------------------------------------------
@@ -283,7 +283,7 @@ int TestOverlappingAMR(const std::string& dataRoot)
     {
       auto dataset = data->GetDataSet(levelIndex, datasetIndex);
       auto expectedDataset = expectedData->GetDataSet(levelIndex, datasetIndex);
-      if (vtk::TestDataSet(dataset, expectedDataset))
+      if (!vtkTestUtilities::CompareDataObjects(dataset, expectedDataset))
       {
         std::cerr << "Datasets does not match for level " << levelIndex << " dataset "
                   << datasetIndex << std::endl;
