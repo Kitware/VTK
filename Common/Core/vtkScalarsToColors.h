@@ -406,7 +406,8 @@ protected:
    * method instantiates a vtkUnsignedCharArray and returns it. The user is
    * responsible for managing the memory.
    */
-  vtkUnsignedCharArray* ConvertToRGBA(vtkDataArray* colors, int numComp, int numTuples);
+  VTK_NEWINSTANCE vtkUnsignedCharArray* ConvertToRGBA(
+    vtkDataArray* colors, int numComp, int numTuples);
 
   /**
    * An internal method for converting vectors to magnitudes, used as

@@ -33,7 +33,7 @@ public:
    * a new vtkClientSocket object is created and returned.
    * Returns nullptr on timeout.
    */
-  vtkClientSocket* WaitForConnection(unsigned long msec = 0);
+  VTK_NEWINSTANCE vtkClientSocket* WaitForConnection(unsigned long msec = 0);
 
   /**
    * Returns the port on which the server is running.
