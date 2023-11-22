@@ -32,6 +32,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkTexture.h"
+#include "vtkVersionMacros.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 

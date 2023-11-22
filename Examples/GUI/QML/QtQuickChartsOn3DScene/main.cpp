@@ -26,7 +26,7 @@
 #include <vtkTable.h>
 #include <vtkVersion.h>
 
-#if VTK_VERSION_NUMBER >= 90220220630ULL
+#if VTK_VERSION_NUMBER >= VTK_VERSION_CHECK(9, 2, 20220630)
 #define VTK_HAS_SETCOLORF 1
 #endif
 

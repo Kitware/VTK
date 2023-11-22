@@ -481,6 +481,12 @@ foreach (smp_backend IN LISTS smp_backends)
   endif ()
 endforeach ()
 
+if (VTK_BUILD_VERSION LESS "20000101")
+  set(VTK_EPOCH_VERSION "${VTK_BUILD_VERSION}")
+else ()
+  set(VTK_EPOCH_VERSION "20230101")
+endif ()
+
 set(nowrap_headers
   vtkAffineArray.h
   vtkAffineImplicitBackend.h
@@ -515,7 +521,8 @@ set(generated_headers
   vtkSMP.h
   vtkThreads.h
   vtkVersionFull.h
-  vtkVersionMacros.h)
+  vtkVersionMacros.h
+  vtkVersionQuick.h)
 foreach (generated_header IN LISTS generated_headers)
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"

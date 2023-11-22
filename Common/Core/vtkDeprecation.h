@@ -5,7 +5,7 @@
 #ifndef vtkDeprecation_h
 #define vtkDeprecation_h
 
-#include "vtkVersionMacros.h"
+#include "vtkVersionQuick.h"
 
 //----------------------------------------------------------------------------
 // These macros may be used to deprecate APIs in VTK. They act as attributes on
@@ -49,7 +49,11 @@
 // The level at which warnings should be made.
 #ifndef VTK_DEPRECATION_LEVEL
 // VTK defaults to deprecation of its current version.
+#ifdef VTK_VERSION_NUMBER
 #define VTK_DEPRECATION_LEVEL VTK_VERSION_NUMBER
+#else
+#define VTK_DEPRECATION_LEVEL VTK_VERSION_NUMBER_QUICK
+#endif
 #endif
 
 // API deprecated before 9.1.0 have already been removed.
