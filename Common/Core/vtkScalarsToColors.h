@@ -152,9 +152,9 @@ public:
    * When the component argument is -1, then the this object uses its own
    * selected technique to change a vector into a scalar to map.
    */
-  virtual vtkUnsignedCharArray* MapScalars(
+  virtual VTK_NEWINSTANCE vtkUnsignedCharArray* MapScalars(
     vtkDataArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
-  virtual vtkUnsignedCharArray* MapScalars(
+  virtual VTK_NEWINSTANCE vtkUnsignedCharArray* MapScalars(
     vtkAbstractArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
   ///@}
 
