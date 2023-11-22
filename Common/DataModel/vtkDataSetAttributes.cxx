@@ -169,6 +169,8 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData* fd)
         dsa->CopyAttributeFlags[PASSDATA][attributeType];
     }
     this->CopyFlags(dsa);
+
+    this->GhostsToSkip = fd->GetGhostsToSkip();
   }
   // If the source is field data, do a field data copy
   else
@@ -213,6 +215,9 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData* fd)
         dsa->CopyAttributeFlags[PASSDATA][attributeType];
     }
     this->CopyFlags(dsa);
+
+    this->GhostsToSkip = fd->GetGhostsToSkip();
+    this->GhostArray = fd->GetGhostArray();
   }
   // If the source is field data, do a field data copy
   else

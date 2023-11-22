@@ -8,7 +8,15 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
-  VTK::vtksys
-TEST_DEPENDS
   VTK::CommonDataModel
+  VTK::vtksys
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersHyperTree
+TEST_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersHyperTree
+  VTK::ImagingCore
+  VTK::IOXML
+  VTK::TestingRendering
 EXCLUDE_WRAP

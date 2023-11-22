@@ -1,19 +1,19 @@
 set(headers
-  vtkDataTestUtilities.h
   vtkPermuteOptions.h
   vtkTestDriver.h
   vtkTestErrorObserver.h
   vtkTestingColors.h
-  vtkTestUtilities.h
   vtkWindowsTestUtilities.h)
 
 set(templates
   vtkTestConditionals.txx)
+set(classes
+  vtkTestUtilities)
 
 vtk_module_add_module(VTK::TestingCore
+  CLASSES   ${classes}
   HEADERS   ${headers}
-  TEMPLATES ${templates}
-  HEADER_ONLY)
+  TEMPLATES ${templates})
 
 # Write out a summary of the configuration for use in the
 # `TestSystemInformation` test.

@@ -8,19 +8,39 @@
  * These include getting a command line argument or an environment variable,
  * or a default value. Particularly, there are specialized methods to get the
  * root directory for VTK Data, expanding a filename with this root directory.
+ *
+ * It also provides methods for testing whether two `vtkDataObjects`,
+ * `vtkFieldData`, or `vtkAbstractArray` are equal up to numerical precision.
+ *
+ * Near-equality is defined as follows for floating point tuples u and v represented as vectors:
+ *
+ * \f[ || u - v ||^2 < k \epsilon (||u||^2 + ||v||^2) \f]
+ *
+ * Where \f$\epsilon\f$ is the smallest
+ * positive floating-point number such that \f$ 1.0 + \epsilon \neq 1.0\f]$, and \f$k\f$ is what we
+ * call the tolerance factor in this class, which is a `double` greater or equal than 1.0. The
+ * tolerance factor shall not be strictly smaller than 1.0 as we would be below numerical precision.
+ * A typical range for it is between 1.0 and 100.0.
  */
 
 #ifndef vtkTestUtilities_h
 #define vtkTestUtilities_h
 
 #include "vtkSystemIncludes.h"
+#include "vtkTestingCoreModule.h" // for export macro
 
 #if defined(_MSC_VER)           /* Visual C++ (and Intel C++) */
 #pragma warning(disable : 4996) // 'function': was declared deprecated
 #endif
 
+class vtkAbstractArray;
+class vtkDataObject;
+class vtkDataSet;
+class vtkFieldData;
+class vtkUnsignedCharArray;
+
 VTK_ABI_NAMESPACE_BEGIN
-struct vtkTestUtilities
+struct VTKTESTINGCORE_EXPORT vtkTestUtilities
 {
   /**
    * Function necessary for accessing the root directory for VTK data. Try the
@@ -57,6 +77,81 @@ struct vtkTestUtilities
   static inline VTK_FILEPATH char* ExpandFileNameWithArgOrEnvOrDefault(const char* arg, int argc,
     char* argv[], const char* env, const char* def, VTK_FILEPATH const char* fname, int slash = 0);
   ///@}
+
+  /**
+   * Returns true if the 2 input `vtkDataObject` are identical. For the `vtkDataSet` case, this
+   * function is invariant to point ordering and cell ordering, as well as point permutations within
+   * cells, as long as they span the same topology. If the 2 inputs do not share the same typing,
+   * this function will return false. In the case of `vtkDataSet` inputs, the cell types must match.
+   *
+   * Some ghost elements are discarded from the comparison, however the ghost arrays
+   * (accessible through `vtkFieldData::GetGhostArray()`) must match. Within a `vtkFieldData` stored
+   * inside an input `vtkDataObject`, ghosts elements are discarded if their bit representations
+   * intersect `vtkFieldData::GetGhostsToSkip()`.
+   *
+   * @sa vtkCellData
+   * @sa vtkDataSetAttributes
+   * @sa vtkFieldData
+   * @sa vtkPointData
+   */
+  static bool CompareDataObjects(
+    vtkDataObject* do1, vtkDataObject* do2, double toleranceFactor = 1.0);
+
+  /**
+   * Returns true if the 2 input `vtkDataSet` share the same point positions and `vtkPointData` at
+   * those positions. This function is invariant to the point ordering between the 2 inputs.
+   *
+   * Some ghost elements are discarded from the comparison, however the ghost arrays
+   * (accessible through `vtkFieldData::GetGhostArray()`) must match. Within a `vtkFieldData` stored
+   * inside an input `vtkDataObject`, ghosts elements are discarded if their bit representations
+   * intersect `vtkFieldData::GetGhostsToSkip()`.
+   *
+   * @sa vtkDataSetAttributes
+   * @sa vtkFieldData
+   * @sa vtkPointData
+   */
+  static bool ComparePoints(vtkDataSet* ds1, vtkDataSet* ds2, double toleranceFactor = 1.0);
+
+  /**
+   * Returns true if the 2 input `vtkDataObject`'s cells are identical, assuming the input have
+   * cells. This function supports `vtkDataSet` and `vtkHyperTreeGrid` inputs, and is
+   * invariant to their cell ordering, as well as point permutations within
+   * cells, as long as they span the same topology.
+   *
+   * Some ghost elements are discarded from the comparison, however the ghost arrays
+   * (accessible through `vtkFieldData::GetGhostArray()`) must match. Within a `vtkFieldData` stored
+   * inside an input `vtkDataObject`, ghosts elements are discarded if their bit representations
+   * intersect `vtkFieldData::GetGhostsToSkip()`.
+   *
+   * @sa vtkCellData
+   * @sa vtkDataSetAttributes
+   * @sa vtkFieldData
+   */
+  static bool CompareCells(vtkDataObject* do1, vtkDataObject* do2, double toleranceFactor = 1.0);
+
+  /**
+   * Returns true if the 2 input `vtkFieldData` are identical.
+   *
+   * Some ghost elements are discarded from the comparison, however the ghost arrays
+   * (accessible through `vtkFieldData::GetGhostArray()`) must match. Within a `vtkFieldData` stored
+   * inside an input `vtkDataObject`, ghosts elements are discarded if their bit representations
+   * intersect `vtkFieldData::GetGhostsToSkip()`.
+   *
+   * @sa vtkCellData
+   * @sa vtkDataSetAttributes
+   * @sa vtkFieldData
+   */
+  static bool CompareFieldData(vtkFieldData* fd1, vtkFieldData* fd2, double toleranceFactor = 1.0);
+
+  /**
+   * Returns true if the 2 input `vtkAbstractArray` are identical. The 2 arrays are assumed
+   * to be ordered in the same manner. One can provide an input ghost array accompanied with
+   * a bit mask `ghostsToSkip`, which will make this function skip corresponding tuples
+   * in the input arrays.
+   */
+  static bool CompareAbstractArray(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    double toleranceFactor = 1.0, vtkUnsignedCharArray* ghosts = nullptr,
+    unsigned char ghostsToSkip = 0);
 };
 
 inline char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])

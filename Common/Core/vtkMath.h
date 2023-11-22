@@ -76,6 +76,36 @@ public:
   vtkTypeMacro(vtkMath, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+private:
+  template <class VectorT, class = void>
+  struct VectorImplementsSize : std::false_type
+  {
+  };
+
+  template <class VectorT>
+  struct VectorImplementsSize<VectorT, decltype((void)std::declval<VectorT>().size(), void())>
+    : std::true_type
+  {
+  };
+
+  /**
+   * Convenient meta-class to enable function signatures if `VectorT::size()` exists;
+   */
+  template <class VectorT>
+  using EnableIfVectorImplementsSize =
+    typename std::enable_if<VectorImplementsSize<VectorT>::value>::type;
+
+public:
+  /**
+   * When this value is passed to a select templated functions in `vtkMath`,
+   * the computation can be performed on dynamic sized arrays as long as they implement the method
+   * `size()`. One can also pass this constant to `vtkDataArrayTupleRange` to get dynamic sized
+   * tuples.
+   *
+   * @sa vtkDataArrayRange
+   */
+  static constexpr int DYNAMIC_VECTOR_SIZE() { return 0; }
+
   /**
    * A mathematical constant. This version is atan(1.0) * 4.0
    */
@@ -818,9 +848,10 @@ public:
     class LayoutT1 = vtkMatrixUtilities::Layout::Identity,
     class LayoutT2 = vtkMatrixUtilities::Layout::Identity, class MatrixT1, class MatrixT2,
     class MatrixT3>
-  static void MultiplyMatrix(const MatrixT1& M1, const MatrixT2& M2, MatrixT3&& M3)
+  static void MultiplyMatrix(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
-    vtkMathPrivate::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2>::Compute(M1, M2, M3);
+    vtkMathPrivate::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2>::Compute(
+      std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2), std::forward<MatrixT3>(M3));
   }
 
   /**
@@ -845,9 +876,10 @@ public:
    */
   template <int RowsT, int ColsT, class LayoutT = vtkMatrixUtilities::Layout::Identity,
     class MatrixT, class VectorT1, class VectorT2>
-  static void MultiplyMatrixWithVector(const MatrixT& M, const VectorT1& X, VectorT2&& Y)
+  static void MultiplyMatrixWithVector(MatrixT&& M, VectorT1&& X, VectorT2&& Y)
   {
-    vtkMathPrivate::MultiplyMatrix<RowsT, ColsT, 1, LayoutT>::Compute(M, X, Y);
+    vtkMathPrivate::MultiplyMatrix<RowsT, ColsT, 1, LayoutT>::Compute(
+      std::forward<MatrixT>(M), std::forward<VectorT1>(X), std::forward<VectorT2>(Y));
   }
 
   /**
@@ -855,11 +887,49 @@ public:
    * VectorT1 and VectorT2 are arrays of size SizeT, and must implement
    * `operator[]`.
    */
-  template <class ScalarT, int SizeT, class VectorT1, class VectorT2>
-  static ScalarT Dot(const VectorT1& x, const VectorT2& y)
+  template <class ScalarT, int SizeT, class VectorT1, class VectorT2,
+    class = typename std::enable_if<SizeT != DYNAMIC_VECTOR_SIZE()>::type>
+  static ScalarT Dot(VectorT1&& x, VectorT2&& y)
   {
     return vtkMathPrivate::ContractRowWithCol<ScalarT, 1, SizeT, 1, 0, 0,
-      vtkMatrixUtilities::Layout::Identity, vtkMatrixUtilities::Layout::Transpose>::Compute(x, y);
+      vtkMatrixUtilities::Layout::Identity,
+      vtkMatrixUtilities::Layout::Transpose>::Compute(std::forward<VectorT1>(x),
+      std::forward<VectorT2>(y));
+  }
+
+  /**
+   * Computes the dot product between 2 vectors x and y.
+   * This function is solely invoked when `SizeT == DYNAMIC_VECTOR_SIZE()`.
+   * VectorT1 and VectorT2 are arrays of dynamic size, and must implement
+   * `operator[]` and `size()`.
+   */
+  template <class ScalarT, int SizeT, class VectorT1, class VectorT2,
+    class = typename std::enable_if<SizeT == DYNAMIC_VECTOR_SIZE()>::type,
+    class = EnableIfVectorImplementsSize<VectorT1>>
+  static ScalarT Dot(VectorT1&& x, VectorT2&& y)
+  {
+    ScalarT dot = 0.0;
+    using SizeType = decltype(std::declval<VectorT1>().size());
+    for (SizeType dim = 0; dim < x.size(); ++dim)
+    {
+      dot += x[dim] * y[dim];
+    }
+    return dot;
+  }
+
+  /**
+   * Computes the dot product between 2 vectors x and y.
+   * VectorT1 and VectorT2 are arrays of size SizeT, and must implement
+   * `operator[]`.
+   *
+   * If `SizeT == DYNAMIC_VECTOR_SIZE()`, then x must implement the method `size()`.
+   */
+  template <int SizeT, class VectorT>
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<VectorT>::value_type SquaredNorm(
+    VectorT&& x)
+  {
+    using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<VectorT>::value_type;
+    return vtkMath::Dot<Scalar, SizeT>(std::forward<VectorT>(x), std::forward<VectorT>(x));
   }
 
   /**
@@ -880,9 +950,9 @@ public:
    */
   template <int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity, class MatrixT>
   static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Determinant(
-    const MatrixT& M)
+    MatrixT&& M)
   {
-    return vtkMathPrivate::Determinant<SizeT, LayoutT>::Compute(M);
+    return vtkMathPrivate::Determinant<SizeT, LayoutT>::Compute(std::forward<MatrixT>(M));
   }
 
   /**
@@ -902,9 +972,10 @@ public:
    */
   template <int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity, class MatrixT1,
     class MatrixT2>
-  static void InvertMatrix(const MatrixT1& M1, MatrixT2&& M2)
+  static void InvertMatrix(MatrixT1&& M1, MatrixT2&& M2)
   {
-    vtkMathPrivate::InvertMatrix<SizeT, LayoutT>::Compute(M1, M2);
+    vtkMathPrivate::InvertMatrix<SizeT, LayoutT>::Compute(
+      std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
   }
 
   /**
@@ -922,9 +993,10 @@ public:
    */
   template <int RowsT, int ColsT, class LayoutT = vtkMatrixUtilities::Layout::Identity,
     class MatrixT, class VectorT1, class VectorT2>
-  static void LinearSolve(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  static void LinearSolve(MatrixT&& M, VectorT1&& x, VectorT2&& y)
   {
-    vtkMathPrivate::LinearSolve<RowsT, ColsT, LayoutT>::Compute(M, x, y);
+    vtkMathPrivate::LinearSolve<RowsT, ColsT, LayoutT>::Compute(
+      std::forward<MatrixT>(M), std::forward<VectorT1>(x), std::forward<VectorT2>(y));
   }
 
   /**
@@ -942,13 +1014,16 @@ public:
    * of non zero elements of a diagonal matrix.
    */
   template <class ScalarT, int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity,
-    class VectorT1, class MatrixT, class VectorT2>
-  static ScalarT Dot(const VectorT1& x, const MatrixT& M, const VectorT2& y)
+    class VectorT1, class MatrixT, class VectorT2,
+    class = typename std::enable_if<SizeT != DYNAMIC_VECTOR_SIZE()>::type>
+  static ScalarT Dot(VectorT1&& x, MatrixT&& M, VectorT2&& y)
   {
     ScalarT tmp[SizeT];
-    vtkMathPrivate::MultiplyMatrix<SizeT, SizeT, 1, LayoutT>::Compute(M, y, tmp);
+    vtkMathPrivate::MultiplyMatrix<SizeT, SizeT, 1, LayoutT>::Compute(
+      std::forward<MatrixT>(M), std::forward<VectorT2>(y), tmp);
     return vtkMathPrivate::ContractRowWithCol<ScalarT, 1, SizeT, 1, 0, 0,
-      vtkMatrixUtilities::Layout::Identity, vtkMatrixUtilities::Layout::Transpose>::Compute(x, tmp);
+      vtkMatrixUtilities::Layout::Identity,
+      vtkMatrixUtilities::Layout::Transpose>::Compute(std::forward<VectorT1>(x), tmp);
   }
 
   /**
@@ -1024,7 +1099,7 @@ public:
   static void QuaternionToMatrix3x3(const double quat[4], double A[3][3]);
   template <class QuaternionT, class MatrixT,
     class EnableT = typename std::enable_if<!vtkMatrixUtilities::MatrixIs2DArray<MatrixT>()>::type>
-  static void QuaternionToMatrix3x3(const QuaternionT& q, MatrixT&& A);
+  static void QuaternionToMatrix3x3(QuaternionT&& q, MatrixT&& A);
   ///@}
 
   ///@{
@@ -1041,7 +1116,7 @@ public:
   static void Matrix3x3ToQuaternion(const double A[3][3], double quat[4]);
   template <class MatrixT, class QuaternionT,
     class EnableT = typename std::enable_if<!vtkMatrixUtilities::MatrixIs2DArray<MatrixT>()>::type>
-  static void Matrix3x3ToQuaternion(const MatrixT& A, QuaternionT&& q);
+  static void Matrix3x3ToQuaternion(MatrixT&& A, QuaternionT&& q);
   ///@}
 
   ///@{
@@ -1966,7 +2041,7 @@ VTK_ABI_NAMESPACE_END
 namespace
 {
 template <class QuaternionT, class MatrixT>
-inline void vtkQuaternionToMatrix3x3(const QuaternionT& quat, MatrixT& A)
+inline void vtkQuaternionToMatrix3x3(QuaternionT&& quat, MatrixT&& A)
 {
   typedef typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Scalar;
 
@@ -1991,17 +2066,17 @@ inline void vtkQuaternionToMatrix3x3(const QuaternionT& quat, MatrixT& A)
 
   typedef vtkMatrixUtilities::Wrapper<3, 3, MatrixT> Wrapper;
 
-  Wrapper::template Get<0, 0>(A) = xx * f + s;
-  Wrapper::template Get<1, 0>(A) = (xy + wz) * f;
-  Wrapper::template Get<2, 0>(A) = (xz - wy) * f;
+  Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) = xx * f + s;
+  Wrapper::template Get<1, 0>(std::forward<MatrixT>(A)) = (xy + wz) * f;
+  Wrapper::template Get<2, 0>(std::forward<MatrixT>(A)) = (xz - wy) * f;
 
-  Wrapper::template Get<0, 1>(A) = (xy - wz) * f;
-  Wrapper::template Get<1, 1>(A) = yy * f + s;
-  Wrapper::template Get<2, 1>(A) = (yz + wx) * f;
+  Wrapper::template Get<0, 1>(std::forward<MatrixT>(A)) = (xy - wz) * f;
+  Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) = yy * f + s;
+  Wrapper::template Get<2, 1>(std::forward<MatrixT>(A)) = (yz + wx) * f;
 
-  Wrapper::template Get<0, 2>(A) = (xz + wy) * f;
-  Wrapper::template Get<1, 2>(A) = (yz - wx) * f;
-  Wrapper::template Get<2, 2>(A) = zz * f + s;
+  Wrapper::template Get<0, 2>(std::forward<MatrixT>(A)) = (xz + wy) * f;
+  Wrapper::template Get<1, 2>(std::forward<MatrixT>(A)) = (yz - wx) * f;
+  Wrapper::template Get<2, 2>(std::forward<MatrixT>(A)) = zz * f + s;
 }
 } // anonymous namespace
 
@@ -2020,9 +2095,9 @@ inline void vtkMath::QuaternionToMatrix3x3(const double quat[4], double A[3][3])
 
 //-----------------------------------------------------------------------------
 template <class QuaternionT, class MatrixT, class EnableT>
-inline void vtkMath::QuaternionToMatrix3x3(const QuaternionT& q, MatrixT&& A)
+inline void vtkMath::QuaternionToMatrix3x3(QuaternionT&& q, MatrixT&& A)
 {
-  vtkQuaternionToMatrix3x3(q, A);
+  vtkQuaternionToMatrix3x3(std::forward<QuaternionT>(q), std::forward<MatrixT>(A));
 }
 VTK_ABI_NAMESPACE_END
 
@@ -2034,7 +2109,7 @@ namespace
 //  "Closed-form solution of absolute orientation using unit quaternions,"
 //  Journal of the Optical Society of America A, 4:629-642
 template <class MatrixT, class QuaternionT>
-inline void vtkMatrix3x3ToQuaternion(const MatrixT& A, QuaternionT& quat)
+inline void vtkMatrix3x3ToQuaternion(MatrixT&& A, QuaternionT&& quat)
 {
   typedef typename vtkMatrixUtilities::ScalarTypeExtractor<QuaternionT>::value_type Scalar;
 
@@ -2043,23 +2118,33 @@ inline void vtkMatrix3x3ToQuaternion(const MatrixT& A, QuaternionT& quat)
   typedef vtkMatrixUtilities::Wrapper<3, 3, MatrixT> Wrapper;
 
   // on-diagonal elements
-  N[0][0] = Wrapper::template Get<0, 0>(A) + Wrapper::template Get<1, 1>(A) +
-    Wrapper::template Get<2, 2>(A);
-  N[1][1] = Wrapper::template Get<0, 0>(A) - Wrapper::template Get<1, 1>(A) -
-    Wrapper::template Get<2, 2>(A);
-  N[2][2] = -Wrapper::template Get<0, 0>(A) + Wrapper::template Get<1, 1>(A) -
-    Wrapper::template Get<2, 2>(A);
-  N[3][3] = -Wrapper::template Get<0, 0>(A) - Wrapper::template Get<1, 1>(A) +
-    Wrapper::template Get<2, 2>(A);
+  N[0][0] = Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) +
+    Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) +
+    Wrapper::template Get<2, 2>(std::forward<MatrixT>(A));
+  N[1][1] = Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) -
+    Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) -
+    Wrapper::template Get<2, 2>(std::forward<MatrixT>(A));
+  N[2][2] = -Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) +
+    Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) -
+    Wrapper::template Get<2, 2>(std::forward<MatrixT>(A));
+  N[3][3] = -Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) -
+    Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) +
+    Wrapper::template Get<2, 2>(std::forward<MatrixT>(A));
 
   // off-diagonal elements
-  N[0][1] = N[1][0] = Wrapper::template Get<2, 1>(A) - Wrapper::template Get<1, 2>(A);
-  N[0][2] = N[2][0] = Wrapper::template Get<0, 2>(A) - Wrapper::template Get<2, 0>(A);
-  N[0][3] = N[3][0] = Wrapper::template Get<1, 0>(A) - Wrapper::template Get<0, 1>(A);
+  N[0][1] = N[1][0] = Wrapper::template Get<2, 1>(std::forward<MatrixT>(A)) -
+    Wrapper::template Get<1, 2>(std::forward<MatrixT>(A));
+  N[0][2] = N[2][0] = Wrapper::template Get<0, 2>(std::forward<MatrixT>(A)) -
+    Wrapper::template Get<2, 0>(std::forward<MatrixT>(A));
+  N[0][3] = N[3][0] = Wrapper::template Get<1, 0>(std::forward<MatrixT>(A)) -
+    Wrapper::template Get<0, 1>(std::forward<MatrixT>(A));
 
-  N[1][2] = N[2][1] = Wrapper::template Get<1, 0>(A) + Wrapper::template Get<0, 1>(A);
-  N[1][3] = N[3][1] = Wrapper::template Get<0, 2>(A) + Wrapper::template Get<2, 0>(A);
-  N[2][3] = N[3][2] = Wrapper::template Get<2, 1>(A) + Wrapper::template Get<1, 2>(A);
+  N[1][2] = N[2][1] = Wrapper::template Get<1, 0>(std::forward<MatrixT>(A)) +
+    Wrapper::template Get<0, 1>(std::forward<MatrixT>(A));
+  N[1][3] = N[3][1] = Wrapper::template Get<0, 2>(std::forward<MatrixT>(A)) +
+    Wrapper::template Get<2, 0>(std::forward<MatrixT>(A));
+  N[2][3] = N[3][2] = Wrapper::template Get<2, 1>(std::forward<MatrixT>(A)) +
+    Wrapper::template Get<1, 2>(std::forward<MatrixT>(A));
 
   Scalar eigenvectors[4][4], eigenvalues[4];
 
@@ -2096,9 +2181,9 @@ inline void vtkMath::Matrix3x3ToQuaternion(const double A[3][3], double quat[4])
 
 //-----------------------------------------------------------------------------
 template <class MatrixT, class QuaternionT, class EnableT>
-inline void vtkMath::Matrix3x3ToQuaternion(const MatrixT& A, QuaternionT&& q)
+inline void vtkMath::Matrix3x3ToQuaternion(MatrixT&& A, QuaternionT&& q)
 {
-  vtkMatrix3x3ToQuaternion(A, q);
+  vtkMatrix3x3ToQuaternion(std::forward<MatrixT>(A), std::forward<QuaternionT>(q));
 }
 VTK_ABI_NAMESPACE_END
 

@@ -18,6 +18,7 @@
 #include "vtkMatrixUtilities.h"
 
 #include <type_traits>
+#include <utility>
 
 namespace vtkMathPrivate
 {
@@ -40,12 +41,13 @@ class ContractRowWithCol
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
+  static ScalarT Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     return ContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, LayoutT2, IdxT,
-             Shift>::Compute(M1, M2) +
+             Shift>::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2)) +
       ContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, LayoutT2,
-        IdxT + Shift, PackSizeT - Shift>::Compute(M1, M2);
+        IdxT + Shift, PackSizeT - Shift>::Compute(std::forward<MatrixT1>(M1),
+        std::forward<MatrixT2>(M2));
   }
 
 private:
@@ -66,15 +68,19 @@ class ContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, L
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
+  static ScalarT Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     using Wrap1 = vtkMatrixUtilities::Wrapper<RowsT, MidDimT, MatrixT1, LayoutT1>;
     using Wrap2 = vtkMatrixUtilities::Wrapper<MidDimT, ColsT, MatrixT2, LayoutT2>;
 
-    return Wrap1::template Get<RowT, IdxT>(M1) * Wrap2::template Get<IdxT, ColT>(M2) +
-      Wrap1::template Get<RowT, IdxT + 1>(M1) * Wrap2::template Get<IdxT + 1, ColT>(M2) +
-      Wrap1::template Get<RowT, IdxT + 2>(M1) * Wrap2::template Get<IdxT + 2, ColT>(M2) +
-      Wrap1::template Get<RowT, IdxT + 3>(M1) * Wrap2::template Get<IdxT + 3, ColT>(M2);
+    return Wrap1::template Get<RowT, IdxT>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT, ColT>(std::forward<MatrixT2>(M2)) +
+      Wrap1::template Get<RowT, IdxT + 1>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT + 1, ColT>(std::forward<MatrixT2>(M2)) +
+      Wrap1::template Get<RowT, IdxT + 2>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT + 2, ColT>(std::forward<MatrixT2>(M2)) +
+      Wrap1::template Get<RowT, IdxT + 3>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT + 3, ColT>(std::forward<MatrixT2>(M2));
   }
 
 private:
@@ -92,14 +98,17 @@ class ContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, L
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
+  static ScalarT Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     using Wrap1 = vtkMatrixUtilities::Wrapper<RowsT, MidDimT, MatrixT1, LayoutT1>;
     using Wrap2 = vtkMatrixUtilities::Wrapper<MidDimT, ColsT, MatrixT2, LayoutT2>;
 
-    return Wrap1::template Get<RowT, IdxT>(M1) * Wrap2::template Get<IdxT, ColT>(M2) +
-      Wrap1::template Get<RowT, IdxT + 1>(M1) * Wrap2::template Get<IdxT + 1, ColT>(M2) +
-      Wrap1::template Get<RowT, IdxT + 2>(M1) * Wrap2::template Get<IdxT + 2, ColT>(M2);
+    return Wrap1::template Get<RowT, IdxT>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT, ColT>(std::forward<MatrixT2>(M2)) +
+      Wrap1::template Get<RowT, IdxT + 1>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT + 1, ColT>(std::forward<MatrixT2>(M2)) +
+      Wrap1::template Get<RowT, IdxT + 2>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT + 2, ColT>(std::forward<MatrixT2>(M2));
   }
 
 private:
@@ -117,13 +126,15 @@ class ContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, L
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
+  static ScalarT Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     using Wrap1 = vtkMatrixUtilities::Wrapper<RowsT, MidDimT, MatrixT1, LayoutT1>;
     using Wrap2 = vtkMatrixUtilities::Wrapper<MidDimT, ColsT, MatrixT2, LayoutT2>;
 
-    return Wrap1::template Get<RowT, IdxT>(M1) * Wrap2::template Get<IdxT, ColT>(M2) +
-      Wrap1::template Get<RowT, IdxT + 1>(M1) * Wrap2::template Get<IdxT + 1, ColT>(M2);
+    return Wrap1::template Get<RowT, IdxT>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT, ColT>(std::forward<MatrixT2>(M2)) +
+      Wrap1::template Get<RowT, IdxT + 1>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT + 1, ColT>(std::forward<MatrixT2>(M2));
   }
 
 private:
@@ -141,12 +152,13 @@ class ContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, L
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
+  static ScalarT Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     using Wrap1 = vtkMatrixUtilities::Wrapper<RowsT, MidDimT, MatrixT1, LayoutT1>;
     using Wrap2 = vtkMatrixUtilities::Wrapper<MidDimT, ColsT, MatrixT2, LayoutT2>;
 
-    return Wrap1::template Get<RowT, IdxT>(M1) * Wrap2::template Get<IdxT, ColT>(M2);
+    return Wrap1::template Get<RowT, IdxT>(std::forward<MatrixT1>(M1)) *
+      Wrap2::template Get<IdxT, ColT>(std::forward<MatrixT2>(M2));
   }
 
 private:
@@ -171,7 +183,7 @@ class DiagContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT,
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
+  static ScalarT Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     return M1[RowT] * M2[Mapper2::template GetIndex<RowT, ColT>()];
   }
@@ -193,7 +205,7 @@ class DiagContractRowWithCol<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static ScalarT Compute(const MatrixT1& M1, const MatrixT2& M2)
+  static ScalarT Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     return M1[Mapper1::template GetIndex<RowT, ColT>()] * M2[ColT];
   }
@@ -215,7 +227,7 @@ class NullContractRowWithCol
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static ScalarT Compute(const MatrixT1&, const MatrixT2&)
+  static ScalarT Compute(MatrixT1&&, MatrixT2&&)
   {
     return ScalarT(0);
   }
@@ -283,19 +295,23 @@ class MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 4>
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT3>::value_type;
     using Wrap3 = vtkMatrixUtilities::Wrapper<RowsT, ColsT, MatrixT3>;
 
-    Wrap3::template Get<RowT, ColT>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT,
-      RowT, ColT, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
-    Wrap3::template Get<RowT, ColT + 1>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
-      ColsT, RowT, ColT + 1, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
-    Wrap3::template Get<RowT, ColT + 2>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
-      ColsT, RowT, ColT + 2, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
-    Wrap3::template Get<RowT, ColT + 3>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
-      ColsT, RowT, ColT + 3, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
+    Wrap3::template Get<RowT, ColT + 1>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT + 1, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
+    Wrap3::template Get<RowT, ColT + 2>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT + 2, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
+    Wrap3::template Get<RowT, ColT + 3>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT + 3, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
   }
 
 private:
@@ -316,17 +332,20 @@ class MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 3>
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT3>::value_type;
     using Wrap3 = vtkMatrixUtilities::Wrapper<RowsT, ColsT, MatrixT3>;
 
-    Wrap3::template Get<RowT, ColT>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT,
-      RowT, ColT, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
-    Wrap3::template Get<RowT, ColT + 1>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
-      ColsT, RowT, ColT + 1, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
-    Wrap3::template Get<RowT, ColT + 2>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
-      ColsT, RowT, ColT + 2, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
+    Wrap3::template Get<RowT, ColT + 1>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT + 1, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
+    Wrap3::template Get<RowT, ColT + 2>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT + 2, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
   }
 
 private:
@@ -347,15 +366,17 @@ class MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 2>
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT3>::value_type;
     using Wrap3 = vtkMatrixUtilities::Wrapper<RowsT, ColsT, MatrixT3>;
 
-    Wrap3::template Get<RowT, ColT>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT,
-      RowT, ColT, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
-    Wrap3::template Get<RowT, ColT + 1>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT,
-      ColsT, RowT, ColT + 1, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
+    Wrap3::template Get<RowT, ColT + 1>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT + 1, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
   }
 
 private:
@@ -376,13 +397,14 @@ class MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowT, ColT, 1>
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT3>::value_type;
     using Wrap3 = vtkMatrixUtilities::Wrapper<RowsT, ColsT, MatrixT3>;
 
-    Wrap3::template Get<RowT, ColT>(M3) = ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT,
-      RowT, ColT, LayoutT1, LayoutT2, OneMatrixIsDiagonal>::Type::Compute(M1, M2);
+    Wrap3::template Get<RowT, ColT>(std::forward<MatrixT3>(M3)) =
+      ContractRowWithColSwitch<Scalar, RowsT, MidDimT, ColsT, RowT, ColT, LayoutT1, LayoutT2,
+        OneMatrixIsDiagonal>::Type::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2));
   }
 
 private:
@@ -404,7 +426,7 @@ class MultiplyMatrix<SizeT, SizeT, SizeT, vtkMatrixUtilities::Layout::Diag,
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     M3[IdxT] = M1[IdxT] * M2[IdxT];
     M3[IdxT + 1] = M1[IdxT + 1] * M2[IdxT + 1];
@@ -421,7 +443,7 @@ class MultiplyMatrix<SizeT, SizeT, SizeT, vtkMatrixUtilities::Layout::Diag,
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     M3[IdxT] = M1[IdxT] * M2[IdxT];
     M3[IdxT + 1] = M1[IdxT + 1] * M2[IdxT + 1];
@@ -437,7 +459,7 @@ class MultiplyMatrix<SizeT, SizeT, SizeT, vtkMatrixUtilities::Layout::Diag,
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     M3[IdxT] = M1[IdxT] * M2[IdxT];
     M3[IdxT + 1] = M1[IdxT + 1] * M2[IdxT + 1];
@@ -452,7 +474,7 @@ class MultiplyMatrix<SizeT, SizeT, SizeT, vtkMatrixUtilities::Layout::Diag,
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     M3[IdxT] = M1[IdxT] * M2[IdxT];
   }
@@ -481,12 +503,13 @@ class MultiplyMatrix
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     detail::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, Row, Col, Shift>::Compute(
-      M1, M2, M3);
+      std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2), std::forward<MatrixT3>(M3));
     MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, ForwardRow, ForwardCol,
-      ForwardRemainingRowSize>::Compute(M1, M2, M3);
+      ForwardRemainingRowSize>::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2),
+      std::forward<MatrixT3>(M3));
   }
 
 private:
@@ -522,13 +545,16 @@ class MultiplyMatrix<RowsT, MidDimT, ColsT, vtkMatrixUtilities::Layout::Diag,
 {
 public:
   template <class MatrixT1, class MatrixT2, class MatrixT3>
-  static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)
   {
     detail::MultiplyMatrix<RowsT, MidDimT, ColsT, vtkMatrixUtilities::Layout::Diag,
-      vtkMatrixUtilities::Layout::Diag, NextIdxT - 1, NextIdxT - 1, Shift>::Compute(M1, M2, M3);
+      vtkMatrixUtilities::Layout::Diag, NextIdxT - 1, NextIdxT - 1,
+      Shift>::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2),
+      std::forward<MatrixT3>(M3));
     MultiplyMatrix<RowsT, MidDimT, ColsT, vtkMatrixUtilities::Layout::Diag,
       vtkMatrixUtilities::Layout::Diag, NextIdxT + Shift, NextIdxT + Shift,
-      RemainingRowSizeT - Shift>::Compute(M1, M2, M3);
+      RemainingRowSizeT - Shift>::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2),
+      std::forward<MatrixT3>(M3));
   }
 
 private:
@@ -554,11 +580,12 @@ private:
   {                                                                                                \
   public:                                                                                          \
     template <class MatrixT1, class MatrixT2, class MatrixT3>                                      \
-    static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)                      \
+    static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)                               \
     {                                                                                              \
       detail::MultiplyMatrix<RowsT, MidDimT, ColsT, vtkMatrixUtilities::Layout::Diag,              \
         vtkMatrixUtilities::Layout::Diag, NextIdxT - 1, NextIdxT - 1,                              \
-        RemainingRowSize>::Compute(M1, M2, M3);                                                    \
+        RemainingRowSize>::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2),         \
+        std::forward<MatrixT3>(M3));                                                               \
     }                                                                                              \
                                                                                                    \
   private:                                                                                         \
@@ -590,10 +617,11 @@ vtkEndForBothDiagonalMultiplyMatrixSpecializationMacro(4);
   {                                                                                                \
   public:                                                                                          \
     template <class MatrixT1, class MatrixT2, class MatrixT3>                                      \
-    static void Compute(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)                      \
+    static void Compute(MatrixT1&& M1, MatrixT2&& M2, MatrixT3&& M3)                               \
     {                                                                                              \
       detail::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2, RowsT - 1, NextColT - 1,   \
-        RemainingRowSize>::Compute(M1, M2, M3);                                                    \
+        RemainingRowSize>::Compute(std::forward<MatrixT1>(M1), std::forward<MatrixT2>(M2),         \
+        std::forward<MatrixT3>(M3));                                                               \
     }                                                                                              \
                                                                                                    \
   private:                                                                                         \
@@ -622,8 +650,7 @@ class Determinant<3, vtkMatrixUtilities::Layout::Diag>
 {
 public:
   template <class MatrixT>
-  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
-    const MatrixT& M)
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(MatrixT&& M)
   {
     return M[0] * M[1] * M[3];
   }
@@ -636,8 +663,7 @@ class Determinant<2, vtkMatrixUtilities::Layout::Diag>
 {
 public:
   template <class MatrixT>
-  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
-    const MatrixT& M)
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(MatrixT&& M)
   {
     return M[0] * M[1];
   }
@@ -650,8 +676,7 @@ class Determinant<1, LayoutT>
 {
 public:
   template <class MatrixT>
-  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
-    const MatrixT& M)
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(MatrixT&& M)
   {
     return M[0];
   }
@@ -664,13 +689,14 @@ class Determinant<2, LayoutT>
 {
 public:
   template <class MatrixT>
-  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
-    const MatrixT& M)
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(MatrixT&& M)
   {
     using Wrap = vtkMatrixUtilities::Wrapper<2, 2, MatrixT, LayoutT>;
 
-    return Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 1>(M) -
-      Wrap::template Get<1, 0>(M) * Wrap::template Get<0, 1>(M);
+    return Wrap::template Get<0, 0>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<1, 1>(std::forward<MatrixT>(M)) -
+      Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<0, 1>(std::forward<MatrixT>(M));
   }
 
 private:
@@ -683,17 +709,28 @@ class Determinant<3, LayoutT>
 {
 public:
   template <class MatrixT>
-  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(
-    const MatrixT& M)
+  static typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Compute(MatrixT&& M)
   {
     using Wrap = vtkMatrixUtilities::Wrapper<3, 3, MatrixT, LayoutT>;
 
-    return Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 1>(M) * Wrap::template Get<2, 2>(M) +
-      Wrap::template Get<0, 1>(M) * Wrap::template Get<1, 2>(M) * Wrap::template Get<2, 0>(M) +
-      Wrap::template Get<0, 2>(M) * Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 1>(M) -
-      Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 2>(M) * Wrap::template Get<2, 1>(M) -
-      Wrap::template Get<0, 1>(M) * Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 2>(M) -
-      Wrap::template Get<0, 2>(M) * Wrap::template Get<1, 1>(M) * Wrap::template Get<2, 0>(M);
+    return Wrap::template Get<0, 0>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<1, 1>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<2, 2>(std::forward<MatrixT>(M)) +
+      Wrap::template Get<0, 1>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<1, 2>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<2, 0>(std::forward<MatrixT>(M)) +
+      Wrap::template Get<0, 2>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<2, 1>(std::forward<MatrixT>(M)) -
+      Wrap::template Get<0, 0>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<1, 2>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<2, 1>(std::forward<MatrixT>(M)) -
+      Wrap::template Get<0, 1>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<2, 2>(std::forward<MatrixT>(M)) -
+      Wrap::template Get<0, 2>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<1, 1>(std::forward<MatrixT>(M)) *
+      Wrap::template Get<2, 0>(std::forward<MatrixT>(M));
   }
 };
 
@@ -710,17 +747,21 @@ class InvertMatrix<2, LayoutT>
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT2>::value_type;
     using Wrap1 = vtkMatrixUtilities::Wrapper<2, 2, MatrixT1, LayoutT>;
     using Wrap2 = vtkMatrixUtilities::Wrapper<2, 2, MatrixT2>;
 
-    Scalar detInv = 1.0 / Determinant<2, LayoutT>::Compute(M1);
-    Wrap2::template Get<0, 0>(M2) = detInv * Wrap1::template Get<1, 1>(M1);
-    Wrap2::template Get<1, 0>(M2) = -detInv * Wrap1::template Get<1, 0>(M1);
-    Wrap2::template Get<0, 1>(M2) = -detInv * Wrap1::template Get<0, 1>(M1);
-    Wrap2::template Get<1, 1>(M2) = detInv * Wrap1::template Get<0, 0>(M1);
+    Scalar detInv = 1.0 / Determinant<2, LayoutT>::Compute(std::forward<MatrixT1>(M1));
+    Wrap2::template Get<0, 0>(std::forward<MatrixT2>(M2)) =
+      detInv * Wrap1::template Get<1, 1>(std::forward<MatrixT1>(M1));
+    Wrap2::template Get<1, 0>(std::forward<MatrixT2>(M2)) =
+      -detInv * Wrap1::template Get<1, 0>(std::forward<MatrixT1>(M1));
+    Wrap2::template Get<0, 1>(std::forward<MatrixT2>(M2)) =
+      -detInv * Wrap1::template Get<0, 1>(std::forward<MatrixT1>(M1));
+    Wrap2::template Get<1, 1>(std::forward<MatrixT2>(M2)) =
+      detInv * Wrap1::template Get<0, 0>(std::forward<MatrixT1>(M1));
   }
 };
 
@@ -731,50 +772,74 @@ class InvertMatrix<3, LayoutT>
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT2>::value_type;
     using Wrap1 = vtkMatrixUtilities::Wrapper<3, 3, MatrixT1, LayoutT>;
     using Wrap2 = vtkMatrixUtilities::Wrapper<3, 3, MatrixT2>;
 
     Scalar detInv = 1.0 /
-      (Wrap1::template Get<0, 0>(M1) *
-          (Wrap1::template Get<1, 1>(M1) * Wrap1::template Get<2, 2>(M1) -
-            Wrap1::template Get<2, 1>(M1) * Wrap1::template Get<1, 2>(M1)) -
-        Wrap1::template Get<0, 1>(M1) *
-          (Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<2, 2>(M1) -
-            Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<1, 2>(M1)) +
-        Wrap1::template Get<0, 2>(M1) *
-          (Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<2, 1>(M1) -
-            Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<1, 1>(M1)));
+      (Wrap1::template Get<0, 0>(std::forward<MatrixT1>(M1)) *
+          (Wrap1::template Get<1, 1>(std::forward<MatrixT1>(M1)) *
+              Wrap1::template Get<2, 2>(std::forward<MatrixT1>(M1)) -
+            Wrap1::template Get<2, 1>(std::forward<MatrixT1>(M1)) *
+              Wrap1::template Get<1, 2>(std::forward<MatrixT1>(M1))) -
+        Wrap1::template Get<0, 1>(std::forward<MatrixT1>(M1)) *
+          (Wrap1::template Get<1, 0>(std::forward<MatrixT1>(M1)) *
+              Wrap1::template Get<2, 2>(std::forward<MatrixT1>(M1)) -
+            Wrap1::template Get<2, 0>(std::forward<MatrixT1>(M1)) *
+              Wrap1::template Get<1, 2>(std::forward<MatrixT1>(M1))) +
+        Wrap1::template Get<0, 2>(std::forward<MatrixT1>(M1)) *
+          (Wrap1::template Get<1, 0>(std::forward<MatrixT1>(M1)) *
+              Wrap1::template Get<2, 1>(std::forward<MatrixT1>(M1)) -
+            Wrap1::template Get<2, 0>(std::forward<MatrixT1>(M1)) *
+              Wrap1::template Get<1, 1>(std::forward<MatrixT1>(M1))));
 
-    Wrap2::template Get<0, 0>(M2) = detInv *
-      (Wrap1::template Get<1, 1>(M1) * Wrap1::template Get<2, 2>(M1) -
-        Wrap1::template Get<2, 1>(M1) * Wrap1::template Get<1, 2>(M1));
-    Wrap2::template Get<1, 0>(M2) = -detInv *
-      (Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<2, 2>(M1) -
-        Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<1, 2>(M1));
-    Wrap2::template Get<2, 0>(M2) = detInv *
-      (Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<2, 1>(M1) -
-        Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<1, 1>(M1));
-    Wrap2::template Get<0, 1>(M2) = -detInv *
-      (Wrap1::template Get<0, 1>(M1) * Wrap1::template Get<2, 2>(M1) -
-        Wrap1::template Get<2, 1>(M1) * Wrap1::template Get<0, 2>(M1));
-    Wrap2::template Get<1, 1>(M2) = detInv *
-      (Wrap1::template Get<0, 0>(M1) * Wrap1::template Get<2, 2>(M1) -
-        Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<0, 2>(M1));
-    Wrap2::template Get<2, 1>(M2) = -detInv *
-      (Wrap1::template Get<0, 0>(M1) * Wrap1::template Get<2, 1>(M1) -
-        Wrap1::template Get<2, 0>(M1) * Wrap1::template Get<0, 1>(M1));
-    Wrap2::template Get<0, 2>(M2) = detInv *
-      (Wrap1::template Get<0, 1>(M1) * Wrap1::template Get<1, 2>(M1) -
-        Wrap1::template Get<1, 1>(M1) * Wrap1::template Get<0, 2>(M1));
-    Wrap2::template Get<1, 2>(M2) = -detInv *
-      (Wrap1::template Get<0, 0>(M1) * Wrap1::template Get<1, 2>(M1) -
-        Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<0, 2>(M1));
-    Wrap2::template Get<2, 2>(M2) = detInv *
-      (Wrap1::template Get<0, 0>(M1) * Wrap1::template Get<1, 1>(M1) -
-        Wrap1::template Get<1, 0>(M1) * Wrap1::template Get<0, 1>(M1));
+    Wrap2::template Get<0, 0>(std::forward<MatrixT2>(M2)) = detInv *
+      (Wrap1::template Get<1, 1>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<2, 2>(std::forward<MatrixT1>(M1)) -
+        Wrap1::template Get<2, 1>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<1, 2>(std::forward<MatrixT1>(M1)));
+    Wrap2::template Get<1, 0>(std::forward<MatrixT2>(M2)) = -detInv *
+      (Wrap1::template Get<1, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<2, 2>(std::forward<MatrixT1>(M1)) -
+        Wrap1::template Get<2, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<1, 2>(std::forward<MatrixT1>(M1)));
+    Wrap2::template Get<2, 0>(std::forward<MatrixT2>(M2)) = detInv *
+      (Wrap1::template Get<1, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<2, 1>(std::forward<MatrixT1>(M1)) -
+        Wrap1::template Get<2, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<1, 1>(std::forward<MatrixT1>(M1)));
+    Wrap2::template Get<0, 1>(std::forward<MatrixT2>(M2)) = -detInv *
+      (Wrap1::template Get<0, 1>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<2, 2>(std::forward<MatrixT1>(M1)) -
+        Wrap1::template Get<2, 1>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<0, 2>(std::forward<MatrixT1>(M1)));
+    Wrap2::template Get<1, 1>(std::forward<MatrixT2>(M2)) = detInv *
+      (Wrap1::template Get<0, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<2, 2>(std::forward<MatrixT1>(M1)) -
+        Wrap1::template Get<2, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<0, 2>(std::forward<MatrixT1>(M1)));
+    Wrap2::template Get<2, 1>(std::forward<MatrixT2>(M2)) = -detInv *
+      (Wrap1::template Get<0, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<2, 1>(std::forward<MatrixT1>(M1)) -
+        Wrap1::template Get<2, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<0, 1>(std::forward<MatrixT1>(M1)));
+    Wrap2::template Get<0, 2>(std::forward<MatrixT2>(M2)) = detInv *
+      (Wrap1::template Get<0, 1>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<1, 2>(std::forward<MatrixT1>(M1)) -
+        Wrap1::template Get<1, 1>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<0, 2>(std::forward<MatrixT1>(M1)));
+    Wrap2::template Get<1, 2>(std::forward<MatrixT2>(M2)) = -detInv *
+      (Wrap1::template Get<0, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<1, 2>(std::forward<MatrixT1>(M1)) -
+        Wrap1::template Get<1, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<0, 2>(std::forward<MatrixT1>(M1)));
+    Wrap2::template Get<2, 2>(std::forward<MatrixT2>(M2)) = detInv *
+      (Wrap1::template Get<0, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<1, 1>(std::forward<MatrixT1>(M1)) -
+        Wrap1::template Get<1, 0>(std::forward<MatrixT1>(M1)) *
+          Wrap1::template Get<0, 1>(std::forward<MatrixT1>(M1)));
   }
 };
 
@@ -785,7 +850,7 @@ class InvertMatrix<1, LayoutT>
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     M2[0] = 1.0 / M1[0];
   }
@@ -798,7 +863,7 @@ class InvertMatrix<2, vtkMatrixUtilities::Layout::Diag>
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     M2[0] = 1.0 / M1[0];
     M2[1] = 1.0 / M1[1];
@@ -812,7 +877,7 @@ class InvertMatrix<3, vtkMatrixUtilities::Layout::Diag>
 {
 public:
   template <class MatrixT1, class MatrixT2>
-  static void Compute(const MatrixT1& M1, MatrixT2& M2)
+  static void Compute(MatrixT1&& M1, MatrixT2&& M2)
   {
     M2[0] = 1.0 / M1[0];
     M2[1] = 1.0 / M1[1];
@@ -834,7 +899,7 @@ class LinearSolve<1, 1, LayoutT>
 {
 public:
   template <class MatrixT, class VectorT1, class VectorT2>
-  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  static void Compute(MatrixT&& M, VectorT1&& x, VectorT2&& y)
   {
     y[0] = x[0] / M[0];
   }
@@ -847,14 +912,18 @@ class LinearSolve<2, 2, LayoutT>
 {
 public:
   template <class MatrixT, class VectorT1, class VectorT2>
-  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  static void Compute(MatrixT&& M, VectorT1&& x, VectorT2&& y)
   {
     using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type;
     using Wrap = vtkMatrixUtilities::Wrapper<2, 2, MatrixT, LayoutT>;
 
-    Scalar detInv = 1.0 / Determinant<2, LayoutT>::Compute(M);
-    y[0] = (x[0] * Wrap::template Get<1, 1>(M) - x[1] * Wrap::template Get<0, 1>(M)) * detInv;
-    y[1] = (-x[0] * Wrap::template Get<1, 0>(M) + x[1] * Wrap::template Get<0, 0>(M)) * detInv;
+    Scalar detInv = 1.0 / Determinant<2, LayoutT>::Compute(std::forward<MatrixT>(M));
+    y[0] = (x[0] * Wrap::template Get<1, 1>(std::forward<MatrixT>(M)) -
+             x[1] * Wrap::template Get<0, 1>(std::forward<MatrixT>(M))) *
+      detInv;
+    y[1] = (-x[0] * Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) +
+             x[1] * Wrap::template Get<0, 0>(std::forward<MatrixT>(M))) *
+      detInv;
   }
 };
 
@@ -865,52 +934,76 @@ class LinearSolve<3, 3, LayoutT>
 {
 public:
   template <class MatrixT, class VectorT1, class VectorT2>
-  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  static void Compute(MatrixT&& M, VectorT1&& x, VectorT2&& y)
   {
     using Scalar = typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type;
     using Wrap = vtkMatrixUtilities::Wrapper<3, 3, MatrixT, LayoutT>;
 
     Scalar detInv = 1.0 /
-      (Wrap::template Get<0, 0>(M) *
-          (Wrap::template Get<1, 1>(M) * Wrap::template Get<2, 2>(M) -
-            Wrap::template Get<2, 1>(M) * Wrap::template Get<1, 2>(M)) -
-        Wrap::template Get<0, 1>(M) *
-          (Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 2>(M) -
-            Wrap::template Get<2, 0>(M) * Wrap::template Get<1, 2>(M)) +
-        Wrap::template Get<0, 2>(M) *
-          (Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 1>(M) -
-            Wrap::template Get<2, 0>(M) * Wrap::template Get<1, 1>(M)));
+      (Wrap::template Get<0, 0>(std::forward<MatrixT>(M)) *
+          (Wrap::template Get<1, 1>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<2, 2>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<2, 1>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<1, 2>(std::forward<MatrixT>(M))) -
+        Wrap::template Get<0, 1>(std::forward<MatrixT>(M)) *
+          (Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<2, 2>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<2, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<1, 2>(std::forward<MatrixT>(M))) +
+        Wrap::template Get<0, 2>(std::forward<MatrixT>(M)) *
+          (Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<2, 1>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<2, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<1, 1>(std::forward<MatrixT>(M))));
 
     y[0] = detInv *
       (x[0] *
-          (Wrap::template Get<1, 1>(M) * Wrap::template Get<2, 2>(M) -
-            Wrap::template Get<2, 1>(M) * Wrap::template Get<1, 2>(M)) -
+          (Wrap::template Get<1, 1>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<2, 2>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<2, 1>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<1, 2>(std::forward<MatrixT>(M))) -
         x[1] *
-          (Wrap::template Get<0, 1>(M) * Wrap::template Get<2, 2>(M) -
-            Wrap::template Get<2, 1>(M) * Wrap::template Get<0, 2>(M)) +
+          (Wrap::template Get<0, 1>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<2, 2>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<2, 1>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<0, 2>(std::forward<MatrixT>(M))) +
         x[2] *
-          (Wrap::template Get<0, 1>(M) * Wrap::template Get<1, 2>(M) -
-            Wrap::template Get<1, 1>(M) * Wrap::template Get<0, 2>(M)));
+          (Wrap::template Get<0, 1>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<1, 2>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<1, 1>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<0, 2>(std::forward<MatrixT>(M))));
     y[1] = detInv *
       (-x[0] *
-          (Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 2>(M) -
-            Wrap::template Get<2, 0>(M) * Wrap::template Get<1, 2>(M)) +
+          (Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<2, 2>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<2, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<1, 2>(std::forward<MatrixT>(M))) +
         x[1] *
-          (Wrap::template Get<0, 0>(M) * Wrap::template Get<2, 2>(M) -
-            Wrap::template Get<2, 0>(M) * Wrap::template Get<0, 2>(M)) -
+          (Wrap::template Get<0, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<2, 2>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<2, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<0, 2>(std::forward<MatrixT>(M))) -
         x[2] *
-          (Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 2>(M) -
-            Wrap::template Get<1, 0>(M) * Wrap::template Get<0, 2>(M)));
+          (Wrap::template Get<0, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<1, 2>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<0, 2>(std::forward<MatrixT>(M))));
     y[2] = detInv *
       (x[0] *
-          (Wrap::template Get<1, 0>(M) * Wrap::template Get<2, 1>(M) -
-            Wrap::template Get<2, 0>(M) * Wrap::template Get<1, 1>(M)) -
+          (Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<2, 1>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<2, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<1, 1>(std::forward<MatrixT>(M))) -
         x[1] *
-          (Wrap::template Get<0, 0>(M) * Wrap::template Get<2, 1>(M) -
-            Wrap::template Get<2, 0>(M) * Wrap::template Get<0, 1>(M)) +
+          (Wrap::template Get<0, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<2, 1>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<2, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<0, 1>(std::forward<MatrixT>(M))) +
         x[2] *
-          (Wrap::template Get<0, 0>(M) * Wrap::template Get<1, 1>(M) -
-            Wrap::template Get<1, 0>(M) * Wrap::template Get<0, 1>(M)));
+          (Wrap::template Get<0, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<1, 1>(std::forward<MatrixT>(M)) -
+            Wrap::template Get<1, 0>(std::forward<MatrixT>(M)) *
+              Wrap::template Get<0, 1>(std::forward<MatrixT>(M))));
   }
 };
 
@@ -921,7 +1014,7 @@ class LinearSolve<2, 2, vtkMatrixUtilities::Layout::Diag>
 {
 public:
   template <class MatrixT, class VectorT1, class VectorT2>
-  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  static void Compute(MatrixT&& M, VectorT1&& x, VectorT2&& y)
   {
     y[0] = x[0] / M[0];
     y[1] = x[1] / M[1];
@@ -935,7 +1028,7 @@ class LinearSolve<3, 3, vtkMatrixUtilities::Layout::Diag>
 {
 public:
   template <class MatrixT, class VectorT1, class VectorT2>
-  static void Compute(const MatrixT& M, const VectorT1& x, VectorT2& y)
+  static void Compute(MatrixT&& M, VectorT1&& x, VectorT2&& y)
   {
     y[0] = x[0] / M[0];
     y[1] = x[1] / M[1];

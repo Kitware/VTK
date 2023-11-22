@@ -4253,3 +4253,12 @@ int TestMetaLinearSolve()
   }
   return status;
 }
+
+static_assert(vtkMatrixUtilities::MatrixIs2DArray<double**>(), "Failed");
+static_assert(vtkMatrixUtilities::MatrixIs2DArray<double[][3]>(), "Failed");
+static_assert(vtkMatrixUtilities::MatrixIs2DArray<double[3][3]>(), "Failed");
+static_assert(vtkMatrixUtilities::MatrixIs2DArray<double*[]>(), "Failed");
+static_assert(!vtkMatrixUtilities::MatrixIs2DArray<double*>(), "Failed");
+static_assert(!vtkMatrixUtilities::MatrixIs2DArray<double[]>(), "Failed");
+static_assert(!vtkMatrixUtilities::MatrixIs2DArray<double>(), "Failed");
+static_assert(!vtkMatrixUtilities::MatrixIs2DArray<double***>(), "Failed");

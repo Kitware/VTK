@@ -65,6 +65,21 @@ public:
   vtkBooleanMacro(CopyArrays, bool);
   ///@}
 
+  ///@{
+  /**
+   * Enable/disable whether the ghost cells are converted into ghost points.
+   * For example, if ON, the input HIDDENCELLS and REFINEDCELLS are converted into HIDDENPOINTS.
+   * If OFF, the ghost array is just passed to the output as well as the `GhostsToSkip` from
+   * the input `vtkCellData`.
+   * It is ON by default.
+   *
+   * @sa vtkFieldData
+   */
+  vtkSetMacro(ConvertGhostCellsToGhostPoints, bool);
+  vtkGetMacro(ConvertGhostCellsToGhostPoints, bool);
+  vtkBooleanMacro(ConvertGhostCellsToGhostPoints, bool);
+  ///@}
+
   /**
    * Compute centers of cells from a dataset, storing them in the centers array.
    */
@@ -79,6 +94,7 @@ protected:
 
   bool VertexCells = false;
   bool CopyArrays = true;
+  bool ConvertGhostCellsToGhostPoints = true;
 
 private:
   vtkCellCenters(const vtkCellCenters&) = delete;
