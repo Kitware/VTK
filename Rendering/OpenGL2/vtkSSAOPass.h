@@ -112,6 +112,16 @@ protected:
   vtkSSAOPass() = default;
   ~vtkSSAOPass() override = default;
 
+  /**
+   * Called in PreRender to add the GLDepthMaskOverride information key to volumes,
+   * which allows them to write to the depth texture by overriding the value of glDepthMask.
+   */
+  void PreRenderProp(vtkProp* prop) override;
+  /**
+   * Called in PostRender to clean the GLDepthMaskOverride information key on volumes.
+   */
+  void PostRenderProp(vtkProp* prop) override;
+
   void ComputeKernel();
   void InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int w, int h);
 
