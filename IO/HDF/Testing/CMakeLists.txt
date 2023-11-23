@@ -17,6 +17,8 @@ vtk_module_test_data(
   Data/test_transient_poly_data.hdf
   Data/test_transient_poly_data_offset.vtkhdf
   Data/transient_sphere.hdf
+  Data/transient_cube.hdf
+  Data/transient_harmonics.hdf
   Data/transient_wavelet.hdf
   Data/wavelet_cell_data.hdf
   Data/wavelet_cell_data.vti
@@ -34,6 +36,7 @@ vtk_module_test_data(
   Data/elements.vtu
   Data/explicitStructuredGrid.vtu
   Data/explicitStructuredGridEmpty.vtu
+  Data/cube-with-time.vtu
   )
 
 add_subdirectory(Cxx)
