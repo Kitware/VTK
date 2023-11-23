@@ -25,6 +25,7 @@
 #include "vtkVolumeProperty.h"
 
 #include <random>
+#include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSSAOPass);
@@ -630,14 +631,15 @@ bool vtkSSAOPass::PostReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
       "l_ssaoUpdateDepth = true;\n",
       false);
 
-    vtkShaderProgram::Substitute(fragmentShader, "//VTK::SSAO::Impl",
-      "if (!g_skip && g_fragColor.a > 0.0 && l_ssaoUpdateDepth)\n"
-      "{\n"
-      "  l_ssaoFragPos = g_dataPos;\n"
-      "  l_ssaoFragNormal = g_dataNormal;\n"
-      "  l_ssaoUpdateDepth = false;\n"
-      "}",
-      false);
+    std::stringstream ssaoImpl;
+    ssaoImpl << "if (!g_skip && g_fragColor.a > " << this->VolumeOpacityThreshold
+             << " && l_ssaoUpdateDepth)\n"
+                "{\n"
+                "  l_ssaoFragPos = g_dataPos;\n"
+                "  l_ssaoFragNormal = g_dataNormal;\n"
+                "  l_ssaoUpdateDepth = false;\n"
+                "}";
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::SSAO::Impl", ssaoImpl.str(), false);
 
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::SSAO::Exit",
       "if (l_ssaoFragPos == vec3(-1.0))\n"
