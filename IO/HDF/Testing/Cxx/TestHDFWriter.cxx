@@ -9,8 +9,10 @@
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLPolyDataReader.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 #include <string>
 
@@ -102,9 +104,38 @@ bool TestComplexPolyData(const std::string& tempDir, const std::string& dataRoot
 }
 
 //----------------------------------------------------------------------------
+bool TestUnstructuredGrid(const std::string& tempDir, const std::string& dataRoot)
+{
+  std::vector<std::string> baseNames = { "explicitStructuredGrid.vtu",
+    "explicitStructuredGridEmpty.vtu", "elements.vtu" };
+  for (const auto& baseName : baseNames)
+  {
+    // Get an Unstructured grid from a VTU
+    const std::string basePath = dataRoot + "/Data/" + baseName;
+    vtkNew<vtkXMLUnstructuredGridReader> baseReader;
+    baseReader->SetFileName(basePath.c_str());
+    baseReader->Update();
+    vtkUnstructuredGrid* baseData = vtkUnstructuredGrid::SafeDownCast(baseReader->GetOutput());
+    if (baseData == nullptr)
+    {
+      std::cerr << "Can't read base data from: " << basePath << std::endl;
+      return false;
+    }
+
+    // Write and read the unstructuredGrid in a temp file, compare with base
+    std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
+    if (!TestWriteAndRead(baseData, tempPath.c_str()))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
 int TestHDFWriter(int argc, char* argv[])
 {
-  // Get temporary directory
+  // Get temporary testing directory
   char* tempDirCStr =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string tempDir{ tempDirCStr };
@@ -115,24 +146,17 @@ int TestHDFWriter(int argc, char* argv[])
   testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
   {
-    std::cerr << "Error: -D /path/to/data was not specified.";
+    std::cerr << "Error: -D /path/to/data was not specified." << std::endl;
     return EXIT_FAILURE;
   }
   std::string dataRoot = testHelper->GetDataRoot();
 
   // Run tests
-  if (!TestEmptyPolyData(tempDir))
-  {
-    return EXIT_FAILURE;
-  }
-  if (!TestSpherePolyData(tempDir))
-  {
-    return EXIT_FAILURE;
-  }
-  if (!TestComplexPolyData(tempDir, dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
+  bool testPasses = true;
+  testPasses &= TestEmptyPolyData(tempDir);
+  testPasses &= TestSpherePolyData(tempDir);
+  testPasses &= TestComplexPolyData(tempDir, dataRoot);
+  testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
 
-  return EXIT_SUCCESS;
+  return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }

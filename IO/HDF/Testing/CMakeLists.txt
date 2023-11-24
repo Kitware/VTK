@@ -31,6 +31,9 @@ vtk_module_test_data(
   Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_007.vtp
   Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_008.vtp
   Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_009.vtp
+  Data/elements.vtu
+  Data/explicitStructuredGrid.vtu
+  Data/explicitStructuredGridEmpty.vtu
   )
 
 add_subdirectory(Cxx)

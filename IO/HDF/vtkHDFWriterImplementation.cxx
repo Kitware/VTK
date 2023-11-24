@@ -224,6 +224,15 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::createDatasetFromDataArray
 }
 
 //------------------------------------------------------------------------------
+vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::createSingleValueDataset(
+  hid_t group, const char* name, int value)
+{
+  hsize_t dimensions[1] = { 1 };
+  return this->createAndWriteHdfDataset(
+    group, H5T_STD_I64LE, H5T_NATIVE_INT, name, 1, dimensions, &value);
+}
+
+//------------------------------------------------------------------------------
 vtkHDFWriter::Implementation::Implementation(vtkHDFWriter* writer)
   : Writer(writer)
   , File(H5I_INVALID_HID)
