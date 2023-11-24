@@ -104,10 +104,6 @@ vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
   {
     vtk_type = VTK_LONG;
   }
-  // else if (arrayType == XdmfArrayType::UInt64()) UInt64 does not exist
-  //{
-  // vtk_type = VTK_LONG;
-  //}
   else if (arrayType == XdmfArrayType::Float32())
   {
     vtk_type = VTK_FLOAT;
@@ -127,6 +123,10 @@ vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
   else if (arrayType == XdmfArrayType::UInt32())
   {
     vtk_type = VTK_UNSIGNED_INT;
+  }
+  else if (arrayType == XdmfArrayType::UInt64())
+  {
+    vtk_type = VTK_UNSIGNED_LONG;
   }
   else if (arrayType == XdmfArrayType::String())
   {
@@ -296,7 +296,14 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
 #endif
       break;
     case VTK_UNSIGNED_LONG:
-      //  arrayType = XdmfArrayType::UInt64(); UInt64 does not exist
+      xArray->initialize(XdmfArrayType::UInt64(), xdims);
+#if DO_DEEPWRITE
+      xArray->insert(
+        0, static_cast<unsigned long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
+#else
+      xArray->setValuesInternal(
+        static_cast<unsigned long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
+#endif
       return false;
     case VTK_FLOAT:
       xArray->initialize(XdmfArrayType::Float32(), xdims);
