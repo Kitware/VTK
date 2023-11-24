@@ -19,7 +19,6 @@
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
-#include "vtkTextureObject.h"
 
 #include <random>
 
@@ -145,7 +144,7 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
   {
     this->DepthTexture = vtkTextureObject::New();
     this->DepthTexture->SetContext(renWin);
-    this->DepthTexture->AllocateDepth(w, h, vtkTextureObject::Float32);
+    this->DepthTexture->AllocateDepth(w, h, this->DepthFormat);
   }
 
   if (this->FrameBufferObject == nullptr)
