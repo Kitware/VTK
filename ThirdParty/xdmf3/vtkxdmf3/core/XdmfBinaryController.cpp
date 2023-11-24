@@ -56,7 +56,7 @@ namespace {
     char* data = static_cast<char*>(p);
     one_byte = data[0]; data[0] = data[3]; data[3] = one_byte;
     one_byte = data[1]; data[1] = data[2]; data[2] = one_byte;
-  
+
   }
 
   template<>
@@ -193,27 +193,27 @@ XdmfBinaryController::read(XdmfArray * const array)
 
   if(!fileStream.good()) {
     XdmfError::message(XdmfError::FATAL,
-                       "Error reading " + mFilePath + 
+                       "Error reading " + mFilePath +
                        " in XdmfBinaryController::read");
   }
 
   fileStream.seekg(mSeek);
-  
+
   if(!fileStream.good()) {
     XdmfError::message(XdmfError::FATAL,
-                       "Error seeking " + mFilePath + 
+                       "Error seeking " + mFilePath +
                        " in XdmfBinaryController::read");
   }
-  
+
   fileStream.read(static_cast<char *>(dataspaceArray->getValuesInternal()),
                   dataspaceArray->getSize() * mType->getElementSize());
-  
+
 #if defined(XDMF_BIG_ENDIAN)
   const bool needByteSwap = mEndian == LITTLE;
 #else
   const bool needByteSwap = mEndian == BIG;
 #endif // XDMF_BIG_ENDIAN
-  
+
   if(needByteSwap) {
     switch(mType->getElementSize()){
     case 1:
@@ -268,6 +268,9 @@ XdmfBinaryControllerNew(char * filePath,
       break;
     case XDMF_ARRAY_TYPE_UINT32:
       buildType = XdmfArrayType::UInt32();
+      break;
+    case XDMF_ARRAY_TYPE_UINT64:
+      buildType = XdmfArrayType::UInt64();
       break;
     case XDMF_ARRAY_TYPE_INT8:
       buildType = XdmfArrayType::Int8();
@@ -342,6 +345,9 @@ XdmfBinaryControllerNewHyperslab(char * filePath,
       break;
     case XDMF_ARRAY_TYPE_UINT32:
       buildType = XdmfArrayType::UInt32();
+      break;
+    case XDMF_ARRAY_TYPE_UINT64:
+      buildType = XdmfArrayType::UInt64();
       break;
     case XDMF_ARRAY_TYPE_INT8:
       buildType = XdmfArrayType::Int8();
