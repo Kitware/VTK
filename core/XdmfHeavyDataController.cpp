@@ -122,7 +122,7 @@ XdmfHeavyDataController::getDescriptor() const
   return "";
 }
 
-std::vector<unsigned int> 
+std::vector<unsigned int>
 XdmfHeavyDataController::getDimensions() const
 {
   return mDimensions;
@@ -338,6 +338,10 @@ int XdmfHeavyDataControllerGetType(XDMFHEAVYDATACONTROLLER * controller, int * s
   else if (typeName == XdmfArrayType::UInt32()->getName())
   {
       return XDMF_ARRAY_TYPE_UINT32;
+  }
+  else if (typeName == XdmfArrayType::UInt64()->getName())
+  {
+      return XDMF_ARRAY_TYPE_UINT64;
   }
   else if (typeName == XdmfArrayType::Int8()->getName())
   {
