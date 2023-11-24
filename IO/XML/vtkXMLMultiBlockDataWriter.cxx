@@ -46,6 +46,12 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(
     toBeWritten++;
   }
 
+  if (toBeWritten == 0)
+  {
+    // No leaf, nothing to write but this is not an issue.
+    return 1;
+  }
+
   float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
 
