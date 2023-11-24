@@ -12,6 +12,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastJittering.cxx
   TestGPURayCastMultiVolumeClipping.cxx
   TestGPURayCastSlicePlane.cxx
+  TestGPURayCastSSAO.cxx
   TestGPURayCastTextureStreaming.cxx
   TestGPURayCastTextureStreamingMask.cxx
   TestGPURayCastToggleJittering.cxx
