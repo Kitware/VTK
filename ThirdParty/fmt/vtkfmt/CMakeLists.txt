@@ -17,10 +17,8 @@ set (headers
   vtkfmt/std.h
   vtkfmt/xchar.h)
 
-#-----------------------------------------
-include(support/cmake/cxx14.cmake)
-
 vtk_module_add_module(VTK::fmt
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkfmt")
@@ -40,5 +38,5 @@ if (HAVE_STRTOD_L)
 endif ()
 
 if (BUILD_SHARED_LIBS)
-  vtk_module_definitions(VTK::fmt PRIVATE FMT_EXPORT INTERFACE FMT_SHARED)
+  vtk_module_definitions(VTK::fmt PRIVATE FMT_LIB_EXPORT INTERFACE FMT_SHARED)
 endif ()
