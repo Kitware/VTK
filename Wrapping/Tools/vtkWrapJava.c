@@ -639,9 +639,10 @@ void OutputFunctionResult(FILE* fp)
  * return 0 if the types do not map to the same type */
 static int CheckMatch(unsigned int type1, unsigned int type2, const char* c1, const char* c2)
 {
+  /* VTK_PARSE_UNKNOWN is used for enum types, which are mapped to java's int type */
   static unsigned int byteTypes[] = { VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, 0 };
   static unsigned int shortTypes[] = { VTK_PARSE_UNSIGNED_SHORT, VTK_PARSE_SHORT, 0 };
-  static unsigned int intTypes[] = { VTK_PARSE_UNSIGNED_INT, VTK_PARSE_INT, 0 };
+  static unsigned int intTypes[] = { VTK_PARSE_UNKNOWN, VTK_PARSE_UNSIGNED_INT, VTK_PARSE_INT, 0 };
   static unsigned int longTypes[] = { VTK_PARSE_UNSIGNED_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
     VTK_PARSE_LONG, VTK_PARSE_LONG_LONG, 0 };
 
