@@ -223,7 +223,7 @@ public:
   /**
    * Returns a new array that is a deep copy of this array.
    */
-  virtual vtkArray* DeepCopy() = 0;
+  virtual VTK_NEWINSTANCE vtkArray* DeepCopy() = 0;
 
 protected:
   vtkArray();
