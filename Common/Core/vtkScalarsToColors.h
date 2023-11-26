@@ -152,9 +152,9 @@ public:
    * When the component argument is -1, then the this object uses its own
    * selected technique to change a vector into a scalar to map.
    */
-  virtual vtkUnsignedCharArray* MapScalars(
+  virtual VTK_NEWINSTANCE vtkUnsignedCharArray* MapScalars(
     vtkDataArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
-  virtual vtkUnsignedCharArray* MapScalars(
+  virtual VTK_NEWINSTANCE vtkUnsignedCharArray* MapScalars(
     vtkAbstractArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
   ///@}
 
@@ -406,7 +406,8 @@ protected:
    * method instantiates a vtkUnsignedCharArray and returns it. The user is
    * responsible for managing the memory.
    */
-  vtkUnsignedCharArray* ConvertToRGBA(vtkDataArray* colors, int numComp, int numTuples);
+  VTK_NEWINSTANCE vtkUnsignedCharArray* ConvertToRGBA(
+    vtkDataArray* colors, int numComp, int numTuples);
 
   /**
    * An internal method for converting vectors to magnitudes, used as
