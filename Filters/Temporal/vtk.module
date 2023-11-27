@@ -9,17 +9,17 @@ SPDX_LICENSE_IDENTIFIER
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
-  VTK::CommonCore
-  VTK::CommonDataModel
-  VTK::CommonExecutionModel
-  VTK::FiltersHybrid
   VTK::FiltersCore
 PRIVATE_DEPENDS
-  VTK::CommonMisc
+  VTK::CommonCore
+  VTK::CommonDataModel
 TEST_DEPENDS
+  VTK::CommonExecutionModel
   VTK::FiltersGeneral
+  VTK::FiltersHybrid
   VTK::FiltersSources
   VTK::IOXML
   VTK::InteractionStyle
+  VTK::RenderingCore
   VTK::RenderingOpenGL2
   VTK::TestingRendering
