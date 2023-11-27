@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-CLAUSE
 #include "vtkStaticFaceHashLinksTemplate.h"
 
+#include "vtkBatch.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
@@ -24,47 +25,35 @@ template <typename TInputIdType, typename TFaceIdType>
 struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::GeometryInformation
 {
   //-----------------------------------------------------------------------------
-  struct GeometryBatch
+  struct GeometryBatchData
   {
-    // These are computed in GeometryInformation::Initialize().
-    vtkIdType BeginCellId;
-    vtkIdType EndCellId;
-    // These are accumulated in CountFaces::operator().
-    vtkIdType NumberOfFaces;
-    // These are computed in CountFaces::Reduce().
-    vtkIdType BeginFaceId;
+    // In CountFaces::operator() this is used as an accumulator
+    // in CountFaces::Reduce() this is changed to an offset
+    // This is done to reduce memory footprint.
+    vtkIdType FacesOffset;
 
-    GeometryBatch()
-      : BeginCellId(0)
-      , EndCellId(0)
-      , NumberOfFaces(0)
-      , BeginFaceId(0)
+    GeometryBatchData()
+      : FacesOffset(0)
     {
     }
+    ~GeometryBatchData() = default;
+    GeometryBatchData& operator+=(const GeometryBatchData& other)
+    {
+      this->FacesOffset += other.FacesOffset;
+      return *this;
+    }
+    GeometryBatchData operator+(const GeometryBatchData& other) const
+    {
+      GeometryBatchData result = *this;
+      result += other;
+      return result;
+    }
   };
+  using GeometryBatch = vtkBatch<GeometryBatchData>;
+  using GeometryBatches = vtkBatches<GeometryBatchData>;
 
-  std::vector<GeometryBatch> Batches;
+  GeometryBatches Batches;
   vtkIdType TotalNumberOfFaces = 0;
-
-  void Initialize(vtkIdType numberOfCells, unsigned int batchSize = 1000)
-  {
-    auto numberOfBatches = static_cast<size_t>(((numberOfCells - 1) / batchSize) + 1);
-    this->Batches.resize(numberOfBatches);
-
-    vtkSMPTools::For(0, numberOfBatches, [&](vtkIdType beginBatchId, vtkIdType endBatchId) {
-      const auto batchSizeSigned = static_cast<vtkIdType>(batchSize);
-      for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
-      {
-        auto& batch = this->Batches[batchId];
-        batch.BeginCellId = batchId * batchSizeSigned;
-        batch.EndCellId = batch.BeginCellId + batchSizeSigned > numberOfCells
-          ? numberOfCells
-          : batch.BeginCellId + batchSizeSigned;
-      }
-    });
-  }
-
-  vtkIdType GetNumberOfBatches() const { return static_cast<vtkIdType>(this->Batches.size()); }
 };
 
 /**
@@ -92,10 +81,10 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CountFaces
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
       auto& batch = this->GeometryInfo.Batches[batchId];
-      auto& numberOfFaces = batch.NumberOfFaces;
+      auto& numberOfFaces = batch.Data.FacesOffset;
       int numberOfCellFaces;
       unsigned char cellType;
-      for (vtkIdType cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
+      for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
       {
         numberOfCellFaces = this->Input->GetCellNumberOfFaces(cellId, cellType, cell);
         // we mark cells with no faces as having one face so that we can
@@ -108,13 +97,8 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CountFaces
 
   void Reduce()
   {
-    vtkIdType numberOfFaces = 0;
-    for (auto& batch : this->GeometryInfo.Batches)
-    {
-      batch.BeginFaceId = numberOfFaces;
-      numberOfFaces += batch.NumberOfFaces;
-    }
-    this->GeometryInfo.TotalNumberOfFaces = numberOfFaces;
+    const auto globalSum = this->GeometryInfo.Batches.BuildOffsetsAndGetGlobalSum();
+    this->GeometryInfo.TotalNumberOfFaces = globalSum.FacesOffset;
   }
 };
 
@@ -168,8 +152,8 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
       for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
       {
         auto& batch = This->GeometryInfo.Batches[batchId];
-        auto beginFaceId = batch.BeginFaceId;
-        for (vtkIdType cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
+        auto facesOffset = batch.Data.FacesOffset;
+        for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
         {
           const unsigned char& cellType = cellTypes[cellId];
           // get cell points by just accessing the connectivity/offsets array
@@ -180,7 +164,7 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
           switch (cellType)
           {
             case VTK_EMPTY_CELL:
-              cellOffsets[cellId] = beginFaceId;
+              cellOffsets[cellId] = facesOffset;
               break;
             case VTK_VERTEX:
             case VTK_POLY_VERTEX:
@@ -191,23 +175,23 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
             case VTK_POLYGON:
             case VTK_TRIANGLE_STRIP:
             case VTK_PIXEL:
-              cellOffsets[cellId] = beginFaceId;
-              faceHashValues[beginFaceId++] = This->NumberOfPoints;
+              cellOffsets[cellId] = facesOffset;
+              faceHashValues[facesOffset++] = This->NumberOfPoints;
               break;
             case VTK_TETRA:
-              cellOffsets[cellId] = beginFaceId;
+              cellOffsets[cellId] = facesOffset;
               for (faceId = 0; faceId < 4; faceId++)
               {
                 faceVerts = vtkTetra::GetFaceArray(faceId);
                 ptIds[0] = pts[faceVerts[0]];
                 ptIds[1] = pts[faceVerts[1]];
                 ptIds[2] = pts[faceVerts[2]];
-                faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 3);
+                faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 3);
               }
               break;
 
             case VTK_VOXEL:
-              cellOffsets[cellId] = beginFaceId;
+              cellOffsets[cellId] = facesOffset;
               for (faceId = 0; faceId < 6; faceId++)
               {
                 faceVerts = vtkVoxel::GetFaceArray(faceId);
@@ -215,12 +199,12 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
                 ptIds[1] = pts[faceVerts[pixelConvert[1]]];
                 ptIds[2] = pts[faceVerts[pixelConvert[2]]];
                 ptIds[3] = pts[faceVerts[pixelConvert[3]]];
-                faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 4);
+                faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 4);
               }
               break;
 
             case VTK_HEXAHEDRON:
-              cellOffsets[cellId] = beginFaceId;
+              cellOffsets[cellId] = facesOffset;
               for (faceId = 0; faceId < 6; faceId++)
               {
                 faceVerts = vtkHexahedron::GetFaceArray(faceId);
@@ -228,12 +212,12 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
                 ptIds[1] = pts[faceVerts[1]];
                 ptIds[2] = pts[faceVerts[2]];
                 ptIds[3] = pts[faceVerts[3]];
-                faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 4);
+                faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 4);
               }
               break;
 
             case VTK_WEDGE:
-              cellOffsets[cellId] = beginFaceId;
+              cellOffsets[cellId] = facesOffset;
               for (faceId = 0; faceId < 5; faceId++)
               {
                 faceVerts = vtkWedge::GetFaceArray(faceId);
@@ -242,18 +226,18 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
                 ptIds[2] = pts[faceVerts[2]];
                 if (faceVerts[3] < 0)
                 {
-                  faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 3);
+                  faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 3);
                 }
                 else
                 {
                   ptIds[3] = pts[faceVerts[3]];
-                  faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 4);
+                  faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 4);
                 }
               }
               break;
 
             case VTK_PYRAMID:
-              cellOffsets[cellId] = beginFaceId;
+              cellOffsets[cellId] = facesOffset;
               for (faceId = 0; faceId < 5; faceId++)
               {
                 faceVerts = vtkPyramid::GetFaceArray(faceId);
@@ -262,18 +246,18 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
                 ptIds[2] = pts[faceVerts[2]];
                 if (faceVerts[3] < 0)
                 {
-                  faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 3);
+                  faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 3);
                 }
                 else
                 {
                   ptIds[3] = pts[faceVerts[3]];
-                  faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 4);
+                  faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 4);
                 }
               }
               break;
 
             case VTK_HEXAGONAL_PRISM:
-              cellOffsets[cellId] = beginFaceId;
+              cellOffsets[cellId] = facesOffset;
               for (faceId = 0; faceId < 8; faceId++)
               {
                 faceVerts = vtkHexagonalPrism::GetFaceArray(faceId);
@@ -283,19 +267,19 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
                 ptIds[3] = pts[faceVerts[3]];
                 if (faceVerts[4] < 0)
                 {
-                  faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 4);
+                  faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 4);
                 }
                 else
                 {
                   ptIds[4] = pts[faceVerts[4]];
                   ptIds[5] = pts[faceVerts[5]];
-                  faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 6);
+                  faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 6);
                 }
               }
               break;
 
             case VTK_PENTAGONAL_PRISM:
-              cellOffsets[cellId] = beginFaceId;
+              cellOffsets[cellId] = facesOffset;
               for (faceId = 0; faceId < 7; faceId++)
               {
                 faceVerts = vtkPentagonalPrism::GetFaceArray(faceId);
@@ -305,12 +289,12 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
                 ptIds[3] = pts[faceVerts[3]];
                 if (faceVerts[4] < 0)
                 {
-                  faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 4);
+                  faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 4);
                 }
                 else
                 {
                   ptIds[4] = pts[faceVerts[4]];
-                  faceHashValues[beginFaceId++] = *std::min_element(ptIds, ptIds + 5);
+                  faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 5);
                 }
               }
               break;
@@ -320,11 +304,11 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
               This->Input->GetCell(cellId, cell);
               if (cell->GetCellDimension() == 3 && cell->IsLinear())
               {
-                cellOffsets[cellId] = beginFaceId;
+                cellOffsets[cellId] = facesOffset;
                 for (faceId = 0, numFaces = cell->GetNumberOfFaces(); faceId < numFaces; faceId++)
                 {
                   vtkCell* faceCell = cell->GetFace(faceId);
-                  faceHashValues[beginFaceId++] =
+                  faceHashValues[facesOffset++] =
                     *std::min_element(faceCell->PointIds->GetPointer(0),
                       faceCell->PointIds->GetPointer(faceCell->PointIds->GetNumberOfIds()));
                 }
@@ -545,7 +529,7 @@ void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildHashLinksIn
   // create the faces information
   CreateFacesInformation<TCellOffSetIdType> facesInformationCreator(
     input, geometryInfo, cellOffsets, faceHashValues);
-  vtkSMPTools::For(0, geometryInfo.GetNumberOfBatches(), facesInformationCreator);
+  vtkSMPTools::For(0, geometryInfo.Batches.GetNumberOfBatches(), facesInformationCreator);
 
   // count the number of faces per hash
   std::atomic<TInputIdType>* counts = new std::atomic<TInputIdType>[this->NumberOfHashes]();
@@ -582,11 +566,11 @@ void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildHashLinks(
 {
   const vtkIdType numberOfCells = input->GetNumberOfCells();
   GeometryInformation geometryInfo;
-  geometryInfo.Initialize(numberOfCells);
+  geometryInfo.Batches.Initialize(numberOfCells);
 
   // first we count the number of faces
   CountFaces faceCount(input, geometryInfo);
-  vtkSMPTools::For(0, geometryInfo.GetNumberOfBatches(), faceCount);
+  vtkSMPTools::For(0, geometryInfo.Batches.GetNumberOfBatches(), faceCount);
   this->NumberOfFaces = geometryInfo.TotalNumberOfFaces;
 
 #ifdef VTK_USE_64BIT_IDS

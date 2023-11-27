@@ -4,6 +4,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkBatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
@@ -22,7 +23,6 @@
 #include "vtkPolygon.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
-#include "vtkStaticCellLinks.h"
 #include "vtkStaticEdgeLocatorTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -185,6 +185,30 @@ bool CellIntersectsPlane(
   return (belowPlane && abovePlane);
 } // CellIntersectsPlane
 
+struct PolyCutterBatchData
+{
+  vtkIdType LinesOffset;
+
+  PolyCutterBatchData()
+    : LinesOffset(0)
+  {
+  }
+  ~PolyCutterBatchData() = default;
+  PolyCutterBatchData& operator+=(const PolyCutterBatchData& other)
+  {
+    this->LinesOffset += other.LinesOffset;
+    return *this;
+  }
+  PolyCutterBatchData operator+(const PolyCutterBatchData& other) const
+  {
+    PolyCutterBatchData result = *this;
+    result += other;
+    return result;
+  }
+};
+using PolyCutterBatch = vtkBatch<PolyCutterBatchData>;
+using PolyCutterBatches = vtkBatches<PolyCutterBatchData>;
+
 // Gather information on the size of the output. Basically, count the
 // number of line segments created in each batch. Then roll up these
 // counts to create offsets which are later used to generate the output
@@ -194,10 +218,8 @@ struct EvaluateCells
   const std::vector<unsigned char>& PtMap;
   vtkCellArray* Cells;
   vtkIdType NumCells;
-  vtkIdType BatchSize;
-  vtkIdType NumBatches;
   vtkPolyDataPlaneCutter* Filter;
-  std::vector<vtkIdType> LineOffsets;
+  PolyCutterBatches Batches;
   std::vector<unsigned char> CellMap;
   vtkIdType NumLines;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
@@ -206,12 +228,10 @@ struct EvaluateCells
     vtkPolyDataPlaneCutter* filter)
     : PtMap(ptMap)
     , Cells(cells)
-    , BatchSize(batchSize)
     , Filter(filter)
   {
     this->NumCells = this->Cells->GetNumberOfCells();
-    this->NumBatches = ((this->NumCells - 1) / batchSize) + 1;
-    this->LineOffsets.resize(this->NumBatches + 1); // added one for offset
+    this->Batches.Initialize(this->NumCells, batchSize);
     this->CellMap.resize(this->NumCells);
   }
 
@@ -223,29 +243,24 @@ struct EvaluateCells
     const vtkIdType* cell;
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endBatchNum - batchNum) / 10 + 1, (vtkIdType)1000);
 
     // Over batches of cells
     for (; batchNum < endBatchNum; ++batchNum)
     {
-      if (batchNum % checkAbortInterval == 0)
+      if (isFirst)
       {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+        this->Filter->CheckAbort();
       }
-      vtkIdType cellId = batchNum * this->BatchSize;
-      vtkIdType endCellId =
-        (cellId + this->BatchSize > this->NumCells ? this->NumCells : cellId + this->BatchSize);
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+      auto& batch = this->Batches[batchNum];
+      auto& batchNumberOfLines = batch.Data.LinesOffset;
       vtkIdType numLines = 0;
 
       // For all cells making up this batch
-      for (; cellId < endCellId; ++cellId)
+      for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
       {
         cellIter->GetCellAtId(cellId, npts, cell);
 
@@ -263,7 +278,7 @@ struct EvaluateCells
 
       // Keep track of the number of cell intersections for each batch. A
       // subsequent prefix sum will produce offsets from this information.
-      this->LineOffsets[batchNum] = numLines;
+      batchNumberOfLines = numLines;
     } // for each batch of cells
   }
 
@@ -271,19 +286,16 @@ struct EvaluateCells
   // generated in the next pass.
   void Reduce()
   {
+    // trim batches that have no intersections
+    this->Batches.TrimBatches(
+      [](const PolyCutterBatch& batch) { return batch.Data.LinesOffset == 0; });
+
     // Prefix sum over the batches to roll up total output.
-    vtkIdType numLines, totalNumLines = 0;
-    for (auto batchNum = 0; batchNum < this->NumBatches; ++batchNum)
-    {
-      numLines = this->LineOffsets[batchNum];
-      this->LineOffsets[batchNum] = totalNumLines;
-      totalNumLines += numLines;
-    }
-    this->LineOffsets[this->NumBatches] = totalNumLines;
-    this->NumLines = totalNumLines;
+    const auto globalSum = this->Batches.BuildOffsetsAndGetGlobalSum();
+    this->NumLines = globalSum.LinesOffset;
   } // Reduce
 
-  void Execute() { vtkSMPTools::For(0, this->NumBatches, *this); }
+  void Execute() { vtkSMPTools::For(0, this->Batches.GetNumberOfBatches(), *this); }
 }; // EvaluateCells
 
 // Represent cut edges. A cut edge has two values: (V0,V1) defining the
@@ -342,39 +354,32 @@ struct ExtractLines
     std::vector<EdgeTupleType>& edges = this->Edges;
     ArrayList* arrays = this->Arrays;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endBatchNum - batchNum) / 10 + 1, (vtkIdType)1000);
 
     // For each batch, process the intersected cells in the batch.
     for (; batchNum < endBatchNum; ++batchNum)
     {
-      if (batchNum % checkAbortInterval == 0)
+      if (isFirst)
       {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+        this->Filter->CheckAbort();
       }
-      vtkIdType cellId = batchNum * this->EC.BatchSize;
-      vtkIdType endCellId =
-        (cellId + this->EC.BatchSize > this->NumCells ? this->NumCells
-                                                      : cellId + this->EC.BatchSize);
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+      auto& batch = this->EC.Batches[batchNum];
 
       // What's going on here is the line offsets are being updated, and
       // the merged edges are being created with indices into the line
       // connectivity array. Later, after edge sorting and when the final
       // point ids are defined, the edge connectivity array is updated with
       // the output point ids.
-      vtkIdType lineNum = this->EC.LineOffsets[batchNum];
+      vtkIdType lineNum = batch.Data.LinesOffset;
       vtkIdType lineConnIdx = 2 * lineNum;
       vtkIdType* lineOffsets = this->LineOffsets + lineNum;
       vtkIdType lineOffset = 2 * lineNum;
 
       // For all cells in this batch
-      for (; cellId < endCellId; ++cellId)
+      for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
       {
         if (cellMap[cellId] != 0) // if the cell is cut
         {
@@ -410,7 +415,7 @@ struct ExtractLines
 
   void Reduce() {}
 
-  void Execute() { vtkSMPTools::For(0, this->EC.NumBatches, *this); }
+  void Execute() { vtkSMPTools::For(0, this->EC.Batches.GetNumberOfBatches(), *this); }
 }; // ExtractLines
 
 // Update the line connectivity with new point ids.
