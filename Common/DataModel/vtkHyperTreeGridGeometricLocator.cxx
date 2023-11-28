@@ -71,6 +71,14 @@ vtkIdType vtkHyperTreeGridGeometricLocator::Search(
   // Get the index of the tree it's in
   vtkIdType treeId;
   this->HTG->GetIndexFromLevelZeroCoordinates(treeId, bin[0], bin[1], bin[2]);
+
+  // If there is no tree to explore, no need to go beyond.
+  // This can happen e.g. in a distributed environment.
+  if (this->HTG->GetTree(treeId) == nullptr)
+  {
+    return -1;
+  }
+
   // Create cursor for looking for the point
   this->HTG->InitializeNonOrientedGeometryCursor(cursor, treeId, false);
   // recurse

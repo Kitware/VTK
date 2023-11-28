@@ -4,20 +4,22 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCompositeRenderManager.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
-#include "vtkDataSetMapper.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
-#include "vtkHyperTreeGridPreConfiguredSource.h"
 #include "vtkLookupTable.h"
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPHyperTreeGridProbeFilter.h"
 #include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProcess.h"
 #include "vtkProperty.h"
 #include "vtkRTAnalyticSource.h"
+#include "vtkRandomHyperTreeGridSource.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -62,51 +64,61 @@ void MyProcess::Execute()
   int thisProc = this->Controller->GetLocalProcessId();
   int numProcs = this->Controller->GetNumberOfProcesses();
 
-  vtkNew<vtkHyperTreeGridPreConfiguredSource> htgSource;
-  htgSource->SetHTGMode(vtkHyperTreeGridPreConfiguredSource::CUSTOM);
-  htgSource->SetCustomArchitecture(vtkHyperTreeGridPreConfiguredSource::UNBALANCED);
-  htgSource->SetCustomDim(3);
-  htgSource->SetCustomFactor(3);
-  htgSource->SetCustomDepth(5);
-  std::vector<unsigned int> subdivs = { 3, 3, 3 };
-  std::vector<double> extent = { -10, 10, -10, 10, -10, 10 };
-  htgSource->SetCustomSubdivisions(subdivs.data());
-  htgSource->SetCustomExtent(extent.data());
+  vtkNew<vtkRandomHyperTreeGridSource> htgSource;
+  htgSource->SetDimensions(5, 5, 5);
+  htgSource->SetOutputBounds(-10, 10, -10, 10, -10, 10);
+  htgSource->SetSeed(0);
+  htgSource->SetMaxDepth(4);
+  htgSource->SetSplitFraction(0.4);
 
   vtkNew<vtkRTAnalyticSource> wavelet;
+  wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);
 
   vtkNew<vtkPHyperTreeGridProbeFilter> prober;
   prober->SetInputConnection(wavelet->GetOutputPort());
   prober->SetSourceConnection(htgSource->GetOutputPort());
   prober->SetPassPointArrays(true);
 
-  prober->Update();
+  prober->UpdatePiece(thisProc, numProcs, 0);
   prober->GetOutput()->GetPointData()->SetActiveScalars("Depth");
 
-  vtkNew<vtkDataSetMapper> mapper;
-  mapper->SetInputConnection(prober->GetOutputPort());
+  vtkNew<vtkDataSetSurfaceFilter> geom;
+  geom->SetInputConnection(prober->GetOutputPort());
 
   vtkNew<vtkLookupTable> lut;
   lut->SetNumberOfTableValues(6);
   lut->SetTableRange(0, 5);
 
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputConnection(geom->GetOutputPort());
   mapper->ScalarVisibilityOn();
   mapper->SetLookupTable(lut);
   mapper->UseLookupTableScalarRangeOn();
   mapper->SetScalarModeToUsePointData();
   mapper->ColorByArrayComponent("Depth", 0);
   mapper->InterpolateScalarsBeforeMappingOn();
+  mapper->SetNumberOfPieces(numProcs);
+  mapper->SetPiece(thisProc);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
   actor->GetProperty()->SetRepresentationToSurface();
   actor->GetProperty()->EdgeVisibilityOn();
 
-  vtkNew<vtkRenderer> renderer;
+  // For distributed rendering
+  vtkNew<vtkCompositeRenderManager> crm;
+
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::Take(crm->MakeRenderer());
   renderer->AddActor(actor);
 
-  vtkNew<vtkRenderWindow> renWin;
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::Take(crm->MakeRenderWindow());
   renWin->AddRenderer(renderer.Get());
+  // Antialiasing prevent distributed pipeline
+  renWin->SetMultiSamples(0);
+
+  crm->SetRenderWindow(renWin);
+  crm->SetController(this->Controller);
 
   const int MY_RETURN_VALUE_MESSAGE = 0x42;
 
@@ -114,10 +126,14 @@ void MyProcess::Execute()
   {
     vtkCamera* camera = renderer->GetActiveCamera();
     camera->SetPosition(-15, -15, -15);
-    renderer->ResetCamera();
+    // All camera should be reseted. If not, only root node
+    // will update the pipeline, and reducing operation in
+    // vtkPHyperTreeGridProbeFilter will be blocked.
+    crm->ResetAllCameras();
 
     renWin->Render();
     this->ReturnValue = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
+    crm->StopServices();
 
     for (int i = 1; i < numProcs; i++)
     {
@@ -126,6 +142,7 @@ void MyProcess::Execute()
   }
   else
   {
+    crm->StartServices();
     this->Controller->Receive(&this->ReturnValue, 1, 0, MY_RETURN_VALUE_MESSAGE);
   }
 }
