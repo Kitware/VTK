@@ -5,9 +5,10 @@ LIBRARY_NAME
 LICENSE_FILES
   ThirdParty/LICENSE
 SPDX_LICENSE_IDENTIFIER
-  BSD-3-Clause
+  BSD-3-Clause AND BSD-3-Clause-Clear
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (C) 2022 – 2023 zSpace, Inc.
 CONDITION
   WIN32
 DEPENDS
