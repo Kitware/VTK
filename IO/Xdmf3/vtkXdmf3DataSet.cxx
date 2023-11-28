@@ -219,6 +219,15 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
   }
 
 #define DO_DEEPWRITE 1
+#if DO_DEEPWRITE
+#define XDMF_ARRAY_COPY(type, xdmfarr, vtkarr)                                                     \
+  xdmfarr->insert(0, static_cast<type*>(vtkarr->GetVoidPointer(0)), vtkarr->GetDataSize())
+#else
+#define XDMF_ARRAY_COPY(type, xdmfarr, vtkarr)                                                     \
+  xdmfarr->setValuesInternal(                                                                      \
+    static_cast<type*>(vtkarr->GetVoidPointer(0)), vtkarr->GetDataSize(), false)
+#endif
+
   // TODO: verify the 32/64 choices are correct in all configurations
   switch (vArray->GetDataType())
   {
@@ -229,120 +238,54 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
     case VTK_CHAR:
     case VTK_SIGNED_CHAR:
       xArray->initialize(XdmfArrayType::Int8(), xdims);
-#if DO_DEEPWRITE
-      // deepcopy
-      xArray->insert(0, static_cast<char*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      // shallowcopy
-      xArray->setValuesInternal(
-        static_cast<char*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(char, xArray, vArray);
       break;
     case VTK_UNSIGNED_CHAR:
       xArray->initialize(XdmfArrayType::UInt8(), xdims);
-#if DO_DEEPWRITE
-      xArray->insert(
-        0, static_cast<unsigned char*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      xArray->setValuesInternal(
-        static_cast<unsigned char*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(unsigned char, xArray, vArray);
       break;
     case VTK_SHORT:
       xArray->initialize(XdmfArrayType::Int16(), xdims);
-#if DO_DEEPWRITE
-      xArray->insert(0, static_cast<short*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      xArray->setValuesInternal(
-        static_cast<short*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(short, xArray, vArray);
       break;
     case VTK_UNSIGNED_SHORT:
       xArray->initialize(XdmfArrayType::UInt16(), xdims);
-#if DO_DEEPWRITE
-      xArray->insert(
-        0, static_cast<unsigned short*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      xArray->setValuesInternal(
-        static_cast<unsigned short*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(unsigned short, xArray, vArray);
       break;
     case VTK_INT:
       xArray->initialize(XdmfArrayType::Int32(), xdims);
-#if DO_DEEPWRITE
-      xArray->insert(0, static_cast<int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      xArray->setValuesInternal(
-        static_cast<int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(int, xArray, vArray);
       break;
     case VTK_UNSIGNED_INT:
       xArray->initialize(XdmfArrayType::UInt32(), xdims);
-#if DO_DEEPWRITE
-      xArray->insert(
-        0, static_cast<unsigned int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      xArray->setValuesInternal(
-        static_cast<unsigned int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(unsigned int, xArray, vArray);
       break;
     case VTK_LONG:
       xArray->initialize(XdmfArrayType::Int64(), xdims);
-#if DO_DEEPWRITE
-      xArray->insert(0, static_cast<long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      xArray->setValuesInternal(
-        static_cast<long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(long, xArray, vArray);
       break;
     case VTK_UNSIGNED_LONG:
       xArray->initialize(XdmfArrayType::UInt64(), xdims);
-#if DO_DEEPWRITE
-      xArray->insert(
-        0, static_cast<unsigned long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      xArray->setValuesInternal(
-        static_cast<unsigned long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(unsigned long, xArray, vArray);
       return false;
     case VTK_FLOAT:
       xArray->initialize(XdmfArrayType::Float32(), xdims);
-#if DO_DEEPWRITE
-      xArray->insert(0, static_cast<float*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      xArray->setValuesInternal(
-        static_cast<float*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(float, xArray, vArray);
       break;
     case VTK_DOUBLE:
       xArray->initialize(XdmfArrayType::Float64(), xdims);
-#if DO_DEEPWRITE
-      xArray->insert(0, static_cast<double*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-      xArray->setValuesInternal(
-        static_cast<double*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+      XDMF_ARRAY_COPY(double, xArray, vArray);
       break;
     case VTK_ID_TYPE:
       if (VTK_SIZEOF_ID_TYPE == XdmfArrayType::Int64()->getElementSize())
       {
         xArray->initialize(XdmfArrayType::Int64(), xdims);
-#if DO_DEEPWRITE
-        xArray->insert(0, static_cast<long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-        xArray->setValuesInternal(
-          static_cast<long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+        XDMF_ARRAY_COPY(long, xArray, vArray);
       }
       else
       {
         xArray->initialize(XdmfArrayType::Int32(), xdims);
-#if DO_DEEPWRITE
-        xArray->insert(0, static_cast<int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
-#else
-        xArray->setValuesInternal(
-          static_cast<int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
-#endif
+        XDMF_ARRAY_COPY(int, xArray, vArray);
       }
       break;
     case VTK_STRING:
