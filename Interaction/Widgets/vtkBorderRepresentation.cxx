@@ -367,49 +367,157 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
   }
 
   // Enforce bounds to keep the widget on screen and bigger than minimum size
-  if (!this->ProportionalResize && this->EnforceNormalizedViewportBounds)
+  if (this->EnforceNormalizedViewportBounds)
   {
     switch (this->InteractionState)
     {
       case vtkBorderRepresentation::AdjustingP0:
-        par1[0] = std::min(
-          std::max(par1[0] /*+ delX*/, 0.0), par2[0] - this->MinimumNormalizedViewportSize[0]);
-        par1[1] = std::min(
-          std::max(par1[1] /*+ delY*/, 0.0), par2[1] - this->MinimumNormalizedViewportSize[1]);
+        if (!this->ProportionalResize)
+        {
+          par1[0] =
+            std::min(std::max(par1[0], 0.0), par2[0] - this->MinimumNormalizedViewportSize[0]);
+          par1[1] =
+            std::min(std::max(par1[1], 0.0), par2[1] - this->MinimumNormalizedViewportSize[1]);
+        }
+        else if (par1[0] < 0.0 || par1[1] < 0.0)
+        {
+          // If proportional resize is on, just clamp the point to the previous position
+          // so that the border doesn't resize unintentionally.
+          par1[0] -= delX;
+          par1[1] -= delY;
+          par2[0] = par1[0] + std::max(par2[0] - par1[0], this->MinimumNormalizedViewportSize[0]);
+          par2[1] = par1[1] + std::max(par2[1] - par1[1], this->MinimumNormalizedViewportSize[1]);
+        }
+        else
+        {
+          par1[0] = std::min(par1[0], par2[0] - this->MinimumNormalizedViewportSize[0]);
+          par1[1] = std::min(par1[1], par2[1] - this->MinimumNormalizedViewportSize[1]);
+        }
         break;
       case vtkBorderRepresentation::AdjustingP1:
-        par2[0] = std::min(
-          std::max(par2[0] /*+ delX2*/, par1[0] + this->MinimumNormalizedViewportSize[0]), 1.0);
-        par1[1] = std::min(
-          std::max(par1[1] /*+ delY2*/, 0.0), par2[1] - this->MinimumNormalizedViewportSize[1]);
+        if (!this->ProportionalResize)
+        {
+          par2[0] =
+            std::min(std::max(par2[0], par1[0] + this->MinimumNormalizedViewportSize[0]), 1.0);
+          par1[1] =
+            std::min(std::max(par1[1], 0.0), par2[1] - this->MinimumNormalizedViewportSize[1]);
+        }
+        else if (par2[0] > 1.0 || par1[1] < 0.0)
+        {
+          // If proportional resize is on, just clamp the point to the previous position
+          // so that the border doesn't resize unintentionally.
+          par2[0] -= delX2;
+          par1[1] -= delY2;
+          par1[0] = par2[0] - std::max(par2[0] - par1[0], this->MinimumNormalizedViewportSize[0]);
+          par2[1] = par1[1] + std::max(par2[1] - par1[1], this->MinimumNormalizedViewportSize[1]);
+        }
+        else
+        {
+          par2[0] = std::max(par2[0], par1[0] + this->MinimumNormalizedViewportSize[0]);
+          par1[1] = std::min(par1[1], par2[1] - this->MinimumNormalizedViewportSize[1]);
+        }
         break;
       case vtkBorderRepresentation::AdjustingP2:
-        par2[0] = std::min(
-          std::max(par2[0] /*+ delX*/, par1[0] + this->MinimumNormalizedViewportSize[0]), 1.0);
-        par2[1] = std::min(
-          std::max(par2[1] /*+ delY*/, par1[1] + this->MinimumNormalizedViewportSize[1]), 1.0);
+        if (!this->ProportionalResize)
+        {
+          par2[0] =
+            std::min(std::max(par2[0], par1[0] + this->MinimumNormalizedViewportSize[0]), 1.0);
+          par2[1] =
+            std::min(std::max(par2[1], par1[1] + this->MinimumNormalizedViewportSize[1]), 1.0);
+        }
+        else if (par2[0] > 1.0 || par2[1] > 1.0)
+        {
+          // If proportional resize is on, just clamp the point to the previous position
+          // so that the border doesn't resize unintentionally.
+          par2[0] -= delX;
+          par2[1] -= delY;
+          par1[0] = par2[0] - std::max(par2[0] - par1[0], this->MinimumNormalizedViewportSize[0]);
+          par1[1] = par2[1] - std::max(par2[1] - par1[1], this->MinimumNormalizedViewportSize[1]);
+        }
+        else
+        {
+          par2[0] = std::max(par2[0], par1[0] + this->MinimumNormalizedViewportSize[0]);
+          par2[1] = std::max(par2[1], par1[1] + this->MinimumNormalizedViewportSize[1]);
+        }
         break;
       case vtkBorderRepresentation::AdjustingP3:
-        par1[0] = std::min(
-          std::max(par1[0] /*+ delX2*/, 0.0), par2[0] - this->MinimumNormalizedViewportSize[0]);
-        par2[1] = std::min(
-          std::max(par2[1] /*+ delY2*/, par1[1] + this->MinimumNormalizedViewportSize[1]), 1.0);
+        if (!this->ProportionalResize)
+        {
+          par1[0] =
+            std::min(std::max(par1[0], 0.0), par2[0] - this->MinimumNormalizedViewportSize[0]);
+          par2[1] =
+            std::min(std::max(par2[1], par1[1] + this->MinimumNormalizedViewportSize[1]), 1.0);
+        }
+        else if (par1[0] < 0.0 || par2[1] > 1.0)
+        {
+          // If proportional resize is on, just clamp the point to the previous position
+          // so that the border doesn't resize unintentionally.
+          par1[0] -= delX2;
+          par2[1] -= delY2;
+          par1[1] = par2[1] - std::max(par2[1] - par1[1], this->MinimumNormalizedViewportSize[1]);
+          par2[0] = par1[0] + std::max(par2[0] - par1[0], this->MinimumNormalizedViewportSize[0]);
+        }
+        else
+        {
+          par1[0] = std::min(par1[0], par2[0] - this->MinimumNormalizedViewportSize[0]);
+          par2[1] = std::max(par2[1], par1[1] + this->MinimumNormalizedViewportSize[1]);
+        }
         break;
       case vtkBorderRepresentation::AdjustingE0:
-        par1[1] = std::min(
-          std::max(par1[1] /*+ delY*/, 0.0), par2[1] - this->MinimumNormalizedViewportSize[1]);
+        if (!this->ProportionalResize)
+        {
+          par1[1] =
+            std::min(std::max(par1[1], 0.0), par2[1] - this->MinimumNormalizedViewportSize[1]);
+        }
+        else if (par1[0] < 0.0 || par1[1] < 0.0 || par2[0] > 1.0 || par2[1] > 1.0)
+        {
+          par1[1] -= delY;
+          par2[1] += delY;
+          par1[0] -= delX;
+          par2[0] += delX;
+        }
         break;
       case vtkBorderRepresentation::AdjustingE1:
-        par2[0] = std::min(
-          std::max(par2[0] /*+ delX*/, par1[0] + this->MinimumNormalizedViewportSize[0]), 1.0);
+        if (!this->ProportionalResize)
+        {
+          par2[0] =
+            std::min(std::max(par2[0], par1[0] + this->MinimumNormalizedViewportSize[0]), 1.0);
+        }
+        else if (par1[0] < 0.0 || par1[1] < 0.0 || par2[0] > 1.0 || par2[1] > 1.0)
+        {
+          par1[1] += delY;
+          par2[1] -= delY;
+          par1[0] += delX;
+          par2[0] -= delX;
+        }
         break;
       case vtkBorderRepresentation::AdjustingE2:
-        par2[1] = std::min(
-          std::max(par2[1] /*+ delY*/, par1[1] + this->MinimumNormalizedViewportSize[1]), 1.0);
+        if (!this->ProportionalResize)
+        {
+          par2[1] =
+            std::min(std::max(par2[1], par1[1] + this->MinimumNormalizedViewportSize[1]), 1.0);
+        }
+        else if (par1[0] < 0.0 || par1[1] < 0.0 || par2[0] > 1.0 || par2[1] > 1.0)
+        {
+          par2[1] -= delY;
+          par1[1] += delY;
+          par1[0] += delX;
+          par2[0] -= delX;
+        }
         break;
       case vtkBorderRepresentation::AdjustingE3:
-        par1[0] = std::min(
-          std::max(par1[0] /*+ delX*/, 0.0), par2[0] - this->MinimumNormalizedViewportSize[0]);
+        if (!this->ProportionalResize)
+        {
+          par1[0] =
+            std::min(std::max(par1[0], 0.0), par2[0] - this->MinimumNormalizedViewportSize[0]);
+        }
+        else if (par1[0] < 0.0 || par1[1] < 0.0 || par2[0] > 1.0 || par2[1] > 1.0)
+        {
+          par1[0] -= delX;
+          par2[0] += delX;
+          par1[1] -= delY;
+          par2[1] += delY;
+        }
         break;
       case vtkBorderRepresentation::Inside:
         if (this->Moving)
@@ -710,12 +818,6 @@ void vtkBorderRepresentation::BuildRepresentation()
     // Set things up
     int* pos1 = this->PositionCoordinate->GetComputedViewportValue(this->Renderer);
     int* pos2 = this->Position2Coordinate->GetComputedViewportValue(this->Renderer);
-
-    // If the widget's aspect ratio is to be preserved (ProportionalResizeOn),
-    // then (pos1,pos2) are a bounding rectangle.
-    if (this->ProportionalResize)
-    {
-    }
 
     // Now transform the canonical widget into display coordinates
     double size[2];

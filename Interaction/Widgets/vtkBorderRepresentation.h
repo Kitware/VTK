@@ -161,8 +161,6 @@ public:
    * minimum viewport size.
    *
    * Off by Default.
-   *
-   * Note: ProportionalResize must be off for this function to take effect.
    */
   vtkSetMacro(EnforceNormalizedViewportBounds, vtkTypeBool);
   vtkGetMacro(EnforceNormalizedViewportBounds, vtkTypeBool);
