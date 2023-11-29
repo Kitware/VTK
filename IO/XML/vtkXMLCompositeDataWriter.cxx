@@ -246,7 +246,7 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   vtkXMLWriter* writer = this->GetWriter(myWriterIndex);
   if (!writer)
   {
-    return 0;
+    return 1;
   }
 
   vtkDataSet* curDS = vtkDataSet::SafeDownCast(dObj);
