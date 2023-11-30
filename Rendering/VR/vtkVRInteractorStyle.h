@@ -54,16 +54,16 @@ public:
   /**
    * Interaction mode entry points.
    */
-  void StartPick(vtkEventDataDevice3D*);
-  void EndPick(vtkEventDataDevice3D*);
-  void StartLoadCamPose(vtkEventDataDevice3D*);
-  void EndLoadCamPose(vtkEventDataDevice3D*);
-  void StartPositionProp(vtkEventDataDevice3D*);
-  void EndPositionProp(vtkEventDataDevice3D*);
-  void StartClip(vtkEventDataDevice3D*);
-  void EndClip(vtkEventDataDevice3D*);
-  void StartMovement3D(int interactionState, vtkEventDataDevice3D*);
-  void EndMovement3D(vtkEventDataDevice3D*);
+  virtual void StartPick(vtkEventDataDevice3D*);
+  virtual void EndPick(vtkEventDataDevice3D*);
+  virtual void StartLoadCamPose(vtkEventDataDevice3D*);
+  virtual void EndLoadCamPose(vtkEventDataDevice3D*);
+  virtual void StartPositionProp(vtkEventDataDevice3D*);
+  virtual void EndPositionProp(vtkEventDataDevice3D*);
+  virtual void StartClip(vtkEventDataDevice3D*);
+  virtual void EndClip(vtkEventDataDevice3D*);
+  virtual void StartMovement3D(int interactionState, vtkEventDataDevice3D*);
+  virtual void EndMovement3D(vtkEventDataDevice3D*);
   ///@}
 
   ///@{
@@ -231,7 +231,7 @@ protected:
   /**
    * Update and draw the ray.
    */
-  void UpdateRay(vtkEventDataDevice controller);
+  virtual void UpdateRay(vtkEventDataDevice controller);
 
   void EndPickCallback(vtkSelection* sel);
   static void MenuCallback(
