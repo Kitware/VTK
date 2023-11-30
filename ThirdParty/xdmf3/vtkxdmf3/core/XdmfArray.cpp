@@ -28,6 +28,7 @@
 #include <stack>
 #include <math.h>
 #include <string.h>
+#include <cstdint>
 #include "XdmfArray.hpp"
 #include "XdmfArrayType.hpp"
 #include "XdmfArrayReference.hpp"
@@ -74,7 +75,7 @@ public:
                          mArray->mArray);
   }
 
-private: 
+private:
   XdmfArray * const mArray;
 };
 
@@ -177,6 +178,12 @@ public:
   getArrayType(const unsigned int * const) const
   {
     return XdmfArrayType::UInt32();
+  }
+
+  shared_ptr<const XdmfArrayType>
+  getArrayType(const uint64_t * const) const
+  {
+    return XdmfArrayType::UInt64();
   }
 
   shared_ptr<const XdmfArrayType>
@@ -370,7 +377,7 @@ public:
   void
   operator()(const boost::blank & array) const
   {
-    const shared_ptr<const XdmfArrayType> copyType = 
+    const shared_ptr<const XdmfArrayType> copyType =
       mArrayToCopy->getArrayType();
     if(copyType == XdmfArrayType::Uninitialized()) {
         return;
@@ -554,7 +561,7 @@ public:
 
 private:
 
-  const XdmfArray * const mArray; 
+  const XdmfArray * const mArray;
 };
 
 shared_ptr<XdmfArray>
@@ -587,7 +594,7 @@ XdmfArray::XdmfArray(XdmfArray & refArray):
   }
   if (refArray.getNumberHeavyDataControllers() > 0) {
     for (unsigned int i = 0; i < refArray.getNumberHeavyDataControllers(); ++i) {
-      this->insert(refArray.getHeavyDataController(i));	
+      this->insert(refArray.getHeavyDataController(i));
     }
   }
   if (refArray.mReference) {
@@ -604,7 +611,7 @@ const std::string XdmfArray::ItemTag = "DataItem";
 void
 XdmfArray::clear()
 {
-  boost::apply_visitor(Clear(this), 
+  boost::apply_visitor(Clear(this),
                        mArray);
   mDimensions.clear();
   this->setIsChanged(true);
@@ -624,7 +631,7 @@ shared_ptr<const XdmfArrayType>
 XdmfArray::getArrayType() const
 {
   if (mHeavyDataControllers.size()>0) {
-    return boost::apply_visitor(GetArrayType(mHeavyDataControllers[0]), 
+    return boost::apply_visitor(GetArrayType(mHeavyDataControllers[0]),
                                 mArray);
   }
   else {
@@ -636,7 +643,7 @@ XdmfArray::getArrayType() const
 unsigned int
 XdmfArray::getCapacity() const
 {
-  return boost::apply_visitor(GetCapacity(), 
+  return boost::apply_visitor(GetCapacity(),
                               mArray);
 }
 
@@ -694,7 +701,7 @@ XdmfArray::getItemProperties() const
   else {
     arrayProperties.insert(std::make_pair("Format", "XML"));
   }
-  arrayProperties.insert(std::make_pair("Dimensions", 
+  arrayProperties.insert(std::make_pair("Dimensions",
                                         this->getDimensionsString()));
   if(mName.compare("") != 0) {
     arrayProperties.insert(std::make_pair("Name", mName));
@@ -725,7 +732,7 @@ XdmfArray::getReadMode() const
 unsigned int
 XdmfArray::getSize() const
 {
-  return boost::apply_visitor(Size(this), 
+  return boost::apply_visitor(Size(this),
                               mArray);
 }
 
@@ -751,14 +758,14 @@ XdmfArray::getValuesInternal()
 const void *
 XdmfArray::getValuesInternal() const
 {
-  return boost::apply_visitor(GetValuesPointer(), 
+  return boost::apply_visitor(GetValuesPointer(),
                               mArray);
 }
 
 std::string
 XdmfArray::getValuesString() const
 {
-  return boost::apply_visitor(GetValuesString(mArrayPointerNumValues), 
+  return boost::apply_visitor(GetValuesString(mArrayPointerNumValues),
                               mArray);
 }
 
@@ -811,6 +818,9 @@ XdmfArray::initialize(const shared_ptr<const XdmfArrayType> & arrayType,
   else if(arrayType == XdmfArrayType::UInt32()) {
     this->initialize<unsigned int>(size);
   }
+  else if(arrayType == XdmfArrayType::UInt64()) {
+    this->initialize<uint64_t>(size);
+  }
   else if(arrayType == XdmfArrayType::String()) {
     this->initialize<std::string>(size);
   }
@@ -818,7 +828,7 @@ XdmfArray::initialize(const shared_ptr<const XdmfArrayType> & arrayType,
     this->release();
   }
   else {
-    XdmfError::message(XdmfError::FATAL, 
+    XdmfError::message(XdmfError::FATAL,
                        "Array of unsupported type in XdmfArray::initialize");
   }
   this->setIsChanged(true);
@@ -1001,7 +1011,7 @@ XdmfArray::isInitialized() const
 void
 XdmfArray::internalizeArrayPointer()
 {
-  boost::apply_visitor(InternalizeArrayPointer(this), 
+  boost::apply_visitor(InternalizeArrayPointer(this),
                        mArray);
 }
 
@@ -1153,7 +1163,7 @@ XdmfArray::populateItem(const std::map<std::string, std::string> & itemPropertie
       mHeavyDataControllers.push_back(readControllers[i]);
     }
 
-    const shared_ptr<const XdmfArrayType> arrayType = 
+    const shared_ptr<const XdmfArrayType> arrayType =
       XdmfArrayType::New(itemProperties);
 
     std::map<std::string, std::string>::const_iterator content =
@@ -1191,11 +1201,11 @@ XdmfArray::populateItem(const std::map<std::string, std::string> & itemPropertie
     std::map<std::string, std::string>::const_iterator dimensions =
       itemProperties.find("Dimensions");
     if(dimensions == itemProperties.end()) {
-      XdmfError::message(XdmfError::FATAL, 
+      XdmfError::message(XdmfError::FATAL,
                          "'Dimensions' not found in itemProperties in "
                          "XdmfArray::populateItem");
     }
-   
+
     boost::tokenizer<> tokens(dimensions->second);
     for(boost::tokenizer<>::const_iterator iter = tokens.begin();
         iter != tokens.end();
@@ -1206,7 +1216,7 @@ XdmfArray::populateItem(const std::map<std::string, std::string> & itemPropertie
     std::map<std::string, std::string>::const_iterator format =
       itemProperties.find("Format");
     if(format == itemProperties.end()) {
-      XdmfError::message(XdmfError::FATAL, 
+      XdmfError::message(XdmfError::FATAL,
                          "'Format' not found in itemProperties in "
                          "XdmfArray::populateItem");
     }
@@ -1425,7 +1435,7 @@ XDMFARRAY *
 XdmfArrayNew()
 {
   try
-  { 
+  {
     XDMFARRAY * returnPointer;
     shared_ptr<XdmfArray> generatedArray = XdmfArray::New();
     returnPointer = (XDMFARRAY *)((void *)(new XdmfArray(*generatedArray.get())));
@@ -1433,7 +1443,7 @@ XdmfArrayNew()
     return returnPointer;
   }
   catch (...)
-  { 
+  {
     XDMFARRAY * returnPointer;
     shared_ptr<XdmfArray> generatedArray = XdmfArray::New();
     returnPointer = (XDMFARRAY *)((void *)(new XdmfArray(*generatedArray.get())));
@@ -1469,6 +1479,10 @@ int XdmfArrayGetArrayType(XDMFARRAY * array, int * status)
   else if (typeName == XdmfArrayType::UInt32()->getName())
   {
       return XDMF_ARRAY_TYPE_UINT32;
+  }
+  else if (typeName == XdmfArrayType::UInt64()->getName())
+  {
+      return XDMF_ARRAY_TYPE_UINT64;
   }
   else if (typeName == XdmfArrayType::Int8()->getName())
   {
@@ -1655,6 +1669,11 @@ XdmfArrayGetValue(XDMFARRAY * array, unsigned int index, int arrayType, int * st
         *((unsigned int *)returnVal) = ((XdmfArray *)(array))->getValue<unsigned int>(index);
         return returnVal;
         break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        returnVal = new uint64_t();
+        *((uint64_t *)returnVal) = ((XdmfArray *)(array))->getValue<uint64_t>(index);
+        return returnVal;
+        break;
       case XDMF_ARRAY_TYPE_INT8:
         returnVal = new char();
         *((char *)returnVal) = ((XdmfArray *)(array))->getValue<char>(index);
@@ -1708,6 +1727,11 @@ XdmfArrayGetValue(XDMFARRAY * array, unsigned int index, int arrayType, int * st
       case XDMF_ARRAY_TYPE_UINT32:
         returnVal = new unsigned int();
         *((unsigned int *)returnVal) = ((XdmfArray *)(array))->getValue<unsigned int>(index);
+        return returnVal;
+        break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        returnVal = new uint64_t();
+        *((uint64_t *)returnVal) = ((XdmfArray *)(array))->getValue<uint64_t>(index);
         return returnVal;
         break;
       case XDMF_ARRAY_TYPE_INT8:
@@ -1773,6 +1797,11 @@ XdmfArrayGetValues(XDMFARRAY * array, unsigned int startIndex, int arrayType, un
         ((XdmfArray *)(array))->getValues<unsigned int>(startIndex, (unsigned int *)returnVal, numValues, arrayStride, valueStride);
         return returnVal;
         break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        returnVal = new uint64_t[numValues]();
+        ((XdmfArray *)(array))->getValues<uint64_t>(startIndex, (uint64_t *)returnVal, numValues, arrayStride, valueStride);
+        return returnVal;
+        break;
       case XDMF_ARRAY_TYPE_INT8:
         returnVal = new char[numValues]();
         ((XdmfArray *)(array))->getValues<char>(startIndex, (char *)returnVal, numValues, arrayStride, valueStride);
@@ -1826,6 +1855,11 @@ XdmfArrayGetValues(XDMFARRAY * array, unsigned int startIndex, int arrayType, un
       case XDMF_ARRAY_TYPE_UINT32:
         returnVal = new unsigned int[numValues]();
         ((XdmfArray *)(array))->getValues<unsigned int>(startIndex, (unsigned int *)returnVal, numValues, arrayStride, valueStride);
+        return returnVal;
+        break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        returnVal = new uint64_t[numValues]();
+        ((XdmfArray *)(array))->getValues<uint64_t>(startIndex, (uint64_t *)returnVal, numValues, arrayStride, valueStride);
         return returnVal;
         break;
       case XDMF_ARRAY_TYPE_INT8:
@@ -1905,6 +1939,9 @@ XdmfArrayInitialize(XDMFARRAY * array, int * dims, int numDims, int arrayType, i
     case XDMF_ARRAY_TYPE_UINT32:
       tempPointer = XdmfArrayType::UInt32();
       break;
+    case XDMF_ARRAY_TYPE_UINT64:
+      tempPointer = XdmfArrayType::UInt64();
+      break;
     case XDMF_ARRAY_TYPE_INT8:
       tempPointer = XdmfArrayType::Int8();
       break;
@@ -1948,6 +1985,9 @@ XdmfArrayInsertDataFromPointer(XDMFARRAY * array, void * values, int arrayType, 
       case XDMF_ARRAY_TYPE_UINT32:
         ((XdmfArray *)(array))->insert<unsigned int>(startIndex, (unsigned int *)values, numVals, arrayStride, valueStride);
         break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        ((XdmfArray *)(array))->insert<uint64_t>(startIndex, (uint64_t *)values, numVals, arrayStride, valueStride);
+        break;
       case XDMF_ARRAY_TYPE_INT8:
         ((XdmfArray *)(array))->insert<char>(startIndex, (char *)values, numVals, arrayStride, valueStride);
         break;
@@ -1983,6 +2023,9 @@ XdmfArrayInsertDataFromPointer(XDMFARRAY * array, void * values, int arrayType, 
         break;
       case XDMF_ARRAY_TYPE_UINT32:
         ((XdmfArray *)(array))->insert<unsigned int>(startIndex, (unsigned int *)values, numVals, arrayStride, valueStride);
+        break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        ((XdmfArray *)(array))->insert<uint64_t>(startIndex, (uint64_t *)values, numVals, arrayStride, valueStride);
         break;
       case XDMF_ARRAY_TYPE_INT8:
         ((XdmfArray *)(array))->insert<char>(startIndex, (char *)values, numVals, arrayStride, valueStride);
@@ -2066,6 +2109,9 @@ XdmfArrayInsertValue(XDMFARRAY * array, unsigned int index, void * value, int ar
       case XDMF_ARRAY_TYPE_UINT32:
         ((XdmfArray *)(array))->insert(index, *((unsigned int *)value));
         break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        ((XdmfArray *)(array))->insert(index, *((uint64_t *)value));
+        break;
       case XDMF_ARRAY_TYPE_INT8:
         ((XdmfArray *)(array))->insert(index, *((char *)value));
         break;
@@ -2101,6 +2147,9 @@ XdmfArrayInsertValue(XDMFARRAY * array, unsigned int index, void * value, int ar
         break;
       case XDMF_ARRAY_TYPE_UINT32:
         ((XdmfArray *)(array))->insert(index, *((unsigned int *)value));
+        break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        ((XdmfArray *)(array))->insert(index, *((uint64_t *)value));
         break;
       case XDMF_ARRAY_TYPE_INT8:
         ((XdmfArray *)(array))->insert(index, *((char *)value));
@@ -2151,6 +2200,9 @@ XdmfArrayPushBack(XDMFARRAY * array, void * value, int arrayType, int * status)
       case XDMF_ARRAY_TYPE_UINT32:
         ((XdmfArray *)(array))->pushBack<unsigned int>(*((unsigned int *)value));
         break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        ((XdmfArray *)(array))->pushBack<uint64_t>(*((uint64_t *)value));
+        break;
       case XDMF_ARRAY_TYPE_INT8:
         ((XdmfArray *)(array))->pushBack<char>(*((char *)value));
         break;
@@ -2186,6 +2238,9 @@ XdmfArrayPushBack(XDMFARRAY * array, void * value, int arrayType, int * status)
         break;
       case XDMF_ARRAY_TYPE_UINT32:
         ((XdmfArray *)(array))->pushBack<unsigned int>(*((unsigned int *)value));
+        break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        ((XdmfArray *)(array))->pushBack<uint64_t>(*((uint64_t *)value));
         break;
       case XDMF_ARRAY_TYPE_INT8:
         ((XdmfArray *)(array))->pushBack<char>(*((char *)value));
@@ -2303,6 +2358,12 @@ XdmfArrayResize(XDMFARRAY * array, int * dims, int numDims, int arrayType, int *
         classedArray->resize(dimVector, (unsigned int) 0);
         break;
       }
+      case XDMF_ARRAY_TYPE_UINT64:
+      {
+        XdmfArray * classedArray = (XdmfArray *)((void *) array);
+        classedArray->resize(dimVector, (uint64_t) 0);
+        break;
+      }
       case XDMF_ARRAY_TYPE_INT8:
       {
         XdmfArray * classedArray = (XdmfArray *)((void *) array);
@@ -2368,6 +2429,12 @@ XdmfArrayResize(XDMFARRAY * array, int * dims, int numDims, int arrayType, int *
       {
         XdmfArray * classedArray = (XdmfArray *)((void *) array);
         classedArray->resize(dimVector, (unsigned int) 0);
+        break;
+      }
+      case XDMF_ARRAY_TYPE_UINT64:
+      {
+        XdmfArray * classedArray = (XdmfArray *)((void *) array);
+        classedArray->resize(dimVector, (uint64_t) 0);
         break;
       }
       case XDMF_ARRAY_TYPE_INT8:
@@ -2471,6 +2538,9 @@ XdmfArraySetValuesInternal(XDMFARRAY * array, void * pointer, unsigned int numVa
     case XDMF_ARRAY_TYPE_UINT32:
       ((XdmfArray *)array)->setValuesInternal((unsigned int *)pointer, numValues, transferOwnership);
       break;
+    case XDMF_ARRAY_TYPE_UINT64:
+      ((XdmfArray *)array)->setValuesInternal((uint64_t *)pointer, numValues, transferOwnership);
+      break;
     case XDMF_ARRAY_TYPE_INT8:
       ((XdmfArray *)array)->setValuesInternal((char *)pointer, numValues, transferOwnership);
       break;
@@ -2536,6 +2606,16 @@ XdmfArraySwapWithArray(XDMFARRAY * array, void ** pointer, int numValues, int ar
       for (unsigned int i = 0; i < swapVector.size(); ++i)
       {
         ((unsigned int *) (*pointer))[i] = swapVector[i];
+      }
+      break;
+    }
+    case XDMF_ARRAY_TYPE_UINT64: {
+      std::vector<uint64_t> swapVector((uint64_t *)(*pointer), (uint64_t *)(*pointer) + numValues);
+      ((XdmfArray *)array)->swap(swapVector);
+      *pointer = new uint64_t[swapVector.size()];
+      for (unsigned int i = 0; i < swapVector.size(); ++i)
+      {
+        ((uint64_t *) (*pointer))[i] = swapVector[i];
       }
       break;
     }

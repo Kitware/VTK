@@ -103,6 +103,13 @@ XdmfArrayType::UInt32()
 }
 
 shared_ptr<const XdmfArrayType>
+XdmfArrayType::UInt64()
+{
+  static shared_ptr<const XdmfArrayType> p(new XdmfArrayType("UInt", 8, XdmfArrayType::Unsigned));
+  return p;
+}
+
+shared_ptr<const XdmfArrayType>
 XdmfArrayType::String()
 {
   static shared_ptr<const XdmfArrayType> p(new XdmfArrayType("String", 0, XdmfArrayType::Unsigned));
@@ -122,6 +129,7 @@ XdmfArrayType::InitTypes()
   mArrayDefinitions["UCHAR"][1] = UInt8;
   mArrayDefinitions["USHORT"][2] = UInt16;
   mArrayDefinitions["UINT"][4] = UInt32;
+  mArrayDefinitions["UINT"][8] = UInt64;
   mArrayDefinitions["STRING"][0] = String;
 }
 
@@ -199,7 +207,7 @@ XdmfArrayType::New(const std::map<std::string, std::string> & itemProperties)
   XdmfError::message(XdmfError::FATAL,
                      "Type not one of accepted values: " + typeVal +
                      " in XdmfArrayType::New");
-  
+
   // unreachable
   return shared_ptr<const XdmfArrayType>();
 }
@@ -269,7 +277,7 @@ XdmfArrayType::comparePrecision(shared_ptr<const XdmfArrayType> type1,
           type2Name.compare("Short") == 0) {
         // This will be called for any combination of
         // Char/UChar and Short
-        // In all of these cases the result shoule be a Short
+        // In all of these cases the result should be a Short
         return Int16();
       }
     case 4:
@@ -324,7 +332,12 @@ XdmfArrayType::comparePrecision(shared_ptr<const XdmfArrayType> type1,
         // the result should be either long or unsigned int
         // depending on the if the mixed type is signed or not
         if (!secondIsSigned) {
-          return UInt32();
+            if(type1->getElementSize() ==4) {
+                return UInt32();
+            }
+            else {
+                return UInt64();
+            }
         }
         else {
           return Int64();
@@ -335,7 +348,12 @@ XdmfArrayType::comparePrecision(shared_ptr<const XdmfArrayType> type1,
           return Int64();
         }
         else {
-          return UInt32();
+            if (type2->getElementSize() == 4) {
+                return UInt32();
+            }
+            else {
+                return UInt64();
+            }
         }
       }
       else if (type2Name.compare("Int") == 0) {
@@ -432,6 +450,9 @@ intToType(int type)
     case XDMF_ARRAY_TYPE_UINT32:
       return XdmfArrayType::UInt32();
       break;
+    case XDMF_ARRAY_TYPE_UINT64:
+      return XdmfArrayType::UInt64();
+      break;
     case XDMF_ARRAY_TYPE_INT8:
       return XdmfArrayType::Int8();
       break;
@@ -474,6 +495,10 @@ typeToInt(shared_ptr<const XdmfArrayType> type)
   else if (typeName == XdmfArrayType::UInt32()->getName())
   {
       return XDMF_ARRAY_TYPE_UINT32;
+  }
+  else if (typeName == XdmfArrayType::UInt64()->getName())
+  {
+      return XDMF_ARRAY_TYPE_UINT64;
   }
   else if (typeName == XdmfArrayType::Int8()->getName())
   {
@@ -568,6 +593,11 @@ int XdmfArrayTypeUInt16()
 int XdmfArrayTypeUInt32()
 {
   return XDMF_ARRAY_TYPE_UINT32;
+}
+
+int XdmfArrayTypeUInt64()
+{
+  return XDMF_ARRAY_TYPE_UINT64;
 }
 
 int XdmfArrayTypeComparePrecision(int type1, int type2, int * status)

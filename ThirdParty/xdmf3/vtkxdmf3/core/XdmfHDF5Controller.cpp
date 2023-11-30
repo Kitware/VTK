@@ -44,7 +44,7 @@ XdmfHDF5Controller::New(const std::string & hdf5FilePath,
                         const std::vector<unsigned int> & dimensions,
                         const std::vector<unsigned int> & dataspaceDimensions)
 {
-  shared_ptr<XdmfHDF5Controller> 
+  shared_ptr<XdmfHDF5Controller>
     p(new XdmfHDF5Controller(hdf5FilePath,
                              dataSetPath,
                              type,
@@ -65,7 +65,7 @@ XdmfHDF5Controller::XdmfHDF5Controller(const std::string & hdf5FilePath,
   XdmfHeavyDataController(hdf5FilePath,
                           type,
                           start,
-                          stride, 
+                          stride,
                           dimensions,
                           dataspaceDimensions),
   mDataSetPath(dataSetPath),
@@ -154,7 +154,7 @@ XdmfHDF5Controller::getMaxOpenedFiles()
   return XdmfHDF5Controller::mMaxOpenedFiles;
 }
 
-void 
+void
 XdmfHDF5Controller::getProperties(std::map<std::string, std::string> & collectedProperties) const
 {
   collectedProperties["Format"] = this->getName();
@@ -217,7 +217,7 @@ XdmfHDF5Controller::read(XdmfArray * const array, const int fapl)
     // selection, so we assume we are reading the entire dataset and
     // check whether that is ok to do
     const int numberValuesHDF5 = H5Sget_select_npoints(dataspace);
-    const int numberValuesXdmf = 
+    const int numberValuesXdmf =
       std::accumulate(mDimensions.begin(),
                       mDimensions.end(),
                       1,
@@ -281,6 +281,9 @@ XdmfHDF5Controller::read(XdmfArray * const array, const int fapl)
   }
   else if(mType == XdmfArrayType::UInt32()) {
     datatype = H5T_NATIVE_UINT;
+  }
+  else if(mType == XdmfArrayType::UInt64()) {
+    datatype = H5T_NATIVE_UINT64;
   }
   else if(mType == XdmfArrayType::String()) {
     datatype = H5Tcopy(H5T_C_S1);
@@ -375,6 +378,9 @@ XDMFHDF5CONTROLLER * XdmfHDF5ControllerNew(char * hdf5FilePath,
       case XDMF_ARRAY_TYPE_UINT32:
         buildType = XdmfArrayType::UInt32();
         break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        buildType = XdmfArrayType::UInt64();
+        break;
       case XDMF_ARRAY_TYPE_INT8:
         buildType = XdmfArrayType::Int8();
         break;
@@ -417,6 +423,9 @@ XDMFHDF5CONTROLLER * XdmfHDF5ControllerNew(char * hdf5FilePath,
         break;
       case XDMF_ARRAY_TYPE_UINT32:
         buildType = XdmfArrayType::UInt32();
+        break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        buildType = XdmfArrayType::UInt64();
         break;
       case XDMF_ARRAY_TYPE_INT8:
         buildType = XdmfArrayType::Int8();
