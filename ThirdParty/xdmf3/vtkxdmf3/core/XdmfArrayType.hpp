@@ -66,6 +66,7 @@
  *   UInt8
  *   UInt16
  *   UInt32
+ *   UInt64
  *   String
  */
 class XDMFCORE_EXPORT XdmfArrayType : public XdmfItemProperty {
@@ -94,6 +95,7 @@ public:
   static shared_ptr<const XdmfArrayType> UInt8();
   static shared_ptr<const XdmfArrayType> UInt16();
   static shared_ptr<const XdmfArrayType> UInt32();
+  static shared_ptr<const XdmfArrayType> UInt64();
   static shared_ptr<const XdmfArrayType> String();
 
   /**
@@ -260,6 +262,7 @@ private:
 #define XDMF_ARRAY_TYPE_UINT32  6
 #define XDMF_ARRAY_TYPE_FLOAT32 7
 #define XDMF_ARRAY_TYPE_FLOAT64 8
+#define XDMF_ARRAY_TYPE_UINT64  9
 
 #ifdef __cplusplus
 extern "C" {
@@ -275,6 +278,7 @@ XDMFCORE_EXPORT int XdmfArrayTypeFloat64();
 XDMFCORE_EXPORT int XdmfArrayTypeUInt8();
 XDMFCORE_EXPORT int XdmfArrayTypeUInt16();
 XDMFCORE_EXPORT int XdmfArrayTypeUInt32();
+XDMFCORE_EXPORT int XdmfArrayTypeUInt64();
 
 XDMFCORE_EXPORT int XdmfArrayTypeComparePrecision(int type1, int type2, int * status);
 
