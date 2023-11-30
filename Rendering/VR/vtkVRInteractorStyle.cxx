@@ -300,6 +300,11 @@ void vtkVRInteractorStyle::OnMove3D(vtkEventData* edata)
       this->Clip(edd);
       this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
+    case VTKIS_USCALE:
+      this->FindPokedRenderer(x, y);
+      this->UniformScale();
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
+      break;
     default:
       vtkDebugMacro(<< "OnMove3D: unknown interaction state " << idev << ": "
                     << this->InteractionState[idev]);
@@ -1008,6 +1013,9 @@ void vtkVRInteractorStyle::EndAction(int state, vtkEventDataDevice3D* edata)
       break;
     case VTKIS_TELEPORTATION:
       this->Teleportation3D(edata);
+      break;
+    case VTKIS_USCALE:
+      this->EndUniformScale();
       break;
     default:
       vtkDebugMacro(<< "EndAction: unknown state " << state);
