@@ -212,7 +212,6 @@ shared_ptr<const XdmfTopologyType>
 XdmfTopologyType::Tetrahedron_10()
 {
   std::vector<shared_ptr<const XdmfTopologyType> > faces;
-  faces.push_back(XdmfTopologyType::NoTopologyType());
   faces.push_back(XdmfTopologyType::Triangle_6());
   static shared_ptr<const XdmfTopologyType>
     p(new XdmfTopologyType(10, 4, faces, 6, "Tetrahedron_10", Quadratic, 0x26));
