@@ -67,6 +67,19 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     )
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
+  list(APPEND test_exclusions
+    # Matplotlib fails to render anything. See #19302.
+    "^VTK::RenderingMatplotlibCxx-TestRenderString$"
+    "^VTK::RenderingMatplotlibCxx-TestScalarBarCombinatorics$"
+    "^VTK::RenderingMatplotlibCxx-TestStringToPath$"
+    "^VTK::RenderingMatplotlibPython-TestMathTextActor$"
+    "^VTK::RenderingMatplotlibPython-TestMathTextActor3D$"
+    "^VTK::RenderingMatplotlibPython-TestRenderString$"
+    "^VTK::RenderingMatplotlibPython-TestStringToPath$"
+    )
+endif ()
+
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
   list(APPEND test_exclusions
     # See this issue to track the status of these tests.

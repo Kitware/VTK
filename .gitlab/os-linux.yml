@@ -156,9 +156,11 @@
 
 .el8_icc:
     extends: .linux
-    image: "kitware/vtk:ci-el8-icc-20220118"
+    image: "kitware/vtk:ci-el8-icc-20231201"
 
     variables:
+        VENV_ROOT: "/opt/python311/venv"
+
         CC: icx
         CXX: icpx
         FC: ifx
