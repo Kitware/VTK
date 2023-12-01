@@ -108,9 +108,30 @@ public:
    */
   vtkSetMacro(DepthFormat, int);
 
+  ///@{
+  /**
+   * Get/Set the opacity threshold value used to write depth information for volumes.
+   * When the opacity of the current raycast sample reaches this value, the fragment depth is
+   * written to the depth buffer which results in SSAO being applied at this location.
+   * Default is 0.9
+   */
+  vtkGetMacro(VolumeOpacityThreshold, double);
+  vtkSetClampMacro(VolumeOpacityThreshold, double, 0.0, 1.0);
+  ///@}
+
 protected:
   vtkSSAOPass() = default;
   ~vtkSSAOPass() override = default;
+
+  /**
+   * Called in PreRender to add the GLDepthMaskOverride information key to volumes,
+   * which allows them to write to the depth texture by overriding the value of glDepthMask.
+   */
+  void PreRenderProp(vtkProp* prop) override;
+  /**
+   * Called in PostRender to clean the GLDepthMaskOverride information key on volumes.
+   */
+  void PostRenderProp(vtkProp* prop) override;
 
   void ComputeKernel();
   void InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int w, int h);
@@ -137,6 +158,8 @@ protected:
   double Radius = 0.5;
   double Bias = 0.01;
   bool Blur = false;
+
+  double VolumeOpacityThreshold = 0.9;
 
 private:
   vtkSSAOPass(const vtkSSAOPass&) = delete;

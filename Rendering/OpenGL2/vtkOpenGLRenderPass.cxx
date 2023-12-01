@@ -59,6 +59,15 @@ void vtkOpenGLRenderPass::PreRender(const vtkRenderState* s)
   for (size_t i = 0; i < numProps; ++i)
   {
     vtkProp* prop = s->GetPropArray()[i];
+    this->PreRenderProp(prop);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLRenderPass::PreRenderProp(vtkProp* prop)
+{
+  if (prop)
+  {
     vtkInformation* info = prop->GetPropertyKeys();
     if (!info)
     {
@@ -78,6 +87,15 @@ void vtkOpenGLRenderPass::PostRender(const vtkRenderState* s)
   for (size_t i = 0; i < numProps; ++i)
   {
     vtkProp* prop = s->GetPropArray()[i];
+    this->PostRenderProp(prop);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLRenderPass::PostRenderProp(vtkProp* prop)
+{
+  if (prop)
+  {
     vtkInformation* info = prop->GetPropertyKeys();
     if (info)
     {

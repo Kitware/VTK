@@ -79,9 +79,21 @@ protected:
   void PreRender(const vtkRenderState* s);
 
   /**
+   * Called in PreRender to give a chance to subclasses to set additonal information keys.
+   * This will be called for each filtered prop in the state.
+   */
+  virtual void PreRenderProp(vtkProp* prop);
+
+  /**
    * Call after rendering to clean up the actors' information keys.
    */
   void PostRender(const vtkRenderState* s);
+
+  /**
+   * Called in PreRender to give a chance to subclasses to clean up information keys.
+   * This will be called for each filtered prop in the state.
+   */
+  virtual void PostRenderProp(vtkProp* prop);
 
   unsigned int ActiveDrawBuffers = 0;
 
