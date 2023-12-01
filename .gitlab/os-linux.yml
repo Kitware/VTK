@@ -148,7 +148,11 @@
 
 .el7_mindeps:
     extends: .linux
-    image: "kitware/vtk:ci-el7-mindeps-20230216"
+    image: "kitware/vtk:ci-el7-mindeps-20231201"
+
+    variables:
+        VENV_ROOT: "/opt/python38/venv"
+        LAUNCHER: "scl enable rh-python38 --"
 
 .el8_icc:
     extends: .linux
