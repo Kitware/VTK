@@ -232,6 +232,13 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
     }
   }
 
+  auto renWin = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
+  if (!renWin)
+  {
+    vtkErrorMacro("Unable to retrieve the OpenXR render window !");
+    return;
+  }
+
   // Construct the event data that contains position and orientation of each hand
   double pos[3] = { 0.0 };
   double ppos[3] = { 0.0 };
@@ -261,6 +268,13 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
       this->SetPhysicalEventPosition(ppos[0], ppos[1], ppos[2], pointerIndex);
       this->SetWorldEventPosition(pos[0], pos[1], pos[2], pointerIndex);
       this->SetWorldEventOrientation(wxyz[0], wxyz[1], wxyz[2], wxyz[3], pointerIndex);
+
+      // Update DeviceToPhysical matrices, this is a read-write access!
+      vtkMatrix4x4* devicePose = renWin->GetDeviceToPhysicalMatrixForDevice(edHand->GetDevice());
+      if (devicePose)
+      {
+        vtkOpenXRUtilities::SetMatrixFromXrPose(devicePose, *handPose);
+      }
     }
   }
 
@@ -292,13 +306,6 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
   // vtkOpenXRManager to retrieve the "real" head pose (for now we use the left
   // eye direction retrieved in vtkOpenXRRenderWindow::UpdateHMDMatrixPose,
   // that is close).
-  auto renWin = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
-  if (!renWin)
-  {
-    vtkErrorMacro("Unable to retrieve the OpenXR render window !");
-    return;
-  }
-
   // Retrieve headset pose matrix in physical coordinates and convert to position and orientation
   // in world coordinates
   vtkMatrix4x4* poseMatrix =
