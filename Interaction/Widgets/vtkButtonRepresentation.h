@@ -26,9 +26,7 @@
 #ifndef vtkButtonRepresentation_h
 #define vtkButtonRepresentation_h
 
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkWidgetRepresentation.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -74,10 +72,6 @@ public:
     Outside = 0,
     Inside
   };
-#if !defined(VTK_LEGACY_REMOVE)
-  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
-  typedef InteractionStateType _InteractionState;
-#endif
 
   ///@{
   /**
@@ -94,10 +88,7 @@ public:
     HighlightHovering,
     HighlightSelecting
   };
-#if !defined(VTK_LEGACY_REMOVE)
-  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
-  typedef HighlightStateType _HighlightState;
-#endif
+
   void Highlight(int) override;
   vtkGetMacro(HighlightState, int);
   ///@}

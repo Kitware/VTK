@@ -50,7 +50,6 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkNew.h"          // vtkSmartPointer
 #include "vtkSmartPointer.h" // vtkSmartPointer
 
@@ -276,12 +275,6 @@ public:
    * Return the maximum number of trees in the level 0 grid.
    */
   vtkIdType GetMaxNumberOfTrees();
-
-  /**
-   * Get the number of vertices in the primal tree grid.
-   */
-  VTK_DEPRECATED_IN_9_2_0("Please use the renamed version, GetNumberOfCells().")
-  vtkIdType GetNumberOfVertices();
 
   /**
    * Get the number of non empty trees in this grid.

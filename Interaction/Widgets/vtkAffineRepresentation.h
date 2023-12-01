@@ -27,9 +27,7 @@
 #ifndef vtkAffineRepresentation_h
 #define vtkAffineRepresentation_h
 
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkWidgetRepresentation.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -90,10 +88,6 @@ public:
     MoveOriginY,
     MoveOrigin
   };
-#if !defined(VTK_LEGACY_REMOVE)
-  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
-  typedef InteractionStateType _InteractionState;
-#endif
 
   /**
    * Methods to make this class properly act like a vtkWidgetRepresentation.

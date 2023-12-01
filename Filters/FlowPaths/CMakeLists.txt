@@ -1,11 +1,8 @@
 set(classes
   vtkAbstractInterpolatedVelocityField
   vtkAMRInterpolatedVelocityField
-  vtkCachingInterpolatedVelocityField
-  vtkCellLocatorInterpolatedVelocityField
   vtkCompositeInterpolatedVelocityField
   vtkEvenlySpacedStreamlines2D
-  vtkInterpolatedVelocityField
   vtkLagrangianBasicIntegrationModel
   vtkLagrangianMatidaIntegrationModel
   vtkLagrangianParticle

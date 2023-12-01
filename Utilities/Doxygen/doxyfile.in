@@ -205,6 +205,7 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_DEPRECATED_IN_9_1_0(msg)=" \
                "VTK_DEPRECATED_IN_9_2_0(msg)=" \
                "VTK_DEPRECATED_IN_9_3_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_4_0(msg)=" \
                "DOXYGEN_SHOULD_SKIP_THIS" \
                "VTK_ABI_NAMESPACE_BEGIN=" \
                "VTK_ABI_NAMESPACE_END="

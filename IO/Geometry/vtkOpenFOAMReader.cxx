@@ -11745,26 +11745,4 @@ void vtkOpenFOAMReader::UpdateProgress(double amount)
     static_cast<double>(this->Parent->NumberOfReaders));
 }
 
-//------------------------------------------------------------------------------
-// Like using the set macro, but with deprecation / disabled warning
-void vtkOpenFOAMReader::SetDecomposePolyhedra(vtkTypeBool _arg)
-{
-#if defined(VTK_FOAMFILE_DECOMPOSE_POLYHEDRA) && VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-  if (this->DecomposePolyhedra != _arg)
-  {
-    this->DecomposePolyhedra = _arg;
-    this->Modified();
-    if (_arg)
-    {
-      vtkWarningMacro(<< "Decompose polyhedra is highly deprecated. Will be removed in the future");
-    }
-  }
-#else
-  if (_arg)
-  {
-    vtkWarningMacro(<< "Decompose polyhedra is compile-time disabled");
-  }
-#endif
-}
-
 VTK_ABI_NAMESPACE_END

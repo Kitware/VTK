@@ -37,7 +37,8 @@
 #define VTK_HAS_INITIALIZE_OBJECT_BASE
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkFeatures.h"         // for VTK_USE_MEMKIND
+#include "vtkDeprecation.h"
+#include "vtkFeatures.h" // for VTK_USE_MEMKIND
 #include "vtkIndent.h"
 #include "vtkSystemIncludes.h"
 #include "vtkType.h"
@@ -185,8 +186,7 @@ public:
   /**
    * Increase the reference count (mark as used by another object).
    */
-  // XXX(virtual): VTK_DEPRECATED_IN_9_2_0("Override `UsesGarbageCollector()` instead")
-  virtual void Register(vtkObjectBase* o);
+  void Register(vtkObjectBase* o);
 
   /**
    * Decrease the reference count (release by another object). This

@@ -767,13 +767,6 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfNonEmptyTrees()
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkHyperTreeGrid::GetNumberOfVertices()
-{
-  VTK_LEGACY_REPLACED_BODY(GetNumberOfVertices, "VTK 9.2", GetNumberOfCells);
-  return this->GetNumberOfCells();
-}
-
-//------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
 {
   vtkIdType nVertices = 0;

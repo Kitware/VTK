@@ -39,7 +39,6 @@
 
 #include "vtkAbstractCellLocator.h"
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 
 // Forward declarations for PIMPL
 VTK_ABI_NAMESPACE_BEGIN
@@ -99,42 +98,6 @@ public:
    * on 64-bit architectures.
    */
   bool GetLargeIds() { return this->LargeIds; }
-
-  ///@{
-  /**
-   * These methods are deprecated. This flag was used in internally in conjunction with
-   * Tolerance, which has been removed because nobody was using it, and it would lead
-   * to really slow performance if the dataset was small bounds-wise. Tolerance was
-   * originally introduced to solve IntersectionWithLine issues the existed before. These
-   * issues have been resolved by using double tolerance internally.
-   *
-   * When set to true, the CellBinner will multiply the locator tolerance by the diagonal length
-   * of the dataset to compute its own tolerance. When not, it uses the locator tolerance
-   * directly. Default is false.
-   */
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used because Tolerance is also not used")
-  vtkSetMacro(UseDiagonalLengthTolerance, bool);
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used because Tolerance is also not used")
-  vtkGetMacro(UseDiagonalLengthTolerance, bool);
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used because Tolerance is also not used")
-  virtual void UseDiagonalLengthToleranceOn()
-  {
-    if (this->UseDiagonalLengthTolerance != true)
-    {
-      this->UseDiagonalLengthTolerance = true;
-      this->Modified();
-    }
-  }
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used because Tolerance is also not used")
-  virtual void UseDiagonalLengthToleranceOff()
-  {
-    if (this->UseDiagonalLengthTolerance != false)
-    {
-      this->UseDiagonalLengthTolerance = false;
-      this->Modified();
-    }
-  }
-  ///@}
 
   // Re-use any superclass signatures that we don't override.
   using vtkAbstractCellLocator::FindCell;
@@ -263,9 +226,6 @@ protected:
 
   vtkIdType MaxNumberOfBuckets; // Maximum number of buckets in locator
   bool LargeIds;                // indicate whether integer ids are small or large
-
-  // VTK_DEPRECATED_IN_9_2_0 This attribute needs to be removed
-  bool UseDiagonalLengthTolerance = false;
 
   // Support PIMPLd implementation
   vtkCellBinner* Binner;       // Does the binning

@@ -27,9 +27,7 @@
 #ifndef vtkRectilinearWipeRepresentation_h
 #define vtkRectilinearWipeRepresentation_h
 
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkWidgetRepresentation.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -114,10 +112,6 @@ public:
     MovingVPane,
     MovingCenter
   };
-#if !defined(VTK_LEGACY_REMOVE)
-  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
-  typedef InteractionStateType _InteractionState;
-#endif
 
   ///@{
   /**

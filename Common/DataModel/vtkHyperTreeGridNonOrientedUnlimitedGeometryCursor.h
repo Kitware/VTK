@@ -16,7 +16,7 @@
  * and central points
  *
  * @sa
- * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
+ * vtkHyperTree vtkHyperTreeGrid
  *
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.

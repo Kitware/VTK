@@ -34,7 +34,6 @@ int TestOpenFOAMReaderWeighByCellSize(int argc, char* argv[])
   // These method names will be revised in the future
   reader->SetCreateCellToPoint(true);
   reader->SetSizeAverageCellToPoint(true);
-  reader->SetDecomposePolyhedra(true);
 
   // Dont currently need anything selected (controlled above)
   reader->Update();

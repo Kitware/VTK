@@ -18,9 +18,7 @@
 #define vtkSliderRepresentation3D_h
 
 #include "vtkCoordinate.h"               // For vtkViewportCoordinateMacro
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkSliderRepresentation.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -239,10 +237,6 @@ protected:
     SphereShape,
     CylinderShape
   };
-#if !defined(VTK_LEGACY_REMOVE)
-  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
-  typedef SliderShapeType _SliderShape;
-#endif
 
 private:
   vtkSliderRepresentation3D(const vtkSliderRepresentation3D&) = delete;

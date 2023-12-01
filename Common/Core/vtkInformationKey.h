@@ -31,16 +31,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Prevent normal vtkObject reference counting behavior.
-   */
-  void Register(vtkObjectBase*) override;
-
-  /**
-   * Prevent normal vtkObject reference counting behavior.
-   */
-  void UnRegister(vtkObjectBase*) override;
-
-  /**
    * Get the name of the key.  This is not the type of the key, but
    * the name of the key instance.
    */

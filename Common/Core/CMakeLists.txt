@@ -308,10 +308,7 @@ set(classes
   vtkWeakPointerBase
   vtkWeakReference
   vtkWindow
-  vtkXMLFileOutputWindow
-
-  # These classes are deprecated.
-  vtkCriticalSection)
+  vtkXMLFileOutputWindow)
 
 set(template_classes
   vtkAOSDataArrayTemplate

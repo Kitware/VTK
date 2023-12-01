@@ -9,7 +9,7 @@
  * can be refined to reach the level of the current cell in any case.
  *
  * @sa
- * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid vtkHyperTreeGridNonOrientedMooreSuperCursor
+ * vtkHyperTree vtkHyperTreeGrid vtkHyperTreeGridNonOrientedMooreSuperCursor
  */
 
 #ifndef vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor_h

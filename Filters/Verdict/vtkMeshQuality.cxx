@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright 2003-2008 Sandia Corporation
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
-// VTK_DEPRECATED_IN_9_2_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkMeshQuality.h"
 #include "vtkCell.h"
@@ -438,13 +436,11 @@ public:
     vtkCell* cell;
     vtkDoubleArray* qualityArrays[2] = { this->QualityArray, this->ApproxQualityArray };
     double quality;
-    double volume;
 
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
       this->Output->GetCell(cellId, genericCell);
       cell = genericCell->GetRepresentativeCell();
-      volume = 0.0;
 
       int numberOfOutputQualities = this->MeshQuality->LinearApproximation ? 2 : 1;
 
@@ -507,14 +503,6 @@ public:
             tetStats.Total += quality;
             tetStats.Total2 += quality * quality;
             ++tetStats.NumCells;
-            if (this->MeshQuality->Volume)
-            {
-              volume = vtkMeshQuality::TetVolume(cell);
-              if (!this->MeshQuality->CompatibilityMode)
-              {
-                this->VolumeArray->SetValue(cellId, volume);
-              }
-            }
             break;
           case VTK_PYRAMID:
             quality = this->PyramidQuality(cell);
@@ -576,15 +564,7 @@ public:
 
         if (this->MeshQuality->SaveCellQuality)
         {
-          if (this->MeshQuality->CompatibilityMode && this->MeshQuality->Volume)
-          {
-            double t[2] = { volume, quality };
-            qualityArrays[qualityId]->SetTypedTuple(cellId, t);
-          }
-          else
-          {
-            qualityArrays[qualityId]->SetTypedTuple(cellId, &quality);
-          }
+          qualityArrays[qualityId]->SetTypedTuple(cellId, &quality);
         }
 
         if (qualityId == 1)
@@ -653,8 +633,6 @@ void vtkMeshQuality::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "HexQualityMeasure: " << QualityMeasureNames[static_cast<int>(this->HexQualityMeasure)]
      << endl;
-  os << indent << "Volume: " << (this->Volume ? onStr : offStr) << endl;
-  os << indent << "CompatibilityMode: " << (this->CompatibilityMode ? onStr : offStr) << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -667,8 +645,6 @@ vtkMeshQuality::vtkMeshQuality()
   this->PyramidQualityMeasure = QualityMeasureTypes::SHAPE;
   this->WedgeQualityMeasure = QualityMeasureTypes::EDGE_RATIO;
   this->HexQualityMeasure = QualityMeasureTypes::MAX_ASPECT_FROBENIUS;
-  this->Volume = 0;
-  this->CompatibilityMode = 0;
   this->LinearApproximation = false;
 }
 
@@ -961,21 +937,7 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->SaveCellQuality)
   {
     qualityArray = vtkSmartPointer<vtkDoubleArray>::New();
-    if (this->CompatibilityMode)
-    {
-      if (this->Volume)
-      {
-        qualityArray->SetNumberOfComponents(2);
-      }
-      else
-      {
-        qualityArray->SetNumberOfComponents(1);
-      }
-    }
-    else
-    {
-      qualityArray->SetNumberOfComponents(1);
-    }
+    qualityArray->SetNumberOfComponents(1);
     qualityArray->SetNumberOfTuples(numberOfCells);
     qualityArray->SetName("Quality");
     out->GetCellData()->AddArray(qualityArray);
@@ -987,18 +949,6 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
       approxQualityArray->SetNumberOfValues(numberOfCells);
       approxQualityArray->SetName("Quality (Linear Approx)");
       out->GetCellData()->AddArray(approxQualityArray);
-    }
-
-    if (!this->CompatibilityMode)
-    {
-      if (this->Volume)
-      {
-        volumeArray = vtkSmartPointer<vtkDoubleArray>::New();
-        volumeArray->SetNumberOfComponents(1);
-        volumeArray->SetNumberOfTuples(numberOfCells);
-        volumeArray->SetName("Volume");
-        out->GetCellData()->AddArray(volumeArray);
-      }
     }
   }
 

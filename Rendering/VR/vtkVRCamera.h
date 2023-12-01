@@ -11,8 +11,7 @@
 #ifndef vtkVRCamera_h
 #define vtkVRCamera_h
 
-#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_2_0
-#include "vtkNew.h"         // for iavr
+#include "vtkNew.h" // for iavr
 #include "vtkOpenGLCamera.h"
 #include "vtkRenderingVRModule.h" // For export macro
 
@@ -30,11 +29,6 @@ public:
    * for the eye currently being rendered. Just e.g. LeftEyeToProjection *
    * PhysicalToLeftEye
    */
-  VTK_DEPRECATED_IN_9_2_0("use GetPhysicalToProjectionMatrix instead")
-  virtual void GetTrackingToDCMatrix(vtkMatrix4x4*& physicalToProjectionMatrix)
-  {
-    this->GetPhysicalToProjectionMatrix(physicalToProjectionMatrix);
-  };
   virtual void GetPhysicalToProjectionMatrix(vtkMatrix4x4*& physicalToProjectionMatrix) = 0;
 
   // A pose in VR includes more than just the basic camera values.

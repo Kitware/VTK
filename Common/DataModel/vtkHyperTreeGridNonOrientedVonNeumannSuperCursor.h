@@ -12,7 +12,7 @@
  * Cursors are created by the HyperTreeGrid implementation.
  *
  * @sa
- * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
+ * vtkHyperTree vtkHyperTreeGrid
  *
  * This supercursor allows to traverse neighbors attached to coface of
  * the current position.

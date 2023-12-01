@@ -57,9 +57,8 @@
  *
  * @sa
  *  vtkCompositeInterpolatedVelocityField vtkAMRInterpolatedVelocityField
- *  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
- *  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
- *  vtkFindCellStrategy
+ *  vtkGenericInterpolatedVelocityField vtkTemporalInterpolatedVelocityField
+ *  vtkFunctionSet vtkStreamTracer vtkFindCellStrategy
  */
 
 #ifndef vtkAbstractInterpolatedVelocityField_h

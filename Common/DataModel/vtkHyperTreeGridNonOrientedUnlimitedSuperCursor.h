@@ -5,7 +5,7 @@
  * @brief   Objects for traversal a HyperTreeGrid.
  *
  * @sa
- * vtkHyperTreeGridNonOrientedSuperCursor vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
+ * vtkHyperTreeGridNonOrientedSuperCursor vtkHyperTree vtkHyperTreeGrid
  */
 
 #ifndef vtkHyperTreeGridNonOrientedUnlimitedSuperCursor_h

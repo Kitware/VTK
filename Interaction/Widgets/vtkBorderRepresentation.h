@@ -28,9 +28,7 @@
 #define vtkBorderRepresentation_h
 
 #include "vtkCoordinate.h"               //Because of the viewport coordinate macro
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkWidgetRepresentation.h"
 
 #include "vtkNew.h" // for ivars
@@ -290,10 +288,6 @@ public:
     AdjustingE2,
     AdjustingE3
   };
-#if !defined(VTK_LEGACY_REMOVE)
-  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
-  typedef InteractionStateType _InteractionState;
-#endif
 
   vtkSetClampMacro(InteractionState, int, 0, AdjustingE3);
 
@@ -331,11 +325,6 @@ public:
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   ///@}
-
-  VTK_DEPRECATED_IN_9_2_0(
-    "SetBWActorDisplayOverlay is deprecated. Use "
-    "SetBWActorDisplayOverlayEdges or SetBWActorDisplayOverlayPolygon instead.")
-  void SetBWActorDisplayOverlay(bool);
 
   void SetBWActorDisplayOverlayEdges(bool);
   void SetBWActorDisplayOverlayPolygon(bool);

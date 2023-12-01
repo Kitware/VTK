@@ -256,43 +256,6 @@ public:
   vtkBooleanMacro(FastMode, bool);
   ///@}
 
-  ///@{
-  /**
-   * If fast mode is enabled, then Degree controls which cells are
-   * visited. Basically, any cell connected to a point with connectivity
-   * degree <= is visited and processed. Low degree points tend to be
-   * located on the boundary of datasets - thus attached cells frequently
-   * produce output boundary fragments.
-   */
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
-  virtual void SetDegree(unsigned int vtkNotUsed(arg)) {}
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
-  virtual unsigned int GetDegreeMinValue() { return 1; }
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
-  virtual unsigned int GetDegreeMaxValue() { return static_cast<int>(~0u >> 1); }
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
-  virtual unsigned int GetDegree() { return 4; }
-  ///@}
-
-  ///@{
-  /**
-   * Set / get a spatial locator for merging points. By default an instance
-   * of vtkMergePoints is used. (This method is now deprecated and has no
-   * effect.)
-   */
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
-  void SetLocator(vtkIncrementalPointLocator* locator);
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
-  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  ///@}
-
-  /**
-   * Create default locator. Used to create one when none is specified.
-   * This method is now deprecated.
-   */
-  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
-  void CreateDefaultLocator();
-
   // The following are methods compatible with vtkDataSetSurfaceFilter.
 
   ///@{

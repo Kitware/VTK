@@ -15,7 +15,6 @@
 #ifndef vtkVRPanelRepresentation_h
 #define vtkVRPanelRepresentation_h
 
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkRenderingVRModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -49,10 +48,6 @@ public:
     Outside = 0,
     Moving
   };
-#if !defined(VTK_LEGACY_REMOVE)
-  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
-  typedef InteractionStateType _InteractionState;
-#endif
 
   ///@{
   /**
