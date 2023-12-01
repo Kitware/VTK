@@ -25,12 +25,13 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Python dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    python3 python3-devel python3-numpy \
-    python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib
+    python3.11 python3.11-devel python3.11-numpy \
+    python3.11-pip
 
-python3 -m venv /opt/python38/venv
+python3.11 -m venv /opt/python311/venv
+/opt/python311/venv/bin/pip install matplotlib
 # wslink will bring aiohttp>=3.7.4
-/opt/python38/venv/bin/pip install 'wslink>=1.0.4'
+/opt/python311/venv/bin/pip install 'wslink>=1.0.4'
 
 # Upgrade libarchive (for CMake)
 dnf upgrade -y --setopt=install_weak_deps=False \
