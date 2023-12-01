@@ -457,6 +457,8 @@
     - git submodule update --init --recursive
     # Load any modules that may be necessary.
     - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
+    # Load a venv
+    - '[ -n "$VENV_ROOT" ] && . $VENV_ROOT/bin/activate'
     # Enable the Intel compiler if required.
     - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
 
