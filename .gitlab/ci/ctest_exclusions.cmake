@@ -134,6 +134,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
 
     # Fail to present D3D resources (see #18657)
     "^VTK::RenderingOpenGL2Cxx-TestWin32OpenGLDXRenderWindow$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19183 
+    "^VTK::RenderingCellGridPython-TestCellGridRendering$"
   )
 endif ()
 
