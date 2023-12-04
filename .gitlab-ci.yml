@@ -59,6 +59,20 @@ dummy:build:
     variables:
         GIT_STRATEGY: none
 
+## readthedocs documentation build
+readthedocs:test:
+    extends:
+      - .make_sphinx_docs
+      - .sphinx_artifacts
+      - .run_automatically
+    tags:
+        - test
+        - docker
+        - linux-x86_64
+    needs: []
+    dependencies: []
+    timeout: 10 minutes
+
 ## Basic builds
 
 el7-mindeps-python-qt5:build:

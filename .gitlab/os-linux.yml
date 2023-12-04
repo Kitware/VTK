@@ -7,6 +7,14 @@
         GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
         GIT_SUBMODULE_STRATEGY: none
 
+.readthedocs:
+  image: "readthedocs/build:ubuntu-20.04-2023.05.03"
+  variables:
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
+    GIT_SUBMODULE_STRATEGY: none
+    PYTHON_VERSION: 3.11.6
+
+
 .manylinux2014_x86_64:
     image: "quay.io/pypa/manylinux2014_x86_64"
 
@@ -642,3 +650,19 @@
         GIT_STRATEGY: none
 
     interruptible: true
+
+.make_sphinx_docs:
+    extends: .readthedocs
+    script:
+      # take care of "dubious ownership in repository at '/builds/gitlab-kitware-sciviz-ci'" error
+      - git config --global --add safe.directory /builds/gitlab-kitware-sciviz-ci
+      # steps copied from the build logs of readthedocs jobs: https://readthedocs.org/projects/vtk-docs/builds/
+      - git fetch origin --force --prune --prune-tags --depth 50 # get tags so we can create releases page
+      - asdf install python $PYTHON_VERSION
+      - asdf global python $PYTHON_VERSION
+      - python -m venv env && source env/bin/activate
+      - python -m pip install --upgrade --no-cache-dir pip setuptools
+      - python -m pip install --upgrade --no-cache-dir sphinx readthedocs-sphinx-ext
+      - python -m pip install --exists-action=w --no-cache-dir -r Documentation/docs/requirements.txt
+      - cd Documentation/docs
+      - make html |& tee $GIT_CLONE_PATH/sphinx_output.log
