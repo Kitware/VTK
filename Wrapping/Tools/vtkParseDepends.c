@@ -98,6 +98,7 @@ int vtkParse_WriteDependencyFile(const char* fname)
   fout = vtkParse_FileOpen(fname, "w+");
   if (!fout)
   {
+    fprintf(stderr, "Error opening dependency file %s\n", fname);
     return 1;
   }
 
