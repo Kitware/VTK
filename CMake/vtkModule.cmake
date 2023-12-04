@@ -3666,6 +3666,10 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
     endif ()
   endif ()
 
+  cmake_policy(PUSH)
+  if(POLICY CMP0116)
+    cmake_policy(SET CMP0116 NEW) # DEPFILE argument is relative to CMAKE_CURRENT_BINARY_DIR
+  endif()
   add_custom_command(
     OUTPUT  "${_vtk_hierarchy_file}"
     COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
@@ -3684,6 +3688,7 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
       "${_vtk_hierarchy_data_file}"
       "${_vtk_hierarchy_depends_args_file}"
       ${_vtk_hierarchy_command_depends})
+  cmake_policy(POP)
   add_custom_target("${_vtk_add_module_library_name}-hierarchy" ALL
     DEPENDS
       "${_vtk_hierarchy_file}"
