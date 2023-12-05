@@ -137,8 +137,10 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
 
     set(_vtk_java_source_output
       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_basename}Java.${_vtk_java_ext}")
-    set(_vtk_java_wrap_depfile
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java.dir/${_vtk_java_basename}Java.${_vtk_java_ext}.d")
+    set(_vtk_java_wrap_depfile_genex
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_basename}Java.${_vtk_java_ext}.$<CONFIG>.d")
+    set(_vtk_java_wrap_depfile_nogenex
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_basename}Java.${_vtk_java_ext}.d")
     list(APPEND _vtk_java_sources
       "${_vtk_java_source_output}")
 
@@ -161,10 +163,12 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
     endif ()
 
     _vtk_module_depfile_args(
+      MULTI_CONFIG_NEEDS_GENEX
       TOOL_ARGS _vtk_java_depfile_flags
       CUSTOM_COMMAND_ARGS _vtk_java_depfile_args
       SOURCE "${_vtk_java_header}"
-      DEPFILE_PATH "${_vtk_java_wrap_depfile}"
+      DEPFILE_PATH "${_vtk_java_wrap_depfile_genex}"
+      DEPFILE_NO_GENEX_PATH "${_vtk_java_wrap_depfile_nogenex}"
       TOOL_FLAGS "-MF")
 
     add_custom_command(
