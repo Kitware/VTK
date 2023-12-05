@@ -63,6 +63,14 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
     DATA{../Data/Input/TestOBJImporter-ScalarsDuplication.obj}
 )
 
+# Test a malformed file
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestOBJImporter-Malformed,TestOBJImporter.cxx,NO_VALID
+    DATA{../Data/Input/malformed.obj}
+)
+set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES PASS_REGULAR_EXPRESSION "Unexpected point indice value")
+set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES FAIL_REGULAR_EXPRESSION "")
+
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestVRMLImporter.cxx,NO_VALID
   TestVRMLNormals.cxx
