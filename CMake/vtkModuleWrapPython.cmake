@@ -203,8 +203,10 @@ $<$<BOOL:${_vtk_python_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_python_hierar
 
     set(_vtk_python_source_output
       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python/${_vtk_python_basename}Python.cxx")
-    set(_vtk_python_depfile
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python.dir/${_vtk_python_basename}Python.cxx.d")
+    set(_vtk_python_depfile_genex
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python/${_vtk_python_basename}Python.cxx.$<CONFIG>.d")
+    set(_vtk_python_depfile_nogenex
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python/${_vtk_python_basename}Python.cxx.d")
     list(APPEND _vtk_python_sources
       "${_vtk_python_source_output}")
 
@@ -222,10 +224,12 @@ $<$<BOOL:${_vtk_python_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_python_hierar
     endif ()
 
     _vtk_module_depfile_args(
+      MULTI_CONFIG_NEEDS_GENEX
       TOOL_ARGS _vtk_python_depfile_flags
       CUSTOM_COMMAND_ARGS _vtk_python_depfile_args
       SOURCE "${_vtk_python_header}"
-      DEPFILE_PATH "${_vtk_python_depfile}"
+      DEPFILE_PATH "${_vtk_python_depfile_genex}"
+      DEPFILE_NO_GENEX_PATH "${_vtk_python_depfile_nogenex}"
       TOOL_FLAGS "-MF")
 
     add_custom_command(
