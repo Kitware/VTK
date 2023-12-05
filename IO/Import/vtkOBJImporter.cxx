@@ -568,8 +568,16 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
             int iVert;
             if (sscanf(pLine, "%d", &iVert) == 1)
             {
-              pointElems->InsertCellPoint(iVert - 1);
-              nVerts++;
+              if (iVert <= 0)
+              {
+                vtkErrorMacro(<< "Unexpected point indices value");
+                everything_ok = false;
+              }
+              else
+              {
+                pointElems->InsertCellPoint(iVert - 1);
+                nVerts++;
+              }
             }
             else if (strcmp(pLine, "\\\n") == 0)
             {
@@ -631,14 +639,30 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
             int iVert, dummyInt;
             if (sscanf(pLine, "%d/%d", &iVert, &dummyInt) == 2)
             {
-              // we simply ignore texture information
-              lineElems->InsertCellPoint(iVert - 1);
-              nVerts++;
+              if (iVert <= 0)
+              {
+                vtkErrorMacro(<< "Unexpected point indices value");
+                everything_ok = false;
+              }
+              else
+              {
+                // we simply ignore texture information
+                lineElems->InsertCellPoint(iVert - 1);
+                nVerts++;
+              }
             }
             else if (sscanf(pLine, "%d", &iVert) == 1)
             {
-              lineElems->InsertCellPoint(iVert - 1);
-              nVerts++;
+              if (iVert <= 0)
+              {
+                vtkErrorMacro(<< "Unexpected point indices value");
+                everything_ok = false;
+              }
+              else
+              {
+                lineElems->InsertCellPoint(iVert - 1);
+                nVerts++;
+              }
             }
             else if (strcmp(pLine, "\\\n") == 0)
             {
@@ -719,17 +743,30 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               {
                 iNormal = lastVertexIndex + iNormal + 1;
               }
-              hasPolysWithTextureIndices = true;
-              polys->InsertCellPoint(iVert - 1); // convert to 0-based index
-              nVerts++;
-              tcoord_polys->InsertCellPoint(iTCoord - 1);
-              nTCoords++;
-              normal_polys->InsertCellPoint(iNormal - 1);
-              nNormals++;
-              if (iTCoord != iVert)
-                tcoords_same_as_verts = false;
-              if (iNormal != iVert)
-                normals_same_as_verts = false;
+
+              if (iVert <= 0 || iTCoord <= 0 || iNormal <= 0)
+              {
+                vtkErrorMacro(<< "Unexpected point indice value");
+                everything_ok = false;
+              }
+              else
+              {
+                hasPolysWithTextureIndices = true;
+                polys->InsertCellPoint(iVert - 1); // convert to 0-based index
+                nVerts++;
+                tcoord_polys->InsertCellPoint(iTCoord - 1);
+                nTCoords++;
+                normal_polys->InsertCellPoint(iNormal - 1);
+                nNormals++;
+                if (iTCoord != iVert)
+                {
+                  tcoords_same_as_verts = false;
+                }
+                if (iNormal != iVert)
+                {
+                  normals_same_as_verts = false;
+                }
+              }
             }
             else if (sscanf(pLine, "%d//%d", &iVert, &iNormal) == 2)
             {
@@ -741,13 +778,23 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               {
                 iNormal = lastVertexIndex + iNormal + 1;
               }
-              hasPolysWithTextureIndices = false;
-              polys->InsertCellPoint(iVert - 1);
-              nVerts++;
-              normal_polys->InsertCellPoint(iNormal - 1);
-              nNormals++;
-              if (iNormal != iVert)
-                normals_same_as_verts = false;
+              if (iVert <= 0 || iNormal <= 0)
+              {
+                vtkErrorMacro(<< "Unexpected point indice value");
+                everything_ok = false;
+              }
+              else
+              {
+                hasPolysWithTextureIndices = false;
+                polys->InsertCellPoint(iVert - 1);
+                nVerts++;
+                normal_polys->InsertCellPoint(iNormal - 1);
+                nNormals++;
+                if (iNormal != iVert)
+                {
+                  normals_same_as_verts = false;
+                }
+              }
             }
             else if (sscanf(pLine, "%d/%d", &iVert, &iTCoord) == 2)
             {
@@ -759,13 +806,23 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               {
                 iTCoord = lastVertexIndex + iTCoord + 1;
               }
-              hasPolysWithTextureIndices = true;
-              polys->InsertCellPoint(iVert - 1);
-              nVerts++;
-              tcoord_polys->InsertCellPoint(iTCoord - 1);
-              nTCoords++;
-              if (iTCoord != iVert)
-                tcoords_same_as_verts = false;
+              if (iVert <= 0 || iTCoord <= 0)
+              {
+                vtkErrorMacro(<< "Unexpected point indice value");
+                everything_ok = false;
+              }
+              else
+              {
+                hasPolysWithTextureIndices = true;
+                polys->InsertCellPoint(iVert - 1);
+                nVerts++;
+                tcoord_polys->InsertCellPoint(iTCoord - 1);
+                nTCoords++;
+                if (iTCoord != iVert)
+                {
+                  tcoords_same_as_verts = false;
+                }
+              }
             }
             else if (sscanf(pLine, "%d", &iVert) == 1)
             {
@@ -773,9 +830,17 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               {
                 iVert = lastVertexIndex + iVert + 1;
               }
-              hasPolysWithTextureIndices = false;
-              polys->InsertCellPoint(iVert - 1);
-              nVerts++;
+              if (iVert <= 0)
+              {
+                vtkErrorMacro(<< "Unexpected point indice value");
+                everything_ok = false;
+              }
+              else
+              {
+                hasPolysWithTextureIndices = false;
+                polys->InsertCellPoint(iVert - 1);
+                nVerts++;
+              }
             }
             else if (strcmp(pLine, "\\\n") == 0)
             {
