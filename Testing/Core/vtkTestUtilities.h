@@ -37,6 +37,8 @@ class vtkAbstractArray;
 class vtkDataObject;
 class vtkDataSet;
 class vtkFieldData;
+class vtkPartitionedDataSetCollection;
+class vtkCompositeDataSet;
 class vtkUnsignedCharArray;
 
 VTK_ABI_NAMESPACE_BEGIN

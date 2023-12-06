@@ -10,6 +10,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellCenters.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
@@ -26,6 +27,8 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMatrixUtilities.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -1566,6 +1569,81 @@ struct TestDataObjectsImpl<vtkTable>
 };
 
 //============================================================================
+/**
+ * Test if each partitionned dataset in each pdc correspond.
+ * For the structure itself, only number of partitioned dataset is check for now.
+ */
+template <>
+struct TestDataObjectsImpl<vtkPartitionedDataSetCollection>
+{
+  static bool Execute(vtkPartitionedDataSetCollection* t1, vtkPartitionedDataSetCollection* t2,
+    double toleranceFactor)
+  {
+    if (t1->GetNumberOfPartitionedDataSets() != t2->GetNumberOfPartitionedDataSets())
+    {
+      vtkLog(ERROR,
+        "The 2 inputs vtkPartitionedDataSetCollection don't have the same number of "
+        "PartitionedDataSet.");
+      return false;
+    }
+
+    for (unsigned int index = 0; index < t1->GetNumberOfPartitionedDataSets(); ++index)
+    {
+      vtkPartitionedDataSet* t1Block = t1->GetPartitionedDataSet(index);
+      vtkPartitionedDataSet* t2Block = t2->GetPartitionedDataSet(index);
+
+      if (!vtkTestUtilities::CompareDataObjects(t1Block, t2Block, toleranceFactor))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+};
+
+//============================================================================
+/**
+ * Check each partition from inputs.
+ * For the structure itself, only the number of partition is checked.
+ */
+template <>
+struct TestDataObjectsImpl<vtkPartitionedDataSet>
+{
+  static bool Execute(vtkPartitionedDataSet* t1, vtkPartitionedDataSet* t2, double toleranceFactor)
+  {
+    if (!t1 || !t2)
+    {
+      return true;
+    }
+
+    if (t1->GetNumberOfPartitions() != t2->GetNumberOfPartitions())
+    {
+      vtkLog(
+        ERROR, "Each partitioned dataset should have the same number of partitions.") return false;
+    }
+
+    for (unsigned int index = 0; index < t1->GetNumberOfPartitions(); index++)
+    {
+      vtkDataObject* t1Block = t1->GetPartitionAsDataObject(index);
+      vtkDataObject* t2Block = t2->GetPartitionAsDataObject(index);
+
+      if (!t1Block || !t2Block)
+      {
+        continue;
+      }
+
+      if (!vtkTestUtilities::CompareDataObjects(t1Block, t2Block, toleranceFactor))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+};
+
+//============================================================================
 template <class DataObjectT, class = void>
 struct TestPointsImpl;
 
@@ -1652,6 +1730,36 @@ bool DispatchDataObjectImpl(
 }
 
 //----------------------------------------------------------------------------
+template <template <class...> class ImplT, class DataObjectT>
+bool DispatchDataObjectImpl(
+  vtkCompositeDataSet* do1, vtkCompositeDataSet* do2, double toleranceFactor, bool& retVal)
+{
+  if (auto pd1 = vtkPartitionedDataSet::SafeDownCast(do1))
+  {
+    if (auto pd2 = vtkPartitionedDataSet::SafeDownCast(do2))
+    {
+      retVal = ImplT<vtkPartitionedDataSet>::Execute(pd1, pd2, toleranceFactor);
+      return true;
+    }
+    vtkLog(ERROR,
+      "Input dataset types do not match: " << do1->GetClassName() << " != " << do2->GetClassName());
+  }
+  else if (auto pdc1 = vtkPartitionedDataSetCollection::SafeDownCast(do1))
+  {
+    if (auto pdc2 = vtkPartitionedDataSetCollection::SafeDownCast(do2))
+    {
+      retVal = ImplT<vtkPartitionedDataSetCollection>::Execute(pdc1, pdc2, toleranceFactor);
+      return true;
+    }
+    vtkLog(ERROR,
+      "Input dataset types do not match: " << do1->GetClassName() << " != " << do2->GetClassName());
+  }
+
+  vtkLog(ERROR, << "Only vtkPartitionedDataSet and vtkPartitionedDataSetCollection are supported "
+                   "for now.") return false;
+}
+
+//----------------------------------------------------------------------------
 template <template <class...> class ImplT>
 bool DispatchDataObject(vtkDataObject* do1, vtkDataObject* do2, double toleranceFactor)
 {
@@ -1686,6 +1794,19 @@ bool vtkTestUtilities::CompareDataObjects(
   vtkDataObject* do1, vtkDataObject* do2, double toleranceFactor)
 {
   ::FixToleranceFactorIfNeeded(toleranceFactor);
+
+  if (auto cds = vtkCompositeDataSet::SafeDownCast(do1))
+  {
+    bool retVal = false;
+    if (::DispatchDataObjectImpl<TestDataObjectsImpl, vtkCompositeDataSet>(
+          cds, vtkCompositeDataSet::SafeDownCast(do2), toleranceFactor, retVal))
+    {
+      return retVal;
+    }
+
+    return false;
+  }
+
   return ::DispatchDataObject<TestDataObjectsImpl>(do1, do2, toleranceFactor);
 }
 

@@ -5,6 +5,7 @@
 
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
+#include "vtkDataAssembly.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -16,6 +17,8 @@
 #include "vtkNew.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -32,6 +35,7 @@
 #include "vtkVariantArray.h"
 #include "vtkXMLHyperTreeGridReader.h"
 #include "vtkXMLImageDataReader.h"
+#include "vtkXMLPartitionedDataSetCollectionReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLRectilinearGridReader.h"
 #include "vtkXMLStructuredGridReader.h"
@@ -616,6 +620,69 @@ std::vector<std::string> TestDataSetFailures(vtkHyperTreeGrid* htg, std::ostring
 }
 
 //------------------------------------------------------------------------------
+std::vector<std::string> TestDataSetFailures(
+  vtkPartitionedDataSetCollection* pdc, std::ostringstream& logStream)
+{
+  std::vector<std::string> retLog;
+
+  if (!pdc)
+  {
+    return retLog;
+  }
+
+  for (unsigned int index = 0; index < pdc->GetNumberOfPartitionedDataSets(); ++index)
+  {
+    vtkPartitionedDataSet* pd = pdc->GetPartitionedDataSet(index);
+
+    if (!pd)
+    {
+      continue;
+    }
+
+    for (unsigned int partition = 0; partition < pd->GetNumberOfPartitions(); ++partition)
+    {
+      auto block = pd->GetPartition(partition);
+      if (!block)
+      {
+        continue;
+      }
+
+      vtkLog(ERROR, << "datatype: " << block->GetClassName());
+
+      std::vector<std::string> childLog;
+      if (auto image = vtkImageData::SafeDownCast(block))
+      {
+        childLog = TestDataSetFailures(image, logStream);
+      }
+      else if (auto sg = vtkStructuredGrid::SafeDownCast(block))
+      {
+        childLog = TestDataSetFailures(sg, logStream);
+      }
+      else if (auto rg = vtkRectilinearGrid::SafeDownCast(block))
+      {
+        childLog = TestDataSetFailures(rg, logStream);
+      }
+      else if (auto ug = vtkUnstructuredGrid::SafeDownCast(block))
+      {
+        childLog = TestDataSetFailures(ug, logStream);
+      }
+      else if (auto htg = vtkHyperTreeGrid::SafeDownCast(block))
+      {
+        childLog = TestDataSetFailures(htg, logStream);
+      }
+      else if (auto polydata = vtkPolyData::SafeDownCast(block))
+      {
+        childLog = TestDataSetFailures(polydata, logStream);
+      }
+
+      retLog.insert(retLog.end(), childLog.begin(), childLog.end());
+    }
+  }
+
+  return retLog;
+}
+
+//------------------------------------------------------------------------------
 vtkNew<vtkTable> MakeTable()
 {
   vtkIdType N = 5;
@@ -770,6 +837,41 @@ bool TestDataSet(const std::string& root, std::string&& name)
 }
 
 //------------------------------------------------------------------------------
+template <>
+bool TestDataSet<vtkPartitionedDataSetCollection, vtkXMLPartitionedDataSetCollectionReader>(
+  const std::string& root, std::string&& name)
+{
+  vtkLog(INFO, "### Testing " << vtk::TypeName<vtkPartitionedDataSetCollection>());
+
+  vtkNew<vtkXMLPartitionedDataSetCollectionReader> reader;
+  reader->SetFileName((root + name).c_str());
+  reader->Update();
+  auto ds = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
+
+  if (!vtkTestUtilities::CompareDataObjects(ds, ds))
+  {
+    vtkLog(ERROR, "Datasets should be similar, but they are not.");
+    return false;
+  }
+
+  std::ostringstream logStream;
+
+  // Turning off ERROR logging so we can test that the utility correctly catches failures
+  TurnOffLogging(logStream);
+
+  auto retLog = TestDataSetFailures(ds, logStream);
+
+  TurnOnLogging();
+
+  for (const std::string& log : retLog)
+  {
+    vtkLog(ERROR, << log);
+  }
+
+  return retLog.empty();
+}
+
+//------------------------------------------------------------------------------
 bool TestTableAndArrays()
 {
   vtkLog(INFO, "### Testing vtkTable");
@@ -819,6 +921,9 @@ int TestDataObjectCompare(int argc, char* argv[])
   retVal &= ::TestDataSet<vtkPolyData, vtkXMLPolyDataReader>(root, "poly_data_template.vtp");
   retVal &= ::TestDataSet<vtkHyperTreeGrid, vtkXMLHyperTreeGridReader>(
     root, "hyper_tree_grid_template.htg");
+  retVal &=
+    ::TestDataSet<vtkPartitionedDataSetCollection, vtkXMLPartitionedDataSetCollectionReader>(
+      root, "partitioned_dataset_collection_template.vtpc");
 
   retVal &= ::TestTableAndArrays();
 
