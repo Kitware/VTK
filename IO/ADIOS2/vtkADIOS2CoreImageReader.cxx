@@ -518,8 +518,15 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Initialize work distribution for each rank
   if (!this->InitWorkDistribution())
   {
-    this->Impl->Adios.reset(nullptr);
     vtkErrorMacro("unable to initialize work distribution");
+    vtkNew<vtkMultiBlockDataSet> mbds;
+    mbds->SetNumberOfBlocks(0);
+    vtkSmartPointer<vtkMultiBlockDataSet> rootMB = vtkMultiBlockDataSet::GetData(outInfo);
+    rootMB->SetBlock(0, mbds);
+    if (!this->TimeStepArray.empty())
+    {
+      rootMB->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->RequestTimeStep);
+    }
     return 0;
   }
 
@@ -556,7 +563,7 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
     if (typeStr.empty())
     {
       vtkErrorMacro("Cannot find a type for " << varName << " invalid name is provided");
-      return true;
+      return false;
     }
     // FIXME: adios2 IO object returns an template dependent class instance instead of
     // a pointer or template independent object. Without using std::variant,
