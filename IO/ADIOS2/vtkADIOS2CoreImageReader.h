@@ -147,6 +147,11 @@ public:
   int GetArrayStatus(const char* name);
   ///@}
 
+  /**
+   * Overridden to take into account mtimes for vtkDataArraySelection instances.
+   */
+  vtkMTimeType GetMTime() override;
+
   ///@{
   /**
    * Enable/Disable the assumption that the order of input data is column major.

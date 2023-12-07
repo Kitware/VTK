@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <unordered_map>
 
-#include "Core/vtkADIOS2CoreArraySelection.h"
 #include "Core/vtkADIOS2CoreTypeTraits.h"
 #include "vtkADIOS2CoreImageReader.h"
 
@@ -15,6 +14,7 @@
 #include "vtkCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDemandDrivenPipeline.h"
@@ -111,7 +111,7 @@ struct vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderImpl
   size_t RequestStep{ 0 };
 
   // Select the arrays that should be read in.
-  vtkADIOS2ArraySelection ArraySelection;
+  vtkNew<vtkDataArraySelection> ArraySelection;
   // For ParaView GUI display usage.
   vtkNew<vtkStringArray> AvailableArray;
 };
@@ -204,25 +204,31 @@ void vtkADIOS2CoreImageReader::SetFileName(const char* fileName)
 //------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::GetNumberOfArrays()
 {
-  return this->Impl->ArraySelection.GetNumberOfArrays();
+  return this->Impl->ArraySelection->GetNumberOfArrays();
 }
 
 //------------------------------------------------------------------------------
 const char* vtkADIOS2CoreImageReader::GetArrayName(int index)
 {
-  return this->Impl->ArraySelection.GetArrayName(index);
+  return this->Impl->ArraySelection->GetArrayName(index);
 }
 
 //------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::SetArrayStatus(const char* name, int status)
 {
-  this->Impl->ArraySelection.SetArrayStatus(name, status);
+  this->Impl->ArraySelection->SetArraySetting(name, status);
 }
 
 //------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::GetArrayStatus(const char* name)
 {
-  return this->Impl->ArraySelection.GetArrayStatus(name);
+  return this->Impl->ArraySelection->ArrayIsEnabled(name);
+}
+
+//------------------------------------------------------------------------------
+vtkMTimeType vtkADIOS2CoreImageReader::GetMTime()
+{
+  return std::max(this->Superclass::GetMTime(), this->Impl->ArraySelection->GetMTime());
 }
 
 //------------------------------------------------------------------------------
@@ -388,7 +394,7 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
     this->Impl->AvailableArray->Allocate(static_cast<vtkIdType>(this->Impl->AvailVars.size()));
     for (auto& iter : this->Impl->AvailVars)
     {
-      this->Impl->ArraySelection[iter.first] = true;
+      this->Impl->ArraySelection->EnableArray(iter.first.c_str());
       this->Impl->AvailableArray->InsertNextValue(iter.first);
     }
   }
@@ -490,7 +496,7 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
   if (!this->TimeStepArray.empty() &&
-    this->Impl->ArraySelection.find(this->TimeStepArray) == this->Impl->ArraySelection.end())
+    !this->Impl->ArraySelection->ArrayExists(this->TimeStepArray.c_str()))
   {
     this->Impl->Adios.reset(nullptr);
     vtkErrorMacro("An invalid time step array name is specified. Abort reading now");
@@ -650,12 +656,12 @@ void vtkADIOS2CoreImageReader::UpdateDimensionFromDimensionArray()
 void vtkADIOS2CoreImageReader::ConvertArraySelectionToInqVar()
 {
   InquireVariablesType inqVars;
-  for (auto& iter : this->Impl->ArraySelection)
+  for (int ii = 0; ii < this->Impl->ArraySelection->GetNumberOfArrays(); ++ii)
   {
-    if (iter.second) // Enabled by the user
+    std::string arrayName = this->Impl->ArraySelection->GetArrayName(ii);
+    if (this->Impl->ArraySelection->ArrayIsEnabled(arrayName.c_str())) // Enabled by the user
     {
-      std::vector<int> dims = parseDimensions(this->Impl->AvailVars[iter.first]["Shape"]);
-      std::string arrayName = iter.first;
+      std::vector<int> dims = parseDimensions(this->Impl->AvailVars[arrayName]["Shape"]);
       if (dims.size() == 2)
       {
         if (dims[0] == this->Dimension[0] && dims[1] == this->Dimension[1])
