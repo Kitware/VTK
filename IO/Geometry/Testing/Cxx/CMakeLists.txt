@@ -15,6 +15,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOBJReaderNormalsTCoords.cxx,NO_VALID
   TestOBJReaderRelative.cxx,NO_VALID
   TestOBJReaderSingleTexture.cxx,NO_VALID
+  TestOBJReaderMalformed.cxx,NO_VALID
   TestOpenFOAMReader.cxx
   TestOpenFOAMReaderDimensionedFields.cxx,NO_VALID
   TestOpenFOAMReaderFaceZone.cxx
@@ -31,6 +32,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestHoudiniPolyDataWriter.cxx,NO_VALID
   UnitTestSTLWriter.cxx,NO_VALID
   )
+
+# Certain test are expected failure with specific outputs
+set_tests_properties(VTK::IOGeometryCxx-TestOBJReaderMalformed PROPERTIES PASS_REGULAR_EXPRESSION "Unexpected point index value")
+set_tests_properties(VTK::IOGeometryCxx-TestOBJReaderMalformed PROPERTIES FAIL_REGULAR_EXPRESSION "")
 
 LIST(APPEND tecplotFiles
     3dgeom.dat
