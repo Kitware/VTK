@@ -143,8 +143,7 @@ void vtkWin32OpenGLRenderWindow::SetWindowName(const char* _arg)
   vtkWindow::SetWindowName(_arg);
   if (this->WindowId)
   {
-    std::wstring wname = vtksys::Encoding::ToWide(this->WindowName);
-    SetWindowTextW(this->WindowId, wname.c_str());
+    SetWindowText(this->WindowId, _arg);
   }
 }
 
@@ -828,6 +827,13 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(
         return 0;
       }
       break;
+    case WM_SETTEXT:
+    {
+      // Support for UTF-8, DefWindowProcW has to be called
+      // see https://stackoverflow.com/a/11515400
+      std::wstring wStr = vtksys::Encoding::ToWide((char*)(lParam));
+      return DefWindowProcW(hWnd, message, wParam, (LPARAM)wStr.c_str());
+    }
     case WM_PALETTECHANGED:
       /* realize palette if this is *not* the current window */
       if (this->ContextId && this->Palette && (HWND)wParam != hWnd)
