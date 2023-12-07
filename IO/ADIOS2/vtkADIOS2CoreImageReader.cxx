@@ -423,6 +423,7 @@ int vtkADIOS2CoreImageReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outputVector->GetInformationObject(0)->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   // Initialize adios2 variables and read meta data
   if (!this->Impl->HasReadMetaData && !this->OpenAndReadMetaData())
