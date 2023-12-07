@@ -544,7 +544,14 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
   try
   {
     // Determine the blocks that need to be read for the current rank
-    std::string varName = this->Impl->InquiredVars.begin()->first;
+    auto iter = this->Impl->InquiredVars.find(this->DimensionArray);
+    if (iter == this->Impl->InquiredVars.end())
+    {
+      vtkErrorMacro(
+        "Dimension Array (" << this->DimensionArray << ") must be one of the loaded arrays.");
+      return false;
+    }
+    std::string varName = iter->first;
     std::string typeStr = this->FetchTypeStringFromVarName(varName);
     if (typeStr.empty())
     {
@@ -666,11 +673,11 @@ void vtkADIOS2CoreImageReader::ConvertArraySelectionToInqVar()
       {
         if (dims[0] == this->Dimension[0] && dims[1] == this->Dimension[1])
         {
-          inqVars.emplace_back(arrayName, VarType::PointData);
+          inqVars.insert(std::pair<std::string, VarType>(arrayName, VarType::PointData));
         }
         else if (dims[0] == this->Dimension[0] - 1 && dims[1] == this->Dimension[1] - 1)
         {
-          inqVars.emplace_back(arrayName, VarType::CellData);
+          inqVars.insert(std::pair<std::string, VarType>(arrayName, VarType::CellData));
         }
       }
       else if (dims.size() == 3)
@@ -678,12 +685,12 @@ void vtkADIOS2CoreImageReader::ConvertArraySelectionToInqVar()
         if (dims[0] == this->Dimension[0] && dims[1] == this->Dimension[1] &&
           dims[2] == this->Dimension[2])
         {
-          inqVars.emplace_back(arrayName, VarType::PointData);
+          inqVars.insert(std::pair<std::string, VarType>(arrayName, VarType::PointData));
         }
         else if (dims[0] == this->Dimension[0] - 1 && dims[1] == this->Dimension[1] - 1 &&
           dims[2] == this->Dimension[2] - 1)
         {
-          inqVars.emplace_back(arrayName, VarType::CellData);
+          inqVars.insert(std::pair<std::string, VarType>(arrayName, VarType::CellData));
         }
       }
       else
@@ -944,8 +951,17 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
     auto count = this->Impl->BpReader.BlocksInfo(var, this->Impl->RequestStep)[i].Count;
     if (start.size() == 3 && count.size() == 3)
     {
-      // We use the first available var in inquiredVars to init workdistribution
-      int offSet = this->Impl->InquiredVars.begin()->second == VarType::PointData ? -1 : 0;
+      // Use the DimensionArray var to init workdistribution
+      // in most cases it's probably not necessary, but it's possible that arrays can have
+      // different block dimensions, in which case we don't want to just blindly grab the first
+      // array that's in the ArraySelection
+      auto iter = this->Impl->InquiredVars.find(this->DimensionArray);
+      if (iter == this->Impl->InquiredVars.end())
+      {
+        vtkErrorMacro("Cannot find DimensionArray " << this->DimensionArray << " in InquiredVars");
+        return;
+      }
+      int offSet = iter->second == VarType::PointData ? -1 : 0;
       this->Impl->BlockExtents.push_back(
         { static_cast<int>(start[0]), static_cast<int>(start[0] + count[0]) + offSet,
           static_cast<int>(start[1]), static_cast<int>(start[1] + count[1]) + offSet,
@@ -953,8 +969,13 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
     }
     else if (start.size() == 2 && count.size() == 2)
     {
-      // We use the first available var in inquiredVars to init workdistribution
-      int offSet = this->Impl->InquiredVars.begin()->second == VarType::PointData ? -1 : 0;
+      auto iter = this->Impl->InquiredVars.find(this->DimensionArray);
+      if (iter == this->Impl->InquiredVars.end())
+      {
+        vtkErrorMacro("Cannot find DimensionArray " << this->DimensionArray << " in InquiredVars");
+        return;
+      }
+      int offSet = iter->second == VarType::PointData ? -1 : 0;
       this->Impl->BlockExtents.push_back(
         { static_cast<int>(start[0]), static_cast<int>(start[0] + count[0]) + offSet,
           static_cast<int>(start[1]), static_cast<int>(start[1] + count[1]) + offSet, 0, 1 });
