@@ -60,10 +60,6 @@
 //------------------------------------------------------------------------------
 
 VTK_ABI_NAMESPACE_BEGIN
-bool StringEndsWith(const std::string& a, const std::string& b)
-{
-  return a.size() >= b.size() && a.compare(a.size() - b.size(), b.size(), b) == 0;
-}
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkADIOS2CoreImageReader);
 VTK_ABI_NAMESPACE_END
@@ -182,7 +178,10 @@ int vtkADIOS2CoreImageReader::CanReadFile(const std::string& name)
   {
     return 0;
   }
-  if (StringEndsWith(name, ".bp") || StringEndsWith(name, "md.idx"))
+  if (vtksys::SystemTools::StringEndsWith(name, ".bp") ||
+    vtksys::SystemTools::StringEndsWith(name, ".bp4") ||
+    vtksys::SystemTools::StringEndsWith(name, ".bp5") ||
+    vtksys::SystemTools::StringEndsWith(name, "md.idx"))
   {
     return 1;
   }
@@ -373,12 +372,14 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
     auto mode = adios2::Mode::Read;
 #endif
     this->Impl->AdiosIO = this->Impl->Adios->DeclareIO("vtkADIOS2ImageRead");
-    if (StringEndsWith(this->FileName, ".bp"))
+    if (vtksys::SystemTools::StringEndsWith(this->FileName, ".bp") ||
+      vtksys::SystemTools::StringEndsWith(this->FileName, ".bp4") ||
+      vtksys::SystemTools::StringEndsWith(this->FileName, ".bp5"))
     {
       this->Impl->AdiosIO.SetEngine("BPFile");
       this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName, mode);
     }
-    else if (StringEndsWith(this->FileName, "md.idx"))
+    else if (vtksys::SystemTools::StringEndsWith(this->FileName, "md.idx"))
     {
       this->Impl->AdiosIO.SetEngine("BP4");
       this->Impl->BpReader =
