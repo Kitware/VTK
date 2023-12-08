@@ -51,10 +51,29 @@ vtkSMPToolsAPI::vtkSMPToolsAPI()
 }
 
 //------------------------------------------------------------------------------
+// Must NOT be initialized. Default initialization to zero is necessary.
+vtkSMPToolsAPI* vtkSMPToolsAPI::InstanceAsPointer;
+
+//------------------------------------------------------------------------------
 vtkSMPToolsAPI& vtkSMPToolsAPI::GetInstance()
 {
-  static vtkSMPToolsAPI instance;
-  return instance;
+  return *vtkSMPToolsAPI::InstanceAsPointer;
+}
+
+//------------------------------------------------------------------------------
+void vtkSMPToolsAPI::ClassInitialize()
+{
+  if (!vtkSMPToolsAPI::InstanceAsPointer)
+  {
+    vtkSMPToolsAPI::InstanceAsPointer = new vtkSMPToolsAPI;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkSMPToolsAPI::ClassFinalize()
+{
+  delete vtkSMPToolsAPI::InstanceAsPointer;
+  vtkSMPToolsAPI::InstanceAsPointer = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -232,6 +251,28 @@ bool vtkSMPToolsAPI::GetSingleThread()
       return this->OpenMPBackend->GetSingleThread();
     default:
       return false;
+  }
+}
+
+//------------------------------------------------------------------------------
+// Must NOT be initialized. Default initialization to zero is necessary.
+unsigned int vtkSMPToolsAPIInitialize::Count;
+
+//------------------------------------------------------------------------------
+vtkSMPToolsAPIInitialize::vtkSMPToolsAPIInitialize()
+{
+  if (++vtkSMPToolsAPIInitialize::Count == 1)
+  {
+    vtkSMPToolsAPI::ClassInitialize();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkSMPToolsAPIInitialize::~vtkSMPToolsAPIInitialize()
+{
+  if (--vtkSMPToolsAPIInitialize::Count == 0)
+  {
+    vtkSMPToolsAPI::ClassFinalize();
   }
 }
 
