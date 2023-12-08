@@ -547,14 +547,18 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     std::vector<double> values(this->NumberOfSteps, 0.0);
     {
       vtkSmartPointer<vtkDataArray> stepValues = vtk::TakeSmartPointer(this->Impl->GetStepValues());
-      auto container = vtk::DataArrayValueRange<1>(stepValues);
-      std::copy(container.begin(), container.end(), values.begin());
+      if (stepValues)
+      {
+        auto container = vtk::DataArrayValueRange<1>(stepValues);
+        std::copy(container.begin(), container.end(), values.begin());
+
+        this->TimeRange[0] = *std::min_element(values.begin(), values.end());
+        this->TimeRange[1] = *std::max_element(values.begin(), values.end());
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), values.data(),
+          static_cast<int>(values.size()));
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), this->TimeRange.data(), 2);
+      }
     }
-    this->TimeRange[0] = *std::min_element(values.begin(), values.end());
-    this->TimeRange[1] = *std::max_element(values.begin(), values.end());
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), values.data(),
-      static_cast<int>(values.size()));
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), this->TimeRange.data(), 2);
   }
   else
   {
