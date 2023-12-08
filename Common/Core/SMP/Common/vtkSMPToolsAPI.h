@@ -224,7 +224,6 @@ protected:
   //--------------------------------------------------------------------------------
   // Address the static initialization order 'fiasco' by implementing
   // the schwarz counter idiom.
-  static vtkSMPToolsAPI* InstanceAsPointer;
   static void ClassInitialize();
   static void ClassFinalize();
   friend class vtkSMPToolsAPIInitialize;
@@ -301,9 +300,6 @@ class VTKCOMMONCORE_EXPORT vtkSMPToolsAPIInitialize
 public:
   vtkSMPToolsAPIInitialize();
   ~vtkSMPToolsAPIInitialize();
-
-private:
-  static unsigned int Count;
 };
 
 //--------------------------------------------------------------------------------

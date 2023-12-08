@@ -52,28 +52,28 @@ vtkSMPToolsAPI::vtkSMPToolsAPI()
 
 //------------------------------------------------------------------------------
 // Must NOT be initialized. Default initialization to zero is necessary.
-vtkSMPToolsAPI* vtkSMPToolsAPI::InstanceAsPointer;
+vtkSMPToolsAPI* vtkSMPToolsAPIInstanceAsPointer;
 
 //------------------------------------------------------------------------------
 vtkSMPToolsAPI& vtkSMPToolsAPI::GetInstance()
 {
-  return *vtkSMPToolsAPI::InstanceAsPointer;
+  return *vtkSMPToolsAPIInstanceAsPointer;
 }
 
 //------------------------------------------------------------------------------
 void vtkSMPToolsAPI::ClassInitialize()
 {
-  if (!vtkSMPToolsAPI::InstanceAsPointer)
+  if (!vtkSMPToolsAPIInstanceAsPointer)
   {
-    vtkSMPToolsAPI::InstanceAsPointer = new vtkSMPToolsAPI;
+    vtkSMPToolsAPIInstanceAsPointer = new vtkSMPToolsAPI;
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkSMPToolsAPI::ClassFinalize()
 {
-  delete vtkSMPToolsAPI::InstanceAsPointer;
-  vtkSMPToolsAPI::InstanceAsPointer = 0;
+  delete vtkSMPToolsAPIInstanceAsPointer;
+  vtkSMPToolsAPIInstanceAsPointer = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -256,12 +256,12 @@ bool vtkSMPToolsAPI::GetSingleThread()
 
 //------------------------------------------------------------------------------
 // Must NOT be initialized. Default initialization to zero is necessary.
-unsigned int vtkSMPToolsAPIInitialize::Count;
+unsigned int vtkSMPToolsAPIInitializeCount;
 
 //------------------------------------------------------------------------------
 vtkSMPToolsAPIInitialize::vtkSMPToolsAPIInitialize()
 {
-  if (++vtkSMPToolsAPIInitialize::Count == 1)
+  if (++vtkSMPToolsAPIInitializeCount == 1)
   {
     vtkSMPToolsAPI::ClassInitialize();
   }
@@ -270,7 +270,7 @@ vtkSMPToolsAPIInitialize::vtkSMPToolsAPIInitialize()
 //------------------------------------------------------------------------------
 vtkSMPToolsAPIInitialize::~vtkSMPToolsAPIInitialize()
 {
-  if (--vtkSMPToolsAPIInitialize::Count == 0)
+  if (--vtkSMPToolsAPIInitializeCount == 0)
   {
     vtkSMPToolsAPI::ClassFinalize();
   }
