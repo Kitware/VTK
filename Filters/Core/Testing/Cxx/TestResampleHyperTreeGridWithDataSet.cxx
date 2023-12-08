@@ -41,6 +41,7 @@ int TestResampleHyperTreeGridWithDataSet(int argc, char* argv[])
   prober->SetInputConnection(wavelet->GetOutputPort());
   prober->SetSourceConnection(htgSource->GetOutputPort());
   prober->SetPassPointArrays(true);
+  prober->SetUseImplicitArrays(false);
 
   prober->Update();
   vtkDataSet* outDS = vtkDataSet::SafeDownCast(prober->GetOutput());
@@ -76,5 +77,21 @@ int TestResampleHyperTreeGridWithDataSet(int argc, char* argv[])
   renderer->ResetCamera();
 
   renWin->Render();
-  return !vtkRegressionTester::Test(argc, argv, renWin, 10);
+  if (!vtkRegressionTester::Test(argc, argv, renWin, 10))
+  {
+    return EXIT_FAILURE;
+  }
+
+  // Now test with indexed arrays; we should have the same result
+  prober->SetUseImplicitArrays(true);
+  prober->Update();
+  outDS->GetPointData()->SetActiveScalars("Depth");
+
+  renWin->Render();
+  if (!vtkRegressionTester::Test(argc, argv, renWin, 10))
+  {
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }

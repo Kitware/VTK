@@ -146,6 +146,16 @@ bool vtkResampleWithDataSet::GetSnapToCellWithClosestPoint()
   return this->Prober->GetSnapToCellWithClosestPoint();
 }
 
+void vtkResampleWithDataSet::SetUseImplicitArrays(bool arg)
+{
+  this->Prober->SetUseImplicitArrays(arg);
+}
+
+bool vtkResampleWithDataSet::GetUseImplicitArrays()
+{
+  return this->Prober->GetUseImplicitArrays();
+}
+
 //------------------------------------------------------------------------------
 vtkMTimeType vtkResampleWithDataSet::GetMTime()
 {
