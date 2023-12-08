@@ -53,7 +53,7 @@ public:
   };
   using Params = std::map<std::string, std::string>;
   using StringToParams = std::map<std::string, Params>;
-  using InquireVariablesType = std::vector<std::pair<std::string, VarType>>;
+  using InquireVariablesType = std::map<std::string, VarType>;
   static vtkADIOS2CoreImageReader* New();
   vtkTypeMacro(vtkADIOS2CoreImageReader, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -146,6 +146,11 @@ public:
   void SetArrayStatus(const char* name, int status);
   int GetArrayStatus(const char* name);
   ///@}
+
+  /**
+   * Overridden to take into account mtimes for vtkDataArraySelection instances.
+   */
+  vtkMTimeType GetMTime() override;
 
   ///@{
   /**

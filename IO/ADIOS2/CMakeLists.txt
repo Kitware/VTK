@@ -9,18 +9,15 @@ endif ()
 
 # Initial empty set of files
 set(classes_core)
-set(private_classes_core)
 set(private_headers_core)
 set(private_templates_core)
 
 # ADIOS2 Core Image Reader
 set(classes_core vtkADIOS2CoreImageReader)
-set(private_classes_core Core/vtkADIOS2CoreArraySelection)
 set(private_headers_core Core/vtkADIOS2CoreTypeTraits.h)
 set(private_templates_core)
 
 list(APPEND classes   ${classes_core})
-list(APPEND private_classes   ${private_classes_core})
 list(APPEND private_headers   ${private_headers_core})
 list(APPEND private_templates ${private_templates_core})
 

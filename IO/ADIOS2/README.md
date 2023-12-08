@@ -22,7 +22,6 @@ Extensions:
 ## **Core: VTK ADIOS2 CORE READERS**
 
 Developed at Kitware Inc
-- **vtkADIOS2CoreArraySelection.h/.cxx**: Array selection for client and server communication
 - **vtkADIOS2CoreTypeTraits.h** TypeTraits from adios2 type to vtk type
 
 ## **VTX: VTK ADIOS2 READERS**
