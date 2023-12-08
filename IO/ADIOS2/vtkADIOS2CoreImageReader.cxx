@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <unordered_map>
 
-#include "Core/vtkADIOS2CoreArraySelection.h"
 #include "Core/vtkADIOS2CoreTypeTraits.h"
 #include "vtkADIOS2CoreImageReader.h"
 
@@ -15,6 +14,7 @@
 #include "vtkCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDemandDrivenPipeline.h"
@@ -60,10 +60,6 @@
 //------------------------------------------------------------------------------
 
 VTK_ABI_NAMESPACE_BEGIN
-bool StringEndsWith(const std::string& a, const std::string& b)
-{
-  return a.size() >= b.size() && a.compare(a.size() - b.size(), b.size(), b) == 0;
-}
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkADIOS2CoreImageReader);
 VTK_ABI_NAMESPACE_END
@@ -111,7 +107,7 @@ struct vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderImpl
   size_t RequestStep{ 0 };
 
   // Select the arrays that should be read in.
-  vtkADIOS2ArraySelection ArraySelection;
+  vtkNew<vtkDataArraySelection> ArraySelection;
   // For ParaView GUI display usage.
   vtkNew<vtkStringArray> AvailableArray;
 };
@@ -182,7 +178,10 @@ int vtkADIOS2CoreImageReader::CanReadFile(const std::string& name)
   {
     return 0;
   }
-  if (StringEndsWith(name, ".bp") || StringEndsWith(name, "md.idx"))
+  if (vtksys::SystemTools::StringEndsWith(name, ".bp") ||
+    vtksys::SystemTools::StringEndsWith(name, ".bp4") ||
+    vtksys::SystemTools::StringEndsWith(name, ".bp5") ||
+    vtksys::SystemTools::StringEndsWith(name, "md.idx"))
   {
     return 1;
   }
@@ -204,25 +203,31 @@ void vtkADIOS2CoreImageReader::SetFileName(const char* fileName)
 //------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::GetNumberOfArrays()
 {
-  return this->Impl->ArraySelection.GetNumberOfArrays();
+  return this->Impl->ArraySelection->GetNumberOfArrays();
 }
 
 //------------------------------------------------------------------------------
 const char* vtkADIOS2CoreImageReader::GetArrayName(int index)
 {
-  return this->Impl->ArraySelection.GetArrayName(index);
+  return this->Impl->ArraySelection->GetArrayName(index);
 }
 
 //------------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::SetArrayStatus(const char* name, int status)
 {
-  this->Impl->ArraySelection.SetArrayStatus(name, status);
+  this->Impl->ArraySelection->SetArraySetting(name, status);
 }
 
 //------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::GetArrayStatus(const char* name)
 {
-  return this->Impl->ArraySelection.GetArrayStatus(name);
+  return this->Impl->ArraySelection->ArrayIsEnabled(name);
+}
+
+//------------------------------------------------------------------------------
+vtkMTimeType vtkADIOS2CoreImageReader::GetMTime()
+{
+  return std::max(this->Superclass::GetMTime(), this->Impl->ArraySelection->GetMTime());
 }
 
 //------------------------------------------------------------------------------
@@ -367,12 +372,14 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
     auto mode = adios2::Mode::Read;
 #endif
     this->Impl->AdiosIO = this->Impl->Adios->DeclareIO("vtkADIOS2ImageRead");
-    if (StringEndsWith(this->FileName, ".bp"))
+    if (vtksys::SystemTools::StringEndsWith(this->FileName, ".bp") ||
+      vtksys::SystemTools::StringEndsWith(this->FileName, ".bp4") ||
+      vtksys::SystemTools::StringEndsWith(this->FileName, ".bp5"))
     {
       this->Impl->AdiosIO.SetEngine("BPFile");
       this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName, mode);
     }
-    else if (StringEndsWith(this->FileName, "md.idx"))
+    else if (vtksys::SystemTools::StringEndsWith(this->FileName, "md.idx"))
     {
       this->Impl->AdiosIO.SetEngine("BP4");
       this->Impl->BpReader =
@@ -388,7 +395,7 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
     this->Impl->AvailableArray->Allocate(static_cast<vtkIdType>(this->Impl->AvailVars.size()));
     for (auto& iter : this->Impl->AvailVars)
     {
-      this->Impl->ArraySelection[iter.first] = true;
+      this->Impl->ArraySelection->EnableArray(iter.first.c_str());
       this->Impl->AvailableArray->InsertNextValue(iter.first);
     }
   }
@@ -423,6 +430,7 @@ int vtkADIOS2CoreImageReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outputVector->GetInformationObject(0)->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   // Initialize adios2 variables and read meta data
   if (!this->Impl->HasReadMetaData && !this->OpenAndReadMetaData())
@@ -489,7 +497,7 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
   if (!this->TimeStepArray.empty() &&
-    this->Impl->ArraySelection.find(this->TimeStepArray) == this->Impl->ArraySelection.end())
+    !this->Impl->ArraySelection->ArrayExists(this->TimeStepArray.c_str()))
   {
     this->Impl->Adios.reset(nullptr);
     vtkErrorMacro("An invalid time step array name is specified. Abort reading now");
@@ -511,8 +519,15 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Initialize work distribution for each rank
   if (!this->InitWorkDistribution())
   {
-    this->Impl->Adios.reset(nullptr);
     vtkErrorMacro("unable to initialize work distribution");
+    vtkNew<vtkMultiBlockDataSet> mbds;
+    mbds->SetNumberOfBlocks(0);
+    vtkSmartPointer<vtkMultiBlockDataSet> rootMB = vtkMultiBlockDataSet::GetData(outInfo);
+    rootMB->SetBlock(0, mbds);
+    if (!this->TimeStepArray.empty())
+    {
+      rootMB->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->RequestTimeStep);
+    }
     return 0;
   }
 
@@ -537,12 +552,19 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
   try
   {
     // Determine the blocks that need to be read for the current rank
-    std::string varName = this->Impl->InquiredVars.begin()->first;
+    auto iter = this->Impl->InquiredVars.find(this->DimensionArray);
+    if (iter == this->Impl->InquiredVars.end())
+    {
+      vtkErrorMacro(
+        "Dimension Array (" << this->DimensionArray << ") must be one of the loaded arrays.");
+      return false;
+    }
+    std::string varName = iter->first;
     std::string typeStr = this->FetchTypeStringFromVarName(varName);
     if (typeStr.empty())
     {
       vtkErrorMacro("Cannot find a type for " << varName << " invalid name is provided");
-      return true;
+      return false;
     }
     // FIXME: adios2 IO object returns an template dependent class instance instead of
     // a pointer or template independent object. Without using std::variant,
@@ -649,21 +671,21 @@ void vtkADIOS2CoreImageReader::UpdateDimensionFromDimensionArray()
 void vtkADIOS2CoreImageReader::ConvertArraySelectionToInqVar()
 {
   InquireVariablesType inqVars;
-  for (auto& iter : this->Impl->ArraySelection)
+  for (int ii = 0; ii < this->Impl->ArraySelection->GetNumberOfArrays(); ++ii)
   {
-    if (iter.second) // Enabled by the user
+    std::string arrayName = this->Impl->ArraySelection->GetArrayName(ii);
+    if (this->Impl->ArraySelection->ArrayIsEnabled(arrayName.c_str())) // Enabled by the user
     {
-      std::vector<int> dims = parseDimensions(this->Impl->AvailVars[iter.first]["Shape"]);
-      std::string arrayName = iter.first;
+      std::vector<int> dims = parseDimensions(this->Impl->AvailVars[arrayName]["Shape"]);
       if (dims.size() == 2)
       {
         if (dims[0] == this->Dimension[0] && dims[1] == this->Dimension[1])
         {
-          inqVars.emplace_back(arrayName, VarType::PointData);
+          inqVars.insert(std::pair<std::string, VarType>(arrayName, VarType::PointData));
         }
         else if (dims[0] == this->Dimension[0] - 1 && dims[1] == this->Dimension[1] - 1)
         {
-          inqVars.emplace_back(arrayName, VarType::CellData);
+          inqVars.insert(std::pair<std::string, VarType>(arrayName, VarType::CellData));
         }
       }
       else if (dims.size() == 3)
@@ -671,12 +693,12 @@ void vtkADIOS2CoreImageReader::ConvertArraySelectionToInqVar()
         if (dims[0] == this->Dimension[0] && dims[1] == this->Dimension[1] &&
           dims[2] == this->Dimension[2])
         {
-          inqVars.emplace_back(arrayName, VarType::PointData);
+          inqVars.insert(std::pair<std::string, VarType>(arrayName, VarType::PointData));
         }
         else if (dims[0] == this->Dimension[0] - 1 && dims[1] == this->Dimension[1] - 1 &&
           dims[2] == this->Dimension[2] - 1)
         {
-          inqVars.emplace_back(arrayName, VarType::CellData);
+          inqVars.insert(std::pair<std::string, VarType>(arrayName, VarType::CellData));
         }
       }
       else
@@ -937,8 +959,17 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
     auto count = this->Impl->BpReader.BlocksInfo(var, this->Impl->RequestStep)[i].Count;
     if (start.size() == 3 && count.size() == 3)
     {
-      // We use the first available var in inquiredVars to init workdistribution
-      int offSet = this->Impl->InquiredVars.begin()->second == VarType::PointData ? -1 : 0;
+      // Use the DimensionArray var to init workdistribution
+      // in most cases it's probably not necessary, but it's possible that arrays can have
+      // different block dimensions, in which case we don't want to just blindly grab the first
+      // array that's in the ArraySelection
+      auto iter = this->Impl->InquiredVars.find(this->DimensionArray);
+      if (iter == this->Impl->InquiredVars.end())
+      {
+        vtkErrorMacro("Cannot find DimensionArray " << this->DimensionArray << " in InquiredVars");
+        return;
+      }
+      int offSet = iter->second == VarType::PointData ? -1 : 0;
       this->Impl->BlockExtents.push_back(
         { static_cast<int>(start[0]), static_cast<int>(start[0] + count[0]) + offSet,
           static_cast<int>(start[1]), static_cast<int>(start[1] + count[1]) + offSet,
@@ -946,8 +977,13 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
     }
     else if (start.size() == 2 && count.size() == 2)
     {
-      // We use the first available var in inquiredVars to init workdistribution
-      int offSet = this->Impl->InquiredVars.begin()->second == VarType::PointData ? -1 : 0;
+      auto iter = this->Impl->InquiredVars.find(this->DimensionArray);
+      if (iter == this->Impl->InquiredVars.end())
+      {
+        vtkErrorMacro("Cannot find DimensionArray " << this->DimensionArray << " in InquiredVars");
+        return;
+      }
+      int offSet = iter->second == VarType::PointData ? -1 : 0;
       this->Impl->BlockExtents.push_back(
         { static_cast<int>(start[0]), static_cast<int>(start[0] + count[0]) + offSet,
           static_cast<int>(start[1]), static_cast<int>(start[1] + count[1]) + offSet, 0, 1 });
