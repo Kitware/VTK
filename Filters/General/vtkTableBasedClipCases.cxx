@@ -12,7 +12,7 @@ template <bool TInsideOut>
 constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellMaxCase[9];
 
 template <bool TInsideOut>
-constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellEdges[17][12][2];
+constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellEdges[NUM_CELL_TYPES][MAX_NUM_EDGES][2];
 
 template <bool TInsideOut>
 constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellCases[];
@@ -27,7 +27,7 @@ template <bool TInsideOut>
 constexpr uint16_t vtkTableBasedClipCases<TInsideOut>::StartCellCasesInsideOut[];
 
 template <bool TInsideOut>
-constexpr int16_t vtkTableBasedClipCases<TInsideOut>::CellCasesStartIndexLookUp[17];
+constexpr int16_t vtkTableBasedClipCases<TInsideOut>::CellCasesStartIndexLookUp[NUM_CELL_TYPES];
 
 // Explicit instantiation
 template class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipCases<false>;
