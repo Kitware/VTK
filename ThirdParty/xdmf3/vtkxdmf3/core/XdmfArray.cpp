@@ -180,6 +180,14 @@ public:
     return XdmfArrayType::UInt32();
   }
 
+#if defined(_WIN32) || defined(__APPLE__)
+  shared_ptr<const XdmfArrayType>
+  getArrayType(const unsigned long * const) const
+  {
+    return XdmfArrayType::UInt64();
+  }
+#endif
+
   shared_ptr<const XdmfArrayType>
   getArrayType(const uint64_t * const) const
   {
