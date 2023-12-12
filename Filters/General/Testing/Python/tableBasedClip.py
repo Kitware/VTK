@@ -9,6 +9,7 @@ from vtkmodules.vtkCommonDataModel import (
     vtkRectilinearGrid,
     vtkSphere,
     vtkStructuredGrid,
+    vtkUnstructuredGrid,
 )
 from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkThreshold
@@ -32,6 +33,16 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 import sys
 
 class TestClip(Testing.vtkTest):
+    def testEmpty(self):
+        ug = vtkUnstructuredGrid()
+        plane = vtkPlane()
+        c = vtkTableBasedClipDataSet()
+        c.SetInputData(ug)
+        c.SetClipFunction(plane)
+        c.Update()
+
+        self.assertEqual(c.GetOutput().GetNumberOfCells(), 0)
+
     def testImage2DScalar(self):
         planes = ['XY', 'XZ', 'YZ']
         expectedNCells = [38, 46, 42]
