@@ -47,6 +47,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestResampleHyperTreeGridWithDataSet.cxx
   TestImageDataToExplicitStructuredGrid.cxx
   TestImplicitPolyDataDistance.cxx
+  TestImplicitPolyDataDistanceCube.cxx,NO_VALID
   TestImplicitProjectOnPlaneDistance.cxx
   TestMaskPoints.cxx,NO_VALID
   TestMaskPointsModes.cxx
