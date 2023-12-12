@@ -1527,6 +1527,7 @@ private:
     shared_ptr<std::vector<unsigned char> >,
     shared_ptr<std::vector<unsigned short> >,
     shared_ptr<std::vector<unsigned int> >,
+    shared_ptr<std::vector<unsigned long> >,
     shared_ptr<std::vector<uint64_t> >,
     shared_ptr<std::vector<std::string> >,
     boost::shared_array<const char>,
@@ -1538,6 +1539,7 @@ private:
     boost::shared_array<const unsigned char>,
     boost::shared_array<const unsigned short>,
     boost::shared_array<const unsigned int>,
+    boost::shared_array<const unsigned long>,
     boost::shared_array<const uint64_t>  > ArrayVariant;
 
   unsigned int mArrayPointerNumValues;
