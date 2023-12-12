@@ -161,9 +161,10 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Clipping dataset" << endl);
 
   const vtkIdType numPoints = inputCopy->GetNumberOfPoints();
+  const vtkIdType numCells = inputCopy->GetNumberOfCells();
 
   // handling exceptions
-  if (numPoints < 1)
+  if (numPoints < 1 || numCells < 1)
   {
     vtkDebugMacro(<< "No data to clip" << endl);
     outputUG = nullptr;
@@ -579,8 +580,13 @@ struct EvaluateCells
     this->CellsCase = vtkSmartPointer<vtkUnsignedCharArray>::New();
     this->CellsCase->SetNumberOfValues(this->NumberOfInputCells);
     // build cells for polydata so that you can use GetCellPoints()
-    vtkNew<vtkGenericCell> cell;
-    this->Input->GetCell(0, cell);
+    if (auto inputPolyData = vtkPolyData::SafeDownCast(input))
+    {
+      if (inputPolyData->NeedToBuildCells())
+      {
+        inputPolyData->BuildCells();
+      }
+    }
   }
 
   void Initialize()
