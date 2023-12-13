@@ -24,4 +24,5 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::RenderingCore
   VTK::RenderingOpenGL2
+  VTK::TestingCore
   VTK::TestingRendering
