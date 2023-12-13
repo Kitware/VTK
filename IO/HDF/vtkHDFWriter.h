@@ -58,23 +58,56 @@ public:
    */
   vtkSetMacro(Overwrite, bool);
   vtkGetMacro(Overwrite, bool);
+  ///@}
 
-  /*
+  ///@{
+  /**
+   * Get/set the flag to write all timesteps from the input dataset.
+   * When turned OFF, only write the first timestep.
+   */
+  vtkSetMacro(WriteAllTimeSteps, bool);
+  vtkGetMacro(WriteAllTimeSteps, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Configurable chunk size for transient (time-dependent) data, where arrays resized every
+   * timestep, hence requiring chunking. Read more about chunks and chunk size here :
+   * https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/
+   * Defaults to 100.
+   */
+  vtkSetMacro(ChunkSize, int);
+  vtkGetMacro(ChunkSize, int);
+  ///@}
+
+  /**
    * Write the dataset from the input in the file specified by the filename to the vtkHDF format.
    */
   void WriteData() override;
 
 protected:
+  /**
+   * Override vtkWriter's ProcessRequest method, in order to dispatch the request
+   * not only to RequestData as vtkWriter does, but to RequestInformation and RequestUpdateExtent as
+   * well to handle timesteps properly.
+   */
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+
   int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+
+  virtual int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+
   vtkHDFWriter();
   ~vtkHDFWriter() override;
 
 private:
-  class Implementation;
-  std::unique_ptr<Implementation> Impl;
-  char* FileName = nullptr;
-  bool Overwrite = true;
-
   ///@{
   /**
    * Write the data to the current FileName in vtkHDF format.
@@ -82,6 +115,23 @@ private:
    */
   bool WriteDatasetToFile(vtkPolyData* input);
   bool WriteDatasetToFile(vtkUnstructuredGrid* input);
+  ///@}
+
+  ///@{
+  /**
+   * For transient data, update the steps group with information relevant to the current timestep.
+   */
+  bool UpdateStepsGroup(vtkUnstructuredGrid* input);
+  bool UpdateStepsGroup(vtkPolyData* input);
+  ///@}
+
+  ///@{
+  /**
+   * Initialize the `Steps` group for transient data, and extendable datasets where needed.
+   * This way, the other functions will append to existing datasets every step.
+   */
+  bool InitializeTransientData(vtkUnstructuredGrid* input);
+  bool InitializeTransientData(vtkPolyData* input);
   ///@}
 
   /**
@@ -137,6 +187,30 @@ private:
    * OpenRoot should succeed on this->Impl before calling this function
    */
   bool AppendDataArrays(hid_t group, vtkDataObject* input);
+
+  /**
+   * Append the offset data in the steps group for the current array for transient data
+   */
+  bool AppendTransientDataArray(hid_t arrayGroup, vtkAbstractArray* array, const char* arrayName,
+    const char* offsetsGroupName, hid_t dataType);
+
+  /**
+   * Write the NSteps attribute and the Value dataset to group for transient writing.
+   */
+  bool AppendTimeValues(hid_t group);
+
+  class Implementation;
+  std::unique_ptr<Implementation> Impl;
+  char* FileName = nullptr;
+  bool Overwrite = true;
+
+  // Transient-related configuration and variables
+  double* timeSteps = nullptr;
+  bool WriteAllTimeSteps = true;
+  bool IsTransient = false;
+  int CurrentTimeIndex = 0;
+  int NumberOfTimeSteps = 0;
+  int ChunkSize = 100;
 };
 VTK_ABI_NAMESPACE_END
 #endif
