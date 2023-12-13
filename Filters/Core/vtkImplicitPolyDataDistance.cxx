@@ -44,6 +44,7 @@ void vtkImplicitPolyDataDistance::SetInput(vtkPolyData* input)
     vtkSmartPointer<vtkCleanPolyData> cleanPolyData = vtkSmartPointer<vtkCleanPolyData>::New();
     cleanPolyData->SetInputData(input);
     cleanPolyData->Update();
+
     // Use a vtkTriangleFilter on the polydata input.
     // This is done to filter out lines and vertices to leave only
     // polygons which are required by this algorithm for cell normals.
