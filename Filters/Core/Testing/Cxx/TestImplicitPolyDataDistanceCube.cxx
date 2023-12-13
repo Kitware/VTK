@@ -10,7 +10,11 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
-bool isPointInsideCube(double x, double y, double z);
+bool isPointInsideCube(double x, double y, double z)
+{
+  // Check if point (x, y, z) lies within a cube centered at (0,0,0) with side length 1
+  return (x >= -0.5 && x <= 0.5) && (y >= -0.5 && y <= 0.5) && (z >= -0.5 && z <= 0.5);
+}
 
 int TestImplicitPolyDataDistanceCube(int argc, char* argv[])
 {
@@ -56,10 +60,4 @@ int TestImplicitPolyDataDistanceCube(int argc, char* argv[])
   }
 
   return EXIT_SUCCESS;
-}
-
-bool isPointInsideCube(double x, double y, double z)
-{
-  // Check if point (x, y, z) lies within a cube centered at (0,0,0) with side length 1
-  return (x >= -0.5 && x <= 0.5) && (y >= -0.5 && y <= 0.5) && (z >= -0.5 && z <= 0.5);
 }
