@@ -16,9 +16,8 @@ bool isPointInsideCube(double x, double y, double z)
   return (x >= -0.5 && x <= 0.5) && (y >= -0.5 && y <= 0.5) && (z >= -0.5 && z <= 0.5);
 }
 
-int TestImplicitPolyDataDistanceCube(int argc, char* argv[])
+int TestImplicitPolyDataDistanceCube(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-
   // Create a cube with side length 1.0
   const double length = 1.0;
   vtkNew<vtkCubeSource> cube;
