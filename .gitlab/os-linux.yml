@@ -14,6 +14,10 @@
         GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
         VTK_INSTALL: 1
 
+.manylinux_2_28_x86_64:
+    extends: .manylinux2014_x86_64
+    image: "quay.io/pypa/manylinux_2_28_x86_64"
+
 .wheel_linux36_x86_64:
     extends: .manylinux2014_x86_64
 
@@ -26,6 +30,21 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux36_x86_64_osmesa
+
+.wheel_linux_egl_addon:
+    variables:
+        # Exclude the built development EGL libraries from the wheel; the user
+        # must provide them.
+        WHEEL_EXCLUSIONS: "--exclude libEGL.so.1 --exclude libglapi.so.0 --exclude libgbm.so.1"
+
+.wheel_linux36_x86_64_egl:
+    extends:
+        - .wheel_linux36_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux36_x86_64_egl
 
 .wheel_linux37_x86_64:
     extends: .manylinux2014_x86_64
@@ -40,6 +59,15 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux37_x86_64_osmesa
 
+.wheel_linux37_x86_64_egl:
+    extends:
+        - .wheel_linux37_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux37_x86_64_egl
+
 .wheel_linux38_x86_64:
     extends: .manylinux2014_x86_64
 
@@ -52,6 +80,15 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux38_x86_64_osmesa
+
+.wheel_linux38_x86_64_egl:
+    extends:
+        - .wheel_linux38_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux38_x86_64_egl
 
 .wheel_linux39_x86_64:
     extends: .manylinux2014_x86_64
@@ -66,6 +103,15 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux39_x86_64_osmesa
 
+.wheel_linux39_x86_64_egl:
+    extends:
+        - .wheel_linux39_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux39_x86_64_egl
+
 .wheel_linux310_x86_64:
     extends: .manylinux2014_x86_64
 
@@ -78,6 +124,15 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux310_x86_64_osmesa
+
+.wheel_linux310_x86_64_egl:
+    extends:
+        - .wheel_linux310_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux310_x86_64_egl
 
 .wheel_linux311_x86_64:
     extends: .manylinux2014_x86_64
@@ -92,6 +147,15 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux311_x86_64_osmesa
 
+.wheel_linux311_x86_64_egl:
+    extends:
+        - .wheel_linux311_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux311_x86_64_egl
+
 .wheel_linux312_x86_64:
     extends: .manylinux2014_x86_64
 
@@ -104,6 +168,15 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux312_x86_64_osmesa
+
+.wheel_linux312_x86_64_egl:
+    extends:
+        - .wheel_linux312_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux312_x86_64_egl
 
 .fedora34:
     extends: .linux
@@ -461,6 +534,7 @@
         - *before_script_linux
         - .gitlab/ci/sccache.sh
         - cmake -P .gitlab/ci/download_osmesa.cmake
+        - cmake -P .gitlab/ci/download_mesa_egl.cmake
         - sccache --start-server
         - sccache --show-stats
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
@@ -468,12 +542,16 @@
         # to use rpaths here because we do not want the rpaths to end up in the
         # wheel binaries and they should instead be bundled.
         - '[[ "$CMAKE_CONFIGURATION" =~ "osmesa" ]] && export LD_LIBRARY_PATH=/opt/osmesa/lib'
+        # Set `LD_LIBRARY_PATH` for egl wheels. Note that we do *not* want
+        # to use rpaths here because we do not want the rpaths to end up in the
+        # wheel binaries and they should instead be bundled.
+        - '[[ "$CMAKE_CONFIGURATION" =~ "egl" ]] && export LD_LIBRARY_PATH=/opt/mesa/lib'
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
         - cd build
         - "$PYTHON_PREFIX/bin/python setup.py bdist_wheel"
         - auditwheel show dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
-        - auditwheel repair dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
+        - auditwheel repair $WHEEL_EXCLUSIONS dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
         - mv -v dist/ dist-orig/
         - mv -v wheelhouse/ dist/
         - "$PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py"
@@ -502,7 +580,10 @@
     image: "quay.io/pypa/manylinux_2_28_x86_64"
 
     script:
+        # Install `Xcursor` library.
         - yum install -y --setopt=install_weak_deps=False libXcursor
+        # Install EGL runtime.
+        - yum install -y --setopt=install_weak_deps=False mesa-dri-drivers libglvnd-egl
         - "$PYTHON_PREFIX/bin/python -m venv venv"
         - . venv/bin/activate
         - pip install twine
