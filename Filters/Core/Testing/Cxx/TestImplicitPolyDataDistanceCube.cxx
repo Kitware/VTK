@@ -4,11 +4,11 @@
 // This tests the fix to issue #18307 (incorrect sign when a point is located
 // directly above an edge of a cube)
 
+#include "vtkCubeSource.h"
 #include "vtkImplicitPolyDataDistance.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
-#include <vtkCubeSource.h>
 
 bool isPointInsideCube(double x, double y, double z);
 
@@ -27,8 +27,8 @@ int TestImplicitPolyDataDistanceCube(int argc, char* argv[])
   vtkSmartPointer<vtkPolyData> cubePolydata = cube->GetOutput();
 
   // Initialize distance function for the cube
-  vtkNew<vtkImplicitPolyDataDistance> signed_distance;
-  signed_distance->SetInput(cubePolydata);
+  vtkNew<vtkImplicitPolyDataDistance> signedDistance;
+  signedDistance->SetInput(cubePolydata);
 
   // Grid step size for sampling points
   const double step = 0.05;
@@ -46,7 +46,7 @@ int TestImplicitPolyDataDistanceCube(int argc, char* argv[])
       for (int k = 0; k < numSteps; ++k)
       {
         const double x = -length + k * step;
-        const double dist = signed_distance->EvaluateFunction(x, y, z);
+        const double dist = signedDistance->EvaluateFunction(x, y, z);
         if (isPointInsideCube(x, y, z) != (dist <= 0))
         {
           return EXIT_FAILURE;
