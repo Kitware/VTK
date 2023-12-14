@@ -107,6 +107,12 @@ public:
   vtkGetStringMacro(Encoding);
   ///@}
 
+  /**
+   * The Expat library can only handle binary files > 2Gb if either
+   * size_of(long) == 8 or the "large size" feature is present
+   */
+  static bool hasLargeOffsets();
+
 protected:
   vtkXMLParser();
   ~vtkXMLParser() override;
