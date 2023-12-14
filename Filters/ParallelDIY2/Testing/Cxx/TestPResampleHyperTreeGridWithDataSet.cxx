@@ -79,6 +79,7 @@ void MyProcess::Execute()
   prober->SetInputConnection(wavelet->GetOutputPort());
   prober->SetSourceConnection(htgSource->GetOutputPort());
   prober->SetPassPointArrays(true);
+  prober->SetUseImplicitArrays(false);
 
   prober->Update();
   vtkDataSet* outDS = vtkDataSet::SafeDownCast(prober->GetOutput());
@@ -117,6 +118,26 @@ void MyProcess::Execute()
     camera->SetPosition(-15, -15, -15);
     renderer->ResetCamera();
 
+    renWin->Render();
+    this->ReturnValue = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
+
+    for (int i = 1; i < numProcs; i++)
+    {
+      this->Controller->Send(&this->ReturnValue, 1, i, MY_RETURN_VALUE_MESSAGE);
+    }
+  }
+  else
+  {
+    this->Controller->Receive(&this->ReturnValue, 1, 0, MY_RETURN_VALUE_MESSAGE);
+  }
+
+  //  Now test with indexed arrays; we should have the same result
+  prober->SetUseImplicitArrays(true);
+  prober->Update();
+  outDS->GetPointData()->SetActiveScalars("Depth");
+
+  if (thisProc == 0)
+  {
     renWin->Render();
     this->ReturnValue = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
 

@@ -73,6 +73,25 @@ public:
   void SetFindCellStrategyMap(
     const std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>>& map);
 
+  ///@{
+  /**
+   * Get/Set wether or not the filter should use implicit arrays.
+   * If set to true, probed values will not be copied to the output
+   * but retrieved from the source through indexation (thanks to indexed arrays).
+   * This can lower the memory consumption, especially if the probed source contains
+   * a lot of data arrays. Note that it will also increase the computation time.
+   * Default is false.
+   *
+   * @attention
+   * This option only concern Hyper Tree Grids for now.
+   * This option has no effect for source or blocks (in the case of a composite input)
+   * that are not vtkHyperTreeGrid instances.
+   */
+  vtkSetMacro(UseImplicitArrays, bool);
+  vtkGetMacro(UseImplicitArrays, bool);
+  vtkBooleanMacro(UseImplicitArrays, bool);
+  ///@}
+
 protected:
   vtkCompositeDataProbeFilter();
   ~vtkCompositeDataProbeFilter() override;
@@ -110,6 +129,8 @@ private:
   void operator=(const vtkCompositeDataProbeFilter&) = delete;
 
   std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>> StrategyMap;
+
+  bool UseImplicitArrays = false;
 };
 
 VTK_ABI_NAMESPACE_END

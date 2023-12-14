@@ -3,8 +3,10 @@
 #include "vtkHyperTreeGridProbeFilter.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
+#include "vtkCompositeArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
@@ -15,8 +17,10 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkHyperTreeGridLocator.h"
+#include "vtkHyperTreeGridProbeFilterUtilities.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkIndexedArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -25,11 +29,45 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTypeList.h"
 
 #include <cmath>
 #include <numeric>
 #include <vector>
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+struct AddIndexedArrayWorker
+{
+  template <typename ArrayType>
+  void operator()(ArrayType* array, vtkIdList* handles, vtkDataSet* output) const
+  {
+    vtkNew<vtkDoubleArray> defaultValueArray;
+    defaultValueArray->SetNumberOfComponents(array->GetNumberOfComponents());
+    defaultValueArray->SetNumberOfTuples(1);
+    vtkHyperTreeGridProbeFilterUtilities::FillDefaultArray(defaultValueArray);
+
+    std::vector<vtkDataArray*> arrays({ array, defaultValueArray });
+
+    using ValueType = vtk::GetAPIType<ArrayType>;
+
+    vtkNew<vtkCompositeArray<ValueType>> compositeArr;
+    compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<ValueType>>(arrays));
+    compositeArr->SetNumberOfComponents(array->GetNumberOfComponents());
+    // Allocate one more tuple to store the NaN value
+    compositeArr->SetNumberOfTuples(array->GetNumberOfTuples() + 1);
+
+    vtkNew<vtkIndexedArray<ValueType>> indexedArray;
+    indexedArray->SetName(array->GetName());
+    indexedArray->SetBackend(
+      std::make_shared<vtkIndexedImplicitBackend<ValueType>>(handles, compositeArr));
+    indexedArray->SetNumberOfComponents(array->GetNumberOfComponents());
+    indexedArray->SetNumberOfTuples(output->GetNumberOfPoints());
+    output->GetPointData()->AddArray(indexedArray);
+  }
+};
+}
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkHyperTreeGridProbeFilter);
@@ -162,6 +200,16 @@ int vtkHyperTreeGridProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(
 int vtkHyperTreeGridProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  /**
+   * Possible improvement : use external classes ("strategies") to
+   * handle the use or not of implicit arrays.
+   * These classes will contain their own implementation of Initialize, DoProbing
+   * and Reduce methods that will be called by their counterparts present here.
+   * These classes should be accessible on vtkHyperTreeGridProbeFilter and
+   * vtkPHyperTreeGridProbeFilter can be instancianciated with a dedicated protected
+   * member method depending on the value of the UseImplicitArrays option.
+   */
+
   this->UpdateProgress(0.0);
 
   // get the input and output
@@ -234,20 +282,29 @@ bool vtkHyperTreeGridProbeFilter::Initialize(
     return false;
   }
 
-  unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
-  for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
+  if (this->UseImplicitArrays)
   {
-    vtkAbstractArray* da = source->GetCellData()->GetAbstractArray(iA);
-    if (!da)
+    // Instanciate handles array, that will contain the ids of probed cells
+    this->Handles = vtkSmartPointer<vtkIdList>::New();
+  }
+  else
+  {
+    // Add new instance of arrays from the source on the probing mesh
+    unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
+    for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
     {
-      continue;
-    }
-    if (!(output->GetPointData()->HasArray(da->GetName())))
-    {
-      auto localInstance = vtk::TakeSmartPointer(da->NewInstance());
-      localInstance->SetName(da->GetName());
-      localInstance->SetNumberOfComponents(da->GetNumberOfComponents());
-      output->GetPointData()->AddArray(localInstance);
+      vtkAbstractArray* da = source->GetCellData()->GetAbstractArray(iA);
+      if (!da)
+      {
+        continue;
+      }
+      if (!(output->GetPointData()->HasArray(da->GetName())))
+      {
+        vtkSmartPointer<vtkAbstractArray> localInstance = vtk::TakeSmartPointer(da->NewInstance());
+        localInstance->SetName(da->GetName());
+        localInstance->SetNumberOfComponents(da->GetNumberOfComponents());
+        output->GetPointData()->AddArray(localInstance);
+      }
     }
   }
 
@@ -259,7 +316,7 @@ bool vtkHyperTreeGridProbeFilter::Initialize(
   this->MaskPoints = vtk::TakeSmartPointer(vtkCharArray::New());
   this->MaskPoints->SetNumberOfComponents(1);
   this->MaskPoints->SetNumberOfTuples(input->GetNumberOfPoints());
-  this->FillDefaultArray(this->MaskPoints);
+  vtkHyperTreeGridProbeFilterUtilities::FillDefaultArray(this->MaskPoints);
   this->MaskPoints->SetName(!this->ValidPointMaskArrayName.empty()
       ? this->ValidPointMaskArrayName.c_str()
       : "vtkValidPointMask");
@@ -345,31 +402,50 @@ bool vtkHyperTreeGridProbeFilter::DoProbing(
 {
   // locate all present points of probe
   unsigned int nPoints = probe->GetNumberOfPoints();
-  vtkNew<vtkIdList> locCellIds;
-  locCellIds->Initialize();
-  ::ProbingWorklet worker(probe, this->Locator, localPointIds, locCellIds);
 
-  // XXX: force sequential for now because of https://gitlab.kitware.com/vtk/vtk/-/issues/18629
-  vtkSMPTools::LocalScope(
-    vtkSMPTools::Config{ 1, "Sequential", false }, [&]() { vtkSMPTools::For(0, nPoints, worker); });
-
-  // copy values from source
-  if (locCellIds->GetNumberOfIds() > 0)
+  if (this->UseImplicitArrays)
   {
-    unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
-    for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
+    // Just store the probed cell ids in the handles array
+    // Note that this is a temporary result, at this point the handles array is used to store probed
+    // ids without matching local point Ids
+    ::ProbingWorklet worker(probe, this->Locator, localPointIds, this->Handles);
+    // XXX: force sequential for now because of https://gitlab.kitware.com/vtk/vtk/-/issues/18629
+    vtkSMPTools::LocalScope(vtkSMPTools::Config{ 1, "Sequential", false },
+      [&]() { vtkSMPTools::For(0, nPoints, worker); });
+  }
+  else
+  {
+    // Get the probed cell ids and use it to store for each array of the source the probed values
+    // in the corresponding arrays of the output.
+    // Note that this is a temporary result, at this point the output array are used to store probed
+    // values without matching local point Ids
+    vtkNew<vtkIdList> locCellIds;
+    locCellIds->Initialize();
+    ::ProbingWorklet worker(probe, this->Locator, localPointIds, locCellIds);
+
+    // XXX: force sequential for now because of https://gitlab.kitware.com/vtk/vtk/-/issues/18629
+    vtkSMPTools::LocalScope(vtkSMPTools::Config{ 1, "Sequential", false },
+      [&]() { vtkSMPTools::For(0, nPoints, worker); });
+
+    // copy values from source
+    if (locCellIds->GetNumberOfIds() > 0)
     {
-      vtkAbstractArray* sourceArray = source->GetCellData()->GetAbstractArray(iA);
-      if (!(output->GetPointData()->HasArray(sourceArray->GetName())))
+      unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
+      for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
       {
-        vtkErrorMacro("Array " << sourceArray->GetName() << " missing in output");
-        return false;
+        vtkAbstractArray* sourceArray = source->GetCellData()->GetAbstractArray(iA);
+        if (!(output->GetPointData()->HasArray(sourceArray->GetName())))
+        {
+          vtkErrorMacro("Array " << sourceArray->GetName() << " missing in output");
+          return false;
+        }
+        vtkAbstractArray* outputArray =
+          output->GetPointData()->GetAbstractArray(sourceArray->GetName());
+        outputArray->InsertTuplesStartingAt(0, locCellIds, sourceArray);
       }
-      vtkAbstractArray* outputArray =
-        output->GetPointData()->GetAbstractArray(sourceArray->GetName());
-      outputArray->InsertTuplesStartingAt(0, locCellIds, sourceArray);
     }
   }
+
   return true;
 }
 
@@ -377,23 +453,41 @@ bool vtkHyperTreeGridProbeFilter::DoProbing(
 bool vtkHyperTreeGridProbeFilter::Reduce(
   vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds)
 {
-  vtkSmartPointer<vtkDataSet> remoteOutput = vtk::TakeSmartPointer(output->NewInstance());
-  vtkNew<vtkIdList> remotePointIds;
-  // deal with master process
-  remoteOutput->CopyStructure(output);
-  unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
-  for (unsigned int iA = 0; iA < numArrays; iA++)
+  if (this->UseImplicitArrays)
   {
-    vtkAbstractArray* da = output->GetPointData()->GetAbstractArray(
-      source->GetCellData()->GetAbstractArray(iA)->GetName());
-    auto localInstance = vtk::TakeSmartPointer(da->NewInstance());
-    localInstance->DeepCopy(da);
-    remoteOutput->GetPointData()->AddArray(localInstance);
-    da->SetNumberOfTuples(output->GetNumberOfPoints());
-    this->FillDefaultArray(da);
+    // Firsthand, cache the handles and initialize them with default index
+    // (default index = nb of cells in the source)
+    // Secondhand, fill them with values at correct point ids
+    vtkSmartPointer<vtkIdList> remoteHandles = vtk::TakeSmartPointer(this->Handles->NewInstance());
+    remoteHandles->DeepCopy(this->Handles);
+    this->Handles->SetNumberOfIds(output->GetNumberOfPoints());
+    this->Handles->Fill(vtkHyperTreeGridProbeFilterUtilities::HANDLES_INVALID_ID);
+    this->DealWithRemoteHandles(localPointIds, remoteHandles, this->Handles);
+    // Here, the source number of cells is used as index pointing to the NaN value
+    // in the indexed array, in order to not point to an existing cell id
+    this->Finalize(source, output, source->GetNumberOfCells());
   }
-  this->DealWithRemote(localPointIds, remoteOutput, source, output);
-  remoteOutput->Initialize();
+  else
+  {
+    // Cache each final output arrays, and initialize them with default values
+    // Then fill them with values at correct point ids
+    vtkSmartPointer<vtkDataSet> remoteOutput = vtk::TakeSmartPointer(output->NewInstance());
+    vtkNew<vtkIdList> remotePointIds;
+    remoteOutput->CopyStructure(output);
+    unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
+    for (unsigned int iA = 0; iA < numArrays; iA++)
+    {
+      vtkAbstractArray* da = output->GetPointData()->GetAbstractArray(
+        source->GetCellData()->GetAbstractArray(iA)->GetName());
+      vtkSmartPointer<vtkAbstractArray> localInstance = vtk::TakeSmartPointer(da->NewInstance());
+      localInstance->DeepCopy(da);
+      remoteOutput->GetPointData()->AddArray(localInstance);
+      da->SetNumberOfTuples(output->GetNumberOfPoints());
+      vtkHyperTreeGridProbeFilterUtilities::FillDefaultArray(da);
+    }
+    this->DealWithRemote(localPointIds, remoteOutput, source, output);
+    remoteOutput->Initialize();
+  }
 
   return true;
 }
@@ -402,6 +496,8 @@ bool vtkHyperTreeGridProbeFilter::Reduce(
 void vtkHyperTreeGridProbeFilter::DealWithRemote(vtkIdList* remotePointIds,
   vtkDataSet* remoteOutput, vtkHyperTreeGrid* source, vtkDataSet* totOutput)
 {
+  // For each array of the output, insert the probed values to their corresponding
+  // point id
   if (remotePointIds->GetNumberOfIds() > 0)
   {
     vtkNew<vtkIdList> iotaIds;
@@ -427,33 +523,75 @@ void vtkHyperTreeGridProbeFilter::DealWithRemote(vtkIdList* remotePointIds,
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridProbeFilter::FillDefaultArray(vtkAbstractArray* array) const
+void vtkHyperTreeGridProbeFilter::DealWithRemoteHandles(
+  vtkIdList* remotePointIds, vtkIdList* remoteHandles, vtkIdList* totHandles)
 {
-  if (auto* strArray = vtkStringArray::SafeDownCast(array))
+  // Insert in the output the probed cell ids to their corresponding point id
+  if (remotePointIds->GetNumberOfIds() > 0)
   {
-    vtkSMPTools::For(0, strArray->GetNumberOfValues(), [strArray](vtkIdType start, vtkIdType end) {
-      for (vtkIdType i = start; i < end; ++i)
+    auto nbOfValues = remotePointIds->GetNumberOfIds();
+    for (int i = 0; i < nbOfValues; i++)
+    {
+      totHandles->SetId(remotePointIds->GetId(i), remoteHandles->GetId(i));
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridProbeFilter::Finalize(
+  vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdType nanId)
+{
+  using SupportedTypes = vtkTypeList::Append<vtkArrayDispatch::AllTypes, std::string>::Result;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<SupportedTypes>;
+
+  // Replace remaining invalid id values (not overriden during reduction operation)
+  // With "NaN index" (id pointing to the NaN value)
+  for (int i = 0; i < this->Handles->GetNumberOfIds(); i++)
+  {
+    if (this->Handles->GetId(i) == vtkHyperTreeGridProbeFilterUtilities::HANDLES_INVALID_ID)
+    {
+      this->Handles->SetId(i, nanId);
+    }
+  }
+
+  AddIndexedArrayWorker worker;
+
+  // For each data array in the source, create an composite array containing:
+  // - The data array
+  // - A NaN value
+  unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
+  for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
+  {
+    vtkDataArray* da = vtkDataArray::SafeDownCast(source->GetCellData()->GetAbstractArray(iA));
+    if (!da)
+    {
+      continue;
+    }
+    if (!(output->GetPointData()->HasArray(da->GetName())))
+    {
+      if (!Dispatcher::Execute(da, worker, this->Handles, output))
       {
-        strArray->SetValue(i, "");
+        worker(da, this->Handles, output); // fallback
       }
-    });
+    }
   }
-  else if (auto* doubleArray = vtkArrayDownCast<vtkDoubleArray>(array))
+
+  // Handle mask points
+  // Mask equals 1 id == NaN id
+  // Mask equals 0 otherwise
+  auto maskPoints = vtkCharArray::SafeDownCast(
+    output->GetPointData()->GetArray(this->GetValidPointMaskArrayName().c_str()));
+  if (!maskPoints)
   {
-    doubleArray->Fill(vtkMath::Nan());
+    vtkErrorMacro("Unable to retrieve mask points from output");
+    return;
   }
-  else if (auto* floatArray = vtkArrayDownCast<vtkFloatArray>(array))
+  for (int i = 0; i < this->Handles->GetNumberOfIds(); i++)
   {
-    floatArray->Fill(vtkMath::Nan());
-  }
-  else if (auto* dArray = vtkArrayDownCast<vtkDataArray>(array))
-  {
-    dArray->Fill(0);
-  }
-  else
-  {
-    vtkGenericWarningMacro("Array is not a vtkDataArray nor is it a vtkStringArray and will not be "
-                           "filled with default values.");
+    if (this->Handles->GetId(i) != nanId)
+    {
+      maskPoints->SetValue(i, 1);
+    }
   }
 }
 

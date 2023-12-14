@@ -10,6 +10,7 @@
 #include "vtkDataSet.h"
 #include "vtkFieldData.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridProbeFilterUtilities.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -69,6 +70,21 @@ int vtkPHyperTreeGridProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed
 }
 
 //------------------------------------------------------------------------------
+int vtkPHyperTreeGridProbeFilter::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (this->UseImplicitArrays)
+  {
+    vtkWarningMacro("UseImplicitArrays option is restricted for sequential version of the "
+      << "vtkHyperTreeGridProbeFilter. For now, this option has no effect in the case of a "
+      << "vtkPHyperTreeGridProbeFilter instance.");
+    this->SetUseImplicitArrays(false);
+  }
+
+  return this->Superclass::RequestData(request, inputVector, outputVector);
+}
+
+//------------------------------------------------------------------------------
 bool vtkPHyperTreeGridProbeFilter::Reduce(
   vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds)
 {
@@ -109,7 +125,7 @@ bool vtkPHyperTreeGridProbeFilter::Reduce(
       localInstance->DeepCopy(da);
       remoteOutput->GetPointData()->AddArray(localInstance);
       da->SetNumberOfTuples(output->GetNumberOfPoints());
-      this->FillDefaultArray(da);
+      vtkHyperTreeGridProbeFilterUtilities::FillDefaultArray(da);
     }
     this->DealWithRemote(localPointIds, remoteOutput, source, output);
     remoteOutput->Initialize();

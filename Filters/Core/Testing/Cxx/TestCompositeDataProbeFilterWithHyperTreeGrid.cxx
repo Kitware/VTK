@@ -98,5 +98,20 @@ int TestCompositeDataProbeFilterWithHyperTreeGrid(int argc, char* argv[])
   renderer->ResetCamera();
 
   renWin->Render();
-  return !vtkRegressionTester::Test(argc, argv, renWin, 10);
+  if (!vtkRegressionTester::Test(argc, argv, renWin, 10))
+  {
+    return EXIT_FAILURE;
+  }
+
+  // Now test with indexed arrays; we should have the same result
+  prober->SetUseImplicitArrays(true);
+  prober->Update();
+  prober->GetOutput()->GetPointData()->SetActiveScalars("Depth");
+
+  if (!vtkRegressionTester::Test(argc, argv, renWin, 10))
+  {
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }

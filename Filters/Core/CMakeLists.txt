@@ -59,6 +59,7 @@ set(classes
   vtkHedgeHog
   vtkHull
   vtkHyperTreeGridProbeFilter
+  vtkHyperTreeGridProbeFilterUtilities
   vtkIdFilter
   vtkImageAppend
   vtkImageDataToExplicitStructuredGrid
