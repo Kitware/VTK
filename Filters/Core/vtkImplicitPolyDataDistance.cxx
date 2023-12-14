@@ -4,6 +4,7 @@
 
 #include "vtkCellData.h"
 #include "vtkCellLocator.h"
+#include "vtkCleanPolyData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -37,6 +38,13 @@ void vtkImplicitPolyDataDistance::SetInput(vtkPolyData* input)
 {
   if (this->Input != input)
   {
+    // Fix issue #18307: Use vtkCleanPolyData to merge duplicate points in the input PolyData.
+    // This is required, e.g, for the correct detection of cells sharing the same edge
+    // (GetCellEdgeNeighbors requires unique points to function correctly).
+    vtkSmartPointer<vtkCleanPolyData> cleanPolyData = vtkSmartPointer<vtkCleanPolyData>::New();
+    cleanPolyData->SetInputData(input);
+    cleanPolyData->Update();
+
     // Use a vtkTriangleFilter on the polydata input.
     // This is done to filter out lines and vertices to leave only
     // polygons which are required by this algorithm for cell normals.
@@ -44,7 +52,7 @@ void vtkImplicitPolyDataDistance::SetInput(vtkPolyData* input)
     triangleFilter->PassVertsOff();
     triangleFilter->PassLinesOff();
 
-    triangleFilter->SetInputData(input);
+    triangleFilter->SetInputConnection(cleanPolyData->GetOutputPort());
     triangleFilter->Update();
 
     this->Input = triangleFilter->GetOutput();
