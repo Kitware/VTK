@@ -353,7 +353,8 @@ bool vtkAnariRendererNodeInternals::InitAnari()
   bool retVal = true;
 
   const char* libraryName = vtkAnariRendererNode::GetLibraryName(this->Owner->GetRenderer());
-  vtkDebugWithObjectMacro(this->Owner, << "VTK Library name: " << libraryName);
+  vtkDebugWithObjectMacro(
+    this->Owner, << "VTK Library name: " << (libraryName != nullptr) ? libraryName : "nullptr");
 
   if (libraryName != nullptr)
   {
@@ -519,18 +520,15 @@ void vtkAnariRendererNodeInternals::ClearLights()
 void vtkAnariRendererNodeInternals::AddSurfaces(
   const std::vector<anari::Surface>& surfaces, const bool changed)
 {
-  if (!surfaces.empty())
+  if (this->AnariSurfaceState.used)
   {
-    if (this->AnariSurfaceState.used)
-    {
-      this->ClearSurfaces();
-      this->AnariSurfaceState.used = false;
-    }
+    this->ClearSurfaces();
+    this->AnariSurfaceState.used = false;
+  }
 
-    for (auto surface : surfaces)
-    {
-      this->AnariSurfaceState.Surfaces.emplace_back(surface);
-    }
+  for (auto surface : surfaces)
+  {
+    this->AnariSurfaceState.Surfaces.emplace_back(surface);
   }
 
   if (changed)
@@ -988,7 +986,7 @@ const char* vtkAnariRendererNode::GetLibraryName(vtkRenderer* renderer)
 {
   if (!renderer)
   {
-    "environment";
+    nullptr;
   }
 
   vtkInformation* info = renderer->GetInformation();
@@ -998,7 +996,7 @@ const char* vtkAnariRendererNode::GetLibraryName(vtkRenderer* renderer)
     return info->Get(vtkAnariRendererNode::LIBRARY_NAME());
   }
 
-  return "environment";
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1752,23 +1750,26 @@ void vtkAnariRendererNode::PrintSelf(ostream& os, vtkIndent indent)
   {
     const char* libName = vtkAnariRendererNode::GetLibraryName(this->GetRenderer());
 
-    // Available devices
-    const char** devices = anariGetDeviceSubtypes(anariLibrary);
-    os << indent << "[ANARI::" << libName << "] Available devices: \n";
-
-    for (const char** d = devices; *d != NULL; d++)
+    if (libName != nullptr)
     {
-      os << indent << indent << *d << "\n";
-    }
+      // Available devices
+      const char** devices = anariGetDeviceSubtypes(anariLibrary);
+      os << indent << "[ANARI::" << libName << "] Available devices: \n";
 
-    // Available renderers
-    const char** renderers = anariGetObjectSubtypes(this->Internal->AnariDevice, ANARI_RENDERER);
-    os << "\n";
-    os << indent << "[ANARI::" << libName << "] Available renderers: \n";
+      for (const char** d = devices; *d != NULL; d++)
+      {
+        os << indent << indent << *d << "\n";
+      }
 
-    for (const char** r = renderers; *r != NULL; r++)
-    {
-      os << indent << indent << *r << "\n";
+      // Available renderers
+      const char** renderers = anariGetObjectSubtypes(this->Internal->AnariDevice, ANARI_RENDERER);
+      os << "\n";
+      os << indent << "[ANARI::" << libName << "] Available renderers: \n";
+
+      for (const char** r = renderers; *r != NULL; r++)
+      {
+        os << indent << indent << *r << "\n";
+      }
     }
   }
 }
