@@ -9,11 +9,14 @@
 #ifndef vtkHDFReader_h
 #define vtkHDFReader_h
 
+#include "vtkDataAssembly.h" // For vtkDataAssembly
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkIOHDFModule.h" // For export macro
-#include <array>            // For storing the time range
-#include <memory>           // For std::unique_ptr
-#include <vector>           // For storing list of values
+#include "vtkIOHDFModule.h"  // For export macro
+#include "vtkSmartPointer.h" // For vtkSmartPointer
+
+#include <array>  // For storing the time range
+#include <memory> // For std::unique_ptr
+#include <vector> // For storing list of values
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
@@ -27,6 +30,7 @@ class vtkInformationVector;
 class vtkInformation;
 class vtkOverlappingAMR;
 class vtkPartitionedDataSet;
+class vtkPartitionedDataSetCollection;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 
@@ -174,7 +178,10 @@ protected:
   int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkOverlappingAMR* data);
+  int Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data);
+  void ReadRecursively(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data, int index);
   ///@}
+
   /**
    * Read 'pieceData' specified by 'filePiece' where
    * number of points, cells and connectivity ids
@@ -185,6 +192,7 @@ protected:
     const std::vector<vtkIdType>& numberOfConnectivityIds, vtkIdType partOffset,
     vtkIdType startingPointOffset, vtkIdType startingCellOffset,
     vtkIdType startingConnectctivityIdOffset, int filePiece, vtkUnstructuredGrid* pieceData);
+
   /**
    * Read the field arrays from the file and add them to the dataset.
    */
@@ -214,9 +222,21 @@ protected:
    */
   void PrintPieceInformation(vtkInformation* outInfo);
 
+  /**
+   * Setup the information pass in parameter based on current vtkHDF file loaded.
+   */
+  int SetupInformation(vtkInformation* outInfo);
+
 private:
   vtkHDFReader(const vtkHDFReader&) = delete;
   void operator=(const vtkHDFReader&) = delete;
+
+  /**
+   * Generate the hierarchy used for vtkPartitionedDataSetCollection and store it in Assembly.
+   */
+  void GenerateAssembly();
+  void RetrieveStepsFromAssembly(int parent = 0);
+  void RetrieveDataArraysFromAssembly(int parent = 0);
 
 protected:
   /**
@@ -243,6 +263,11 @@ protected:
   double Origin[3];
   double Spacing[3];
   ///@}
+
+  /**
+   * Assembly used for PartitionedDataSetCollection
+   */
+  vtkSmartPointer<vtkDataAssembly> Assembly;
 
   ///@{
   /**

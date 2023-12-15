@@ -10,6 +10,7 @@
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
@@ -18,6 +19,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLPUnstructuredGridReader.h"
+#include "vtkXMLPartitionedDataSetCollectionReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
@@ -295,7 +297,26 @@ int TestOverlappingAMR(const std::string& dataRoot)
   return EXIT_SUCCESS;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+int TestCompositeDataSet(const std::string& dataRoot)
+{
+  // This dataset is composed of 4 blocks : 2 polydata, 1 unstructured grid, 1 image data
+  const std::string hdfPath = dataRoot + "/Data/vtkHDF/test_composite.hdf";
+  vtkNew<vtkHDFReader> expectedReader;
+  expectedReader->SetFileName(hdfPath.c_str());
+  expectedReader->Update();
+  auto expectedData = vtkPartitionedDataSetCollection::SafeDownCast(expectedReader->GetOutput());
+
+  const std::string vtpcPath = dataRoot + "/Data/vtkHDF/test_composite.hdf_000000.vtpc";
+  vtkNew<vtkXMLPartitionedDataSetCollectionReader> reader;
+  reader->SetFileName(vtpcPath.c_str());
+  reader->Update();
+  auto data = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutput());
+
+  return !vtkTestUtilities::CompareDataObjects(data, expectedData);
+}
+
+//------------------------------------------------------------------------------
 int TestHDFReader(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;
@@ -347,6 +368,11 @@ int TestHDFReader(int argc, char* argv[])
   }
 
   if (TestPartitionedUnstructuredGrid(dataRoot, true))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (TestCompositeDataSet(dataRoot))
   {
     return EXIT_FAILURE;
   }

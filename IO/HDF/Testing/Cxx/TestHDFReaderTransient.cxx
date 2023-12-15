@@ -12,11 +12,14 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkXMLPartitionedDataSetCollectionReader.h"
 #include "vtkXMLPolyDataReader.h"
 
 #include <cstdlib>
@@ -52,6 +55,7 @@ int TestUGTransient(const std::string& dataRoot);
 int TestImageDataTransient(const std::string& dataRoot);
 int TestPolyDataTransient(const std::string& dataRoot);
 int TestPolyDataTransientWithOffset(const std::string& dataRoot);
+int TestCompositeTransient(const std::string& dataRoot);
 
 int TestUGTransientWithCache(const std::string& dataRoot);
 int TestImageDataTransientWithCache(const std::string& dataRoot);
@@ -71,6 +75,7 @@ int TestHDFReaderTransient(int argc, char* argv[])
   res |= ::TestUGTransientWithCache(dataRoot);
   res |= ::TestImageDataTransientWithCache(dataRoot);
   res |= ::TestPolyDataTransientWithCache(dataRoot);
+  res |= ::TestCompositeTransient(dataRoot);
   return res;
 }
 
@@ -690,4 +695,48 @@ int TestPolyDataTransientWithOffset(const std::string& dataRoot)
 
   return EXIT_SUCCESS;
 }
+
+//------------------------------------------------------------------------------
+int TestCompositeTransient(const std::string& dataRoot)
+{
+  vtkNew<vtkHDFReader> hdfReader;
+  std::string filePath = dataRoot + "/Data/vtkHDF/Transient/test_composite_transient.hdf";
+  hdfReader->SetFileName(filePath.c_str());
+  hdfReader->Update();
+
+  const int expectedSteps = 10;
+  if (hdfReader->GetNumberOfSteps() != expectedSteps)
+  {
+    std::cerr << "Number of time steps is not correct: " << hdfReader->GetNumberOfSteps()
+              << " != " << expectedSteps << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  for (int iStep = 0; iStep < expectedSteps; iStep += 3)
+  {
+    // Open data at right time
+    hdfReader->SetStep(iStep);
+    hdfReader->Update();
+    vtkPartitionedDataSetCollection* data =
+      vtkPartitionedDataSetCollection::SafeDownCast(hdfReader->GetOutput());
+
+    // Same for the reference dataset
+    vtkNew<vtkXMLPartitionedDataSetCollectionReader> refReader;
+    refReader->SetFileName((dataRoot + "/Data/vtkHDF/Transient/test_composite_transient.hdf_00000" +
+      std::to_string(iStep) + ".vtpc")
+                             .c_str());
+    refReader->Update();
+    vtkPartitionedDataSetCollection* expectedData =
+      vtkPartitionedDataSetCollection::SafeDownCast(refReader->GetOutputDataObject(0));
+
+    if (!vtkTestUtilities::CompareDataObjects(data, expectedData))
+    {
+      std::cerr << "Mismatch between tested and expected data at timestep " << iStep << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
 }

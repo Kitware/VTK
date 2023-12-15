@@ -21,6 +21,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataArray;
 class vtkStringArray;
+class vtkDataAssembly;
 
 /**
  * Implementation for the vtkHDFReader. Opens, closes and
@@ -114,6 +115,15 @@ public:
 
   ///@{
   /**
+   * Fills the given Assembly with the content of the opened HDF file.
+   * Return true on success, false if the HDF File isn't a composite or the 'Assembly' is missing.
+   */
+  bool FillAssembly(vtkDataAssembly* data);
+  bool FillAssembly(vtkDataAssembly* data, hid_t assemblyHandle, int assemblyID, std::string path);
+  ///@}
+
+  ///@{
+  /**
    * Read the number of steps from the opened file
    */
   std::size_t GetNumberOfSteps();
@@ -132,6 +142,16 @@ public:
    * Methods to query for array offsets when steps are present
    */
   vtkIdType GetArrayOffset(vtkIdType step, int attributeType, std::string name);
+
+  /**
+   * Open a sub group of the current file and consider it as the new root file.
+   */
+  bool OpenGroupAsVTKGroup(const std::string& groupPath);
+
+  /**
+   * Initialize meta information of the implementation based on root name specified.
+   */
+  bool RetrieveHDFInformation(const std::string& rootName);
 
 protected:
   /**

@@ -13,6 +13,7 @@
 #include "vtkCharArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataArraySelection.h"
+#include "vtkDataAssembly.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
@@ -43,6 +44,7 @@ namespace
 const std::map<int, std::string> ARRAY_OFFSET_GROUPS = { { 0, "PointDataOffsets" },
   { 1, "CellDataOffsets" }, { 2, "FieldDataOffsets" } };
 
+//-----------------------------------------------------------------------------
 herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
 {
   auto array = static_cast<std::vector<std::string>*>(op_data);
@@ -54,6 +56,19 @@ herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
     array->push_back(name);
   }
   return status;
+}
+
+//-----------------------------------------------------------------------------
+/**
+ * Convenient callback method to retrieve a name when calling a H5Giterate()
+ */
+herr_t FileInfoCallBack(hid_t vtkNotUsed(loc_id), const char* name, void* opdata)
+{
+  std::vector<std::string>* names = reinterpret_cast<std::vector<std::string>*>(opdata);
+  assert(names != nullptr);
+  names->push_back(std::string(name));
+
+  return 0;
 }
 }
 
@@ -89,6 +104,7 @@ vtkHDFReader::Implementation::~Implementation()
   this->Close();
 }
 
+//------------------------------------------------------------------------------
 std::vector<hsize_t> vtkHDFReader::Implementation::GetDimensions(const char* datasetName)
 {
   std::vector<hsize_t> dims;
@@ -147,79 +163,103 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
     {
       this->Close();
     }
-    // turn off error logging and save error function
-    H5E_auto_t f;
-    void* client_data;
-    H5Eget_auto(H5E_DEFAULT, &f, &client_data);
-    H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+
     if ((this->File = H5Fopen(this->FileName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
     {
       // we try to read a non-HDF file
       return false;
     }
-    if ((this->VTKGroup = H5Gopen(this->File, "/VTKHDF", H5P_DEFAULT)) < 0)
-    {
-      // we try to read a non-VTKHDF file
-      return false;
-    }
 
-    H5Eset_auto(H5E_DEFAULT, f, client_data);
-    if (!this->ReadDataSetType())
-    {
-      return false;
-    }
-    H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+    return this->RetrieveHDFInformation("/VTKHDF");
+  }
 
-    std::array<const char*, 3> groupNames = { "/VTKHDF/PointData", "/VTKHDF/CellData",
-      "/VTKHDF/FieldData" };
+  return !error;
+}
 
-    if (this->DataSetType == VTK_OVERLAPPING_AMR)
-    {
-      groupNames = { "/VTKHDF/Level0/PointData", "/VTKHDF/Level0/CellData",
-        "/VTKHDF/Level0/FieldData" };
-    }
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::OpenGroupAsVTKGroup(const std::string& groupPath)
+{
+  if ((this->VTKGroup = H5Gopen(this->File, groupPath.c_str(), H5P_DEFAULT)) < 0)
+  {
+    // the file doesn't exist or we try to read a non-VTKHDF file
+    return false;
+  }
 
-    // try to open cell or point group. Its OK if they don't exist.
-    for (size_t i = 0; i < this->AttributeDataGroup.size(); ++i)
-    {
-      this->AttributeDataGroup[i] = H5Gopen(this->File, groupNames[i], H5P_DEFAULT);
-    }
-    // turn on error logging and restore error function
-    H5Eset_auto(H5E_DEFAULT, f, client_data);
-    if (!GetAttribute("Version", this->Version.size(), this->Version.data()))
-    {
-      return false;
-    }
+  return true;
+}
 
-    H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
-    // get transient information if there is any
-    vtkIdType nSteps = this->GetNumberOfSteps();
-    H5Eset_auto(H5E_DEFAULT, f, client_data);
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::RetrieveHDFInformation(const std::string& rootName)
+{
+  // turn off error logging and save error function
+  H5E_auto_t f;
+  void* client_data;
+  H5Eget_auto(H5E_DEFAULT, &f, &client_data);
+  H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
 
-    try
+  bool error = false;
+  if ((this->VTKGroup = H5Gopen(this->File, rootName.c_str(), H5P_DEFAULT)) < 0)
+  {
+    // we try to read a non-VTKHDF file
+    return false;
+  }
+
+  H5Eset_auto(H5E_DEFAULT, f, client_data);
+  if (!this->ReadDataSetType())
+  {
+    return false;
+  }
+  H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+
+  std::array<const char*, 3> groupNames = { "/PointData", "/CellData", "/FieldData" };
+
+  if (this->DataSetType == VTK_OVERLAPPING_AMR)
+  {
+    groupNames = { "/Level0/PointData", "/Level0/CellData", "/Level0/FieldData" };
+  }
+
+  // try to open cell or point group. Its OK if they don't exist.
+  for (size_t i = 0; i < this->AttributeDataGroup.size(); ++i)
+  {
+    std::string path = rootName + groupNames[i];
+    this->AttributeDataGroup[i] = H5Gopen(this->File, path.c_str(), H5P_DEFAULT);
+  }
+  // turn on error logging and restore error function
+  H5Eset_auto(H5E_DEFAULT, f, client_data);
+  if (!GetAttribute("Version", this->Version.size(), this->Version.data()))
+  {
+    return false;
+  }
+
+  H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+  // get transient information if there is any
+  vtkIdType nSteps = this->GetNumberOfSteps();
+  H5Eset_auto(H5E_DEFAULT, f, client_data);
+
+  try
+  {
+    if (this->DataSetType == VTK_UNSTRUCTURED_GRID || this->DataSetType == VTK_POLY_DATA)
     {
-      if (this->DataSetType == VTK_UNSTRUCTURED_GRID || this->DataSetType == VTK_POLY_DATA)
+      std::string datasetName = rootName + "/NumberOfPoints";
+      std::vector<hsize_t> dims = this->GetDimensions(datasetName.c_str());
+      if (dims.size() != 1)
       {
-        const char* datasetName = "/VTKHDF/NumberOfPoints";
-        std::vector<hsize_t> dims = this->GetDimensions(datasetName);
-        if (dims.size() != 1)
-        {
-          throw std::runtime_error(std::string(datasetName) + " dataset should have 1 dimension");
-        }
-        // Case where the data set has the same number of pieces for  all steps in the dataset
-        this->NumberOfPieces = dims[0] / nSteps;
+        throw std::runtime_error(datasetName + " dataset should have 1 dimension");
       }
-      else if (this->DataSetType == VTK_IMAGE_DATA || this->DataSetType == VTK_OVERLAPPING_AMR)
-      {
-        this->NumberOfPieces = 1;
-      }
+      // Case where the data set has the same number of pieces for  all steps in the dataset
+      this->NumberOfPieces = dims[0] / nSteps;
     }
-    catch (const std::exception& e)
+    else if (this->DataSetType == VTK_IMAGE_DATA || this->DataSetType == VTK_OVERLAPPING_AMR)
     {
-      vtkErrorWithObjectMacro(this->Reader, << e.what());
-      error = true;
+      this->NumberOfPieces = 1;
     }
   }
+  catch (const std::exception& e)
+  {
+    vtkErrorWithObjectMacro(this->Reader, << e.what());
+    error = true;
+  }
+
   this->BuildTypeReaderMap();
   return !error;
 }
@@ -289,6 +329,10 @@ bool vtkHDFReader::Implementation::ReadDataSetType()
     else if (typeName == "PolyData")
     {
       this->DataSetType = VTK_POLY_DATA;
+    }
+    else if (typeName == "PartitionedDataSetCollection")
+    {
+      this->DataSetType = VTK_PARTITIONED_DATA_SET_COLLECTION;
     }
     else
     {
@@ -1027,6 +1071,85 @@ bool vtkHDFReader::Implementation::NewArray(
   return true;
 }
 
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::FillAssembly(vtkDataAssembly* assembly)
+{
+  if (this->DataSetType != VTK_PARTITIONED_DATA_SET_COLLECTION)
+  {
+    vtkErrorWithObjectMacro(this->Reader,
+      "Wrong data set type, expected " << VTK_PARTITIONED_DATA_SET_COLLECTION
+                                       << ", but got: " << this->DataSetType);
+    return false;
+  }
+
+  std::string assemblyPath = "/VTKHDF/Assembly";
+  vtkHDF::ScopedH5GHandle assemblyID = H5Gopen(this->VTKGroup, assemblyPath.c_str(), H5P_DEFAULT);
+  if (assemblyID <= H5I_INVALID_HID)
+  {
+    vtkErrorWithObjectMacro(
+      this->Reader, "Can't open 'Assembly' group. A valid Composite vtkHDF file should have it.");
+    return false;
+  }
+
+  return this->FillAssembly(assembly, this->VTKGroup, 0, assemblyPath);
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::FillAssembly(
+  vtkDataAssembly* data, hid_t assemblyHandle, int assemblyID, std::string path)
+{
+  vtkHDF::ScopedH5GHandle currentHandle = H5Gopen(assemblyHandle, path.c_str(), H5P_DEFAULT);
+  if (currentHandle < H5I_INVALID_HID)
+  {
+    vtkErrorWithObjectMacro(this->Reader,
+      "Can't open '" << path << "' group. A valid Composite vtkHDF file should have it.");
+    return false;
+  }
+
+  std::vector<std::string> childrenPath;
+  H5Giterate(currentHandle, path.c_str(), nullptr, ::FileInfoCallBack, &childrenPath);
+
+  if (childrenPath.empty())
+  {
+    return true;
+  }
+
+  auto groupIndices = data->AddNodes(childrenPath, assemblyID);
+
+  for (std::size_t i = 0; i < childrenPath.size(); i++)
+  {
+    std::string childPath = path + "/" + childrenPath[i];
+    vtkHDF::ScopedH5GHandle childHandler = H5Gopen(currentHandle, childPath.c_str(), H5P_DEFAULT);
+    if (childHandler <= H5I_INVALID_HID)
+    {
+      continue;
+    }
+
+    // Prevent to iterate recursively on the dataset itself by checking if it's a link
+    H5L_info_t object;
+    auto err = H5Lget_info(currentHandle, childPath.c_str(), &object, H5P_DEFAULT);
+    if (err < 0)
+    {
+      vtkErrorWithObjectMacro(this->Reader, "Can't open '" << childPath << "' link.");
+      return false;
+    }
+    if (object.type == H5L_TYPE_SOFT)
+    {
+      // Retrieve the correct Index
+      int index = 0;
+      this->GetAttribute(childHandler, "Index", 1, &index);
+      data->AddDataSetIndex(groupIndices[i], index);
+
+      continue;
+    }
+
+    this->FillAssembly(data, currentHandle, groupIndices[i], childPath);
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::ComputeAMRBlocksPerLevels(std::vector<int>& levels)
 {
   levels.clear();
@@ -1092,6 +1215,7 @@ bool vtkHDFReader::Implementation::ComputeAMRBlocksPerLevels(std::vector<int>& l
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::FillAMR(vtkOverlappingAMR* data,
   unsigned int maximumLevelsToReadByDefault, double origin[3],
   vtkDataArraySelection* dataArraySelection[3])
@@ -1178,6 +1302,7 @@ bool vtkHDFReader::Implementation::FillAMR(vtkOverlappingAMR* data,
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::ReadLevelTopology(
   unsigned int level, const std::string& levelGroupName, vtkOverlappingAMR* data, double origin[3])
 {
@@ -1238,6 +1363,7 @@ bool vtkHDFReader::Implementation::ReadLevelTopology(
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::ReadLevelData(unsigned int level,
   const std::string& levelGroupName, vtkOverlappingAMR* data,
   vtkDataArraySelection* dataArraySelection[3])
@@ -1333,6 +1459,7 @@ bool vtkHDFReader::Implementation::ReadLevelData(unsigned int level,
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::ReadLevelSpacing(hid_t levelGroupID, double* spacing)
 {
   if (!H5Aexists(levelGroupID, "Spacing"))
@@ -1356,6 +1483,7 @@ bool vtkHDFReader::Implementation::ReadLevelSpacing(hid_t levelGroupID, double* 
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::ReadAMRBoxRawValues(
   hid_t levelGroupID, std::vector<int>& amrBoxRawData)
 {
