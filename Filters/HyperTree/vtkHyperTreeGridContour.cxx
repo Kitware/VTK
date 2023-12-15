@@ -3,10 +3,12 @@
 
 #include "vtkHyperTreeGridContour.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
+#include "vtkCompositeArray.h"
 #include "vtkContourHelper.h"
 #include "vtkContourValues.h"
 #include "vtkDoubleArray.h"
@@ -18,9 +20,11 @@
 #include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIncrementalPointLocator.h"
+#include "vtkIndexedArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
+#include "vtkMathUtilities.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
@@ -32,6 +36,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
+#include <algorithm>
 #include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -55,6 +60,199 @@ constexpr std::size_t POLY_FACES_SIZE = 31;
 constexpr vtkIdType POLY_FACES_NB = 6;
 constexpr vtkIdType POLY_FACES_POINTS_NB = 4;
 constexpr vtkIdType POLY_POINTS_NB = 8;
+
+constexpr int MAX_NB_OF_CONTOURS = std::numeric_limits<unsigned char>::max() + 1; // 256
+
+// Given contour values, find a "valid" epsilon value, allowing to discriminate values
+// by fuzzy comparison. Returned espilon correspond to the min difference between contour
+// values divided by 10.
+double FindEpsilon(vtkContourValues* contourValues)
+{
+  int numberOfContours = contourValues->GetNumberOfContours();
+  if (numberOfContours == 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, "No contour values found");
+    return 0;
+  }
+
+  // Sort contour values
+  std::vector<double> sortedContourValues;
+  sortedContourValues.resize(numberOfContours);
+  for (int contourId = 0; contourId < numberOfContours; contourId++)
+  {
+    sortedContourValues.emplace_back(contourValues->GetValue(contourId));
+  }
+  std::sort(sortedContourValues.begin(), sortedContourValues.end());
+
+  // Find smallest difference between 2 values
+  double epsilon = std::numeric_limits<double>::max();
+  double contourValue1 = sortedContourValues[0];
+  for (int contourId = 1; contourId < numberOfContours; contourId++)
+  {
+    double contourValue2 = contourValues->GetValue(contourId);
+    double difference = contourValue2 - contourValue1;
+    contourValue1 = contourValue2; // For next iteration
+
+    // Avoid dupplicated contour values (compare using std::numeric_limits<double>::epsilon)
+    if (vtkMathUtilities::FuzzyCompare(difference, 0.))
+    {
+      continue;
+    }
+    if (difference < epsilon)
+    {
+      epsilon = difference;
+    }
+  }
+
+  // Ensure there is no overlap by dividing min diff by 10
+  return epsilon * 0.1;
+}
+
+// Given the contour array and the contour values, generate handles by associating
+// each value of contourArray to its corresponding index in contourValues
+vtkSmartPointer<vtkUnsignedCharArray> GenerateHandles(
+  vtkDataArray* contourArray, vtkContourValues* contourValues)
+{
+  vtkIdType nbOfPoints = contourArray->GetNumberOfTuples();
+  int numberOfContours = contourValues->GetNumberOfContours();
+
+  // Initialize handles
+  vtkNew<vtkUnsignedCharArray> handles;
+  handles->SetNumberOfComponents(1);
+  handles->SetNumberOfTuples(nbOfPoints);
+  // numberOfContours plays the role of id pointing to the default value
+  // that will be used if no contourValue index is found
+  handles->Fill(numberOfContours);
+
+  double epsilon = ::FindEpsilon(contourValues);
+
+  for (vtkIdType pointId = 0; pointId < nbOfPoints; pointId++)
+  {
+    int contourId = 0;
+    for (; contourId < numberOfContours; contourId++)
+    {
+      if (vtkMathUtilities::FuzzyCompare(
+            contourArray->GetTuple1(pointId), contourValues->GetValue(contourId), epsilon))
+      {
+        handles->SetValue(pointId, contourId);
+        break;
+      }
+    }
+    if (contourId == numberOfContours)
+    {
+      vtkErrorWithObjectMacro(nullptr,
+        "Unable to retrieve contour value for point " << pointId << " with value "
+                                                      << contourArray->GetTuple1(pointId));
+    }
+  }
+
+  return handles;
+}
+
+// Given the contour array, the contour values and the output attributes,
+// replace the contour array found in the attibutes by an implicit array.
+struct ConvertToIndexedArrayWorker
+{
+  template <typename ArrayType>
+  void operator()(ArrayType* contourArray, vtkContourValues* contourValues,
+    vtkDataSetAttributes* outputAttributes) const
+  {
+    vtkIdType nbOfPoints = contourArray->GetNumberOfTuples();
+    int numberOfContours = contourValues->GetNumberOfContours();
+
+    // Fill handles
+    vtkSmartPointer<vtkUnsignedCharArray> handles = ::GenerateHandles(contourArray, contourValues);
+
+    // Fill values indexed by handles
+    vtkNew<ArrayType> valuesArray;
+    valuesArray->SetNumberOfComponents(1);
+    valuesArray->SetNumberOfTuples(numberOfContours);
+    for (int i = 0; i < numberOfContours; i++)
+    {
+      valuesArray->SetValue(i, contourValues->GetValue(i));
+    }
+
+    // Create array carrying the fallback default value
+    vtkNew<ArrayType> defaultValueArray;
+    defaultValueArray->SetNumberOfComponents(1);
+    defaultValueArray->SetNumberOfTuples(1);
+    if (defaultValueArray->GetDataType() == VTK_FLOAT ||
+      defaultValueArray->GetDataType() == VTK_DOUBLE)
+    {
+      defaultValueArray->SetValue(0, vtkMath::Nan());
+    }
+    else
+    {
+      defaultValueArray->SetValue(0, 0);
+    }
+
+    // Create composite array (indexed values + default value)
+    using ValueType = vtk::GetAPIType<ArrayType>;
+    std::vector<vtkDataArray*> arrays({ valuesArray, defaultValueArray });
+
+    vtkNew<vtkCompositeArray<ValueType>> compositeArr;
+    compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<ValueType>>(arrays));
+    compositeArr->SetNumberOfComponents(1);
+    // Allocate one more tuple to store the default value
+    compositeArr->SetNumberOfTuples(valuesArray->GetNumberOfTuples() + 1);
+
+    // Create indexed array from handles and composite array
+    auto contourArrayName = contourArray->GetName();
+    vtkNew<vtkIndexedArray<ValueType>> indexedArray;
+    indexedArray->SetBackend(
+      std::make_shared<vtkIndexedImplicitBackend<ValueType>>(handles, compositeArr));
+    indexedArray->SetNumberOfComponents(1);
+    indexedArray->SetNumberOfTuples(nbOfPoints);
+    indexedArray->SetName(contourArrayName);
+
+    // Replace the interpolated contour values by indexed ones
+    outputAttributes->RemoveArray(contourArrayName);
+    outputAttributes->AddArray(indexedArray);
+  }
+};
+
+// Given the contour array name, the contour values and the output attributes,
+// replace the contour array found in the attibutes by an indexed array.
+// If there are less than 256 contour values:
+// - store these values in a new array, removing duplicates
+// - use a vtkUnsignedCharArray to index these values (handles)
+// If there is strictly more than 256 contour values, this function will do nothing.
+void ReplaceWithIndexedArray(const std::string& contourArrayName, vtkContourValues* contourValues,
+  vtkDataSetAttributes* outputAttributes)
+{
+  int numberOfContours = contourValues->GetNumberOfContours();
+  if (numberOfContours > MAX_NB_OF_CONTOURS) // 256
+  {
+    vtkDebugWithObjectMacro(nullptr,
+      "There are more than " << MAX_NB_OF_CONTOURS << " values in contourValues. "
+                             << "ReplaceWithIndexedArray will do nothing.");
+    return;
+  }
+
+  if (!outputAttributes)
+  {
+    vtkErrorWithObjectMacro(nullptr, "Unable to retrieve output attributes");
+    return;
+  }
+
+  auto contourArray =
+    vtkDataArray::SafeDownCast(outputAttributes->GetAbstractArray(contourArrayName.c_str()));
+  if (!contourArray)
+  {
+    vtkErrorWithObjectMacro(
+      nullptr, "Unable to retrieve contour array " << contourArrayName << " from input attributes");
+    return;
+  }
+
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+  ::ConvertToIndexedArrayWorker worker;
+
+  // Dispatch
+  if (!Dispatcher::Execute(contourArray, worker, contourValues, outputAttributes))
+  {
+    vtkErrorWithObjectMacro(nullptr, "Unable to dispatch the contour array " << contourArrayName);
+  }
+}
 }
 
 //------------------------------------------------------------------------------
@@ -422,6 +620,13 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   if (newPolys->GetNumberOfCells())
   {
     output->SetPolys(newPolys);
+  }
+
+  // Replace values from contour with implicit array if needed
+  if (this->UseImplicitArrays && numContours <= 256)
+  {
+    const std::string contourValuesArrayName = this->InScalars->GetName();
+    ::ReplaceWithIndexedArray(contourValuesArrayName, this->ContourValues, output->GetPointData());
   }
 
   // Clean up

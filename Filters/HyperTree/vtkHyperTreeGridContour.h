@@ -106,6 +106,20 @@ public:
    */
   vtkSetClampMacro(Strategy3D, int, USE_VOXELS, USE_DECOMPOSED_POLYHEDRA);
 
+  ///@{
+  /**
+   * Set/Get wether or not the filter should use implicit arrays to store the
+   * output contour values (stored as point data of the output contour).
+   * Since these values are the same fo each isosurface, some memory can be saved
+   * by storing each value only once unsing an indexed array.
+   *
+   * @attention This option have no effect if there is more than 256 contour values.
+   */
+  vtkSetMacro(UseImplicitArrays, bool);
+  vtkGetMacro(UseImplicitArrays, bool);
+  vtkBooleanMacro(UseImplicitArrays, bool);
+  ///@}
+
 protected:
   vtkHyperTreeGridContour();
   ~vtkHyperTreeGridContour() override;
@@ -189,6 +203,9 @@ protected:
 private:
   vtkHyperTreeGridContour(const vtkHyperTreeGridContour&) = delete;
   void operator=(const vtkHyperTreeGridContour&) = delete;
+
+  // Use implicit arrays to store contour values
+  bool UseImplicitArrays = false;
 
   struct vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
