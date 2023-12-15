@@ -59,8 +59,7 @@ private:
 
 inline bool HasGhostFlagsSet(vtkUnsignedCharArray* ghostArray, int flags)
 {
-  auto ah =
-    tovtkm::DataArrayToArrayHandle<vtkAOSDataArrayTemplate<unsigned char>, 1>::Wrap(ghostArray);
+  auto ah = tovtkm::vtkAOSDataArrayToFlatArrayHandle(ghostArray);
   int result = vtkm::cont::Algorithm::Reduce(
     vtkm::cont::make_ArrayHandleTransform(ah, MaskBits(flags)), 0, vtkm::LogicalOr());
   return result;

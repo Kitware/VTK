@@ -49,7 +49,7 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints* points)
   vtkAOSDataArrayTemplate<T>* typedIn = vtkAOSDataArrayTemplate<T>::FastDownCast(points->GetData());
   if (typedIn)
   {
-    auto p = DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, 3>::Wrap(typedIn);
+    auto p = vtkDataArrayToArrayHandle(typedIn);
     return vtkm::cont::CoordinateSystem("coords", p);
   }
 
@@ -57,7 +57,7 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints* points)
     vtkSOADataArrayTemplate<T>::FastDownCast(points->GetData());
   if (typedIn2)
   {
-    auto p = DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, 3>::Wrap(typedIn2);
+    auto p = vtkDataArrayToArrayHandle(typedIn2);
     return vtkm::cont::CoordinateSystem("coords", p);
   }
 
@@ -147,14 +147,14 @@ vtkm::cont::CoordinateSystem ConvertRectilinearPoints(
     vtkAOSDataArrayTemplate<T>* aos = vtkAOSDataArrayTemplate<T>::FastDownCast(vtkCompArrays[i]);
     if (aos)
     {
-      vtkmCompArrays[i] = DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, 1>::Wrap(aos);
+      vtkmCompArrays[i] = vtkAOSDataArrayToFlatArrayHandle(aos);
       continue;
     }
 
     vtkSOADataArrayTemplate<T>* soa = vtkSOADataArrayTemplate<T>::FastDownCast(vtkCompArrays[i]);
     if (soa)
     {
-      vtkmCompArrays[i] = DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, 1>::Wrap(soa);
+      vtkmCompArrays[i] = vtkSOADataArrayToComponentArrayHandle(soa, 0);
       continue;
     }
 
