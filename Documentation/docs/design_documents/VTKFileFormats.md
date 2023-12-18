@@ -1636,6 +1636,7 @@ The Overlapping AMR data file is an AMR Guaussian Pulse source with two levels
 `Data` are not displayed for readability.
 
 ```
+HDF5 "./ExternalData/Testing/Data/amr_gaussian_pulse.hdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Origin" {
@@ -1746,11 +1747,11 @@ GROUP "/" {
             DATASET "Coord Result" {
                DATATYPE  H5T_IEEE_F64LE
                DATASPACE  SIMPLE { ( 770 ) / ( 770 ) }
-               }
             }
          }
       }
    }
+}
 }
 ```
 
