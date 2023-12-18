@@ -1255,7 +1255,7 @@ that we don't partition image data, so the same format is used for
 serial and parallel processing.
 
 ```
-HDF5 "./ExternalData/Testing/Data/mandelbrot-vti.hdf" {
+HDF5 "ExternalData/Testing/Data/mandelbrot-vti.hdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Direction" {
@@ -1361,7 +1361,7 @@ GROUP "/" {
 The unstructured grid is the can example (only the can, not the brick) from ParaView, partitioned in three:
 
 ```
-HDF5 "./ExternalData/Testing/Data/can-pvtu.hdf" {
+HDF5 "ExternalData/Testing/Data/can-pvtu.hdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Type" {
@@ -1512,7 +1512,7 @@ GROUP "/" {
 The poly data is the `test_poly_data.hdf` from the `VTK` testing data:
 
 ```
-HDF5 "./ExternalData/Testing/Data/test_poly_data.hdf" {
+HDF5 "ExternalData/Testing/Data/test_poly_data.hdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Type" {
@@ -1636,7 +1636,7 @@ The Overlapping AMR data file is an AMR Guaussian Pulse source with two levels
 `Data` are not displayed for readability.
 
 ```
-HDF5 "./ExternalData/Testing/Data/amr_gaussian_pulse.hdf" {
+HDF5 "ExternalData/Testing/Data/amr_gaussian_pulse.hdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Origin" {
@@ -1953,7 +1953,7 @@ GROUP "/" {
 The poly data is the `test_transient_poly_data.hdf` from the `VTK` testing data:
 
 ```
-HDF5 "./ExternalData/Testing/Data/test_transient_poly_data.hdf" {
+HDF5 "ExternalData/Testing/Data/test_transient_poly_data.hdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Type" {
