@@ -1760,7 +1760,7 @@ GROUP "/" {
 This partitioned dataset collection is composed of one polydata block, it is inspired by the `test_composite.hdf` from the `VTK` testing data:
 
 ```
-HDF5 "test_composite.hdf" {
+HDF5 "ExternalData/Testing/Data/vtkHDF/test_composite.hdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Type" {
