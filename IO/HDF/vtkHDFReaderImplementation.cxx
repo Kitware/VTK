@@ -876,9 +876,12 @@ vtkAbstractArray* vtkHDFReader::Implementation::NewFieldArray(
     std::vector<hsize_t> fileExtent;
     if (offset >= 0 || size > 0)
     {
-      fileExtent.resize(2, 0);
-      fileExtent[0] = offset;
-      fileExtent[1] = offset + size;
+      // XXX(gcc-12): GCC 12 has some weird warning triggered here where
+      // `fileExtent.resize()` warns about writing out-of-bounds. Instead, just
+      // reserve ahead of time and push into the vector.
+      fileExtent.reserve(2);
+      fileExtent.push_back(offset);
+      fileExtent.push_back(offset + size);
     }
     return NewArrayForGroup(this->AttributeDataGroup[vtkDataObject::FIELD], name, fileExtent);
   }
