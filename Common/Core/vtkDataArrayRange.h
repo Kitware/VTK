@@ -119,7 +119,8 @@ public:
       std::declval<ArrayType*>()))>::type;
 };
 
-template <typename ArrayTypePtr, ComponentIdType TupleSize>
+template <typename ArrayTypePtr, ComponentIdType TupleSize,
+  typename ForceValueTypeForVtkDataArray = double>
 struct SelectValueRange
 {
 private:
@@ -132,7 +133,7 @@ private:
 public:
   using type =
     typename std::remove_reference<decltype(vtk::detail::DeclareValueRangeSpecialization<ArrayType,
-      TupleSize>(std::declval<ArrayType*>()))>::type;
+      TupleSize, ForceValueTypeForVtkDataArray>(std::declval<ArrayType*>()))>::type;
 };
 
 VTK_ABI_NAMESPACE_END
@@ -241,6 +242,8 @@ VTK_ABI_NAMESPACE_END
  *   }
  * }
  * ```
+ * @todo Just like the `DataArrayValueRange`, the tuple range can also accept a forced value type
+ * for generic vtkDataArray.
  */
 VTK_ABI_NAMESPACE_BEGIN
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
@@ -354,11 +357,13 @@ VTK_ITER_INLINE auto DataArrayTupleRange(const ArrayTypePtr& array, TupleIdType 
  * ```
  */
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
-  typename ArrayTypePtr = vtkDataArray*>
-VTK_ITER_INLINE auto DataArrayValueRange(const ArrayTypePtr& array, ValueIdType start = -1,
-  ValueIdType end = -1) -> typename detail::SelectValueRange<ArrayTypePtr, TupleSize>::type
+  typename ForceValueTypeForVtkDataArray = double, typename ArrayTypePtr = vtkDataArray*>
+VTK_ITER_INLINE auto DataArrayValueRange(
+  const ArrayTypePtr& array, ValueIdType start = -1, ValueIdType end = -1) ->
+  typename detail::SelectValueRange<ArrayTypePtr, TupleSize, ForceValueTypeForVtkDataArray>::type
 {
-  using RangeType = typename detail::SelectValueRange<ArrayTypePtr, TupleSize>::type;
+  using RangeType =
+    typename detail::SelectValueRange<ArrayTypePtr, TupleSize, ForceValueTypeForVtkDataArray>::type;
 
   assert(array);
 

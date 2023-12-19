@@ -33,7 +33,8 @@ namespace detail
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ArrayType, ComponentIdType TupleSize>
 struct TupleRange;
-template <typename ArrayType, ComponentIdType TupleSize>
+template <typename ArrayType, ComponentIdType TupleSize,
+  typename ForceValueTypeForVtkDataArray = double>
 struct ValueRange;
 VTK_ABI_NAMESPACE_END
 } // namespace detail
@@ -52,7 +53,8 @@ class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate
   // which is required to avoid accessing raw pointers that might no longer be valid.
   template <typename ArrayType, vtk::ComponentIdType TupleSize>
   friend struct vtk::detail::TupleRange;
-  template <typename ArrayType, vtk::ComponentIdType TupleSize>
+  template <typename ArrayType, vtk::ComponentIdType TupleSize,
+    typename ForceValueTypeForVtkDataArray>
   friend struct vtk::detail::ValueRange;
 
 public:

@@ -30,8 +30,10 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // ValueRange
-template <typename ValueTypeT, ComponentIdType TupleSize>
-struct ValueRange<vtkAOSDataArrayTemplate<ValueTypeT>, TupleSize>
+// For vtkAOSDataArrayTemplate, the `ForceValueTypeForVtkDataArray` template parameter is not used
+// at all.
+template <typename ValueTypeT, ComponentIdType TupleSize, typename ForceValueTypeForVtkDataArray>
+struct ValueRange<vtkAOSDataArrayTemplate<ValueTypeT>, TupleSize, ForceValueTypeForVtkDataArray>
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
@@ -85,7 +87,8 @@ public:
         endValue
       : std::distance(this->Array->GetPointer(0), this->Array->GetPointer(this->EndValue));
 
-    return ValueRange{ this->Array, realBegin, realEnd };
+    return ValueRange<ArrayType, TupleSize, ForceValueTypeForVtkDataArray>{ this->Array, realBegin,
+      realEnd };
   }
 
   VTK_ITER_INLINE
@@ -141,6 +144,11 @@ public:
     return this->Array->Buffer->GetBuffer()[this->BeginValue + i];
   }
 
+  // Danger! pointer is non-const!
+  value_type* data() noexcept { return this->Array->Buffer->GetBuffer(); }
+
+  value_type* data() const noexcept { return this->Array->Buffer->GetBuffer(); }
+
 private:
   mutable ArrayType* Array{ nullptr };
   NumCompsType NumComps{};
@@ -149,13 +157,14 @@ private:
 };
 
 // Unimplemented, only used inside decltype in SelectValueRange:
-template <typename ArrayType, ComponentIdType TupleSize,
+template <typename ArrayType, ComponentIdType TupleSize, typename ForceValueTypeForVtkDataArray,
   // Convenience:
   typename ValueType = typename ArrayType::ValueType,
   typename AOSArrayType = vtkAOSDataArrayTemplate<ValueType>,
   // SFINAE to select AOS arrays:
   typename = typename std::enable_if<IsAOSDataArray<ArrayType>::value>::type>
-ValueRange<AOSArrayType, TupleSize> DeclareValueRangeSpecialization(ArrayType*);
+ValueRange<AOSArrayType, TupleSize, ForceValueTypeForVtkDataArray> DeclareValueRangeSpecialization(
+  ArrayType*);
 
 VTK_ABI_NAMESPACE_END
 }
