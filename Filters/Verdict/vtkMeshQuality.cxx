@@ -564,7 +564,7 @@ public:
 
         if (this->MeshQuality->SaveCellQuality)
         {
-          qualityArrays[qualityId]->SetTypedTuple(cellId, &quality);
+          qualityArrays[qualityId]->SetTypedComponent(cellId, 0, quality);
         }
 
         if (qualityId == 1)
