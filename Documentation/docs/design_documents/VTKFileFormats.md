@@ -76,7 +76,7 @@ manipulation or using VTK filters to merge data. Keywords are case insensitive, 
 
 * The geometry/topology description must occur prior to the data attribute description.
 
-### Binary Files.
+### Binary Files
 
 Binary files in VTK are portable across different computer systems as long as you observe two conditions. First, make sure that the byte ordering of the data is correct, and second, make sure that the length of each data type is consistent.
 
@@ -91,7 +91,7 @@ SetDataByteOrderToLittleEndian()
 
 Another problem with binary files is that systems may use a different number of bytes to represent an integer or other native type. For example, some 64-bit systems will represent an integer with 8-bytes, while others represent an integer with 4-bytes. Currently, the *Visualization Toolkit* cannot handle transporting binary files across systems with incompatible data length. In this case, use ASCII file formats instead.
 
-### Dataset Format.
+### Dataset Format
 The *Visualization Toolkit* supports five different dataset formats: structured points, structured grid, rectilinear grid, unstructured grid, and polygonal data. Data with implicit topology (structured data such as vtkImageData and vtkStructuredGrid) are ordered with x increasing fastest, then y, then z. These formats are as follows.
 
 * **Structured Points**. The file format supports 1D, 2D, and 3D structured point datasets. The dimensions nx, ny, nz must be greater than or equal to 1. The data spacing sx, sy, sz must be greater than 0. (Note: in the version 1.0 data file, spacing was referred to as "aspect ratio". ASPECT_RATIO can still be used in version 2.0 data files, but is discouraged.)
@@ -172,7 +172,7 @@ type<sub>n-1</sub></i></b><br>
 
 * **Field**. Field data is a general format without topological and geometric structure, and without a particular dimensionality. Typically field data is associated with the points or cells of a dataset. However, if the FIELD type is specified as the dataset type (see Figure1), then a general VTK data object is defined. Use the format described in the next section to define a field. Also see "Working With Field Data" on [page 249](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=263) and the fourth example in this chapter [Legacy File Examples](#legacy-file-examples).
 
-### Dataset Attribute Format.
+### Dataset Attribute Format
 
 The *Visualization Toolkit* supports the following dataset attributes: scalars (one to four components), vectors, normals, texture coordinates (1D, 2D, and 3D), tensors, and field data. In addition, a lookup table using the RGBA color specification, associated with the scalar data, can be defined as well. Dataset attributes are supported for both points and cells.
 
@@ -256,7 +256,7 @@ f<sub>10</sub> f<sub>11</sub> ... f<sub>1(numComponents-1)</sub><br>
 ...<br>
 f<sub>(numTuples-1)0</sub> f<sub>(numTuples-1)1</sub> ... f<sub>(numTuples-1)(numComponents-1)</sub></i></b>
 
-### Legacy File Examples.
+### Legacy File Examples
 The first example is a cube represented by six polygonal faces. We define a single-component scalar, normals, and field data on the six faces. There are scalar data associated with the eight vertices. A lookup table of eight colors, associated with the point scalars, is also defined.
 
 ```
@@ -532,7 +532,7 @@ The attributes of the element are:
 
 Nested inside the _VTKFile_ element is an element whose name corresponds to the type of the data format (i.e., the _type_ attribute). This element describes the topology the dataset, and is different for the serial and parallel formats, which are described as follows.
 
-### **Serial XML File Formats.**
+### **Serial XML File Formats**
 The _VTKFile_ element contains one element whose name corresponds to the type of dataset the file describes. We refer to this as the dataset element, which is one of _ImageData_, _RectilinearGrid_, _StructuredGrid_, _PolyData_, or _UnstructuredGrid_. The dataset element contains one or more _Piece_ elements, each describing a portion of the dataset. Together, the dataset element and _Piece_ elements specify the entire dataset.
 
 Each piece of a dataset must specify the geometry (points and cells) of that piece along with the data associated with each point or cell. Geometry is specified differently for each dataset type, but every piece of every dataset contains
@@ -738,7 +738,7 @@ The appended data section is stored in an _AppendedData_ element that is nested 
 
 The appended data section begins with the first character after the underscore inside the _AppendedData_ element. The underscore is not part of the data, but is always present. Data in this section is always in binary form, but can be compressed and/or base64 encoded. The byte-order of the data matches that specified by the byte_order attribute of the _VTKFile_ element. Each _DataArray_’s data are stored contiguously and appended immediately after the previous _DataArray_’s data without a separator. The _DataArray_’s _offset_ attribute indicates the file position offset from the first character after the underscore to the beginning its data.
 
-### **Parallel File Formats.**
+### **Parallel File Formats**
 The parallel file formats do not actually store any data in the file. Instead, the data are broken into pieces, each of which is stored in a serial file of the same dataset type.
 
 The _VTKFile_ element contains one element whose name corresponds to the type of dataset the file describes, but with a "P" prefix. We refer to this as the parallel dataset element, which is one of _PImageData_, _PRectilinearGrid_, _PStructuredGrid_, _PPolyData_, or _PUnstructuredGrid_.
@@ -874,7 +874,7 @@ All of the data and geometry specifications use _PDataArray_ elements to describ
     <PDataArray type="Float32" Name="vectors" NumberOfComponents="3"/>
 ```
 
-### XML File Example.
+### XML File Example
 The following is a complete example specifying a vtkPolyData representing a cube with some scalar data on its points and faces. <sup>[1](https://kitware.com/products/books/VTKUsersGuide.pdf)</sup>
 
 ```xml
