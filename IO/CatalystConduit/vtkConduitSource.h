@@ -20,6 +20,7 @@
 #define vtkConduitSource_h
 
 #include "vtkDataObjectAlgorithm.h"
+
 #include "vtkIOCatalystConduitModule.h" // for exports
 
 #include "conduit.h" // for conduit_node

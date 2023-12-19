@@ -35,6 +35,8 @@ public:
   vtkTypeMacro(vtkConduitArrayUtilities, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  static bool IsDevicePointer(const void* p);
+
   ///@{
   /**
    * Returns a vtkDataArray from a conduit node in the conduit mcarray protocol.
@@ -85,6 +87,13 @@ protected:
     const conduit_node* mcarray, bool force_signed);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKSOAArray(
     const conduit_node* mcarray, bool force_signed);
+
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmAOSArray(
+    const conduit_node* mcarray, bool force_signed);
+  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmSOAArray(
+    const conduit_node* mcarray, bool force_signed);
+#endif
 
 private:
   vtkConduitArrayUtilities(const vtkConduitArrayUtilities&) = delete;

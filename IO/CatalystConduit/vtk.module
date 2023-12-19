@@ -14,6 +14,8 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::catalyst
+OPTIONAL_DEPENDS
+  VTK::AcceleratorsVTKmDataModel
 PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersAMR
@@ -24,3 +26,4 @@ TEST_DEPENDS
   VTK::ParallelCore
 TEST_OPTIONAL_DEPENDS
   VTK::ParallelMPI
+  VTK::AcceleratorsVTKmDataModel

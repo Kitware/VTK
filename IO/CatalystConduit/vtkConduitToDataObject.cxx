@@ -472,10 +472,8 @@ vtkSmartPointer<vtkRectilinearGrid> CreateRectilinearGrid(const conduit_cpp::Nod
 
   const bool has_x_values = coordset.has_path("values/x");
   const conduit_cpp::Node values_x = has_x_values ? coordset["values/x"] : conduit_cpp::Node();
-
   const bool has_y_values = coordset.has_path("values/y");
   const conduit_cpp::Node values_y = has_y_values ? coordset["values/y"] : conduit_cpp::Node();
-
   const bool has_z_values = coordset.has_path("values/z");
   const conduit_cpp::Node values_z = has_z_values ? coordset["values/z"] : conduit_cpp::Node();
 
@@ -483,6 +481,7 @@ vtkSmartPointer<vtkRectilinearGrid> CreateRectilinearGrid(const conduit_cpp::Nod
   vtkSmartPointer<vtkDataArray> xArray;
   if (has_x_values)
   {
+    const auto& values_x = coordset["values/x"];
     xArray = vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_x), "xcoords");
     x_dimension = xArray->GetNumberOfTuples();
   }
@@ -491,6 +490,7 @@ vtkSmartPointer<vtkRectilinearGrid> CreateRectilinearGrid(const conduit_cpp::Nod
   vtkSmartPointer<vtkDataArray> yArray;
   if (has_y_values)
   {
+    const auto& values_y = coordset["values/y"];
     yArray = vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_y), "ycoords");
     y_dimension = yArray->GetNumberOfTuples();
   }
@@ -499,6 +499,7 @@ vtkSmartPointer<vtkRectilinearGrid> CreateRectilinearGrid(const conduit_cpp::Nod
   vtkSmartPointer<vtkDataArray> zArray;
   if (has_z_values)
   {
+    const auto& values_z = coordset["values/z"];
     zArray = vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_z), "zcoords");
     z_dimension = zArray->GetNumberOfTuples();
   }
