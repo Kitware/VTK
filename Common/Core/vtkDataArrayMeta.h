@@ -163,15 +163,15 @@ struct GenericTupleSize<DynamicTupleSize>
   ComponentIdType value;
 };
 
-template <typename ArrayType>
+template <typename ArrayType, typename ForceValueTypeForVtkDataArray = double>
 struct GetAPITypeImpl
 {
   using APIType = typename ArrayType::ValueType;
 };
-template <>
-struct GetAPITypeImpl<vtkDataArray>
+template <typename ForceValueTypeForVtkDataArray>
+struct GetAPITypeImpl<vtkDataArray, ForceValueTypeForVtkDataArray>
 {
-  using APIType = double;
+  using APIType = ForceValueTypeForVtkDataArray;
 };
 
 VTK_ABI_NAMESPACE_END
@@ -181,8 +181,10 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // Typedef for double if vtkDataArray, or the array's ValueType for subclasses.
-template <typename ArrayType, typename = detail::EnableIfVtkDataArray<ArrayType>>
-using GetAPIType = typename detail::GetAPITypeImpl<ArrayType>::APIType;
+template <typename ArrayType, typename ForceValueTypeForVtkDataArray = double,
+  typename = detail::EnableIfVtkDataArray<ArrayType>>
+using GetAPIType =
+  typename detail::GetAPITypeImpl<ArrayType, ForceValueTypeForVtkDataArray>::APIType;
 
 VTK_ABI_NAMESPACE_END
 
