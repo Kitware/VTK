@@ -185,7 +185,7 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win), bool 
   (void)requireDepthFloat;
   (void)requireTexInt;
   return true;
-#elif __APPLE__
+#elif defined(__APPLE__)
   // Cannot trust glew on apple systems
   (void)requireTexFloat;
   (void)requireDepthFloat;
@@ -222,7 +222,7 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow* renWin)
   this->SupportsTextureInteger = true;
   this->SupportsTextureFloat = true;
   this->SupportsDepthBufferFloat = true;
-#elif __APPLE__
+#elif defined(__APPLE__)
   // Cannot trust glew on apple systems. OpenGL 3.2 on apple supports these features.
   this->SupportsTextureInteger = true;
   this->SupportsTextureFloat = true;
