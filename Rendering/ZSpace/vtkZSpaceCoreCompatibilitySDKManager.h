@@ -15,7 +15,6 @@
 #ifndef vtkZSpaceCoreCompatibilitySDKManager_h
 #define vtkZSpaceCoreCompatibilitySDKManager_h
 
-#include "vtkDynamicLoader.h"
 #include "vtkZSpaceSDKManager.h"
 
 // Disable "anonymous struct/union" warning on zSpace compat headers
@@ -23,7 +22,8 @@
 #include "zSpaceCoreCompatibility.h" // zSpace header
 #pragma warning(default : 4201)
 
-#include <vector> // for std::vector
+#include <vector>    // for std::vector
+#include <windows.h> // for HMODULE
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -116,7 +116,7 @@ protected:
   zSpaceCoreCompatEntryPoints EntryPts;
 
   // Handle to the zSpace Core Compatibility API dynamic library (.dll).
-  vtkLibHandle zSpaceCoreCompatDllModuleHandle;
+  HMODULE zSpaceCoreCompatDllModuleHandle;
 
   // Handle to the current window
   HWND WidondowHandle;
@@ -126,7 +126,7 @@ protected:
    * zSpace Core Compatibility API entry point functions (at runtime)
    */
   bool loadZspaceCoreCompatibilityEntryPoints(const char* zSpaceCoreCompatDllFilePath,
-    vtkLibHandle& zSpaceCoreCompatDllModuleHandle, zSpaceCoreCompatEntryPoints& entryPoints);
+    HMODULE& zSpaceCoreCompatDllModuleHandle, zSpaceCoreCompatEntryPoints& entryPoints);
 
   /**
    * zSpace stores matrix in column-major format (as OpenGL). The matrix

@@ -55,12 +55,12 @@ vtkZSpaceCoreCompatibilitySDKManager::~vtkZSpaceCoreCompatibilitySDKManager()
 
 //------------------------------------------------------------------------------
 bool vtkZSpaceCoreCompatibilitySDKManager::loadZspaceCoreCompatibilityEntryPoints(
-  const char* zSpaceCoreCompatDllFilePath, vtkLibHandle& dllModuleHandle,
+  const char* zSpaceCoreCompatDllFilePath, HMODULE& dllModuleHandle,
   zSpaceCoreCompatEntryPoints& entryPoints)
 {
-  dllModuleHandle = vtkDynamicLoader::OpenLibrary(zSpaceCoreCompatDllFilePath);
+  dllModuleHandle = LoadLibraryA(zSpaceCoreCompatDllFilePath);
 
-  if (!dllModuleHandle)
+  if (dllModuleHandle == nullptr)
   {
     // If the release variant of the zSpace Core Compatibility API DLL
     // could not be loaded, attempt to the debug variant instead.
@@ -68,11 +68,11 @@ bool vtkZSpaceCoreCompatibilitySDKManager::loadZspaceCoreCompatibilityEntryPoint
     std::string zSpaceCoreCompatDllDebugFilePath(zSpaceCoreCompatDllFilePath);
     zSpaceCoreCompatDllDebugFilePath.append("_D");
 
-    dllModuleHandle = vtkDynamicLoader::OpenLibrary(zSpaceCoreCompatDllDebugFilePath.c_str());
+    dllModuleHandle = LoadLibraryA(zSpaceCoreCompatDllDebugFilePath.c_str());
 
-    if (!dllModuleHandle)
+    if (dllModuleHandle == nullptr)
     {
-      vtkErrorMacro(<< "System Error : "
+      vtkErrorMacro(<< "Win32 Error : "
                     << "Failed to load zSpace Core Compatibility API DLL.");
 
       return false;
@@ -81,12 +81,12 @@ bool vtkZSpaceCoreCompatibilitySDKManager::loadZspaceCoreCompatibilityEntryPoint
 
 #define ZC_COMPAT_SAMPLE_LOCAL_LOAD_ENTRY_POINT(undecoratedFuncName)                               \
   {                                                                                                \
-    vtkSymbolPointer entryPointProcAddress =                                                       \
-      vtkDynamicLoader::GetSymbolAddress(dllModuleHandle, "zccompat" #undecoratedFuncName);        \
+    void* entryPointProcAddress =                                                                  \
+      GetProcAddress(dllModuleHandle, "zccompat" #undecoratedFuncName);                            \
                                                                                                    \
     if (entryPointProcAddress == nullptr)                                                          \
     {                                                                                              \
-      vtkErrorMacro(<< "System Error : "                                                           \
+      vtkErrorMacro(<< "Win32 Error : "                                                            \
                     << "Failed to get zSpace Core Compatibility entry point "                      \
                     << "proc address for entry point "                                             \
                     << "\"zccompat" << #undecoratedFuncName << "\".");                             \
