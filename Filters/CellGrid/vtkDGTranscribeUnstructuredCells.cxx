@@ -119,7 +119,7 @@ vtkDGCell::Shape dgCellShapeFromVTKShape(int vtkCellType)
     // TODO: Handle quadratic and higher-order cells.
     default:
       break;
-  };
+  }
   return result;
 }
 
@@ -451,7 +451,7 @@ vtkStringToken uniquifyAttributeName(vtkStringToken nameIn, vtkCellGrid* grid)
     {
       break; // We have turned badName into a good name.
     }
-  };
+  }
   return badName;
 }
 

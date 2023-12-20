@@ -129,7 +129,7 @@ bool TestImageNoDirection()
       expectedValue[0] = points[i][0] - origin[0];
       expectedValue[1] = points[i][1] - origin[1];
       expectedValue[2] = points[i][2] - origin[2];
-    };
+    }
 
     double value[3];
     bool inBounds = interpolator->Interpolate(points[i], value);
@@ -240,7 +240,7 @@ bool TestImageWithDirection()
       expectedValue[1] = points[i][1] - origin[1];
       expectedValue[2] = points[i][2] - origin[2];
       matrixInverse->MultiplyPoint(expectedValue, expectedValue);
-    };
+    }
 
     double value[3];
     bool inBounds = interpolator->Interpolate(points[i], value);
