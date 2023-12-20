@@ -89,6 +89,7 @@ bool vtkCommand::EventHasData(unsigned long event)
     case vtkCommand::PositionProp3DEvent:
     case vtkCommand::Pick3DEvent:
     case vtkCommand::Select3DEvent:
+    case vtkCommand::Elevation3DEvent:
       return true;
     default:
       return false;
