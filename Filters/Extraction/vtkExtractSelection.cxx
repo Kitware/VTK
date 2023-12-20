@@ -1095,8 +1095,7 @@ void vtkExtractSelection::ExtractSelectedRows(
   {
     for (vtkIdType rowId = 0; rowId < numRows; ++rowId)
     {
-      signed char isInside;
-      rowsInside->GetTypedTuple(rowId, &isInside);
+      signed char isInside = rowsInside->GetTypedComponent(rowId, 0);
       if (isInside)
       {
         output->InsertNextRow(input->GetRow(rowId));
