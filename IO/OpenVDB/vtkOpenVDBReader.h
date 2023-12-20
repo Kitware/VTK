@@ -130,7 +130,7 @@ public:
 
 protected:
   vtkOpenVDBReader();
-  ~vtkOpenVDBReader() override = default;
+  ~vtkOpenVDBReader() override;
 
   bool LoadFile();
   void InitializeData();
