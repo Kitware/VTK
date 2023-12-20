@@ -262,9 +262,15 @@ std::vector<int> GetIOSSTransformation(VTKCellType cellType, int npts)
           // clang-format on
           break;
         case 21:
-          result.resize(npts, 0);
-          std::iota(result.begin(), result.end(), 1);
-          break;
+        {
+          // XXX(gcc-12): GCC 12 has some weird warning triggered here where
+          // `result.resize()` warns about writing out-of-bounds. Use a new
+          // vector and move into `result` to avoid the warning.
+          std::vector<int> r(npts);
+          std::iota(r.begin(), r.end(), 1);
+          result = std::move(r);
+        }
+        break;
         default:
           vtkLog(WARNING, << "Unsupported number of points for cell - VTK_WEDGE."
                           << "Supported: 15, 18, 21 "
@@ -277,9 +283,15 @@ std::vector<int> GetIOSSTransformation(VTKCellType cellType, int npts)
       switch (npts)
       {
         case 8:
-          result.resize(npts, 0);
-          std::iota(result.begin(), result.end(), 1);
-          break;
+        {
+          // XXX(gcc-12): GCC 12 has some weird warning triggered here where
+          // `result.resize()` warns about writing out-of-bounds. Use a new
+          // vector and move into `result` to avoid the warning.
+          std::vector<int> r(npts);
+          std::iota(r.begin(), r.end(), 1);
+          result = std::move(r);
+        }
+        break;
         case 20:
           // clang-format off
           result = {
