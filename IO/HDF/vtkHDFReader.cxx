@@ -8,6 +8,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
+#include "vtkDataObjectTree.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
@@ -17,6 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMatrix3x3.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
@@ -413,12 +415,12 @@ const char* vtkHDFReader::GetCellArrayName(int index)
 int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
-  std::map<int, std::string> typeNameMap = {
-    { VTK_IMAGE_DATA, "vtkImageData" }, { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" },
-    { VTK_POLY_DATA, "vtkPolyData" }, { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" },
-    { VTK_PARTITIONED_DATA_SET_COLLECTION, "vtkPartitionedDataSetCollection" }
+  std::map<int, std::string> typeNameMap = { { VTK_IMAGE_DATA, "vtkImageData" },
+    { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" }, { VTK_POLY_DATA, "vtkPolyData" },
+    { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" },
+    { VTK_PARTITIONED_DATA_SET_COLLECTION, "vtkPartitionedDataSetCollection" },
+    { VTK_MULTIBLOCK_DATA_SET, "vtkMultiBlockDataSet" } };
 
-  };
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
 
@@ -480,6 +482,11 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     {
       this->Assembly = vtkSmartPointer<vtkDataAssembly>::New();
       newOutput = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
+    }
+    else if (dataSetType == VTK_MULTIBLOCK_DATA_SET)
+    {
+      this->Assembly = vtkSmartPointer<vtkDataAssembly>::New();
+      newOutput = vtkSmartPointer<vtkMultiBlockDataSet>::New();
     }
     else
     {
@@ -566,7 +573,8 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
     outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
     outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 0);
   }
-  else if (dataSetType == VTK_PARTITIONED_DATA_SET_COLLECTION)
+  else if (dataSetType == VTK_PARTITIONED_DATA_SET_COLLECTION ||
+    dataSetType == VTK_MULTIBLOCK_DATA_SET)
   {
     this->GenerateAssembly();
 
@@ -1200,6 +1208,23 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
 }
 
 //------------------------------------------------------------------------------
+int vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)
+{
+  std::cout << "vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)\n";
+  bool isPDCTransient = this->HasTransientData;
+  vtkIdType pdcSteps = this->NumberOfSteps;
+
+  int parent = 0;
+  this->ReadRecursively(outInfo, mb, parent);
+
+  this->Impl->RetrieveHDFInformation(VTKHDF_ROOT_PATH);
+  this->HasTransientData = isPDCTransient;
+  this->NumberOfSteps = pdcSteps;
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 void vtkHDFReader::GenerateAssembly()
 {
   this->Assembly->Initialize();
@@ -1275,20 +1300,106 @@ void vtkHDFReader::RetrieveDataArraysFromAssembly(int parent)
 
 //------------------------------------------------------------------------------
 void vtkHDFReader::ReadRecursively(
-  vtkInformation* outInfo, vtkPartitionedDataSetCollection* dataPDC, int parent)
+  vtkInformation* outInfo, vtkMultiBlockDataSet* dataMB, int parent)
 {
-  auto* assembly = dataPDC->GetDataAssembly();
-  for (int i = 0; i < assembly->GetNumberOfChildren(parent); i++)
+  for (int i = 0; i < this->Assembly->GetNumberOfChildren(parent); i++)
   {
-    int index = assembly->GetChild(parent, i);
+    int index = this->Assembly->GetChild(parent, i);
     if (index == -1)
     {
       continue;
     }
 
-    if (assembly->GetNumberOfChildren(index) == 0)
+    if (this->Assembly->GetNumberOfChildren(index) > 0)
     {
-      int meshID = assembly->GetDataSetIndices(index, false)[0];
+      std::string hdfPathName = this->Assembly->GetNodeName(index);
+
+      vtkNew<vtkMultiBlockDataSet> childGroup;
+      dataMB->SetBlock(dataMB->GetNumberOfBlocks(), childGroup);
+
+      this->ReadRecursively(outInfo, childGroup, index);
+      continue;
+    }
+
+    if (this->Assembly->GetNumberOfChildren(index) == 0)
+    {
+      int meshID = this->Assembly->GetDataSetIndices(index, false)[0];
+
+      std::string hdfPathName = ::VTKHDF_ROOT_PATH + this->Assembly->GetNodePath(index);
+      ::ConvertToValidHDFPath(hdfPathName);
+
+      this->Impl->RetrieveHDFInformation(hdfPathName);
+
+      this->Impl->OpenGroupAsVTKGroup(hdfPathName);
+
+      std::size_t nStep = this->Impl->GetNumberOfSteps();
+      this->NumberOfSteps = nStep;
+      this->HasTransientData = (this->NumberOfSteps > 1);
+
+      int datatype = this->Impl->GetDataSetType();
+      if (datatype == VTK_POLY_DATA)
+      {
+        vtkNew<vtkPolyData> data;
+        auto* out = data->GetInformation();
+
+        // one piece per partition
+        out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+
+        this->SetupInformation(out);
+
+        vtkNew<vtkPartitionedDataSet> pData;
+        this->Read(out, data, pData);
+        dataMB->SetBlock(meshID, data);
+      }
+      else if (datatype == VTK_UNSTRUCTURED_GRID)
+      {
+        vtkNew<vtkUnstructuredGrid> data;
+        auto* out = data->GetInformation();
+
+        out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+
+        this->SetupInformation(out);
+
+        vtkNew<vtkPartitionedDataSet> pData;
+        this->Read(out, data, pData);
+        dataMB->SetBlock(meshID, data);
+      }
+      else if (datatype == VTK_IMAGE_DATA)
+      {
+        vtkNew<vtkImageData> data;
+        auto* out = data->GetInformation();
+
+        this->SetupInformation(out);
+
+        // always request the whole extent
+        out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+          out->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
+
+        this->Read(out, data);
+        dataMB->SetBlock(meshID, data);
+      }
+    }
+
+    this->ReadRecursively(outInfo, dataMB, index);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFReader::ReadRecursively(
+  vtkInformation* outInfo, vtkPartitionedDataSetCollection* dataPDC, int parent)
+{
+  // auto* assembly = dataPDC->GetDataAssembly();
+  for (int i = 0; i < this->Assembly->GetNumberOfChildren(parent); i++)
+  {
+    int index = this->Assembly->GetChild(parent, i);
+    if (index == -1)
+    {
+      continue;
+    }
+
+    if (this->Assembly->GetNumberOfChildren(index) == 0)
+    {
+      int meshID = this->Assembly->GetDataSetIndices(index, false)[0];
 
       std::string hdfPathName = ::VTKHDF_ROOT_PATH + this->Assembly->GetNodePath(index);
       ::ConvertToValidHDFPath(hdfPathName);
@@ -1424,6 +1535,11 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkPartitionedDataSetCollection* data = vtkPartitionedDataSetCollection::SafeDownCast(output);
     ok = this->Read(outInfo, data);
   }
+  else if (dataSetType == VTK_MULTIBLOCK_DATA_SET)
+  {
+    vtkMultiBlockDataSet* data = vtkMultiBlockDataSet::SafeDownCast(output);
+    ok = this->Read(outInfo, data);
+  }
   else
   {
     vtkErrorMacro("HDF dataset type unknown: " << dataSetType);
@@ -1431,4 +1547,5 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return ok && this->AddFieldArrays(output);
 }
+
 VTK_ABI_NAMESPACE_END

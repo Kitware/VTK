@@ -15,11 +15,13 @@
 #include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkCellArray;
+class vtkDataObjectTree;
+class vtkDataSet;
+class vtkPointSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
-class vtkPointSet;
-class vtkDataSet;
-class vtkCellArray;
 
 typedef int64_t hid_t;
 
@@ -62,6 +64,17 @@ public:
 
   ///@{
   /**
+   * Get/set OutputAsMultiBlockDataSet. Determine if the composite written while has his Type
+   * atttribute set as MultiBlockDataSet or PartitionedDataSetCollection.
+   *
+   * Default is False.
+   */
+  vtkSetMacro(OutputAsMultiBlockDataSet, bool);
+  vtkGetMacro(OutputAsMultiBlockDataSet, bool);
+  ///@}
+
+  ///@{
+  /**
    * Get/set the flag to write all timesteps from the input dataset.
    * When turned OFF, only write the first timestep.
    */
@@ -80,10 +93,13 @@ public:
   vtkGetMacro(ChunkSize, int);
   ///@}
 
+  ///@{
   /**
    * Write the dataset from the input in the file specified by the filename to the vtkHDF format.
    */
   void WriteData() override;
+  void WriteData(vtkDataObject* input, const std::string& path = "VTKHDF");
+  ///@}
 
 protected:
   /**
@@ -113,8 +129,9 @@ private:
    * Write the data to the current FileName in vtkHDF format.
    * returns true if the writing operation completes successfully.
    */
-  bool WriteDatasetToFile(vtkPolyData* input);
-  bool WriteDatasetToFile(vtkUnstructuredGrid* input);
+  bool WriteDatasetToFile(vtkPolyData* input, const std::string& path = "VTKHDF");
+  bool WriteDatasetToFile(vtkUnstructuredGrid* input, const std::string& path = "VTKHDF");
+  bool WriteDatasetToFile(vtkDataObjectTree* input, const std::string& path = "VTKHDF");
   ///@}
 
   ///@{
@@ -189,6 +206,17 @@ private:
   bool AppendDataArrays(hid_t group, vtkDataObject* input);
 
   /**
+   * Add the assembly of the DataObjectTree to the file.
+   * OpenRoot should succeed on this->Impl before calling this function.
+   */
+  bool AppendAssembly(hid_t baseGroup, vtkDataObjectTree* input, std::string path = "Assembly");
+
+  /**
+   * TODO
+   */
+  bool AppendBlocks(hid_t baseGroup, vtkDataObjectTree* input);
+
+  /**
    * Append the offset data in the steps group for the current array for transient data
    */
   bool AppendTransientDataArray(hid_t arrayGroup, vtkAbstractArray* array, const char* arrayName,
@@ -203,6 +231,7 @@ private:
   std::unique_ptr<Implementation> Impl;
   char* FileName = nullptr;
   bool Overwrite = true;
+  bool OutputAsMultiBlockDataSet = false;
 
   // Transient-related configuration and variables
   double* timeSteps = nullptr;

@@ -44,6 +44,16 @@ vtk_module_test_data(
   Data/vtkHDF/test_composite.hdf_000000/test_composite.hdf_000000_1_0.vtu
   Data/vtkHDF/test_composite.hdf_000000/test_composite.hdf_000000_2_0.vti
 
+  Data/vtkHDF/dummy_pdc_structure.vtpc
+  Data/vtkHDF/dummy_pdc_structure/dummy_pdc_structure_0_0.vtp
+  Data/vtkHDF/dummy_pdc_structure/dummy_pdc_structure_1_0.vtp
+  Data/vtkHDF/dummy_pdc_structure/dummy_pdc_structure_2_0.vtu
+
+  Data/vtkHDF/test_multiblock_hdf.vtm
+  Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_0_0.vtp
+  Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_1_0.vtp
+  Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_2_0.vtu
+
   Data/vtkHDF/Transient/test_composite_transient.hdf
   Data/vtkHDF/Transient/test_composite_transient.hdf_000000.vtpc
   Data/vtkHDF/Transient/test_composite_transient.hdf_000000/test_composite_transient.hdf_000000_0_0.vtp

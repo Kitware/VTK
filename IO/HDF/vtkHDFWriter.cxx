@@ -3,6 +3,9 @@
 #include "vtkHDFWriter.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkDataAssembly.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
@@ -10,7 +13,11 @@
 #include "vtkHDFWriterImplementation.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
+#include "vtkSmartPointer.h"
 
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -30,10 +37,9 @@ hsize_t SMALL_CHUNK[] = { 1, 1 }; // Used for chunked arrays where values are re
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::WriteDatasetToFile(vtkPolyData* input)
+bool vtkHDFWriter::WriteDatasetToFile(vtkPolyData* input, const std::string& path)
 {
-  // Root group only needs to be opened for the first timestep
-  if (this->CurrentTimeIndex == 0 && !this->Impl->OpenRoot(this->Overwrite))
+  if (!this->Impl->OpenGroup(path, this->Overwrite))
   {
     vtkErrorMacro(<< "Could not open root group for " << this->FileName);
     return false;
@@ -65,10 +71,9 @@ bool vtkHDFWriter::WriteDatasetToFile(vtkPolyData* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::WriteDatasetToFile(vtkUnstructuredGrid* input)
+bool vtkHDFWriter::WriteDatasetToFile(vtkUnstructuredGrid* input, const std::string& path)
 {
-  // Root group only needs to be opened for the first timestep
-  if (this->CurrentTimeIndex == 0 && !this->Impl->OpenRoot(this->Overwrite))
+  if (!this->Impl->OpenGroup(path, this->Overwrite))
   {
     vtkErrorMacro(<< "Could not open root group for " << this->FileName);
     return false;
@@ -104,6 +109,38 @@ bool vtkHDFWriter::WriteDatasetToFile(vtkUnstructuredGrid* input)
   writeSuccess &= this->AppendConnectivity(rootGroup, cells);
   writeSuccess &= this->AppendOffsets(rootGroup, cells);
   writeSuccess &= this->AppendDataArrays(rootGroup, input);
+  return writeSuccess;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::WriteDatasetToFile(vtkDataObjectTree* input, const std::string& path)
+{
+  if (!this->Impl->OpenGroup(path, this->Overwrite))
+  {
+    vtkErrorMacro(<< "Could not open root group for " << this->FileName);
+    return false;
+  }
+  bool writeSuccess = true;
+  hid_t rootGroup = this->Impl->GetRoot();
+
+  if (this->CurrentTimeIndex == 0)
+  {
+    if (this->OutputAsMultiBlockDataSet)
+    {
+      writeSuccess &= this->Impl->WriteHeader("MultiBlockDataSet");
+    }
+    else
+    {
+      writeSuccess &= this->Impl->WriteHeader("PartitionedDataSetCollection");
+    }
+  }
+
+  writeSuccess &= this->AppendBlocks(rootGroup, input);
+
+  this->Impl->OpenGroup("VTKHDF/Assembly");
+  rootGroup = this->Impl->GetRoot();
+  writeSuccess &= this->AppendAssembly(rootGroup, input, "/VTKHDF/Assembly");
+
   return writeSuccess;
 }
 
@@ -439,6 +476,104 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendBlocks(hid_t baseGroup, vtkDataObjectTree* input)
+{
+  vtkSmartPointer<vtkDataObjectTreeIterator> treeIter;
+  treeIter.TakeReference(input->NewTreeIterator());
+  treeIter->VisitOnlyLeavesOff();
+  treeIter->TraverseSubTreeOn();
+  treeIter->SkipEmptyNodesOff();
+
+  std::string name;
+  for (treeIter->InitTraversal(); !treeIter->IsDoneWithTraversal(); treeIter->GoToNextItem())
+  {
+    unsigned int flattenIdx = treeIter->GetCurrentFlatIndex();
+    if (treeIter->GetCurrentDataObject()->IsA("vtkPartitionedDataSetCollection") ||
+      treeIter->GetCurrentDataObject()->IsA("vtkMultiBlockDataSet"))
+    {
+      std::cout << "group is skipped in this method\n";
+      continue;
+    }
+
+    if (treeIter->GetCurrentDataObject()->IsA("vtkPartitionedDataSet"))
+    {
+      name = input->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME());
+      continue;
+    }
+
+    if (input->HasMetaData(treeIter))
+    {
+      name = input->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME());
+    }
+
+    std::string newPath = "VTKHDF/" + name;
+    vtkDataObjectTree* group = vtkDataObjectTree::SafeDownCast(treeIter->GetCurrentDataObject());
+    if (group == nullptr)
+    {
+      this->WriteData(treeIter->GetCurrentDataObject(), newPath);
+    }
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendAssembly(hid_t baseGroup, vtkDataObjectTree* input, std::string path)
+{
+  vtkSmartPointer<vtkDataObjectTreeIterator> treeIter;
+  treeIter.TakeReference(input->NewTreeIterator());
+  treeIter->TraverseSubTreeOn();
+  treeIter->SkipEmptyNodesOff();
+  treeIter->VisitOnlyLeavesOff();
+
+  std::string name;
+  int count = 1;
+  for (treeIter->InitTraversal(); !treeIter->IsDoneWithTraversal(); treeIter->GoToNextItem())
+  {
+    unsigned int flattenIdx = treeIter->GetCurrentFlatIndex();
+
+    if (treeIter->GetCurrentDataObject()->IsA("vtkMultiBlockDataSet"))
+    {
+      count++;
+      continue;
+    }
+
+    if (treeIter->GetCurrentDataObject()->IsA("vtkPartitionedDataSet"))
+    {
+      name = input->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME());
+      count++;
+      continue;
+    }
+
+    if (input->HasMetaData(treeIter))
+    {
+      name = input->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME());
+    }
+
+    std::string newPath = path + "/" + name;
+
+    vtkDataObjectTree* group = vtkDataObjectTree::SafeDownCast(treeIter->GetCurrentDataObject());
+    vtkHDF::ScopedH5GHandle groupHandle = -1;
+    if (group)
+    {
+      groupHandle = this->Impl->CreateHdfGroup(baseGroup, newPath.c_str());
+      this->AppendAssembly(baseGroup, group, newPath);
+    }
+    else
+    {
+      std::string target = "/VTKHDF/" + name;
+
+      auto linkhandle = this->Impl->CreateHDFSoftLink(baseGroup, newPath.c_str(), target.c_str());
+      groupHandle = this->Impl->OpenExistingGroup(baseGroup, target.c_str());
+    }
+
+    this->Impl->CreateScalarAttribute(groupHandle, "Index", flattenIdx - count);
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendTimeValues(hid_t group)
 {
   if (this->Impl->CreateScalarAttribute(group, "NSteps", this->NumberOfTimeSteps) ==
@@ -465,10 +600,23 @@ void vtkHDFWriter::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkHDFWriter::WriteData()
 {
-  vtkDataSet* input = vtkDataSet::SafeDownCast(this->GetInput());
+  // Root group only needs to be opened for the first timestep
+  if (this->CurrentTimeIndex == 0 && !this->Impl->OpenFile(this->Overwrite))
+  {
+    vtkErrorMacro(<< "Could not open file : " << this->FileName);
+    return;
+  }
+
+  vtkDataObject* input = vtkDataObject::SafeDownCast(this->GetInput());
+  this->WriteData(input);
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFWriter::WriteData(vtkDataObject* input, const std::string& path)
+{
   if (!input)
   {
-    vtkErrorMacro(<< "A dataset input is required.");
+    vtkErrorMacro(<< "A dataObject input is required.");
     return;
   }
 
@@ -480,9 +628,9 @@ void vtkHDFWriter::WriteData()
 
   // The writer can handle polydata and unstructured grids.
   vtkPolyData* polydata = vtkPolyData::SafeDownCast(input);
-  if (polydata != nullptr)
+  if (polydata)
   {
-    if (!this->WriteDatasetToFile(polydata))
+    if (!this->WriteDatasetToFile(polydata, path))
     {
       vtkErrorMacro(<< "Can't write polydata to file:" << this->FileName);
       return;
@@ -491,11 +639,22 @@ void vtkHDFWriter::WriteData()
   }
 
   vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
-  if (unstructuredGrid != nullptr)
+  if (unstructuredGrid)
   {
-    if (!this->WriteDatasetToFile(unstructuredGrid))
+    if (!this->WriteDatasetToFile(unstructuredGrid, path))
     {
       vtkErrorMacro(<< "Can't write unstructuredGrid to file:" << this->FileName);
+      return;
+    }
+    return;
+  }
+
+  vtkDataObjectTree* tree = vtkDataObjectTree::SafeDownCast(input);
+  if (tree)
+  {
+    if (!this->WriteDatasetToFile(tree, path))
+    {
+      vtkErrorMacro(<< "Can't write vtkDataObjectTree to file:" << this->FileName);
       return;
     }
     return;
@@ -825,6 +984,8 @@ int vtkHDFWriter::FillInputPortInformation(int port, vtkInformation* info)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
     return 1;
   }
   return 0;

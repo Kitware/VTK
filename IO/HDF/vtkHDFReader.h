@@ -31,6 +31,7 @@ class vtkInformation;
 class vtkOverlappingAMR;
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
+class vtkMultiBlockDataSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 
@@ -179,7 +180,9 @@ protected:
   int Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkOverlappingAMR* data);
   int Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data);
+  int Read(vtkInformation* outInfo, vtkMultiBlockDataSet* data);
   void ReadRecursively(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data, int index);
+  void ReadRecursively(vtkInformation* outInfo, vtkMultiBlockDataSet* data, int index);
   ///@}
 
   /**

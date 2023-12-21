@@ -950,7 +950,7 @@ its support for more and more use cases.
 
 #### VTKHDF - 2.1
 
-- add specification in the format for `PartitionedDataSetCollection`.
+- add specification in the format for `PartitionedDataSetCollection` and `MultiBlockDataSet`
 
 #### VTKHDF - 2.0
 
@@ -1139,14 +1139,16 @@ PointData or CellData group.
   <figcaption>Figure 9. - Overlapping AMR VTKHDF File Format</figcaption>
 </figure>
 
-### PartitionedDataSetCollection
+### PartitionedDataSetCollection and MultiBlockDataSet
 
-The format for PartitionedDataSetCollection is shown in Figure 10. In this
-case the `Type` attribute of the `VTKHDF` group is `PartitionedDataSetCollection`.
-The most important thing in this design is the `Assembly` group attached to the
-`VTKHDF` group. This one in the group that describes the composite data hierarchy
-and have its leaf nodes link to top level groups that conform to the existing
-VTKHDF formats using the symbolic linking mechanisms provided by HDF5 technology
+The format for PartitionedDataSetCollection and MutliBlockDataSet is shown in Figure 10.
+In this case the `Type` attribute of the `VTKHDF` group is `PartitionedDataSetCollection`
+or `MultiBlockDataSet` depending on what you expected to represent between
+*vtkPartitionedDataSetCollection* or *vtkMultiBlockDataSet* The most important thing in
+this design is the `Assembly` group attached to the `VTKHDF` group. This one in the group
+that describes the composite data hierarchy and have its leaf nodes link to top level
+groups that conform to the existing VTKHDF formats using the symbolic linking mechanisms
+provided by HDF5 technology
 ([Chapter 4: HDF5 Groups and Links](https://davis.lbl.gov/Manuals/HDF5-1.8.7/UG/09_Groups.html)).
 
 About the `Assembly` group itself:

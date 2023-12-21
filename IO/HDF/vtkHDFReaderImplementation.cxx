@@ -334,6 +334,10 @@ bool vtkHDFReader::Implementation::ReadDataSetType()
     {
       this->DataSetType = VTK_PARTITIONED_DATA_SET_COLLECTION;
     }
+    else if (typeName == "MultiBlockDataSet")
+    {
+      this->DataSetType = VTK_MULTIBLOCK_DATA_SET;
+    }
     else
     {
       vtkErrorWithObjectMacro(this->Reader, "Unknown data set type: " << typeName);
@@ -1077,7 +1081,8 @@ bool vtkHDFReader::Implementation::NewArray(
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::FillAssembly(vtkDataAssembly* assembly)
 {
-  if (this->DataSetType != VTK_PARTITIONED_DATA_SET_COLLECTION)
+  if (this->DataSetType != VTK_PARTITIONED_DATA_SET_COLLECTION &&
+    this->DataSetType != VTK_MULTIBLOCK_DATA_SET)
   {
     vtkErrorWithObjectMacro(this->Reader,
       "Wrong data set type, expected " << VTK_PARTITIONED_DATA_SET_COLLECTION

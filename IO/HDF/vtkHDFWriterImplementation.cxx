@@ -71,7 +71,7 @@ bool vtkHDFWriter::Implementation::WriteHeader(const char* hdfType)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::OpenRoot(bool overwrite)
+bool vtkHDFWriter::Implementation::OpenFile(bool overwrite)
 {
   const char* filename = this->Writer->GetFileName();
 
@@ -84,18 +84,37 @@ bool vtkHDFWriter::Implementation::OpenRoot(bool overwrite)
     return false;
   }
 
+  this->File = std::move(file);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::OpenRoot(bool overwrite)
+{
+  return this->OpenGroup("VTKHDF", overwrite);
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::OpenGroup(const std::string& path, bool overwrite)
+{
   // Create the root group
-  vtkHDF::ScopedH5GHandle root{ H5Gcreate(file, "VTKHDF", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+  vtkHDF::ScopedH5GHandle root{ H5Gcreate(
+    this->File, path.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
   if (root == H5I_INVALID_HID)
   {
     this->LastError = "Can not create root group";
     return false;
   }
 
-  this->File = std::move(file);
   this->Root = std::move(root);
-
   return true;
+}
+
+//------------------------------------------------------------------------------
+vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::OpenExistingGroup(
+  hid_t group, const char* name)
+{
+  return H5Gopen(group, name, H5P_DEFAULT);
 }
 
 //------------------------------------------------------------------------------
@@ -212,6 +231,19 @@ vtkHDF::ScopedH5SHandle vtkHDFWriter::Implementation::CreateUnlimitedSimpleDatas
     return H5I_INVALID_HID;
   }
   return dataspace;
+}
+
+//------------------------------------------------------------------------------
+vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::CreateHdfGroup(hid_t group, const char* name)
+{
+  return H5Gcreate(group, name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+}
+
+//------------------------------------------------------------------------------
+herr_t vtkHDFWriter::Implementation::CreateHDFSoftLink(
+  hid_t group, const char* groupName, const char* targetLink)
+{
+  return H5Lcreate_soft(targetLink, group, groupName, H5P_DEFAULT, H5P_DEFAULT);
 }
 
 //------------------------------------------------------------------------------
