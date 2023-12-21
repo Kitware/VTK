@@ -120,6 +120,11 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "warning: documented symbol 'template class .*' was not declared or defined."
   "vtkContext2D.h:.*: warning: argument '.*' of command @param is not found in the argument list of vtkContext2D::DrawMarkers"
   "vtkMultiThreshold.h:.*: warning: argument '.*' of command @param is not found in the argument list of vtkMultiThreshold::AddIntervalSet"
+
+  # Ignore bits from gcc-12 stdlib. There seem to be some serious issues in GCC
+  # 12 diagnostics. These come from the `quay.io/pypa/manylinux_2_28_x86_64`
+  # container as of now.
+  "/opt/rh/gcc-toolset-12"
   )
 
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")

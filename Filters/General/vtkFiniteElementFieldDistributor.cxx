@@ -63,7 +63,7 @@ struct vtkFiniteElementSpec
 };
 
 vtkDataArray* InitializeNewArray(
-  vtkDataArray* in, const std::string& name, const int& ncomp, const vtkIdType& ntup)
+  vtkDataArray* in, const std::string& name, int ncomp, vtkIdType ntup)
 {
   auto arr = in->NewInstance();
   arr->SetName(name.c_str());
@@ -110,8 +110,7 @@ vtkPartitionedDataSet* GetNamedPartitionedDataSet(
   return input->GetPartitionedDataSet(ids[0]);
 }
 
-std::vector<double> GetEdgeAttributes(
-  const std::string& name, vtkCellData* cd, const vtkIdType& cellId)
+std::vector<double> GetEdgeAttributes(const std::string& name, vtkCellData* cd, vtkIdType cellId)
 {
   std::vector<double> attrs;
   vtkDataArray* coeffs = cd->GetArray(::GetEdgeCoefficientArrayName(name).c_str());
@@ -119,14 +118,13 @@ std::vector<double> GetEdgeAttributes(
   {
     return attrs;
   }
-  const int& nEdges = coeffs->GetNumberOfComponents();
+  const int nEdges = coeffs->GetNumberOfComponents();
   attrs.resize(nEdges);
   coeffs->GetTuple(cellId, attrs.data());
   return attrs;
 }
 
-std::vector<double> GetFaceAttributes(
-  const std::string& name, vtkCellData* cd, const vtkIdType& cellId)
+std::vector<double> GetFaceAttributes(const std::string& name, vtkCellData* cd, vtkIdType cellId)
 {
   std::vector<double> attrs;
   vtkDataArray* coeffs = cd->GetArray(::GetFaceCoefficientArrayName(name).c_str());
@@ -134,13 +132,13 @@ std::vector<double> GetFaceAttributes(
   {
     return attrs;
   }
-  const int& nFaces = coeffs->GetNumberOfComponents();
+  const int nFaces = coeffs->GetNumberOfComponents();
   attrs.resize(nFaces);
   coeffs->GetTuple(cellId, attrs.data());
   return attrs;
 }
 
-std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& npts)
+std::vector<int> GetIOSSTransformation(VTKCellType cellType, int npts)
 {
   std::vector<int> result;
   switch (cellType)
@@ -264,9 +262,15 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
           // clang-format on
           break;
         case 21:
-          result.resize(npts, 0);
-          std::iota(result.begin(), result.end(), 1);
-          break;
+        {
+          // XXX(gcc-12): GCC 12 has some weird warning triggered here where
+          // `result.resize()` warns about writing out-of-bounds. Use a new
+          // vector and move into `result` to avoid the warning.
+          std::vector<int> r(npts);
+          std::iota(r.begin(), r.end(), 1);
+          result = std::move(r);
+        }
+        break;
         default:
           vtkLog(WARNING, << "Unsupported number of points for cell - VTK_WEDGE."
                           << "Supported: 15, 18, 21 "
@@ -279,9 +283,15 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
       switch (npts)
       {
         case 8:
-          result.resize(npts, 0);
-          std::iota(result.begin(), result.end(), 1);
-          break;
+        {
+          // XXX(gcc-12): GCC 12 has some weird warning triggered here where
+          // `result.resize()` warns about writing out-of-bounds. Use a new
+          // vector and move into `result` to avoid the warning.
+          std::vector<int> r(npts);
+          std::iota(r.begin(), r.end(), 1);
+          result = std::move(r);
+        }
+        break;
         case 20:
           // clang-format off
           result = {
@@ -340,7 +350,7 @@ using VbfuncType = std::function<std::vector<std::array<double, 3>>(const double
 // the jacobian matrix is evaluated at each lagrange point. for n pts => n jacobians.
 using JacobianMatricesType = std::vector<std::vector<std::vector<double>>>;
 using JacobianFunctionsType = std::function<std::vector<std::vector<double>>(
-  const double[3], const std::vector<double>& physCoords, const std::size_t& stride)>;
+  const double[3], const std::vector<double>& physCoords, std::size_t stride)>;
 
 class vtkVectorBasisLagrangeProducts
 {
@@ -855,7 +865,7 @@ public:
     HDiv
   };
 
-  void Initialize(const VTKCellType& cellType, const double* coords, size_t npts)
+  void Initialize(VTKCellType cellType, const double* coords, size_t npts)
   {
     auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
     auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
@@ -892,7 +902,7 @@ public:
     }
   }
 
-  void ComputeJacobian(const VTKCellType& cellType, const double* refCoords, size_t npts,
+  void ComputeJacobian(VTKCellType cellType, const double* refCoords, size_t npts,
     const vtkIdType* ptIds, vtkPoints* physPoints)
   {
     auto jacMats = this->GetJacobianMatrices(cellType);
@@ -922,7 +932,7 @@ public:
     }
   }
 
-  bool RequiresInitialization(const VTKCellType& cellType, size_t npts)
+  bool RequiresInitialization(VTKCellType cellType, size_t npts)
   {
     auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
     auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
@@ -936,7 +946,7 @@ public:
     return hCurlMats->size() != npts || hDivMats->size() != npts || jacMats->empty();
   }
 
-  void Clear(const VTKCellType& cellType)
+  void Clear(VTKCellType cellType)
   {
     auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
     auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
@@ -951,7 +961,7 @@ public:
     jacMats->clear();
   }
 
-  ::VblpMatrixType* GetVblp(const SpaceType& space, const VTKCellType& cellType)
+  ::VblpMatrixType* GetVblp(SpaceType space, VTKCellType cellType)
   {
     ::VblpMatrixType* mats = nullptr;
     switch (cellType)
@@ -977,7 +987,7 @@ public:
     return mats;
   }
 
-  ::VbfuncType* GetVbFunctions(const SpaceType& space, const VTKCellType& cellType)
+  ::VbfuncType* GetVbFunctions(SpaceType space, VTKCellType cellType)
   {
     const int space_int = static_cast<int>(space);
     switch (cellType)
@@ -998,7 +1008,7 @@ public:
     return nullptr;
   }
 
-  ::JacobianMatricesType* GetJacobianMatrices(const VTKCellType& cellType)
+  ::JacobianMatricesType* GetJacobianMatrices(VTKCellType cellType)
   {
     ::JacobianMatricesType* mats = nullptr;
     switch (cellType)
@@ -1024,7 +1034,7 @@ public:
     return mats;
   }
 
-  ::JacobianFunctionsType* GetJacobianFunctions(const VTKCellType& cellType)
+  ::JacobianFunctionsType* GetJacobianFunctions(VTKCellType cellType)
   {
     switch (cellType)
     {
@@ -1144,14 +1154,14 @@ private:
 using SpaceType = vtkVectorBasisLagrangeProducts::SpaceType;
 
 void InterpolateToNodes(const ::VblpMatrixType& vblpmats, const std::vector<double>& coeffs,
-  const vtkIdType& npts, const vtkIdType* pts, vtkDataArray* result)
+  vtkIdType npts, const vtkIdType* pts, vtkDataArray* result)
 {
   const std::size_t& nDofs = coeffs.size();
   assert(vblpmats.size() == static_cast<std::size_t>(npts));
 
   for (vtkIdType i = 0; i < npts; ++i)
   {
-    const vtkIdType& ptId = pts[i];
+    const vtkIdType ptId = pts[i];
     double value[3] = { 0, 0, 0 };
     const auto& vblpmat = vblpmats[i];
 
@@ -1185,7 +1195,7 @@ public:
     { "HGRAD", ::vtkFiniteElementSpec() }
   };
   // clang-format on
-  void InitializeReferenceElement(const int& order);
+  void InitializeReferenceElement(int order);
 
   void Allocate(vtkPoints* newPoints, vtkCellArray* newCells, vtkUnsignedCharArray* newCellTypes,
     vtkPointData* hGradFields, vtkPointData* hCurlFields, vtkPointData* hDivFields,
@@ -1194,13 +1204,13 @@ public:
   //  takes a continuous mesh and explodes the point set such that each element has
   // its own collection of points unshared by any other element. This also
   // converts the mesh into potentially a higher order mesh if the DG fields require it
-  void ExplodeCell(const vtkIdType& cellId, vtkPoints* oldPoints, vtkPoints* newPoints,
+  void ExplodeCell(vtkIdType cellId, vtkPoints* oldPoints, vtkPoints* newPoints,
     vtkCellArray* oldCells, vtkCellArray* newCells, vtkUnsignedCharArray* newCellTypes,
     vtkPointData* oldPd, vtkPointData* newPd, vtkCellData* oldCd, vtkPointData* hGradFields);
 
   // Interpolates edge -> nodal dofs.
   // Interpolates face -> nodal dofs.
-  void InterpolateCellToNodes(const vtkIdType& cellId, vtkCellArray* newCells, vtkPoints* newPoints,
+  void InterpolateCellToNodes(vtkIdType cellId, vtkCellArray* newCells, vtkPoints* newPoints,
     vtkCellData* oldCd, vtkPointData* hCurlFields, vtkPointData* hDivFields);
 
   // clear the three slots of femSpecs.
@@ -1212,25 +1222,25 @@ private:
   inline ::vtkFiniteElementSpec& hDivSpec() { return this->femSpecs["HDIV"]; }
   inline ::vtkFiniteElementSpec& hGradSpec() { return this->femSpecs["HGRAD"]; }
 
-  void AllocateGeometry(vtkPoints* newPoints, const vtkIdType& maxCellSize, vtkCellArray* newCells,
-    vtkUnsignedCharArray* newCellTypes, const vtkIdType& numCells);
+  void AllocateGeometry(vtkPoints* newPoints, vtkIdType maxCellSize, vtkCellArray* newCells,
+    vtkUnsignedCharArray* newCellTypes, vtkIdType numCells);
 
   void AllocateFields(vtkPointData* hGradFields, vtkPointData* hCurlFields,
-    vtkPointData* hDivFields, vtkUnstructuredGrid* elements, const vtkIdType& maxNumPoints);
+    vtkPointData* hDivFields, vtkUnstructuredGrid* elements, vtkIdType maxNumPoints);
 
   static void ExplodeDGHGradCellCenteredField(vtkCellData* inCd, vtkPointData* outPd,
-    const char* name, const vtkIdType& cellId, const vtkIdType& npts, const vtkIdType* pts,
+    const char* name, vtkIdType cellId, vtkIdType npts, const vtkIdType* pts,
     const std::vector<int>& orderingTransform);
 
-  void ExplodeLinearCell(const vtkIdType& cellId, vtkPoints* oldPoints, vtkPoints* newPoints,
+  void ExplodeLinearCell(vtkIdType cellId, vtkPoints* oldPoints, vtkPoints* newPoints,
     vtkCellArray* oldCells, vtkCellArray* newCells, vtkUnsignedCharArray* newCellTypes,
     vtkPointData* oldPd, vtkPointData* newPd);
 
-  void ExplodeHigherOrderCell(const vtkIdType& cellId, vtkPoints* oldPoints, vtkPoints* newPoints,
+  void ExplodeHigherOrderCell(vtkIdType cellId, vtkPoints* oldPoints, vtkPoints* newPoints,
     vtkCellArray* oldCells, vtkCellArray* newCells, vtkUnsignedCharArray* newCellTypes,
-    vtkPointData* oldPd, vtkPointData* newPd, const int& nComps);
+    vtkPointData* oldPd, vtkPointData* newPd, int nComps);
 
-  std::vector<double> GetLagrangePCoords(const VTKCellType& cellType, const vtkIdType& npts);
+  std::vector<double> GetLagrangePCoords(VTKCellType cellType, vtkIdType npts);
 
   vtkVectorBasisLagrangeProducts Vblps;
   VTKCellType RefElement = VTK_EMPTY_CELL;
@@ -1253,7 +1263,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-void vtkFiniteElementFieldDistributor::vtkInternals::InitializeReferenceElement(const int& order)
+void vtkFiniteElementFieldDistributor::vtkInternals::InitializeReferenceElement(int order)
 {
   std::set<VTKCellType> cellTypes;
   cellTypes.insert(this->hCurlSpec().RefElement);
@@ -1277,8 +1287,8 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ResetFemSpecs()
 
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::AllocateGeometry(vtkPoints* newPoints,
-  const vtkIdType& maxCellSize, vtkCellArray* newCells, vtkUnsignedCharArray* newCellTypes,
-  const vtkIdType& numCells)
+  vtkIdType maxCellSize, vtkCellArray* newCells, vtkUnsignedCharArray* newCellTypes,
+  vtkIdType numCells)
 {
   const vtkIdType maxNumPoints = numCells * maxCellSize;
   newCellTypes->SetNumberOfComponents(1);
@@ -1291,7 +1301,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateGeometry(vtkPoints*
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData* hGradFields,
   vtkPointData* hCurlFields, vtkPointData* hDivFields, vtkUnstructuredGrid* elements,
-  const vtkIdType& maxNumPoints)
+  vtkIdType maxNumPoints)
 {
   vtkCellData* elemCd = elements->GetCellData();
 
@@ -1353,8 +1363,8 @@ void vtkFiniteElementFieldDistributor::vtkInternals::Allocate(vtkPoints* newPoin
     return;
   }
 
-  const vtkIdType& nCells = elements->GetNumberOfCells();
-  const vtkIdType& maxCellSize = elements->GetCells()->GetMaxCellSize();
+  const vtkIdType nCells = elements->GetNumberOfCells();
+  const vtkIdType maxCellSize = elements->GetCells()->GetMaxCellSize();
   const vtkIdType maxNpts = nCells * maxCellSize;
   this->AllocateGeometry(newPoints, maxCellSize, newCells, newCellTypes, nCells);
   this->AllocateFields(hGradFields, hCurlFields, hDivFields, elements, maxNpts);
@@ -1362,7 +1372,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::Allocate(vtkPoints* newPoin
 
 //----------------------------------------------------------------------------
 std::vector<double> vtkFiniteElementFieldDistributor::vtkInternals::GetLagrangePCoords(
-  const VTKCellType& cellType, const vtkIdType& npts)
+  VTKCellType cellType, vtkIdType npts)
 {
   vtkCell* cell = nullptr;
   switch (cellType)
@@ -1402,7 +1412,7 @@ std::vector<double> vtkFiniteElementFieldDistributor::vtkInternals::GetLagrangeP
 }
 
 //----------------------------------------------------------------------------
-void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeCell(const vtkIdType& cellId,
+void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeCell(vtkIdType cellId,
   vtkPoints* oldPoints, vtkPoints* newPoints, vtkCellArray* oldCells, vtkCellArray* newCells,
   vtkUnsignedCharArray* newCellTypes, vtkPointData* oldPd, vtkPointData* newPd, vtkCellData* oldCd,
   vtkPointData* hGradFields)
@@ -1425,7 +1435,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeCell(const vtkIdType
       vtkDataArray* arr = oldCd->GetArray(name);
       if (arr != nullptr)
       {
-        const int& nComps = arr->GetNumberOfComponents();
+        const int nComps = arr->GetNumberOfComponents();
         nCompsSet.insert(nComps);
       }
     }
@@ -1453,8 +1463,8 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeCell(const vtkIdType
   // the field components follow ioss element ordering.
   auto ordering = ::GetIOSSTransformation(this->RefElement, newNpts);
   // ioss elements are 1-indexed. transform to 0-indexed lists.
-  std::transform(ordering.cbegin(), ordering.cend(), ordering.begin(),
-    [](const vtkIdType& val) { return val - 1; });
+  std::transform(
+    ordering.cbegin(), ordering.cend(), ordering.begin(), [](vtkIdType val) { return val - 1; });
   // explode HGrad dg fields with the transformation.
   for (const auto& field : this->hGradSpec().Fields)
   {
@@ -1465,7 +1475,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeCell(const vtkIdType
 }
 
 //----------------------------------------------------------------------------
-void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeLinearCell(const vtkIdType& cellId,
+void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeLinearCell(vtkIdType cellId,
   vtkPoints* oldPoints, vtkPoints* newPoints, vtkCellArray* oldCells, vtkCellArray* newCells,
   vtkUnsignedCharArray* newCellTypes, vtkPointData* oldPd, vtkPointData* newPd)
 {
@@ -1489,9 +1499,9 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeLinearCell(const vtk
 }
 
 //----------------------------------------------------------------------------
-void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(const vtkIdType& cellId,
+void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(vtkIdType cellId,
   vtkPoints* oldPoints, vtkPoints* newPoints, vtkCellArray* oldCells, vtkCellArray* newCells,
-  vtkUnsignedCharArray* newCellTypes, vtkPointData* oldPd, vtkPointData* newPd, const int& nComps)
+  vtkUnsignedCharArray* newCellTypes, vtkPointData* oldPd, vtkPointData* newPd, int nComps)
 {
   vtkNonLinearCell* nonLinCell = nullptr;
   vtkCell* linearCell = nullptr;
@@ -1684,8 +1694,8 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(cons
 
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeDGHGradCellCenteredField(
-  vtkCellData* inCd, vtkPointData* outPd, const char* name, const vtkIdType& cellId,
-  const vtkIdType& npts, const vtkIdType* pts, const std::vector<int>& orderingTransform)
+  vtkCellData* inCd, vtkPointData* outPd, const char* name, vtkIdType cellId, vtkIdType npts,
+  const vtkIdType* pts, const std::vector<int>& orderingTransform)
 {
   vtkDataArray* const inArr = inCd->GetArray(name);
   vtkDataArray* const outArr = outPd->GetArray(name);
@@ -1723,7 +1733,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeDGHGradCellCenteredF
 }
 
 //----------------------------------------------------------------------------
-void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(const vtkIdType& cellId,
+void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(vtkIdType cellId,
   vtkCellArray* newCells, vtkPoints* newPoints, vtkCellData* oldCd, vtkPointData* hCurlFields,
   vtkPointData* hDivFields)
 {
@@ -1989,7 +1999,7 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
 
       // explode geometry, interpolate fields.
       const double progressGranularity = 0.1;
-      const vtkIdType& nCells = oldCells->GetNumberOfCells();
+      const vtkIdType nCells = oldCells->GetNumberOfCells();
       const vtkIdType reportEveryNCells = progressGranularity * nCells;
       for (vtkIdType c = 0; c < nCells && !abortNow; ++c)
       {
