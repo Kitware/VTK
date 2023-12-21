@@ -17,7 +17,11 @@
 VTK_ABI_NAMESPACE_BEGIN
 inline bool IsSigned64Bit(int VariantType)
 {
+#if VTK_LONG_LONG == VTK_TYPE_INT64
+  return (VariantType == VTK_TYPE_INT64);
+#else
   return ((VariantType == VTK_LONG_LONG) || (VariantType == VTK_TYPE_INT64));
+#endif
 }
 
 inline bool IsSigned(int VariantType)

@@ -106,6 +106,7 @@ elseif (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
   # C and C++ flags.
   set(langs C CXX)
   vtk_add_flag(-Wabsolute-value ${langs})
+  vtk_add_flag(-Wlogical-op ${langs})
   vtk_add_flag(-Wsign-compare ${langs})
   vtk_add_flag(-Wunreachable-code ${langs})
   vtk_add_flag(-Wunused-but-set-variable ${langs})
