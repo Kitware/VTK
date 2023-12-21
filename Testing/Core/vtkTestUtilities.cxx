@@ -738,9 +738,9 @@ struct PointMatchingWorker
       }
       else
       {
-        vtkLog(ERROR,
-          "Could not find array \"" << GetArrayName(queryArray)
-                                    << "\" in other dataset.") this->Fail();
+        vtkLog(
+          ERROR, "Could not find array \"" << GetArrayName(queryArray) << "\" in other dataset.");
+        this->Fail();
         return;
       }
     }
@@ -1619,8 +1619,8 @@ struct TestDataObjectsImpl<vtkPartitionedDataSet>
 
     if (t1->GetNumberOfPartitions() != t2->GetNumberOfPartitions())
     {
-      vtkLog(
-        ERROR, "Each partitioned dataset should have the same number of partitions.") return false;
+      vtkLog(ERROR, "Each partitioned dataset should have the same number of partitions.");
+      return false;
     }
 
     for (unsigned int index = 0; index < t1->GetNumberOfPartitions(); index++)
@@ -1756,7 +1756,8 @@ bool DispatchDataObjectImpl(
   }
 
   vtkLog(ERROR, << "Only vtkPartitionedDataSet and vtkPartitionedDataSetCollection are supported "
-                   "for now.") return false;
+                   "for now.");
+  return false;
 }
 
 //----------------------------------------------------------------------------
