@@ -26,6 +26,7 @@
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrixUtilities.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -1644,6 +1645,48 @@ struct TestDataObjectsImpl<vtkPartitionedDataSet>
 };
 
 //============================================================================
+/**
+ * Check each block from inputs.
+ * For the structure itself, only the number of blocks is checked.
+ */
+template <>
+struct TestDataObjectsImpl<vtkMultiBlockDataSet>
+{
+  static bool Execute(vtkMultiBlockDataSet* mb1, vtkMultiBlockDataSet* mb2, double toleranceFactor)
+  {
+    if (!mb1 || !mb2)
+    {
+      return true;
+    }
+
+    if (mb1->GetNumberOfBlocks() != mb2->GetNumberOfBlocks())
+    {
+      vtkLog(ERROR,
+        "Each multiBlockDataSet should have the same number of blocks. Got "
+          << mb1->GetNumberOfBlocks() << " and " << mb2->GetNumberOfBlocks() << ".");
+      return false;
+    }
+
+    for (unsigned int index = 0; index < mb1->GetNumberOfBlocks(); index++)
+    {
+      vtkDataObject* mb1Block = mb1->GetBlock(index);
+      vtkDataObject* mb2Block = mb2->GetBlock(index);
+
+      if (!mb1Block || !mb2Block)
+      {
+        continue;
+      }
+
+      if (!vtkTestUtilities::CompareDataObjects(mb1Block, mb2Block, toleranceFactor))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+};
+//============================================================================
 template <class DataObjectT, class = void>
 struct TestPointsImpl;
 
@@ -1749,6 +1792,16 @@ bool DispatchDataObjectImpl(
     if (auto pdc2 = vtkPartitionedDataSetCollection::SafeDownCast(do2))
     {
       retVal = ImplT<vtkPartitionedDataSetCollection>::Execute(pdc1, pdc2, toleranceFactor);
+      return true;
+    }
+    vtkLog(ERROR,
+      "Input dataset types do not match: " << do1->GetClassName() << " != " << do2->GetClassName());
+  }
+  else if (auto mb1 = vtkMultiBlockDataSet::SafeDownCast(do1))
+  {
+    if (auto mb2 = vtkMultiBlockDataSet::SafeDownCast(do2))
+    {
+      retVal = ImplT<vtkMultiBlockDataSet>::Execute(mb1, mb2, toleranceFactor);
       return true;
     }
     vtkLog(ERROR,
