@@ -68,7 +68,7 @@
         {
           "inputs": {
             "click": {
-              "output": "/actions/vtk/in/complexgestureaction"
+              "output": "/actions/vtk/in/complexgestureaction_event2"
             }
           },
           "mode": "button",

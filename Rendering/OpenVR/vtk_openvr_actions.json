@@ -9,6 +9,10 @@
       "type": "boolean"
     },
     {
+      "name": "/actions/vtk/in/ComplexGestureAction_Event2",
+      "type": "boolean"
+    },
+    {
       "name": "/actions/vtk/in/Movement",
       "type": "vector2"
     },
@@ -61,6 +65,7 @@
       "/actions/vtk/in/Elevation": "Trackpad Elevation",
       "/actions/vtk/in/ForwardThickCrop": "Move Thick Crop Forward",
       "/actions/vtk/in/ComplexGestureAction": "Complex Gesture Action",
+      "/actions/vtk/in/ComplexGestureAction_Event2": "Another Complex Gesture Action (workaround specific to OpenVR)",
       "/actions/vtk/in/Movement": "Movement",
       "/actions/vtk/in/NextCameraPose": "Next Camera Pose",
       "/actions/vtk/in/PositionProp": "Position Prop",
