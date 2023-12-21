@@ -97,7 +97,7 @@ int TestLineWidget2b(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   double p1[3];
   polydata->GetPoint(0, p1);
-  if (point1[0] == p1[0] && point1[0] == p1[0] && point1[0] == p1[0])
+  if (point1[0] == p1[0] && point1[1] == p1[1] && point1[2] == p1[2])
   {
     std::cerr << "Wrong coordinate value for Point1. Expected {-113226, 81112.1, 0} but got {"
               << p1[0] << ", " << p1[1] << ", " << p1[2] << "}" << std::endl;
@@ -106,7 +106,7 @@ int TestLineWidget2b(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   double p2[3];
   polydata->GetPoint(polydata->GetNumberOfPoints() - 1, p2);
-  if (point2[0] != p2[0] || point2[0] != p2[0] || point2[0] != p2[0])
+  if (point2[0] != p2[0] || point2[1] != p2[1] || point2[2] != p2[2])
   {
     std::cerr << "Wrong coordinate value for Point2. Expected {10500, 0, 0} but got {" << p2[0]
               << ", " << p2[1] << ", " << p2[2] << "}" << std::endl;
