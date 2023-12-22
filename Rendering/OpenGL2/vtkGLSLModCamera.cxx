@@ -17,7 +17,11 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGLSLModCamera);
 
 //------------------------------------------------------------------------------
-vtkGLSLModCamera::vtkGLSLModCamera() = default;
+vtkGLSLModCamera::vtkGLSLModCamera()
+  : CoordinateShiftAndScaleInUse(false)
+  , ApplyShiftAndScaleFromShader(false)
+{
+}
 
 //------------------------------------------------------------------------------
 vtkGLSLModCamera::~vtkGLSLModCamera() = default;
