@@ -62,12 +62,12 @@ herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
 /**
  * Convenient callback method to retrieve a name when calling a H5Giterate()
  */
-herr_t FileInfoCallBack(hid_t vtkNotUsed(loc_id), const char* name, void* opdata)
+herr_t FileInfoCallBack(
+  hid_t vtkNotUsed(loc_id), const char* name, const H5L_info1_t* vtkNotUsed(info), void* opdata)
 {
   std::vector<std::string>* names = reinterpret_cast<std::vector<std::string>*>(opdata);
   assert(names != nullptr);
   names->push_back(std::string(name));
-
   return 0;
 }
 }
@@ -738,6 +738,17 @@ std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int attribu
 }
 
 //------------------------------------------------------------------------------
+std::vector<std::string> vtkHDFReader::Implementation::GetOrderedChildrenOfGroup(
+  const std::string path)
+{
+  vtkHDF::ScopedH5GHandle pathHandle = H5Gopen(this->VTKGroup, path.c_str(), H5P_DEFAULT);
+  std::vector<std::string> childrenPath;
+  H5Literate_by_name(pathHandle, path.c_str(), H5_INDEX_CRT_ORDER, H5_ITER_INC, nullptr,
+    ::FileInfoCallBack, &childrenPath, H5P_DEFAULT);
+  return childrenPath;
+}
+
+//------------------------------------------------------------------------------
 hid_t vtkHDFReader::Implementation::OpenDataSet(
   hid_t group, const char* name, hid_t* nativeType, std::vector<hsize_t>& dims)
 {
@@ -1104,7 +1115,7 @@ bool vtkHDFReader::Implementation::FillAssembly(vtkDataAssembly* assembly)
 
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::FillAssembly(
-  vtkDataAssembly* data, hid_t assemblyHandle, int assemblyID, std::string path)
+  vtkDataAssembly* assembly, hid_t assemblyHandle, int assemblyID, std::string path)
 {
   vtkHDF::ScopedH5GHandle currentHandle = H5Gopen(assemblyHandle, path.c_str(), H5P_DEFAULT);
   if (currentHandle < H5I_INVALID_HID)
@@ -1115,43 +1126,44 @@ bool vtkHDFReader::Implementation::FillAssembly(
   }
 
   std::vector<std::string> childrenPath;
-  H5Giterate(currentHandle, path.c_str(), nullptr, ::FileInfoCallBack, &childrenPath);
+  H5Literate_by_name(currentHandle, path.c_str(), H5_INDEX_CRT_ORDER, H5_ITER_INC, nullptr,
+    ::FileInfoCallBack, &childrenPath, H5P_DEFAULT);
 
   if (childrenPath.empty())
   {
     return true;
   }
 
-  auto groupIndices = data->AddNodes(childrenPath, assemblyID);
-
-  for (std::size_t i = 0; i < childrenPath.size(); i++)
+  for (auto& childPath : childrenPath)
   {
-    std::string childPath = path + "/" + childrenPath[i];
-    vtkHDF::ScopedH5GHandle childHandler = H5Gopen(currentHandle, childPath.c_str(), H5P_DEFAULT);
-    if (childHandler <= H5I_INVALID_HID)
+    std::string childFullPath = path + "/" + childPath;
+    vtkHDF::ScopedH5GHandle childHandle =
+      H5Gopen(currentHandle, childFullPath.c_str(), H5P_DEFAULT);
+    if (childHandle <= H5I_INVALID_HID)
     {
       continue;
     }
 
     // Prevent to iterate recursively on the dataset itself by checking if it's a link
     H5L_info_t object;
-    auto err = H5Lget_info(currentHandle, childPath.c_str(), &object, H5P_DEFAULT);
+    auto err = H5Lget_info(currentHandle, childFullPath.c_str(), &object, H5P_DEFAULT);
     if (err < 0)
     {
-      vtkErrorWithObjectMacro(this->Reader, "Can't open '" << childPath << "' link.");
+      vtkErrorWithObjectMacro(this->Reader, "Can't open '" << childFullPath << "' link.");
       return false;
     }
+
     if (object.type == H5L_TYPE_SOFT)
     {
-      // Retrieve the correct Index
       int index = 0;
-      this->GetAttribute(childHandler, "Index", 1, &index);
-      data->AddDataSetIndex(groupIndices[i], index);
-
-      continue;
+      this->GetAttribute(childHandle, "Index", 1, &index);
+      assembly->AddDataSetIndex(assemblyID, index);
     }
-
-    this->FillAssembly(data, currentHandle, groupIndices[i], childPath);
+    else
+    {
+      int groupIndex = assembly->AddNode(childPath.c_str(), assemblyID);
+      this->FillAssembly(assembly, currentHandle, groupIndex, childFullPath);
+    }
   }
 
   return true;

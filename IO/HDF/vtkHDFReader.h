@@ -181,8 +181,7 @@ protected:
   int Read(vtkInformation* outInfo, vtkOverlappingAMR* data);
   int Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data);
   int Read(vtkInformation* outInfo, vtkMultiBlockDataSet* data);
-  void ReadRecursively(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data, int index);
-  void ReadRecursively(vtkInformation* outInfo, vtkMultiBlockDataSet* data, int index);
+  int ReadRecursively(vtkInformation* outInfo, vtkMultiBlockDataSet* data, int assemblyId);
   ///@}
 
   /**
@@ -235,11 +234,20 @@ private:
   void operator=(const vtkHDFReader&) = delete;
 
   /**
-   * Generate the hierarchy used for vtkPartitionedDataSetCollection and store it in Assembly.
+   * Generate the vtkDataAssembly used for vtkPartitionedDataSetCollection and store it in Assembly.
    */
   void GenerateAssembly();
-  void RetrieveStepsFromAssembly(int parent = 0);
-  void RetrieveDataArraysFromAssembly(int parent = 0);
+
+  /**
+   * Retrieve the number of steps in each composite element of the dataset.
+   * Return false if the number of steps is inconsistent across components, true otherwise.
+   */
+  bool RetrieveStepsFromAssembly();
+
+  /**
+   * Add array names from all composite elements to DataArraySelection array.
+   */
+  void RetrieveDataArraysFromAssembly();
 
 protected:
   /**

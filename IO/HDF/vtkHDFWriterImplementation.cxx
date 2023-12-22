@@ -10,7 +10,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::WriteHeader(const char* hdfType)
+bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
 {
   // Write type attribute to root
   std::string strType{ hdfType };
@@ -34,7 +34,7 @@ bool vtkHDFWriter::Implementation::WriteHeader(const char* hdfType)
     return false;
   }
   vtkHDF::ScopedH5AHandle typeAttribute{ H5Acreate(
-    this->Root, "Type", typeOfTypeAttr, scalarSpaceAttribute, utf8PropertyList, H5P_DEFAULT) };
+    group, "Type", typeOfTypeAttr, scalarSpaceAttribute, utf8PropertyList, H5P_DEFAULT) };
   if (typeAttribute == H5I_INVALID_HID)
   {
     return false;
@@ -57,7 +57,7 @@ bool vtkHDFWriter::Implementation::WriteHeader(const char* hdfType)
     return false;
   }
   vtkHDF::ScopedH5AHandle versionAttribute =
-    H5Acreate(this->Root, "Version", H5T_STD_I64LE, versionDataspace, H5P_DEFAULT, H5P_DEFAULT);
+    H5Acreate(group, "Version", H5T_STD_I64LE, versionDataspace, H5P_DEFAULT, H5P_DEFAULT);
   if (versionAttribute == H5I_INVALID_HID)
   {
     return false;
@@ -84,29 +84,17 @@ bool vtkHDFWriter::Implementation::OpenFile(bool overwrite)
     return false;
   }
 
-  this->File = std::move(file);
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::OpenRoot(bool overwrite)
-{
-  return this->OpenGroup("VTKHDF", overwrite);
-}
-
-//------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::OpenGroup(const std::string& path, bool overwrite)
-{
   // Create the root group
-  vtkHDF::ScopedH5GHandle root{ H5Gcreate(
-    this->File, path.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+  vtkHDF::ScopedH5GHandle root = this->CreateHdfGroupWithLinkOrder(file, "VTKHDF");
   if (root == H5I_INVALID_HID)
   {
     this->LastError = "Can not create root group";
     return false;
   }
 
+  this->File = std::move(file);
   this->Root = std::move(root);
+
   return true;
 }
 
@@ -115,6 +103,15 @@ vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::OpenExistingGroup(
   hid_t group, const char* name)
 {
   return H5Gopen(group, name, H5P_DEFAULT);
+}
+
+//------------------------------------------------------------------------------
+std::string vtkHDFWriter::Implementation::GetGroupName(hid_t group)
+{
+  size_t len = H5Iget_name(group, nullptr, 0);
+  char buffer[len];
+  H5Iget_name(group, buffer, len + 1);
+  return std::string(buffer);
 }
 
 //------------------------------------------------------------------------------
@@ -196,6 +193,11 @@ vtkHDF::ScopedH5AHandle vtkHDFWriter::Implementation::CreateScalarAttribute(
     return H5I_INVALID_HID;
   }
 
+  if (H5Aexists(group, name))
+  {
+    return H5Aopen_name(group, name);
+  }
+
   vtkHDF::ScopedH5AHandle nStepsAttribute{ H5Acreate(
     group, name, H5T_STD_I64LE, scalarSpaceAttribute, H5P_DEFAULT, H5P_DEFAULT) };
   if (nStepsAttribute == H5I_INVALID_HID)
@@ -237,6 +239,19 @@ vtkHDF::ScopedH5SHandle vtkHDFWriter::Implementation::CreateUnlimitedSimpleDatas
 vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::CreateHdfGroup(hid_t group, const char* name)
 {
   return H5Gcreate(group, name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+}
+
+//------------------------------------------------------------------------------
+vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::CreateHdfGroupWithLinkOrder(
+  hid_t group, const char* name)
+{
+  vtkHDF::ScopedH5PHandle plist = H5Pcreate(H5P_GROUP_CREATE);
+  if (plist == H5I_INVALID_HID)
+  {
+    return H5I_INVALID_HID;
+  }
+  H5Pset_link_creation_order(plist, H5P_CRT_ORDER_TRACKED | H5P_CRT_ORDER_INDEXED);
+  return H5Gcreate(group, name, H5P_DEFAULT, plist, H5P_DEFAULT);
 }
 
 //------------------------------------------------------------------------------

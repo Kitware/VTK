@@ -32,9 +32,8 @@ public:
    * Returns wether the operation was successful
    * If the operation fails, some attributes may have been written
    */
-  bool WriteHeader(const char* hdfType);
+  bool WriteHeader(hid_t group, const char* hdfType);
 
-  ///@{
   /**
    * Open the file from the filename and create the root VTKHDF group
    * Overwrite the file if it exists by default
@@ -43,10 +42,7 @@ public:
    * Returns wether the operation was successful
    * If the operation fails, the file may have been created
    */
-  bool OpenRoot(bool overwrite = true);
   bool OpenFile(bool overwrite = true);
-  bool OpenGroup(const std::string& path = "VTKHDF", bool overwrite = true);
-  ///@}
 
   /**
    * Create the steps group in the root group. Set a member variable to store the group, so it can
@@ -88,7 +84,8 @@ public:
   vtkHDF::ScopedH5SHandle CreateSimpleDataspace(int rank, const hsize_t dimensions[]);
 
   /**
-   * Create a scalar integer attribute in the given group
+   * Create a scalar integer attribute in the given group.
+   * Noop if the attribute already exists.
    */
   vtkHDF::ScopedH5AHandle CreateScalarAttribute(hid_t group, const char* name, int value);
 
@@ -106,6 +103,12 @@ public:
   vtkHDF::ScopedH5GHandle CreateHdfGroup(hid_t group, const char* name);
 
   /**
+   * Create a group that keeps track of link creation order
+   * Returned scoped handle may be invalid.
+   */
+  vtkHDF::ScopedH5GHandle CreateHdfGroupWithLinkOrder(hid_t group, const char* name);
+
+  /**
    * Create a soft link to the real group containing the block datatset.
    */
   herr_t CreateSoftLink(hid_t group, const char* groupName, const char* targetLink);
@@ -114,6 +117,11 @@ public:
    * Open and return an existing group thanks to id and a relative or absolute path to this group.
    */
   vtkHDF::ScopedH5GHandle OpenExistingGroup(hid_t group, const char* name);
+
+  /**
+   * Return the name of a group given its id
+   */
+  std::string GetGroupName(hid_t group);
 
   /**
    * Create a dataset in the given group from a dataspace

@@ -73,6 +73,10 @@ public:
    * Returns the names of arrays for 'attributeType' (point or cell).
    */
   std::vector<std::string> GetArrayNames(int attributeType);
+  /**
+   * Return the name of all children of an HDF group given its path
+   */
+  std::vector<std::string> GetOrderedChildrenOfGroup(const std::string path);
   ///@{
   /**
    * Reads and returns a new vtkDataArray. The actual type of the array

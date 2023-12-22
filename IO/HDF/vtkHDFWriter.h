@@ -22,6 +22,9 @@ class vtkDataSet;
 class vtkPointSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
+class vtkPartitionedDataSet;
+class vtkPartitionedDataSetCollection;
+class vtkMultiBlockDataSet;
 
 typedef int64_t hid_t;
 
@@ -127,18 +130,20 @@ private:
   void WriteData() override;
 
   /**
-   * Dispatch the input vtkDataObject to the right writing function, depending on its dynamic type
+   * Dispatch the input vtkDataObject to the right writing function, depending on its dynamic type.
+   * Data will be written in the specified group, which must already exist.
    */
-  void DispatchDataObject(vtkDataObject* input, const std::string& path = "VTKHDF");
+  void DispatchDataObject(hid_t group, vtkDataObject* input);
 
   ///@{
   /**
    * Write the given dataset to the current FileName in vtkHDF format.
    * returns true if the writing operation completes successfully.
    */
-  bool WriteDatasetToFile(vtkPolyData* input, const std::string& path);
-  bool WriteDatasetToFile(vtkUnstructuredGrid* input, const std::string& path);
-  bool WriteDatasetToFile(vtkDataObjectTree* input, const std::string& path);
+  bool WriteDatasetToFile(hid_t group, vtkPolyData* input);
+  bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input);
+  bool WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input);
+  bool WriteDatasetToFile(hid_t group, vtkDataObjectTree* input);
   ///@}
 
   ///@{
@@ -212,16 +217,23 @@ private:
    */
   bool AppendDataArrays(hid_t group, vtkDataObject* input);
 
+  ///@{
   /**
-   * Add the assembly of the DataObjectTree to the file.
-   * OpenRoot should succeed on this->Impl before calling this function.
+   * Append all available blocks of a given vtkPartitionedDataSetCollection to the same HDF5 group,
+   * without hierarchy.
    */
-  bool AppendAssembly(hid_t baseGroup, vtkDataObjectTree* input, std::string path = "Assembly");
+  bool AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pdc);
+  bool AppendBlocks(hid_t group, vtkMultiBlockDataSet* mb);
+  ///@}
 
+  ///@{
   /**
-   * TODO
+   * Add the given assembly to the specified group
+   * Individual blocks need to be added to the file beforehand.
    */
-  bool AppendBlocks(hid_t baseGroup, vtkDataObjectTree* input);
+  bool AppendAssembly(hid_t group, vtkPartitionedDataSetCollection* pdc);
+  bool AppendAssembly(hid_t group, vtkMultiBlockDataSet* mb, int& datasetCount);
+  ///@}
 
   /**
    * Append the offset data in the steps group for the current array for transient data

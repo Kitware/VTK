@@ -1808,7 +1808,8 @@ bool DispatchDataObjectImpl(
       "Input dataset types do not match: " << do1->GetClassName() << " != " << do2->GetClassName());
   }
 
-  vtkLog(ERROR, << "Only vtkPartitionedDataSet and vtkPartitionedDataSetCollection are supported "
+  vtkLog(ERROR, << "Only vtkPartitionedDataSet, vtkPartitionedDataSetCollection and "
+                   "vtkMultiBlockDataSet are supported "
                    "for now.");
   return false;
 }
@@ -1851,11 +1852,14 @@ bool vtkTestUtilities::CompareDataObjects(
 
   if (auto cds = vtkCompositeDataSet::SafeDownCast(do1))
   {
-    bool retVal = false;
-    if (::DispatchDataObjectImpl<TestDataObjectsImpl, vtkCompositeDataSet>(
-          cds, vtkCompositeDataSet::SafeDownCast(do2), toleranceFactor, retVal))
+    if (auto cds2 = vtkCompositeDataSet::SafeDownCast(do2))
     {
-      return retVal;
+      bool retVal = false;
+      if (::DispatchDataObjectImpl<TestDataObjectsImpl, vtkCompositeDataSet>(
+            cds, cds2, toleranceFactor, retVal))
+      {
+        return retVal;
+      }
     }
 
     return false;
