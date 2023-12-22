@@ -108,7 +108,7 @@ public:
   /**
    * Create a soft link to the real group containing the block datatset.
    */
-  herr_t CreateHDFSoftLink(hid_t group, const char* groupName, const char* targetLink);
+  herr_t CreateSoftLink(hid_t group, const char* groupName, const char* targetLink);
 
   /**
    * Open and return an existing group thanks to id and a relative or absolute path to this group.

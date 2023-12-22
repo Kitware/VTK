@@ -64,10 +64,12 @@ public:
 
   ///@{
   /**
-   * Get/set OutputAsMultiBlockDataSet. Determine if the composite written while has his Type
-   * atttribute set as MultiBlockDataSet or PartitionedDataSetCollection.
+   * Get/set OutputAsMultiBlockDataSet flag.
+   * When set, for composite types of input datasets, the writer will write MultiblockDataSet data
+   * to file, and otherwise PartitionedDataSetCollection. These 2 formats have the same VTKHDF
+   * representation, only an HDF5 attribute indicates which type should be read.
    *
-   * Default is False.
+   * Default is False (outputs PartitionedDataSetCollection).
    */
   vtkSetMacro(OutputAsMultiBlockDataSet, bool);
   vtkGetMacro(OutputAsMultiBlockDataSet, bool);
@@ -76,7 +78,7 @@ public:
   ///@{
   /**
    * Get/set the flag to write all timesteps from the input dataset.
-   * When turned OFF, only write the first timestep.
+   * When turned OFF, only write the current timestep.
    */
   vtkSetMacro(WriteAllTimeSteps, bool);
   vtkGetMacro(WriteAllTimeSteps, bool);
@@ -87,18 +89,11 @@ public:
    * Configurable chunk size for transient (time-dependent) data, where arrays resized every
    * timestep, hence requiring chunking. Read more about chunks and chunk size here :
    * https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/
+   *
    * Defaults to 100.
    */
   vtkSetMacro(ChunkSize, int);
   vtkGetMacro(ChunkSize, int);
-  ///@}
-
-  ///@{
-  /**
-   * Write the dataset from the input in the file specified by the filename to the vtkHDF format.
-   */
-  void WriteData() override;
-  void WriteData(vtkDataObject* input, const std::string& path = "VTKHDF");
   ///@}
 
 protected:
@@ -111,6 +106,7 @@ protected:
     vtkInformationVector* outputVector) override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
@@ -124,14 +120,25 @@ protected:
   ~vtkHDFWriter() override;
 
 private:
+  /**
+   * Open destination file and write the input dataset to the file specified by the filename
+   * attribute in vtkHDF format.
+   */
+  void WriteData() override;
+
+  /**
+   * Dispatch the input vtkDataObject to the right writing function, depending on its dynamic type
+   */
+  void DispatchDataObject(vtkDataObject* input, const std::string& path = "VTKHDF");
+
   ///@{
   /**
-   * Write the data to the current FileName in vtkHDF format.
+   * Write the given dataset to the current FileName in vtkHDF format.
    * returns true if the writing operation completes successfully.
    */
-  bool WriteDatasetToFile(vtkPolyData* input, const std::string& path = "VTKHDF");
-  bool WriteDatasetToFile(vtkUnstructuredGrid* input, const std::string& path = "VTKHDF");
-  bool WriteDatasetToFile(vtkDataObjectTree* input, const std::string& path = "VTKHDF");
+  bool WriteDatasetToFile(vtkPolyData* input, const std::string& path);
+  bool WriteDatasetToFile(vtkUnstructuredGrid* input, const std::string& path);
+  bool WriteDatasetToFile(vtkDataObjectTree* input, const std::string& path);
   ///@}
 
   ///@{
@@ -229,17 +236,19 @@ private:
 
   class Implementation;
   std::unique_ptr<Implementation> Impl;
+
+  // Configurable properties
   char* FileName = nullptr;
   bool Overwrite = true;
   bool OutputAsMultiBlockDataSet = false;
-
-  // Transient-related configuration and variables
-  double* timeSteps = nullptr;
   bool WriteAllTimeSteps = true;
+  int ChunkSize = 100;
+
+  // Transient-related private variables
+  double* timeSteps = nullptr;
   bool IsTransient = false;
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 0;
-  int ChunkSize = 100;
 };
 VTK_ABI_NAMESPACE_END
 #endif

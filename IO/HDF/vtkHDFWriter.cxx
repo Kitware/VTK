@@ -37,14 +37,202 @@ hsize_t SMALL_CHUNK[] = { 1, 1 }; // Used for chunked arrays where values are re
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::WriteDatasetToFile(vtkPolyData* input, const std::string& path)
+vtkHDFWriter::vtkHDFWriter()
+  : Impl(new Implementation(this))
 {
-  if (!this->Impl->OpenGroup(path, this->Overwrite))
+}
+
+//------------------------------------------------------------------------------
+vtkHDFWriter::~vtkHDFWriter()
+{
+  this->SetFileName(nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkHDFWriter::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
-    vtkErrorMacro(<< "Could not open root group for " << this->FileName);
-    return false;
+    return this->RequestInformation(request, inputVector, outputVector);
+  }
+  else if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  {
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
+  }
+  else if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  {
+    return this->RequestData(request, inputVector, outputVector);
   }
 
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+//------------------------------------------------------------------------------
+int vtkHDFWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+  {
+    this->NumberOfTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    if (this->WriteAllTimeSteps)
+    {
+      this->IsTransient = true;
+    }
+  }
+  else
+  {
+    this->NumberOfTimeSteps = 0;
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkHDFWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (this->WriteAllTimeSteps && inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+  {
+    this->timeSteps = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    double timeReq = this->timeSteps[this->CurrentTimeIndex];
+    inputVector[0]->GetInformationObject(0)->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkHDFWriter::RequestData(vtkInformation* request,
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
+{
+  if (!this->FileName)
+  {
+    return 1;
+  }
+
+  this->WriteData();
+
+  if (this->IsTransient)
+  {
+    if (this->CurrentTimeIndex == 0)
+    {
+      // Tell the pipeline to start looping in order to write all the timesteps
+      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+    }
+
+    this->CurrentTimeIndex++;
+
+    if (this->CurrentTimeIndex >= this->NumberOfTimeSteps)
+    {
+      // Tell the pipeline to stop looping.
+      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
+      this->CurrentTimeIndex = 0;
+    }
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkHDFWriter::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if (port == 0)
+  {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
+    return 1;
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "Overwrite: " << (this->Overwrite ? "yes" : "no") << "\n";
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFWriter::WriteData()
+{
+  // Root group only needs to be opened for the first timestep
+  if (this->CurrentTimeIndex == 0 && !this->Impl->OpenFile(this->Overwrite))
+  {
+    vtkErrorMacro(<< "Could not open file : " << this->FileName);
+    return;
+  }
+
+  vtkDataObject* input = vtkDataObject::SafeDownCast(this->GetInput());
+  this->DispatchDataObject(input, "/VTKHDF");
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFWriter::DispatchDataObject(vtkDataObject* input, const std::string& path)
+{
+  if (!input)
+  {
+    vtkErrorMacro(<< "A vtkDataObject input is required.");
+    return;
+  }
+
+  if (this->FileName == nullptr)
+  {
+    vtkErrorMacro(<< "Please specify FileName to use.");
+    return;
+  }
+
+  if (this->CurrentTimeIndex == 0 && !this->Impl->OpenGroup(path, this->Overwrite))
+  {
+    vtkErrorMacro(<< "Could not open root group" << path << " for " << this->FileName);
+    return;
+  }
+
+  // The writer can handle polydata and unstructured grids, as well as composite types.
+  vtkPolyData* polydata = vtkPolyData::SafeDownCast(input);
+  if (polydata)
+  {
+    if (!this->WriteDatasetToFile(polydata, path))
+    {
+      vtkErrorMacro(<< "Can't write polydata to file:" << this->FileName);
+      return;
+    }
+    return;
+  }
+
+  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
+  if (unstructuredGrid)
+  {
+    if (!this->WriteDatasetToFile(unstructuredGrid, path))
+    {
+      vtkErrorMacro(<< "Can't write unstructuredGrid to file:" << this->FileName);
+      return;
+    }
+    return;
+  }
+
+  vtkDataObjectTree* tree = vtkDataObjectTree::SafeDownCast(input);
+  if (tree)
+  {
+    if (!this->WriteDatasetToFile(tree, path))
+    {
+      vtkErrorMacro(<< "Can't write vtkDataObjectTree to file:" << this->FileName);
+      return;
+    }
+    return;
+  }
+
+  vtkErrorMacro(<< "Dataset type not supported: " << input->GetClassName());
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::WriteDatasetToFile(vtkPolyData* input, const std::string& path)
+{
   if (CurrentTimeIndex == 0 && !this->InitializeTransientData(input))
   {
     vtkErrorMacro(<< "Transient polydata initialization failed for PolyData " << this->FileName);
@@ -73,12 +261,6 @@ bool vtkHDFWriter::WriteDatasetToFile(vtkPolyData* input, const std::string& pat
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(vtkUnstructuredGrid* input, const std::string& path)
 {
-  if (!this->Impl->OpenGroup(path, this->Overwrite))
-  {
-    vtkErrorMacro(<< "Could not open root group for " << this->FileName);
-    return false;
-  }
-
   if (CurrentTimeIndex == 0 && !this->InitializeTransientData(input))
   {
     vtkErrorMacro(<< "Transient unstructured grid initialization failed for PolyData "
@@ -115,11 +297,6 @@ bool vtkHDFWriter::WriteDatasetToFile(vtkUnstructuredGrid* input, const std::str
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(vtkDataObjectTree* input, const std::string& path)
 {
-  if (!this->Impl->OpenGroup(path, this->Overwrite))
-  {
-    vtkErrorMacro(<< "Could not open root group for " << this->FileName);
-    return false;
-  }
   bool writeSuccess = true;
   hid_t rootGroup = this->Impl->GetRoot();
 
@@ -235,6 +412,179 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
     return false;
   }
 
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::InitializeTransientData(vtkUnstructuredGrid* input)
+{
+  if (!this->IsTransient)
+  {
+    return true;
+  }
+
+  this->Impl->CreateStepsGroup();
+  hid_t stepsGroup = this->Impl->GetStepsGroup();
+  if (!this->AppendTimeValues(stepsGroup))
+  {
+    return false;
+  }
+
+  // Used for larger chunked arrays
+  hsize_t largeChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 1 };
+  // Used for larger chunked arrays of 3 components
+  hsize_t largeVectorChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 3 };
+
+  // Create empty offsets arrays, where a value is appended every step
+  bool initResult = true;
+  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "PointOffsets", H5T_STD_I64LE,
+                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
+  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "CellOffsets", H5T_STD_I64LE,
+                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
+  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE,
+                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
+  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "PartOffsets", H5T_STD_I64LE,
+                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
+
+  // Add an initial 0 value in the offset arrays
+  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0);
+  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "CellOffsets", 0);
+  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "ConnectivityIdOffsets", 0);
+  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0);
+
+  if (!initResult)
+  {
+    vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
+                    << this->FileName);
+    return false;
+  }
+
+  // Create empty datasets
+  hid_t root = this->Impl->GetRoot();
+  vtkAbstractArray* pointArray = input->GetPoints()->GetData();
+  hid_t datatype = vtkHDFUtilities::getH5TypeFromVtkType(pointArray->GetDataType());
+  initResult &= this->Impl->InitDynamicDataset(root, "Points", datatype,
+                  pointArray->GetNumberOfComponents(), largeVectorChunkSize) != H5I_INVALID_HID;
+
+  initResult &= this->Impl->InitDynamicDataset(root, "NumberOfPoints", H5T_STD_I64LE, SINGLE_COLUMN,
+                  SMALL_CHUNK) != H5I_INVALID_HID;
+
+  // Create offsets dataset
+  initResult &= this->Impl->InitDynamicDataset(
+                  root, "Offsets", H5T_STD_I64LE, SINGLE_COLUMN, largeChunkSize) != H5I_INVALID_HID;
+  initResult &= this->Impl->InitDynamicDataset(root, "NumberOfCells", H5T_STD_I64LE, SINGLE_COLUMN,
+                  SMALL_CHUNK) != H5I_INVALID_HID;
+
+  // Create types dataset
+  initResult &= this->Impl->InitDynamicDataset(
+                  root, "Types", H5T_STD_U8LE, SINGLE_COLUMN, largeChunkSize) != H5I_INVALID_HID;
+
+  // Create connectivity datasets
+  initResult &= this->Impl->InitDynamicDataset(root, "Connectivity", H5T_STD_I64LE, SINGLE_COLUMN,
+                  largeChunkSize) != H5I_INVALID_HID;
+  initResult &= this->Impl->InitDynamicDataset(root, "NumberOfConnectivityIds", H5T_STD_I64LE,
+                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
+
+  if (!initResult)
+  {
+    vtkWarningMacro(<< "Could not initialize transient datasets when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::InitializeTransientData(vtkPolyData* input)
+{
+  if (!this->IsTransient)
+  {
+    return true;
+  }
+
+  this->Impl->CreateStepsGroup();
+  hid_t stepsGroup = this->Impl->GetStepsGroup();
+  if (!this->AppendTimeValues(stepsGroup))
+  {
+    return false;
+  }
+
+  // Used for larger chunked arrays
+  hsize_t largeChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 1 };
+  // Used for larger chunked arrays of 3 components
+  hsize_t largeVectorChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 3 };
+
+  // Create empty offsets arrays, where a value is appended every step, and add and initial 0 value.
+  bool initResult = true;
+  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "PointOffsets", H5T_STD_I64LE,
+                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
+  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "PartOffsets", H5T_STD_I64LE,
+                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
+  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0);
+  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0);
+
+  // Initialize datasets for primitive cells and connectivity. Fill with an empty 1*4 vector.
+  vtkHDF::ScopedH5DHandle cellOffsetsHandle = this->Impl->InitDynamicDataset(
+    stepsGroup, "CellOffsets", H5T_STD_I64LE, NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
+  vtkHDF::ScopedH5DHandle connectivityOffsetsHandle = this->Impl->InitDynamicDataset(
+    stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE, NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
+  if (cellOffsetsHandle == H5I_INVALID_HID || connectivityOffsetsHandle == H5I_INVALID_HID)
+  {
+    vtkWarningMacro(<< "Could not create transient offset datasets when creating: "
+                    << this->FileName);
+    return false;
+  }
+
+  vtkNew<vtkIntArray> emptyPrimitiveArray;
+  emptyPrimitiveArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
+  int emptyArray[] = { 0, 0, 0, 0 };
+  emptyPrimitiveArray->SetArray(emptyArray, NUM_POLY_DATA_TOPOS, 1);
+  initResult &= this->Impl->AddArrayToDataset(cellOffsetsHandle, emptyPrimitiveArray);
+  initResult &= this->Impl->AddArrayToDataset(connectivityOffsetsHandle, emptyPrimitiveArray);
+  if (!initResult)
+  {
+    vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
+                    << this->FileName);
+    return false;
+  }
+
+  // Create empty resizable datasets for Points and NumberOfPoints
+  hid_t root = this->Impl->GetRoot();
+  vtkAbstractArray* pointArray = input->GetPoints()->GetData();
+  hid_t datatype = vtkHDFUtilities::getH5TypeFromVtkType(pointArray->GetDataType());
+  initResult &= this->Impl->InitDynamicDataset(root, "Points", datatype,
+                  pointArray->GetNumberOfComponents(), largeVectorChunkSize) != H5I_INVALID_HID;
+  initResult &= this->Impl->InitDynamicDataset(root, "NumberOfPoints", H5T_STD_I64LE, SINGLE_COLUMN,
+                  SMALL_CHUNK) != H5I_INVALID_HID;
+
+  // For each primitive type, create a group and datasets/daspaces
+  auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
+  for (const auto& cellArrayTopo : cellArrayTopos)
+  {
+    const char* groupName = cellArrayTopo.hdfGroupName;
+    vtkHDF::ScopedH5GHandle group{ H5Gcreate(
+      root, groupName, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+    if (group == H5I_INVALID_HID)
+    {
+      vtkErrorMacro(<< "Can not create " << groupName
+                    << " group during transient initialization when creating: " << this->FileName);
+      return false;
+    }
+
+    initResult &= this->Impl->InitDynamicDataset(group, "Offsets", H5T_STD_I64LE, SINGLE_COLUMN,
+                    largeChunkSize) != H5I_INVALID_HID;
+    initResult &= this->Impl->InitDynamicDataset(group, "NumberOfCells", H5T_STD_I64LE,
+                    SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
+    initResult &= this->Impl->InitDynamicDataset(group, "Connectivity", H5T_STD_I64LE,
+                    SINGLE_COLUMN, largeChunkSize) != H5I_INVALID_HID;
+    initResult &= this->Impl->InitDynamicDataset(group, "NumberOfConnectivityIds", H5T_STD_I64LE,
+                    SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
+  }
+
+  if (!initResult)
+  {
+    vtkWarningMacro(<< "Could not initialize transient datasets when creating: " << this->FileName);
+    return false;
+  }
   return true;
 }
 
@@ -484,7 +834,6 @@ bool vtkHDFWriter::AppendBlocks(hid_t baseGroup, vtkDataObjectTree* input)
   treeIter->TraverseSubTreeOn();
   treeIter->SkipEmptyNodesOff();
 
-  std::string name;
   for (treeIter->InitTraversal(); !treeIter->IsDoneWithTraversal(); treeIter->GoToNextItem())
   {
     unsigned int flattenIdx = treeIter->GetCurrentFlatIndex();
@@ -495,6 +844,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t baseGroup, vtkDataObjectTree* input)
       continue;
     }
 
+    std::string name;
     if (treeIter->GetCurrentDataObject()->IsA("vtkPartitionedDataSet"))
     {
       name = input->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME());
@@ -506,11 +856,11 @@ bool vtkHDFWriter::AppendBlocks(hid_t baseGroup, vtkDataObjectTree* input)
       name = input->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME());
     }
 
-    std::string newPath = "VTKHDF/" + name;
+    std::string blockPath = "VTKHDF/" + name;
     vtkDataObjectTree* group = vtkDataObjectTree::SafeDownCast(treeIter->GetCurrentDataObject());
     if (group == nullptr)
     {
-      this->WriteData(treeIter->GetCurrentDataObject(), newPath);
+      this->DispatchDataObject(treeIter->GetCurrentDataObject(), blockPath);
     }
   }
 
@@ -563,7 +913,7 @@ bool vtkHDFWriter::AppendAssembly(hid_t baseGroup, vtkDataObjectTree* input, std
     {
       std::string target = "/VTKHDF/" + name;
 
-      auto linkhandle = this->Impl->CreateHDFSoftLink(baseGroup, newPath.c_str(), target.c_str());
+      auto linkhandle = this->Impl->CreateSoftLink(baseGroup, newPath.c_str(), target.c_str());
       groupHandle = this->Impl->OpenExistingGroup(baseGroup, target.c_str());
     }
 
@@ -587,253 +937,6 @@ bool vtkHDFWriter::AppendTimeValues(hid_t group)
   timeStepsArray->SetArray(this->timeSteps, this->NumberOfTimeSteps, 1);
   return this->Impl->CreateDatasetFromDataArray(group, "Values", H5T_IEEE_F32LE, timeStepsArray) !=
     H5I_INVALID_HID;
-}
-
-//------------------------------------------------------------------------------
-void vtkHDFWriter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
-  os << indent << "Overwrite: " << (this->Overwrite ? "yes" : "no") << "\n";
-}
-
-//------------------------------------------------------------------------------
-void vtkHDFWriter::WriteData()
-{
-  // Root group only needs to be opened for the first timestep
-  if (this->CurrentTimeIndex == 0 && !this->Impl->OpenFile(this->Overwrite))
-  {
-    vtkErrorMacro(<< "Could not open file : " << this->FileName);
-    return;
-  }
-
-  vtkDataObject* input = vtkDataObject::SafeDownCast(this->GetInput());
-  this->WriteData(input);
-}
-
-//------------------------------------------------------------------------------
-void vtkHDFWriter::WriteData(vtkDataObject* input, const std::string& path)
-{
-  if (!input)
-  {
-    vtkErrorMacro(<< "A dataObject input is required.");
-    return;
-  }
-
-  if (this->FileName == nullptr)
-  {
-    vtkErrorMacro(<< "Please specify FileName to use.");
-    return;
-  }
-
-  // The writer can handle polydata and unstructured grids.
-  vtkPolyData* polydata = vtkPolyData::SafeDownCast(input);
-  if (polydata)
-  {
-    if (!this->WriteDatasetToFile(polydata, path))
-    {
-      vtkErrorMacro(<< "Can't write polydata to file:" << this->FileName);
-      return;
-    }
-    return;
-  }
-
-  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
-  if (unstructuredGrid)
-  {
-    if (!this->WriteDatasetToFile(unstructuredGrid, path))
-    {
-      vtkErrorMacro(<< "Can't write unstructuredGrid to file:" << this->FileName);
-      return;
-    }
-    return;
-  }
-
-  vtkDataObjectTree* tree = vtkDataObjectTree::SafeDownCast(input);
-  if (tree)
-  {
-    if (!this->WriteDatasetToFile(tree, path))
-    {
-      vtkErrorMacro(<< "Can't write vtkDataObjectTree to file:" << this->FileName);
-      return;
-    }
-    return;
-  }
-
-  vtkErrorMacro(<< "Dataset type not supported: " << input->GetClassName());
-}
-
-//------------------------------------------------------------------------------
-bool vtkHDFWriter::InitializeTransientData(vtkUnstructuredGrid* input)
-{
-  if (!this->IsTransient)
-  {
-    return true;
-  }
-
-  this->Impl->CreateStepsGroup();
-  hid_t stepsGroup = this->Impl->GetStepsGroup();
-  if (!this->AppendTimeValues(stepsGroup))
-  {
-    return false;
-  }
-
-  // Used for larger chunked arrays
-  hsize_t largeChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 1 };
-  // Used for larger chunked arrays of 3 components
-  hsize_t largeVectorChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 3 };
-
-  // Create empty offsets arrays, where a value is appended every step
-  bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "PointOffsets", H5T_STD_I64LE,
-                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
-  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "CellOffsets", H5T_STD_I64LE,
-                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
-  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE,
-                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
-  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "PartOffsets", H5T_STD_I64LE,
-                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
-
-  // Add an initial 0 value in the offset arrays
-  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0);
-  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "CellOffsets", 0);
-  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "ConnectivityIdOffsets", 0);
-  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0);
-
-  if (!initResult)
-  {
-    vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
-                    << this->FileName);
-    return false;
-  }
-
-  // Create empty datasets
-  hid_t root = this->Impl->GetRoot();
-  vtkAbstractArray* pointArray = input->GetPoints()->GetData();
-  hid_t datatype = vtkHDFUtilities::getH5TypeFromVtkType(pointArray->GetDataType());
-  initResult &= this->Impl->InitDynamicDataset(root, "Points", datatype,
-                  pointArray->GetNumberOfComponents(), largeVectorChunkSize) != H5I_INVALID_HID;
-
-  initResult &= this->Impl->InitDynamicDataset(root, "NumberOfPoints", H5T_STD_I64LE, SINGLE_COLUMN,
-                  SMALL_CHUNK) != H5I_INVALID_HID;
-
-  // Create offsets dataset
-  initResult &= this->Impl->InitDynamicDataset(
-                  root, "Offsets", H5T_STD_I64LE, SINGLE_COLUMN, largeChunkSize) != H5I_INVALID_HID;
-  initResult &= this->Impl->InitDynamicDataset(root, "NumberOfCells", H5T_STD_I64LE, SINGLE_COLUMN,
-                  SMALL_CHUNK) != H5I_INVALID_HID;
-
-  // Create types dataset
-  initResult &= this->Impl->InitDynamicDataset(
-                  root, "Types", H5T_STD_U8LE, SINGLE_COLUMN, largeChunkSize) != H5I_INVALID_HID;
-
-  // Create connectivity datasets
-  initResult &= this->Impl->InitDynamicDataset(root, "Connectivity", H5T_STD_I64LE, SINGLE_COLUMN,
-                  largeChunkSize) != H5I_INVALID_HID;
-  initResult &= this->Impl->InitDynamicDataset(root, "NumberOfConnectivityIds", H5T_STD_I64LE,
-                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
-
-  if (!initResult)
-  {
-    vtkWarningMacro(<< "Could not initialize transient datasets when creating: " << this->FileName);
-    return false;
-  }
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkHDFWriter::InitializeTransientData(vtkPolyData* input)
-{
-  if (!this->IsTransient)
-  {
-    return true;
-  }
-
-  this->Impl->CreateStepsGroup();
-  hid_t stepsGroup = this->Impl->GetStepsGroup();
-  if (!this->AppendTimeValues(stepsGroup))
-  {
-    return false;
-  }
-
-  // Used for larger chunked arrays
-  hsize_t largeChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 1 };
-  // Used for larger chunked arrays of 3 components
-  hsize_t largeVectorChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 3 };
-
-  // Create empty offsets arrays, where a value is appended every step, and add and initial 0 value.
-  bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "PointOffsets", H5T_STD_I64LE,
-                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
-  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "PartOffsets", H5T_STD_I64LE,
-                  SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
-  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0);
-  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0);
-
-  // Initialize datasets for primitive cells and connectivity. Fill with an empty 1*4 vector.
-  vtkHDF::ScopedH5DHandle cellOffsetsHandle = this->Impl->InitDynamicDataset(
-    stepsGroup, "CellOffsets", H5T_STD_I64LE, NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
-  vtkHDF::ScopedH5DHandle connectivityOffsetsHandle = this->Impl->InitDynamicDataset(
-    stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE, NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
-  if (cellOffsetsHandle == H5I_INVALID_HID || connectivityOffsetsHandle == H5I_INVALID_HID)
-  {
-    vtkWarningMacro(<< "Could not create transient offset datasets when creating: "
-                    << this->FileName);
-    return false;
-  }
-
-  vtkNew<vtkIntArray> emptyPrimitiveArray;
-  emptyPrimitiveArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
-  int emptyArray[] = { 0, 0, 0, 0 };
-  emptyPrimitiveArray->SetArray(emptyArray, NUM_POLY_DATA_TOPOS, 1);
-  initResult &= this->Impl->AddArrayToDataset(cellOffsetsHandle, emptyPrimitiveArray);
-  initResult &= this->Impl->AddArrayToDataset(connectivityOffsetsHandle, emptyPrimitiveArray);
-  if (!initResult)
-  {
-    vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
-                    << this->FileName);
-    return false;
-  }
-
-  // Create empty resizable datasets for Points and NumberOfPoints
-  hid_t root = this->Impl->GetRoot();
-  vtkAbstractArray* pointArray = input->GetPoints()->GetData();
-  hid_t datatype = vtkHDFUtilities::getH5TypeFromVtkType(pointArray->GetDataType());
-  initResult &= this->Impl->InitDynamicDataset(root, "Points", datatype,
-                  pointArray->GetNumberOfComponents(), largeVectorChunkSize) != H5I_INVALID_HID;
-  initResult &= this->Impl->InitDynamicDataset(root, "NumberOfPoints", H5T_STD_I64LE, SINGLE_COLUMN,
-                  SMALL_CHUNK) != H5I_INVALID_HID;
-
-  // For each primitive type, create a group and datasets/daspaces
-  auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
-  for (const auto& cellArrayTopo : cellArrayTopos)
-  {
-    const char* groupName = cellArrayTopo.hdfGroupName;
-    vtkHDF::ScopedH5GHandle group{ H5Gcreate(
-      root, groupName, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
-    if (group == H5I_INVALID_HID)
-    {
-      vtkErrorMacro(<< "Can not create " << groupName
-                    << " group during transient initialization when creating: " << this->FileName);
-      return false;
-    }
-
-    initResult &= this->Impl->InitDynamicDataset(group, "Offsets", H5T_STD_I64LE, SINGLE_COLUMN,
-                    largeChunkSize) != H5I_INVALID_HID;
-    initResult &= this->Impl->InitDynamicDataset(group, "NumberOfCells", H5T_STD_I64LE,
-                    SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
-    initResult &= this->Impl->InitDynamicDataset(group, "Connectivity", H5T_STD_I64LE,
-                    SINGLE_COLUMN, largeChunkSize) != H5I_INVALID_HID;
-    initResult &= this->Impl->InitDynamicDataset(group, "NumberOfConnectivityIds", H5T_STD_I64LE,
-                    SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
-  }
-
-  if (!initResult)
-  {
-    vtkWarningMacro(<< "Could not initialize transient datasets when creating: " << this->FileName);
-    return false;
-  }
-  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -887,120 +990,6 @@ bool vtkHDFWriter::AppendTransientDataArray(hid_t arrayGroup, vtkAbstractArray* 
   }
 
   return true;
-}
-
-//------------------------------------------------------------------------------
-vtkTypeBool vtkHDFWriter::ProcessRequest(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
-{
-  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-  {
-    return this->RequestInformation(request, inputVector, outputVector);
-  }
-  else if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-  {
-    return this->RequestUpdateExtent(request, inputVector, outputVector);
-  }
-  else if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-  {
-    return this->RequestData(request, inputVector, outputVector);
-  }
-
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
-}
-
-//------------------------------------------------------------------------------
-int vtkHDFWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
-  {
-    this->NumberOfTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    if (this->WriteAllTimeSteps)
-    {
-      this->IsTransient = true;
-    }
-  }
-  else
-  {
-    this->NumberOfTimeSteps = 0;
-  }
-
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkHDFWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (this->WriteAllTimeSteps && inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
-  {
-    this->timeSteps = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    double timeReq = this->timeSteps[this->CurrentTimeIndex];
-    inputVector[0]->GetInformationObject(0)->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
-  }
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkHDFWriter::RequestData(vtkInformation* request,
-  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
-{
-  if (!this->FileName)
-  {
-    return 1;
-  }
-
-  this->WriteData();
-
-  if (this->IsTransient)
-  {
-    if (this->CurrentTimeIndex == 0)
-    {
-      // Tell the pipeline to start looping in order to write all the timesteps
-      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-    }
-
-    this->CurrentTimeIndex++;
-
-    if (this->CurrentTimeIndex >= this->NumberOfTimeSteps)
-    {
-      // Tell the pipeline to stop looping.
-      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
-      this->CurrentTimeIndex = 0;
-    }
-  }
-
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkHDFWriter::FillInputPortInformation(int port, vtkInformation* info)
-{
-  if (port == 0)
-  {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
-    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
-    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
-    return 1;
-  }
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-vtkHDFWriter::vtkHDFWriter()
-  : Impl(new Implementation(this))
-{
-}
-
-//------------------------------------------------------------------------------
-vtkHDFWriter::~vtkHDFWriter()
-{
-  this->SetFileName(nullptr);
 }
 
 VTK_ABI_NAMESPACE_END

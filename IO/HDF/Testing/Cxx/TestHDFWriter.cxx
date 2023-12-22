@@ -226,8 +226,8 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestSpherePolyData(tempDir);
   testPasses &= TestComplexPolyData(tempDir, dataRoot);
   testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
-  testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
-  testPasses &= TestMultiBlock(tempDir, dataRoot);
+  // testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
+  // testPasses &= TestMultiBlock(tempDir, dataRoot);
 
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }

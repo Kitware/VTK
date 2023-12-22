@@ -240,7 +240,7 @@ vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::CreateHdfGroup(hid_t group
 }
 
 //------------------------------------------------------------------------------
-herr_t vtkHDFWriter::Implementation::CreateHDFSoftLink(
+herr_t vtkHDFWriter::Implementation::CreateSoftLink(
   hid_t group, const char* groupName, const char* targetLink)
 {
   return H5Lcreate_soft(targetLink, group, groupName, H5P_DEFAULT, H5P_DEFAULT);
