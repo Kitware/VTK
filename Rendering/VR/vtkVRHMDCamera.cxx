@@ -6,6 +6,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLState.h"
+#include "vtkPerspectiveTransform.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkVRRenderWindow.h"
@@ -146,6 +147,30 @@ void vtkVRHMDCamera::GetPhysicalToProjectionMatrix(vtkMatrix4x4*& physToProjecti
   else
   {
     physToProjectionMat = this->PhysicalToProjectionMatrixForRightEye;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkVRHMDCamera::ComputeProjectionTransform(double aspect, double nearz, double farz)
+{
+  if (this->GetTrackHMD())
+  {
+    // Use the left and right matrices explicitly created
+    this->ProjectionTransform->Identity();
+    if (this->LeftEye)
+    {
+      this->ProjectionTransform->Concatenate(this->LeftEyeToProjectionMatrix);
+    }
+    else
+    {
+      this->ProjectionTransform->Concatenate(this->RightEyeToProjectionMatrix);
+    }
+  }
+  else
+  {
+    // TrackHMD is disabled for picking (see vtkVRHardwarePicker::PickProp). In this case, we can
+    // use the default projection transform computation done by vtkCamera.
+    this->Superclass::ComputeProjectionTransform(aspect, nearz, farz);
   }
 }
 
