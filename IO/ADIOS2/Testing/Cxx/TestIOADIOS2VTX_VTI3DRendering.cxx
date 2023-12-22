@@ -129,6 +129,8 @@ int TestIOADIOS2VTX_VTI3DRendering(int argc, char* argv[])
   const int rank = MPIGetRank();
   const int size = MPIGetSize();
 #else
+  (void)argc;
+  (void)argv;
   const int rank = 0;
   const int size = 1;
 #endif

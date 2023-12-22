@@ -144,6 +144,8 @@ int TestIOADIOS2VTX_VTU3DRendering(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(mpiController);
   const int rank = MPIGetRank();
 #else
+  (void)argc;
+  (void)argv;
   const int rank = 0;
 #endif
 

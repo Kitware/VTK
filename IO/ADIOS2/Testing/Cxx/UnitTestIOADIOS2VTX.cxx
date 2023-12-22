@@ -565,6 +565,9 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
   vtkNew<vtkMPIController> mpiController;
   mpiController->Initialize(&argc, &argv, 0);
   vtkMultiProcessController::SetGlobalController(mpiController);
+#else
+  (void)argc;
+  (void)argv;
 #endif
 
   size_t testID = 0;
@@ -604,7 +607,7 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
     reader->SetFileName("NONE.bp");
     reader->Update();
   }
-  catch (std::exception& e)
+  catch (std::exception&)
   {
     failed = false;
   }

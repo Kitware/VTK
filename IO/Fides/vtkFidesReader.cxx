@@ -203,6 +203,7 @@ void vtkFidesReader::ParseDataModel()
   }
   catch (std::exception& e)
   {
+    (void)e;
     // In some cases it's expected that reading will fail (e.g., not all properties have been set
     // yet), so we don't always want to output the exception. We'll just put it in vtkDebugMacro,
     // so we can just turn it on when we're experiencing some issue.
