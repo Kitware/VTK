@@ -36,3 +36,10 @@ Dashboard submitting machines work at a slightly higher level of abstraction tha
 The volunteer machines use cron or Windows task scheduler to run CMake scripts that configure a VTK build with specific options, and then run ctest --D as above. Within CDash, you can see each test machine's specific configuration by clicking on the Advanced View and then clicking on the note icon in the Build Name column. This is a useful starting point when setting up a new submitter. It is important that each submitter's dashboard script include the name of the person who configures or maintains the machine so that, when the machine has problems, the dashboard maintainer can address it.
 
 For details about the Continuous Integration infrastructure hosted at Kitware see [here](git/develop.md#continuous-integration).
+
+## Run-time environment of tests using `ctest`
+
+When running a test using `ctest`, an extra empty environment variable is set: `VTK_TESTING`. One
+can catch this environment variable and know that the code is executed under ctest. In particular,
+`VTK_TESTING` is used to disable anti-aliasing in the constructor of `vtkOpenGLRenderWindow` for the
+sake of making comparing image baseline more robust against graphics drivers discrepancies.
