@@ -84,6 +84,14 @@ public:
   typedef std::vector<std::pair<std::string, std::string>>::iterator TextKeyValueIterator;
   vtkNew<vtkStringArray> TextKeys;
   vtkNew<vtkStringArray> TextValues;
+
+  vtkPNGReader* const PNGReader = nullptr;
+
+  vtkInternals(vtkPNGReader* reader)
+    : PNGReader{ reader }
+  {
+  }
+
   void ReadTextChunks(png_structp png_ptr, png_infop info_ptr)
   {
     png_textp text_ptr;
@@ -121,7 +129,7 @@ public:
     bool is_png = !png_sig_cmp(header, 0, 8);
     if (!is_png)
     {
-      vtkErrorWithObjectMacro(nullptr, << "Unknown file type! Not a PNG file!");
+      vtkErrorWithObjectMacro(this->PNGReader, << "Unknown file type! Not a PNG file!");
     }
     return is_png;
   }
@@ -132,7 +140,7 @@ public:
     unsigned char header[8];
     if (fread(header, 1, 8, fp) != 8)
     {
-      vtkErrorWithObjectMacro(nullptr,
+      vtkErrorWithObjectMacro(this->PNGReader,
         "PNGReader error reading file."
           << " Premature EOF while reading header.");
       return false;
@@ -146,7 +154,8 @@ public:
     unsigned char header[8];
     if (length < 8)
     {
-      vtkErrorWithObjectMacro(nullptr, "MemoryBuffer is too short, could not read the header");
+      vtkErrorWithObjectMacro(
+        this->PNGReader, "MemoryBuffer is too short, could not read the header");
       return false;
     }
     std::copy(buffer, buffer + 8, header);
@@ -158,21 +167,21 @@ public:
     pngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp) nullptr, nullptr, nullptr);
     if (!pngPtr)
     {
-      vtkErrorWithObjectMacro(nullptr, "Out of memory.");
+      vtkErrorWithObjectMacro(this->PNGReader, "Out of memory.");
       return false;
     }
     infoPtr = png_create_info_struct(pngPtr);
     if (!infoPtr)
     {
       png_destroy_read_struct(&pngPtr, (png_infopp) nullptr, (png_infopp) nullptr);
-      vtkErrorWithObjectMacro(nullptr, "Out of memory.");
+      vtkErrorWithObjectMacro(this->PNGReader, "Out of memory.");
       return false;
     }
     endInfo = png_create_info_struct(pngPtr);
     if (!endInfo)
     {
       png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp) nullptr);
-      vtkErrorWithObjectMacro(nullptr, "Unable to read PNG file!");
+      vtkErrorWithObjectMacro(this->PNGReader, "Unable to read PNG file!");
       return false;
     }
     return true;
@@ -215,7 +224,7 @@ public:
 //------------------------------------------------------------------------------
 vtkPNGReader::vtkPNGReader()
 {
-  this->Internals = new vtkInternals();
+  this->Internals = new vtkInternals(this);
   this->ReadSpacingFromFile = false;
 }
 
