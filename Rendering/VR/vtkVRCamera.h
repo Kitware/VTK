@@ -71,11 +71,23 @@ public:
   void SetCameraFromWorldToDeviceMatrix(vtkMatrix4x4* mat, double distance);
   void SetCameraFromDeviceToWorldMatrix(vtkMatrix4x4* mat, double distance);
 
+  ///@{
+  /**
+   * When enabled the camera will track the HMD position.
+   * On is the default.
+   *
+   * \sa vtkOpenVRRenderWindow::UpdateHMDMatrixPose, vtkOpenXRRenderWindow::UpdateHMDMatrixPose
+   */
+  vtkSetMacro(TrackHMD, bool);
+  vtkGetMacro(TrackHMD, bool);
+  ///@}
+
 protected:
   vtkVRCamera();
   ~vtkVRCamera() override;
 
   vtkNew<vtkMatrix4x4> TempMatrix4x4;
+  bool TrackHMD = true;
 
 private:
   vtkVRCamera(const vtkVRCamera&) = delete;
