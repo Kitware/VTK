@@ -164,10 +164,13 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
   while ((ren = this->Renderers->GetNextRenderer(rit)))
   {
     vtkVRCamera* cam = vtkVRCamera::SafeDownCast(ren->GetActiveCamera());
-    cam->SetCameraFromDeviceToWorldMatrix(d2wMat, this->GetPhysicalScale());
-    if (ren->GetLightFollowCamera())
+    if (cam && cam->GetTrackHMD())
     {
-      ren->UpdateLightsGeometryToFollowCamera();
+      cam->SetCameraFromDeviceToWorldMatrix(d2wMat, this->GetPhysicalScale());
+      if (ren->GetLightFollowCamera())
+      {
+        ren->UpdateLightsGeometryToFollowCamera();
+      }
     }
   }
 }
@@ -196,29 +199,7 @@ void vtkOpenVRRenderWindow::SetMatrixFromOpenVRPose(
 //------------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::Render()
 {
-  if (this->TrackHMD)
-  {
-    this->UpdateHMDMatrixPose();
-  }
-  else
-  {
-    // Retrieve OpenVR poses
-    vr::VRCompositor()->WaitGetPoses(
-      this->OpenVRTrackedDevicePoses, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
-
-    // Store poses with generic type
-    for (uint32_t deviceIdx = 0; deviceIdx < vr::k_unMaxTrackedDeviceCount; ++deviceIdx)
-    {
-      if (this->OpenVRTrackedDevicePoses[deviceIdx].bPoseIsValid)
-      {
-        auto handle = this->GetDeviceHandleForOpenVRHandle(deviceIdx);
-        auto device = this->GetDeviceForOpenVRHandle(deviceIdx);
-        this->AddDeviceHandle(handle, device);
-        vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
-        this->SetMatrixFromOpenVRPose(tdPose, this->OpenVRTrackedDevicePoses[deviceIdx]);
-      }
-    }
-  }
+  this->UpdateHMDMatrixPose();
 
   this->Superclass::Render();
 }
