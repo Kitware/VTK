@@ -134,7 +134,7 @@ void VTXSchema::InitDataArray(
   }
 
   dataArray.Data->Allocate(elements);
-  dataArray.Data->SetNumberOfComponents(components);
+  dataArray.Data->SetNumberOfComponents(static_cast<int>(components));
   dataArray.Data->SetNumberOfTuples(elements / components);
   dataArray.Data->SetName(name.c_str());
 }

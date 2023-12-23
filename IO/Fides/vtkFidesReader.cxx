@@ -81,7 +81,7 @@ struct vtkFidesReader::vtkFidesReaderImpl
     if (this->Reader)
     {
       auto names = this->Reader->GetDataSourceNames();
-      this->NumberOfDataSources = names.size();
+      this->NumberOfDataSources = static_cast<int>(names.size());
     }
   }
 
@@ -478,7 +478,8 @@ int vtkFidesReader::RequestInformation(
     }
     else
     {
-      nSteps = metaData.Get<fides::metadata::Size>(fides::keys::NUMBER_OF_STEPS()).NumberOfItems;
+      nSteps = static_cast<int>(
+        metaData.Get<fides::metadata::Size>(fides::keys::NUMBER_OF_STEPS()).NumberOfItems);
 
       times.resize(nSteps);
       std::iota(times.begin(), times.end(), 0);
@@ -707,7 +708,7 @@ int vtkFidesReader::RequestData(
   unsigned int pdsIdx = 0;
   for (const auto& groupMetaData : this->Impl->GroupMetaDataCollection)
   {
-    int nBlocks = groupMetaData.NumberOfBlocks;
+    int nBlocks = static_cast<int>(groupMetaData.NumberOfBlocks);
     int nPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
     int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     vtkDebugMacro(<< "nBlocks: " << nBlocks << ", nPieces: " << nPieces << ", piece: " << piece
