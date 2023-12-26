@@ -171,6 +171,8 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData* fd)
     this->CopyFlags(dsa);
 
     this->GhostsToSkip = fd->GetGhostsToSkip();
+    this->GhostArray =
+      vtkArrayDownCast<vtkUnsignedCharArray>(this->GetAbstractArray(this->GhostArrayName()));
   }
   // If the source is field data, do a field data copy
   else
@@ -217,7 +219,8 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData* fd)
     this->CopyFlags(dsa);
 
     this->GhostsToSkip = fd->GetGhostsToSkip();
-    this->GhostArray = fd->GetGhostArray();
+    this->GhostArray =
+      vtkArrayDownCast<vtkUnsignedCharArray>(this->GetAbstractArray(this->GhostArrayName()));
   }
   // If the source is field data, do a field data copy
   else
