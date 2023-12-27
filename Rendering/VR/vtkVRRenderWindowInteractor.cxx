@@ -353,15 +353,15 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
   {
     this->DeviceInputDownCount[this->PointerIndex] = 0;
 
-    if (this->CurrentGesture == vtkCommand::PinchEvent)
+    if (this->GetCurrentGesture() == vtkCommand::PinchEvent)
     {
       this->EndPinchEvent();
     }
-    if (this->CurrentGesture == vtkCommand::PanEvent)
+    if (this->GetCurrentGesture() == vtkCommand::PanEvent)
     {
       this->EndPanEvent();
     }
-    if (this->CurrentGesture == vtkCommand::RotateEvent)
+    if (this->GetCurrentGesture() == vtkCommand::RotateEvent)
     {
       this->EndRotateEvent();
     }
@@ -396,7 +396,7 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
   // The meat of the algorithm.
   // On move events we analyze them to determine what type
   // of movement it is and then deal with it.
-  if (this->CurrentGesture != vtkCommand::NoEvent)
+  if (this->GetCurrentGesture() != vtkCommand::NoEvent)
   {
     // Calculate the distances
     double originalDistance = sqrt(vtkMath::Distance2BetweenPoints(startVals[0], startVals[1]));
@@ -436,7 +436,7 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
     double angleDeviation = newAngle - originalAngle;
 
     // Do we know what gesture we are doing yet? If not, see if we can figure it out
-    if (this->CurrentGesture == vtkCommand::StartEvent)
+    if (this->GetCurrentGesture() == vtkCommand::StartEvent)
     {
       // Pinch is a move to/from the center point.
       // Rotate is a move along the circumference.
@@ -472,17 +472,17 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
     }
 
     // If we have found a specific type of movement then handle it
-    if (this->CurrentGesture == vtkCommand::RotateEvent)
+    if (this->GetCurrentGesture() == vtkCommand::RotateEvent)
     {
       this->SetRotation(angleDeviation);
       this->RotateEvent();
     }
-    if (this->CurrentGesture == vtkCommand::PinchEvent)
+    if (this->GetCurrentGesture() == vtkCommand::PinchEvent)
     {
       this->SetScale(newDistance / originalDistance);
       this->PinchEvent();
     }
-    if (this->CurrentGesture == vtkCommand::PanEvent)
+    if (this->GetCurrentGesture() == vtkCommand::PanEvent)
     {
       // HMD to world axes
       vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
@@ -504,5 +504,11 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
       this->PanEvent();
     }
   }
+}
+
+//------------------------------------------------------------------------------
+vtkCommand::EventIds vtkVRRenderWindowInteractor::GetCurrentGesture() const
+{
+  return this->CurrentGesture;
 }
 VTK_ABI_NAMESPACE_END
