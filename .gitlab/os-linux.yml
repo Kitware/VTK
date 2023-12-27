@@ -307,6 +307,14 @@
         CMAKE_CONFIGURATION: fedora34_mpi_python_qt_tbb
         VTK_INSTALL: 1
 
+.fedora34_mangling:
+    extends:
+        - .fedora34
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora34_mpi_python_qt_tbb_mangling
+
 .fedora34_mpi_python_qt_tbb_ext_vtk:
     extends:
         - .fedora34

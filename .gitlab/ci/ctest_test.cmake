@@ -30,11 +30,18 @@ endif ()
 set(CTEST_TEST_TIMEOUT 100)
 
 include("${CMAKE_CURRENT_LIST_DIR}/ctest_exclusions.cmake")
+
+set(maybe_include_label_mangling "")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "mangling")
+  list(APPEND maybe_include_label_mangling INCLUDE_LABEL MANGLING)
+endif()
+
 ctest_test(APPEND
   PARALLEL_LEVEL "${nproc}"
   TEST_LOAD "${nproc}"
   RETURN_VALUE test_result
   EXCLUDE "${test_exclusions}"
+  ${maybe_include_label_mangling}
   OUTPUT_JUNIT "${CTEST_BINARY_DIRECTORY}/junit.xml"
   REPEAT UNTIL_PASS:3)
 ctest_submit(PARTS Test)
