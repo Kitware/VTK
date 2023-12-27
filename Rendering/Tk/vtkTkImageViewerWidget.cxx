@@ -48,6 +48,7 @@ static Tk_ConfigSpec vtkTkImageViewerWidgetConfigSpecs[] = {
 // Forward prototypes
 extern "C"
 {
+#define vtkTkImageViewerWidget_EventProc VTK_ABI_NAMESPACE_MANGLE(vtkTkImageViewerWidget_EventProc)
   void vtkTkImageViewerWidget_EventProc(ClientData clientData, XEvent* eventPtr);
 }
 
@@ -90,6 +91,7 @@ int vtkTkImageViewerWidget_Configure(
 // to choose the appropriate method to invoke.
 extern "C"
 {
+#define vtkTkImageViewerWidget_Widget VTK_ABI_NAMESPACE_MANGLE(vtkTkImageViewerWidget_Widget)
   int vtkTkImageViewerWidget_Widget(ClientData clientData, Tcl_Interp* interp, int argc,
 #if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
     CONST84
@@ -182,6 +184,7 @@ extern "C"
 //     * Configures this vtkTkImageViewerWidget for the given arguments
 extern "C"
 {
+#define vtkTkImageViewerWidget_Cmd VTK_ABI_NAMESPACE_MANGLE(vtkTkImageViewerWidget_Cmd)
   int vtkTkImageViewerWidget_Cmd(ClientData clientData, Tcl_Interp* interp, int argc,
 #if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
     CONST84
@@ -274,6 +277,7 @@ int vtkTkImageViewerWidget_Height(const struct vtkTkImageViewerWidget* self)
 
 extern "C"
 {
+#define vtkTkImageViewerWidget_Destroy VTK_ABI_NAMESPACE_MANGLE(vtkTkImageViewerWidget_Destroy)
   void vtkTkImageViewerWidget_Destroy(char* memPtr)
   {
     struct vtkTkImageViewerWidget* self = (struct vtkTkImageViewerWidget*)memPtr;
@@ -398,6 +402,7 @@ extern "C"
 // Called upon system startup to create vtkTkImageViewerWidget command.
 extern "C"
 {
+#define Vtktkimageviewerwidget_Init VTK_ABI_NAMESPACE_MANGLE(Vtktkimageviewerwidget_Init)
   VTK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp* interp);
 }
 

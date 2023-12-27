@@ -14,15 +14,18 @@
 VTK_ABI_NAMESPACE_BEGIN
 extern "C"
 {
+#define Vtkrenderingtk_Init VTK_ABI_NAMESPACE_MANGLE(Vtkrenderingtk_Init)
   VTK_EXPORT int Vtkrenderingtk_Init(Tcl_Interp* interp);
 }
 
 extern "C"
 {
+#define Vtktkrenderwidget_Init VTK_ABI_NAMESPACE_MANGLE(Vtktkrenderwidget_Init)
   VTK_EXPORT int Vtktkrenderwidget_Init(Tcl_Interp* interp);
 }
 extern "C"
 {
+#define Vtktkimageviewerwidget_Init VTK_ABI_NAMESPACE_MANGLE(Vtktkrenderwidget_Init)
   VTK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp* interp);
 }
 
