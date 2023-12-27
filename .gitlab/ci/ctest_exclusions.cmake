@@ -540,6 +540,25 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_linux_chrome_ex
     "^VTK::RenderingCoreCxx"
     "^VTK::RenderingOpenGL2Cxx")
 endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows" AND
+    "$ENV{CMAKE_CONFIGURATION}" MATCHES "debug")
+  # Timeouts from debug builds (even with 5 minute limits). See #19212
+  list(APPEND test_exclusions
+    "^TestLoggerDisableSignalHandler$"
+    "^VTK::FiltersCoreCxx-TestFeatureEdges$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestGhostCellsGenerator$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleWithDataSet$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPUniformGridGhostDataGenerator$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPUnstructuredGridGhostCellsGenerator$"
+    "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPParticleTracers$"
+    "^VTK::FiltersParallelGeometryCxx-MPI-ParallelConnectivity4$"
+    "^VTK::GUISupportQtCxx-TestQVTKTableModelAdapter$"
+    "^VTK::IOCGNSReaderCxx-TestCGNSUnsteadyTemporalSolution$"
+    "^VTK::ParallelCoreCxx-TestThreadedCallbackQueue$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastLabelMapValidity$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")

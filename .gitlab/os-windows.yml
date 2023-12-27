@@ -106,6 +106,14 @@
         VCVARSPLATFORM: "x64"
         VCVARSVERSION: "14.35.32215"
 
+.windows_vs2022_debug_mpi_qt:
+    extends:
+        - .windows_vs2022
+
+    variables:
+        CMAKE_CONFIGURATION: windows_vs2022_debug_mpi_qt
+        CMAKE_BUILD_TYPE: Debug
+
 .windows_vs2022_kits_mpi_python_qt:
     extends:
         - .windows_vs2022
