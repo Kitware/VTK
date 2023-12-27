@@ -8,6 +8,10 @@ set(VTK_ABI_NAMESPACE_NAME
   "<DEFAULT>"
   CACHE STRING "Inline namespace name for mangling VTK symbols.")
 mark_as_advanced(VTK_ABI_NAMESPACE_NAME)
+set(VTK_ABI_NAMESPACE_ATTRIBUTES
+  "<DEFAULT>"
+  CACHE STRING "Inline namespace attributes for mangling VTK symbols.")
+mark_as_advanced(VTK_ABI_NAMESPACE_ATTRIBUTES)
 
 if (VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>")
   # The default is to not have an ABI namespace.
@@ -15,16 +19,39 @@ if (VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>")
   set(VTK_ABI_NAMESPACE_NAME "")
 endif ()
 set_property(GLOBAL PROPERTY _vtk_abi_namespace_name "${VTK_ABI_NAMESPACE_NAME}")
+
+if (VTK_ABI_NAMESPACE_ATTRIBUTES STREQUAL "<DEFAULT>")
+  set(VTK_ABI_NAMESPACE_ATTRIBUTES "")
+endif()
+set_property(GLOBAL PROPERTY _vtk_abi_namespace_attributes "${VTK_ABI_NAMESPACE_ATTRIBUTES}")
+
 if (VTK_ABI_NAMESPACE_NAME STREQUAL "")
   set(VTK_HAS_ABI_NAMESPACE OFF)
   set(VTK_ABI_NAMESPACE_BEGIN "")
   set(VTK_ABI_NAMESPACE_END "")
 else ()
   message(STATUS "VTK ABI namespace: ${VTK_ABI_NAMESPACE_NAME}")
+  set(_vtk_abi_namespace_name_regex "^[a-zA-Z0-9_]+$")
+  if (NOT VTK_ABI_NAMESPACE_NAME MATCHES "${_vtk_abi_namespace_name_regex}")
+    message(FATAL_ERROR
+      "The configured VTK_ABI_NAMESPACE_NAME='${VTK_ABI_NAMESPACE_NAME}' is "
+      "not supported, it must match the regular expression "
+      "'${_vtk_abi_namespace_name_regex}'.  To add things like attributes, "
+      "configure VTK with -DVTK_ABI_NAMESPACE_ATTRIBUTES='"
+      "__attribute__((visibility(\"hidden\")))'.")
+  endif()
+  unset(_vtk_abi_namespace_name_regex)
   set(VTK_HAS_ABI_NAMESPACE ON)
-  set(VTK_ABI_NAMESPACE_BEGIN "inline namespace ${VTK_ABI_NAMESPACE_NAME} {")
+  set(VTK_ABI_NAMESPACE_BEGIN "inline namespace ${VTK_ABI_NAMESPACE_ATTRIBUTES} ${VTK_ABI_NAMESPACE_NAME} {")
   set(VTK_ABI_NAMESPACE_END "}")
 endif ()
+
+if (VTK_ABI_NAMESPACE_ATTRIBUTES STREQUAL "")
+  set(VTK_HAS_ABI_NAMESPACE_ATTRIBUTES OFF)
+else ()
+  set(VTK_HAS_ABI_NAMESPACE_ATTRIBUTES ON)
+endif ()
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkABINamespace.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkABINamespace.h"
@@ -634,8 +661,7 @@ vtk_module_add_module(VTK::CommonCore
   NOWRAP_HEADERS    ${nowrap_headers}
   PRIVATE_HEADERS   ${private_headers}
   PRIVATE_TEMPLATES ${private_templates})
-vtk_add_test_mangling(VTK::CommonCore
-  EXEMPTIONS GetVTKVersion)
+vtk_add_test_mangling(VTK::CommonCore)
 if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE
