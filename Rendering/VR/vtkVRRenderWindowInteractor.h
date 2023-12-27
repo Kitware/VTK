@@ -173,6 +173,19 @@ public:
 
   ///@{
   /**
+   * When handling complex gestures you can query this value to
+   * determine how many input device are down for the gesture.
+   *
+   * Supported device values are vtkEventDataDevice::LeftController
+   * and vtkEventDataDevice::RightController.
+   *
+   * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
+   */
+  int GetDeviceInputDownCount(vtkEventDataDevice device) const;
+  ///@}
+
+  ///@{
+  /**
    * Identifier of the complex gesture being handled.
    * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
    */

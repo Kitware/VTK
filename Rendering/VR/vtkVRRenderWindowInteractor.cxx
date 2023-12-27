@@ -340,8 +340,8 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
     renWin->GetPhysicalToWorldMatrix(this->StartingPhysicalToWorldMatrix);
 
     // Both controllers have a button down, start complex gesture handling
-    if (this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::LeftController)] &&
-      this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::RightController)])
+    if (this->GetDeviceInputDownCount(vtkEventDataDevice::LeftController) &&
+      this->GetDeviceInputDownCount(vtkEventDataDevice::RightController))
     {
       // The gesture is still unknown
       this->SetCurrentGesture(vtkCommand::StartEvent);
@@ -375,11 +375,11 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
 void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
 {
   // Recognize gesture only if one button is pressed per controller
-  int lhand = static_cast<int>(vtkEventDataDevice::LeftController);
-  int rhand = static_cast<int>(vtkEventDataDevice::RightController);
+  vtkEventDataDevice lhand = vtkEventDataDevice::LeftController;
+  vtkEventDataDevice rhand = vtkEventDataDevice::RightController;
 
-  if (this->DeviceInputDownCount[lhand] > 1 || this->DeviceInputDownCount[lhand] == 0 ||
-    this->DeviceInputDownCount[rhand] > 1 || this->DeviceInputDownCount[rhand] == 0)
+  if (this->GetDeviceInputDownCount(lhand) > 1 || this->GetDeviceInputDownCount(lhand) == 0 ||
+    this->GetDeviceInputDownCount(rhand) > 1 || this->GetDeviceInputDownCount(rhand) == 0)
   {
     this->SetCurrentGesture(vtkCommand::NoEvent);
     return;
@@ -387,11 +387,11 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
 
   double* posVals[2];
   double* startVals[2];
-  posVals[0] = this->PhysicalEventPositions[lhand];
-  posVals[1] = this->PhysicalEventPositions[rhand];
+  posVals[0] = this->PhysicalEventPositions[static_cast<int>(lhand)];
+  posVals[1] = this->PhysicalEventPositions[static_cast<int>(rhand)];
 
-  startVals[0] = this->StartingPhysicalEventPositions[lhand];
-  startVals[1] = this->StartingPhysicalEventPositions[rhand];
+  startVals[0] = this->StartingPhysicalEventPositions[static_cast<int>(lhand)];
+  startVals[1] = this->StartingPhysicalEventPositions[static_cast<int>(rhand)];
 
   // The meat of the algorithm.
   // On move events we analyze them to determine what type
@@ -504,6 +504,16 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
       this->PanEvent();
     }
   }
+}
+
+//------------------------------------------------------------------------------
+int vtkVRRenderWindowInteractor::GetDeviceInputDownCount(vtkEventDataDevice device) const
+{
+  if (device != vtkEventDataDevice::LeftController && device != vtkEventDataDevice::RightController)
+  {
+    return 0;
+  }
+  return this->DeviceInputDownCount[static_cast<int>(device)];
 }
 
 //------------------------------------------------------------------------------
