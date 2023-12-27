@@ -84,6 +84,11 @@ More advanced options:
      wrap all VTK public symbols in an
      `inline namespace <VTK_ABI_NAMESPACE_NAME>` to allow runtime co-habitation
      with different VTK versions.
+     Some C ABIs are also wrapped in this namespace using macro expansion
+     `#define c_abi VTK_ABI_NAMESPACE_MANGLE(c_abi)`
+  * `VTK_ABI_NAMESPACE_ATTRIBUTES` (default `<DEFAULT>` aka `""`): If set, VTK will
+     inject these attributes into the `inline namespace`. i.e.
+     `inline <VTK_ABI_NAMESPACE_ATTRIBUTES> namespace <VTK_ABI_NAMESPACE_NAME>`
   * `VTK_BUILD_DOCUMENTATION` (default `OFF`): If set, VTK will build its API
     documentation using Doxygen.
   * `VTK_BUILD_SPHINX_DOCUMENTATION` (default `OFF`): If set, VTK will build its sphinx

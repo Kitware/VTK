@@ -788,7 +788,7 @@ endfunction ()
 
 #[==[.rst:
 ABI Mangling tests
-"""""""""
+""""""""""""""""""
 
 .. cmake:command:: vtk_add_test_mangling
 
