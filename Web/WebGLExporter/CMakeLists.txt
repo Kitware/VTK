@@ -25,6 +25,8 @@ set(private_headers)
 foreach (javascript_file IN LISTS javascript_files)
   vtk_encode_string(
     INPUT         "${javascript_file}"
+    EXPORT_HEADER "vtkWebGLExporterModule.h"
+    EXPORT_SYMBOL "VTKWEBGLEXPORTER_NO_EXPORT"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources

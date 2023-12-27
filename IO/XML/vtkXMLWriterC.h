@@ -21,6 +21,7 @@ extern "C"
    * Create a new instance of vtkXMLWriterC.  Returns the object or nullptr
    * on failure.
    */
+#define vtkXMLWriterC_New VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_New)
   VTKIOXML_EXPORT
   vtkXMLWriterC* vtkXMLWriterC_New(void);
 
@@ -29,6 +30,7 @@ extern "C"
    *
    * This should not be called between Start and Stop calls.
    */
+#define vtkXMLWriterC_Delete VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_Delete)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_Delete(vtkXMLWriterC* self);
 
@@ -39,6 +41,7 @@ extern "C"
    * This must be set before setting geometry or data information can
    * can be set only once per writer object.
    */
+#define vtkXMLWriterC_SetDataObjectType VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetDataObjectType)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetDataObjectType(vtkXMLWriterC* self, int objType);
 
@@ -50,6 +53,7 @@ extern "C"
    *
    * This may be used only after SetDataObjectType has been called.
    */
+#define vtkXMLWriterC_SetDataModeType VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetDataModeType)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetDataModeType(vtkXMLWriterC* self, int datamodetype);
 
@@ -59,6 +63,7 @@ extern "C"
    * This may be used only after SetDataObjectType has been called with
    * a structured data object type.
    */
+#define vtkXMLWriterC_SetExtent VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetExtent)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetExtent(vtkXMLWriterC* self, int extent[6]);
 
@@ -74,6 +79,7 @@ extern "C"
    * not be called before SetDataObjectType or between Start and Stop
    * calls.
    */
+#define vtkXMLWriterC_SetPoints VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetPoints)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetPoints(vtkXMLWriterC* self, int dataType, void* data, vtkIdType numPoints);
 
@@ -83,6 +89,7 @@ extern "C"
    * This may only be used for image data.  It may not be called before
    * SetDataObjectType or between Start and Stop calls.
    */
+#define vtkXMLWriterC_SetOrigin VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetOrigin)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetOrigin(vtkXMLWriterC* self, double origin[3]);
 
@@ -92,6 +99,7 @@ extern "C"
    * This may only be used for image data.  It may not be called before
    * SetDataObjectType or between Start and Stop calls.
    */
+#define vtkXMLWriterC_SetSpacing VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetSpacing)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetSpacing(vtkXMLWriterC* self, double spacing[3]);
 
@@ -107,6 +115,7 @@ extern "C"
    * This may only be used for rectilinear grids.  It may not be called
    * before SetDataObjectType or between Start and Stop calls.
    */
+#define vtkXMLWriterC_SetCoordinates VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetCoordinates)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetCoordinates(
     vtkXMLWriterC* self, int axis, int dataType, void* data, vtkIdType numCoordinates);
@@ -130,6 +139,7 @@ extern "C"
    * types.  It may not be called before SetDataObjectType or between
    * Start and Stop calls.
    */
+#define vtkXMLWriterC_SetCellsWithType VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetCellsWithType)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetCellsWithType(
     vtkXMLWriterC* self, int cellType, vtkIdType ncells, vtkIdType* cells, vtkIdType cellsSize);
@@ -148,6 +158,7 @@ extern "C"
    * not be called before SetDataObjectType or between Start and Stop
    * calls.
    */
+#define vtkXMLWriterC_SetCellsWithTypes VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetCellsWithTypes)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetCellsWithTypes(
     vtkXMLWriterC* self, int* cellTypes, vtkIdType ncells, vtkIdType* cells, vtkIdType cellsSize);
@@ -175,9 +186,12 @@ extern "C"
    * This may be used for all data types.  It may not be called before
    * SetDataObjectType but may be called between Start and Stop calls.
    */
+#define vtkXMLWriterC_SetPointData VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetPointData)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetPointData(vtkXMLWriterC* self, const char* name, int dataType, void* data,
     vtkIdType numTuples, int numComponents, const char* role);
+
+#define vtkXMLWriterC_SetCellData VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetCellData)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetCellData(vtkXMLWriterC* self, const char* name, int dataType, void* data,
     vtkIdType numTuples, int numComponents, const char* role);
@@ -188,6 +202,7 @@ extern "C"
    * This may be used for all data types.  It may not be called before
    * SetDataObjectType or between Start and Stop calls.
    */
+#define vtkXMLWriterC_SetFileName VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetFileName)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetFileName(vtkXMLWriterC* self, const char* fileName);
 
@@ -197,6 +212,7 @@ extern "C"
    *
    * This may only be called after SetFileName and SetDataObjectType.
    */
+#define vtkXMLWriterC_Write VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_Write)
   VTKIOXML_EXPORT
   int vtkXMLWriterC_Write(vtkXMLWriterC* self);
 
@@ -207,6 +223,8 @@ extern "C"
    * This may be used for all data types.  It may not be called before
    * SetDataObjectType or between Start and Stop calls.
    */
+#define vtkXMLWriterC_SetNumberOfTimeSteps                                                         \
+  VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetNumberOfTimeSteps)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_SetNumberOfTimeSteps(vtkXMLWriterC* self, int numTimeSteps);
 
@@ -217,6 +235,7 @@ extern "C"
    * SetNumberOfTimeSteps.  It may not be called a second time until
    * after an intervening call to Stop.
    */
+#define vtkXMLWriterC_Start VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_Start)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_Start(vtkXMLWriterC* self);
 
@@ -230,6 +249,7 @@ extern "C"
    * This may only be called after Start has been called.  It should be
    * called NumberOfTimeSteps times before calling Stop.
    */
+#define vtkXMLWriterC_WriteNextTimeStep VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_WriteNextTimeStep)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_WriteNextTimeStep(vtkXMLWriterC* self, double timeValue);
 
@@ -239,6 +259,7 @@ extern "C"
    * This may only be called after Start and NumberOfTimeSteps calls to
    * WriteNextTimeStep.
    */
+#define vtkXMLWriterC_Stop VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_Stop)
   VTKIOXML_EXPORT
   void vtkXMLWriterC_Stop(vtkXMLWriterC* self);
 

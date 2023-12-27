@@ -24,6 +24,8 @@ set(private_headers)
 foreach (shader_file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${shader_file}"
+    EXPORT_HEADER "vtkRenderingParallelModule.h"
+    EXPORT_SYMBOL "VTKRENDERINGPARALLEL_NO_EXPORT"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources ${source})
@@ -33,8 +35,8 @@ set(headers)
 foreach (shader_file IN LISTS public_shader_files)
   vtk_encode_string(
     INPUT         "${shader_file}"
-    EXPORT_SYMBOL "VTKRENDERINGPARALLEL_EXPORT"
     EXPORT_HEADER "vtkRenderingParallelModule.h"
+    EXPORT_SYMBOL "VTKRENDERINGPARALLEL_EXPORT"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source
     ABI_MANGLE_HEADER       "vtkABINamespace.h"

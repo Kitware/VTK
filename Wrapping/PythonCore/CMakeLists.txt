@@ -32,21 +32,7 @@ vtk_module_add_module(VTK::WrappingPythonCore
   PRIVATE_CLASSES ${private_classes}
   PRIVATE_HEADERS ${private_headers}
   LIBRARY_NAME_SUFFIX "${vtk_python_version_major}.${vtk_python_version_minor}")
-vtk_add_test_mangling(VTK::WrappingPythonCore
-  EXEMPTIONS
-    PyVTKEnum_
-    PyVTKAddFile_
-    PyVTKNamespace_
-    PyVTKClass_
-    PyVTKObject_
-    PyVTKSpecialObject_
-    PyVTKSpecialType_
-    PyVTKTemplate_
-    PyVTKMethodDescriptor_
-    PyVTKNumberReference_
-    PyVTKReference_
-    PyVTKStringReference_
-    PyVTKTupleReference_)
+vtk_add_test_mangling(VTK::WrappingPythonCore)
 
 if (Python3_VERSION VERSION_LESS "3.7" AND NOT CMAKE_VERSION VERSION_LESS "3.19")
   include(CheckCompilerFlag)

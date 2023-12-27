@@ -30,6 +30,8 @@ set(headers)
 foreach(shader_file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${shader_file}"
+    EXPORT_HEADER "vtkRenderingParallelLICModule.h"
+    EXPORT_SYMBOL "VTKRENDERINGPARALLELLIC_NO_EXPORT"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources ${source})

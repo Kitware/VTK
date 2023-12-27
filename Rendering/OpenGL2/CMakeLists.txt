@@ -185,6 +185,8 @@ unset(shader_h_files)
 foreach(file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${file}"
+    EXPORT_SYMBOL "VTKRENDERINGOPENGL2_NO_EXPORT"
+    EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources
@@ -212,6 +214,8 @@ vtk_encode_string(
   INPUT "textures/BlueNoiseTexture64x64.jpg"
   HEADER_OUTPUT BlueNoiseTexture64x64_header
   SOURCE_OUTPUT BlueNoiseTexture64x64_source
+  EXPORT_SYMBOL "VTKRENDERINGOPENGL2_NO_EXPORT"
+  EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
   BINARY)
 list(APPEND sources "${BlueNoiseTexture64x64_source}")
 list(APPEND private_headers "${BlueNoiseTexture64x64_header}")

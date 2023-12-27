@@ -17,11 +17,8 @@
 #endif
 
 #if defined(VTK_USE_FENV)
-//------------------------------------------------------------------------------
-// Signal handler for floating point exceptions in anonymous namespace
-namespace
-{
 
+#define signal_handler VTK_ABI_NAMESPACE_MANGLE(signal_handler)
 extern "C" void signal_handler(int signal)
 {
   // NOLINTNEXTLINE(bugprone-signal-handler)
@@ -31,7 +28,6 @@ extern "C" void signal_handler(int signal)
   abort();
 }
 
-} // End anonymous namespace
 #endif
 
 //------------------------------------------------------------------------------

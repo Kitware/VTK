@@ -357,9 +357,10 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 }
 
 static int PbufferAllocFail = 0;
+#define vtkXOGLPbufferErrorHandler VTK_ABI_NAMESPACE_MANGLE(vtkXOGLPbufferErrorHandler)
 extern "C"
 {
-  int vtkXOGLPbufferErrorHandler(Display*, XErrorEvent*)
+  int VTK_ABI_NAMESPACE_MANGLE(vtkXOGLPbufferErrorHandler)(Display*, XErrorEvent*)
   {
     PbufferAllocFail = 1;
     return 1;
@@ -367,9 +368,11 @@ extern "C"
 }
 
 static bool ctxErrorOccurred = false;
+#define vtkXOGLContextCreationErrorHandler                                                         \
+  VTK_ABI_NAMESPACE_MANGLE(vtkXOGLContextCreationErrorHandler)
 extern "C"
 {
-  int vtkXOGLContextCreationErrorHandler(Display*, XErrorEvent*)
+  int VTK_ABI_NAMESPACE_MANGLE(vtkXOGLContextCreationErrorHandler)(Display*, XErrorEvent*)
   {
     ctxErrorOccurred = true;
     return 1;
@@ -1206,9 +1209,11 @@ void vtkXOpenGLRenderWindow::SetForceMakeCurrent()
 
 vtkTypeBool vtkXOpenGLRenderWindowFoundMatch;
 
+#define vtkXOpenGLRenderWindowPredProc VTK_ABI_NAMESPACE_MANGLE(vtkXOpenGLRenderWindowPredProc)
 extern "C"
 {
-  Bool vtkXOpenGLRenderWindowPredProc(Display* vtkNotUsed(disp), XEvent* event, char* arg)
+  Bool VTK_ABI_NAMESPACE_MANGLE(vtkXOpenGLRenderWindowPredProc)(
+    Display* vtkNotUsed(disp), XEvent* event, char* arg)
   {
     Window win = (Window)arg;
 

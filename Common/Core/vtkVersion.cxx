@@ -19,8 +19,9 @@ const char* vtkVersion::GetVTKVersionFull()
   return VTK_VERSION_FULL;
 }
 
-const char* GetVTKVersion()
-{
-  return vtkVersion::GetVTKVersion();
-}
 VTK_ABI_NAMESPACE_END
+
+extern "C"
+{
+  const char* VTK_ABI_NAMESPACE_MANGLE(GetVTKVersion)() { return vtkVersion::GetVTKVersion(); }
+}
