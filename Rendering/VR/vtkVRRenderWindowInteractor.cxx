@@ -285,6 +285,17 @@ void vtkVRRenderWindowInteractor::GetStartingPhysicalToWorldMatrix(
 }
 
 //------------------------------------------------------------------------------
+void vtkVRRenderWindowInteractor::SetStartingPhysicalToWorldMatrix(
+  vtkMatrix4x4* startingPhysicalToWorldMatrix)
+{
+  if (!startingPhysicalToWorldMatrix)
+  {
+    return;
+  }
+  this->StartingPhysicalToWorldMatrix->DeepCopy(startingPhysicalToWorldMatrix);
+}
+
+//------------------------------------------------------------------------------
 int vtkVRRenderWindowInteractor::InternalCreateTimer(
   int vtkNotUsed(timerId), int vtkNotUsed(timerType), unsigned long vtkNotUsed(duration))
 {
