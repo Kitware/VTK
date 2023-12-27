@@ -296,6 +296,18 @@ void vtkVRRenderWindowInteractor::SetStartingPhysicalToWorldMatrix(
 }
 
 //------------------------------------------------------------------------------
+void vtkVRRenderWindowInteractor::SetStartingPhysicalEventPose(
+  vtkMatrix4x4* poseMatrix, vtkEventDataDevice device)
+{
+  int pointerIndex = static_cast<int>(device);
+  if (pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS || !poseMatrix)
+  {
+    return;
+  }
+  this->StartingPhysicalEventPoses[pointerIndex]->DeepCopy(poseMatrix);
+}
+
+//------------------------------------------------------------------------------
 int vtkVRRenderWindowInteractor::InternalCreateTimer(
   int vtkNotUsed(timerId), int vtkNotUsed(timerType), unsigned long vtkNotUsed(duration))
 {

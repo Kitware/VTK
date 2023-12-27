@@ -121,6 +121,18 @@ public:
    */
   void SetStartingPhysicalToWorldMatrix(vtkMatrix4x4* startingPhysicalToWorldMatrix);
 
+  /**
+   * Set starting physical event pose.
+   *
+   * This method is intended to be used when defining a custom heuristic
+   * for recognizing complex gestures.
+   *
+   * This method **does not** call `this->Modified()`.
+   *
+   * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
+   */
+  void SetStartingPhysicalEventPose(vtkMatrix4x4* poseMatrix, vtkEventDataDevice device);
+
   ///@{
   /**
    * Assign an event or std::function to an event path.
