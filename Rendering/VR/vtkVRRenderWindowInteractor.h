@@ -167,6 +167,7 @@ protected:
    */
   void StartEventLoop() override;
 
+public:
   ///@{
   /**
    * Handle complex gesture events. Complex gesture events recognition starts when
@@ -188,6 +189,7 @@ protected:
   virtual void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
   ///@}
 
+protected:
   ///@{
   /**
    * Class variables so an exit method can be defined for this class (used to set
