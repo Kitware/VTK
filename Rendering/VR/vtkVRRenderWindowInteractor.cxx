@@ -327,7 +327,7 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
   this->PointerIndex = static_cast<int>(edata->GetDevice());
   if (edata->GetAction() == vtkEventDataAction::Press)
   {
-    this->DeviceInputDownCount[this->PointerIndex] = 1;
+    this->SetDeviceInputDownCount(edata->GetDevice(), 1);
 
     this->StartingPhysicalEventPositions[this->PointerIndex][0] =
       this->PhysicalEventPositions[this->PointerIndex][0];
@@ -351,7 +351,7 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
   // End the gesture if needed
   if (edata->GetAction() == vtkEventDataAction::Release)
   {
-    this->DeviceInputDownCount[this->PointerIndex] = 0;
+    this->SetDeviceInputDownCount(edata->GetDevice(), 0);
 
     if (this->GetCurrentGesture() == vtkCommand::PinchEvent)
     {
@@ -514,6 +514,16 @@ int vtkVRRenderWindowInteractor::GetDeviceInputDownCount(vtkEventDataDevice devi
     return 0;
   }
   return this->DeviceInputDownCount[static_cast<int>(device)];
+}
+
+//------------------------------------------------------------------------------
+void vtkVRRenderWindowInteractor::SetDeviceInputDownCount(vtkEventDataDevice device, int count)
+{
+  if (device != vtkEventDataDevice::LeftController && device != vtkEventDataDevice::RightController)
+  {
+    return;
+  }
+  this->DeviceInputDownCount[static_cast<int>(device)] = count;
 }
 
 //------------------------------------------------------------------------------

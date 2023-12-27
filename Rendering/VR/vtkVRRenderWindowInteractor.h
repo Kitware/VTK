@@ -179,9 +179,24 @@ public:
    * Supported device values are vtkEventDataDevice::LeftController
    * and vtkEventDataDevice::RightController.
    *
+   * \sa SetDeviceInputDownCount()
    * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
    */
   int GetDeviceInputDownCount(vtkEventDataDevice device) const;
+  ///@}
+
+  ///@{
+  /**
+   * You can set this value when defining a custom heuristic for recognizing
+   * complex gestures,
+   *
+   * Supported device values are vtkEventDataDevice::LeftController
+   * and vtkEventDataDevice::RightController.
+   *
+   * \sa GetDeviceInputDownCount()
+   * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
+   */
+  void SetDeviceInputDownCount(vtkEventDataDevice device, int count);
   ///@}
 
   ///@{
