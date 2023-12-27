@@ -166,6 +166,13 @@ public:
    */
   int GetInteractionState(vtkEventDataDevice device)
   {
+    int deviceIndex = static_cast<int>(device);
+    if (deviceIndex < 0 || deviceIndex >= vtkEventDataNumberOfDevices)
+    {
+      // Since VTKIS_*STATE* are expected to be >= VTKIS_NONE with VTKIS_NONE == 0,
+      // return -1 if device is invalid.
+      return -1;
+    }
     return this->InteractionState[static_cast<int>(device)];
   }
 
