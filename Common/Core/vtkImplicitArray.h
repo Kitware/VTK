@@ -464,7 +464,7 @@ class vtkIndexedImplicitBackend;
 VTK_ABI_NAMESPACE_END
 #include <functional>
 
-// Needed to export for this module and not CmmonCore
+// Needed to export for this module and not CommonCore
 #define VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                 \
   template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(                                         \
     ArrayType*, ValueType*, vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);  \
