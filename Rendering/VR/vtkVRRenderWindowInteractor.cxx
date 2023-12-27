@@ -344,7 +344,7 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
       this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::RightController)])
     {
       // The gesture is still unknown
-      this->CurrentGesture = vtkCommand::StartEvent;
+      this->SetCurrentGesture(vtkCommand::StartEvent);
     }
   }
 
@@ -365,7 +365,7 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
     {
       this->EndRotateEvent();
     }
-    this->CurrentGesture = vtkCommand::NoEvent;
+    this->SetCurrentGesture(vtkCommand::NoEvent);
 
     return;
   }
@@ -381,7 +381,7 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
   if (this->DeviceInputDownCount[lhand] > 1 || this->DeviceInputDownCount[lhand] == 0 ||
     this->DeviceInputDownCount[rhand] > 1 || this->DeviceInputDownCount[rhand] == 0)
   {
-    this->CurrentGesture = vtkCommand::NoEvent;
+    this->SetCurrentGesture(vtkCommand::NoEvent);
     return;
   }
 
@@ -451,19 +451,19 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
 
       if (pinchDistance > thresh && pinchDistance > panDistance && pinchDistance > rotateDistance)
       {
-        this->CurrentGesture = vtkCommand::PinchEvent;
+        this->SetCurrentGesture(vtkCommand::PinchEvent);
         this->Scale = 1.0;
         this->StartPinchEvent();
       }
       else if (rotateDistance > thresh && rotateDistance > panDistance)
       {
-        this->CurrentGesture = vtkCommand::RotateEvent;
+        this->SetCurrentGesture(vtkCommand::RotateEvent);
         this->Rotation = 0.0;
         this->StartRotateEvent();
       }
       else if (panDistance > thresh)
       {
-        this->CurrentGesture = vtkCommand::PanEvent;
+        this->SetCurrentGesture(vtkCommand::PanEvent);
         this->Translation3D[0] = 0.0;
         this->Translation3D[1] = 0.0;
         this->Translation3D[2] = 0.0;
@@ -510,5 +510,11 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
 vtkCommand::EventIds vtkVRRenderWindowInteractor::GetCurrentGesture() const
 {
   return this->CurrentGesture;
+}
+
+//------------------------------------------------------------------------------
+void vtkVRRenderWindowInteractor::SetCurrentGesture(vtkCommand::EventIds eid)
+{
+  this->CurrentGesture = eid;
 }
 VTK_ABI_NAMESPACE_END

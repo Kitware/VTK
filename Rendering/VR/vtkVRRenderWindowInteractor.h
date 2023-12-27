@@ -164,16 +164,21 @@ public:
    *
    * Overriding both HandleComplexGestureEvents() and RecognizeComplexGesture() allows to define
    * a different heuristic.
+   *
+   * \sa GetCurrentGesture(), SetCurrentGesture()
    */
   virtual void HandleComplexGestureEvents(vtkEventData* ed);
   virtual void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
   ///@}
 
+  ///@{
   /**
-   * Return the identifier of the complex gesture being handled.
+   * Identifier of the complex gesture being handled.
    * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
    */
   vtkCommand::EventIds GetCurrentGesture() const;
+  void SetCurrentGesture(vtkCommand::EventIds eid);
+  ///@}
 
 protected:
   vtkVRRenderWindowInteractor();
