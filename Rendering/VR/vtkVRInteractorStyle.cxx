@@ -107,14 +107,11 @@ void vtkVRInteractorStyle::OnSelect3D(vtkEventData* edata)
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
 
-  decltype(this->InputMap)::key_type key(vtkCommand::Select3DEvent, bd->GetAction());
-  auto it = this->InputMap.find(key);
-  if (it == this->InputMap.end())
+  int state = this->GetMappedAction(vtkCommand::Select3DEvent, bd->GetAction());
+  if (state < VTKIS_NONE)
   {
     return;
   }
-
-  int state = it->second;
 
   // if grab mode then convert event data into where the ray is intersecting geometry
   switch (bd->GetAction())
@@ -909,16 +906,12 @@ void vtkVRInteractorStyle::MapInputToAction(
     return;
   }
 
-  decltype(this->InputMap)::key_type key(eid, action);
-  auto it = this->InputMap.find(key);
-  if (it != this->InputMap.end())
+  if (this->GetMappedAction(eid, action) == state)
   {
-    if (it->second == state)
-    {
-      return;
-    }
+    return;
   }
 
+  decltype(this->InputMap)::key_type key(eid, action);
   this->InputMap[key] = state;
 
   this->Modified();
@@ -929,6 +922,21 @@ void vtkVRInteractorStyle::MapInputToAction(vtkCommand::EventIds eid, int state)
 {
   this->MapInputToAction(eid, vtkEventDataAction::Press, state);
   this->MapInputToAction(eid, vtkEventDataAction::Release, state);
+}
+
+//----------------------------------------------------------------------------
+int vtkVRInteractorStyle::GetMappedAction(vtkCommand::EventIds eid, vtkEventDataAction action)
+{
+  decltype(this->InputMap)::key_type key(eid, action);
+
+  auto it = this->InputMap.find(key);
+  if (it != this->InputMap.end())
+  {
+    return it->second;
+  }
+  // Since VTKIS_*STATE* are expected to be >= VTKIS_NONE with VTKIS_NONE == 0,
+  // return -1 if no mapping is found.
+  return -1;
 }
 
 //------------------------------------------------------------------------------
