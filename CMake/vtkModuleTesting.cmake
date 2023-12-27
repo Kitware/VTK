@@ -794,7 +794,7 @@ ABI Mangling tests
 
 This function declares a test to verify that all of the exported symbols in the
 VTK module library contain the correct ABI mangling prefix. This test requires
-setting the optoin VTK_ABI_NAMESPACE_NAME to a value that is not "<DEFAULT>".
+setting the option VTK_ABI_NAMESPACE_NAME to a value that is not "<DEFAULT>".
 
 Current limitations of this test are:
 - Does not run on non-UNIX platforms
@@ -808,7 +808,8 @@ Current limitations of this test are:
 Options:
 - ``EXEMPTIONS``: List of symbol patterns to excluded from the ABI mangling test
   where it is known that the symbols do not support the ABI mangling but are still
-  exported.
+  exported. This option should be extremely rare to use, see the documentation on ABI
+  mangling for how the handle C and C++ symbols before adding an EXEMPTION.
 #]==]
 function (vtk_add_test_mangling module)
   get_property(vtk_abi_namespace_name GLOBAL PROPERTY _vtk_abi_namespace_name)
