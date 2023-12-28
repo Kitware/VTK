@@ -8,7 +8,7 @@
 #ifndef vtkOpenXR_h
 #define vtkOpenXR_h
 
-#include <openxr.h>
+#include <openxr/openxr.h>
 
 #include "XrExtensions.h"
 

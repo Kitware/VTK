@@ -32,7 +32,8 @@ vtk_module_add_module(VTK::RenderingOpenXR
 
 vtk_module_link(VTK::RenderingOpenXR
   PUBLIC
-    OpenXR::OpenXR)
+    OpenXR::openxr_loader
+    OpenXR::headers)
 
 set(openxr_input_files
   vtk_openxr_actions.json

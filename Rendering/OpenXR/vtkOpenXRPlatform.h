@@ -39,8 +39,8 @@
 #include <X11/Xlib.h>
 #endif
 
-#include <openxr_platform.h>
-#include <openxr_reflection.h>
+#include <openxr/openxr_platform.h>
+#include <openxr/openxr_reflection.h>
 
 #include <XrGraphicsExtensions.h>
 
