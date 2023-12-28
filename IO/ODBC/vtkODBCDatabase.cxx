@@ -511,7 +511,7 @@ vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
     nullptr, // column
     0);
 
-  if (status != SQL_SUCCESS && status != 0)
+  if (status != SQL_SUCCESS)
   {
     std::string error = GetErrorMessage(SQL_HANDLE_STMT, statement);
 
