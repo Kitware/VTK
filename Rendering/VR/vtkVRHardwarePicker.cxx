@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkVRHardwarePicker.h"
 
-#include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkHardwareSelector.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkTransform.h"
+#include "vtkVRCamera.h"
 #include "vtkVRRenderWindow.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -46,19 +46,24 @@ int vtkVRHardwarePicker::PickProp(
   sel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
   sel->SetRenderer(renderer);
   sel->SetActorPassOnly(actorPassOnly);
-  vtkCamera* oldcam = renderer->GetActiveCamera();
-  renWin->SetTrackHMD(false);
+  vtkVRCamera* activeCam = vtkVRCamera::SafeDownCast(renderer->GetActiveCamera());
+  if (!activeCam)
+  {
+    return 0;
+  }
+  bool lastTrackHMD = activeCam->GetTrackHMD();
+  activeCam->SetTrackHMD(false);
 
   vtkNew<vtkTransform> tran;
   tran->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
   double pin[4] = { 0.0, 0.0, -1.0, 1.0 };
   double dop[4];
   tran->MultiplyPoint(pin, dop);
-  double distance = oldcam->GetDistance();
-  oldcam->SetPosition(p0);
-  oldcam->SetFocalPoint(
+  double distance = activeCam->GetDistance();
+  activeCam->SetPosition(p0);
+  activeCam->SetFocalPoint(
     p0[0] + dop[0] * distance, p0[1] + dop[1] * distance, p0[2] + dop[2] * distance);
-  oldcam->OrthogonalizeViewUp();
+  activeCam->OrthogonalizeViewUp();
 
   const int* size = renderer->GetSize();
 
@@ -82,7 +87,7 @@ int vtkVRHardwarePicker::PickProp(
   // this->Selection = sel->Select();
   // sel->SetArea(0, 0, size[0]-1, size[1]-1);
 
-  renWin->SetTrackHMD(true);
+  activeCam->SetTrackHMD(lastTrackHMD);
 
   this->InvokeEvent(vtkCommand::EndPickEvent, this->Selection);
 
