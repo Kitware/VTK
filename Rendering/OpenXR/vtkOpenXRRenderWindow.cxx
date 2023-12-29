@@ -169,10 +169,6 @@ void vtkOpenXRRenderWindow::Render()
     // Start rendering
     this->Superclass::Render();
   }
-  else
-  {
-    vtkWarningMacro(<< "Not rendered");
-  }
 
   xrManager.EndFrame();
 }
