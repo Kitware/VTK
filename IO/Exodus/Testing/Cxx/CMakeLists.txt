@@ -1,7 +1,7 @@
-
+set(extra_tests)
 # We need typed arrays to be supported by the dispatcher to run the insitu test:
 if(VTK_DISPATCH_TYPED_ARRAYS)
-  set(extra_tests ${extra_tests}
+  list(APPEND extra_tests
     TestInSituExodus.cxx,NO_VALID
   )
 endif()
@@ -16,9 +16,6 @@ vtk_add_test_cxx(vtkIOExodusCxxTests tests
   TestExodusWedge21.cxx
   ${extra_tests}
   )
-
-list(APPEND tests
-)
 
 vtk_test_cxx_executable(vtkIOExodusCxxTests tests
   DISABLE_FLOATING_POINT_EXCEPTIONS
