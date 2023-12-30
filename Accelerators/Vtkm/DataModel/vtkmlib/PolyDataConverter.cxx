@@ -89,7 +89,7 @@ viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields, bool forc
   if (onlyPolys)
   {
     vtkCellArray* cells = input->GetPolys();
-    const vtkIdType homoSize = cells->IsHomogeneous();
+    const vtkIdType homoSize = IsHomogeneous(cells);
     if (homoSize == 3)
     {
       // We are all triangles
@@ -123,7 +123,7 @@ viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields, bool forc
   else if (onlyLines)
   {
     vtkCellArray* cells = input->GetLines();
-    const vtkIdType homoSize = cells->IsHomogeneous();
+    const vtkIdType homoSize = IsHomogeneous(cells);
     if (homoSize == 2)
     {
       // We are all lines
@@ -139,7 +139,7 @@ viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields, bool forc
   else if (onlyVerts)
   {
     vtkCellArray* cells = input->GetVerts();
-    const vtkIdType homoSize = cells->IsHomogeneous();
+    const vtkIdType homoSize = IsHomogeneous(cells);
     if (homoSize == 1)
     {
       // We are all single vertex

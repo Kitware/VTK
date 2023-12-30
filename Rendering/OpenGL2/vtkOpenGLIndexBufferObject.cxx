@@ -245,7 +245,7 @@ size_t vtkOpenGLIndexBufferObject::CreateTriangleIndexBuffer(vtkCellArray* cells
 
   const bool hasOnlyTriangles =
     cells->GetNumberOfConnectivityIds() == cells->GetNumberOfCells() * 3;
-  if (!cells->IsStorage64Bit() && hasOnlyTriangles)
+  if (cells->IsStorage32Bit() && hasOnlyTriangles)
   {
     // If connectivity ids are 32-bits and we only have triangles, upload them as-is.
     vtkCellArray::ArrayType32* array = cells->GetConnectivityArray32();

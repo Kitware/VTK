@@ -154,6 +154,16 @@ inline vtkmDataArray<typename viskores::VecTraits<T>::BaseComponentType>* make_v
 }
 
 //=============================================================================
+template <typename TCast, typename TReal, typename S>
+inline vtkmDataArray<typename viskores::VecTraits<TReal>::BaseComponentType>* make_vtkmDataArray(
+  const viskores::cont::ArrayHandle<TCast, viskores::cont::StorageTagCast<TReal, S>>& ah)
+{
+  auto ret = vtkmDataArray<typename viskores::VecTraits<TReal>::BaseComponentType>::New();
+  ret->SetVtkmArrayHandle(ah);
+  return ret;
+}
+
+//=============================================================================
 #ifndef vtkmDataArray_cxx
 extern template class VTKACCELERATORSVTKMCORE_TEMPLATE_EXPORT vtkmDataArray<char>;
 extern template class VTKACCELERATORSVTKMCORE_TEMPLATE_EXPORT vtkmDataArray<double>;

@@ -7,12 +7,10 @@
 #include "vtkCellArrayIterator.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkLongLongArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 
 #include <algorithm>
 #include <array>
@@ -45,7 +43,7 @@ struct LocationToCellIdFunctor : public vtkCellArray::DispatchUtilities
     cellId = std::distance(offsetsRange.begin(), it);
 
     if (it == offsetsRange.end() - 1 /* no match found */ ||
-      (*it + cellId) != location /* `location` not at cell head */)
+      static_cast<vtkIdType>(*it + cellId) != location /* `location` not at cell head */)
     { // Location invalid.
       cellId = -1;
       return;
@@ -293,7 +291,8 @@ struct IsHomogeneousImpl : public vtkCellArray::DispatchUtilities
     // Verify the rest:
     auto offsetsRange = GetRange(offsets);
     auto it = std::adjacent_find(offsetsRange.begin() + 1, offsetsRange.end(),
-      [&](const ValueType a, const ValueType b) -> bool { return (b - a != firstCellSize); });
+      [&](const ValueType a, const ValueType b) -> bool
+      { return static_cast<vtkIdType>(b - a) != firstCellSize; });
 
     if (it != offsetsRange.end())
     { // Found a cell that doesn't match the size of the first cell:
@@ -459,7 +458,7 @@ struct AppendLegacyFormatImpl : public vtkCellArray::DispatchUtilities
     {
       vtkIdType numPts = *data++;
       offset += static_cast<ValueType>(numPts);
-      offsetsAccessor.InsertNext(static_cast<ValueType>(offset));
+      offsetsAccessor.InsertNext(offset);
       while (numPts-- > 0)
       {
         connAccessor.InsertNext(static_cast<ValueType>(*data++ + ptOffset));
@@ -511,8 +510,8 @@ struct AppendImpl
       dstAccessor.Insert(dstEnd - 1, static_cast<DstValueType>(0));
     }
 
-    const auto srcRange = vtk::DataArrayValueRange<1>(srcArray, skipFirst ? 1 : 0);
-    auto dstRange = vtk::DataArrayValueRange<1>(dstArray, dstBegin, dstEnd);
+    const auto srcRange = vtk::DataArrayValueRange<1, vtkIdType>(srcArray, skipFirst ? 1 : 0);
+    auto dstRange = vtk::DataArrayValueRange<1, vtkIdType>(dstArray, dstBegin, dstEnd);
     assert(srcRange.size() == dstRange.size());
 
     const DstValueType dOffset = static_cast<DstValueType>(offset);
@@ -525,7 +524,24 @@ struct AppendImpl
 } // end anon namespace
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkCellArray::vtkCellArray() = default;
+vtkCellArray::vtkCellArray()
+{
+  // Default can be changed, to save memory
+  if (vtkCellArray::GetDefaultStorageIs64Bit())
+  {
+    this->Offsets = vtkSmartPointer<ArrayType64>::New();
+    this->Connectivity = vtkSmartPointer<ArrayType64>::New();
+    this->GetOffsetsArray64()->InsertNextValue(0);
+    this->StorageType = StorageTypes::Int64;
+  }
+  else
+  {
+    this->Offsets = vtkSmartPointer<ArrayType32>::New();
+    this->Connectivity = vtkSmartPointer<ArrayType32>::New();
+    this->GetOffsetsArray32()->InsertNextValue(0);
+    this->StorageType = StorageTypes::Int32;
+  }
+}
 vtkCellArray::~vtkCellArray() = default;
 vtkStandardNewMacro(vtkCellArray);
 
@@ -699,24 +715,11 @@ void vtkCellArray::DeepCopy(vtkAbstractCellArray* ca)
     return;
   }
 
-  if (other->Storage.Is64Bit())
-  {
-    this->Storage.Use64BitStorage();
-    auto& srcStorage = other->Storage.GetArrays64();
-    auto& dstStorage = this->Storage.GetArrays64();
-    dstStorage.Offsets->DeepCopy(srcStorage.Offsets);
-    dstStorage.Connectivity->DeepCopy(srcStorage.Connectivity);
-    this->Modified();
-  }
-  else
-  {
-    this->Storage.Use32BitStorage();
-    auto& srcStorage = other->Storage.GetArrays32();
-    auto& dstStorage = this->Storage.GetArrays32();
-    dstStorage.Offsets->DeepCopy(srcStorage.Offsets);
-    dstStorage.Connectivity->DeepCopy(srcStorage.Connectivity);
-    this->Modified();
-  }
+  this->Offsets = vtk::TakeSmartPointer(other->Offsets->NewInstance());
+  this->Offsets->DeepCopy(other->Offsets);
+  this->Connectivity = vtk::TakeSmartPointer(other->Connectivity->NewInstance());
+  this->Connectivity->DeepCopy(other->Connectivity);
+  this->StorageType = other->StorageType;
 }
 
 //------------------------------------------------------------------------------
@@ -733,16 +736,17 @@ void vtkCellArray::ShallowCopy(vtkAbstractCellArray* ca)
     return;
   }
 
-  if (other->Storage.Is64Bit())
+  if (this->Offsets != other->Offsets)
   {
-    auto& srcStorage = other->Storage.GetArrays64();
-    this->SetData(srcStorage.GetOffsets(), srcStorage.GetConnectivity());
+    this->Offsets = other->Offsets;
+    this->Modified();
   }
-  else
+  if (this->Connectivity != other->Connectivity)
   {
-    auto& srcStorage = other->Storage.GetArrays32();
-    this->SetData(srcStorage.GetOffsets(), srcStorage.GetConnectivity());
+    this->Connectivity = other->Connectivity;
+    this->Modified();
   }
+  this->StorageType = other->StorageType;
 }
 
 //------------------------------------------------------------------------------
@@ -781,19 +785,17 @@ void vtkCellArray::SetData(vtkTypeInt32Array* offsets, vtkTypeInt32Array* connec
     return;
   }
 
-  this->Storage.Use32BitStorage();
-  auto& storage = this->Storage.GetArrays32();
-  // vtkArrayDownCast to ensure this works when ArrayType32 is vtkIdTypeArray.
-  if (storage.Offsets != offsets)
+  if (this->Offsets.Get() != offsets)
   {
-    storage.Offsets = vtkArrayDownCast<ArrayType32>(offsets);
+    this->Offsets = offsets;
     this->Modified();
   }
-  if (storage.Connectivity != connectivity)
+  if (this->Connectivity.Get() != connectivity)
   {
-    storage.Connectivity = vtkArrayDownCast<ArrayType32>(connectivity);
+    this->Connectivity = connectivity;
     this->Modified();
   }
+  this->StorageType = StorageTypes::Int32;
 }
 
 //------------------------------------------------------------------------------
@@ -806,19 +808,17 @@ void vtkCellArray::SetData(vtkTypeInt64Array* offsets, vtkTypeInt64Array* connec
     return;
   }
 
-  this->Storage.Use64BitStorage();
-  auto& storage = this->Storage.GetArrays64();
-  // vtkArrayDownCast to ensure this works when ArrayType64 is vtkIdTypeArray.
-  if (storage.Offsets != offsets)
+  if (this->Offsets.Get() != offsets)
   {
-    storage.Offsets = vtkArrayDownCast<ArrayType64>(offsets);
+    this->Offsets = offsets;
     this->Modified();
   }
-  if (storage.Connectivity != connectivity)
+  if (this->Connectivity.Get() != connectivity)
   {
-    storage.Connectivity = vtkArrayDownCast<ArrayType64>(connectivity);
+    this->Connectivity = connectivity;
     this->Modified();
   }
+  this->StorageType = StorageTypes::Int64;
 }
 
 //------------------------------------------------------------------------------
@@ -906,68 +906,66 @@ VTK_ABI_NAMESPACE_END
 
 namespace
 {
-
 struct SetDataGenericImpl
 {
   vtkCellArray* CellArray;
-  vtkDataArray* ConnDA;
-  bool ArraysMatch;
-
-  template <typename ArrayT>
-  void operator()(ArrayT* offsets)
+  template <typename OffsetsT, typename ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* connectivity)
   {
-    ArrayT* conn = vtkArrayDownCast<ArrayT>(this->ConnDA);
-    if (!conn)
-    {
-      this->ArraysMatch = false;
-      return;
-    }
-    this->ArraysMatch = true;
-
-    this->CellArray->SetData(offsets, conn);
+    this->CellArray->SetData(offsets, connectivity);
   }
 };
-
-struct GenerateOffsetsImpl
-{
-  vtkIdType CellSize;
-  vtkIdType ConnectivityArraySize;
-
-  template <typename ArrayT>
-  void operator()(ArrayT* offsets)
-  {
-    for (vtkIdType cc = 0, max = (offsets->GetNumberOfTuples() - 1); cc < max; ++cc)
-    {
-      offsets->SetTypedComponent(cc, 0, cc * this->CellSize);
-    }
-    offsets->SetTypedComponent(offsets->GetNumberOfTuples() - 1, 0, this->ConnectivityArraySize);
-  }
-};
-
 } // end anon namespace
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 bool vtkCellArray::SetData(vtkDataArray* offsets, vtkDataArray* connectivity)
 {
-  SetDataGenericImpl worker{ this, connectivity, false };
-  using SupportedArrays = vtkCellArray::InputArrayList;
-  using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
-  if (!Dispatch::Execute(offsets, worker))
+  if (!offsets || !connectivity)
   {
-    vtkErrorMacro("Invalid array types passed to SetData: "
-      << "offsets=" << offsets->GetClassName() << ", "
-      << "connectivity=" << connectivity->GetClassName());
+    vtkErrorMacro("Empty offsets or connectivity array.");
     return false;
   }
-
-  if (!worker.ArraysMatch)
+  if (offsets->GetNumberOfComponents() != 1 || connectivity->GetNumberOfComponents() != 1)
   {
-    vtkErrorMacro("Offsets and Connectivity arrays must have the same type.");
+    vtkErrorMacro("Only single component arrays may be used for vtkCellArray "
+                  "storage.");
     return false;
   }
-
+  SetDataGenericImpl worker{ this };
+  using Dispatcher =
+    vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::InputArrayList,
+      vtkCellArray::InputArrayList>;
+  if (!Dispatcher::Execute(offsets, connectivity, worker))
+  {
+    if (this->Offsets.Get() != offsets)
+    {
+      this->Offsets = offsets;
+      this->Modified();
+    }
+    if (this->Connectivity.Get() != connectivity)
+    {
+      this->Connectivity = connectivity;
+      this->Modified();
+    }
+    this->StorageType = StorageTypes::Generic;
+  }
   return true;
+}
+
+namespace
+{
+template <typename T>
+void SetDataFixedCellSizeImpl(
+  vtkCellArray* cellArray, vtkIdType cellSize, vtkDataArray* connectivity, bool& success)
+{
+  auto offsets = vtk::TakeSmartPointer(connectivity->NewInstance());
+  offsets->SetNumberOfTuples((connectivity->GetNumberOfValues() / cellSize) + 1);
+  auto offsetsRange = vtk::DataArrayValueRange<1, T>(offsets);
+  std::generate(offsetsRange.begin(), offsetsRange.end(),
+    [cellId = 0, cellSize]() mutable { return static_cast<T>(cellId++ * cellSize); });
+  success = cellArray->SetData(offsets, connectivity);
+}
 }
 
 //------------------------------------------------------------------------------
@@ -985,59 +983,61 @@ bool vtkCellArray::SetData(vtkIdType cellSize, vtkDataArray* connectivity)
     return false;
   }
 
-  vtkSmartPointer<vtkDataArray> offsets;
-  offsets.TakeReference(connectivity->NewInstance());
-  offsets->SetNumberOfTuples(1 + connectivity->GetNumberOfTuples() / cellSize);
-
-  GenerateOffsetsImpl worker{ cellSize, connectivity->GetNumberOfTuples() };
-  using SupportedArrays = vtkCellArray::InputArrayList;
-  using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
-  if (!Dispatch::Execute(offsets, worker))
+  bool success = false;
+  switch (connectivity->GetDataType())
   {
-    vtkErrorMacro("Invalid array types passed to SetData: "
-      << "connectivity=" << connectivity->GetClassName());
-    return false;
+    vtkTemplateMacro(SetDataFixedCellSizeImpl<VTK_TT>(this, cellSize, connectivity, success));
   }
-
-  return this->SetData(offsets, connectivity);
+  return success;
 }
 
 //------------------------------------------------------------------------------
 void vtkCellArray::Use32BitStorage()
 {
-  if (!this->Storage.Is64Bit())
+  if (this->IsStorage32Bit())
   {
     this->Initialize();
     return;
   }
-  this->Storage.Use32BitStorage();
+  this->Offsets = vtkSmartPointer<ArrayType32>::New();
+  this->Connectivity = vtkSmartPointer<ArrayType32>::New();
+  this->GetOffsetsArray32()->InsertNextValue(0);
+  this->StorageType = StorageTypes::Int32;
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
 void vtkCellArray::Use64BitStorage()
 {
-  if (this->Storage.Is64Bit())
+  if (this->IsStorage64Bit())
   {
     this->Initialize();
     return;
   }
-  this->Storage.Use64BitStorage();
+  this->Offsets = vtkSmartPointer<ArrayType64>::New();
+  this->Connectivity = vtkSmartPointer<ArrayType64>::New();
+  this->GetOffsetsArray64()->InsertNextValue(0);
+  this->StorageType = StorageTypes::Int64;
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
 void vtkCellArray::UseDefaultStorage()
 {
-#ifdef VTK_USE_64BIT_IDS
-  this->Use64BitStorage();
-#else  // VTK_USE_64BIT_IDS
-  this->Use32BitStorage();
-#endif // VTK_USE_64BIT_IDS
+  if (this->GetDefaultStorageIs64Bit())
+  {
+    this->Use64BitStorage();
+  }
+  else
+  {
+    this->Use32BitStorage();
+  }
 }
 
 //------------------------------------------------------------------------------
 bool vtkCellArray::CanConvertTo32BitStorage() const
 {
-  if (!this->Storage.Is64Bit())
+  if (this->IsStorage32Bit())
   {
     return true;
   }
@@ -1055,17 +1055,20 @@ bool vtkCellArray::CanConvertTo64BitStorage() const
 //------------------------------------------------------------------------------
 bool vtkCellArray::CanConvertToDefaultStorage() const
 {
-#ifdef VTK_USE_64BIT_IDS
-  return this->CanConvertTo64BitStorage();
-#else  // VTK_USE_64BIT_IDS
-  return this->CanConvertTo32BitStorage();
-#endif // VTK_USE_64BIT_IDS
+  if (this->GetDefaultStorageIs64Bit())
+  {
+    return this->CanConvertTo64BitStorage();
+  }
+  else
+  {
+    return this->CanConvertTo32BitStorage();
+  }
 }
 
 //------------------------------------------------------------------------------
 bool vtkCellArray::ConvertTo32BitStorage()
 {
-  if (!this->IsStorage64Bit())
+  if (this->IsStorage32Bit())
   {
     return true;
   }
@@ -1105,11 +1108,14 @@ bool vtkCellArray::ConvertTo64BitStorage()
 //------------------------------------------------------------------------------
 bool vtkCellArray::ConvertToDefaultStorage()
 {
-#ifdef VTK_USE_64BIT_IDS
-  return this->ConvertTo64BitStorage();
-#else  // VTK_USE_64BIT_IDS
-  return this->ConvertTo32BitStorage();
-#endif // VTK_USE_64BIT_IDS
+  if (this->GetDefaultStorageIs64Bit())
+  {
+    return this->ConvertTo64BitStorage();
+  }
+  else
+  {
+    return this->ConvertTo32BitStorage();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1166,7 +1172,20 @@ void vtkCellArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "StorageIs64Bit: " << this->Storage.Is64Bit() << "\n";
+  os << indent << "StorageType: ";
+  switch (this->GetStorageType())
+  {
+    case StorageTypes::Int32:
+      os << "Int32\n";
+      break;
+    case StorageTypes::Int64:
+      os << "Int64\n";
+      break;
+    case StorageTypes::Generic:
+    default:
+      os << "Generic\n";
+      break;
+  }
 
   PrintSelfImpl functor;
   this->Dispatch(functor, os, indent);
@@ -1282,7 +1301,7 @@ bool vtkCellArray::IsValid()
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkCellArray::IsHomogeneous()
+vtkIdType vtkCellArray::IsHomogeneous() const
 {
   vtkIdType isHomogeneous;
   this->Dispatch(IsHomogeneousImpl{}, isHomogeneous);

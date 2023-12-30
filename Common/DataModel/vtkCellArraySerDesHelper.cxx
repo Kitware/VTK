@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCellArray.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDeserializer.h"
@@ -47,6 +48,19 @@ static nlohmann::json Serialize_vtkCellArray(vtkObjectBase* object, vtkSerialize
   }
 }
 
+namespace
+{
+struct SetDataGenericImpl
+{
+  vtkCellArray* CellArray;
+  template <typename OffsetsT, typename ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* connectivity)
+  {
+    this->CellArray->SetData(offsets, connectivity);
+  }
+};
+} // end anon namespace
+
 static void Deserialize_vtkCellArray(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
@@ -90,34 +104,17 @@ static void Deserialize_vtkCellArray(
     }
     else
     {
-      const bool is64Bit =
-        offsets->IsA("vtkTypeInt64Array") && connectivity->IsA("vtkTypeInt64Array");
-      const bool is32Bit =
-        offsets->IsA("vtkTypeInt32Array") && connectivity->IsA("vtkTypeInt32Array");
-      // when state has 64-bit arrays, fail if the architecture is incapable of 64-bit integers.
-      if (is64Bit)
+      // vtkCellArray::SetData dispatches over the InputOffsetsArrays/InputConnectivityArrays
+      // Here we dispatch over the StorageArrayList/StorageArrayList to avoid
+      // the internal shallow copy which would change the MTime of the cellArray.
+      SetDataGenericImpl worker{ cellArray };
+      using Dispatcher =
+        vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageArrayList,
+          vtkCellArray::StorageArrayList>;
+      if (!Dispatcher::Execute(offsets, connectivity, worker))
       {
-#if defined(VTK_TYPE_INT64)
-        cellArray->SetData(vtkArrayDownCast<vtkCellArray::ArrayType64>(offsets),
-          vtkArrayDownCast<vtkCellArray::ArrayType64>(connectivity));
-#else
-        vtkErrorWithObjectMacro(
-          deserializer, << "The deserializer cannot process 64-bit arrays for vtkCellArray because "
-                           "this build does not support 64-bit integers. "
-                           "Please provide 32-bit arrays in state.")
-#endif
-      }
-      else if (is32Bit)
-      {
-        cellArray->SetData(vtkArrayDownCast<vtkCellArray::ArrayType32>(offsets),
-          vtkArrayDownCast<vtkCellArray::ArrayType32>(connectivity));
-      }
-      else
-      {
-        vtkErrorWithObjectMacro(
-          deserializer, << "The deserializer can only process offset and connectivty arrays for "
-                           "vtkCellArray that "
-                           "are both `vtkTypeInt32Array` or `vtkTypeInt64Array`");
+        // Fallback to generic storage
+        cellArray->SetData(offsets, connectivity);
       }
     }
   }

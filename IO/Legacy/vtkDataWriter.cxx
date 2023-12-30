@@ -2268,15 +2268,13 @@ int vtkDataWriter::WriteCells(ostream* fp, vtkCellArray* cells, const char* labe
   }
 
   vtkIdType offsetsSize = cells->GetNumberOfOffsets();
+  int offsetType = cells->GetOffsetsArray()->GetDataType();
   vtkIdType connSize = cells->GetNumberOfConnectivityIds();
-  bool is64Bit = cells->IsStorage64Bit();
-
-  int type = is64Bit ? VTK_TYPE_INT64 : VTK_TYPE_INT32;
-
+  int connType = cells->GetConnectivityArray()->GetDataType();
   *fp << label << " " << offsetsSize << " " << connSize << "\n";
 
-  this->WriteArray(fp, type, cells->GetOffsetsArray(), "OFFSETS {:s}\n", offsetsSize, 1);
-  this->WriteArray(fp, type, cells->GetConnectivityArray(), "CONNECTIVITY {:s}\n", connSize, 1);
+  this->WriteArray(fp, offsetType, cells->GetOffsetsArray(), "OFFSETS {:s}\n", offsetsSize, 1);
+  this->WriteArray(fp, connType, cells->GetConnectivityArray(), "CONNECTIVITY {:s}\n", connSize, 1);
 
   fp->flush();
   if (fp->fail())

@@ -72,9 +72,11 @@
  * Methods for managing the storage type are:
  *
  * - `bool IsStorage64Bit()`
+ * - `bool IsStorage32Bit()`
+ * - `bool IsStorageGeneric()`
  * - `bool IsStorageShareable() // Can pointers to internal storage be shared`
- * - `void Use32BitStorage()`
  * - `void Use64BitStorage()`
+ * - `void Use32BitStorage()`
  * - `void UseDefaultStorage() // Depends on vtkIdType`
  * - `bool CanConvertTo32BitStorage()`
  * - `bool CanConvertTo64BitStorage()`
@@ -83,6 +85,13 @@
  * - `bool ConvertTo64BitStorage()`
  * - `bool ConvertToDefaultStorage() // Depends on vtkIdType`
  * - `bool ConvertToSmallestStorage() // Depends on current values in arrays`
+ *
+ * There is an additional mode of storage to allow any kind of vtkDataArray derived
+ * types. The Generic storage mode allows separate array types for offsets and connectivity.
+ * There is no method to explicitly use generic storage mode.
+ * vtkCellArray will automatically switch over to using generic
+ * storage when any overload of vtkCellArray::SetData is invoked with array types that
+ * are NOT in vtkCellArray::InputArrayList.
  *
  * Note that some legacy methods are still available that reflect the
  * previous storage format of this data, which embedded the cell sizes into
@@ -136,10 +145,10 @@
 #include "vtkTypeInt64Array.h" // Needed for inline methods
 #include "vtkTypeList.h"       // Needed for ArrayList definition
 
-#include <cassert>          // for assert
-#include <initializer_list> // for API
-#include <type_traits>      // for std::is_same
-#include <utility>          // for std::forward
+#include <cassert>          // Needed for assert
+#include <initializer_list> // Needed for API
+#include <type_traits>      // Needed for std::is_same
+#include <utility>          // Needed for std::forward
 
 /**
  * @def VTK_CELL_ARRAY_V2
@@ -301,47 +310,20 @@ public:
   /**
    * Get the number of cells in the array.
    */
-  vtkIdType GetNumberOfCells() const override
-  {
-    if (this->Storage.Is64Bit())
-    {
-      return this->Storage.GetArrays64().Offsets->GetNumberOfValues() - 1;
-    }
-    else
-    {
-      return this->Storage.GetArrays32().Offsets->GetNumberOfValues() - 1;
-    }
-  }
+  vtkIdType GetNumberOfCells() const override { return this->Offsets->GetNumberOfValues() - 1; }
 
   /**
    * Get the number of elements in the offsets array. This will be the number of
    * cells + 1.
    */
-  vtkIdType GetNumberOfOffsets() const override
-  {
-    if (this->Storage.Is64Bit())
-    {
-      return this->Storage.GetArrays64().Offsets->GetNumberOfValues();
-    }
-    else
-    {
-      return this->Storage.GetArrays32().Offsets->GetNumberOfValues();
-    }
-  }
+  vtkIdType GetNumberOfOffsets() const override { return this->Offsets->GetNumberOfValues(); }
 
   /**
    * Get the offset (into the connectivity) for a specified cell id.
    */
   vtkIdType GetOffset(vtkIdType cellId) override
   {
-    if (this->Storage.Is64Bit())
-    {
-      return this->Storage.GetArrays64().Offsets->GetValue(cellId);
-    }
-    else
-    {
-      return this->Storage.GetArrays32().Offsets->GetValue(cellId);
-    }
+    return static_cast<vtkIdType>(this->Offsets->GetComponent(cellId, 0));
   }
 
   /**
@@ -349,14 +331,7 @@ public:
    */
   void SetOffset(vtkIdType cellId, vtkIdType offset)
   {
-    if (this->Storage.Is64Bit())
-    {
-      this->Storage.GetArrays64().Offsets->SetValue(cellId, offset);
-    }
-    else
-    {
-      this->Storage.GetArrays32().Offsets->SetValue(cellId, offset);
-    }
+    this->Offsets->SetComponent(cellId, 0, static_cast<double>(offset));
   }
 
   /**
@@ -367,14 +342,7 @@ public:
    */
   vtkIdType GetNumberOfConnectivityIds() const override
   {
-    if (this->Storage.Is64Bit())
-    {
-      return this->Storage.GetArrays64().Connectivity->GetNumberOfValues();
-    }
-    else
-    {
-      return this->Storage.GetArrays32().Connectivity->GetNumberOfValues();
-    }
+    return this->Connectivity->GetNumberOfValues();
   }
 
   /**
@@ -384,6 +352,7 @@ public:
    */
   VTK_NEWINSTANCE vtkCellArrayIterator* NewIterator();
 
+  ///@{
   /**
    * Set the internal data arrays to the supplied offsets and connectivity
    * arrays.
@@ -401,7 +370,7 @@ public:
     vtkAOSDataArrayTemplate<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity);
   void SetData(vtkTypeInt32Array* offsets, vtkTypeInt32Array* connectivity);
   void SetData(vtkTypeInt64Array* offsets, vtkTypeInt64Array* connectivity);
-  /**@}*/
+  ///@}
 
   /**
    * Sets the internal arrays to the supplied offsets and connectivity arrays.
@@ -432,11 +401,32 @@ public:
    */
   bool SetData(vtkIdType cellSize, vtkDataArray* connectivity);
 
+  enum StorageTypes
+  {
+    Int64,
+    Int32,
+    Generic,
+  };
+
   /**
-   * @return True if the internal storage is using 64 bit arrays. If false,
-   * the storage is using 32 bit arrays.
+   * @return Type of internal storage.
    */
-  bool IsStorage64Bit() const { return this->Storage.Is64Bit(); }
+  StorageTypes GetStorageType() const noexcept { return this->StorageType; }
+
+  /**
+   * @return True if the internal storage is using 64 bit arrays.
+   */
+  bool IsStorage64Bit() const { return this->StorageType == StorageTypes::Int64; }
+
+  /**
+   * @return True if the internal storage is using 32 bit arrays.
+   */
+  bool IsStorage32Bit() const { return this->StorageType == StorageTypes::Int32; }
+
+  /**
+   * @return True if the internal storage is using vtkDataArray.
+   */
+  bool IsStorageGeneric() const { return this->StorageType == StorageTypes::Generic; }
 
   /**
    * @return True if the internal storage can be shared as a
@@ -446,13 +436,15 @@ public:
    */
   bool IsStorageShareable() const override
   {
-    if (this->Storage.Is64Bit())
+    switch (this->StorageType)
     {
-      return VisitState<ArrayType64>::ValueTypeIsSameAsIdType;
-    }
-    else
-    {
-      return VisitState<ArrayType32>::ValueTypeIsSameAsIdType;
+      case StorageTypes::Int32:
+        return std::is_same_v<vtkTypeInt32, vtkIdType>;
+      case StorageTypes::Int64:
+        return std::is_same_v<vtkTypeInt64, vtkIdType>;
+      case StorageTypes::Generic:
+      default:
+        return false;
     }
   }
 
@@ -509,19 +501,9 @@ public:
    * valid when IsStorage64Bit() returns the appropriate value.
    * @{
    */
-  vtkDataArray* GetOffsetsArray() const
-  {
-    if (this->Storage.Is64Bit())
-    {
-      return this->GetOffsetsArray64();
-    }
-    else
-    {
-      return this->GetOffsetsArray32();
-    }
-  }
-  ArrayType32* GetOffsetsArray32() const { return this->Storage.GetArrays32().Offsets; }
-  ArrayType64* GetOffsetsArray64() const { return this->Storage.GetArrays64().Offsets; }
+  vtkDataArray* GetOffsetsArray() const { return this->Offsets; }
+  ArrayType32* GetOffsetsArray32() const { return ArrayType32::FastDownCast(this->Offsets); }
+  ArrayType64* GetOffsetsArray64() const { return ArrayType64::FastDownCast(this->Offsets); }
   /**@}*/
 
   /**
@@ -530,19 +512,15 @@ public:
    * returns the appropriate value.
    * @{
    */
-  vtkDataArray* GetConnectivityArray() const
+  vtkDataArray* GetConnectivityArray() const { return this->Connectivity; }
+  ArrayType32* GetConnectivityArray32() const
   {
-    if (this->Storage.Is64Bit())
-    {
-      return this->GetConnectivityArray64();
-    }
-    else
-    {
-      return this->GetConnectivityArray32();
-    }
+    return ArrayType32::FastDownCast(this->Connectivity);
   }
-  ArrayType32* GetConnectivityArray32() const { return this->Storage.GetArrays32().Connectivity; }
-  ArrayType64* GetConnectivityArray64() const { return this->Storage.GetArrays64().Connectivity; }
+  ArrayType64* GetConnectivityArray64() const
+  {
+    return ArrayType64::FastDownCast(this->Connectivity);
+  }
   /**@}*/
 
   /**
@@ -553,7 +531,7 @@ public:
    * * 0 = Cell array empty
    * * n (positive integer) = homogeneous array of cell size n
    */
-  vtkIdType IsHomogeneous() override;
+  vtkIdType IsHomogeneous() const override;
 
   /**
    * @warning This method is not thread-safe. Consider using the NewIterator()
@@ -933,34 +911,43 @@ public:
   template <typename Functor, typename... Args>
   void Dispatch(Functor&& functor, Args&&... args)
   {
-    if (this->IsStorage64Bit())
+    switch (this->StorageType)
     {
-      functor(static_cast<ArrayType64*>(this->GetOffsetsArray()),
-        static_cast<ArrayType64*>(this->GetConnectivityArray()), std::forward<Args>(args)...);
-    }
-    else
-    {
-      functor(static_cast<ArrayType32*>(this->GetOffsetsArray()),
-        static_cast<ArrayType32*>(this->GetConnectivityArray()), std::forward<Args>(args)...);
+      case StorageTypes::Int32:
+        functor(static_cast<ArrayType32*>(this->Offsets.Get()),
+          static_cast<ArrayType32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        break;
+      case StorageTypes::Int64:
+        functor(static_cast<ArrayType64*>(this->Offsets.Get()),
+          static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        break;
+      default:
+        functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
+        break;
     }
   }
   template <typename Functor, typename... Args>
   void Dispatch(Functor&& functor, Args&&... args) const
   {
-    if (this->IsStorage64Bit())
+    switch (this->StorageType)
     {
-      functor(static_cast<ArrayType64*>(this->GetOffsetsArray()),
-        static_cast<ArrayType64*>(this->GetConnectivityArray()), std::forward<Args>(args)...);
-    }
-    else
-    {
-      functor(static_cast<ArrayType32*>(this->GetOffsetsArray()),
-        static_cast<ArrayType32*>(this->GetConnectivityArray()), std::forward<Args>(args)...);
+      case StorageTypes::Int32:
+        functor(static_cast<ArrayType32*>(this->Offsets.Get()),
+          static_cast<ArrayType32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        break;
+      case StorageTypes::Int64:
+        functor(static_cast<ArrayType64*>(this->Offsets.Get()),
+          static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        break;
+      default:
+        functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
+        break;
     }
   }
   ///@}
 
   // Holds connectivity and offset arrays of the given ArrayType.
+  // VTK_DEPRECATED_IN_9_6_0("Use DispatchUtilities")
   template <typename ArrayT>
   struct VisitState
   {
@@ -1127,19 +1114,29 @@ public:
   VTK_DEPRECATED_IN_9_6_0("Use Dispatch instead")
   void Visit(Functor&& functor, Args&&... args)
   {
-    if (this->Storage.Is64Bit())
+    switch (this->StorageType)
     {
-      // If you get an error on the next line, a call to Visit(functor, Args...)
-      // is being called with arguments that do not match the functor's call
-      // signature. See the Visit documentation for details.
-      functor(this->Storage.GetArrays64(), std::forward<Args>(args)...);
-    }
-    else
-    {
-      // If you get an error on the next line, a call to Visit(functor, Args...)
-      // is being called with arguments that do not match the functor's call
-      // signature. See the Visit documentation for details.
-      functor(this->Storage.GetArrays32(), std::forward<Args>(args)...);
+      case StorageTypes::Int32:
+      {
+        VisitState<ArrayType32> state;
+        state.Offsets = ArrayType32::FastDownCast(this->Offsets);
+        state.Connectivity = ArrayType32::FastDownCast(this->Connectivity);
+        functor(state, std::forward<Args>(args)...);
+        break;
+      }
+      case StorageTypes::Int64:
+      {
+        VisitState<ArrayType64> state;
+        state.Offsets = ArrayType64::FastDownCast(this->Offsets);
+        state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
+        functor(state, std::forward<Args>(args)...);
+        break;
+      }
+      default:
+      {
+        vtkWarningMacro("Use Dispatch");
+        break;
+      }
     }
   }
 
@@ -1148,19 +1145,29 @@ public:
   VTK_DEPRECATED_IN_9_6_0("Use Dispatch instead")
   void Visit(Functor&& functor, Args&&... args) const
   {
-    if (this->Storage.Is64Bit())
+    switch (this->StorageType)
     {
-      // If you get an error on the next line, a call to Visit(functor, Args...)
-      // is being called with arguments that do not match the functor's call
-      // signature. See the Visit documentation for details.
-      functor(this->Storage.GetArrays64(), std::forward<Args>(args)...);
-    }
-    else
-    {
-      // If you get an error on the next line, a call to Visit(functor, Args...)
-      // is being called with arguments that do not match the functor's call
-      // signature. See the Visit documentation for details.
-      functor(this->Storage.GetArrays32(), std::forward<Args>(args)...);
+      case StorageTypes::Int32:
+      {
+        VisitState<ArrayType32> state;
+        state.Offsets = ArrayType32::FastDownCast(this->Offsets);
+        state.Connectivity = ArrayType32::FastDownCast(this->Connectivity);
+        functor(state, std::forward<Args>(args)...);
+        break;
+      }
+      case StorageTypes::Int64:
+      {
+        VisitState<ArrayType64> state;
+        state.Offsets = ArrayType64::FastDownCast(this->Offsets);
+        state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
+        functor(state, std::forward<Args>(args)...);
+        break;
+      }
+      default:
+      {
+        vtkWarningMacro("Use Dispatch");
+        break;
+      }
     }
   }
 
@@ -1169,19 +1176,27 @@ public:
   VTK_DEPRECATED_IN_9_6_0("Use Dispatch instead")
   GetReturnType<Functor, Args...> Visit(Functor&& functor, Args&&... args)
   {
-    if (this->Storage.Is64Bit())
+    switch (this->StorageType)
     {
-      // If you get an error on the next line, a call to Visit(functor, Args...)
-      // is being called with arguments that do not match the functor's call
-      // signature. See the Visit documentation for details.
-      return functor(this->Storage.GetArrays64(), std::forward<Args>(args)...);
-    }
-    else
-    {
-      // If you get an error on the next line, a call to Visit(functor, Args...)
-      // is being called with arguments that do not match the functor's call
-      // signature. See the Visit documentation for details.
-      return functor(this->Storage.GetArrays32(), std::forward<Args>(args)...);
+      case StorageTypes::Int32:
+      {
+        VisitState<ArrayType32> state;
+        state.Offsets = ArrayType32::FastDownCast(this->Offsets);
+        state.Connectivity = ArrayType32::FastDownCast(this->Connectivity);
+        return functor(state, std::forward<Args>(args)...);
+      }
+      case StorageTypes::Int64:
+      {
+        VisitState<ArrayType64> state;
+        state.Offsets = ArrayType64::FastDownCast(this->Offsets);
+        state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
+        return functor(state, std::forward<Args>(args)...);
+      }
+      default:
+      {
+        vtkWarningMacro("Use Dispatch");
+        return GetReturnType<Functor, Args...>();
+      }
     }
   }
   template <typename Functor, typename... Args,
@@ -1189,19 +1204,27 @@ public:
   VTK_DEPRECATED_IN_9_6_0("Use Dispatch instead")
   GetReturnType<Functor, Args...> Visit(Functor&& functor, Args&&... args) const
   {
-    if (this->Storage.Is64Bit())
+    switch (this->StorageType)
     {
-      // If you get an error on the next line, a call to Visit(functor, Args...)
-      // is being called with arguments that do not match the functor's call
-      // signature. See the Visit documentation for details.
-      return functor(this->Storage.GetArrays64(), std::forward<Args>(args)...);
-    }
-    else
-    {
-      // If you get an error on the next line, a call to Visit(functor, Args...)
-      // is being called with arguments that do not match the functor's call
-      // signature. See the Visit documentation for details.
-      return functor(this->Storage.GetArrays32(), std::forward<Args>(args)...);
+      case StorageTypes::Int32:
+      {
+        VisitState<ArrayType32> state;
+        state.Offsets = ArrayType32::FastDownCast(this->Offsets);
+        state.Connectivity = ArrayType32::FastDownCast(this->Connectivity);
+        return functor(state, std::forward<Args>(args)...);
+      }
+      case StorageTypes::Int64:
+      {
+        VisitState<ArrayType64> state;
+        state.Offsets = ArrayType64::FastDownCast(this->Offsets);
+        state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
+        return functor(state, std::forward<Args>(args)...);
+      }
+      default:
+      {
+        vtkWarningMacro("Use Dispatch");
+        return GetReturnType<Functor, Args...>();
+      }
     }
   }
 
@@ -1361,148 +1384,9 @@ protected:
   vtkCellArray();
   ~vtkCellArray() override;
 
-  // Encapsulates storage of the internal arrays as a discriminated union
-  // between 32-bit and 64-bit storage.
-  struct Storage
-  {
-    // Union type that switches 32 and 64 bit array storage
-    union ArraySwitch
-    {
-      ArraySwitch() = default;  // handled by Storage
-      ~ArraySwitch() = default; // handle by Storage
-      VisitState<ArrayType32>* Int32;
-      VisitState<ArrayType64>* Int64;
-    };
-
-    Storage()
-    {
-#ifdef VTK_USE_MEMKIND
-      this->Arrays =
-        static_cast<ArraySwitch*>(vtkObjectBase::GetCurrentMallocFunction()(sizeof(ArraySwitch)));
-#else
-      this->Arrays = new ArraySwitch;
-#endif
-
-      // Default can be changed, to save memory
-      if (vtkCellArray::GetDefaultStorageIs64Bit())
-      {
-        this->Arrays->Int64 = new VisitState<ArrayType64>;
-        this->StorageIs64Bit = true;
-      }
-      else
-      {
-        this->Arrays->Int32 = new VisitState<ArrayType32>;
-        this->StorageIs64Bit = false;
-      }
-
-#ifdef VTK_USE_MEMKIND
-      if (vtkObjectBase::GetUsingMemkind())
-      {
-        this->IsInMemkind = true;
-      }
-#else
-      (void)this->IsInMemkind; // comp warning workaround
-#endif
-    }
-
-    ~Storage()
-    {
-      if (this->StorageIs64Bit)
-      {
-        this->Arrays->Int64->~VisitState();
-        delete this->Arrays->Int64;
-      }
-      else
-      {
-        this->Arrays->Int32->~VisitState();
-        delete this->Arrays->Int32;
-      }
-#ifdef VTK_USE_MEMKIND
-      if (this->IsInMemkind)
-      {
-        vtkObjectBase::GetAlternateFreeFunction()(this->Arrays);
-      }
-      else
-      {
-        free(this->Arrays);
-      }
-#else
-      delete this->Arrays;
-#endif
-    }
-
-    // Switch the internal arrays to be 32-bit. Any old data is lost. Returns
-    // true if the storage changes.
-    bool Use32BitStorage()
-    {
-      if (!this->StorageIs64Bit)
-      {
-        return false;
-      }
-
-      this->Arrays->Int64->~VisitState();
-      delete this->Arrays->Int64;
-      this->Arrays->Int32 = new VisitState<ArrayType32>;
-      this->StorageIs64Bit = false;
-
-      return true;
-    }
-
-    // Switch the internal arrays to be 64-bit. Any old data is lost. Returns
-    // true if the storage changes.
-    bool Use64BitStorage()
-    {
-      if (this->StorageIs64Bit)
-      {
-        return false;
-      }
-
-      this->Arrays->Int32->~VisitState();
-      delete this->Arrays->Int32;
-      this->Arrays->Int64 = new VisitState<ArrayType64>;
-      this->StorageIs64Bit = true;
-
-      return true;
-    }
-
-    // Returns true if the storage is currently configured to be 64 bit.
-    bool Is64Bit() const { return this->StorageIs64Bit; }
-
-    // Get the VisitState for 32-bit arrays
-    VisitState<ArrayType32>& GetArrays32()
-    {
-      assert(!this->StorageIs64Bit);
-      return *this->Arrays->Int32;
-    }
-
-    const VisitState<ArrayType32>& GetArrays32() const
-    {
-      assert(!this->StorageIs64Bit);
-      return *this->Arrays->Int32;
-    }
-
-    // Get the VisitState for 64-bit arrays
-    VisitState<ArrayType64>& GetArrays64()
-    {
-      assert(this->StorageIs64Bit);
-      return *this->Arrays->Int64;
-    }
-
-    const VisitState<ArrayType64>& GetArrays64() const
-    {
-      assert(this->StorageIs64Bit);
-      return *this->Arrays->Int64;
-    }
-
-  private:
-    // Access restricted to ensure proper union construction/destruction thru
-    // API.
-    ArraySwitch* Arrays;
-    bool StorageIs64Bit;
-    bool IsInMemkind = false;
-  };
-
-  Storage Storage;
+  vtkSmartPointer<vtkDataArray> Offsets;
+  vtkSmartPointer<vtkDataArray> Connectivity;
+  StorageTypes StorageType;
   vtkIdType TraversalCellId{ 0 };
 
   vtkNew<vtkIdTypeArray> LegacyData; // For GetData().
@@ -1680,7 +1564,6 @@ struct GetCellAtIdImpl : public vtkCellArray::DispatchUtilities
     cellSize = static_cast<vtkIdType>(endOffset - beginOffset);
     const auto cellConnectivity = GetRange(conn).begin() + beginOffset;
 
-    // ValueType differs from vtkIdType, so we have to copy into a temporary buffer:
     temp->SetNumberOfIds(cellSize);
     vtkIdType* tempPtr = temp->GetPointer(0);
     for (vtkIdType i = 0; i < cellSize; ++i)

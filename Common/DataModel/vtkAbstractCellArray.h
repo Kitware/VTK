@@ -76,7 +76,7 @@ public:
    * * 0 = Cell array empty
    * * n (positive integer) = homogeneous array of cell size n
    */
-  virtual vtkIdType IsHomogeneous() = 0;
+  virtual vtkIdType IsHomogeneous() const = 0;
 
   /**
    * Return the point ids for the cell at @a cellId.

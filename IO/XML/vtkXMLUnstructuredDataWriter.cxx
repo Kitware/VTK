@@ -973,7 +973,7 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(
 namespace
 {
 
-struct ConvertCellsVisitor
+struct ConvertCellsVisitor : public vtkCellArray::DispatchUtilities
 {
   vtkSmartPointer<vtkDataArray> Offsets;
   vtkSmartPointer<vtkDataArray> Connectivity;
@@ -981,26 +981,32 @@ struct ConvertCellsVisitor
   template <class OffsetsT, class ConnectivityT>
   void operator()(OffsetsT* offsetsIn, ConnectivityT* connIn)
   {
-    vtkNew<OffsetsT> offsets;
-    vtkNew<ConnectivityT> conn;
-
+    using ValueType = GetAPIType<OffsetsT>;
     // Shallow copy will let us change the name of the array to what the
     // writer expects without actually copying the array data:
-    conn->ShallowCopy(connIn);
-    conn->SetName("connectivity");
-    this->Connectivity = std::move(conn);
+    this->Connectivity.TakeReference(connIn->NewInstance());
+    this->Connectivity->ShallowCopy(connIn);
+    this->Connectivity->SetName("connectivity");
 
     // The file format for offsets always skips the first offset, because
     // it's always zero. Use SetArray and GetPointer to create a view
     // of the offsets array that starts at index=1:
+    this->Offsets.TakeReference(offsetsIn->NewInstance());
     const vtkIdType numOffsets = offsetsIn->GetNumberOfValues();
     if (numOffsets >= 2)
     {
-      offsets->SetArray(offsetsIn->GetPointer(1), numOffsets - 1, 1 /*save*/);
+      if (auto aosArray = vtkAOSDataArrayTemplate<ValueType>::FastDownCast(offsetsIn))
+      {
+        auto aosArrayTrimmed = vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>>::New();
+        aosArrayTrimmed->SetArray(aosArray->GetPointer(1), numOffsets - 1, 1 /*save*/);
+        this->Offsets = aosArrayTrimmed;
+      }
+      else
+      {
+        this->Offsets->InsertTuples(0, numOffsets - 1, 1, offsetsIn);
+      }
     }
-    offsets->SetName("offsets");
-
-    this->Offsets = std::move(offsets);
+    this->Offsets->SetName("offsets");
   }
 };
 

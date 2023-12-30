@@ -1266,6 +1266,39 @@ template void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, long long* ptIds, vtkIdType numberOfPointsIds, double bounds[6]);
 template void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, unsigned long long* ptIds, vtkIdType numberOfPointsIds, double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, char> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, signed char> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, unsigned char> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, short> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, unsigned short> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, int> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, unsigned int> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, long> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, unsigned long> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, long long> ptIds, vtkIdType numberOfPointsIds,
+  double bounds[6]);
+template void vtkBoundingBox::ComputeBounds(vtkPoints* pts,
+  vtk::detail::ValueIterator<vtkDataArray, 1, unsigned long long> ptIds,
+  vtkIdType numberOfPointsIds, double bounds[6]);
 
 // ---------------------------------------------------------------------------
 void vtkBoundingBox::ComputeLocalBounds(

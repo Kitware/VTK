@@ -39,7 +39,7 @@ viskores::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields, b
 
   // Use our custom explicit cell set to do the conversion
   const vtkIdType numPoints = input->GetNumberOfPoints();
-  if (input->IsHomogeneous())
+  if (IsHomogeneous(input))
   {
     int cellType = input->GetCellType(0); // get the celltype
     auto cells = ConvertSingleType(input->GetCells(), cellType, numPoints, forceViskores);

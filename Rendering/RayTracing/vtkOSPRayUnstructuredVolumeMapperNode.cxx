@@ -122,110 +122,56 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
 
       // First the spatial locations
       OSPData verticesData;
-      vtkFloatArray* vptsArray = vtkFloatArray::FastDownCast(dataSet->GetPoints()->GetData());
-      if (vptsArray)
-      {
-        verticesData = ospNewSharedData1D(vptsArray->GetVoidPointer(0), OSP_VEC3F, numberOfPoints);
-      }
-      else
-      {
-        std::vector<osp::vec3f> vertices;
-        vertices.reserve(numberOfPoints);
-        double point[3];
-        for (int i = 0; i < numberOfPoints; i++)
-        {
-          dataSet->GetPoint(i, point);
-          vertices[i] = { static_cast<float>(point[0]), static_cast<float>(point[1]),
-            static_cast<float>(point[2]) };
-        }
-        verticesData = ospNewCopyData1D(vertices.data(), OSP_VEC3F, numberOfPoints);
-      }
+      vtkNew<vtkFloatArray> vptsArray;
+      vptsArray->ShallowCopy(dataSet->GetPoints()->GetData()); // convert if needed
+      verticesData = ospNewSharedData1D(vptsArray->GetPointer(0), OSP_VEC3F, numberOfPoints);
       ospCommit(verticesData);
       ospSetObject(this->OSPRayVolume, "vertex.position", verticesData);
       ospRelease(verticesData);
 
       // Now the connectivity
       auto cellArray = dataSet->GetCells();
-      bool isShareable = cellArray->IsStorageShareable();
-      if (isShareable)
+      auto ctypes = dataSet->GetCellTypesArray();
+      OSPData cellTypeData = ospNewSharedData1D(ctypes->GetPointer(0), OSP_UCHAR, numberOfCells);
+      ospCommit(cellTypeData);
+      ospSetObject(this->OSPRayVolume, "cell.type", cellTypeData);
+      auto offsets = cellArray->GetOffsetsArray();
+      OSPData cellIndexData;
+      if (offsets->GetDataType() == VTK_TYPE_INT32)
       {
-        bool is32bit = !cellArray->IsStorage64Bit();
-        auto ctypes = dataSet->GetCellTypesArray();
-        OSPData cellTypeData =
-          ospNewSharedData1D(ctypes->GetVoidPointer(0), OSP_UCHAR, numberOfCells);
-        ospCommit(cellTypeData);
-        ospSetObject(this->OSPRayVolume, "cell.type", cellTypeData);
-        auto off = cellArray->GetOffsetsArray();
-        OSPData cellIndexData =
-          ospNewSharedData1D(off->GetVoidPointer(0), is32bit ? OSP_UINT : OSP_ULONG, numberOfCells);
-        ospCommit(cellIndexData);
-        ospSetObject(this->OSPRayVolume, "cell.index", cellIndexData);
-        auto con = cellArray->GetConnectivityArray();
-        OSPData indexData = ospNewSharedData1D(
-          con->GetVoidPointer(0), is32bit ? OSP_UINT : OSP_ULONG, con->GetNumberOfTuples() - 1);
-        ospCommit(indexData);
-        ospSetObject(this->OSPRayVolume, "index", indexData);
-        ospRelease(cellTypeData);
-        ospRelease(cellIndexData);
-        ospRelease(indexData);
+        vtkNew<vtkTypeInt32Array> int32Array;
+        int32Array->ShallowCopy(offsets); // convert if needed
+        cellIndexData = ospNewSharedData1D(int32Array->GetPointer(0), OSP_UINT, numberOfCells);
       }
       else
       {
-        std::vector<unsigned char> ctypes;
-        ctypes.resize(numberOfCells);
-        std::vector<unsigned int> off;
-        off.resize(numberOfCells);
-        std::vector<unsigned int> con;
-        for (int i = 0; i < numberOfCells; i++)
-        {
-          off[i] = static_cast<unsigned int>(con.size());
-          vtkCell* cell = dataSet->GetCell(i);
-          if (cell->GetCellType() == VTK_TETRA)
-          {
-            ctypes[i] = OSP_TETRAHEDRON;
-            for (int j = 0; j < 4; j++)
-            {
-              con.push_back(cell->GetPointId(j));
-            }
-          }
-          else if (cell->GetCellType() == VTK_HEXAHEDRON)
-          {
-            ctypes[i] = OSP_HEXAHEDRON;
-            for (int j = 0; j < 8; j++)
-            {
-              con.push_back(cell->GetPointId(j));
-            }
-          }
-          else if (cell->GetCellType() == VTK_WEDGE)
-          {
-            ctypes[i] = OSP_WEDGE;
-            for (int j = 0; j < 6; ++j)
-            {
-              con.push_back(cell->GetPointId(j));
-            }
-          }
-          else if (cell->GetCellType() == VTK_PYRAMID)
-          {
-            ctypes[i] = OSP_PYRAMID;
-            for (int j = 0; j < 5; ++j)
-            {
-              con.push_back(cell->GetPointId(j));
-            }
-          }
-        }
-        OSPData cellTypeData = ospNewCopyData1D(ctypes.data(), OSP_UCHAR, ctypes.size());
-        ospCommit(cellTypeData);
-        ospSetObject(this->OSPRayVolume, "cell.type", cellTypeData);
-        OSPData cellIndexData = ospNewCopyData1D(off.data(), OSP_UINT, off.size());
-        ospCommit(cellIndexData);
-        ospSetObject(this->OSPRayVolume, "cell.index", cellIndexData);
-        OSPData indexData = ospNewCopyData1D(con.data(), OSP_UINT, con.size());
-        ospCommit(indexData);
-        ospSetObject(this->OSPRayVolume, "index", indexData);
-        ospRelease(cellTypeData);
-        ospRelease(cellIndexData);
-        ospRelease(indexData);
+        vtkNew<vtkTypeInt64Array> int64Array;
+        int64Array->ShallowCopy(offsets); // convert if needed
+        cellIndexData = ospNewSharedData1D(int64Array->GetPointer(0), OSP_ULONG, numberOfCells);
       }
+      ospCommit(cellIndexData);
+      ospSetObject(this->OSPRayVolume, "cell.index", cellIndexData);
+      auto connectivity = cellArray->GetConnectivityArray();
+      OSPData indexData;
+      if (connectivity->GetDataType() == VTK_TYPE_INT32)
+      {
+        vtkNew<vtkTypeInt32Array> int32Array;
+        int32Array->ShallowCopy(connectivity); // convert if needed
+        indexData = ospNewSharedData1D(
+          int32Array->GetPointer(0), OSP_UINT, connectivity->GetNumberOfTuples());
+      }
+      else
+      {
+        vtkNew<vtkTypeInt64Array> int64Array;
+        int64Array->ShallowCopy(connectivity); // convert if needed
+        indexData = ospNewSharedData1D(
+          int64Array->GetPointer(0), OSP_ULONG, connectivity->GetNumberOfTuples());
+      }
+      ospCommit(indexData);
+      ospSetObject(this->OSPRayVolume, "index", indexData);
+      ospRelease(cellTypeData);
+      ospRelease(cellIndexData);
+      ospRelease(indexData);
     }
 
     // Now the data to volume render
@@ -242,34 +188,21 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
       this->LastArrayComponent = val;
       vtkIdType numberOfElements = (fieldAssociation ? numberOfCells : numberOfPoints);
       OSPData fieldData;
-      bool VKLsupported = array->GetDataType() == VTK_FLOAT;
-      if (array->GetNumberOfComponents() == 1 && VKLsupported)
+      vtkNew<vtkAOSDataArrayTemplate<float>> floatArray;
+      if (array->GetNumberOfComponents() == 1)
       {
-        fieldData = ospNewSharedData1D(array->GetVoidPointer(0), OSP_FLOAT, numberOfElements);
+        floatArray->ShallowCopy(array); // convert if needed
+        fieldData = ospNewSharedData1D(floatArray->GetPointer(0), OSP_FLOAT, numberOfElements);
       }
       else
       {
-        std::vector<float> field;
-        field.reserve(numberOfElements);
+        floatArray->SetNumberOfValues(numberOfElements);
         for (int j = 0; j < numberOfElements; j++)
         {
           double* vals = array->GetTuple(j);
-          double mag = 0;
-          if (mode == 0 && array->GetNumberOfComponents() > 1) // vector magnitude
-          {
-            for (int c = 0; c < array->GetNumberOfComponents(); c++)
-            {
-              mag += vals[c] * vals[c];
-            }
-            mag = std::sqrt(mag);
-          }
-          else
-          {
-            mag = vals[comp];
-          }
-          field[j] = static_cast<float>(mag);
+          floatArray->SetValue(j, vtkMath::Norm(vals, array->GetNumberOfComponents()));
         }
-        fieldData = ospNewCopyData1D(field.data(), OSP_FLOAT, numberOfElements);
+        fieldData = ospNewCopyData1D(floatArray->GetPointer(0), OSP_FLOAT, numberOfElements);
       }
       ospCommit(fieldData);
       if (fieldAssociation)

@@ -15,12 +15,18 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkUnsignedCharArray;
-class vtkIdTypeArray;
+class vtkUnstructuredGrid;
 VTK_ABI_NAMESPACE_END
 
 namespace tovtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
+vtkIdType IsHomogeneous(vtkCellArray* cells);
+
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
+bool IsHomogeneous(vtkUnstructuredGrid* ugrid);
+
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 viskores::cont::UnknownCellSet ConvertSingleType(
   vtkCellArray* cells, int cellType, vtkIdType numberOfPoints, bool forceViskores = false);

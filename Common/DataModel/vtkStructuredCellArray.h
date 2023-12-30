@@ -86,7 +86,7 @@ public:
    * * 0 = Cell array empty
    * * n (positive integer) = homogeneous array of cell size n
    */
-  vtkIdType IsHomogeneous() override;
+  vtkIdType IsHomogeneous() const override;
 
   /**
    * Return the point ids for the cell at @a cellId.
