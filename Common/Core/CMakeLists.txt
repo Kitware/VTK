@@ -335,6 +335,22 @@ set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
   vtkValueFromString.cxx
+
+  vtkDataArray_CopyComponent.cxx
+  vtkDataArray_DeepCopy.cxx
+  vtkDataArray_FiniteScalarRange.cxx
+  vtkDataArray_FiniteVectorRange.cxx
+  vtkDataArray_GetTuples_ids.cxx
+  vtkDataArray_GetTuples_range.cxx
+  vtkDataArray_InsertTuples_array_idlist.cxx
+  vtkDataArray_InsertTuples_array_idlist_range.cxx
+  vtkDataArray_InsertTuples_array_range.cxx
+  vtkDataArray_InterpolateTuple_time.cxx
+  vtkDataArray_InterpolateTuple_weights.cxx
+  vtkDataArray_ScalarRange.cxx
+  vtkDataArray_SetTuple_array.cxx
+  vtkDataArray_VectorRange.cxx
+
   ${instantiation_sources}
   ${vtk_smp_sources})
 
