@@ -72,8 +72,6 @@ int vtkPProbeFilter::RequestData(
     vtkIdType i;
     vtkIdType k;
     vtkIdType pointId;
-    vtkCharArray* rootMaskArray =
-      vtkArrayDownCast<vtkCharArray>(pointData->GetArray(this->ValidPointMaskArrayName));
     bool validFound = false;
     if (numPoints > 0)
     {
