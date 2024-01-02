@@ -210,15 +210,15 @@ macro(vtkArrayDispatch_generate_array_header result)
 set(vtkAD_headers vtkTypeList.h)
 set(vtkAD_arrays)
 set(vtkAD_readonly_arrays)
-foreach(container ${vtkArrayDispatch_containers})
-  list(APPEND vtkAD_headers ${vtkArrayDispatch_${container}_header})
-  foreach(value_type ${vtkArrayDispatch_${container}_types})
+foreach(container IN LISTS vtkArrayDispatch_containers)
+  list(APPEND vtkAD_headers "${vtkArrayDispatch_${container}_header}")
+  foreach(value_type IN LISTS "vtkArrayDispatch_${container}_types")
     list(APPEND vtkAD_arrays "${container}<${value_type}>")
   endforeach()
 endforeach ()
-foreach(container ${vtkArrayDispatchImplicit_containers})
-  list(APPEND vtkAD_headers ${vtkArrayDispatchImplicit_${container}_header})
-  foreach(value_type ${vtkArrayDispatchImplicit_${container}_types})
+foreach(container IN LISTS vtkArrayDispatchImplicit_containers)
+  list(APPEND vtkAD_headers "${vtkArrayDispatchImplicit_${container}_header}")
+  foreach(value_type IN LISTS "vtkArrayDispatchImplicit_${container}_types")
     list(APPEND vtkAD_readonly_arrays "${container}<${value_type}>")
   endforeach()
 endforeach()
@@ -238,7 +238,7 @@ set(temp
   "\n"
 )
 
-foreach(header ${vtkAD_headers})
+foreach(header IN LISTS vtkAD_headers)
   list(APPEND temp "#include \"${header}\"\n")
 endforeach()
 
@@ -248,41 +248,31 @@ list(APPEND temp
   "VTK_ABI_NAMESPACE_BEGIN\n"
   "\n"
   "typedef vtkTypeList::Unique<\n"
-  "  vtkTypeList::Create<\n"
+  "  vtkTypeList::Create<"
 )
 
-list(LENGTH vtkAD_arrays array_size)
-math(EXPR last_index "${array_size} - 1")
-list(GET vtkAD_arrays ${last_index} vtkAD_arrays_last)
-foreach (array ${vtkAD_arrays})
-  if (NOT ${array} STREQUAL ${vtkAD_arrays_last})
-    list(APPEND temp "    ${array},\n")
-  else ()
-    list(APPEND temp "    ${array}\n")
-  endif ()
+set(vtkAD_sep "")
+foreach (array IN LISTS vtkAD_arrays)
+  list(APPEND temp "${vtkAD_sep}\n    ${array}")
+  set(vtkAD_sep ",")
 endforeach ()
 
 list(APPEND temp
-  "  >\n"
+  "\n  >\n"
   ">::Result Arrays\;\n"
   "\n"
   "typedef vtkTypeList::Unique<\n"
   "  vtkTypeList::Create<\n"
   )
 
-list(LENGTH vtkAD_readonly_arrays read_only_array_size)
-math(EXPR read_only_last_index "${read_only_array_size} - 1")
-list(GET vtkAD_readonly_arrays ${read_only_last_index} vtkAD_readonly_arrays_last)
-foreach (array ${vtkAD_readonly_arrays})
-  if (NOT ${array} STREQUAL ${vtkAD_readonly_arrays_last})
-    list(APPEND temp "    ${array},\n")
-  else ()
-    list(APPEND temp "    ${array}\n")
-  endif ()
+set(vtkAD_sep "")
+foreach (array IN LISTS vtkAD_readonly_arrays)
+  list(APPEND temp "${vtkAD_sep}\n    ${array}")
+  set(vtkAD_sep ",")
 endforeach ()
 
 list(APPEND temp
-  "  >\n"
+  "\n  >\n"
   ">::Result ReadOnlyArrays\;\n"
   "\n"
   "typedef vtkTypeList::Unique<\n"

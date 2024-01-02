@@ -172,7 +172,8 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
     vtkSOADataArrayTemplateInstantiate
     vtkStdFunctionArrayInstantiate
     vtkStructuredPointBackendInstantiate
-    vtkStructuredPointArrayInstantiate)
+    vtkStructuredPointArrayInstantiate
+    vtkTypedDataArrayInstantiate)
   if (VTK_BUILD_SCALED_SOA_ARRAYS)
     list(APPEND _list "vtkScaledSOADataArrayTemplateInstantiate")
   endif ()
