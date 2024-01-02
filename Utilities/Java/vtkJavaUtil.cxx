@@ -21,7 +21,6 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-VTK_ABI_NAMESPACE_BEGIN
 JNIEXPORT jlong vtkJavaGetId(JNIEnv* env, jobject obj)
 {
   jfieldID id;

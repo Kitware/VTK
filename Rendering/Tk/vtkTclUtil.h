@@ -14,7 +14,6 @@
 #define VTKTCL_EXPORT
 #endif
 
-VTK_ABI_NAMESPACE_BEGIN
 extern VTKTCL_EXPORT void vtkTclUpdateCommand(Tcl_Interp* interp, char* name, vtkObject* obj);
 
 extern VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(
@@ -92,6 +91,5 @@ extern VTKTCL_EXPORT void vtkTclApplicationInitExecutable(int argc, const char* 
 extern VTKTCL_EXPORT void vtkTclApplicationInitTclTk(
   Tcl_Interp* interp, const char* const relative_dirs[]);
 
-VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTclUtil.h

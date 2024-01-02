@@ -32,7 +32,11 @@ vtk_module_add_module(VTK::WrappingPythonCore
   PRIVATE_CLASSES ${private_classes}
   PRIVATE_HEADERS ${private_headers}
   LIBRARY_NAME_SUFFIX "${vtk_python_version_major}.${vtk_python_version_minor}")
-vtk_add_test_mangling(VTK::WrappingPythonCore)
+
+if (NOT VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" AND NOT DEFINED ENV{CI})
+  message(WARNING "Wrappings::PythonCore ABI does not not support the VTK_ABI_NAMESPACE_NAME "
+                  "and the symbols will not be mangled.")
+endif ()
 
 if (Python3_VERSION VERSION_LESS "3.7" AND NOT CMAKE_VERSION VERSION_LESS "3.19")
   include(CheckCompilerFlag)

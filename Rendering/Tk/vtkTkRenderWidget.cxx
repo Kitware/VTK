@@ -61,7 +61,6 @@ static Tk_ConfigSpec vtkTkRenderWidgetConfigSpecs[] = {
 // Forward prototypes
 extern "C"
 {
-#define vtkTkRenderWidget_EventProc VTK_ABI_NAMESPACE_MANGLE(vtkTkRenderWidget_EventProc)
   void vtkTkRenderWidget_EventProc(ClientData clientData, XEvent* eventPtr);
 }
 
@@ -115,7 +114,6 @@ extern "C"
 #define VTKIMAGEDATATOTKPHOTO_CORONAL 0
 #define VTKIMAGEDATATOTKPHOTO_SAGITTAL 1
 #define VTKIMAGEDATATOTKPHOTO_TRANSVERSE 2
-#define vtkImageDataToTkPhoto_Cmd VTK_ABI_NAMESPACE_MANGLE(vtkImageDataToTkPhoto_Cmd)
   int vtkImageDataToTkPhoto_Cmd(ClientData vtkNotUsed(clientData), Tcl_Interp* interp, int argc,
 #if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
     CONST84
@@ -374,7 +372,6 @@ int vtkTkRenderWidget_Configure(
 // to choose the appropriate method to invoke.
 extern "C"
 {
-#define vtkTkRenderWidget_Widget VTK_ABI_NAMESPACE_MANGLE(vtkTkRenderWidget_Widget)
   int vtkTkRenderWidget_Widget(ClientData clientData, Tcl_Interp* interp, int argc,
 #if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
     CONST84
@@ -467,7 +464,6 @@ extern "C"
 //     * Configures this vtkTkRenderWidget for the given arguments
 extern "C"
 {
-#define vtkTkRenderWidget_Cmd VTK_ABI_NAMESPACE_MANGLE(vtkTkRenderWidget_Cmd)
   int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp* interp, int argc,
 #if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
     CONST84
@@ -577,7 +573,6 @@ int vtkTkRenderWidget_Height(const struct vtkTkRenderWidget* self)
 
 extern "C"
 {
-#define vtkTkRenderWidget_Destroy VTK_ABI_NAMESPACE_MANGLE(vtkTkRenderWidget_Destroy)
   void vtkTkRenderWidget_Destroy(char* memPtr)
   {
     struct vtkTkRenderWidget* self = (struct vtkTkRenderWidget*)memPtr;
@@ -690,7 +685,6 @@ extern "C"
 // Called upon system startup to create vtkTkRenderWidget command.
 extern "C"
 {
-#define Vtktkrenderwidget_Init VTK_ABI_NAMESPACE_MANGLE(Vtktkrenderwidget_Init)
   VTK_EXPORT int Vtktkrenderwidget_Init(Tcl_Interp* interp);
 }
 

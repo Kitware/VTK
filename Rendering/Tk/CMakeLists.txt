@@ -55,6 +55,11 @@ else ()
   set(TK_INTERNAL_PATH)
 endif ()
 
+if (NOT VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" AND NOT DEFINED ENV{CI})
+  message(WARNING "Rendering::Tk ABI does not not support the VTK_ABI_NAMESPACE_NAME "
+                  "and the symbols will not be mangled.")
+endif ()
+
 vtk_module_add_module(VTK::RenderingTk
   SOURCES ${sources}
   PRIVATE_HEADERS ${private_headers})
@@ -67,4 +72,3 @@ vtk_module_include(VTK::RenderingTk
     ${TCL_INCLUDE_PATH}
     ${TK_INCLUDE_PATH}
     ${TK_INTERNAL_PATH})
-vtk_add_test_mangling(VTK::RenderingTk)
