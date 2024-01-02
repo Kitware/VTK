@@ -415,6 +415,46 @@ int Test3DProbing(vtkMultiProcessController* controller)
 
   return retVal;
 }
+// ----------------------------------------------------------------------------
+int Test3DProbing2(vtkMultiProcessController* controller)
+{
+  int myrank = controller->GetLocalProcessId();
+  int retVal = EXIT_SUCCESS;
+
+  // ---------------
+  // Initialize data
+  vtkNew<vtkPartitionedDataSet> pds;
+
+  vtkNew<vtkRTAnalyticSource> wavelet1;
+  if (myrank == 1)
+  {
+    wavelet1->SetWholeExtent(-10, 10, -10, 10, 0, 10);
+    wavelet1->Update();
+    pds->SetNumberOfPartitions(1);
+    pds->SetPartition(0, wavelet1->GetOutputDataObject(0));
+  }
+
+  vtkNew<vtkLineSource> line;
+  line->SetPoint1(0, 0, -10);
+  line->SetPoint2(0, 0, 10);
+  line->SetResolution(2);
+
+  vtkNew<vtkProbeLineFilter> probeLine;
+  probeLine->SetInputData(pds);
+  probeLine->SetSourceConnection(line->GetOutputPort());
+  probeLine->SetController(controller);
+  probeLine->SetLineResolution(50);
+  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
+  probeLine->Update();
+
+  vtkPolyData* pd = vtkPolyData::SafeDownCast(probeLine->GetOutputDataObject(0));
+  if (myrank == 0 && !pd->GetPointData()->GetArray("RTData"))
+  {
+    vtkLog(ERROR, "RTData array not found");
+    return EXIT_FAILURE;
+  }
+  return retVal;
+}
 
 // ----------------------------------------------------------------------------
 int Test2DProbingHTG(vtkMultiProcessController* contr)
@@ -511,6 +551,7 @@ int TestProbeLineFilter(int argc, char* argv[])
 
   retVal |= Test2DProbing(contr);
   retVal |= Test3DProbing(contr);
+  retVal |= Test3DProbing2(contr);
   retVal |= Test2DProbingHTG(contr);
   retVal |= Test3DProbingHTG(contr);
 
