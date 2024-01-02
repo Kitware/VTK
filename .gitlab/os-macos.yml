@@ -202,12 +202,19 @@
     - git submodule sync --recursive
     - git submodule update --init --recursive
 
+.before_script_macos_deps: &before_script_macos_deps
+    # currently not downloading adios for macos wheels
+    # this way we can only get it for non-wheel macos builds
+    - cmake -P .gitlab/ci/download_adios2.cmake
+    - export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$PWD/.gitlab/adios2
+
 .cmake_build_macos:
     stage: build
     extends: .warning_policy
 
     script:
         - *before_script_macos
+        - *before_script_macos_deps
         - .gitlab/ci/sccache.sh
         # Allow the server to already be running.
         - "sccache --start-server || :"
@@ -224,6 +231,7 @@
 
     script:
         - *before_script_macos
+        - *before_script_macos_deps
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
     interruptible: true
 
