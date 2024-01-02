@@ -13,6 +13,7 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::RenderingCore
   VTK::RenderingOpenGL2
 PRIVATE_DEPENDS
   VTK::CommonMath
@@ -22,7 +23,6 @@ PRIVATE_DEPENDS
   VTK::IOXML
   VTK::ImagingCore
   VTK::ImagingSources
-  VTK::RenderingCore
   VTK::glew
   VTK::opengl
   VTK::vtksys
