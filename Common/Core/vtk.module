@@ -24,7 +24,6 @@ DEPENDS
   VTK::vtksys
   VTK::token
 PRIVATE_DEPENDS
-  VTK::utf8
   VTK::fast_float
 OPTIONAL_DEPENDS
   VTK::loguru
