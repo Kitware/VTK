@@ -252,9 +252,9 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     input->GetMTime() > loadTime || orientationChanged || sliceChanged || recursive)
   {
     // get the data to load as a texture
-    int xsize;
-    int ysize;
-    int bytesPerPixel;
+    int xsize = this->TextureSize[0];
+    int ysize = this->TextureSize[1];
+    int bytesPerPixel = this->TextureBytesPerPixel;
 
     // whether to try to use the input data directly as the texture
     bool reuseData = true;
