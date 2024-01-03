@@ -72,6 +72,11 @@ int vtkPProbeFilter::RequestData(
     vtkIdType i;
     vtkIdType k;
     vtkIdType pointId;
+    bool validFound = false;
+    if (numPoints > 0)
+    {
+      validFound = true;
+    }
     for (i = 1; i < numProcs; i++)
     {
       this->Controller->Receive(&numRemoteValidPoints, 1, i, PROBE_COMMUNICATION_TAG);
@@ -81,6 +86,12 @@ int vtkPProbeFilter::RequestData(
 
         remotePointData = remoteProbeOutput->GetPointData();
 
+        if (!validFound)
+        {
+          validFound = true;
+          pointData->ShallowCopy(remotePointData);
+          continue;
+        }
         vtkCharArray* maskArray =
           vtkArrayDownCast<vtkCharArray>(remotePointData->GetArray(this->ValidPointMaskArrayName));
 
