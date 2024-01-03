@@ -1405,17 +1405,6 @@ fedora34-tidy:build:
         - .linux_fast_builder_tags
         - .cmake_tidy_artifacts
         - .run_manually
-    # Use fast builder tag as tidy can takes a very long time on slow machine
-    # Move it to the test stage so that the build stage can be required to be
-    # green. `clang-tidy` just takes too long to require for every MR prior to
-    # merging. See https://github.com/ejfitzgerald/clang-tidy-cache/issues/5
-    # which should help performance immensely.
-    stage: test
-    needs: []
-    dependencies: []
-    # clang-tidy really hampers compilation cache improvements, so it takes
-    # longer.
-    timeout: 330 minutes
 
 ## Sanitizer builds
 
