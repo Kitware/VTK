@@ -54,6 +54,12 @@ function (vtk_module_test_data)
   ExternalData_Expand_Arguments("${_vtk_build_TEST_DATA_TARGET}" _ ${data_args})
 endfunction ()
 
+if (DEFINED DEFAULT_USE_SSIM_IMAGE_COMP AND DEFAULT_USE_SSIM_IMAGE_COMP)
+  set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
+else()
+  set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
+endif()
+
 #[==[.rst:
 Creating test executables
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -305,6 +311,13 @@ C++ tests
     current source directory. If alternate baseline images are required,
     ``<NAME>`` may be suffixed by ``_1``, ``_2``, etc. The valid image is passed via
     the ``-V`` flag.
+    - ``TIGHT_VALID``: Uses euclidian type metrics to compare baselines. Baseline
+    comparison is sensitive to outliers in this setting.
+    - ``LOOSE_VALID``: Uses L1 type metrics to compare baselines. Baseline comparison
+    is somewhat more forgiving. Typical use cases involve rendering that is highly GPU
+    dependent, and baselines with text.
+    - ``LEGACY_VALID``: Uses legacy image compare. This metric generates a lot of
+    false negatives. It is recommended not to use it.
   - ``NO_OUTPUT``: The test does not need to write out any data to the
     filesystem. If it does, a directory which may be written to is passed via
     the ``-T`` flag.
@@ -316,7 +329,10 @@ function (vtk_add_test_cxx exename _tests)
   set(cxx_options
     NO_DATA
     NO_VALID
-    NO_OUTPUT)
+    NO_OUTPUT
+    TIGHT_VALID
+    LOOSE_VALID
+    LEGACY_VALID)
   _vtk_test_parse_args("${cxx_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${cxx_options}" "" ${options})
 
@@ -353,6 +369,15 @@ function (vtk_add_test_cxx exename _tests)
       set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
     endif ()
 
+    set(image_compare_method ${default_image_compare})
+    if (local_LEGACY_VALID)
+      set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
+    elseif (local_LOOSE_VALID)
+      set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LOOSE_VALID")
+    else ()
+      set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
+    endif ()
+
     if (VTK_USE_MPI AND
         VTK_SERIAL_TESTS_USE_MPIEXEC)
       set(_vtk_test_cxx_pre_args
@@ -375,7 +400,7 @@ function (vtk_add_test_cxx exename _tests)
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
         SKIP_REGULAR_EXPRESSION "${_vtk_skip_regex}"
         # Disables anti-aliasing when rendering
-        ENVIRONMENT "VTK_TESTING"
+        ENVIRONMENT "VTK_TESTING;${image_compare_method}"
         # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h
         SKIP_RETURN_CODE 125
       )
@@ -432,6 +457,9 @@ function (vtk_add_test_mpi exename _tests)
   set(mpi_options
     TESTING_DATA
     NO_VALID
+    LOOSE_VALID
+    TIGHT_VALID
+    LEGACY_VALID
     )
   _vtk_test_parse_args("${mpi_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${mpi_options}" "" ${options})
@@ -454,12 +482,20 @@ function (vtk_add_test_mpi exename _tests)
     set(_D "")
     set(_T "")
     set(_V "")
+    set(image_compare_method ${default_image_compare})
     if (local_TESTING_DATA)
       set(_D -D "${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}")
       set(_T -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}")
       set(_V "")
       if (NOT local_NO_VALID)
         set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
+      endif ()
+      if (local_LEGACY_VALID)
+        set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
+      elseif (local_LOOSE_VALID)
+        set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LOOSE_VALID")
+      else ()
+        set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
       endif ()
     endif ()
 
@@ -486,7 +522,7 @@ function (vtk_add_test_mpi exename _tests)
         PROCESSORS "${numprocs}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
         SKIP_REGULAR_EXPRESSION "${_vtk_skip_regex}"
-        ENVIRONMENT "VTK_TESTING"
+        ENVIRONMENT "VTK_TESTING;${image_compare_method}"
         # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h"
         SKIP_RETURN_CODE 125
       )
@@ -610,6 +646,9 @@ Options:
 - ``NO_OUTPUT``
 - ``NO_RT``
 - ``JUST_VALID``
+- ``LEGACY_VALID``
+- ``TIGHT_VALID``
+- ``LOOSE_VALID``
 
 Each argument should be either an option, a test specification, or it is passed
 as flags to all tests declared in the group. The list of tests is set in the
@@ -633,6 +672,12 @@ Options:
    as is, without the use of ExternalData_add_test.
 - ``JUST_VALID``: Only applies when neither ``NO_VALID`` or ``NO_RT`` are present.
   If it is not specified, the test is run via ``vtkmodules.test.rtImageTest``.
+- ``TIGHT_VALID``: Default behavior if legacy image comparison method is turned off by default.
+  The baseline is tested using an euclidian metric, which is sensitive to outliers.
+- ``LOOSE_VALID``: The baseline is tested using an norm-1 metric, which is less sensitive to
+  outliers. It should typically be used when comparing text or when testing rendering that
+  varies a lot depending on the GPU drivers.
+- ``LEGACY_VALID``: Uses legacy image compare metric, which is more forgiving than the new one.
 
 Additional flags may be passed to tests using the ``${_vtk_build_test}_ARGS``
 variable or the ``<NAME>_ARGS`` variable.
@@ -649,6 +694,9 @@ function (vtk_add_test_python)
     NO_RT
     DIRECT_DATA
     JUST_VALID
+    LEGACY_VALID
+    TIGHT_VALID
+    LOOSE_VALID
     )
   _vtk_test_parse_args("${python_options}" "py" ${ARGN})
   _vtk_test_set_options("${python_options}" "" ${options})
@@ -671,6 +719,7 @@ function (vtk_add_test_python)
     set(rtImageTest "")
     set(_B "")
     set(_V "")
+    set(image_compare_method ${default_image_compare})
     if (NOT local_NO_VALID)
       if (local_NO_RT)
         if (local_DIRECT_DATA)
@@ -686,6 +735,13 @@ function (vtk_add_test_python)
         endif()
         if (NOT local_JUST_VALID)
           set(rtImageTest -m "vtkmodules.test.rtImageTest")
+        endif ()
+        if (local_LEGACY_VALID)
+          set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
+        elseif (local_TIGHT_VALID)
+          set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
+        elseif (local_LOOSE_VALID)
+          set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LOOSE_VALID")
         endif ()
       endif ()
     endif ()
@@ -740,7 +796,7 @@ function (vtk_add_test_python)
         LABELS "${_vtk_build_test_labels}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
         SKIP_REGULAR_EXPRESSION "${_vtk_skip_regex}"
-        ENVIRONMENT "VTK_TESTING"
+        ENVIRONMENT "VTK_TESTING;${image_compare_method}"
         # This must match the skip() function in vtk/test/Testing.py"
         SKIP_RETURN_CODE 125
       )
