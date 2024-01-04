@@ -395,14 +395,23 @@ void SetupVTKPythonPaths(bool isolated)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv[])
+bool vtkPythonInterpreter::InitializeWithArgs(
+  int initsigs, int argc, char* argv[], const char* programName)
 {
   bool isolated = vtkPythonPreConfig();
 
   if (Py_IsInitialized() == 0)
   {
-    // guide the mechanism to locate Python standard library, if possible.
-    SetupPythonPrefix(isolated);
+    if (programName)
+    {
+      vtkPythonInterpreter::SetProgramName(programName);
+    }
+    else
+    {
+      // If no program name is specified,
+      // guide the mechanism to locate Python standard library, if possible.
+      SetupPythonPrefix(isolated);
+    }
     bool signals_installed = initsigs != 0;
 
     // Need two copies of args, because programs might modify the first
