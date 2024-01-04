@@ -20,5 +20,6 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
 TEST_DEPENDS
   VTK::IOImage
+  VTK::IOXML
   VTK::ImagingCore
   VTK::TestingCore

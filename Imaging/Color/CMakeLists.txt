@@ -7,7 +7,9 @@ set(classes
   vtkImageQuantizeRGBToIndex
   vtkImageRGBToHSI
   vtkImageRGBToHSV
+  vtkImageRGBToXYZ
   vtkImageRGBToYIQ
+  vtkImageXYZToLAB
   vtkImageYIQToRGB)
 
 vtk_module_add_module(VTK::ImagingColor
