@@ -1,9 +1,11 @@
 vtk_module_test_data(
   Data/ImageDiff1.png
   Data/ImageDiff2.png
+  Data/ImageSSIM.vti
   Data/beach.tif
   Data/fullhead15.png
-  Data/headsq/,REGEX:.*)
+  Data/headsq/,REGEX:.*
+  Data/ssim.vti)
 
 if (NOT vtk_testing_cxx_disabled)
   add_subdirectory(Cxx)

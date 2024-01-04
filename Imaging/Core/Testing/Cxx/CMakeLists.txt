@@ -25,6 +25,7 @@ vtk_add_test_cxx(vtkImagingCoreCxxTests tests
   TestImageProbeFilter.cxx
   TestImageStencilDataMethods.cxx,NO_VALID
   TestImageStencilIterator.cxx,NO_VALID
+  TestImageSSIM.cxx,NO_VALID
   TestStencilWithLasso.cxx
   TestStencilWithPolyDataContour.cxx
   TestStencilWithPolyDataSurface.cxx

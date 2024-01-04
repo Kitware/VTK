@@ -39,6 +39,7 @@ set(classes
   vtkImageStencilData
   vtkImageStencilIterator
   vtkImageStencilSource # Needed by vtkImageStencilData
+  vtkImageSSIM
   vtkImageThreshold
   vtkImageTranslateExtent
   vtkImageWrapPad
