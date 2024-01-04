@@ -99,7 +99,8 @@ def main(test_script):
     try:
         threshold = test_script_vars["threshold"]
     except KeyError:
-        threshold = 0.15
+        # Used to be 0.15. Changed to 0.05 for new SSIM method.
+        threshold = 0.05
 
     # we require a valid regression image
     if rtTester.IsValidImageSpecified():
