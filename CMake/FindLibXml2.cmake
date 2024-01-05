@@ -1,4 +1,4 @@
-# XXX: Copied from CMake, but includes vtkDetectLibraryType and the ICU dependency.
+# XXX: Copied from CMake, but includes vtkDetectLibraryType.
 # See https://gitlab.kitware.com/cmake/cmake/-/issues/18564
 
 #[=======================================================================[.rst:
@@ -106,11 +106,4 @@ if(LibXml2_FOUND AND NOT TARGET LibXml2::LibXml2)
       IMPORTED_LOCATION "${LIBXML2_LIBRARY}"
       IMPORTED_IMPLIB "${LIBXML2_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIRS}")
-
-   find_package(ICU QUIET COMPONENTS uc)
-   if (ICU_FOUND)
-    set_target_properties(LibXml2::LibXml2
-      PROPERTIES
-        IMPORTED_LINK_INTERFACE_LIBRARIES "ICU::uc")
-   endif ()
 endif()
