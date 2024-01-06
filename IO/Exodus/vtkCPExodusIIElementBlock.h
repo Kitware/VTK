@@ -47,6 +47,7 @@ public:
   int GetCellType(vtkIdType cellId);
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds);
   void GetFaceStream(vtkIdType cellId, vtkIdList* ptIds);
+  void GetPolyhedronFaces(vtkIdType cellId, vtkCellArray* faces);
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds);
   int GetMaxCellSize();
   void GetIdsOfCellsOfType(int type, vtkIdTypeArray* array);
@@ -58,8 +59,9 @@ public:
   vtkIdType InsertNextCell(int type, vtkIdList* ptIds);
   vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
     VTK_SIZEHINT(ptIds, npts);
-  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces,
-    const vtkIdType faces[]) VTK_SIZEHINT(ptIds, npts) VTK_SIZEHINT(faces, nfaces);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkCellArray* faces)
+    VTK_SIZEHINT(ptIds, npts);
+
   void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
 protected:

@@ -583,6 +583,7 @@ int vtkCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Now copy the cells.
   vtkNew<vtkIdList> cellPoints;
+  vtkNew<vtkCellArray> cellFaces;
   num = input->GetNumberOfCells();
   output->Allocate(num);
   for (id = 0; id < num; ++id)
@@ -594,8 +595,18 @@ int vtkCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
     // special handling for polyhedron cells
     if (vtkUnstructuredGrid::SafeDownCast(input) && input->GetCellType(id) == VTK_POLYHEDRON)
     {
-      vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(id, cellPoints);
-      vtkUnstructuredGrid::ConvertFaceStreamPointIds(cellPoints, ptMap.data());
+      cellFaces->Reset();
+      vtkUnstructuredGrid::SafeDownCast(input)->GetPolyhedronFaces(id, cellFaces);
+      vtkUnstructuredGrid::ConvertFaceStreamPointIds(cellFaces, ptMap.data());
+      input->GetCellPoints(id, cellPoints);
+      for (int i = 0; i < cellPoints->GetNumberOfIds(); i++)
+      {
+        int cellPtId = cellPoints->GetId(i);
+        newId = ptMap[cellPtId];
+        cellPoints->SetId(i, newId);
+      }
+      output->InsertNextCell(
+        VTK_POLYHEDRON, cellPoints->GetNumberOfIds(), cellPoints->GetPointer(0), cellFaces);
     }
     else
     {
@@ -606,8 +617,8 @@ int vtkCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
         newId = ptMap[cellPtId];
         cellPoints->SetId(i, newId);
       }
+      output->InsertNextCell(input->GetCellType(id), cellPoints);
     }
-    output->InsertNextCell(input->GetCellType(id), cellPoints);
   }
 
   output->Squeeze();

@@ -417,7 +417,7 @@ public:
   // its list of points and the cellId of the 3D cell it belongs to.
   // \pre positive number of points
 
-  void InsertFace(vtkIdType cellId, vtkIdType faceType, int numberOfPoints, vtkIdType* points,
+  void InsertFace(vtkIdType cellId, vtkIdType faceType, int numberOfPoints, const vtkIdType* points,
     int degrees[2], int matchBoundariesIgnoringCellOrder)
   {
     assert("pre: positive number of points" && numberOfPoints >= 0);
@@ -1177,14 +1177,18 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
             break;
           case VTK_POLYHEDRON:
           {
-            vtkIdList* faces = cellIter->GetFaces();
+            vtkCellArray* faces = cellIter->GetCellFaces();
             int nFaces = cellIter->GetNumberOfFaces();
-            for (int face = 0, fptr = 1; face < nFaces; ++face)
+            vtkNew<vtkIdList> tmpIds;
+            for (int face = 0; face < nFaces; ++face)
             {
-              int pt = static_cast<int>(faces->GetId(fptr++));
+              vtkIdType nFacePts;
+              const vtkIdType* fptr;
+              faces->GetCellAtId(face, nFacePts, fptr, tmpIds);
+              int pt = static_cast<int>(nFacePts);
               int degrees[2]{ 0, 0 };
-              this->HashTable->InsertFace(cellId, VTK_POLYGON, pt, faces->GetPointer(fptr), degrees,
-                MatchBoundariesIgnoringCellOrder);
+              this->HashTable->InsertFace(
+                cellId, VTK_POLYGON, pt, fptr, degrees, MatchBoundariesIgnoringCellOrder);
               fptr += pt;
             }
             break;

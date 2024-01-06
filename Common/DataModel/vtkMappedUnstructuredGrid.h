@@ -40,7 +40,7 @@
  * - vtkIdType GetNumberOfCells()
  * - int GetCellType(vtkIdType cellId)
  * - void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
- * - void GetFaceStream(vtkIdType cellId, vtkIdList *ptIds)
+ * - void GetPolyhedronFaces(vtkIdType cellId, vtkCellArray *faces)
  * - void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
  * - int GetMaxCellSize()
  * - void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
@@ -178,8 +178,8 @@ protected:
 
   vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) override;
   vtkIdType InternalInsertNextCell(int type, vtkIdList* ptIds) override;
-  vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
-    vtkIdType nfaces, const vtkIdType faces[]) override;
+  vtkIdType InternalInsertNextCell(
+    int type, vtkIdType npts, const vtkIdType ptIds[], vtkCellArray* faces) override;
   void InternalReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) override;
 
 private:

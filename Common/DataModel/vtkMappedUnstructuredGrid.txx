@@ -3,6 +3,7 @@
 
 #include "vtkMappedUnstructuredGrid.h"
 
+#include "vtkCellArray.h"
 #include "vtkGenericCell.h"
 #include <algorithm>
 
@@ -72,14 +73,13 @@ void vtkMappedUnstructuredGrid<Implementation, CellIterator>::GetCell(
   this->Impl->GetCellPoints(cellId, cell->PointIds);
   this->Points->GetPoints(cell->PointIds, cell->Points);
 
-  cell->SetFaces(nullptr);
   if (cell->RequiresExplicitFaceRepresentation())
   {
-    vtkNew<vtkIdList> faces;
-    this->Impl->GetFaceStream(cellId, faces.GetPointer());
-    if (faces->GetNumberOfIds() != 0)
+    vtkNew<vtkCellArray> faces;
+    this->Impl->GetPolyhedronFaces(cellId, faces);
+    if (faces->GetNumberOfCells() != 0)
     {
-      cell->SetFaces(faces->GetPointer(0));
+      cell->SetCellFaces(faces);
     }
   }
 
@@ -169,9 +169,9 @@ vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>::InternalInser
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
 vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>::InternalInsertNextCell(
-  int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces, const vtkIdType faces[])
+  int type, vtkIdType npts, const vtkIdType ptIds[], vtkCellArray* faces)
 {
-  return this->Impl->InsertNextCell(type, npts, ptIds, nfaces, faces);
+  return this->Impl->InsertNextCell(type, npts, ptIds, faces);
 }
 
 //------------------------------------------------------------------------------

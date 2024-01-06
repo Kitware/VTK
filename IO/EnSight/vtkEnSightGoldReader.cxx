@@ -1976,19 +1976,17 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
         }
 
         // prepare an array of Ids describing the vtkPolyhedron object yyy begin
-        int nodeIndx = 0;                   // indexing the raw array of point Ids
-        int arrayIdx = 0;                   // indexing the new array of Ids
-        vtkIdType* theFaces = new vtkIdType // vtkPolyhedron's info of faces
-          [elementNodeCount + numFacesPerElement[i]];
+        int nodeIndx = 0;              // indexing the raw array of point Ids
+        vtkNew<vtkCellArray> theFaces; // vtkPolyhedron's info of faces
         for (j = 0; j < numFacesPerElement[i]; j++)
         {
           // number of points constituting this face
-          theFaces[arrayIdx++] = numNodesPerFace[faceCount + j];
+          theFaces->InsertNextCell(numNodesPerFace[faceCount + j]);
 
           for (k = 0; k < numNodesPerFace[faceCount + j]; k++)
           {
             // convert EnSight 1-based indexing to VTK 0-based indexing
-            theFaces[arrayIdx++] = intIds[nodeIndx++] - 1;
+            theFaces->InsertCellPoint(intIds[nodeIndx++] - 1);
           }
         }
         // yyy end
@@ -2013,10 +2011,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
         // xxx end
 
         // insert the cell as a vtkPolyhedron object yyy begin
-        cellId = output->InsertNextCell(
-          VTK_POLYHEDRON, elementNodeCount, nodeIds, numFacesPerElement[i], theFaces);
-        delete[] theFaces;
-        theFaces = nullptr;
+        cellId = output->InsertNextCell(VTK_POLYHEDRON, elementNodeCount, nodeIds, theFaces);
         // yyy end
 
         this->GetCellIds(idx, vtkEnSightReader::NFACED)->InsertNextId(cellId);

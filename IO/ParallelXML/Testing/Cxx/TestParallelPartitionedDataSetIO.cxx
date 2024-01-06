@@ -148,39 +148,38 @@ int TestParallelPartitionedDataSetIO(int argc, char* argv[])
   ids->InsertNextId(7);
   ids->InsertNextId(8);
 
-  vtkNew<vtkIdList> faces;
+  vtkNew<vtkCellArray> faces;
   // top face of four points
-  faces->InsertNextId(4);
+  faces->InsertNextCell(4);
 
-  faces->InsertNextId(4);
-  faces->InsertNextId(5);
-  faces->InsertNextId(6);
-  faces->InsertNextId(7);
+  faces->InsertCellPoint(4);
+  faces->InsertCellPoint(5);
+  faces->InsertCellPoint(6);
+  faces->InsertCellPoint(7);
 
   // four triangle side faces, each of three points
-  faces->InsertNextId(3);
-  faces->InsertNextId(4);
-  faces->InsertNextId(5);
-  faces->InsertNextId(8);
+  faces->InsertNextCell(3);
+  faces->InsertCellPoint(4);
+  faces->InsertCellPoint(5);
+  faces->InsertCellPoint(8);
 
-  faces->InsertNextId(3);
-  faces->InsertNextId(5);
-  faces->InsertNextId(6);
-  faces->InsertNextId(8);
+  faces->InsertNextCell(3);
+  faces->InsertCellPoint(5);
+  faces->InsertCellPoint(6);
+  faces->InsertCellPoint(8);
 
-  faces->InsertNextId(3);
-  faces->InsertNextId(6);
-  faces->InsertNextId(7);
-  faces->InsertNextId(8);
+  faces->InsertNextCell(3);
+  faces->InsertCellPoint(6);
+  faces->InsertCellPoint(7);
+  faces->InsertCellPoint(8);
 
-  faces->InsertNextId(3);
-  faces->InsertNextId(7);
-  faces->InsertNextId(4);
-  faces->InsertNextId(8);
+  faces->InsertNextCell(3);
+  faces->InsertCellPoint(7);
+  faces->InsertCellPoint(4);
+  faces->InsertCellPoint(8);
 
   // insert the polyhedron cell
-  ug->InsertNextCell(
-    VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
+  ug->InsertNextCell(VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), faces);
 
   // put another pyramid on the bottom towards the 10th point
   faces->Reset();
@@ -194,37 +193,36 @@ int TestParallelPartitionedDataSetIO(int argc, char* argv[])
   ids->InsertNextId(9);
 
   // bottom face of four points
-  faces->InsertNextId(4);
+  faces->InsertNextCell(4);
 
-  faces->InsertNextId(0);
-  faces->InsertNextId(1);
-  faces->InsertNextId(2);
-  faces->InsertNextId(3);
+  faces->InsertCellPoint(0);
+  faces->InsertCellPoint(1);
+  faces->InsertCellPoint(2);
+  faces->InsertCellPoint(3);
 
   // four side faces, each of three points
-  faces->InsertNextId(3);
-  faces->InsertNextId(0);
-  faces->InsertNextId(1);
-  faces->InsertNextId(9);
+  faces->InsertNextCell(3);
+  faces->InsertCellPoint(0);
+  faces->InsertCellPoint(1);
+  faces->InsertCellPoint(9);
 
-  faces->InsertNextId(3);
-  faces->InsertNextId(1);
-  faces->InsertNextId(2);
-  faces->InsertNextId(9);
+  faces->InsertNextCell(3);
+  faces->InsertCellPoint(1);
+  faces->InsertCellPoint(2);
+  faces->InsertCellPoint(9);
 
-  faces->InsertNextId(3);
-  faces->InsertNextId(2);
-  faces->InsertNextId(3);
-  faces->InsertNextId(9);
+  faces->InsertNextCell(3);
+  faces->InsertCellPoint(2);
+  faces->InsertCellPoint(3);
+  faces->InsertCellPoint(9);
 
-  faces->InsertNextId(3);
-  faces->InsertNextId(3);
-  faces->InsertNextId(0);
-  faces->InsertNextId(9);
+  faces->InsertNextCell(3);
+  faces->InsertCellPoint(3);
+  faces->InsertCellPoint(0);
+  faces->InsertCellPoint(9);
 
   // insert the cell. We now have two pyramids with a cube in between
-  ug->InsertNextCell(
-    VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
+  ug->InsertNextCell(VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), faces);
 
   vtkNew<vtkPartitionedDataSet> pds;
   pds->SetNumberOfPartitions(1);

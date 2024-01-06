@@ -494,6 +494,13 @@ public:
    */
   static void ConvertFaceStreamPointIds(vtkIdType nfaces, vtkIdType* faceStream, vtkIdType* idMap);
 
+  /**
+   * Convert pid in a face stream into idMap[pid]. The face stream is of format
+   * vtkCellArray. The user is responsible to make sure all the Ids
+   * in faceStream do not exceed the range of idMap.
+   */
+  static void ConvertFaceStreamPointIds(vtkCellArray* faces, vtkIdType* idMap);
+
   //====================== Begin Legacy Methods ================================
 
   /**
@@ -571,8 +578,10 @@ protected:
 
   vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) override;
   vtkIdType InternalInsertNextCell(int type, vtkIdList* ptIds) override;
-  vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
-    vtkIdType nfaces, const vtkIdType faces[]) override;
+  vtkIdType InternalInsertNextCell(
+    int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces, const vtkIdType faces[]);
+  vtkIdType InternalInsertNextCell(
+    int type, vtkIdType npts, const vtkIdType pts[], vtkCellArray* faces) override;
   void InternalReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) override;
 
   /**

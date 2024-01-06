@@ -175,15 +175,39 @@ struct GetPolyhedronNPts
   }
 };
 
+template <typename PointType>
+struct InsertNextCellPoints
+{
+  // Insert full cell
+  template <typename CellStateT>
+  vtkIdType operator()(CellStateT& state, const vtkIdType npts, const PointType pts[])
+  {
+    using ValueType = typename CellStateT::ValueType;
+    auto* conn = state.GetConnectivity();
+    auto* offsets = state.GetOffsets();
+
+    const vtkIdType cellId = offsets->GetNumberOfValues() - 1;
+
+    offsets->InsertNextValue(static_cast<ValueType>(conn->GetNumberOfValues() + npts));
+
+    for (vtkIdType i = 0; i < npts; ++i)
+    {
+      conn->InsertNextValue(static_cast<ValueType>(pts[i]));
+    }
+
+    return cellId;
+  }
+};
+
 template <typename FaceIdType>
-struct FetchFacesVisitor
+struct CopyPolyhedronFaces
 {
   template <typename CellStateT>
   void operator()(CellStateT& state, const vtkIdType NumberOfFaces, const FaceIdType* cellFaces,
-    vtkIdList* faceStream)
+    vtkCellArray* faces)
   {
-    vtkIdType loc = 0;
-    faceStream->SetId(0, NumberOfFaces);
+    using ValueType = typename CellStateT::ValueType;
+    using TInsertNextCellPoints = InsertNextCellPoints<ValueType>;
     for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
     {
       const vtkIdType beginOffset = state.GetBeginOffset(cellFaces[faceNum]);
@@ -191,38 +215,29 @@ struct FetchFacesVisitor
       const vtkIdType NumberOfPoints = endOffset - beginOffset;
       const auto cellPoints = state.GetConnectivity()->GetPointer(beginOffset);
 
-      faceStream->SetId(++loc, NumberOfPoints);
-      for (vtkIdType ptIdx = 0; ptIdx < NumberOfPoints; ++ptIdx)
-      {
-        faceStream->SetId(++loc, static_cast<vtkIdType>(cellPoints[ptIdx]));
-      }
+      faces->Visit(TInsertNextCellPoints{}, NumberOfPoints, cellPoints);
     }
   }
 };
 
-struct FetchPolyFacesVisitor
+struct CopyPolyhedronCell
 {
+  // Insert full cell
   template <typename CellStateT>
-  void operator()(
-    CellStateT& state, const vtkIdType cellId, vtkCellArray* faceArray, vtkIdList* faceStream)
+  void operator()(CellStateT& state, const vtkIdType cellId, vtkCellArray* src, vtkCellArray* tgt)
   {
-
     using ValueType = typename CellStateT::ValueType;
-    using TFetchFaces = FetchFacesVisitor<ValueType>;
-
+    using TCopyPolyhedronFaces = CopyPolyhedronFaces<ValueType>;
     const vtkIdType beginOffset = state.GetBeginOffset(cellId);
     const vtkIdType endOffset = state.GetEndOffset(cellId);
     const vtkIdType NumberOfFaces = endOffset - beginOffset;
-
-    if (NumberOfFaces == 0)
-    {
-      return;
-    }
     const auto cellFaces = state.GetConnectivity()->GetPointer(beginOffset);
-    faceArray->Visit(TFetchFaces{}, NumberOfFaces, cellFaces, faceStream);
+
+    src->Visit(TCopyPolyhedronFaces{}, NumberOfFaces, cellFaces, tgt);
   }
 };
-}
+
+} // end anon namespace
 
 //------------------------------------------------------------------------------
 void vtkUnstructuredGridCellIterator::FetchFaces()
@@ -232,17 +247,14 @@ void vtkUnstructuredGridCellIterator::FetchFaces()
     const vtkIdType cellId = this->Cells->GetCurrentCellId();
     vtkIdType nfaces = 0;
     vtkIdType npts = 0;
-    vtkIdType facesSize = 1;
     nfaces = this->PolyFaceLocs->GetCellSize(cellId);
     npts = this->PolyFaceLocs->Visit(GetPolyhedronNPts{}, cellId, this->PolyFaceConn);
-    facesSize += nfaces;
-    facesSize += npts;
-    this->Faces->SetNumberOfIds(facesSize);
-    this->PolyFaceLocs->Visit(FetchPolyFacesVisitor{}, cellId, this->PolyFaceConn, this->Faces);
+    this->Faces->AllocateExact(nfaces, npts);
+    this->PolyFaceLocs->Visit(CopyPolyhedronCell{}, cellId, this->PolyFaceConn, this->Faces);
   }
   else
   {
-    this->Faces->SetNumberOfIds(0);
+    this->Faces->Reset();
   }
 }
 VTK_ABI_NAMESPACE_END

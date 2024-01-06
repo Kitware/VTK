@@ -344,13 +344,10 @@ bool IsConvex(Shape shape)
     }
   }
 
-  vtkNew<vtkIdTypeArray> legacyFaces;
-  polyhedronFaces->ExportLegacyFormat(legacyFaces);
-
   vtkSmartPointer<vtkUnstructuredGrid> ugrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   ugrid->SetPoints(polyhedronPoints);
   ugrid->InsertNextCell(VTK_POLYHEDRON, polyhedronPoints->GetNumberOfPoints(),
-    polyhedronPointsIds.data(), polyhedronFaces->GetNumberOfCells(), legacyFaces->GetPointer(0));
+    polyhedronPointsIds.data(), polyhedronFaces);
 
   vtkPolyhedron* polyhedron = static_cast<vtkPolyhedron*>(ugrid->GetCell(0));
 

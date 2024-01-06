@@ -116,6 +116,14 @@ void vtkCPExodusIIElementBlockImpl::GetFaceStream(
 }
 
 //------------------------------------------------------------------------------
+void vtkCPExodusIIElementBlockImpl::GetPolyhedronFaces(
+  vtkIdType vtkNotUsed(cellId), vtkCellArray* vtkNotUsed(faces))
+{
+  // vtkCPExodusIIElementBlockImpl does not support polyhedra
+  vtkErrorMacro(<< __FUNCTION__ << " is not implemented");
+}
+
+//------------------------------------------------------------------------------
 void vtkCPExodusIIElementBlockImpl::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
   const int targetElement = PointToNode(ptId);
@@ -181,7 +189,7 @@ vtkIdType vtkCPExodusIIElementBlockImpl::InsertNextCell(int, vtkIdType, const vt
 
 //------------------------------------------------------------------------------
 vtkIdType vtkCPExodusIIElementBlockImpl::InsertNextCell(
-  int, vtkIdType, const vtkIdType[], vtkIdType, const vtkIdType[])
+  int, vtkIdType, const vtkIdType[], vtkCellArray*)
 {
   vtkErrorMacro("Read only container.");
   return -1;

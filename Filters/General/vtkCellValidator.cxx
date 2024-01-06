@@ -284,6 +284,24 @@ void Normal(vtkCell* twoDimensionalCell, double* normal)
 
   vtkPolygon::ComputeNormal(twoDimensionalCell->GetPoints(), normal);
 }
+
+struct MappingFunctor
+{
+  template <typename CellStateT>
+  void operator()(CellStateT& state, std::unordered_map<int, int>& node_mapping)
+  {
+
+    using ValueType = typename CellStateT::ValueType;
+    auto* conn = state.GetConnectivity();
+    const vtkIdType nids = conn->GetNumberOfValues();
+    for (vtkIdType i = 0; i < nids; ++i)
+    {
+      ValueType tmp = conn->GetValue(i);
+      conn->SetValue(i, node_mapping.at(tmp));
+    }
+  }
+};
+
 }
 
 //------------------------------------------------------------------------------
@@ -312,8 +330,6 @@ bool vtkCellValidator::Convex(vtkCell* cell, double vtkNotUsed(tolerance))
       {
         polyhedronFaces->InsertNextCell(cell->GetFace(i));
       }
-      vtkNew<vtkIdTypeArray> faceBuffer;
-      polyhedronFaces->ExportLegacyFormat(faceBuffer);
 
       // Explanation of the mapping with an example of a cell containing 3 points:
       // The input is:
@@ -341,22 +357,11 @@ bool vtkCellValidator::Convex(vtkCell* cell, double vtkNotUsed(tolerance))
       }
 
       // update the face ids
-      vtkIdType cpt = 0;
-      for (vtkIdType i = 0; i < faces_n; i++)
-      {
-        vtkIdType face_point_n = faceBuffer->GetPointer(0)[cpt];
-        cpt++;
-        for (vtkIdType j = 0; j < face_point_n; j++)
-        {
-          faceBuffer->GetPointer(0)[cpt] = node_mapping.at(faceBuffer->GetPointer(0)[cpt]);
-          cpt++;
-        }
-      }
+      polyhedronFaces->Visit(MappingFunctor{}, node_mapping);
 
       vtkNew<vtkUnstructuredGrid> ugrid;
       ugrid->SetPoints(cell->GetPoints());
-      ugrid->InsertNextCell(
-        VTK_POLYHEDRON, points_n, polyhedron_pointIds.data(), faces_n, faceBuffer->GetPointer(0));
+      ugrid->InsertNextCell(VTK_POLYHEDRON, points_n, polyhedron_pointIds.data(), polyhedronFaces);
 
       vtkPolyhedron* polyhedron = vtkPolyhedron::SafeDownCast(ugrid->GetCell(0));
       return polyhedron->IsConvex();

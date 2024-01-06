@@ -7188,7 +7188,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
 {
   // Scratch arrays
   vtkFoamStackVector<vtkIdType, 256> cellPoints;  // For inserting primitive cell points
-  vtkFoamStackVector<vtkIdType, 1024> polyPoints; // For inserting polyhedral faces and sizes
+  vtkFoamStackVector<vtkIdType, 256> polyOffsets; // For inserting polyhedral faces offsets
+  vtkFoamStackVector<vtkIdType, 1024> polyPoints; // For inserting polyhedral faces
   vtkFoamLabelListList::CellType cellFaces;       // For analyzing cell types (shapes)
   vtkFoamLabelListList::CellType facePoints;      // For processing individual cell faces
 
@@ -7918,12 +7919,14 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
 
         cellPoints.copy_resize(0);
         polyPoints.copy_resize(0);
+        polyOffsets.copy_resize(0);
         cellPoints.copy_reserve(nPolyPoints / 3);
-        polyPoints.copy_reserve(nPolyPoints + cellFaces.size());
+        polyPoints.copy_reserve(nPolyPoints);
+        polyOffsets.copy_reserve(cellFaces.size() + 1);
 
         size_t nCellPoints = 0;
         nPolyPoints = 0; // Reset
-
+        polyOffsets[0] = 0;
         for (size_t facei = 0; facei < cellFaces.size(); ++facei)
         {
           const vtkTypeInt64 cellFacei = cellFaces[facei];
@@ -7935,8 +7938,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
 
           // Pass 1: add face points, and mark up duplicates on the way
 
-          polyPoints.copy_resize(nPolyPoints + nFacePoints + 1);
-          polyPoints[nPolyPoints++] = static_cast<vtkIdType>(nFacePoints);
+          polyPoints.copy_resize(nPolyPoints + nFacePoints);
+          polyOffsets[facei + 1] = polyOffsets[facei] + static_cast<vtkIdType>(nFacePoints);
 
           if (!nFacePoints)
           {
@@ -8000,10 +8003,16 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             }
           }
         }
+        vtkNew<vtkIdTypeArray> offsets;
+        vtkNew<vtkIdTypeArray> connectivity;
+        vtkNew<vtkCellArray> faces;
+        offsets->SetArray(polyOffsets.data(), cellFaces.size() + 1, 1);
+        connectivity->SetArray(polyPoints.data(), nPolyPoints, 1);
+        faces->SetData(offsets, connectivity);
 
         // Create the poly cell and insert it into the mesh
-        internalMesh->InsertNextCell(VTK_POLYHEDRON, static_cast<vtkIdType>(nCellPoints),
-          cellPoints.data(), static_cast<vtkIdType>(cellFaces.size()), polyPoints.data());
+        internalMesh->InsertNextCell(
+          VTK_POLYHEDRON, static_cast<vtkIdType>(nCellPoints), cellPoints.data(), faces);
       }
     }
   }

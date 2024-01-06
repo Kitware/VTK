@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkUnstructuredGridBase.h"
 
+#include "vtkCellArray.h"
 #include "vtkCellIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -26,8 +27,7 @@ void vtkUnstructuredGridBase::DeepCopy(vtkDataObject* src)
     for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
       this->InsertNextCell(cellIter->GetCellType(), cellIter->GetNumberOfPoints(),
-        cellIter->GetPointIds()->GetPointer(0), cellIter->GetNumberOfFaces(),
-        cellIter->GetFaces()->GetPointer(1));
+        cellIter->GetPointIds()->GetPointer(0), cellIter->GetCellFaces());
     }
   }
 }
@@ -58,9 +58,23 @@ vtkIdType vtkUnstructuredGridBase::InsertNextCell(int type, vtkIdList* ptIds)
 
 //------------------------------------------------------------------------------
 vtkIdType vtkUnstructuredGridBase::InsertNextCell(
+  int type, vtkIdType npts, const vtkIdType pts[], vtkCellArray* faces)
+{
+  return this->InternalInsertNextCell(type, npts, pts, faces);
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkUnstructuredGridBase::InsertNextCell(
   int type, vtkIdType npts, const vtkIdType pts[], vtkIdType nfaces, const vtkIdType faces[])
 {
-  return this->InternalInsertNextCell(type, npts, pts, nfaces, faces);
+  vtkIdType size = 0;
+  vtkNew<vtkCellArray> convert;
+  for (vtkIdType count = 0; count < nfaces; ++count)
+  {
+    size += faces[size] + 1;
+  }
+  convert->ImportLegacyFormat(faces, size);
+  return this->InternalInsertNextCell(type, npts, pts, convert);
 }
 
 //------------------------------------------------------------------------------

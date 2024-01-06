@@ -557,6 +557,47 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
 }
 
 //------------------------------------------------------------------------------
+// Insert/create cell in object by type and list of point and face ids
+// defining cell topology. This method is meant for face-explicit cells (e.g.
+// polyhedron).
+vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
+  int type, vtkIdType npts, const vtkIdType pts[], vtkCellArray* faces)
+{
+  if (type != VTK_POLYHEDRON)
+  {
+    return this->InsertNextCell(type, npts, pts);
+  }
+  // Insert connectivity (points that make up polyhedron)
+  this->Connectivity->InsertNextCell(npts, pts);
+
+  // Now insert faces; allocate storage if necessary.
+  // We defer allocation for the faces because they are not commonly used and
+  // we only want to allocate when necessary.
+  if (!this->Faces)
+  {
+    this->Faces = vtkSmartPointer<vtkCellArray>::New();
+    this->Faces->Allocate(this->Types->GetSize());
+    this->FaceLocations = vtkSmartPointer<vtkCellArray>::New();
+    this->FaceLocations->Allocate(this->Types->GetSize());
+    // FaceLocations must be padded until the current position
+    for (vtkIdType i = 0; i <= this->Types->GetMaxId(); i++)
+    {
+      this->FaceLocations->InsertNextCell(0);
+    }
+  }
+  vtkIdType nfaces = faces->GetNumberOfCells();
+  vtkIdType faceId = this->Faces->GetNumberOfCells();
+  this->FaceLocations->InsertNextCell(nfaces);
+  for (int faceNum = 0; faceNum < nfaces; ++faceNum)
+  {
+    this->FaceLocations->InsertCellPoint(faceId++);
+  }
+  this->Faces->Append(faces); // all faces
+
+  return this->Types->InsertNextValue(static_cast<unsigned char>(type));
+}
+
+//------------------------------------------------------------------------------
 int vtkUnstructuredGrid::InitializeFacesRepresentation(vtkIdType numPrevCells)
 {
   if (this->Faces || this->FaceLocations)
@@ -1498,8 +1539,7 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
     for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
       this->InsertNextCell(cellIter->GetCellType(), cellIter->GetNumberOfPoints(),
-        cellIter->GetPointIds()->GetPointer(0), cellIter->GetNumberOfFaces(),
-        cellIter->GetFaces()->GetPointer(1));
+        cellIter->GetPointIds()->GetPointer(0), cellIter->GetCellFaces());
     }
 
     if (isNewAlloc)
@@ -2175,6 +2215,32 @@ void vtkUnstructuredGrid::ConvertFaceStreamPointIds(
       idPtr++;
     }
   }
+}
+//------------------------------------------------------------------------------
+// Helper
+namespace
+{
+struct ConvertVisitor
+{
+  // Insert full cell
+  template <typename CellStateT>
+  void operator()(CellStateT& state, vtkIdType* idMap)
+  {
+    using ValueType = typename CellStateT::ValueType;
+    auto* conn = state.GetConnectivity();
+    const vtkIdType nids = conn->GetNumberOfValues();
+    for (vtkIdType i = 0; i < nids; ++i)
+    {
+      ValueType tmp = conn->GetValue(i);
+      conn->SetValue(i, idMap[tmp]);
+    }
+  }
+};
+}
+//------------------------------------------------------------------------------
+void vtkUnstructuredGrid::ConvertFaceStreamPointIds(vtkCellArray* faces, vtkIdType* idMap)
+{
+  faces->Visit(ConvertVisitor{}, idMap);
 }
 
 //------------------------------------------------------------------------------
