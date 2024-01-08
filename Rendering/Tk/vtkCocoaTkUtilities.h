@@ -24,7 +24,6 @@
 
 #include "vtkObject.h"
 
-VTK_ABI_NAMESPACE_BEGIN
 struct Tk_Window_;
 
 class vtkCocoaTkUtilities : public vtkObject
@@ -49,6 +48,5 @@ private:
   void operator=(const vtkCocoaTkUtilities&) = delete;
 };
 
-VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkCocoaTkUtilities.h

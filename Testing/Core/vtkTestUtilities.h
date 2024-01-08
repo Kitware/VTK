@@ -33,6 +33,8 @@
 #pragma warning(disable : 4996) // 'function': was declared deprecated
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkAbstractArray;
 class vtkDataObject;
 class vtkDataSet;
@@ -41,7 +43,6 @@ class vtkPartitionedDataSetCollection;
 class vtkCompositeDataSet;
 class vtkUnsignedCharArray;
 
-VTK_ABI_NAMESPACE_BEGIN
 struct VTKTESTINGCORE_EXPORT vtkTestUtilities
 {
   /**

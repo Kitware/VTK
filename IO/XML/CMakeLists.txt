@@ -54,7 +54,4 @@ set(classes
 
 vtk_module_add_module(VTK::IOXML
   CLASSES ${classes})
-vtk_add_test_mangling(VTK::IOXML
-  # Ignore mangling for the C API
-  EXEMPTIONS
-    vtkXMLWriterC_)
+vtk_add_test_mangling(VTK::IOXML)

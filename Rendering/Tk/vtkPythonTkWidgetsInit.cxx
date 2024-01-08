@@ -11,7 +11,6 @@
 //------------------------------------------------------------------------------
 // Vtkrenderingtk_Init
 // Called upon system startup to create the widget commands.
-VTK_ABI_NAMESPACE_BEGIN
 extern "C"
 {
   VTK_EXPORT int Vtkrenderingtk_Init(Tcl_Interp* interp);
@@ -45,4 +44,3 @@ int Vtkrenderingtk_Init(Tcl_Interp* interp)
     return TCL_ERROR;
   }
 }
-VTK_ABI_NAMESPACE_END

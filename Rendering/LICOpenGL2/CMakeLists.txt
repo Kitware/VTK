@@ -36,6 +36,8 @@ set(shader_cxx_files)
 foreach (shader_file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${shader_file}"
+    EXPORT_HEADER "vtkRenderingLICOpenGL2Module.h"
+    EXPORT_SYMBOL "VTKRENDERINGLICOPENGL2_NO_EXPORT"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND shader_cxx_files ${source})

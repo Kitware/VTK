@@ -12,16 +12,12 @@
 // #include "tkInt.h"
 #ifdef _WIN32
 #ifdef  __cplusplus
-VTK_ABI_NAMESPACE_BEGIN
 extern "C"
 {
-VTK_ABI_NAMESPACE_END
 #endif
 #include "tkWinInt.h"
 #ifdef  __cplusplus
-VTK_ABI_NAMESPACE_BEGIN
 }
-VTK_ABI_NAMESPACE_END
 #endif
 #endif
 

@@ -19,6 +19,8 @@
 #include "vtkObject.h"
 #include "vtkVersionMacros.h" // For version macros
 
+#define GetVTKVersion VTK_ABI_NAMESPACE_MANGLE(GetVTKVersion)
+
 VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkVersion : public vtkObject
 {
@@ -48,10 +50,11 @@ private:
   void operator=(const vtkVersion&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
+
 extern "C"
 {
   VTKCOMMONCORE_EXPORT const char* GetVTKVersion();
 }
 
-VTK_ABI_NAMESPACE_END
 #endif

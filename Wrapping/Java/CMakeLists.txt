@@ -277,3 +277,8 @@ install(
 if (VTK_BUILD_TESTING AND TARGET VTK::TestingRendering)
   add_subdirectory(Testing)
 endif ()
+
+if (NOT VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" AND NOT DEFINED ENV{CI})
+  message(WARNING "Wrappings::Java ABI does not not support the VTK_ABI_NAMESPACE_NAME "
+                  "and the symbols will not be mangled.")
+endif ()

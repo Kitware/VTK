@@ -10,6 +10,7 @@
         { "group": "master", "site": "gitlab-ci", "buildname": "[fedora34_mpi_ospray_python_qt_tbb]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "[fedora34_mpi_python_qt_stdthread]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "[fedora34_mpi_python_qt_tbb]" },
+        { "group": "master", "site": "gitlab-ci", "buildname": "[fedora34_mpi_python_qt_tbb_mangling]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "[fedora34_mpi_python_qt_tbb_ext_vtk]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "[fedora34_mpi_python_qt_tbb_tidy]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "[fedora34_mpi_python_vtkmoverride]" },

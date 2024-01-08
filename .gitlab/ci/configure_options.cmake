@@ -90,3 +90,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "ospray")
 else ()
   set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "")
 endif ()
+
+# Mangling
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "mangling")
+  set(VTK_ABI_NAMESPACE_NAME "vtk_mangle_test" CACHE STRING "")
+endif()

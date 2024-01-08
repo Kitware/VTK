@@ -5,6 +5,7 @@
 #include "vtkIdList.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
 //------------------------------------------------------------------------------
 vtkAbstractCellArray::vtkAbstractCellArray() = default;
 
@@ -23,3 +24,5 @@ void vtkAbstractCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize,
 {
   this->GetCellAtId(cellId, cellSize, cellPoints, this->TempCell);
 }
+
+VTK_ABI_NAMESPACE_END

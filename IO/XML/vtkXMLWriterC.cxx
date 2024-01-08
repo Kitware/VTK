@@ -24,16 +24,19 @@
 
 // Function to allocate a vtkDataArray and point it at the given data.
 // The data are not copied.
+#define vtkXMLWriterC_NewDataArray VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_NewDataArray)
 static vtkSmartPointer<vtkDataArray> vtkXMLWriterC_NewDataArray(const char* method,
   const char* name, int dataType, void* data, vtkIdType numTuples, int numComponents);
 
 // Function to allocate a vtkCellArray and point it at the given
 // cells.  The cells are not copied.
+#define vtkXMLWriterC_NewCellArray VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_NewCellArray)
 static vtkSmartPointer<vtkCellArray> vtkXMLWriterC_NewCellArray(
   const char* method, vtkIdType ncells, vtkIdType* cells, vtkIdType cellsSize);
 
 // Function to implement vtkXMLWriterC_SetPointData and
 // vtkXMLWriterC_SetCellData without duplicate code.
+#define vtkXMLWriterC_SetDataInternal VTK_ABI_NAMESPACE_MANGLE(vtkXMLWriterC_SetDataInternal)
 static void vtkXMLWriterC_SetDataInternal(vtkXMLWriterC* self, const char* name, int dataType,
   void* data, vtkIdType numTuples, int numComponents, const char* role, const char* method,
   int isPoints);

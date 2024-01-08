@@ -31,6 +31,8 @@
 #include <boost/serialization/extended_type_info_no_rtti.hpp>
 #include <boost/serialization/split_free.hpp>
 
+VTK_ABI_NAMESPACE_BEGIN
+
 //----------------------------------------------------------------------------
 // vtkStdString serialization code
 //----------------------------------------------------------------------------
@@ -144,7 +146,11 @@ void load(Archiver& ar, vtkVariant& variant, const unsigned int vtkNotUsed(versi
 #undef VTK_VARIANT_LOAD
 }
 
+VTK_ABI_NAMESPACE_END
+
 BOOST_SERIALIZATION_SPLIT_FREE(vtkVariant)
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
 // vtkVariantArray serialization code
@@ -198,6 +204,8 @@ void load(Archiver& ar, vtkVariantArray& array, const unsigned int vtkNotUsed(ve
     array.SetValue(i, value);
   }
 }
+
+VTK_ABI_NAMESPACE_END
 
 BOOST_SERIALIZATION_SPLIT_FREE(vtkVariantArray)
 

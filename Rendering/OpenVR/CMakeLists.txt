@@ -13,6 +13,8 @@ set(classes
 
 vtk_encode_string(
   INPUT         "OpenVRDashboard.jpg"
+  EXPORT_HEADER "vtkRenderingOpenVRModule.h"
+  EXPORT_SYMBOL "VTKRENDERINGOPENVR_NO_EXPORT"
   HEADER_OUTPUT dashboard_header
   SOURCE_OUTPUT dashboard_source
   BINARY)

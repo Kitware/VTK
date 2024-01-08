@@ -300,6 +300,27 @@ fedora34-mpi-python-qt-stdthread:test:
     needs:
         - fedora34-mpi-python-qt-tbb:build
 
+fedora34-mangling:build:
+    extends:
+        - .fedora34_mangling
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    timeout: 90 minutes
+
+fedora34-mangling:test:
+    extends:
+        - .fedora34_mangling
+        - .cmake_test_linux
+        - .linux_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - fedora34-mangling:build
+    needs:
+        - fedora34-mangling:build
+
 fedora34-mpi-python-vtkmoverride:build:
     extends:
         - .fedora34_mpi_python_vtkmoverride

@@ -91,12 +91,20 @@ private:
   int LogVerbosity;
 };
 
+// Wrap the input as an argument, this will force expansion
+// if the input is a macro itself
+#define _vtkGetSymbolNameAsString(x) _vtkGetSymbolNameAsString_I((x))
+// Unwrap the expanded input
+#define _vtkGetSymbolNameAsString_I(x) _vtkGetSymbolNameAsString_II x
+// Stringify the epanded contents
+#define _vtkGetSymbolNameAsString_II(...) #__VA_ARGS__
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define vtkGetLibraryPathForSymbol(function)                                                       \
   vtkResourceFileLocator::GetLibraryPathForSymbolWin32(reinterpret_cast<const void*>(&function))
 #else
 #define vtkGetLibraryPathForSymbol(function)                                                       \
-  vtkResourceFileLocator::GetLibraryPathForSymbolUnix(#function)
+  vtkResourceFileLocator::GetLibraryPathForSymbolUnix(_vtkGetSymbolNameAsString(function))
 #endif
 
 VTK_ABI_NAMESPACE_END

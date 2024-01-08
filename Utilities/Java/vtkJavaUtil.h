@@ -11,7 +11,6 @@
 
 #include <string>
 
-VTK_ABI_NAMESPACE_BEGIN
 extern VTKJAVA_EXPORT void* vtkJavaGetPointerFromObject(JNIEnv* env, jobject obj);
 extern VTKJAVA_EXPORT char* vtkJavaUTF8ToChars(JNIEnv* env, jbyteArray bytes, jint length);
 extern VTKJAVA_EXPORT std::string vtkJavaUTF8ToString(JNIEnv* env, jbyteArray bytes, jint length);
@@ -62,6 +61,5 @@ protected:
   ~vtkJavaCommand();
 };
 
-VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkJavaUtil.h

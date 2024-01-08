@@ -18,6 +18,8 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
+
 static constexpr char BTS_HEADER[] = "ENGYS binary surface format";
 
 vtkStandardNewMacro(vtkBTSReader);
@@ -407,3 +409,5 @@ vtkResourceStream* vtkBTSReader::GetStream()
 {
   return this->Stream;
 }
+
+VTK_ABI_NAMESPACE_END

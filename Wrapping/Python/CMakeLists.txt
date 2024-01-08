@@ -239,6 +239,11 @@ if (NOT BUILD_SHARED_LIBS)
     COMPONENT   "python")
 endif ()
 
+if (NOT VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" AND NOT DEFINED ENV{CI})
+  message(WARNING "Wrappings::Python ABI does not not support the VTK_ABI_NAMESPACE_NAME "
+                  "and the symbols will not be mangled.")
+endif ()
+
 add_custom_target(vtk_python_copy ALL
   DEPENDS
     ${python_copied_modules}
