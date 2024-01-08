@@ -118,7 +118,7 @@ int TestAnariShadows(int argc, char* argv[])
 
   if (extensions.ANARI_KHR_AREA_LIGHTS)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 1.0);
+    int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

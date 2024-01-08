@@ -164,7 +164,7 @@ int TestTanglegramItem(int argc, char* argv[])
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renderWindow, 100);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindow->Render();

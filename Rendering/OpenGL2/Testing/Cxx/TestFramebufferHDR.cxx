@@ -117,7 +117,7 @@ int TestFramebufferHDR(int argc, char* argv[])
     renderWindow->Render();
   }
 
-  int retVal = vtkRegressionTestImageThreshold(renderWindow, 15);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

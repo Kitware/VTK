@@ -46,7 +46,7 @@ int TestTemporalInterpolator(int argc, char* argv[])
   renWin->Render();
   renderer->GetActiveCamera()->Elevation(90);
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 10);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

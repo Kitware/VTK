@@ -274,7 +274,7 @@ int TestSphereWidgetZoomInOut(int argc, char* argv[])
   recorder->Off();
   renWin->Render();
 
-  // int retVal = vtkRegressionTestImageThreshold(renWin, 70);
+  // int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
   int retVal = vtkRegressionTestImage(renWin);
 
   iren->Start();

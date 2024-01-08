@@ -144,7 +144,7 @@ int TestCompositePolyDataMapper2SharedArray(int argc, char* argv[])
 
   renderer->ResetCamera();
 
-  int retVal = vtkRegressionTestImageThreshold(renderWindow, 15);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     interactor->Start();

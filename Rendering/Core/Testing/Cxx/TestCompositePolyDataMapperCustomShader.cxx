@@ -147,7 +147,7 @@ int TestCompositePolyDataMapperCustomShader(int argc, char* argv[])
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 15);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

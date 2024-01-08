@@ -181,7 +181,7 @@ int TestCompositePolyDataMapperMixedGeometryEdges(int argc, char* argv[])
     cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
   }
 
-  int retVal = vtkRegressionTestImageThreshold(win.GetPointer(), 15);
+  int retVal = vtkRegressionTestImageThreshold(win.GetPointer(), 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

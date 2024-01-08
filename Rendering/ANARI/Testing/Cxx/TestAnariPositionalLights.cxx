@@ -152,7 +152,7 @@ int TestAnariPositionalLights(int argc, char* argv[])
 
   if (extensions.ANARI_KHR_LIGHT_SPOT)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 1.0);
+    int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

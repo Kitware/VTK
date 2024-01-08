@@ -334,7 +334,7 @@ int TestGPURayCastClippingUserTransform(int argc, char* argv[])
   iren->Initialize();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 70);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

@@ -118,7 +118,7 @@ int TestHyperTreeGridTernary3DThresholdMaterialImplicit(int argc, char* argv[])
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 115);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

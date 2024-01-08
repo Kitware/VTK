@@ -77,7 +77,7 @@ int TestSpherePoints(int argc, char* argv[])
   renderer->ResetCameraClippingRange();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.5);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

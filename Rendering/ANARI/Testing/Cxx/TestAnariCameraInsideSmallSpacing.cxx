@@ -1106,7 +1106,7 @@ int TestAnariCameraInsideSmallSpacing(int argc, char* argv[])
     recorder->Play();
     recorder->Off();
 
-    int retVal = vtkRegressionTestImageThreshold(renWin, 1.0);
+    int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
     return !retVal;
   }
 

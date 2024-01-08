@@ -174,7 +174,7 @@ int TestWin32OpenGLDXRenderWindow(int argc, char* argv[])
   Render(d3dDeviceContext, d3DRenderTargetView, d3dFramebufferTexture, d3dSwapChain, renderWindow);
 
   renderWindow->Lock();
-  int retVal = vtkRegressionTestImageThreshold(renderWindow, 15);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   renderWindow->Unlock();
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

@@ -89,7 +89,7 @@ int TestAnariOrthographic(int argc, char* argv[])
   camera->SetParallelProjection(1);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 1.0);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

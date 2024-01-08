@@ -179,7 +179,7 @@ int TestAnariStereo(int argc, char* argv[])
   camera->SetViewAngle(30.0);
 
   renwin->Render();
-  int retVal = vtkRegressionTestImageThreshold(renwin, 50.0);
+  int retVal = vtkRegressionTestImageThreshold(renwin, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

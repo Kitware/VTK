@@ -96,7 +96,7 @@ int TestTStripsNormalsColorsTCoords(int argc, char* argv[])
   interactor->Initialize();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 18);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     interactor->Start();

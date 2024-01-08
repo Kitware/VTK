@@ -140,7 +140,7 @@ int TestAnariMultiBlockPartialArrayFieldData(int argc, char* argv[])
   ren->ResetCamera();
   win->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(win, 1.0);
+  int retVal = vtkRegressionTestImageThreshold(win, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
