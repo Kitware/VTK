@@ -14,7 +14,7 @@ namespace detail
 namespace smp
 {
 VTK_ABI_NAMESPACE_BEGIN
-static int specifiedNumThreads = 0;
+static int specifiedNumThreads; // Default initialized to zero
 
 //------------------------------------------------------------------------------
 int GetNumberOfThreadsSTDThread()

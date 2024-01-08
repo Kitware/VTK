@@ -15,8 +15,31 @@ namespace detail
 namespace smp
 {
 VTK_ABI_NAMESPACE_BEGIN
-static int specifiedNumThreads = 0;
-static std::stack<int> threadIdStack;
+static int specifiedNumThreads; // Default initialized to zero
+static std::stack<int>* threadIdStack;
+
+//------------------------------------------------------------------------------
+// Must NOT be initialized. Default initialization to zero is necessary.
+unsigned int vtkSMPToolsImplOpenMPInitializeCount;
+
+//------------------------------------------------------------------------------
+vtkSMPToolsImplOpenMPInitialize::vtkSMPToolsImplOpenMPInitialize()
+{
+  if (++vtkSMPToolsImplOpenMPInitializeCount == 1)
+  {
+    threadIdStack = new std::stack<int>;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkSMPToolsImplOpenMPInitialize::~vtkSMPToolsImplOpenMPInitialize()
+{
+  if (--vtkSMPToolsImplOpenMPInitializeCount == 0)
+  {
+    delete threadIdStack;
+    threadIdStack = nullptr;
+  }
+}
 
 //------------------------------------------------------------------------------
 template <>
