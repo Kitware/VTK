@@ -161,11 +161,29 @@ public:
 
   /**
    * Return interaction state for the specified device (dolly, pick, none, etc...).
+   *
+   * \sa SetInteractionState()
    */
   int GetInteractionState(vtkEventDataDevice device)
   {
+    int deviceIndex = static_cast<int>(device);
+    if (deviceIndex < 0 || deviceIndex >= vtkEventDataNumberOfDevices)
+    {
+      // Since VTKIS_*STATE* are expected to be >= VTKIS_NONE with VTKIS_NONE == 0,
+      // return -1 if device is invalid.
+      return -1;
+    }
     return this->InteractionState[static_cast<int>(device)];
   }
+
+  /**
+   * Set interaction state for the specified device (dolly, pick, none, etc...).
+   *
+   * This method **does not** call `this->Modified()`.
+   *
+   * \sa GetInteractionState()
+   */
+  void SetInteractionState(vtkEventDataDevice device, int state);
 
   ///@{
   /**

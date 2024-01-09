@@ -1041,6 +1041,17 @@ void vtkVRInteractorStyle::EndAction(int state, vtkEventDataDevice3D* edata)
 }
 
 //------------------------------------------------------------------------------
+void vtkVRInteractorStyle::SetInteractionState(vtkEventDataDevice device, int state)
+{
+  int deviceIndex = static_cast<int>(device);
+  if (deviceIndex < 0 || deviceIndex >= vtkEventDataNumberOfDevices || state < VTKIS_NONE)
+  {
+    return;
+  }
+  this->InteractionState[static_cast<int>(device)] = state;
+}
+
+//------------------------------------------------------------------------------
 void vtkVRInteractorStyle::AddTooltipForInput(
   vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text)
 {
