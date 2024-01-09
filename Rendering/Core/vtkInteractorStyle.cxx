@@ -1465,6 +1465,10 @@ void vtkInteractorStyle::ProcessEvents(
       }
       break;
 
+      // When adding or removing support for 3D events, consider
+      // also updating:
+      // - vtkCommand::EventHasData()
+      // - vtkCommand macro `vtkEventDeclarationMacro`
       vtkISEventDataMacro(Move3D);
       vtkISEventDataMacro(Button3D);
       vtkISEventDataMacro(Menu3D);
