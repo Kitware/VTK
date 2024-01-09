@@ -73,7 +73,7 @@ void vtkSMPToolsAPI::ClassInitialize()
 void vtkSMPToolsAPI::ClassFinalize()
 {
   delete vtkSMPToolsAPIInstanceAsPointer;
-  vtkSMPToolsAPIInstanceAsPointer = 0;
+  vtkSMPToolsAPIInstanceAsPointer = nullptr;
 }
 
 //------------------------------------------------------------------------------
