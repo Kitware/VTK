@@ -50,7 +50,20 @@ public:
   void AddAction(const std::string& path, const vtkCommand::EventIds&);
   void AddAction(const std::string& path, const std::function<void(vtkEventData*)>&);
   ///@}
-  // add an event action
+
+  ///@{
+  /**
+   * Assign an event or std::function to an event path
+   *
+   * \note
+   * The \a isAnalog parameter is ignored; these signatures are intended to satisfy
+   * the base class interface and are functionally equivalent to calling the AddAction()
+   * function without it.
+   */
+  void AddAction(const std::string& path, const vtkCommand::EventIds&, bool isAnalog) override;
+  void AddAction(
+    const std::string& path, bool isAnalog, const std::function<void(vtkEventData*)>&) override;
+  ///@}
 
   void ConvertOpenXRPoseToWorldCoordinates(const XrPosef& xrPose,
     double pos[3],   // Output world position

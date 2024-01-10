@@ -342,7 +342,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkVRRenderWindow* renWin, vtkR
 
 //------------------------------------------------------------------------------
 void vtkOpenVRRenderWindowInteractor::AddAction(
-  std::string path, vtkCommand::EventIds eid, bool isAnalog)
+  const std::string& path, const vtkCommand::EventIds& eid, bool isAnalog)
 {
   // Path example: "/user/hand/right/input/trackpad"
   auto& am = this->ActionMap[path];
@@ -357,7 +357,7 @@ void vtkOpenVRRenderWindowInteractor::AddAction(
 
 //------------------------------------------------------------------------------
 void vtkOpenVRRenderWindowInteractor::AddAction(
-  std::string path, bool isAnalog, std::function<void(vtkEventData*)> func)
+  const std::string& path, bool isAnalog, const std::function<void(vtkEventData*)>& func)
 {
   // Path example: "/user/hand/right/input/trackpad"
   auto& am = this->ActionMap[path];
