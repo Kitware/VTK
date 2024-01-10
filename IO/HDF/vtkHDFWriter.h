@@ -223,17 +223,20 @@ private:
    * without hierarchy.
    */
   bool AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pdc);
-  bool AppendBlocks(hid_t group, vtkMultiBlockDataSet* mb);
   ///@}
 
-  ///@{
   /**
-   * Add the given assembly to the specified group
+   * Add the assembly associated to the given PDC to the specified group
    * Individual blocks need to be added to the file beforehand.
    */
   bool AppendAssembly(hid_t group, vtkPartitionedDataSetCollection* pdc);
-  bool AppendAssembly(hid_t group, vtkMultiBlockDataSet* mb, int& datasetCount);
-  ///@}
+
+  /**
+   * Append assembly and blocks of a multiblock dataset to the selected HDF5 group (usually root).
+   * datasetCount needs to be initialized to 0 beforehand. It is used to track the number of
+   * datasets during recursion.
+   */
+  bool AppendMultiblock(hid_t group, vtkMultiBlockDataSet* mb, int& datasetCount);
 
   /**
    * Append the offset data in the steps group for the current array for transient data

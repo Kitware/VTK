@@ -497,7 +497,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     for (int i = 0; i < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++i)
     {
       this->DataArraySelection[i]->RemoveAllArrays();
-      std::vector<std::string> arrayNames = this->Impl->GetArrayNames(i);
+      const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(i);
       for (const std::string& arrayName : arrayNames)
       {
         this->DataArraySelection[i]->AddArray(arrayName.c_str());
@@ -732,7 +732,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
 //------------------------------------------------------------------------------
 int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
 {
-  std::vector<std::string> names = this->Impl->GetArrayNames(vtkDataObject::FIELD);
+  const std::vector<std::string> names = this->Impl->GetArrayNames(vtkDataObject::FIELD);
   for (const std::string& name : names)
   {
     vtkSmartPointer<vtkAbstractArray> array;
@@ -861,7 +861,7 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   // field arrays are only read on node 0
   for (int attributeType = 0; attributeType < vtkDataObject::FIELD; ++attributeType)
   {
-    std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
+    const std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
     for (const std::string& name : names)
     {
       if (this->DataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
@@ -1126,7 +1126,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     std::vector<vtkIdType> numberOf = { numberOfPoints[filePiece], accumulatedNumberOfCells };
     for (int attributeType = 0; attributeType < vtkDataObject::FIELD; ++attributeType)
     {
-      std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
+      const std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
       for (const std::string& name : names)
       {
         if (this->DataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
@@ -1189,7 +1189,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
 }
 
 //------------------------------------------------------------------------------
-int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection* pdc)
+int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSetCollection* pdc)
 {
   // Save transient information, that can be overridden when changing root dataset
   bool isPDCTransient = this->HasTransientData;
@@ -1215,6 +1215,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
     if (dsIndex == -1)
     {
       vtkErrorMacro("Could not get 'Index' attribute for dataset " << hdfPathName);
+      return 0;
     }
 
     int result = 1;
@@ -1335,7 +1336,7 @@ void vtkHDFReader::RetrieveDataArraysFromAssembly()
     this->Impl->RetrieveHDFInformation(hdfPathName);
     for (int attrIdx = 0; attrIdx < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++attrIdx)
     {
-      std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrIdx);
+      const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrIdx);
       for (const std::string& arrayName : arrayNames)
       {
         this->DataArraySelection[attrIdx]->AddArray(arrayName.c_str());

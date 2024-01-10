@@ -13,6 +13,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataAssembly.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkExplicitStructuredGrid.h"
@@ -1571,8 +1572,8 @@ struct TestDataObjectsImpl<vtkTable>
 
 //============================================================================
 /**
- * Test if each partitionned dataset in each pdc correspond.
- * For the structure itself, only number of partitioned dataset is check for now.
+ * Check the equality of both partitioned collections.
+ * Test both the equality of each partitioned dataset and the strict equality of the assembly.
  */
 template <>
 struct TestDataObjectsImpl<vtkPartitionedDataSetCollection>
@@ -1583,8 +1584,10 @@ struct TestDataObjectsImpl<vtkPartitionedDataSetCollection>
     if (t1->GetNumberOfPartitionedDataSets() != t2->GetNumberOfPartitionedDataSets())
     {
       vtkLog(ERROR,
-        "The 2 inputs vtkPartitionedDataSetCollection don't have the same number of "
-        "PartitionedDataSet.");
+        "Each vtkPartitionedDataSetCollection should have the same number of PartitionedDataSet. "
+        "Got "
+          << t1->GetNumberOfPartitionedDataSets() << " and " << t2->GetNumberOfPartitionedDataSets()
+          << ".");
       return false;
     }
 
@@ -1595,6 +1598,26 @@ struct TestDataObjectsImpl<vtkPartitionedDataSetCollection>
 
       if (!vtkTestUtilities::CompareDataObjects(t1Block, t2Block, toleranceFactor))
       {
+        vtkLog(ERROR,
+          "vtkPartitionedDataSetCollection Partitioned datasets " << index << "do not match");
+        return false;
+      }
+    }
+
+    vtkDataAssembly* assembly1 = t1->GetDataAssembly();
+    vtkDataAssembly* assembly2 = t2->GetDataAssembly();
+    if (assembly1->GetChildNodes(0) != assembly2->GetChildNodes(0))
+    {
+      vtkLog(ERROR, "vtkPartitionedDataSetCollection Assembly tree structures do not match");
+      return false;
+    }
+    for (auto node : assembly1->GetChildNodes(0))
+    {
+      if (assembly1->GetDataSetIndices(node) != assembly2->GetDataSetIndices(node))
+      {
+        vtkLog(ERROR,
+          "vtkPartitionedDataSetCollection Assembly dataset indices for node " << node
+                                                                               << " do not match.");
         return false;
       }
     }
@@ -1620,7 +1643,9 @@ struct TestDataObjectsImpl<vtkPartitionedDataSet>
 
     if (t1->GetNumberOfPartitions() != t2->GetNumberOfPartitions())
     {
-      vtkLog(ERROR, "Each partitioned dataset should have the same number of partitions.");
+      vtkLog(ERROR,
+        "Each partitioned dataset should have the same number of partitions. Got "
+          << t1->GetNumberOfPartitions() << " and " << t2->GetNumberOfPartitions() << ".");
       return false;
     }
 

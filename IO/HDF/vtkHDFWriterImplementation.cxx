@@ -109,6 +109,10 @@ vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::OpenExistingGroup(
 std::string vtkHDFWriter::Implementation::GetGroupName(hid_t group)
 {
   size_t len = H5Iget_name(group, nullptr, 0);
+  if (len == 0)
+  {
+    return std::string("");
+  }
   char buffer[len];
   H5Iget_name(group, buffer, len + 1);
   return std::string(buffer);
@@ -187,15 +191,15 @@ vtkHDF::ScopedH5SHandle vtkHDFWriter::Implementation::CreateSimpleDataspace(
 vtkHDF::ScopedH5AHandle vtkHDFWriter::Implementation::CreateScalarAttribute(
   hid_t group, const char* name, int value)
 {
+  if (H5Aexists(group, name))
+  {
+    return H5Aopen_name(group, name);
+  }
+
   vtkHDF::ScopedH5SHandle scalarSpaceAttribute{ H5Screate(H5S_SCALAR) };
   if (scalarSpaceAttribute == H5I_INVALID_HID)
   {
     return H5I_INVALID_HID;
-  }
-
-  if (H5Aexists(group, name))
-  {
-    return H5Aopen_name(group, name);
   }
 
   vtkHDF::ScopedH5AHandle nStepsAttribute{ H5Acreate(

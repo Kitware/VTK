@@ -63,7 +63,7 @@ herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
  * Convenient callback method to retrieve a name when calling a H5Giterate()
  */
 herr_t FileInfoCallBack(
-  hid_t vtkNotUsed(loc_id), const char* name, const H5L_info1_t* vtkNotUsed(info), void* opdata)
+  hid_t vtkNotUsed(loc_id), const char* name, const H5L_info_t* vtkNotUsed(info), void* opdata)
 {
   std::vector<std::string>* names = reinterpret_cast<std::vector<std::string>*>(opdata);
   assert(names != nullptr);
@@ -725,7 +725,7 @@ bool vtkHDFReader::Implementation::GetAttribute(
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int attributeType)
+const std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int attributeType)
 {
   std::vector<std::string> array;
   hid_t group = this->AttributeDataGroup[attributeType];
@@ -738,8 +738,8 @@ std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int attribu
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> vtkHDFReader::Implementation::GetOrderedChildrenOfGroup(
-  const std::string path)
+const std::vector<std::string> vtkHDFReader::Implementation::GetOrderedChildrenOfGroup(
+  const std::string& path)
 {
   vtkHDF::ScopedH5GHandle pathHandle = H5Gopen(this->VTKGroup, path.c_str(), H5P_DEFAULT);
   std::vector<std::string> childrenPath;
@@ -1408,7 +1408,7 @@ bool vtkHDFReader::Implementation::ReadLevelData(unsigned int level,
       continue;
     }
 
-    auto arrayNames = this->GetArrayNames(attributeType);
+    const std::vector<std::string> arrayNames = this->GetArrayNames(attributeType);
     for (const std::string& name : arrayNames)
     {
       if (!dataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))

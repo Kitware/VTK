@@ -1,12 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkConvertToPartitionedDataSetCollection.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
-#include "vtkIOSSReader.h"
 #include "vtkImageData.h"
-#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -60,13 +57,7 @@ bool TestWriteAndRead(vtkDataObject* data, const char* tempPath, bool outputAsMu
     return false;
   }
 
-  auto outputMB = vtkMultiBlockDataSet::SafeDownCast(output);
-  auto inputMB = vtkMultiBlockDataSet::SafeDownCast(data);
-
-  auto outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(output);
-  auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(data);
-
-  if (!vtkTestUtilities::CompareDataObjects(data, output))
+  if (!vtkTestUtilities::CompareDataObjects(output, data))
   {
     std::cerr << "vtkDataObject does not match: " << tempPath << std::endl;
     return false;
@@ -149,11 +140,10 @@ bool TestUnstructuredGrid(const std::string& tempDir, const std::string& dataRoo
 //----------------------------------------------------------------------------
 bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
 {
-  vtkLog(INFO, "TestMultiBlock");
   std::vector<std::string> baseNamesMB = { "test_multiblock_hdf.vtm" };
   for (const auto& baseName : baseNamesMB)
   {
-    // Get an Unstructured grid from a VTU
+    // Read the multiblock from vtm file
     const std::string basePath = dataRoot + "/Data/vtkHDF/" + baseName;
     vtkNew<vtkXMLMultiBlockDataReader> baseReader;
     baseReader->SetFileName(basePath.c_str());
@@ -179,11 +169,10 @@ bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
 //----------------------------------------------------------------------------
 bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::string& dataRoot)
 {
-  vtkLog(INFO, "TestPartitionedDataSetCollection");
-  std::vector<std::string> baseNamesMB = { "dummy_pdc_structure.vtpc" };
+  std::vector<std::string> baseNamesMB = { "dummy_pdc_structure.vtpc", "multi_ds_pdc.vtpc" };
   for (const auto& baseName : baseNamesMB)
   {
-    // Get an Unstructured grid from a VTU
+    // Get a PDC from a vtpc file
     const std::string basePath = dataRoot + "/Data/vtkHDF/" + baseName;
     vtkNew<vtkXMLPartitionedDataSetCollectionReader> baseReader;
     baseReader->SetFileName(basePath.c_str());
@@ -198,7 +187,7 @@ bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::str
 
     // Write and read the vtkPartitionedDataSetCollection in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndRead(baseData, tempPath.c_str()))
+    if (!TestWriteAndRead(baseData, tempPath.c_str(), false))
     {
       return false;
     }
@@ -228,11 +217,11 @@ int TestHDFWriter(int argc, char* argv[])
 
   // Run tests
   bool testPasses = true;
-  // testPasses &= TestEmptyPolyData(tempDir);
-  // testPasses &= TestSpherePolyData(tempDir);
-  // testPasses &= TestComplexPolyData(tempDir, dataRoot);
-  // testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
-  // testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
+  testPasses &= TestEmptyPolyData(tempDir);
+  testPasses &= TestSpherePolyData(tempDir);
+  testPasses &= TestComplexPolyData(tempDir, dataRoot);
+  testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
+  testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
   testPasses &= TestMultiBlock(tempDir, dataRoot);
 
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;

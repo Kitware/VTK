@@ -146,12 +146,6 @@ bool ComparePoints(vtkHyperTreeGrid*, vtkHyperTreeGrid*)
 }
 
 //------------------------------------------------------------------------------
-bool ComparePoints(vtkMultiBlockDataSet*, vtkMultiBlockDataSet*)
-{
-  return true;
-}
-
-//------------------------------------------------------------------------------
 template <class DataSetT>
 void TestExtent(DataSetT* ds, std::ostringstream& logStream, std::vector<std::string>& retLog)
 {

@@ -34,6 +34,24 @@ constexpr hsize_t SINGLE_COLUMN = 1;
 // Used for chunked arrays with 4 columns (polydata primitive topologies)
 hsize_t PRIMITIVE_CHUNK[] = { 1, NUM_POLY_DATA_TOPOS };
 hsize_t SMALL_CHUNK[] = { 1, 1 }; // Used for chunked arrays where values are read one by one
+
+/**
+ * Return the name of a partitioned dataset in a pdc given its index.
+ * If not set, generate a name based on the id.
+ */
+std::string getBlockName(vtkPartitionedDataSetCollection* pdc, int datasetId)
+{
+  std::string name;
+  if (pdc->GetMetaData(datasetId) && pdc->GetMetaData(datasetId)->Has(vtkCompositeDataSet::NAME()))
+  {
+    name = pdc->GetMetaData(datasetId)->Get(vtkCompositeDataSet::NAME());
+  }
+  if (name.empty())
+  {
+    name = "Block" + std::to_string(datasetId);
+  }
+  return name;
+}
 }
 
 //------------------------------------------------------------------------------
@@ -156,6 +174,10 @@ void vtkHDFWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
   os << indent << "Overwrite: " << (this->Overwrite ? "yes" : "no") << "\n";
+  os << indent << "OutputAsMultiBlockDataSet: " << (this->OutputAsMultiBlockDataSet ? "yes" : "no")
+     << "\n";
+  os << indent << "WriteAllTimeSteps: " << (this->WriteAllTimeSteps ? "yes" : "no") << "\n";
+  os << indent << "ChunkSize: " << this->ChunkSize << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -295,6 +317,10 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input)
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
 {
   // WARNING : this implementation is incomplete, only the first partition is written
+  vtkWarningMacro(<< "Partitioned dataset support is incomplete for now, only the first partition "
+                     "will be written to file : "
+                  << this->FileName);
+
   vtkDataSet* firstPart = input->GetPartition(0);
   this->DispatchDataObject(group, firstPart);
   return true;
@@ -333,7 +359,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
     // For interoperability with PDC, we need to keep track of
     // the number of datasets (non-subtree) in the structure.
     int datasetCount = 0;
-    writeSuccess &= this->AppendAssembly(
+    writeSuccess &= this->AppendMultiblock(
       this->Impl->CreateHdfGroupWithLinkOrder(group, "Assembly"), mb, datasetCount);
   }
   else
@@ -581,7 +607,7 @@ bool vtkHDFWriter::InitializeTransientData(vtkPolyData* input)
   initResult &= this->Impl->InitDynamicDataset(root, "NumberOfPoints", H5T_STD_I64LE, SINGLE_COLUMN,
                   SMALL_CHUNK) != H5I_INVALID_HID;
 
-  // For each primitive type, create a group and datasets/daspaces
+  // For each primitive type, create a group and datasets/dataspaces
   auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
   for (const auto& cellArrayTopo : cellArrayTopos)
   {
@@ -853,20 +879,13 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pdc)
 {
-  vtkSmartPointer<vtkDataObjectTreeIterator> treeIter;
-  treeIter.TakeReference(pdc->NewTreeIterator());
-  treeIter->VisitOnlyLeavesOff();
-  treeIter->TraverseSubTreeOff();
-  treeIter->SkipEmptyNodesOff();
-
-  for (treeIter->InitTraversal(); !treeIter->IsDoneWithTraversal(); treeIter->GoToNextItem())
+  for (int datasetId = 0; datasetId < static_cast<int>(pdc->GetNumberOfPartitionedDataSets());
+       datasetId++)
   {
-    if (treeIter->GetCurrentDataObject()->IsA("vtkPartitionedDataSet"))
-    {
-      std::string name = pdc->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME());
-      this->DispatchDataObject(
-        this->Impl->CreateHdfGroup(group, name.c_str()), treeIter->GetCurrentDataObject());
-    }
+    vtkHDF::ScopedH5GHandle datasetGroup =
+      this->Impl->CreateHdfGroup(group, ::getBlockName(pdc, datasetId).c_str());
+    this->DispatchDataObject(datasetGroup, pdc->GetPartitionedDataSet(datasetId));
+    this->Impl->CreateScalarAttribute(datasetGroup, "Index", datasetId);
   }
 
   return true;
@@ -882,7 +901,8 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
   for (auto& nodeIndex : assemblyIndices)
   {
     std::string nodePath = assembly->GetNodePath(nodeIndex);
-    nodePath.replace(nodePath.find("/Root/"), sizeof("/Root/") - 1, "");
+    const std::string rootPrefix = "/" + std::string(assembly->GetRootNodeName()) + "/";
+    nodePath = nodePath.substr(rootPrefix.length());
 
     // Keep track of link creation order because children order matters
     vtkHDF::ScopedH5GHandle nodeGroup =
@@ -891,15 +911,12 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
     // Softlink all datasets associated with this node.
     for (auto& datasetId : assembly->GetDataSetIndices(nodeIndex, false))
     {
-      const std::string datasetName = pdc->GetMetaData(datasetId)->Get(vtkCompositeDataSet::NAME());
+      const std::string datasetName = ::getBlockName(pdc, datasetId);
       const std::string linkTarget = "/VTKHDF/" + datasetName;
       const std::string linkSource = "/VTKHDF/Assembly/" + nodePath + "/" + datasetName;
 
       herr_t linkhandle =
         this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
-      vtkHDF::ScopedH5GHandle datasetGroup =
-        this->Impl->OpenExistingGroup(this->Impl->GetRoot(), linkTarget.c_str());
-      this->Impl->CreateScalarAttribute(datasetGroup, "Index", datasetId);
     }
   }
 
@@ -907,7 +924,8 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkMultiBlockDataSet* mb, int& datasetCount)
+bool vtkHDFWriter::AppendMultiblock(
+  hid_t assemblyGroup, vtkMultiBlockDataSet* mb, int& datasetCount)
 {
   // Iterate over the children of the multiblock, recurse if needed.
   vtkSmartPointer<vtkDataObjectTreeIterator> treeIter;
@@ -920,7 +938,7 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkMultiBlockDataSet* mb,
   {
     // Retrieve name from metadata or create one
     std::string subTreeName;
-    if (mb->HasMetaData(treeIter))
+    if (mb->HasMetaData(treeIter) && mb->GetMetaData(treeIter)->Has(vtkCompositeDataSet::NAME()))
     {
       subTreeName = mb->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME());
     }
@@ -933,7 +951,7 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkMultiBlockDataSet* mb,
     {
       // Create a subgroup and recurse
       auto subTree = vtkMultiBlockDataSet::SafeDownCast(treeIter->GetCurrentDataObject());
-      this->AppendAssembly(
+      this->AppendMultiblock(
         this->Impl->CreateHdfGroupWithLinkOrder(assemblyGroup, subTreeName.c_str()), subTree,
         datasetCount);
     }

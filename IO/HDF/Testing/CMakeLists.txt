@@ -45,6 +45,7 @@ vtk_module_test_data(
   Data/vtkHDF/test_composite.hdf_000000/test_composite.hdf_000000_2_0.vti
 
   Data/vtkHDF/dummy_pdc_structure.vtpc
+  Data/vtkHDF/multi_ds_pdc.vtpc
   Data/vtkHDF/dummy_pdc_structure/dummy_pdc_structure_0_0.vtp
   Data/vtkHDF/dummy_pdc_structure/dummy_pdc_structure_1_0.vtp
   Data/vtkHDF/dummy_pdc_structure/dummy_pdc_structure_2_0.vtu

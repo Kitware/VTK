@@ -979,7 +979,8 @@ VTK HDF files start with a group called `VTKHDF` with two attributes:
 VTK dataset type stored in the file. Additional attributes can follow
 depending on the dataset type. Currently, `Version`
 is the array [2, 1] and `Type` can be `ImageData`, `PolyData`,
-`UnstructuredGrid`, `OverlappingAMR` or `PartitionedDataSetCollection`.
+`UnstructuredGrid`, `OverlappingAMR`,  `PartitionedDataSetCollection` or
+`MultiBlockDataSet`.
 
 The data type for each HDF dataset is part of the dataset and it is
 determined at write time. The reader matches the type of the dataset
@@ -1141,30 +1142,35 @@ PointData or CellData group.
 
 ### PartitionedDataSetCollection and MultiBlockDataSet
 
-The format for PartitionedDataSetCollection and MutliBlockDataSet is shown in Figure 10.
-In this case the `Type` attribute of the `VTKHDF` group is `PartitionedDataSetCollection`
-or `MultiBlockDataSet` depending on what you expected to represent between
-*vtkPartitionedDataSetCollection* or *vtkMultiBlockDataSet* The most important thing in
-this design is the `Assembly` group attached to the `VTKHDF` group. This one in the group
-that describes the composite data hierarchy and have its leaf nodes link to top level
-groups that conform to the existing VTKHDF formats using the symbolic linking mechanisms
-provided by HDF5 technology
-([Chapter 4: HDF5 Groups and Links](https://davis.lbl.gov/Manuals/HDF5-1.8.7/UG/09_Groups.html)).
+The VTKHDF format for vtkPartitionedDataSetCollection (PDC) and vtkMultiBlockDataSet (MB) is shown in Figure 10.
+This format is the exact same for both PDC and Multiblocks and can be used interchangeably, the only
+difference being the `Type` attribute of the `VTKHDF` group. This attribute can be either
+`PartitionedDataSetCollection` or `MultiBlockDataSet` depending on how the data should be read.
+The most important element in this design is the `Assembly` group, direct child of the `VTKHDF` group.
+This group describes the composite data hierarchy. The elements of the Assembly group do not contain the data directly.
+Instead, the data blocks are stored as direct children of the `VTKHDF` group, without any hierarchy,
+and any node in the Assembly group can use an [HDF5 symbolic link](https://davis.lbl.gov/Manuals/HDF5-1.8.7/UG/09_Groups.html#HardAndSymbolicLinks)
+to the top-level datasets.
+A softlink in the Assembly corresponds to a dataset index added to a vtkDataAssembly node.
+An assembly node can be associated to 0, 1 or more datasets. However, due to the nature of the vtkMultiblockDataSet type,
+an assembly containing a node associated to more than one dataset can not be read as a vtkMultiBlockDataSet.
 
-About the `Assembly` group itself:
-* The `Index` attribute inform the reader of the index of a given block in the
-flattened composite structure.
-* Every leaf in the assembly group should describe a non-composite data object to avoid
-the overhead of recursion while reading the file.
-* The assembly structure only needs to be traversed once in the beginning of the
+Some detail about the format:
+* Every data block needs to have an `Index` integer attribute that describes the PDC partitioned dataset index.
+For MB datasets, this index is also needed to ensure reading compatibility with PDC and should be generated when writing to file.
+* The data blocks should not be composite themselves : they can only be simple or partitioned types, but not using an assembly.
+* The Assembly group and its children need to track creation order to be able to keep subtrees ordered.
+For this, you need to set H5G properties `H5P_CRT_ORDER_TRACKED` and `H5P_CRT_ORDER_INDEXED` on each group when writing the Assembly.
+* For PDC, the assembly structure only needs to be traversed once at the beginning of the
 reading procedure (and can potentially be read and broadcasted only by the main
 process in a distributed context) to optimize file meta-data reading.
 * The block wise reading implementation and composite level implementation can be
 managed independently from each other.
-* It would be feasible for each block to have its own time range and time steps in
+* It would be doable for each block to have its own time range and time steps in
 a transient context with the full composite data set able to collect and expose a
-combined range and set of time values.
-* Reading performance would scale linearly with the number of blocks even in a
+combined range and set of time values, but for now we only allow
+reading datasets that have all the same number of timesteps.
+* Reading performance can scale linearly with the number of blocks even in a
 distributed context.
 
 ```{figure} vtkhdf_images/partitioned_dataset_collection_hdf_schema.png
@@ -1759,16 +1765,17 @@ GROUP "/" {
 
 #### PartitionedDataSetCollection
 
-This partitioned dataset collection is composed of one polydata block, it is inspired by the `test_composite.hdf` from the `VTK` testing data:
+This partitioned dataset collection has 2 blocks, one unstructured grid (Block1) and one polydata (Block0).
+Its assembly has 3 elements and no nesting, referencing one of the 2 blocks using symbolic links
 
 ```
-HDF5 "ExternalData/Testing/Data/vtkHDF/test_composite.hdf" {
+HDF5 "composite.hdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Type" {
          DATATYPE  H5T_STRING {
             STRSIZE 28;
-            STRPAD H5T_STR_NULLPAD;
+            STRPAD H5T_STR_NULLTERM;
             CSET H5T_CSET_ASCII;
             CTYPE H5T_C_S1;
          }
@@ -1779,11 +1786,25 @@ GROUP "/" {
          DATASPACE  SIMPLE { ( 2 ) / ( 2 ) }
       }
       GROUP "Assembly" {
-         SOFTLINK "blockName0" {
-            LINKTARGET "/VTKHDF/blockName0"
+         GROUP "blockName0" {
+            SOFTLINK "Block0" {
+               LINKTARGET "/VTKHDF/Block0"
+            }
+         }
+         GROUP "blockName2" {
+            SOFTLINK "Block1" {
+               LINKTARGET "/VTKHDF/Block1"
+            }
+         }
+         GROUP "groupName0" {
+            GROUP "blockName1" {
+               SOFTLINK "Block1" {
+                  LINKTARGET "/VTKHDF/Block1"
+               }
+            }
          }
       }
-      GROUP "blockName0" {
+      GROUP "Block0" {
          ATTRIBUTE "Index" {
             DATATYPE  H5T_STD_I64LE
             DATASPACE  SCALAR
@@ -1791,7 +1812,7 @@ GROUP "/" {
          ATTRIBUTE "Type" {
             DATATYPE  H5T_STRING {
                STRSIZE 8;
-               STRPAD H5T_STR_NULLPAD;
+               STRPAD H5T_STR_NULLTERM;
                CSET H5T_CSET_ASCII;
                CTYPE H5T_C_S1;
             }
@@ -1804,150 +1825,150 @@ GROUP "/" {
          GROUP "CellData" {
             DATASET "Materials" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 8160 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 96 ) / ( 96 ) }
             }
          }
          GROUP "Lines" {
             DATASET "Connectivity" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 0 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 0 ) / ( 0 ) }
             }
             DATASET "NumberOfCells" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
             DATASET "NumberOfConnectivityIds" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
             DATASET "Offsets" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
          }
          DATASET "NumberOfPoints" {
             DATATYPE  H5T_STD_I64LE
-            DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+            DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
          }
          GROUP "PointData" {
             DATASET "Normals" {
                DATATYPE  H5T_IEEE_F32LE
-               DATASPACE  SIMPLE { ( 4120, 3 ) / ( H5S_UNLIMITED, 3 ) }
+               DATASPACE  SIMPLE { ( 50, 3 ) / ( 50, 3 ) }
             }
             DATASET "Warping" {
                DATATYPE  H5T_IEEE_F32LE
-               DATASPACE  SIMPLE { ( 4120, 3 ) / ( H5S_UNLIMITED, 3 ) }
+               DATASPACE  SIMPLE { ( 50, 3 ) / ( 50, 3 ) }
             }
          }
          DATASET "Points" {
             DATATYPE  H5T_IEEE_F32LE
-            DATASPACE  SIMPLE { ( 2060, 3 ) / ( H5S_UNLIMITED, 3 ) }
+            DATASPACE  SIMPLE { ( 50, 3 ) / ( 50, 3 ) }
          }
          GROUP "Polygons" {
             DATASET "Connectivity" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 12240 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 288 ) / ( 288 ) }
             }
             DATASET "NumberOfCells" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
             DATASET "NumberOfConnectivityIds" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
             DATASET "Offsets" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 4090 ) / ( H5S_UNLIMITED ) }
-            }
-         }
-         GROUP "Steps" {
-            ATTRIBUTE "NSteps" {
-               DATATYPE  H5T_STD_I64LE
-               DATASPACE  SCALAR
-            }
-            GROUP "CellDataOffsets" {
-               DATASET "Materials" {
-                  DATATYPE  H5T_STD_I64LE
-                  DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
-               }
-            }
-            DATASET "CellOffsets" {
-               DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10, 4 ) / ( H5S_UNLIMITED, 4 ) }
-            }
-            DATASET "ConnectivityIdOffsets" {
-               DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10, 4 ) / ( H5S_UNLIMITED, 4 ) }
-            }
-            DATASET "NumberOfParts" {
-               DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
-            }
-            DATASET "PartOffsets" {
-               DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
-            }
-            GROUP "PointDataOffsets" {
-               DATASET "Normals" {
-                  DATATYPE  H5T_STD_I64LE
-                  DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
-               }
-               DATASET "Warping" {
-                  DATATYPE  H5T_STD_I64LE
-                  DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
-               }
-            }
-            DATASET "PointOffsets" {
-               DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
-            }
-            DATASET "Values" {
-               DATATYPE  H5T_IEEE_F32LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 97 ) / ( 97 ) }
             }
          }
          GROUP "Strips" {
             DATASET "Connectivity" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 0 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 0 ) / ( 0 ) }
             }
             DATASET "NumberOfCells" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
             DATASET "NumberOfConnectivityIds" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
             DATASET "Offsets" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
          }
          GROUP "Vertices" {
             DATASET "Connectivity" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 0 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 0 ) / ( 0 ) }
             }
             DATASET "NumberOfCells" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
             DATASET "NumberOfConnectivityIds" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
             DATASET "Offsets" {
                DATATYPE  H5T_STD_I64LE
-               DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
+               DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
             }
+         }
+      }
+      GROUP "Block1" {
+         ATTRIBUTE "Index" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SCALAR
+         }
+         ATTRIBUTE "Type" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 16;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_ASCII;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         ATTRIBUTE "Version" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( 2 ) }
+         }
+         DATASET "Connectivity" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 8 ) / ( 8 ) }
+         }
+         DATASET "NumberOfCells" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+         }
+         DATASET "NumberOfConnectivityIds" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+         }
+         DATASET "NumberOfPoints" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+         }
+         DATASET "Offsets" {
+            DATATYPE  H5T_STD_I64LE
+            DATASPACE  SIMPLE { ( 2 ) / ( 2 ) }
+         }
+         DATASET "Points" {
+            DATATYPE  H5T_IEEE_F32LE
+            DATASPACE  SIMPLE { ( 8, 3 ) / ( 8, 3 ) }
+         }
+         DATASET "Types" {
+            DATATYPE  H5T_STD_U8LE
+            DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
          }
       }
    }
 }
 }
-
 ```
 
 #### Transient Poly Data
