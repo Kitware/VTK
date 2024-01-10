@@ -307,6 +307,76 @@ struct ProcessCellGIDsUG
   }
 };
 
+//----------------------------------------------------------------------------
+// AddNewCellsUnstructuredGrid helpers for polyhedron
+template <typename PointType>
+struct InsertMappedNextCellPoints
+{
+  // Insert full cell
+  template <typename CellStateT>
+  vtkIdType operator()(CellStateT& state, const vtkIdType npts, const PointType pts[],
+    vtkIdType NumberOfIds, vtkIdType* idMap)
+  {
+    using ValueType = typename CellStateT::ValueType;
+    auto* conn = state.GetConnectivity();
+    auto* offsets = state.GetOffsets();
+
+    const vtkIdType cellId = offsets->GetNumberOfValues() - 1;
+
+    offsets->InsertNextValue(static_cast<ValueType>(conn->GetNumberOfValues() + npts));
+
+    for (vtkIdType i = 0; i < npts; ++i)
+    {
+      vtkIdType oldPtId = static_cast<vtkIdType>(pts[i]);
+      vtkIdType finalPtId = idMap ? idMap[oldPtId] : NumberOfIds + oldPtId;
+      conn->InsertNextValue(static_cast<ValueType>(finalPtId));
+    }
+
+    return cellId;
+  }
+};
+
+template <typename FaceIdType>
+struct CopyMappedPolyhedronFaces
+{
+  // Insert full cell
+  template <typename CellStateT>
+  void operator()(CellStateT& state, const vtkIdType NumberOfFaces, const FaceIdType* cellFaces,
+    vtkCellArray* faces, vtkIdType NumberOfIds, vtkIdType* idMap)
+  {
+    using ValueType = typename CellStateT::ValueType;
+    using TInsertNextCellPoints = InsertMappedNextCellPoints<ValueType>;
+    for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
+    {
+      const vtkIdType beginOffset = state.GetBeginOffset(cellFaces[faceNum]);
+      const vtkIdType endOffset = state.GetEndOffset(cellFaces[faceNum]);
+      const vtkIdType NumberOfPoints = endOffset - beginOffset;
+      const auto cellPoints = state.GetConnectivity()->GetPointer(beginOffset);
+
+      faces->Visit(TInsertNextCellPoints{}, NumberOfPoints, cellPoints, NumberOfIds, idMap);
+    }
+  }
+};
+
+struct CopyMappedPolyhedronCell
+{
+  // Insert full cell
+  template <typename CellStateT>
+  vtkIdType operator()(CellStateT& state, const vtkIdType cellId, vtkCellArray* src,
+    vtkCellArray* tgt, vtkIdType NumberOfIds, vtkIdType* idMap)
+  {
+    using ValueType = typename CellStateT::ValueType;
+    using TCopyPolyhedronFaces = CopyMappedPolyhedronFaces<ValueType>;
+    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
+    const vtkIdType endOffset = state.GetEndOffset(cellId);
+    const vtkIdType NumberOfFaces = endOffset - beginOffset;
+    const auto cellFaces = state.GetConnectivity()->GetPointer(beginOffset);
+
+    src->Visit(TCopyPolyhedronFaces{}, NumberOfFaces, cellFaces, tgt, NumberOfIds, idMap);
+    return NumberOfFaces;
+  }
+};
+
 } // end anon namespace
 
 //------------------------------------------------------------------------------
@@ -454,9 +524,12 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
     if (cellType == VTK_POLYHEDRON)
     {
       havePolyhedron = true;
+      auto newPolyFaces = newGrid->GetPolyhedronFaces();
+      auto newPolyFacesLoc = newGrid->GetPolyhedronFaceLocations();
       vtkIdType nfaces;
-      const vtkIdType* ptIds;
-      newGrid->GetFaceStream(oldCellId, nfaces, ptIds);
+
+      nfaces = newPolyFacesLoc->Visit(CopyMappedPolyhedronCell{}, oldCellId, newPolyFaces,
+        facesArray, this->NumberOfPoints, idMap);
 
       auto faceLocOff = facesLocationArray->GetOffsetsArray();
       auto faceLocCon = facesLocationArray->GetConnectivityArray();
@@ -467,18 +540,6 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
       for (vtkIdType loc = startFace; loc < startFace + nfaces; ++loc)
       {
         faceLocCon->InsertTuple1(loc, loc);
-      }
-
-      for (vtkIdType i = 0; i < nfaces; i++)
-      {
-        vtkIdType nfpts = *ptIds++;
-        facesArray->InsertNextCell(nfpts);
-        for (vtkIdType j = 0; j < nfpts; j++)
-        {
-          oldPtId = *ptIds++;
-          finalPtId = idMap ? idMap[oldPtId] : this->NumberOfPoints + oldPtId;
-          facesArray->InsertCellPoint(finalPtId);
-        }
       }
     }
     else

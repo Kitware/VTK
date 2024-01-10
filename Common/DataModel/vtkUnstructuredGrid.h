@@ -251,6 +251,7 @@ public:
    * (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...).
    * If the requested cell is not a polyhedron, then the standard GetCellPoints
    * is called to return a list of unique point ids (id1, id2, id3, ...).
+   * This function is threadsafe.
    */
   void GetFaceStream(vtkIdType cellId, vtkIdList* ptIds);
 
@@ -261,7 +262,9 @@ public:
    * If the requested cell is not a polyhedron, then the standard GetCellPoints
    * is called to return the number of points and a list of unique point ids
    * (id1, id2, id3, ...).
+   * This function is NOT THREADSAFE.
    */
+  VTK_DEPRECATED_IN_9_4_0("Use the threadsafe GetFaceStream or GetPolyhedronFaces.")
   void GetFaceStream(vtkIdType cellId, vtkIdType& nfaces, vtkIdType const*& ptIds);
 
   ///@{
@@ -598,6 +601,13 @@ protected:
    */
   vtkSmartPointer<vtkIdTypeArray> LegacyFaces;
   vtkSmartPointer<vtkIdTypeArray> LegacyFaceLocations;
+
+  /**
+   * Legacy backward compatibility for GetFaceStream
+   * This member should be removed simultaneously with the deprecated GetFaceStream
+   */
+  VTK_DEPRECATED_IN_9_4_0("This member is deprecated.")
+  vtkSmartPointer<vtkIdList> LegacyPointIdsBuffer;
 
   /**
    * A static method for converting an input polyhedron cell stream of format

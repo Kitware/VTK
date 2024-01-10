@@ -1293,18 +1293,20 @@ void vtkUnstructuredGrid::GetFaceStream(
     return;
   }
 
-  vtkSmartPointer<vtkIdList> ptIdsBuffer = vtkSmartPointer<vtkIdList>::New();
-  nfaces = this->FaceLocations->GetCellSize(cellId);
-  this->FaceLocations->Visit(GetPolyFaceStreamVisitor{}, cellId, this->Faces, ptIdsBuffer.Get());
-
-  vtkIdType numId = ptIdsBuffer->GetNumberOfIds();
-  if (numId == 0)
+  if (!this->LegacyPointIdsBuffer)
   {
-    ptIds = new vtkIdType[1];
+    this->LegacyPointIdsBuffer = vtkSmartPointer<vtkIdList>::New();
   }
-  else
+  this->LegacyPointIdsBuffer->Reset();
+
+  nfaces = this->FaceLocations->GetCellSize(cellId);
+  this->FaceLocations->Visit(
+    GetPolyFaceStreamVisitor{}, cellId, this->Faces, this->LegacyPointIdsBuffer.Get());
+
+  vtkIdType numId = this->LegacyPointIdsBuffer->GetNumberOfIds();
+  if (numId != 0)
   {
-    ptIds = ptIdsBuffer->Release();
+    ptIds = this->LegacyPointIdsBuffer->GetPointer(0);
   }
 }
 
