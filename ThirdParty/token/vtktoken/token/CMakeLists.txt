@@ -54,9 +54,17 @@ target_link_libraries(token
     nlohmann_json
 )
 else()
+
+  # When building inside VTK and wrapping python, we need to force the token lib to be shared
+  # to ensure there is a single instance of the global symbols.
+  set(token_module_args)
+  if (VTK_WRAP_PYTHON)
+    list(APPEND token_module_args FORCE_SHARED)
+  endif ()
+
   vtk_module_add_module(VTK::token
     HEADER_DIRECTORIES
-    FORCE_SHARED
+    ${token_module_args}
     SOURCES ${sources}
     HEADERS ${headers}
     HEADERS_SUBDIR "token"
