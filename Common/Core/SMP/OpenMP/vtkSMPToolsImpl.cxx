@@ -77,7 +77,7 @@ int GetNumberOfThreadsOpenMP()
 //------------------------------------------------------------------------------
 bool GetSingleThreadOpenMP()
 {
-  return threadIdStack.top() == omp_get_thread_num();
+  return threadIdStack->top() == omp_get_thread_num();
 }
 
 //------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
   omp_set_nested(nestedActivated);
 
 #pragma omp single
-  threadIdStack.emplace(omp_get_thread_num());
+  threadIdStack->emplace(omp_get_thread_num());
 
 #pragma omp parallel for schedule(runtime)
   for (vtkIdType from = first; from < last; from += grain)
@@ -116,7 +116,7 @@ void vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
   }
 
 #pragma omp single
-  threadIdStack.pop();
+  threadIdStack->pop();
 }
 
 VTK_ABI_NAMESPACE_END
