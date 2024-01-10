@@ -148,26 +148,6 @@ public:
   vtkSetMacro(ActionSetName, std::string);
   ///@}
 
-protected:
-  vtkVRRenderWindowInteractor();
-  ~vtkVRRenderWindowInteractor() override;
-
-  ///@{
-  /**
-   * internal timer methods. See the superclass for detailed
-   * documentation.
-   */
-  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
-  int InternalDestroyTimer(int platformTimerId) override;
-  ///@}
-
-  /**
-   * This will start up the event loop and never return. If you call this
-   * method it will loop processing events until the application is exited.
-   */
-  void StartEventLoop() override;
-
-public:
   ///@{
   /**
    * Handle complex gesture events. Complex gesture events recognition starts when
@@ -190,6 +170,24 @@ public:
   ///@}
 
 protected:
+  vtkVRRenderWindowInteractor();
+  ~vtkVRRenderWindowInteractor() override;
+
+  ///@{
+  /**
+   * internal timer methods. See the superclass for detailed
+   * documentation.
+   */
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
+  int InternalDestroyTimer(int platformTimerId) override;
+  ///@}
+
+  /**
+   * This will start up the event loop and never return. If you call this
+   * method it will loop processing events until the application is exited.
+   */
+  void StartEventLoop() override;
+
   ///@{
   /**
    * Class variables so an exit method can be defined for this class (used to set
