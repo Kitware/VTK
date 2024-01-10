@@ -116,7 +116,6 @@ set(vtk_cmake_module_files
   FindOGG.cmake
   FindOpenSlide.cmake
   FindOpenVR.cmake
-  FindOpenXR.cmake
   FindOpenXRRemoting.cmake
   FindOSMesa.cmake
   FindPEGTL.cmake
