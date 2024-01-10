@@ -493,6 +493,61 @@ void vtkZSpaceCoreCompatibilitySDKManager::EndFrame()
 }
 
 //------------------------------------------------------------------------------
+void vtkZSpaceCoreCompatibilitySDKManager::EnableGraphicsBinding()
+{
+  if (!this->Initialized)
+  {
+    return;
+  }
+
+  ZCCompatError error = this->EntryPts.zccompatEnableGraphicsBindingOpenGL(this->ZSpaceContext);
+  ZSPACE_CHECK_ERROR(zccompatEnableGraphicsBindingOpenGL, error);
+}
+
+//------------------------------------------------------------------------------
+void vtkZSpaceCoreCompatibilitySDKManager::SubmitFrame(
+  unsigned int leftText, unsigned int rightText)
+{
+  if (!this->Initialized)
+  {
+    return;
+  }
+
+  ZCCompatError error =
+    this->EntryPts.zccompatSubmitFrameOpenGL(this->ZSpaceContext, leftText, rightText, false);
+  ZSPACE_CHECK_ERROR(zccompatSubmitFrameOpenGL, error);
+}
+
+//------------------------------------------------------------------------------
+void vtkZSpaceCoreCompatibilitySDKManager::GetPerEyeImageResolution(
+  signed int* width, signed int* height)
+{
+  if (!this->Initialized)
+  {
+    return;
+  }
+
+  ZCCompatError error =
+    this->EntryPts.zccompatGetPerEyeImageResolution(this->ZSpaceContext, width, height);
+  ZSPACE_CHECK_ERROR(zccompatGetPerEyeImageResolution, error);
+}
+
+//------------------------------------------------------------------------------
+vtkZSpaceSDKManager::StereoDisplayMode vtkZSpaceCoreCompatibilitySDKManager::GetStereoDisplayMode()
+{
+  if (!this->Initialized)
+  {
+    return QUAD_BUFFER_STEREO;
+  }
+
+  ZCCompatStereoDisplayMode mode = ZC_COMPAT_STEREO_DISPLAY_MODE_QUAD_BUFFER_STEREO;
+  ZCCompatError error = this->EntryPts.zccompatGetStereoDisplayMode(this->ZSpaceContext, &mode);
+  ZSPACE_CHECK_ERROR(zccompatGetStereoDisplayMode, error);
+
+  return static_cast<vtkZSpaceSDKManager::StereoDisplayMode>(mode);
+}
+
+//------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::SetRenderWindow(vtkRenderWindow* renderWindow)
 {
   if (!this->Initialized)
