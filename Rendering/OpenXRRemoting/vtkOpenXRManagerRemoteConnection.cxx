@@ -7,6 +7,13 @@
 #include "vtkResourceFileLocator.h"
 #include "vtksys/SystemTools.hxx"
 
+// Starting with Microsoft.Holographic.Remoting.OpenXr 2.9.3, the struct
+// `XrRemotingPreferredGraphicsAdapterMSFT` is defined in `openxr_msft_holographic_remoting.h`
+// and it requires the type LUID to be defined.
+// Since LUID is defined in `windows.h` (see `OpenXR-SDK-Source/specification/registry/xr.xml`),
+// we include the corresponding VTK header.
+#include <vtkWindows.h> // Defines LUID used in XrRemotingPreferredGraphicsAdapterMSFT
+
 #include <openxr_msft_holographic_remoting.h> // Defines XR_MSFT_holographic_remoting
 
 #include "XrConnectionExtensions.h" // Provides holographic remoting extensions
