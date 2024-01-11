@@ -119,3 +119,11 @@
         when: always
         paths:
             - release/
+
+.sphinx_artifacts:
+    artifacts:
+        expire_in: 1d
+        when: always
+        paths:
+          - sphinx_output.log
+          - Documentation/docs/_build/
