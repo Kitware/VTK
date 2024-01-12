@@ -1922,9 +1922,11 @@ void vtkAnariRendererNode::Render(bool prepass)
     auto currentRendererSubtype = this->Internal->RendererParams.Subtype;
     this->Internal->CompositeOnGL = (this->GetCompositeOnGL(ren) != 0);
     const char* rendererSubtype = vtkAnariRendererNode::GetRendererSubtype(this->GetRenderer());
+    bool isNewRenderer = false;
 
     if (currentRendererSubtype != rendererSubtype)
     {
+      isNewRenderer = true;
       this->Internal->RendererParams.Subtype = rendererSubtype;
 
       if (this->Internal->AnariRenderer != nullptr)
@@ -1952,7 +1954,7 @@ void vtkAnariRendererNode::Render(bool prepass)
     // }
 
     bool useDenoiser = this->GetUseDenoiser(ren) > 0 ? true : false;
-    if (this->Internal->RendererParams.Denoise != useDenoiser)
+    if (isNewRenderer || this->Internal->RendererParams.Denoise != useDenoiser)
     {
       anari::setParameter(anariDevice, anariRenderer, "denoise", useDenoiser);
       this->Internal->RendererParams.Denoise = useDenoiser;
@@ -1960,7 +1962,7 @@ void vtkAnariRendererNode::Render(bool prepass)
     }
 
     auto spp = this->GetSamplesPerPixel(ren);
-    if (this->Internal->RendererParams.SamplesPerPixel != spp)
+    if (isNewRenderer || this->Internal->RendererParams.SamplesPerPixel != spp)
     {
       anari::setParameter(anariDevice, anariRenderer, "pixelSamples", spp);
       this->Internal->RendererParams.SamplesPerPixel = spp;
@@ -1968,7 +1970,7 @@ void vtkAnariRendererNode::Render(bool prepass)
     }
 
     auto aoSamples = this->GetAmbientSamples(ren);
-    if (this->Internal->RendererParams.AmbientSamples != aoSamples)
+    if (isNewRenderer || this->Internal->RendererParams.AmbientSamples != aoSamples)
     {
       anari::setParameter(anariDevice, anariRenderer, "ambientSamples", aoSamples);
       this->Internal->RendererParams.AmbientSamples = aoSamples;
@@ -1976,7 +1978,8 @@ void vtkAnariRendererNode::Render(bool prepass)
     }
 
     float lightFalloff = static_cast<float>(this->GetLightFalloff(ren));
-    if (std::abs(this->Internal->RendererParams.LightFalloff - lightFalloff) > 0.0001f)
+    if (isNewRenderer ||
+      std::abs(this->Internal->RendererParams.LightFalloff - lightFalloff) > 0.0001f)
     {
       anari::setParameter(anariDevice, anariRenderer, "lightFalloff", lightFalloff);
       this->Internal->RendererParams.LightFalloff = lightFalloff;
@@ -1984,7 +1987,8 @@ void vtkAnariRendererNode::Render(bool prepass)
     }
 
     float ambientIntensity = static_cast<float>(this->GetAmbientIntensity(ren));
-    if (std::abs(this->Internal->RendererParams.AmbientIntensity - ambientIntensity) > 0.0001f)
+    if (isNewRenderer ||
+      std::abs(this->Internal->RendererParams.AmbientIntensity - ambientIntensity) > 0.0001f)
     {
       anari::setParameter(anariDevice, anariRenderer, "ambientRadiance", ambientIntensity);
       this->Internal->RendererParams.AmbientIntensity = ambientIntensity;
@@ -1992,7 +1996,7 @@ void vtkAnariRendererNode::Render(bool prepass)
     }
 
     auto maxDepth = this->GetMaxDepth(ren);
-    if (this->Internal->RendererParams.MaxDepth != maxDepth)
+    if (isNewRenderer || this->Internal->RendererParams.MaxDepth != maxDepth)
     {
       anari::setParameter(anariDevice, anariRenderer, "maxDepth", maxDepth);
       this->Internal->RendererParams.MaxDepth = maxDepth;
