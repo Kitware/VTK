@@ -839,6 +839,23 @@ static int methodMatchesProperty(PropertyInfo* property, MethodAttributes* meth,
     }
   }
 
+  /* signed integer promotion */
+  int methTypeInt = (methType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_INT;
+  int methTypeLong = (methType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_LONG;
+  int methTypeLongLong = (methType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_LONG_LONG;
+  int propertyTypeInt = (propertyType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_INT;
+  int propertyTypeLong = (propertyType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_LONG;
+  int propertyTypeLongLong = (propertyType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_LONG_LONG;
+  if ((methTypeInt && propertyTypeLong) || (methTypeInt && propertyTypeLongLong) ||
+    (methTypeLong && propertyTypeInt) || (methTypeLong && propertyTypeLongLong) ||
+    (methTypeLongLong && propertyTypeInt) || (methTypeLongLong && propertyTypeLong) ||
+    (propertyTypeInt && methTypeLong) || (propertyTypeInt && methTypeLongLong) ||
+    (propertyTypeLong && methTypeInt) || (propertyTypeLong && methTypeLongLong) ||
+    (propertyTypeLongLong && methTypeInt) || (propertyTypeLongLong && methTypeLong))
+  {
+    methType = propertyType;
+  }
+
   /* check for matched type and count */
   if (methType != propertyType || meth->Count != property->Count)
   {
