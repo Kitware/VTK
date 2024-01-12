@@ -244,7 +244,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData* data, int* uExtent)
     if (!this->TempFP)
     {
       vtkErrorMacro("Unable to open file " << this->InternalFileName);
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return;
     }
     png_init_io(png_ptr, this->TempFP);
@@ -253,7 +253,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData* data, int* uExtent)
     {
       fclose(this->TempFP);
       png_destroy_write_struct(&png_ptr, &info_ptr);
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      this->SetErrorCode(vtkErrorCode::UnknownError);
       return;
     }
   }
