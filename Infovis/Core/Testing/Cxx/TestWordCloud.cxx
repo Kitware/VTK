@@ -4,6 +4,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkWordCloud.h"
 
+#include "vtkTestUtilities.h"
 #include <vtkCamera.h>
 #include <vtkImageViewer2.h>
 #include <vtkNamedColors.h>
@@ -15,23 +16,21 @@
 
 int TestWordCloud(int argc, char* argv[])
 {
-  if (argc < 2)
-  {
-    std::cout << "Usage: " << argv[0] << "filename" << std::endl;
-    return EXIT_FAILURE;
-  }
+  const char* gettysburg = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Gettysburg.txt");
+  const char* canterbury = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Canterbury.ttf");
+
   vtkWordCloud::OffsetDistributionContainer offset;
   offset[0] = 0;
   offset[1] = 0;
   auto wordCloud = vtkSmartPointer<vtkWordCloud>::New();
-  wordCloud->SetFileName(argv[1]);
+  wordCloud->SetFileName(gettysburg);
   wordCloud->SetOffsetDistribution(offset);
-  wordCloud->SetFontFileName(argv[2]);
+  wordCloud->SetFontFileName(canterbury);
   wordCloud->AddOrientation(0.0);
   wordCloud->AddOrientation(90.0);
   wordCloud->Update();
-  std::cout << "File" << argv[1] << std::endl;
-  std::cout << "Font" << argv[2] << std::endl;
+  std::cout << "File" << gettysburg << std::endl;
+  std::cout << "Font" << canterbury << std::endl;
   std::cout << "Kept Words: " << wordCloud->GetKeptWords().size() << std::endl;
   std::cout << "Stopped Words: " << wordCloud->GetStoppedWords().size() << std::endl;
   std::cout << "Skipped Words: " << wordCloud->GetSkippedWords().size() << std::endl;

@@ -26,24 +26,9 @@ vtk_add_test_cxx(vtkInfovisCoreCxxTests tests
   TestTableToGraph.cxx
   TestThresholdTable.cxx,NO_VALID
   TestTreeDifferenceFilter.cxx,NO_VALID
+  TestWordCloud
+  UnitTestWordCloud
   )
-
-# add to the list but don't define a test
-list(APPEND tests UnitTestWordCloud.cxx)
-list(APPEND tests TestWordCloud.cxx)
-
-ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
-  NAME VTK::InfovisCoreCxxTests-UnitTestWordCloud
-  COMMAND vtkInfovisCoreCxxTests UnitTestWordCloud
-  DATA{../../../../Testing/Data/Gettysburg.txt} DATA{../../../../Testing/Data/Canterbury.ttf} DATA{../../../../Testing/Data/hearts.png} DATA{../../../../Testing/Data/hearts8bit.png}  DATA{../../../../Testing/Data/NLTKStopList.txt})
-
-ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
-  NAME VTK::InfovisCoreCxxTests-TestWordCloud
-  COMMAND vtkInfovisCoreCxxTests TestWordCloud
-  DATA{../../../../Testing/Data/Gettysburg.txt} DATA{../../../../Testing/Data/Canterbury.ttf}
-  -V DATA{../Data/Baseline/TestWordCloud.png,:}
-  -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}"
-)
 
 set(all_tests
   ${tests}

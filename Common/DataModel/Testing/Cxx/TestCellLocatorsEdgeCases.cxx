@@ -8,6 +8,7 @@
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkStaticCellLocator.h"
+#include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
 static bool TestCell(vtkDataSet* ds, vtkIdType cellId, double x1[3], double x2[3], double tol)
@@ -113,17 +114,11 @@ static bool TestCellLocatorEvaluatePosition(char* fname)
 
 int TestCellLocatorsEdgeCases(int argc, char* argv[])
 {
-  if (argc < 3)
-  {
-    cout << "Not enough arguments.";
-    return EXIT_FAILURE;
-  }
-
   //===========
   // Test Setup
   //===========
   vtkNew<vtkXMLPolyDataReader> reader;
-  char* fname = argv[1];
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/test_surface.vtp");
   reader->SetFileName(fname);
   reader->Update();
   vtkDataSet* data = reader->GetOutput();
@@ -139,7 +134,8 @@ int TestCellLocatorsEdgeCases(int argc, char* argv[])
   // of how this test is executed
   // vtkNew<vtkModifiedBSPTree> mbsp;
   // allTestsPassed &= TestLocator(data, mbsp);
-  allTestsPassed &= TestCellLocatorEvaluatePosition(argv[2]);
+  allTestsPassed &= TestCellLocatorEvaluatePosition(
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cone.vtp"));
 
   //====================
   // Final Tests Outcome

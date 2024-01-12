@@ -85,7 +85,7 @@ int TestQtWithChartHistogram2D(int argc, char* argv[])
   detail::show(widgetOrWindow, QSize(size, size));
   vtktesting->SetRenderWindow(window);
 
-  int retVal = vtktesting->RegressionTest(10);
+  int retVal = vtktesting->RegressionTest(0.05);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:

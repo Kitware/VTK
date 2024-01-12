@@ -4,6 +4,7 @@
 #include "vtkCutter.h"
 #include "vtkPlane.h"
 #include "vtkPolygon.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
@@ -14,13 +15,7 @@ int TestPolyhedronCutter(int argc, char* argv[])
   vtkObject::GlobalWarningDisplayOff();
   vtkNew<vtkXMLUnstructuredGridReader> r;
 
-  if (argc < 3)
-  {
-    cout << "Not enough arguments. Passing test nonetheless.";
-    return EXIT_SUCCESS;
-  }
-
-  char* fname = argv[1];
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/onePolyhedron.vtu");
   r->SetFileName(fname);
   r->Update();
 
@@ -82,7 +77,7 @@ int TestPolyhedronCutter(int argc, char* argv[])
   }
 
   // For the second slice operation, the only requirement (currently) is that it returns *a result*
-  fname = argv[2];
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/sliceOfPolyhedron.vtu");
   r->SetFileName(fname);
   r->Update();
 

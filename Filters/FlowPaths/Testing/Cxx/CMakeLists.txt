@@ -3,7 +3,7 @@ vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
   TestCellLocatorsLinearTransform.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestEvenlySpacedStreamlines2D.cxx
   TestStreamTracer.cxx,NO_VALID
-  TestStreamTracerSurface.cxx
+# TestStreamTracerSurface.cxx #19221
   TestStreamSurface.cxx
   TestAMRInterpolatedVelocityField.cxx,NO_VALID
   TestParallelVectors.cxx

@@ -148,7 +148,7 @@ public class Regression {
         if (vtkJavaTesting.IsInteractive()) {
           iren.Start();
         } else {
-          retVal2 = vtkJavaTesting.RegressionTest(renWin, 10);
+          retVal2 = vtkJavaTesting.RegressionTest(renWin, 0.05);
         }
 
         vtkObject.JAVA_OBJECT_MANAGER.deleteAll();

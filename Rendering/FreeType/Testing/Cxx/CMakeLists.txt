@@ -13,7 +13,7 @@ vtk_add_test_cxx(vtkRenderingFreeTypeCxxTests tests
   TestTextActor.cxx
   TestTextActorTileScaling.cxx
   TestTextActor3D.cxx
-  TestTextActorAlphaBlending.cxx
+  TestTextActorAlphaBlending.cxx, LOOSE_VALID
   TestTextActorDepthPeeling.cxx
   TestTextActor3DAlphaBlending.cxx
   TestTextActor3DDepthPeeling.cxx

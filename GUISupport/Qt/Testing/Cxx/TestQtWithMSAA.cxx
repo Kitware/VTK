@@ -50,7 +50,7 @@ int TestQtWithMSAA(int argc, char* argv[])
 
   vtktesting->SetRenderWindow(window);
 
-  int retVal = vtktesting->RegressionTest(10);
+  int retVal = vtktesting->RegressionTest(0.05);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:

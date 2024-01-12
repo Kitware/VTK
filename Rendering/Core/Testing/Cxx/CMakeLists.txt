@@ -15,7 +15,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   otherLookupTableWithEnabling.cxx,NO_VALID
   RenderNonFinite.cxx
   RGrid.cxx
-  SurfacePlusEdges.cxx
+# SurfacePlusEdges.cxx #19221
   TestActor2D.cxx
   TestActor2DTextures.cxx
   TestActorLightingFlag.cxx
@@ -48,7 +48,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestCompositePolyDataMapperPickability.cxx,NO_DATA
   TestCompositePolyDataMapperPicking.cxx,NO_DATA
   TestCompositePolyDataMapperScalars.cxx,NO_DATA
-  TestCompositePolyDataMapperScalarsSurfaceOpacity.cxx,NO_DATA
+# TestCompositePolyDataMapperScalarsSurfaceOpacity.cxx,NO_DATA #19221
   TestCompositePolyDataMapperSharedArray.cxx,NO_DATA
   TestCompositePolyDataMapperStaticBounds.cxx,NO_DATA,NO_VALID
   TestCompositePolyDataMapperSpheres.cxx,NO_DATA

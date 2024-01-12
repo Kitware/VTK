@@ -6,6 +6,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
@@ -16,14 +17,8 @@ int TestPolyhedronContouring(int argc, char* argv[])
   vtkNew<vtkContourFilter> cf;
   cf->GenerateTrianglesOff();
 
-  if (argc < 3)
   {
-    cout << "Not enough arguments. Passing test nonetheless.";
-    return EXIT_SUCCESS;
-  }
-
-  {
-    char* fname = argv[1];
+    char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cell_850113.vtu");
     r->SetFileName(fname);
     r->Update();
 
@@ -175,7 +170,7 @@ int TestPolyhedronContouring(int argc, char* argv[])
       return EXIT_FAILURE;
     }
 
-    r->SetFileName(argv[2]);
+    r->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cell_12851_26.vtu"));
     r->Update();
 
     vtkUnstructuredGrid* cell_12851 = r->GetOutput();

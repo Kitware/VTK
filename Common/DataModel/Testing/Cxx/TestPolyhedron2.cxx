@@ -16,12 +16,10 @@
 // https://gitlab.kitware.com/vtk/vtk/-/issues/14485
 int TestPolyhedron2(int argc, char* argv[])
 {
-  if (argc < 3)
-    return 1; // test not run with data on the command line
-
   vtkObject::GlobalWarningDisplayOff();
 
-  const char* filename = argv[2];
+  const char* filename =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/polyhedron_mesh.vtu");
   vtkNew<vtkXMLUnstructuredGridReader> reader;
   reader->SetFileName(filename);
   reader->Update();

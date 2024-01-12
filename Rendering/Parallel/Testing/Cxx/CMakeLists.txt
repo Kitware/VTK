@@ -36,5 +36,8 @@ if (PYTHON_EXECUTABLE)
         -D ${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}
         -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
         -V "DATA{../Data/Baseline/TestClientServerRendering.png,:}"
+  set_property(TEST vtkRenderingParallel-TestClientServerRendering
+    PROPERTY
+      ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
   )
 endif()

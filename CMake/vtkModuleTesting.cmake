@@ -374,9 +374,11 @@ function (vtk_add_test_cxx exename _tests)
       set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
     elseif (local_LOOSE_VALID)
       set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LOOSE_VALID")
-    else ()
+    elseif (local_TIGHT_VALID)
       set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
     endif ()
+
+    set(vtk_testing "VTK_TESTING=1;${image_compare_method}")
 
     if (VTK_USE_MPI AND
         VTK_SERIAL_TESTS_USE_MPIEXEC)
@@ -390,7 +392,7 @@ function (vtk_add_test_cxx exename _tests)
       NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
       COMMAND "${_vtk_test_cxx_pre_args}" "$<TARGET_FILE:${exename}>"
               "${test_arg}"
-              ${args}
+              "${args}"
               ${${_vtk_build_test}_ARGS}
               ${${test_name}_ARGS}
               ${_D} ${_T} ${_V})
@@ -400,9 +402,8 @@ function (vtk_add_test_cxx exename _tests)
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
         SKIP_REGULAR_EXPRESSION "${_vtk_skip_regex}"
         # Disables anti-aliasing when rendering
-        ENVIRONMENT "VTK_TESTING;${image_compare_method}"
-        # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h
-        SKIP_RETURN_CODE 125
+        ENVIRONMENT "${vtk_testing}"
+        SKIP_RETURN_CODE 125 # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h
       )
 
     if (_vtk_testing_ld_preload)
@@ -494,10 +495,12 @@ function (vtk_add_test_mpi exename _tests)
         set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
       elseif (local_LOOSE_VALID)
         set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LOOSE_VALID")
-      else ()
+      elseif (local_TIGHT_VALID)
         set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
       endif ()
     endif ()
+
+    set(vtk_testing "VTK_TESTING=1;${image_compare_method}")
 
     set(numprocs ${default_numprocs})
     if (${test_name}_NUMPROCS)
@@ -514,16 +517,14 @@ function (vtk_add_test_mpi exename _tests)
               ${_D} ${_T} ${_V}
               ${args}
               ${${_vtk_build_test}_ARGS}
-              ${${test_name}_ARGS}
-              ${MPIEXEC_POSTFLAGS})
+              ${${test_name}_ARGS})
     set_tests_properties("${_vtk_build_test}Cxx-MPI-${vtk_test_prefix}${test_name}"
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"
         PROCESSORS "${numprocs}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
         SKIP_REGULAR_EXPRESSION "${_vtk_skip_regex}"
-        ENVIRONMENT "VTK_TESTING;${image_compare_method}"
-        # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h"
+        ENVIRONMENT "${vtk_testing}"
         SKIP_RETURN_CODE 125
       )
 

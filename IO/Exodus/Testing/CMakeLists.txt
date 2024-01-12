@@ -1,7 +1,10 @@
 vtk_module_test_data(
   Data/box-noglom.ex2
   Data/can.ex2
-  Data/edgeFaceElem.exii)
+  Data/edgeFaceElem.exii
+  Data/tetra15.g
+  Data/wedge18.e
+  )
 
 if (NOT vtk_testing_cxx_disabled)
   add_subdirectory(Cxx)

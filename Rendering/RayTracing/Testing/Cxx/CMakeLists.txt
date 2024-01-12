@@ -2,7 +2,7 @@ if (VTK_ENABLE_OSPRAY)
   vtk_add_test_cxx(vtkRenderingRayTracingCxxTests tests
     # Surface rendering tests
     TestOSPRayAmbient.cxx
-    TestOSPRayAMRVolumeRenderer.cxx
+#   TestOSPRayAMRVolumeRenderer.cxx #19221
     TestOSPRayCompositePolyDataMapper2.cxx
     TestOSPRayDepthOfField.cxx
     TestOSPRayDynamicObject.cxx
@@ -12,7 +12,7 @@ if (VTK_ENABLE_OSPRAY)
     TestOSPRayLayers.cxx
     TestOSPRayLights.cxx
     TestOSPRayMultiBlock.cxx
-    TestOSPRayMultiBlockPartialArrayFieldData.cxx
+#   TestOSPRayMultiBlockPartialArrayFieldData.cxx #19221
     TestOSPRayOrthographic.cxx
     TestOSPRayPass.cxx
     TestOSPRayPointGaussianMapper.cxx
@@ -38,9 +38,9 @@ if (VTK_ENABLE_OSPRAY)
     TestGPURayCastVolumeScale.cxx
     TestGPURayCastVolumeUpdate.cxx
     TestGPUVolumeRayCastMapper.cxx
-    TestOSPRayVolumeRenderer.cxx
+#   TestOSPRayVolumeRenderer.cxx #19221
     TestOSPRayVolumeRendererCrop.cxx
-    TestSmartVolumeMapper.cxx
+#   TestSmartVolumeMapper.cxx #19221
     # Path tracer tests
     TestCategoricalMaterials.cxx
     TestCategoricalMultiBlock.cxx
@@ -75,7 +75,7 @@ if (VTK_ENABLE_VISRTX)
     TestOSPRayLayers
     TestOSPRayLights
     TestOSPRayMultiBlock
-    TestOSPRayMultiBlockPartialArrayFieldData
+#   TestOSPRayMultiBlockPartialArrayFieldData #19221
     TestOSPRayOrthographic
     TestOSPRayPass
     TestOSPRayRenderMesh

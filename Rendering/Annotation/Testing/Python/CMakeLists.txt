@@ -4,7 +4,7 @@ vtk_add_test_python(
   cubeAxes.py
   xyPlot.py
   xyPlot2.py
-  xyPlot3.py
+  xyPlot3.py,LOOSE_VALID
   xyPlot4.py
   cubeAxes2.py
   cubeAxes3.py

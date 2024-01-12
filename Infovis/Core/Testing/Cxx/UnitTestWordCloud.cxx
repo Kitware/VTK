@@ -54,11 +54,11 @@ int UnitTestWordCloud(int argc, char* argv[])
   }
 #endif
 
-  if (argc < 2)
-  {
-    std::cout << "Usage: " << argv[0] << "filename" << std::endl;
-    return EXIT_FAILURE;
-  }
+  const char* gettysburg = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Gettysburg.txt");
+  const char* canterbury = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Canterbury.ttf");
+  const char* hearts = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/hearts.png");
+  const char* hearts8bit = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/hearts8bit.png");
+  const char* nltk = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/NLTKStopList.txt");
 
   auto status = 0;
 
@@ -72,7 +72,7 @@ int UnitTestWordCloud(int argc, char* argv[])
   std::cout << "Passed" << std::endl;
 
   // Test defaults
-  wordCloud->SetFileName(argv[1]);
+  wordCloud->SetFileName(gettysburg);
   wordCloud->Update();
 
   // Test Regressions for default settings
@@ -196,7 +196,7 @@ int UnitTestWordCloud(int argc, char* argv[])
   wordCloud->SetDPI(100);
   wordCloud->SetFontMultiplier(3);
   wordCloud->SetGap(5);
-  wordCloud->SetFontFileName(argv[2]);
+  wordCloud->SetFontFileName(canterbury);
   wordCloud->SetMaskColorName("white");
   wordCloud->SetMaskFileName("maskfile");
   wordCloud->SetMaxFontSize(100);
@@ -212,10 +212,10 @@ int UnitTestWordCloud(int argc, char* argv[])
   {
     auto wc = vtkSmartPointer<vtkWordCloud>::New();
 
-    wc->SetFileName(argv[1]);
+    wc->SetFileName(gettysburg);
     status4 += TestOneByOne(wc, "Defaults", 31, 42, 65, -8);
 
-    wc->SetFontFileName(argv[2]);
+    wc->SetFontFileName(canterbury);
     status4 += TestOneByOne(wc, "FontFileName", 40, 33, 65);
 
     wc->SetGap(4);
@@ -252,10 +252,10 @@ int UnitTestWordCloud(int argc, char* argv[])
     wc->SetMaskColorName("white");
     wc->SetFontMultiplier(2);
     wc->SetMaxFontSize(10);
-    wc->SetMaskFileName(argv[3]);
+    wc->SetMaskFileName(hearts);
     status4 += TestOneByOne(wc, "MaskFileName", 12, 60, 67);
 
-    wc->SetMaskFileName(argv[4]);
+    wc->SetMaskFileName(hearts8bit);
     wc->SetBWMask(true);
     status4 += TestOneByOne(wc, "MaskFileName(8bit)", 12, 60, 67);
 
@@ -273,7 +273,7 @@ int UnitTestWordCloud(int argc, char* argv[])
     wc->SetColorDistribution(colorDist);
     status4 += TestOneByOne(wc, "ColorDistribution", 12, 58, 68);
 
-    wc->SetStopListFileName(argv[5]);
+    wc->SetStopListFileName(nltk);
     status4 += TestOneByOne(wc, "StopListFileName", 18, 73, 47);
   }
   if (status4)
@@ -295,7 +295,7 @@ int UnitTestWordCloud(int argc, char* argv[])
     auto wc = vtkSmartPointer<vtkWordCloud>::New();
     wc->AddObserver(vtkCommand::ErrorEvent, errorObserver);
     wc->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver1);
-    wc->SetFileName(argv[1]);
+    wc->SetFileName(gettysburg);
     wc->SetWordColorName("");
     wc->SetColorSchemeName("foo");
     wc->Update();
@@ -315,7 +315,7 @@ int UnitTestWordCloud(int argc, char* argv[])
     auto wc = vtkSmartPointer<vtkWordCloud>::New();
     wc->AddObserver(vtkCommand::ErrorEvent, errorObserver);
     wc->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver1);
-    wc->SetFileName(argv[1]);
+    wc->SetFileName(gettysburg);
     wc->SetFontFileName("BadFontFile.txt");
     wc->Update();
     status5 += errorObserver->CheckErrorMessage("FontFileName BadFontFile.txt does not exist");
@@ -325,7 +325,7 @@ int UnitTestWordCloud(int argc, char* argv[])
     auto wc = vtkSmartPointer<vtkWordCloud>::New();
     wc->AddObserver(vtkCommand::ErrorEvent, errorObserver);
     wc->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver1);
-    wc->SetFileName(argv[1]);
+    wc->SetFileName(gettysburg);
     wc->SetMaskFileName("BadMaskFile.txt");
     wc->Update();
     status5 += errorObserver->CheckErrorMessage("MaskFileName BadMaskFile.txt does not exist");
@@ -335,7 +335,7 @@ int UnitTestWordCloud(int argc, char* argv[])
     auto wc = vtkSmartPointer<vtkWordCloud>::New();
     wc->AddObserver(vtkCommand::ErrorEvent, errorObserver);
     wc->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver1);
-    wc->SetFileName(argv[1]);
+    wc->SetFileName(gettysburg);
     wc->SetMaskFileName("BadStopListFile.txt");
     wc->Update();
     status5 += errorObserver->CheckErrorMessage("BadStopListFile.txt does not exist");

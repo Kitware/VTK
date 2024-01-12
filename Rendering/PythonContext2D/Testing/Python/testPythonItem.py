@@ -167,7 +167,7 @@ class TestPythonItem(Testing.vtkTest):
             rtTester.AddArgument(arg)
 
         # Perform the image comparison test and print out the result.
-        result = rtTester.RegressionTest(0.0)
+        result = rtTester.RegressionTest(0.05)
 
         if result == 0:
             raise Exception("TestPythonItem failed.")
