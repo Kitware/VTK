@@ -63,7 +63,7 @@ int vtkConvertToPolyhedra::RequestData(vtkInformation* vtkNotUsed(request),
   // polyhedron.
   output->Allocate(numCells);
   vtkNew<vtkGenericCell> cell;
-  std::vector<vtkIdType> faces;
+  vtkNew<vtkCellArray> faces;
   int cellType = VTK_POLYHEDRON;
   vtkIdType outCellId;
   vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
@@ -95,17 +95,16 @@ int vtkConvertToPolyhedra::RequestData(vtkInformation* vtkNotUsed(request),
     // Process faces. Use the original cell's point ids to create the new
     // polyhedral cell, and add in the cell's faces.
     int numFaces = cell->GetNumberOfFaces();
-    faces.clear();
+    faces->Reset();
     for (int faceNum = 0; faceNum < numFaces; ++faceNum)
     {
       vtkCell* face = cell->GetFace(faceNum);
       vtkIdType numFacePts = face->PointIds->GetNumberOfIds();
-      vtkIdType* fptr = face->PointIds->GetPointer(0);
-      faces.push_back(numFacePts);
-      faces.insert(faces.end(), fptr, fptr + numFacePts);
+      const vtkIdType* fptr = face->PointIds->GetPointer(0);
+      faces->InsertNextCell(numFacePts, fptr);
     }
-    outCellId = output->InsertNextCell(cellType, cell->PointIds->GetNumberOfIds(),
-      cell->PointIds->GetPointer(0), numFaces, faces.data());
+    outCellId = output->InsertNextCell(
+      cellType, cell->PointIds->GetNumberOfIds(), cell->PointIds->GetPointer(0), faces);
     outCD->CopyData(inCD, cellId, outCellId);
   } // for all input cells
 

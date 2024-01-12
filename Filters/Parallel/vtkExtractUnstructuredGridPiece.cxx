@@ -160,6 +160,7 @@ int vtkExtractUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(requ
   vtkIdType numFaces;
   vtkIdType numFacePts;
   double* x;
+  vtkNew<vtkIdList> faceStreamList;
 
   // Pipeline update piece will tell us what to generate.
   ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
@@ -263,7 +264,8 @@ int vtkExtractUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(requ
         }
         else
         { // Polyhedron, need to process face stream.
-          faceStream = input->GetFaces(cellId);
+          input->GetFaceStream(cellId, faceStreamList);
+          faceStream = faceStreamList->GetPointer(0);
           numFaces = *faceStream++;
           newCellPts->InsertNextId(numFaces);
           for (vtkIdType face = 0; face < numFaces; ++face)

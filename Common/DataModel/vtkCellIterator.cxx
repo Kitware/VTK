@@ -130,13 +130,13 @@ void vtkCellIterator::GetCell(vtkGenericCell* cell)
   cell->SetPointIds(this->GetPointIds());
   cell->SetPoints(this->GetPoints());
 
-  cell->SetFaces(nullptr);
   if (cell->RequiresExplicitFaceRepresentation())
   {
-    vtkIdList* faces = this->GetFaces();
-    if (faces->GetNumberOfIds() != 0)
+    vtkCellArray* faces = this->GetCellFaces();
+
+    if (faces->GetNumberOfCells() != 0)
     {
-      cell->SetFaces(faces->GetPointer(0));
+      cell->SetCellFaces(faces);
     }
   }
 

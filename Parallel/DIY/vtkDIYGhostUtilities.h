@@ -569,13 +569,19 @@ protected:
     vtkIdType CurrentFacesSize = 0;
 
     /**
+     * This is a cursor telling the amount of faces information, that has
+     * already been added to the output. This variable is used at the very end of the pipeline.
+     */
+    vtkIdType CurrentMaxFaceId = 0;
+
+    /**
      * This is a cursor telling how much the output connectivity array is filled.
      * This is used at the very end of the pipeline.
      */
     vtkIdType CurrentConnectivitySize = 0;
 
-    vtkIdTypeArray* Faces = nullptr;
-    vtkIdTypeArray* FaceLocations = nullptr;
+    vtkCellArray* Faces = nullptr;
+    vtkCellArray* FaceLocations = nullptr;
 
     vtkUnstructuredGrid* Input;
 
@@ -588,6 +594,11 @@ protected:
      * Faces array size of the input if the ghost cells are removed.
      */
     vtkIdType InputFacesSize = 0;
+
+    /**
+     * Number of Faces stored in Faces array of the input if the ghost cells are removed.
+     */
+    vtkIdType InputNumberOfFaces = 0;
   };
 
   struct UnstructuredGridBlockStructure : public UnstructuredDataBlockStructure
@@ -598,8 +609,8 @@ protected:
     struct TopologyBufferType
     {
       vtkSmartPointer<vtkUnsignedCharArray> Types = nullptr;
-      vtkSmartPointer<vtkIdTypeArray> Faces = nullptr;
-      vtkSmartPointer<vtkIdTypeArray> FaceLocations = nullptr;
+      vtkSmartPointer<vtkCellArray> Faces = nullptr;
+      vtkSmartPointer<vtkCellArray> FaceLocations = nullptr;
       vtkNew<vtkCellArray> CellArray;
     };
 
@@ -611,6 +622,7 @@ protected:
      * Handle to the faces / connectivity size that we have to send to the neighboring block.
      */
     vtkIdType FacesSize = 0;
+    vtkIdType FacesNum = 0;
     vtkIdType ConnectivitySize = 0;
     ///@}
   };

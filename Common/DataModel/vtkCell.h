@@ -33,6 +33,7 @@
 
 #include "vtkBoundingBox.h" // Needed for IntersectWithCell
 #include "vtkCellType.h"    // Needed to define cell types
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkIdList.h"      // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -113,7 +114,10 @@ public:
    * usage of these methods).
    */
   virtual int RequiresExplicitFaceRepresentation() { return 0; }
+
+  VTK_DEPRECATED_IN_9_4_0("Use SetCellFaces() after casting the cell to vtkPolyhedron.")
   virtual void SetFaces(vtkIdType* vtkNotUsed(faces)) {}
+  VTK_DEPRECATED_IN_9_4_0("Use GetCellFaces() after casting the cell to vtkPolyhedron.")
   virtual vtkIdType* GetFaces() { return nullptr; }
 
   /**

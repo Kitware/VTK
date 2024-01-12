@@ -93,6 +93,28 @@ vtkDataSetCollection* vtkAppendFilter::GetInputList()
 }
 
 //------------------------------------------------------------------------------
+// Helper
+namespace
+{
+struct RenumberingVisitor
+{
+  // Insert full cell
+  template <typename CellStateT>
+  void operator()(CellStateT& state, vtkIdType* idMap, vtkIdType offset)
+  {
+    using ValueType = typename CellStateT::ValueType;
+    auto* conn = state.GetConnectivity();
+    const vtkIdType nids = conn->GetNumberOfValues();
+    for (vtkIdType i = 0; i < nids; ++i)
+    {
+      ValueType tmp = conn->GetValue(i);
+      conn->SetValue(i, idMap[tmp + offset]);
+    }
+  }
+};
+}
+
+//------------------------------------------------------------------------------
 // Append data sets into single unstructured grid
 int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -329,20 +351,16 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
       newPtIds->Reset();
       if (ug && dataSet->GetCellType(cellId) == VTK_POLYHEDRON)
       {
-        vtkIdType nfaces;
-        const vtkIdType* facePtIds;
-        ug->GetFaceStream(cellId, nfaces, facePtIds);
-        for (vtkIdType id = 0; id < nfaces; ++id)
+        vtkNew<vtkCellArray> faces;
+        ug->GetPolyhedronFaces(cellId, faces);
+        faces->Visit(RenumberingVisitor{}, globalIndices, ptOffset);
+        dataSet->GetCellPoints(cellId, ptIds);
+        for (vtkIdType id = 0; id < ptIds->GetNumberOfIds(); ++id)
         {
-          vtkIdType nPoints = facePtIds[0];
-          newPtIds->InsertNextId(nPoints);
-          for (vtkIdType j = 1; j <= nPoints; ++j)
-          {
-            newPtIds->InsertNextId(globalIndices[facePtIds[j] + ptOffset]);
-          }
-          facePtIds += nPoints + 1;
+          newPtIds->InsertId(id, globalIndices[ptIds->GetId(id) + ptOffset]);
         }
-        output->InsertNextCell(VTK_POLYHEDRON, nfaces, newPtIds->GetPointer(0));
+        output->InsertNextCell(
+          VTK_POLYHEDRON, newPtIds->GetNumberOfIds(), newPtIds->GetPointer(0), faces);
       }
       else
       {

@@ -99,8 +99,8 @@ bool CopyConnectivity(vtkUnstructuredGrid* input, vtkUnstructuredGrid* output,
   auto inCellArray = input->GetCells();
   auto inConnectivity = inCellArray->GetConnectivityArray();
   auto inOffsets = inCellArray->GetOffsetsArray();
-  auto inFaces = input->GetFaces();
-  auto inFaceLocations = input->GetFaceLocations();
+  auto inFaces = input->GetPolyhedronFaces();
+  auto inFaceLocations = input->GetPolyhedronFaceLocations();
 
   vtkSmartPointer<vtkDataArray> outConnectivity;
   outConnectivity.TakeReference(inConnectivity->NewInstance());
@@ -115,23 +115,30 @@ bool CopyConnectivity(vtkUnstructuredGrid* input, vtkUnstructuredGrid* output,
     return false;
   }
 
-  vtkSmartPointer<vtkIdTypeArray> outFaces;
+  vtkSmartPointer<vtkCellArray> outFaces;
   if (inFaces)
   {
-    using SupportedFacesArrays = vtkTypeList::Create<vtkIdTypeArray>;
-    outFaces.TakeReference(vtkIdTypeArray::New());
-    outFaces->SetNumberOfComponents(inFaces->GetNumberOfComponents());
-    outFaces->SetNumberOfTuples(inFaces->GetNumberOfTuples());
+    auto inFacesConnectivity = inFaces->GetConnectivityArray();
+    vtkSmartPointer<vtkDataArray> outFacesConnectivity;
+    outFacesConnectivity.TakeReference(inFacesConnectivity->NewInstance());
+    outFacesConnectivity->SetNumberOfComponents(inFacesConnectivity->GetNumberOfComponents());
+    outFacesConnectivity->SetNumberOfTuples(inFacesConnectivity->GetNumberOfTuples());
+
+    using SupportedFacesArrays = vtkCellArray::StorageArrayList;
     using DispatchFaces = vtkArrayDispatch::DispatchByArray<SupportedFacesArrays>;
-    if (!DispatchFaces::Execute(inFaces, worker, outFaces, pointMap, filter))
+
+    if (!DispatchFaces::Execute(
+          inFacesConnectivity, worker, outFacesConnectivity, pointMap, filter))
     {
       return false;
     }
+    outFaces = vtkSmartPointer<vtkCellArray>::New();
+    outFaces->SetData(inFaces->GetOffsetsArray(), outFacesConnectivity);
   }
 
   vtkNew<vtkCellArray> outCellArray;
   outCellArray->SetData(inOffsets, outConnectivity);
-  output->SetCells(input->GetCellTypesArray(), outCellArray, inFaceLocations, outFaces);
+  output->SetPolyhedralCells(input->GetCellTypesArray(), outCellArray, inFaceLocations, outFaces);
   return true;
 }
 }

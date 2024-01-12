@@ -53,9 +53,12 @@
 #ifndef vtkCellIterator_h
 #define vtkCellIterator_h
 
+#include "vtkCellArray.h"             // For inline methods
 #include "vtkCellType.h"              // For VTK_EMPTY_CELL
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkIdList.h"                // For inline methods
+#include "vtkIdTypeArray.h"           // For inline methods
 #include "vtkNew.h"                   // For vtkNew
 #include "vtkObject.h"
 
@@ -118,6 +121,13 @@ public:
    * Get the faces for a polyhedral cell. This is only valid when CellType
    * is VTK_POLYHEDRON.
    */
+  vtkCellArray* GetCellFaces();
+
+  /**
+   * Get the faces for a polyhedral cell. This is only valid when CellType
+   * is VTK_POLYHEDRON.
+   */
+  VTK_DEPRECATED_IN_9_4_0("Please use GetCellFaces instead.")
   vtkIdList* GetFaces();
 
   /**
@@ -179,7 +189,7 @@ protected:
   int CellType;
   vtkPoints* Points;
   vtkIdList* PointIds;
-  vtkIdList* Faces;
+  vtkCellArray* Faces;
 
 private:
   vtkCellIterator(const vtkCellIterator&) = delete;
@@ -206,7 +216,8 @@ private:
 
   vtkNew<vtkPoints> PointsContainer;
   vtkNew<vtkIdList> PointIdsContainer;
-  vtkNew<vtkIdList> FacesContainer;
+  vtkNew<vtkCellArray> FacesContainer;
+  vtkNew<vtkIdList> LegacyFacesContainer;
   unsigned char CacheFlags;
 };
 
@@ -258,7 +269,7 @@ inline vtkPoints* vtkCellIterator::GetPoints()
 }
 
 //------------------------------------------------------------------------------
-inline vtkIdList* vtkCellIterator::GetFaces()
+inline vtkCellArray* vtkCellIterator::GetCellFaces()
 {
   if (!this->CheckCache(FacesFlag))
   {
@@ -266,6 +277,27 @@ inline vtkIdList* vtkCellIterator::GetFaces()
     this->SetCache(FacesFlag);
   }
   return this->Faces;
+}
+
+//------------------------------------------------------------------------------
+// To be removed when deprecating
+inline vtkIdList* vtkCellIterator::GetFaces()
+{
+  if (!this->CheckCache(FacesFlag))
+  {
+    this->FetchFaces();
+    this->SetCache(FacesFlag);
+  }
+  // Export Legacy Format
+  vtkNew<vtkIdTypeArray> tmp;
+  this->Faces->ExportLegacyFormat(tmp);
+  this->LegacyFacesContainer->Initialize();
+  this->LegacyFacesContainer->InsertNextId(this->Faces->GetNumberOfCells());
+  for (vtkIdType idx = 0; idx < tmp->GetNumberOfValues(); ++idx)
+  {
+    this->LegacyFacesContainer->InsertNextId(tmp->GetValue(idx));
+  }
+  return this->LegacyFacesContainer;
 }
 
 //------------------------------------------------------------------------------
@@ -363,7 +395,7 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
         this->FetchFaces();
         this->SetCache(FacesFlag);
       }
-      return this->Faces->GetNumberOfIds() != 0 ? this->Faces->GetId(0) : 0;
+      return this->Faces->GetNumberOfCells();
 
     default:
       vtkGenericWarningMacro("Unknown cell type: " << this->CellType);

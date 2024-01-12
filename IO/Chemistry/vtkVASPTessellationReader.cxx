@@ -465,7 +465,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(
   locator->InitPointInsertion(tessPoints, bounds, nAtoms * 10);
 
   // Storage for parsing the tessellation points/faces info
-  std::vector<vtkIdType> faceStream;
+  vtkNew<vtkCellArray> faceStream;
   std::vector<vtkIdType> pointIds;
   std::set<vtkIdType> uniquePointIds;
   // parse as doubles for locator API, but store as floats:
@@ -582,17 +582,17 @@ bool vtkVASPTessellationReader::ReadTimeStep(
     }
 
     // Create face stream:
-    faceStream.clear();
+    faceStream->Reset();
     for (size_t faceId = 0; faceId < faceData.size(); ++faceId)
     {
       const std::vector<vtkIdType>& face = faceData[faceId];
-      faceStream.push_back(static_cast<vtkIdType>(face.size()));
+      faceStream->InsertNextCell(static_cast<int>(face.size()));
       for (std::vector<vtkIdType>::const_iterator it = face.begin(), itEnd = face.end();
            it != itEnd; ++it)
       {
         // Convert the local point id into the dataset point id:
         vtkIdType datasetId = pointIds[*it];
-        faceStream.push_back(datasetId);
+        faceStream->InsertCellPoint(datasetId);
       }
     }
 
@@ -602,8 +602,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(
 
     // Add cell to tessellation dataset:
     voronoi->InsertNextCell(VTK_POLYHEDRON, static_cast<vtkIdType>(pointIds.size()),
-      pointIds.empty() ? nullptr : pointIds.data(), static_cast<vtkIdType>(faceData.size()),
-      faceStream.empty() ? nullptr : faceStream.data());
+      pointIds.empty() ? nullptr : pointIds.data(), faceStream);
     tessAtomicNumbers->InsertNextValue(atom.GetAtomicNumber());
     tessAtomIds->InsertNextValue(atom.GetId());
   }

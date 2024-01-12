@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <vtkCellArray.h>
 #include <vtkExtractEdges.h>
+#include <vtkIdTypeArray.h>
 #include <vtkNew.h>
 #include <vtkPolyhedron.h>
 #include <vtkSmartPointer.h>
@@ -38,13 +40,28 @@ vtkSmartPointer<vtkPolyhedron> MakeDodecahedron()
   aDodecahedron->GetPoints()->InsertNextPoint(-0.375185, -1.1547, -1.58931);
   aDodecahedron->GetPoints()->InsertNextPoint(0.982247, -0.713644, -1.58931);
 
-  vtkIdType faces[73] = { 12, // number of faces
-    5, 0, 1, 2, 3, 4,         // number of ids on face, ids
-    5, 0, 5, 10, 6, 1, 5, 1, 6, 11, 7, 2, 5, 2, 7, 12, 8, 3, 5, 3, 8, 13, 9, 4, 5, 4, 9, 14, 5, 0,
-    5, 15, 10, 5, 14, 19, 5, 16, 11, 6, 10, 15, 5, 17, 12, 7, 11, 16, 5, 18, 13, 8, 12, 17, 5, 19,
-    14, 9, 13, 18, 5, 19, 18, 17, 16, 15 };
-
-  aDodecahedron->SetFaces(faces);
+  vtkIdType face_offsets[13] = { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60 };
+  vtkIdType face_conns[60] = {
+    0, 1, 2, 3, 4,     // ids
+    0, 5, 10, 6, 1,    //
+    1, 6, 11, 7, 2,    //
+    2, 7, 12, 8, 3,    //
+    3, 8, 13, 9, 4,    //
+    4, 9, 14, 5, 0,    //
+    15, 10, 5, 14, 19, //
+    16, 11, 6, 10, 15, //
+    17, 12, 7, 11, 16, //
+    18, 13, 8, 12, 17, //
+    19, 14, 9, 13, 18, //
+    19, 18, 17, 16, 15 //
+  };
+  vtkNew<vtkCellArray> faces;
+  vtkNew<vtkIdTypeArray> offsets_arr;
+  vtkNew<vtkIdTypeArray> conns_arr;
+  offsets_arr->SetArray(face_offsets, 13, 1);
+  conns_arr->SetArray(face_conns, 60, 1);
+  faces->SetData(offsets_arr, conns_arr);
+  aDodecahedron->SetCellFaces(faces);
   aDodecahedron->Initialize();
 
   return aDodecahedron;
@@ -72,16 +89,23 @@ vtkSmartPointer<vtkPolyhedron> MakeConcavePolyhedron()
   aPolyhedron->GetPoints()->InsertNextPoint(0.0, 2.0, 2.0);
   aPolyhedron->GetPoints()->InsertNextPoint(1.0, 1.0, 2.0);
 
-  vtkIdType faces[73] = { 8, 5, 0, 1, 2, 3, 4, // poly
-    5, 5, 6, 7, 8, 9,                          // poly
-    4, 0, 4, 9, 5,                             // quad
-    4, 4, 3, 8, 9,                             // quad
-    4, 3, 2, 7, 8,                             // quad
-    4, 5, 6, 1, 0,                             // quad
-    3, 6, 7, 1,                                // tri
-    3, 7, 2, 1 };                              // tri
+  vtkIdType face_offsets[9] = { 0, 5, 10, 14, 18, 22, 26, 29, 32 };
+  vtkIdType face_conns[32] = { 0, 1, 2, 3, 4, // poly
+    5, 6, 7, 8, 9,                            // poly
+    0, 4, 9, 5,                               // quad
+    4, 3, 8, 9,                               // quad
+    3, 2, 7, 8,                               // quad
+    5, 6, 1, 0,                               // quad
+    6, 7, 1,                                  // tri
+    7, 2, 1 };                                // tri
 
-  aPolyhedron->SetFaces(faces);
+  vtkNew<vtkCellArray> faces;
+  vtkNew<vtkIdTypeArray> offsets_arr;
+  vtkNew<vtkIdTypeArray> conns_arr;
+  offsets_arr->SetArray(face_offsets, 9, 1);
+  conns_arr->SetArray(face_conns, 32, 1);
+  faces->SetData(offsets_arr, conns_arr);
+  aPolyhedron->SetCellFaces(faces);
   aPolyhedron->Initialize();
 
   return aPolyhedron;
@@ -109,15 +133,22 @@ vtkSmartPointer<vtkPolyhedron> MakeConcaveNonPlanarPolyhedron()
   aPolyhedron->GetPoints()->InsertNextPoint(0.0, 2.0, 2.0);
   aPolyhedron->GetPoints()->InsertNextPoint(1.0, 1.0, 2.0);
 
-  vtkIdType faces[73] = { 7, 5, 0, 1, 2, 3, 4, // planar poly
-    5, 5, 6, 7, 8, 9,                          // planar poly
-    6, 0, 4, 3, 8, 9, 5,                       // non-planar poly
-    4, 3, 2, 7, 8,                             // quad
-    4, 5, 6, 1, 0,                             // quad
-    3, 6, 7, 1,                                // tri
-    3, 7, 2, 1 };                              // tri
+  vtkIdType face_offsets[8] = { 0, 5, 10, 16, 20, 24, 27, 30 };
+  vtkIdType face_conns[30] = { 0, 1, 2, 3, 4, // planar poly
+    5, 6, 7, 8, 9,                            // planar poly
+    0, 4, 3, 8, 9, 5,                         // non-planar poly
+    3, 2, 7, 8,                               // quad
+    5, 6, 1, 0,                               // quad
+    6, 7, 1,                                  // tri
+    7, 2, 1 };                                // tri
 
-  aPolyhedron->SetFaces(faces);
+  vtkNew<vtkCellArray> faces;
+  vtkNew<vtkIdTypeArray> offsets_arr;
+  vtkNew<vtkIdTypeArray> conns_arr;
+  offsets_arr->SetArray(face_offsets, 8, 1);
+  conns_arr->SetArray(face_conns, 30, 1);
+  faces->SetData(offsets_arr, conns_arr);
+  aPolyhedron->SetCellFaces(faces);
   aPolyhedron->Initialize();
 
   return aPolyhedron;
@@ -126,9 +157,9 @@ vtkSmartPointer<vtkPolyhedron> MakeConcaveNonPlanarPolyhedron()
 //------------------------------------------------------------------------------
 bool TestPolyhedron(vtkPolyhedron* poly, int expectedNbOfFaces, int expectedNbOfEdges)
 {
-  vtkNew<vtkIdList> newFaces;
+  vtkNew<vtkCellArray> newFaces;
   poly->TriangulateFaces(newFaces);
-  poly->SetFaces(newFaces->GetPointer(0));
+  poly->SetCellFaces(newFaces);
   poly->Initialize();
 
   if (poly->GetNumberOfFaces() != expectedNbOfFaces)

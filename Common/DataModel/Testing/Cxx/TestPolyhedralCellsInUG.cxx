@@ -1,5 +1,17 @@
-// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-License-Identifier: BSD-3-Clause
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestPolyhedron.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 
 #include "vtkActor.h"
 #include "vtkCellArray.h"
@@ -28,19 +40,62 @@
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
+#include <vtksys/SystemTools.hxx>
 
-#define compare_doublevec(x, y, e)                                                                 \
-  (((x[0] - y[0]) < (e)) && ((x[0] - y[0]) > -(e)) && ((x[1] - y[1]) < (e)) &&                     \
-    ((x[1] - y[1]) > -(e)) && ((x[2] - y[2]) < (e)) && ((x[2] - y[2]) > -(e)))
+#if !defined(TESTING_DEPRECATED_SUPRESS_SUPPORTED)
+#if defined(__GNUC__)
+#define TESTING_DEPRECATED_SUPRESS_SUPPORTED
+#define TESTING_DEPRECATED_SUPRESS_BEGIN                                                           \
+  _Pragma("GCC diagnostic push") _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#define TESTING_DEPRECATED_SUPRESS_END _Pragma("GCC diagnostic pop")
+#elif defined(__clang__) && !defined(__INTEL_COMPILER)
+#define TESTING_DEPRECATED_SUPRESS_SUPPORTED
+#define TESTING_DEPRECATED_SUPRESS_BEGIN                                                           \
+  _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored "                             \
+                                           "\"-Wdeprecated-declarations\"")
+#define TESTING_DEPRECATED_SUPRESS_END _Pragma("clang diagnostic pop")
+#elif defined(_MSC_VER)
+#define TESTING_DEPRECATED_SUPRESS_SUPPORTED
+#define TESTING_DEPRECATED_SUPRESS_BEGIN __pragma(warning(push)) __pragma(warning(disable : 4996))
+#define TESTING_DEPRECATED_SUPRESS_END __pragma(warning(pop))
+#elif defined(__INTEL_COMPILER) && !defined(__ICL)
+#define TESTING_DEPRECATED_SUPRESS_SUPPORTED
+#define TESTING_DEPRECATED_SUPRESS_BEGIN                                                           \
+  _Pragma("warning(push)") _Pragma("warning(disable:1478 1786)")
+#define TESTING_DEPRECATED_SUPRESS_END _Pragma("warning(pop)")
+#else
+#define TESTING_DEPRECATED_SUPRESS_SUPPORTED
+#define TESTING_DEPRECATED_SUPRESS_BEGIN
+#define TESTING_DEPRECATED_SUPRESS_END
+#endif
+#endif
 
-#define compare_double(x, y, e) ((x) - (y) < (e) && (x) - (y) > -(e))
-
-// Test of vtkPolyhedron. A structured grid is converted to a polyhedral
-// mesh.
-int TestPolyhedron0(int argc, char* argv[])
+namespace
 {
+bool compare_doublevec(const double x[3], const double y[3], const double e)
+{
+  return (((x[0] - y[0]) < (e)) && ((x[0] - y[0]) > -(e)) && ((x[1] - y[1]) < (e)) &&
+    ((x[1] - y[1]) > -(e)) && ((x[2] - y[2]) < (e)) && ((x[2] - y[2]) > -(e)));
+}
+
+bool compare_double(const double x, const double y, const double e)
+{
+  return ((x - y) < (e) && (x - y) > -(e));
+}
+}
+
+// Test of vtkUnstructuredGrid support for Polyhedral Cells.
+// A structured grid is converted to a polyhedral mesh.
+int TestPolyhedralCellsInUG(int argc, char* argv[])
+{
+  const double tol = 0.001;
+  double p1[3] = { -100, 0, 0 };
+  double p2[3] = { 100, 0, 0 };
+  double t, x[3], pc[3];
+  int subId = 0;
+
   // create the a cube
-  vtkSmartPointer<vtkCubeSource> cube = vtkSmartPointer<vtkCubeSource>::New();
+  vtkNew<vtkCubeSource> cube;
   cube->SetXLength(10);
   cube->SetYLength(10);
   cube->SetZLength(20);
@@ -48,7 +103,7 @@ int TestPolyhedron0(int argc, char* argv[])
   cube->Update();
 
   // add scaler
-  vtkSmartPointer<vtkElevationFilter> ele = vtkSmartPointer<vtkElevationFilter>::New();
+  vtkNew<vtkElevationFilter> ele;
   ele->SetInputConnection(cube->GetOutputPort());
   ele->SetLowPoint(0, 0, -10);
   ele->SetHighPoint(0, 0, 10);
@@ -58,7 +113,7 @@ int TestPolyhedron0(int argc, char* argv[])
   // create a test polyhedron
   vtkIdType pointIds[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
-  vtkSmartPointer<vtkCellArray> faces = vtkSmartPointer<vtkCellArray>::New();
+  vtkNew<vtkCellArray> faces;
   vtkIdType face0[4] = { 0, 2, 6, 4 };
   vtkIdType face1[4] = { 1, 3, 7, 5 };
   vtkIdType face2[4] = { 0, 1, 3, 2 };
@@ -72,17 +127,66 @@ int TestPolyhedron0(int argc, char* argv[])
   faces->InsertNextCell(4, face4);
   faces->InsertNextCell(4, face5);
 
-  vtkSmartPointer<vtkUnstructuredGrid> ugrid0 = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkNew<vtkCellArray> faceLocations;
+  vtkIdType faceIds[6] = { 0, 1, 2, 3, 4, 5 };
+  faceLocations->InsertNextCell(6, faceIds);
+
+  vtkNew<vtkCellArray> cells;
+  cells->InsertNextCell(8, pointIds);
+
+  vtkNew<vtkUnsignedCharArray> cellTypes;
+  cellTypes->InsertNextValue(VTK_POLYHEDRON);
+
+  vtkNew<vtkUnstructuredGrid> ugrid0;
   ugrid0->SetPoints(poly->GetPoints());
-  ugrid0->GetPointData()->DeepCopy(poly->GetPointData());
+  ugrid0->GetPointData()->ShallowCopy(poly->GetPointData());
 
-  ugrid0->InsertNextCell(VTK_POLYHEDRON, 8, pointIds, faces);
+  ugrid0->SetPolyhedralCells(cellTypes, cells, faceLocations, faces);
 
-  vtkPolyhedron* polyhedron = static_cast<vtkPolyhedron*>(ugrid0->GetCell(0));
+  vtkCellArray* facesHandle = ugrid0->GetPolyhedronFaces();
+  vtkCellArray* faceLocationsHandle = ugrid0->GetPolyhedronFaceLocations();
+
+  vtkIdTypeArray* faceStream = nullptr;
+  vtkIdTypeArray* faceStreamLocations = nullptr;
+  // disable warning while testing backward compatibility layer
+  TESTING_DEPRECATED_SUPRESS_BEGIN
+  faceStreamLocations = ugrid0->GetFaceLocations();
+  faceStream = ugrid0->GetFaces();
+  TESTING_DEPRECATED_SUPRESS_END
+
+  // check Legacy cache is correct
+  if (faceStreamLocations->GetNumberOfTuples() != faceLocationsHandle->GetNumberOfCells())
+  {
+    std::cout << "Error Legacy backward compatibility layer is not coherent for faceLocations."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (faceStream->GetValue(1) != facesHandle->GetCellSize(0))
+  {
+    std::cout << "Error Legacy backward compatibility layer is not coherent for faces."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkUnstructuredGrid> ugrid1;
+  ugrid1->SetPoints(poly->GetPoints());
+  ugrid1->GetPointData()->DeepCopy(poly->GetPointData());
+  // disable warning because we are testing backward compatibility layer
+  TESTING_DEPRECATED_SUPRESS_BEGIN
+  ugrid1->SetCells(cellTypes, cells, faceStreamLocations, faceStream);
+  TESTING_DEPRECATED_SUPRESS_END
+
+  vtkPolyhedron* polyhedron = vtkPolyhedron::SafeDownCast(ugrid0->GetCell(0));
+  if (!polyhedron)
+  {
+    std::cerr << "SafeDownCast to vtkPolyhedron failed" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   vtkCellArray* cell = ugrid0->GetCells();
   vtkNew<vtkIdTypeArray> pids;
   cell->ExportLegacyFormat(pids);
+
   std::cout << "num of cells: " << cell->GetNumberOfCells() << std::endl;
   std::cout << "num of tuples: " << pids->GetNumberOfTuples() << std::endl;
   for (int i = 0; i < pids->GetNumberOfTuples(); i++)
@@ -92,38 +196,70 @@ int TestPolyhedron0(int argc, char* argv[])
   std::cout << std::endl;
   cell->Print(std::cout);
 
+  vtkPolyhedron* polyhedron_copy = vtkPolyhedron::SafeDownCast(ugrid1->GetCell(0));
+  if (!polyhedron_copy)
+  {
+    std::cerr << "SafeDownCast to vtkPolyhedron failed" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  vtkCellArray* cell_copy = ugrid1->GetCells();
+  vtkNew<vtkIdTypeArray> pids_copy;
+  cell_copy->ExportLegacyFormat(pids_copy);
+
+  std::cout << "Deepcopy num of cells: " << cell_copy->GetNumberOfCells() << std::endl;
+  std::cout << "Deepcopy num of tuples: " << pids_copy->GetNumberOfTuples() << std::endl;
+  for (int i = 0; i < pids_copy->GetNumberOfTuples(); i++)
+  {
+    std::cout << pids_copy->GetValue(i) << " ";
+  }
+  std::cout << std::endl;
+  cell_copy->Print(std::cout);
+
   // Print out basic information
   std::cout << "Testing polyhedron is a cube of with bounds "
             << "[-5, 5, -5, 5, -10, 10]. It has " << polyhedron->GetNumberOfEdges() << " edges and "
             << polyhedron->GetNumberOfFaces() << " faces." << std::endl;
 
-  double p1[3] = { -100, 0, 0 };
-  double p2[3] = { 100, 0, 0 };
-  double tol = 0.001;
-  double t, x[3], pc[3];
-  int subId = 0;
+  std::cout << "Testing polyhedron deepcopy is a cube of with bounds "
+            << "[-5, 5, -5, 5, -10, 10]. It has " << polyhedron_copy->GetNumberOfEdges()
+            << " edges and " << polyhedron_copy->GetNumberOfFaces() << " faces." << std::endl;
 
   //
   // test writer
-  vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
-    vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+  //
+  // Delete any existing files to prevent false failures
+  if (vtksys::SystemTools::FileExists("test.vtu"))
+  {
+    vtksys::SystemTools::RemoveFile("test.vtu");
+  }
+  vtkNew<vtkXMLUnstructuredGridWriter> writer;
   writer->SetInputData(ugrid0);
   writer->SetFileName("test.vtu");
   writer->SetDataModeToAscii();
   writer->Update();
-  std::cout << "finished writing the polyhedron mesh to test.vth " << std::endl;
+  std::cout << "finished writing the polyhedron mesh to test.vtu " << std::endl;
 
   //
   // test reader
-  vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
-    vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+  vtkNew<vtkXMLUnstructuredGridReader> reader;
   reader->SetFileName("test.vtu");
   reader->Update();
-  std::cout << "finished reading the polyhedron mesh from test.vth " << std::endl;
+  std::cout << "finished reading the polyhedron mesh from test.vtu " << std::endl;
 
   vtkUnstructuredGrid* ugrid = reader->GetOutput();
   polyhedron = vtkPolyhedron::SafeDownCast(ugrid->GetCell(0));
+  if (!polyhedron)
+  {
+    std::cerr << "SafeDownCast to vtkPolyhedron failed" << std::endl;
+    return EXIT_FAILURE;
+  }
 
+  // Delete any existing files to prevent false failures
+  if (vtksys::SystemTools::FileExists("test1.vtu"))
+  {
+    vtksys::SystemTools::RemoveFile("test1.vtu");
+  }
   // write again to help compare
   writer->SetInputData(ugrid);
   writer->SetFileName("test1.vtu");
@@ -186,7 +322,7 @@ int TestPolyhedron0(int argc, char* argv[])
   double refWeights[8] = { 0.0, 0.0, 0.0, 0.0, 0.25, 0.25, 0.25, 0.25 };
   for (int i = 0; i < 8; i++)
   {
-    if (!compare_double(refWeights[i], weights[i], 0.00001))
+    if (!::compare_double(refWeights[i], weights[i], tol * 0.01))
     {
       std::cout << "Error computing the weights for a point on the polyhedron." << std::endl;
       return EXIT_FAILURE;
@@ -194,14 +330,14 @@ int TestPolyhedron0(int argc, char* argv[])
   }
 
   double refClosestPoint[3] = { 5.0, 0.0, 0.0 };
-  if (!compare_doublevec(closestPoint, refClosestPoint, 0.00001))
+  if (!::compare_doublevec(closestPoint, refClosestPoint, tol * 0.01))
   {
     std::cout << "Error finding the closet point of a point on the polyhedron." << std::endl;
     return EXIT_FAILURE;
   }
 
   double refDist2 = 0.0;
-  if (!compare_double(dist2, refDist2, 0.000001))
+  if (!::compare_double(dist2, refDist2, tol * 0.001))
   {
     std::cout << "Error computing the distance for a point on the polyhedron." << std::endl;
     return EXIT_FAILURE;
@@ -223,14 +359,14 @@ int TestPolyhedron0(int argc, char* argv[])
   double refWeights1[8] = { 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125 };
   for (int i = 0; i < 8; i++)
   {
-    if (!compare_double(refWeights1[i], weights[i], 0.00001))
+    if (!::compare_double(refWeights1[i], weights[i], tol * 0.01))
     {
       std::cout << "Error computing the weights for a point inside the polyhedron." << std::endl;
       return EXIT_FAILURE;
     }
   }
 
-  if (!compare_double(dist2, refDist2, 0.000001))
+  if (!::compare_double(dist2, refDist2, tol * 0.001))
   {
     std::cout << "Error computing the distance for a point inside the polyhedron." << std::endl;
     return EXIT_FAILURE;
@@ -252,32 +388,32 @@ int TestPolyhedron0(int argc, char* argv[])
   double refWeights2[8] = { 0.0307, 0.0307, 0.0307, 0.0307, 0.2193, 0.2193, 0.2193, 0.2193 };
   for (int i = 0; i < 8; i++)
   {
-    if (!compare_double(refWeights2[i], weights[i], 0.0001))
+    if (!::compare_double(refWeights2[i], weights[i], tol * 0.1))
     {
       std::cout << "Error computing the weights for a point outside the polyhedron." << std::endl;
       return EXIT_FAILURE;
     }
   }
 
-  if (!compare_doublevec(closestPoint, refClosestPoint, 0.00001))
+  if (!::compare_doublevec(closestPoint, refClosestPoint, tol * 0.01))
   {
     std::cout << "Error finding the closet point of a point outside the polyhedron." << std::endl;
     return EXIT_FAILURE;
   }
 
   refDist2 = 9.0;
-  if (!compare_double(dist2, refDist2, 0.000001))
+  if (!::compare_double(dist2, refDist2, tol * 0.001))
   {
     std::cout << "Error computing the distance for a point outside the polyhedron." << std::endl;
     return EXIT_FAILURE;
   }
 
   // test evaluation location
-  double weights1[8];
+  double weights1[8] = { 0.0 };
   polyhedron->EvaluateLocation(subId, pc, x, weights1);
 
   double refPoint[3] = { 8.0, 0.0, 0.0 };
-  if (!compare_doublevec(refPoint, x, 0.00001))
+  if (!::compare_doublevec(refPoint, x, tol * 0.01))
   {
     std::cout << "Error evaluate the point location for its parameter coordinate." << std::endl;
     return EXIT_FAILURE;
@@ -285,7 +421,7 @@ int TestPolyhedron0(int argc, char* argv[])
 
   for (int i = 0; i < 8; i++)
   {
-    if (!compare_double(refWeights2[i], weights1[i], 0.0001))
+    if (!::compare_double(refWeights2[i], weights1[i], tol * 0.1))
     {
       std::cout << "Error computing the weights based on parameter coordinates." << std::endl;
       return EXIT_FAILURE;
@@ -298,7 +434,8 @@ int TestPolyhedron0(int argc, char* argv[])
   pc[2] = 0.5;
   polyhedron->EvaluateLocation(subId, pc, x, weights1);
 
-  double deriv[3], values[8];
+  double deriv[3] = { 0.0 };
+  double values[8] = { 0.0 };
   vtkDataArray* dataArray = poly->GetPointData()->GetScalars();
   for (int i = 0; i < 8; i++)
   {
@@ -315,15 +452,15 @@ int TestPolyhedron0(int argc, char* argv[])
   std::cout << std::endl;
 
   double refDeriv[3] = { 0.0, 0.0, 0.05 };
-  if (!compare_doublevec(refDeriv, deriv, 0.00001))
+  if (!::compare_doublevec(refDeriv, deriv, tol * 0.01))
   {
     std::cout << "Error computing derivative for a point inside the polyhedron." << std::endl;
     return EXIT_FAILURE;
   }
 
   // test triangulation
-  vtkSmartPointer<vtkPoints> tetraPoints = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkIdList> tetraIdList = vtkSmartPointer<vtkIdList>::New();
+  vtkNew<vtkPoints> tetraPoints;
+  vtkNew<vtkIdList> tetraIdList;
   polyhedron->Triangulate(0, tetraIdList, tetraPoints);
 
   std::cout << std::endl << "Triangulation result:" << std::endl;
@@ -342,7 +479,7 @@ int TestPolyhedron0(int argc, char* argv[])
               << " " << ids[i + 3] << std::endl;
   }
 
-  vtkSmartPointer<vtkUnstructuredGrid> tetraGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkNew<vtkUnstructuredGrid> tetraGrid;
   for (int i = 0; i < tetraIdList->GetNumberOfIds(); i += 4)
   {
     tetraGrid->InsertNextCell(VTK_TETRA, 4, ids + i);
@@ -351,29 +488,29 @@ int TestPolyhedron0(int argc, char* argv[])
   tetraGrid->GetPointData()->DeepCopy(poly->GetPointData());
 
   // test contour
-  vtkSmartPointer<vtkPointLocator> locator = vtkSmartPointer<vtkPointLocator>::New();
-  vtkSmartPointer<vtkCellArray> resultPolys = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkPointData> resultPd = vtkSmartPointer<vtkPointData>::New();
-  vtkSmartPointer<vtkCellData> resultCd = vtkSmartPointer<vtkCellData>::New();
-  vtkSmartPointer<vtkPoints> resultPoints = vtkSmartPointer<vtkPoints>::New();
-  resultPoints->DeepCopy(ugrid0->GetPoints());
+  vtkNew<vtkPointLocator> locator;
+  vtkNew<vtkCellArray> resultPolys;
+  vtkNew<vtkPointData> resultPd;
+  vtkNew<vtkCellData> resultCd;
+  vtkNew<vtkPoints> resultPoints;
+  resultPoints->ShallowCopy(ugrid0->GetPoints());
   locator->InitPointInsertion(resultPoints, ugrid0->GetBounds());
 
   polyhedron->Contour(0.5, tetraGrid->GetPointData()->GetScalars(), locator, nullptr, nullptr,
     resultPolys, tetraGrid->GetPointData(), resultPd, tetraGrid->GetCellData(), 0, resultCd);
 
   // output the contour
-  vtkSmartPointer<vtkUnstructuredGrid> contourResult = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkNew<vtkUnstructuredGrid> contourResult;
   contourResult->SetPoints(locator->GetPoints());
   contourResult->SetCells(VTK_POLYGON, resultPolys);
   contourResult->GetPointData()->DeepCopy(resultPd);
 
   // test clip
-  vtkSmartPointer<vtkPointLocator> locator1 = vtkSmartPointer<vtkPointLocator>::New();
-  vtkSmartPointer<vtkCellArray> resultPolys1 = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkPointData> resultPd1 = vtkSmartPointer<vtkPointData>::New();
-  vtkSmartPointer<vtkCellData> resultCd1 = vtkSmartPointer<vtkCellData>::New();
-  vtkSmartPointer<vtkPoints> resultPoints1 = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPointLocator> locator1;
+  vtkNew<vtkCellArray> resultPolys1;
+  vtkNew<vtkPointData> resultPd1;
+  vtkNew<vtkCellData> resultCd1;
+  vtkNew<vtkPoints> resultPoints1;
   resultPoints1->DeepCopy(ugrid0->GetPoints());
   locator1->InitPointInsertion(resultPoints1, ugrid0->GetBounds());
 
@@ -381,37 +518,37 @@ int TestPolyhedron0(int argc, char* argv[])
     tetraGrid->GetPointData(), resultPd1, tetraGrid->GetCellData(), 0, resultCd1, 0);
 
   // output the clipped polyhedron
-  vtkSmartPointer<vtkUnstructuredGrid> clipResult = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkNew<vtkUnstructuredGrid> clipResult;
   clipResult->SetPoints(locator1->GetPoints());
   clipResult->SetCells(VTK_POLYHEDRON, resultPolys1);
   clipResult->GetPointData()->DeepCopy(resultPd1);
 
   // shrink to show the gaps between tetrahedrons.
-  vtkSmartPointer<vtkShrinkFilter> shrink = vtkSmartPointer<vtkShrinkFilter>::New();
+  vtkNew<vtkShrinkFilter> shrink;
   shrink->SetInputData(tetraGrid);
   shrink->SetShrinkFactor(0.7);
 
   // create actors
-  vtkSmartPointer<vtkDataSetMapper> mapper = vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkNew<vtkDataSetMapper> mapper;
   mapper->SetInputData(poly);
 
-  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
 
-  vtkSmartPointer<vtkDataSetMapper> contourMapper = vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkNew<vtkDataSetMapper> contourMapper;
   contourMapper->SetInputData(contourResult);
 
-  vtkSmartPointer<vtkActor> contourActor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> contourActor;
   contourActor->SetMapper(contourMapper);
 
-  vtkSmartPointer<vtkDataSetMapper> clipPolyhedronMapper = vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkNew<vtkDataSetMapper> clipPolyhedronMapper;
   clipPolyhedronMapper->SetInputData(clipResult);
 
-  vtkSmartPointer<vtkActor> clipPolyhedronActor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> clipPolyhedronActor;
   clipPolyhedronActor->SetMapper(clipPolyhedronMapper);
 
   // Create rendering infrastructure
-  vtkSmartPointer<vtkProperty> prop = vtkSmartPointer<vtkProperty>::New();
+  vtkNew<vtkProperty> prop;
   prop->LightingOff();
   prop->SetRepresentationToSurface();
   prop->EdgeVisibilityOn();
@@ -423,18 +560,17 @@ int TestPolyhedron0(int argc, char* argv[])
   contourActor->SetProperty(prop);
   clipPolyhedronActor->SetProperty(prop);
 
-  vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren;
   ren->AddActor(actor);
   ren->AddActor(contourActor);
   ren->AddActor(clipPolyhedronActor);
   ren->SetBackground(.5, .5, .5);
 
-  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren);
 
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
   iren->Initialize();
@@ -447,5 +583,14 @@ int TestPolyhedron0(int argc, char* argv[])
     iren->Start();
   }
 
+  // Clean the test produced files if all went well
+  if (vtksys::SystemTools::FileExists("test1.vtu") && retVal != EXIT_FAILURE)
+  {
+    vtksys::SystemTools::RemoveFile("test1.vtu");
+  }
+  if (vtksys::SystemTools::FileExists("test1.vtu") && retVal != EXIT_FAILURE)
+  {
+    vtksys::SystemTools::RemoveFile("test1.vtu");
+  }
   return !retVal;
 }

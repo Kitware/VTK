@@ -352,6 +352,35 @@ int vtkXMLUnstructuredDataWriter::WriteHeader()
 
   return 1;
 }
+namespace
+{
+struct FaceStreamVisitor
+{
+  // Insert full cell
+  template <typename CellStateT>
+  vtkIdType operator()(CellStateT& state, vtkIdTypeArray* faceStream)
+  {
+    vtkIdType count = 0;
+    vtkIdType NumberOfFaces = state.GetNumberOfCells();
+    count = 1 + NumberOfFaces;
+    faceStream->InsertNextValue(NumberOfFaces);
+    for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
+    {
+      const vtkIdType beginOffset = state.GetBeginOffset(faceNum);
+      const vtkIdType endOffset = state.GetEndOffset(faceNum);
+      const vtkIdType nFaceVerts = endOffset - beginOffset;
+      const auto facePoints = state.GetConnectivity()->GetPointer(beginOffset);
+      faceStream->InsertNextValue(nFaceVerts);
+      count += nFaceVerts;
+      for (vtkIdType j = 0; j < nFaceVerts; ++j)
+      {
+        faceStream->InsertNextValue(static_cast<vtkIdType>(facePoints[j]));
+      }
+    }
+    return count;
+  }
+};
+}
 
 void CreateFaceStream(
   vtkCellIterator* cellIter, vtkIdTypeArray* faceStream, vtkIdTypeArray* faceOffsets)
@@ -378,25 +407,10 @@ void CreateFaceStream(
       continue;
     }
 
-    vtkIdType n(0);
-    vtkIdType* faces = poly->GetFaces();
-    vtkIdType nFaces = faces[n++];
-
+    vtkCellArray* faces = poly->GetCellFaces();
     // create offset in vtkUnstructuredGrid fashion, this will later be converted using ConvertFaces
     faceOffsets->InsertNextValue(offset);
-
-    faceStream->InsertNextValue(nFaces);
-    for (vtkIdType i = 0; i < nFaces; ++i)
-    {
-      vtkIdType nFaceVerts = faces[n++];
-      faceStream->InsertNextValue(nFaceVerts);
-      for (vtkIdType j = 0; j < nFaceVerts; ++j)
-      {
-        vtkIdType vi = faces[n++];
-        faceStream->InsertNextValue(vi);
-      }
-    }
-    offset += n;
+    offset += faces->Visit(FaceStreamVisitor{}, faceStream);
   }
 }
 
@@ -656,6 +670,19 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name, vtkCellArr
 }
 
 //------------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::WritePolyCellsInline(const char* name, vtkCellArray* cells,
+  vtkDataArray* types, vtkCellArray* faces, vtkCellArray* faceOffsets, vtkIndent indent)
+{
+  if (cells)
+  {
+    this->ConvertCells(cells);
+  }
+  this->ConvertPolyFaces(faces, faceOffsets);
+
+  this->WriteCellsInlineWorker(name, types, indent);
+}
+
+//------------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::WriteCellsInlineWorker(
   const char* name, vtkDataArray* types, vtkIndent indent)
 {
@@ -732,6 +759,48 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInlineWorker(
   if (os.fail())
   {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::WritePolyCellsAppended(const char* name, vtkDataArray* types,
+  vtkCellArray* faces, vtkCellArray* faceOffsets, vtkIndent indent,
+  OffsetsManagerGroup* cellsManager)
+{
+  this->ConvertPolyFaces(faces, faceOffsets);
+  ostream& os = *(this->Stream);
+  os << indent << "<" << name << ">\n";
+
+  // Helper for the 'for' loop
+  vtkDataArray* allcells[5];
+  allcells[0] = this->CellPoints;
+  allcells[1] = this->CellOffsets;
+  allcells[2] = types;
+  allcells[3] = this->Faces->GetNumberOfTuples() ? this->Faces : nullptr;
+  allcells[4] = this->FaceOffsets->GetNumberOfTuples() ? this->FaceOffsets : nullptr;
+  const char* names[] = { nullptr, nullptr, "types", nullptr, nullptr };
+
+  for (int t = 0; t < this->NumberOfTimeSteps; t++)
+  {
+    for (int i = 0; i < 5; i++)
+    {
+      if (allcells[i])
+      {
+        this->WriteArrayAppended(
+          allcells[i], indent.GetNextIndent(), cellsManager->GetElement(i), names[i], 0, t);
+        if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+          return;
+        }
+      }
+    }
+  }
+  os << indent << "</" << name << ">\n";
+  os.flush();
+  if (os.fail())
+  {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return;
   }
 }
 
@@ -856,6 +925,20 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellIterator* cellI
   }
 
   this->WriteCellsAppendedDataWorker(types.GetPointer(), timestep, cellsManager);
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::WritePolyCellsAppendedData(vtkCellArray* cells,
+  vtkDataArray* types, vtkCellArray* faces, vtkCellArray* faceOffsets, int timestep,
+  OffsetsManagerGroup* cellsManager)
+{
+  if (cells)
+  {
+    this->ConvertCells(cells);
+  }
+
+  this->ConvertPolyFaces(faces, faceOffsets);
+  this->WriteCellsAppendedDataWorker(types, timestep, cellsManager);
 }
 
 //------------------------------------------------------------------------------
@@ -1057,6 +1140,82 @@ void vtkXMLUnstructuredDataWriter::ConvertFaces(vtkIdTypeArray* faces, vtkIdType
       {
         // read numberOfPoints in a face
         vtkIdType numberOfFacePoints = facesPtr[currLoc];
+        currLoc += numberOfFacePoints + 1;
+      }
+      newOffsetPtr[i] = currLoc;
+    }
+  }
+
+  if (!foundPolyhedronCell)
+  {
+    this->Faces->SetNumberOfTuples(0);
+    this->FaceOffsets->SetNumberOfTuples(0);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::ConvertPolyFaces(vtkCellArray* faces, vtkCellArray* faceOffsets)
+{
+  if (!faces || !faces->GetNumberOfCells() || !faceOffsets || !faceOffsets->GetNumberOfCells())
+  {
+    this->Faces->SetNumberOfTuples(0);
+    this->FaceOffsets->SetNumberOfTuples(0);
+    return;
+  }
+
+  vtkIdType numberOfCells = faceOffsets->GetNumberOfCells();
+  vtkIdType countPolyhedronCells = 0;
+  for (vtkIdType i = 0; i < numberOfCells; ++i)
+  {
+    if (faceOffsets->GetCellSize(i) != 0)
+    {
+      countPolyhedronCells++;
+    }
+  }
+
+  // copy faces stream.
+  vtkIdType facesArrayLength =
+    faces->GetNumberOfConnectivityIds() + faces->GetNumberOfCells() + countPolyhedronCells;
+  this->Faces->SetNumberOfTuples(facesArrayLength);
+  this->FaceOffsets->SetNumberOfTuples(numberOfCells);
+
+  vtkIdType* toPtr = this->Faces->GetPointer(0);
+  vtkIdType* newOffsetPtr = this->FaceOffsets->GetPointer(0);
+  bool foundPolyhedronCell = false;
+  vtkIdType currLoc = 0;
+  vtkIdType faceLoc = 0;
+  vtkNew<vtkIdList> faceTmpIds;
+  vtkNew<vtkIdList> ptsTmpIds;
+  const vtkIdType* faceIds;
+  const vtkIdType* ptsIds;
+  // this->FaceOffsets point to the face arrays of cells. Specifically
+  // FaceOffsets[i] points to the end of the i-th cell's faces + 1.
+  // Note, a non-polyhedron cell has an offset of -1.
+  for (vtkIdType i = 0; i < numberOfCells; i++)
+  {
+    vtkIdType numberOfCellFaces = faceOffsets->GetCellSize(i);
+    if (numberOfCellFaces == 0) // non-polyhedron cell
+    {
+      newOffsetPtr[i] = -1;
+    }
+    else // polyhedron cell
+    {
+      foundPolyhedronCell = true;
+      // numberOfFaces in a cell
+      toPtr[faceLoc++] = numberOfCellFaces;
+      numberOfCellFaces = faceOffsets->GetCellSize(i);
+      faceOffsets->GetCellAtId(i, numberOfCellFaces, faceIds, faceTmpIds);
+      currLoc += 1;
+      for (vtkIdType j = 0; j < numberOfCellFaces; j++)
+      {
+        vtkIdType numberOfFacePoints;
+        faces->GetCellAtId(faceIds[j], numberOfFacePoints, ptsIds, ptsTmpIds);
+        // numberOfPoints in a face
+        toPtr[faceLoc++] = numberOfFacePoints;
+        for (vtkIdType face = 0; face < numberOfFacePoints; ++face)
+        {
+          toPtr[faceLoc++] = ptsIds[face];
+        }
         currLoc += numberOfFacePoints + 1;
       }
       newOffsetPtr[i] = currLoc;

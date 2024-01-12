@@ -815,8 +815,15 @@ void vtkCellTypeSource::GeneratePolyhedron(vtkUnstructuredGrid* output, int exte
   const int zDim = extent[5] - extent[4];
   output->Allocate(xDim * yDim * zDim);
 
-  vtkIdType faces[30] = { 4, 1, 3, 2, 0, 4, 3, 7, 6, 2, 4, 7, 5, 4, 6, 4, 5, 1, 0, 4, 4, 6, 4, 0, 2,
-    4, 5, 7, 3, 1 };
+  vtkIdType foffset[7] = { 0, 4, 8, 12, 16, 20, 24 };
+  vtkIdType fconns[24] = { 1, 3, 2, 0, 3, 7, 6, 2, 7, 5, 4, 6, 5, 1, 0, 4, 6, 4, 0, 2, 5, 7, 3, 1 };
+
+  vtkNew<vtkCellArray> faces;
+  vtkNew<vtkIdTypeArray> offsets;
+  vtkNew<vtkIdTypeArray> connectivity;
+  offsets->SetArray(foffset, 7, 1);
+  connectivity->SetArray(fconns, 24, 1);
+
   for (int k = 0; k < zDim; k++)
   {
     for (int j = 0; j < yDim; j++)
@@ -834,16 +841,17 @@ void vtkCellTypeSource::GeneratePolyhedron(vtkUnstructuredGrid* output, int exte
           i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
         };
 
-        faces[4] = faces[18] = faces[23] = hexIds[0];
-        faces[1] = faces[17] = faces[29] = hexIds[1];
-        faces[3] = faces[9] = faces[24] = hexIds[2];
-        faces[2] = faces[6] = faces[28] = hexIds[3];
-        faces[13] = faces[19] = faces[22] = hexIds[4];
-        faces[12] = faces[16] = faces[26] = hexIds[5];
-        faces[8] = faces[14] = faces[21] = hexIds[6];
-        faces[7] = faces[11] = faces[27] = hexIds[7];
+        fconns[3] = fconns[14] = fconns[18] = hexIds[0];
+        fconns[0] = fconns[13] = fconns[23] = hexIds[1];
+        fconns[2] = fconns[7] = fconns[19] = hexIds[2];
+        fconns[1] = fconns[4] = fconns[22] = hexIds[3];
+        fconns[10] = fconns[15] = fconns[17] = hexIds[4];
+        fconns[9] = fconns[12] = fconns[20] = hexIds[5];
+        fconns[6] = fconns[11] = fconns[16] = hexIds[6];
+        fconns[5] = fconns[8] = fconns[21] = hexIds[7];
 
-        output->InsertNextCell(VTK_POLYHEDRON, 8, hexIds, 6, faces);
+        faces->SetData(offsets, connectivity);
+        output->InsertNextCell(VTK_POLYHEDRON, 8, hexIds, faces);
       }
     }
   }

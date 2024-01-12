@@ -2485,11 +2485,10 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       this->ReadIntArray(nodeIdList, numNodes);
 
       // yyy begin
-      int k;                        // indexing each node Id of a face
-      int faceIdx = 0;              // indexing faces throughout all polyhedra
-      int nodeIdx = 0;              // indexing nodes throughout all polyhedra
-      int arayIdx = 0;              // indexing the array of Ids (info of faces)
-      vtkIdType* faceAry = nullptr; // array of Ids describing a vtkPolyhedron
+      int k;                      // indexing each node Id of a face
+      int faceIdx = 0;            // indexing faces throughout all polyhedra
+      int nodeIdx = 0;            // indexing nodes throughout all polyhedra
+      vtkNew<vtkCellArray> faces; // cell array describing a vtkPolyhedron
       // yyy end
 
       for (i = 0; i < numElements; i++)
@@ -2498,15 +2497,14 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
         vtkIdType* nodeIds = new vtkIdType[numNodesPerElement[i]];
 
         // yyy begin
-        arayIdx = 0;
-        faceAry = new vtkIdType[numFacesPerElement[i] + numNodesPerElement[i]];
+        faces->Reset();
         for (j = 0; j < numFacesPerElement[i]; j++, faceIdx++)
         {
-          faceAry[arayIdx++] = numNodesPerFace[faceIdx];
+          faces->InsertNextCell(numNodesPerFace[faceIdx]);
 
           for (k = 0; k < numNodesPerFace[faceIdx]; k++)
           {
-            faceAry[arayIdx++] = nodeIdList[nodeIdx++] - 1;
+            faces->InsertCellPoint(nodeIdList[nodeIdx++] - 1);
           }
         }
         // yyy end
@@ -2528,10 +2526,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
         // xxx end
 
         // yyy begin
-        cellId = output->InsertNextCell(
-          VTK_POLYHEDRON, elementNodeCount, nodeIds, numFacesPerElement[i], faceAry);
-        delete[] faceAry;
-        faceAry = nullptr;
+        cellId = output->InsertNextCell(VTK_POLYHEDRON, elementNodeCount, nodeIds, faces);
         // yyy end
 
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);

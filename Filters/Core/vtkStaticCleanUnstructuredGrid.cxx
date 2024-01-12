@@ -313,25 +313,9 @@ void UpdateCellArrayConnectivity(vtkCellArray* ca, vtkIdType* ptMap)
 }
 
 //  Update the polyhedra face connectivity array.
-void UpdatePolyhedraFaces(vtkIdTypeArray* a, vtkIdType* ptMap)
+void UpdatePolyhedraFaces(vtkCellArray* a, vtkIdType* ptMap)
 {
-  vtkIdType num = a->GetNumberOfTuples();
-  vtkIdType* c = a->GetPointer(0);
-
-  for (vtkIdType idx = 0; idx < num;)
-  {
-    vtkIdType numFaces = c[idx++];
-    vtkIdType npts;
-    for (vtkIdType faceNum = 0; faceNum < numFaces; ++faceNum)
-    {
-      npts = c[idx++];
-      for (vtkIdType i = 0; i < npts; ++i)
-      {
-        c[idx + i] = ptMap[c[idx + i]];
-      }
-      idx += npts;
-    }
-  }
+  UpdateCellArrayConnectivity(a, ptMap);
 }
 
 } // anonymous namespace
@@ -523,15 +507,15 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
 
   // If the unstructured grid contains polyhedra, the face connectivity needs
   // to be updated as well.
-  vtkIdTypeArray* faceLocations = input->GetFaceLocations();
-  vtkIdTypeArray* faces = input->GetFaces();
+  vtkCellArray* faceLocations = input->GetPolyhedronFaceLocations();
+  vtkCellArray* faces = input->GetPolyhedronFaces();
   if (faces != nullptr)
   {
     UpdatePolyhedraFaces(faces, pmap);
   }
 
   // Finally, assemble the filter output.
-  output->SetCells(input->GetCellTypesArray(), outCells, faceLocations, faces);
+  output->SetPolyhedralCells(input->GetCellTypesArray(), outCells, faceLocations, faces);
 
   // Free unneeded memory
   this->Locator->Initialize();

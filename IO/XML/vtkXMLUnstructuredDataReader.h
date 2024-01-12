@@ -90,6 +90,8 @@ protected:
   // Read faces and faceoffsets arrays for unstructured grid with polyhedon cells
   int ReadFaceArray(vtkIdType numberOfCells, vtkXMLDataElement* eCells, vtkIdTypeArray* outFaces,
     vtkIdTypeArray* outFaceOffsets);
+  int ReadFaceCellArray(vtkIdType numberOfCells, vtkXMLDataElement* eCells, vtkCellArray* outFaces,
+    vtkCellArray* outFaceOffsets);
 
   // Read a data array whose tuples coorrespond to points.
   int ReadArrayForPoints(vtkXMLDataElement* da, vtkAbstractArray* outArray) override;
