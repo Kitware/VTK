@@ -687,7 +687,8 @@ static int getMethodAttributes(FunctionInfo* func, MethodAttributes* attrs)
  * must match.  The longMatch value is set to '1' if the prefix/suffix
  * was part of the name match. */
 
-static int methodMatchesProperty(PropertyInfo* property, MethodAttributes* meth, int* longMatch)
+static int methodMatchesProperty(
+  const HierarchyInfo* hinfo, PropertyInfo* property, MethodAttributes* meth, int* longMatch)
 {
   size_t n;
   int propertyType, methType;
@@ -862,12 +863,14 @@ static int methodMatchesProperty(PropertyInfo* property, MethodAttributes* meth,
     return 0;
   }
 
-  /* if vtkObject, check that classes match */
+  /* if vtkObject, check that classes match or atleast one is derived from the other */
   if ((methType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT)
   {
+    HierarchyEntry* methEntry = vtkParseHierarchy_FindEntry(hinfo, meth->ClassName);
     if (meth->IsMultiValue || (methType & VTK_PARSE_POINTER_MASK) == 0 || meth->Count != 0 ||
       meth->ClassName == 0 || property->ClassName == 0 ||
-      strcmp(meth->ClassName, property->ClassName) != 0)
+      (strcmp(meth->ClassName, property->ClassName) != 0 &&
+        !vtkParseHierarchy_IsTypeOf(hinfo, methEntry, property->ClassName)))
     {
       return 0;
     }
@@ -953,9 +956,9 @@ static void initializePropertyInfo(
  * Find all the methods that match the specified method, and add
  * flags to the PropertyInfo struct */
 
-static void findAllMatches(PropertyInfo* property, int propertyId, ClassPropertyMethods* methods,
-  int matchedMethods[], unsigned int methodCategories[], int methodHasProperty[],
-  int methodProperties[])
+static void findAllMatches(const HierarchyInfo* hinfo, PropertyInfo* property, int propertyId,
+  ClassPropertyMethods* methods, int matchedMethods[], unsigned int methodCategories[],
+  int methodHasProperty[], int methodProperties[])
 {
   int i, j, k, n;
   size_t m;
@@ -979,7 +982,7 @@ static void findAllMatches(PropertyInfo* property, int propertyId, ClassProperty
       }
 
       meth = methods->Methods[i];
-      if (methodMatchesProperty(property, meth, &longMatch))
+      if (methodMatchesProperty(hinfo, property, meth, &longMatch))
       {
         matchedMethods[i] = 1;
         foundNoMatches = 0;
@@ -1122,8 +1125,8 @@ static int searchForRepeatedMethods(
 /*-------------------------------------------------------------------
  * Add a property, using method at index i as a template */
 
-static void addProperty(
-  ClassProperties* properties, ClassPropertyMethods* methods, int i, int matchedMethods[])
+static void addProperty(const HierarchyInfo* hinfo, ClassProperties* properties,
+  ClassPropertyMethods* methods, int i, int matchedMethods[])
 {
   MethodAttributes* meth = methods->Methods[i];
   PropertyInfo* property;
@@ -1141,7 +1144,7 @@ static void addProperty(
   /* create the property */
   property = (PropertyInfo*)malloc(sizeof(PropertyInfo));
   initializePropertyInfo(property, meth, category);
-  findAllMatches(property, properties->NumberOfProperties, methods, matchedMethods,
+  findAllMatches(hinfo, property, properties->NumberOfProperties, methods, matchedMethods,
     properties->MethodTypes, properties->MethodHasProperty, properties->MethodProperties);
 
   properties->Properties[properties->NumberOfProperties++] = property;
@@ -1151,7 +1154,8 @@ static void addProperty(
  * This is the method that finds out everything that it can about
  * all properties that can be accessed by the methods of a class */
 
-static void categorizeProperties(ClassPropertyMethods* methods, ClassProperties* properties)
+static void categorizeProperties(
+  const HierarchyInfo* hinfo, ClassPropertyMethods* methods, ClassProperties* properties)
 {
   int i, n;
   int* matchedMethods;
@@ -1178,7 +1182,7 @@ static void categorizeProperties(ClassPropertyMethods* methods, ClassProperties*
     if (!matchedMethods[i] && isSetMethod(methods->Methods[i]->Name) &&
       !methods->Methods[i]->IsEnumerated && !isSetNumberOfMethod(methods->Methods[i]->Name))
     {
-      addProperty(properties, methods, i, matchedMethods);
+      addProperty(hinfo, properties, methods, i, matchedMethods);
     }
   }
 
@@ -1191,7 +1195,7 @@ static void categorizeProperties(ClassPropertyMethods* methods, ClassProperties*
       !isAsStringMethod(methods->Methods[i]->Name) &&
       !isGetNumberOfMethod(methods->Methods[i]->Name))
     {
-      addProperty(properties, methods, i, matchedMethods);
+      addProperty(hinfo, properties, methods, i, matchedMethods);
     }
   }
 
@@ -1201,7 +1205,7 @@ static void categorizeProperties(ClassPropertyMethods* methods, ClassProperties*
   {
     if (!matchedMethods[i] && isSetNumberOfMethod(methods->Methods[i]->Name))
     {
-      addProperty(properties, methods, i, matchedMethods);
+      addProperty(hinfo, properties, methods, i, matchedMethods);
     }
   }
 
@@ -1211,7 +1215,7 @@ static void categorizeProperties(ClassPropertyMethods* methods, ClassProperties*
   {
     if (!matchedMethods[i] && isGetNumberOfMethod(methods->Methods[i]->Name))
     {
-      addProperty(properties, methods, i, matchedMethods);
+      addProperty(hinfo, properties, methods, i, matchedMethods);
     }
   }
 
@@ -1221,7 +1225,7 @@ static void categorizeProperties(ClassPropertyMethods* methods, ClassProperties*
     /* all add methods */
     if (!matchedMethods[i] && isAddMethod(methods->Methods[i]->Name))
     {
-      addProperty(properties, methods, i, matchedMethods);
+      addProperty(hinfo, properties, methods, i, matchedMethods);
     }
   }
 
@@ -1259,7 +1263,7 @@ static void categorizePropertyMethods(ClassInfo* data, ClassPropertyMethods* met
 /*-------------------------------------------------------------------
  * build a ClassProperties struct from the info in a FileInfo struct */
 
-ClassProperties* vtkParseProperties_Create(ClassInfo* data)
+ClassProperties* vtkParseProperties_Create(ClassInfo* data, const HierarchyInfo* hinfo)
 {
   int i;
   ClassProperties* properties;
@@ -1289,7 +1293,7 @@ ClassProperties* vtkParseProperties_Create(ClassInfo* data)
   }
 
   /* synthesize a list of properties from the list of methods */
-  categorizeProperties(methods, properties);
+  categorizeProperties(hinfo, methods, properties);
 
   for (i = 0; i < methods->NumberOfMethods; i++)
   {

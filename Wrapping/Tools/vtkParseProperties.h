@@ -11,6 +11,7 @@
 #define VTK_PARSE_PROPERTIES_H
 
 #include "vtkParseData.h"
+#include "vtkParseHierarchy.h"
 #include "vtkWrappingToolsModule.h"
 
 /**
@@ -118,7 +119,8 @@ extern "C"
   /**
    * Build the ClassProperties struct from a ClassInfo struct
    */
-  VTKWRAPPINGTOOLS_EXPORT ClassProperties* vtkParseProperties_Create(ClassInfo* data);
+  VTKWRAPPINGTOOLS_EXPORT ClassProperties* vtkParseProperties_Create(
+    ClassInfo* data, const HierarchyInfo* hinfo);
 
   /**
    * Free a ClassProperties struct
