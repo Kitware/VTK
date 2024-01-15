@@ -108,6 +108,11 @@ public:
   std::vector<hsize_t> GetDimensions(const char* dataset);
 
   /**
+   * Return true if current root path is a soft link
+   */
+  bool IsPathSoftLink(const std::string& path);
+
+  /**
    * Fills the given AMR data with the content of the opened HDF file.
    * The number of level to read is limited by the maximumLevelsToReadByDefault argument.
    * maximumLevelsToReadByDefault == 0 means to read all levels (no limit).

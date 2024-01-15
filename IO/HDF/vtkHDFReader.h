@@ -180,7 +180,7 @@ protected:
   int Read(vtkInformation* outInfo, vtkOverlappingAMR* data);
   int Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data);
   int Read(vtkInformation* outInfo, vtkMultiBlockDataSet* data);
-  int ReadRecursively(vtkInformation* outInfo, vtkMultiBlockDataSet* data, int assemblyId);
+  int ReadRecursively(vtkInformation* outInfo, vtkMultiBlockDataSet* data, const std::string& path);
   ///@}
 
   /**

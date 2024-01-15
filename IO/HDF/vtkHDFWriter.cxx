@@ -358,9 +358,8 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
   {
     // For interoperability with PDC, we need to keep track of
     // the number of datasets (non-subtree) in the structure.
-    int datasetCount = 0;
-    writeSuccess &= this->AppendMultiblock(
-      this->Impl->CreateHdfGroupWithLinkOrder(group, "Assembly"), mb, datasetCount);
+    writeSuccess &=
+      this->AppendMultiblock(this->Impl->CreateHdfGroupWithLinkOrder(group, "Assembly"), mb);
   }
   else
   {
@@ -924,8 +923,7 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendMultiblock(
-  hid_t assemblyGroup, vtkMultiBlockDataSet* mb, int& datasetCount)
+bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* mb)
 {
   // Iterate over the children of the multiblock, recurse if needed.
   vtkSmartPointer<vtkDataObjectTreeIterator> treeIter;
@@ -952,8 +950,7 @@ bool vtkHDFWriter::AppendMultiblock(
       // Create a subgroup and recurse
       auto subTree = vtkMultiBlockDataSet::SafeDownCast(treeIter->GetCurrentDataObject());
       this->AppendMultiblock(
-        this->Impl->CreateHdfGroupWithLinkOrder(assemblyGroup, subTreeName.c_str()), subTree,
-        datasetCount);
+        this->Impl->CreateHdfGroupWithLinkOrder(assemblyGroup, subTreeName.c_str()), subTree);
     }
     else
     {
@@ -963,14 +960,11 @@ bool vtkHDFWriter::AppendMultiblock(
       this->DispatchDataObject(datasetGroup, treeIter->GetCurrentDataObject());
 
       const std::string linkTarget = "/VTKHDF/" + subTreeName;
-      const std::string linkSource =
-        this->Impl->GetGroupName(assemblyGroup) + "/" + subTreeName + "/" + subTreeName;
+      const std::string linkSource = this->Impl->GetGroupName(assemblyGroup) + "/" + subTreeName;
 
-      this->Impl->CreateHdfGroupWithLinkOrder(assemblyGroup, subTreeName.c_str());
       this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
       vtkHDF::ScopedH5GHandle linkedGroup =
         this->Impl->OpenExistingGroup(this->Impl->GetRoot(), linkTarget.c_str());
-      this->Impl->CreateScalarAttribute(linkedGroup, "Index", datasetCount++);
     }
   }
 

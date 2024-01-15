@@ -236,7 +236,7 @@ private:
    * datasetCount needs to be initialized to 0 beforehand. It is used to track the number of
    * datasets during recursion.
    */
-  bool AppendMultiblock(hid_t group, vtkMultiBlockDataSet* mb, int& datasetCount);
+  bool AppendMultiblock(hid_t group, vtkMultiBlockDataSet* mb);
 
   /**
    * Append the offset data in the steps group for the current array for transient data

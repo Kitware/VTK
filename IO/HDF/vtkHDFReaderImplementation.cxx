@@ -1089,6 +1089,19 @@ bool vtkHDFReader::Implementation::NewArray(
   return true;
 }
 
+bool vtkHDFReader::Implementation::IsPathSoftLink(const std::string& path)
+{
+  H5L_info_t object;
+  auto err = H5Lget_info(this->VTKGroup, path.c_str(), &object, H5P_DEFAULT);
+  if (err < 0)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Can't open '" << path << "' link.");
+    return false;
+  }
+
+  return object.type == H5L_TYPE_SOFT;
+}
+
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::FillAssembly(vtkDataAssembly* assembly)
 {
