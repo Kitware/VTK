@@ -174,8 +174,6 @@ void vtkHDFWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
   os << indent << "Overwrite: " << (this->Overwrite ? "yes" : "no") << "\n";
-  os << indent << "OutputAsMultiBlockDataSet: " << (this->OutputAsMultiBlockDataSet ? "yes" : "no")
-     << "\n";
   os << indent << "WriteAllTimeSteps: " << (this->WriteAllTimeSteps ? "yes" : "no") << "\n";
   os << indent << "ChunkSize: " << this->ChunkSize << "\n";
 }
@@ -316,7 +314,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
 {
-  // WARNING : this implementation is incomplete, only the first partition is written
+  // TODO : this implementation is incomplete, only the first partition is written
   vtkWarningMacro(<< "Partitioned dataset support is incomplete for now, only the first partition "
                      "will be written to file : "
                   << this->FileName);
@@ -331,22 +329,12 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
 {
   bool writeSuccess = true;
 
-  if (this->CurrentTimeIndex == 0)
-  {
-    if (this->OutputAsMultiBlockDataSet)
-    {
-      writeSuccess &= this->Impl->WriteHeader(group, "MultiBlockDataSet");
-    }
-    else
-    {
-      writeSuccess &= this->Impl->WriteHeader(group, "PartitionedDataSetCollection");
-    }
-  }
-
   auto* pdc = vtkPartitionedDataSetCollection::SafeDownCast(input);
   auto* mb = vtkMultiBlockDataSet::SafeDownCast(input);
   if (pdc)
   {
+    writeSuccess &= this->Impl->WriteHeader(group, "PartitionedDataSetCollection");
+
     // Write vtkPartitionedDataSets, at the top level
     writeSuccess &= this->AppendBlocks(group, pdc);
 
@@ -356,6 +344,8 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
   }
   else if (mb)
   {
+    writeSuccess &= this->Impl->WriteHeader(group, "MultiBlockDataSet");
+
     // For interoperability with PDC, we need to keep track of
     // the number of datasets (non-subtree) in the structure.
     writeSuccess &=
@@ -913,9 +903,7 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
       const std::string datasetName = ::getBlockName(pdc, datasetId);
       const std::string linkTarget = "/VTKHDF/" + datasetName;
       const std::string linkSource = "/VTKHDF/Assembly/" + nodePath + "/" + datasetName;
-
-      herr_t linkhandle =
-        this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
+      this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
     }
   }
 

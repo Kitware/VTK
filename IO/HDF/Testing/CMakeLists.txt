@@ -54,24 +54,6 @@ vtk_module_test_data(
   Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_0_0.vtp
   Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_1_0.vtp
   Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_2_0.vtu
-
-  Data/vtkHDF/Transient/test_composite_transient.hdf
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000000.vtpc
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000000/test_composite_transient.hdf_000000_0_0.vtp
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000000/test_composite_transient.hdf_000000_1_0.vtu
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000000/test_composite_transient.hdf_000000_2_0.vti
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000003.vtpc
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000003/test_composite_transient.hdf_000003_0_0.vtp
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000003/test_composite_transient.hdf_000003_1_0.vtu
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000003/test_composite_transient.hdf_000003_2_0.vti
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000006.vtpc
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000006/test_composite_transient.hdf_000006_0_0.vtp
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000006/test_composite_transient.hdf_000006_1_0.vtu
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000006/test_composite_transient.hdf_000006_2_0.vti
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000009.vtpc
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000009/test_composite_transient.hdf_000009_0_0.vtp
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000009/test_composite_transient.hdf_000009_1_0.vtu
-  Data/vtkHDF/Transient/test_composite_transient.hdf_000009/test_composite_transient.hdf_000009_2_0.vti
-  )
+)
 
 add_subdirectory(Cxx)

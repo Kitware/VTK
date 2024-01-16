@@ -725,7 +725,7 @@ bool vtkHDFReader::Implementation::GetAttribute(
 }
 
 //------------------------------------------------------------------------------
-const std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int attributeType)
+std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int attributeType)
 {
   std::vector<std::string> array;
   hid_t group = this->AttributeDataGroup[attributeType];
@@ -738,7 +738,7 @@ const std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int a
 }
 
 //------------------------------------------------------------------------------
-const std::vector<std::string> vtkHDFReader::Implementation::GetOrderedChildrenOfGroup(
+std::vector<std::string> vtkHDFReader::Implementation::GetOrderedChildrenOfGroup(
   const std::string& path)
 {
   vtkHDF::ScopedH5GHandle pathHandle = H5Gopen(this->VTKGroup, path.c_str(), H5P_DEFAULT);
@@ -1089,13 +1089,14 @@ bool vtkHDFReader::Implementation::NewArray(
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::IsPathSoftLink(const std::string& path)
 {
   H5L_info_t object;
   auto err = H5Lget_info(this->VTKGroup, path.c_str(), &object, H5P_DEFAULT);
   if (err < 0)
   {
-    vtkErrorWithObjectMacro(this->Reader, "Can't open '" << path << "' link.");
+    vtkWarningWithObjectMacro(this->Reader, "Can't open '" << path << "' link.");
     return false;
   }
 

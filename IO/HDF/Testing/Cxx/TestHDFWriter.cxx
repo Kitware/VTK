@@ -33,12 +33,11 @@ bool TestEmptyPolyData(const std::string& tempDir)
 }
 
 //----------------------------------------------------------------------------
-bool TestWriteAndRead(vtkDataObject* data, const char* tempPath, bool outputAsMultiBlock = false)
+bool TestWriteAndRead(vtkDataObject* data, const char* tempPath)
 {
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputData(data);
   writer->SetFileName(tempPath);
-  writer->SetOutputAsMultiBlockDataSet(outputAsMultiBlock);
   writer->Write();
 
   vtkNew<vtkHDFReader> reader;
@@ -157,7 +156,7 @@ bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
 
     // Write and read the vtkMultiBlockDataSet in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndRead(baseData, tempPath.c_str(), true))
+    if (!TestWriteAndRead(baseData, tempPath.c_str()))
     {
       return false;
     }
@@ -187,7 +186,7 @@ bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::str
 
     // Write and read the vtkPartitionedDataSetCollection in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndRead(baseData, tempPath.c_str(), false))
+    if (!TestWriteAndRead(baseData, tempPath.c_str()))
     {
       return false;
     }

@@ -1142,22 +1142,27 @@ PointData or CellData group.
 
 ### PartitionedDataSetCollection and MultiBlockDataSet
 
-The VTKHDF format for vtkPartitionedDataSetCollection (PDC) and vtkMultiBlockDataSet (MB) is shown in Figure 10.
-This format is the exact same for both PDC and Multiblocks and can be used interchangeably, the only
-difference being the `Type` attribute of the `VTKHDF` group. This attribute can be either
-`PartitionedDataSetCollection` or `MultiBlockDataSet` depending on how the data should be read.
+The general VTKHDF format for vtkPartitionedDataSetCollection (PDC) and vtkMultiBlockDataSet (MB) is shown in Figure 10.
+
+Both VTK data types share a common structure, with a few notable differences.
+The `Type` attribute of the `VTKHDF` group for them should be `PartitionedDataSetCollection` or `MultiBlockDataSet`.
 The most important element in this design is the `Assembly` group, direct child of the `VTKHDF` group.
 This group describes the composite data hierarchy. The elements of the Assembly group do not contain the data directly.
 Instead, the data blocks are stored as direct children of the `VTKHDF` group, without any hierarchy,
 and any node in the Assembly group can use an [HDF5 symbolic link](https://davis.lbl.gov/Manuals/HDF5-1.8.7/UG/09_Groups.html#HardAndSymbolicLinks)
 to the top-level datasets.
-A softlink in the Assembly corresponds to a dataset index added to a vtkDataAssembly node.
-An assembly node can be associated to 0, 1 or more datasets. However, due to the nature of the vtkMultiblockDataSet type,
-an assembly containing a node associated to more than one dataset can not be read as a vtkMultiBlockDataSet.
 
-Some detail about the format:
-* Every data block needs to have an `Index` integer attribute that describes the PDC partitioned dataset index.
-For MB datasets, this index is also needed to ensure reading compatibility with PDC and should be generated when writing to file.
+Here lies the main distinction between the PDC and MB formats.
+For PDC, a group in the assembly that is not a softlink represents a node in the vtkAssembly associated to it, and
+a softlink represents a dataset index associated to its parent node (similar to what the function `AddDataSetIndex` does in `vtkDataAssembly`).
+This way, a single dataset can be used multiple times in the assembly without any additional storage cost.
+Top-level datasets need to set an `Index` attribute to specify their index in the PDC flat structure.
+On the other hand, MB structures work a little differently. First, they don't need no index for their datasets, and
+secondly, an assembly node that is not a softlink represents a nested `vtkMultiBlockDataSet`.
+A softlink in the assembly represents a dataset nested in its parent `vtkMultiBlockDataSet`.
+Again, this MB format can save space when a block is referenced multiple times.
+
+Some additional detail about the format:
 * The data blocks should not be composite themselves : they can only be simple or partitioned types, but not using an assembly.
 * The Assembly group and its children need to track creation order to be able to keep subtrees ordered.
 For this, you need to set H5G properties `H5P_CRT_ORDER_TRACKED` and `H5P_CRT_ORDER_INDEXED` on each group when writing the Assembly.
@@ -1177,7 +1182,7 @@ distributed context.
 :width: 640px
 :align: center
 
-Figure 10. - PartitionedDataSetCollection VTKHDF File Format
+Figure 10. - PartitionedDataSetCollection/MultiBlockDataset VTKHDF File Format
 ```
 
 ### Transient Data

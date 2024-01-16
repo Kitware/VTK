@@ -113,9 +113,10 @@ std::string vtkHDFWriter::Implementation::GetGroupName(hid_t group)
   {
     return std::string("");
   }
-  char buffer[len];
-  H5Iget_name(group, buffer, len + 1);
-  return std::string(buffer);
+  std::vector<char> buffer;
+  buffer.resize(len);
+  H5Iget_name(group, buffer.data(), len + 1);
+  return std::string(buffer.begin(), buffer.end());
 }
 
 //------------------------------------------------------------------------------

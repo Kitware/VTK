@@ -1187,9 +1187,10 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
   const std::vector<std::string> datasets =
     this->Impl->GetOrderedChildrenOfGroup(::VTKHDF_ROOT_PATH);
 
-  pdc->SetNumberOfPartitionedDataSets(datasets.size() - 1); // One child is the assembly
+  pdc->SetNumberOfPartitionedDataSets(
+    static_cast<unsigned int>(datasets.size() - 1)); // One child is the assembly
   pdc->SetDataAssembly(this->Assembly);
-  for (auto datasetName : datasets)
+  for (const auto& datasetName : datasets)
   {
     if (datasetName == "Assembly")
     {
@@ -1271,11 +1272,13 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)
   bool isPDCTransient = this->HasTransientData;
   vtkIdType pdcSteps = this->NumberOfSteps;
 
-  return this->ReadRecursively(outInfo, mb, ::VTKHDF_ROOT_PATH + "/Assembly");
+  int result = this->ReadRecursively(outInfo, mb, ::VTKHDF_ROOT_PATH + "/Assembly");
 
   this->Impl->RetrieveHDFInformation(::VTKHDF_ROOT_PATH);
   this->HasTransientData = isPDCTransient;
   this->NumberOfSteps = pdcSteps;
+
+  return result;
 }
 
 //------------------------------------------------------------------------------
@@ -1290,7 +1293,7 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
 {
   const std::vector<std::string> datasets =
     this->Impl->GetOrderedChildrenOfGroup(::VTKHDF_ROOT_PATH);
-  for (auto datasetName : datasets)
+  for (const auto& datasetName : datasets)
   {
     if (datasetName == "Assembly")
     {
@@ -1321,7 +1324,7 @@ void vtkHDFReader::RetrieveDataArraysFromAssembly()
 {
   const std::vector<std::string> datasets =
     this->Impl->GetOrderedChildrenOfGroup(::VTKHDF_ROOT_PATH);
-  for (auto datasetName : datasets)
+  for (const auto& datasetName : datasets)
   {
     if (datasetName == "Assembly")
     {
@@ -1349,8 +1352,8 @@ int vtkHDFReader::ReadRecursively(
   this->Impl->OpenGroupAsVTKGroup(path);
 
   const std::vector<std::string> datasets = this->Impl->GetOrderedChildrenOfGroup(path);
-  dataMB->SetNumberOfBlocks(datasets.size());
-  for (int i = 0; i < datasets.size(); i++)
+  dataMB->SetNumberOfBlocks(static_cast<unsigned int>(datasets.size()));
+  for (int i = 0; i < static_cast<int>(datasets.size()); i++)
   {
     const std::string nodeName = datasets.at(i);
     const std::string hdfPath = path + "/" + nodeName;

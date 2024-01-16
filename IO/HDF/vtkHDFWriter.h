@@ -67,19 +67,6 @@ public:
 
   ///@{
   /**
-   * Get/set OutputAsMultiBlockDataSet flag.
-   * When set, for composite types of input datasets, the writer will write MultiblockDataSet data
-   * to file, and otherwise PartitionedDataSetCollection. These 2 formats have the same VTKHDF
-   * representation, only an HDF5 attribute indicates which type should be read.
-   *
-   * Default is False (outputs PartitionedDataSetCollection).
-   */
-  vtkSetMacro(OutputAsMultiBlockDataSet, bool);
-  vtkGetMacro(OutputAsMultiBlockDataSet, bool);
-  ///@}
-
-  ///@{
-  /**
    * Get/set the flag to write all timesteps from the input dataset.
    * When turned OFF, only write the current timestep.
    */
@@ -255,7 +242,6 @@ private:
   // Configurable properties
   char* FileName = nullptr;
   bool Overwrite = true;
-  bool OutputAsMultiBlockDataSet = false;
   bool WriteAllTimeSteps = true;
   int ChunkSize = 100;
 
