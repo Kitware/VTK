@@ -796,7 +796,7 @@ function (vtk_add_test_python)
         LABELS "${_vtk_build_test_labels}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
         SKIP_REGULAR_EXPRESSION "${_vtk_skip_regex}"
-        ENVIRONMENT "VTK_TESTING;${image_compare_method}"
+        ENVIRONMENT "VTK_TESTING=1;${image_compare_method}"
         # This must match the skip() function in vtk/test/Testing.py"
         SKIP_RETURN_CODE 125
       )
