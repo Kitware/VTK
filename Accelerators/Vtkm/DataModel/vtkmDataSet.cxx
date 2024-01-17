@@ -220,14 +220,19 @@ struct WorkletGetPointCells : vtkm::worklet::WorkletVisitPointsWithCells
   {
   }
 
-  template <typename IndicesVecType>
-  VTKM_EXEC void operator()(vtkm::Id, IndicesVecType, vtkm::cont::DeviceAdapterTagCuda) const
+  template <typename IndicesVecType, typename Device>
+  VTKM_EXEC void operator()(vtkm::Id, IndicesVecType, Device) const
   {
+    this->RaiseError("This worklet should only be called on serial device");
   }
 
-  VTKM_SUPPRESS_EXEC_WARNINGS
-  template <typename IndicesVecType, typename Device>
-  VTKM_EXEC void operator()(vtkm::Id count, IndicesVecType idxs, Device) const
+  // This method is declared VTKM_CONT because we have set it to only
+  // run on the serial device (see the third argument). Declaring it
+  // as VTKM_CONT will prevent compiler warnings/errors about calling
+  // a host function from a device that can never happen.
+  template <typename IndicesVecType>
+  VTKM_CONT void operator()(
+    vtkm::Id count, IndicesVecType idxs, vtkm::cont::DeviceAdapterTagSerial) const
   {
     this->Output->SetNumberOfIds(count);
     for (vtkm::Id i = 0; i < count; ++i)
