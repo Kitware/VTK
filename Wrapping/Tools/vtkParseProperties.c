@@ -401,8 +401,9 @@ static int isValidSuffix(const char* methName, const char* propertyName, const c
     return 1;
   }
 
+  /* AsString or MaxValue or MinValue or AsN or */
   else if (isGetMethod(methName) &&
-    ((suffix[0] == 'A' && suffix[1] == 's' && (isupper(suffix[2]) || isdigit(suffix[2]))) ||
+    ((suffix[0] == 'A' && suffix[1] == 's' && ((suffix[2] == 'S') || isdigit(suffix[2]))) ||
       (((suffix[0] == 'M' && suffix[1] == 'a' && suffix[2] == 'x') ||
          (suffix[0] == 'M' && suffix[1] == 'i' && suffix[2] == 'n')) &&
         (suffix[3] == 'V' && suffix[4] == 'a' && suffix[5] == 'l' && suffix[6] == 'u' &&
