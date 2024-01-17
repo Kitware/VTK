@@ -384,13 +384,15 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         {
           if (vert < 0)
           {
-            pointElems->InsertCellPoint(pointCount + vert);
-          }
-          else
-          {
-            pointElems->InsertCellPoint(vert - 1);
+            vert = pointCount + vert + 1;
           }
 
+          if (vert <= 0)
+          {
+            vtkErrorMacro(<< "Unexpected point index value: " << vert);
+            return 0;
+          }
+          pointElems->InsertCellPoint(vert - 1);
           ++vertCount;
         }
         else if (result == vtkParseResult::Error)
@@ -440,13 +442,15 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         {
           if (vert < 0)
           {
-            lineElems->InsertCellPoint(pointCount + vert);
-          }
-          else
-          {
-            lineElems->InsertCellPoint(vert - 1);
+            vert = pointCount + vert + 1;
           }
 
+          if (vert <= 0)
+          {
+            vtkErrorMacro(<< "Unexpected point index value: " << vert);
+            return 0;
+          }
+          lineElems->InsertCellPoint(vert - 1);
           ++vertCount;
 
           char c = 0;
@@ -532,6 +536,11 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
             vertexAbs = vertex - 1;
           }
 
+          if (vertexAbs < 0)
+          {
+            vtkErrorMacro(<< "Unexpected point index value: " << vertexAbs);
+            return 0;
+          }
           vertexPolys->InsertCellPoint(vertexAbs);
 
           if (!cellWithNotTextureFound)
@@ -573,6 +582,11 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
 
               tcoordCount++;
 
+              if (tcoordAbs < 0)
+              {
+                vtkErrorMacro(<< "Unexpected point index value: " << tcoordAbs);
+                return 0;
+              }
               tcoordPolys->InsertCellPoint(tcoordAbs);
 
               if (tcoordsMap.empty()) // no active tcoords, create the default one
@@ -627,6 +641,11 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
                 normalAbs = normal - 1;
               }
 
+              if (normalAbs < 0)
+              {
+                vtkErrorMacro(<< "Unexpected point index value: " << normalAbs);
+                return 0;
+              }
               normalPolys->InsertCellPoint(normalAbs);
 
               if (normalAbs != vertexAbs)

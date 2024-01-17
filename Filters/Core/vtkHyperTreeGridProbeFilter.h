@@ -177,7 +177,7 @@ protected:
   /**
    * Helper method for reducing the data after probing
    */
-  bool Reduce(vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds);
+  virtual bool Reduce(vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds);
 
   /**
    * Helper method for filling arrays with default values

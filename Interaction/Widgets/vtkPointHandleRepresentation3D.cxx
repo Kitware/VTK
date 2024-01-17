@@ -12,6 +12,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPickingManager.h"
 #include "vtkPolyDataMapper.h"
@@ -27,6 +28,50 @@ vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D, Property, vtkProperty);
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D, SelectedProperty, vtkProperty);
+
+namespace
+{
+constexpr double epsilon = 1e-9;
+
+/**
+ * Checks if any component of the given point is close to zero but not exactly zero.
+ *
+ * @sa ProjectPointOntoCameraOrientationAxis()
+ */
+bool HasNearZeroValues(const double point[3])
+{
+  for (unsigned int idx = 0; idx < 3; ++idx)
+  {
+    if (point[idx] != 0.0 && std::abs(point[idx]) < epsilon)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * This function projects a point onto a plane that is defined by the camera's
+ * orientation axis and a reference point within that plane.
+ * This is used to rectify a matrix calculation uncertainty given by ComputeDisplayToWorld
+ * where the computed result is very close to zero (approximately on the order of 1e-12)
+ * but not exactly zero, as it should be.
+ */
+void ProjectPointOntoCameraOrientationAxis(
+  double projectedPoint[3], const double referencePoint[3], vtkCamera* camera)
+{
+  vtkVector3d referenceVector(referencePoint);
+  vtkVector3d projectedVector(projectedPoint);
+  vtkMatrix4x4* viewMatrix = camera->GetViewTransformMatrix();
+  vtkVector3d cameraAxis(
+    viewMatrix->GetElement(2, 0), viewMatrix->GetElement(2, 1), viewMatrix->GetElement(2, 2));
+  double projection = (projectedVector - referenceVector).Dot(cameraAxis);
+  vtkVector3d adjustedResult = projectedVector - (cameraAxis * projection);
+  projectedPoint[0] = adjustedResult[0];
+  projectedPoint[1] = adjustedResult[1];
+  projectedPoint[2] = adjustedResult[2];
+}
+}
 
 //------------------------------------------------------------------------------
 vtkPointHandleRepresentation3D::vtkPointHandleRepresentation3D()
@@ -495,6 +540,11 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
           if (this->PointPlacer->ComputeWorldPosition(
                 this->Renderer, newCenterPointRequested, newCenterPoint, worldOrient))
           {
+            if (::HasNearZeroValues(newCenterPoint))
+            {
+              ::ProjectPointOntoCameraOrientationAxis(
+                newCenterPoint, this->LastPickPosition, this->Renderer->GetActiveCamera());
+            }
             this->SetWorldPosition(newCenterPoint);
           }
         }

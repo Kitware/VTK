@@ -2,6 +2,7 @@ set(TestXML_ARGS "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/sample.xml}"
 set(all_tests
   TestAMRXMLIO.cxx,NO_VALID
   TestDataObjectXMLIO.cxx,NO_VALID
+  TestMultiBlockDataSetWithWriteWithEmptyPolyData.cxx,NO_DATA,NO_VALID
   TestMultiBlockXMLIOWithPartialArrays.cxx,NO_VALID
   TestMultiBlockXMLIOWithPartialArraysTable.cxx,NO_VALID
   TestReadDuplicateDataArrayNames.cxx,NO_DATA,NO_VALID
@@ -14,6 +15,7 @@ set(all_tests
   TestXMLHyperTreeGridIOInterface.cxx
   TestXMLHyperTreeGridIOReduction.cxx,NO_VALID
   TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
+  TestXMLMultiBlockDataWriterWithEmptyLeaf.cxx,NO_DATA,NO_VALID
   TestXMLPieceDistribution.cxx
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLUnstructuredGridReader.cxx

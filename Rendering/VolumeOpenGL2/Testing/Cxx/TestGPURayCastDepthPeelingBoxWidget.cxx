@@ -91,7 +91,7 @@ public:
 
 const std::string EventStream =
   R"eventStream(
-#StreamVersion 1.1
+# StreamVersion 1.1
 LeftButtonPressEvent 198 296 0 0 0 0
 RenderEvent 198 296 0 0 0 0
 MouseMoveEvent 198 295 0 0 0 0
