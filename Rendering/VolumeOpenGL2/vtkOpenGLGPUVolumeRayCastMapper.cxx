@@ -1367,6 +1367,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CheckPropertyKeys(vtkVolume* 
   // Otherwise this breaks volume/translucent geo depth peeling.
   vtkInformation* volumeKeys = vol->GetPropertyKeys();
   this->PreserveGLState = false;
+  this->DepthMaskOverride = false;
   if (volumeKeys && volumeKeys->Has(vtkOpenGLActor::GLDepthMaskOverride()))
   {
     // Give a chance to volumes to write to the depth buffer.
