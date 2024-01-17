@@ -1198,4 +1198,34 @@ void vtkPythonVoidFuncArgDelete(void* arg)
     Py_DECREF(func);
   }
 }
+
+//------------------------------------------------------------------------------
+PyGetSetDef* vtkPythonUtil::FindGetSetDescriptor(PyTypeObject* pytype, PyObject* key)
+{
+  // Check if tp_dict is present
+  if (pytype->tp_dict != nullptr && PyDict_Check(pytype->tp_dict))
+  {
+    // Check if the attribute is in the dictionary
+    PyObject* attr = PyDict_GetItem(pytype->tp_dict, key);
+    if (attr != nullptr)
+    {
+      PyDescrObject* descr = (PyDescrObject*)attr;
+      if (pytype == descr->d_type || PyType_IsSubtype(pytype, descr->d_type))
+      {
+        PyGetSetDescrObject* getsetDescr = (PyGetSetDescrObject*)descr;
+        if (getsetDescr->d_getset != nullptr)
+        {
+          return getsetDescr->d_getset;
+        }
+      }
+    }
+  }
+  // Recursively check in base types
+  if (pytype->tp_base != nullptr)
+  {
+    return vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key);
+  }
+  // No matching getset descriptor found
+  return nullptr;
+}
 VTK_ABI_NAMESPACE_END
