@@ -14,6 +14,8 @@
 #include "vtkIOEnSightModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+#include <string>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkDataArrayCollection;
@@ -295,6 +297,11 @@ protected:
    * their own structures.
    */
   virtual void ClearForNewCaseFileName();
+
+  /**
+   * Sanitizes filename, removing quotations and removing trailing whitespace.
+   */
+  void SanitizeFileName(std::string& filename);
 
   /**
    * Internal function to read in a line up to 256 characters.
