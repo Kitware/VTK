@@ -336,13 +336,7 @@ int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
   }
   std::string sfilename;
   std::string filenameString(fileName);
-  char quotes = '\"';
-  size_t found = filenameString.find(quotes);
-  if (found != std::string::npos)
-  {
-    filenameString.erase(
-      std::remove(filenameString.begin(), filenameString.end(), quotes), filenameString.end());
-  }
+  this->SanitizeFileName(filenameString);
   if (this->FilePath)
   {
     sfilename = this->FilePath;
@@ -1242,13 +1236,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(
   }
   std::string sfilename;
   std::string filenameString(fileName);
-  char quotes = '\"';
-  size_t found = filenameString.find(quotes);
-  if (found != std::string::npos)
-  {
-    filenameString.erase(
-      std::remove(filenameString.begin(), filenameString.end(), quotes), filenameString.end());
-  }
+  this->SanitizeFileName(filenameString);
   if (this->FilePath)
   {
     sfilename = this->FilePath;
@@ -1402,13 +1390,7 @@ bool vtkEnSightGoldBinaryReader::OpenVariableFile(const char* fileName, const ch
 
   std::string sfilename;
   std::string filenameString(fileName);
-  char quotes = '\"';
-  size_t found = filenameString.find(quotes);
-  if (found != std::string::npos)
-  {
-    filenameString.erase(
-      std::remove(filenameString.begin(), filenameString.end(), quotes), filenameString.end());
-  }
+  this->SanitizeFileName(filenameString);
   if (this->FilePath)
   {
     sfilename = this->FilePath;
