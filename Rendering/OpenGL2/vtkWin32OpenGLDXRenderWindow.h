@@ -15,6 +15,8 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWin32OpenGLRenderWindow.h"
 
+#include <memory> // For std::unique_ptr
+
 struct ID3D11Device;
 struct ID3D11Texture2D;
 

@@ -718,18 +718,30 @@ void fillVectorsFromVars(std::vector<CGNSRead::CGNSVariable>& vars,
   {
     len = strlen(vars[n].name) - 1;
     // CGNS convention uses CamelCase for vector naming (VectorX)
-    // For added convenience, snake_case is supported (vector_x)
+    // but we can also detect Vector_X or Vector_x
     switch (vars[n].name[len])
     {
       case 'X':
+        if (len > 0 && vars[n].name[len - 1] == '_')
+        {
+          len -= 1;
+        }
         vars[n].xyzIndex = 1;
         vars[n].isComponent = true;
         break;
       case 'Y':
+        if (len > 0 && vars[n].name[len - 1] == '_')
+        {
+          len -= 1;
+        }
         vars[n].xyzIndex = 2;
         vars[n].isComponent = true;
         break;
       case 'Z':
+        if (len > 0 && vars[n].name[len - 1] == '_')
+        {
+          len -= 1;
+        }
         vars[n].xyzIndex = 3;
         vars[n].isComponent = true;
         break;

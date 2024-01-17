@@ -2129,6 +2129,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Impl",
           "//VTK::Normal::Impl\n"
           "  tangentVCVSOutput = normalMatrix * tangentMC;\n");
+        vtkShaderProgram::Substitute(GSSource, "//VTK::Normal::Dec",
+          "//VTK::Normal::Dec\n"
+          "in vec3 tangentVCVSOutput[];\n"
+          "out vec3 tangentVCGSOutput;");
+        vtkShaderProgram::Substitute(GSSource, "//VTK::Normal::Impl",
+          "//VTK::Normal::Impl\n"
+          "tangentVCGSOutput = tangentVCVSOutput[i];");
         vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
           "//VTK::Normal::Dec\n"
           "in vec3 tangentVCVSOutput;\n");

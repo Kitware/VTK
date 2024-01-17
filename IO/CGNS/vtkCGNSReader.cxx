@@ -1506,7 +1506,8 @@ int vtkCGNSReader::vtkPrivate::readBCData(double nodeId, int cellDim, int physic
 
           for (int dim = 0; dim < physicalDim; ++dim)
           {
-            arr->SetComponentName(static_cast<vtkIdType>(dim), cgnsVars[iter->xyzIndex[dim]].name);
+            const std::string compName(1, std::string(cgnsVars[iter->xyzIndex[dim]].name).back());
+            arr->SetComponentName(static_cast<vtkIdType>(dim), compName.c_str());
             vtkVars[iter->xyzIndex[dim]] = arr;
           }
         }
@@ -1775,7 +1776,8 @@ int vtkCGNSReader::vtkPrivate::AllocateVtkArray(int physicalDim, int requestedVe
 
     for (int dim = 0; dim < physicalDim; ++dim)
     {
-      arr->SetComponentName(static_cast<vtkIdType>(dim), cgnsVars[iter->xyzIndex[dim]].name);
+      const std::string compName(1, std::string(cgnsVars[iter->xyzIndex[dim]].name).back());
+      arr->SetComponentName(static_cast<vtkIdType>(dim), compName.c_str());
       vtkVars[iter->xyzIndex[dim]] = arr;
     }
     for (int dim = physicalDim; dim < requestedVectorDim; ++dim)

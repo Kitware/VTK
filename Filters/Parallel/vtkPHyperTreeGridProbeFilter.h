@@ -66,7 +66,7 @@ protected:
   /**
    * Helper method for reducing the distributed data to the master process
    */
-  bool Reduce(vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds);
+  bool Reduce(vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds) override;
   ///@}
 
   enum
