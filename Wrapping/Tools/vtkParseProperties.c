@@ -13,7 +13,7 @@
  * that makes it easy to find methods that act on the same ivars.
  * Only ivar methods will properly fit this struct. */
 
-typedef struct _MethodAttributes
+typedef struct MethodAttributes_
 {
   const char* Name;      /* method name */
   unsigned int Type;     /* data type of gettable/settable value */
@@ -33,7 +33,7 @@ typedef struct _MethodAttributes
   int IsRHS;             /* method is GetValue(val), not val = GetValue() */
 } MethodAttributes;
 
-typedef struct _ClassPropertyMethods
+typedef struct ClassPropertyMethods_
 {
   int NumberOfMethods;
   MethodAttributes** Methods;

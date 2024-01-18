@@ -108,9 +108,6 @@ typedef struct ClassProperties_
   int* MethodProperties;     /* discovered property for each method */
 } ClassProperties;
 
-/* forward declaration of _ClassInfo */
-struct _ClassInfo;
-
 #ifdef __cplusplus
 extern "C"
 {
