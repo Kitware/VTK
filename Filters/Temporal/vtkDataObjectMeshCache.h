@@ -42,8 +42,8 @@ class vtkCompositeDataSet;
  * - `OriginalDataObject`: the input vtkDataObject. Should be either a vtkDataSet
  *   or a composite of vtkDataSet. The helper looks for its MeshMTime.
  * - `Cache`: the output vtkDataObject containing the mesh to reuse (or a composite)
- * - `AttributeTypes`: a list of attribute types to forward from OriginalDataObject
- *   to Cache when asked to.
+ * - `OriginalIds`: a list of original ids array name per attribute types,
+ *   to forward from OriginalDataObject to Cache when asked to.
  *
  * The `Status` structure reflects the state of those different elements.
  * It is the user responsibility to check for the status before
@@ -156,29 +156,35 @@ public:
    * if OriginalIds are configured.
    * Required before any call to CopyCacheToDataObject.
    * @note Only vtkPolyData, vtkUnstructuredGrid and vtkDataObjectTree are supported.
-   * @sa SetOriginalIdsAttributeName
+   * @sa AddOriginalIds, RemoveOriginalIds, ClearOriginalIds
    */
   void SetOriginalDataObject(vtkDataObject* original);
+  ///@}
 
   /**
-   * Add support for attribute type.
-   * Supported attribute types should have a GlobalIds array defined.
-   * Supported attribute types arrays will be forwared.
-   * @sa RemoveAttributeType, ClearAttributeTypes
+   * Original Ids.
+   * When original ids are present for an attribute types, all arrays of this
+   * attribute are forwarded to the output.
+   * @sa CopyCacheToOutput
    */
-  void AddAttributeType(int attribute);
+  ///@{
+  /**
+   * Add original ids array name for attribute type.
+   * @sa RemoveOriginalIds, ClearOriginalIds, CopyCacheToOutput
+   */
+  void AddOriginalIds(int attribute, const std::string& name);
 
   /**
-   * Remove support for attribute type.
-   * @sa AddAttributeType, ClearAttributeTypes
+   * Remove ids array name for attribute type.
+   * @sa AddOriginalIds, ClearOriginalIds, CopyCacheToOutput
    */
-  void RemoveAttributeType(int attribute);
+  void RemoveOriginalIds(int attribute);
 
   /**
-   * Clear support for all attribute types.
-   * @sa RemoveAttributeType, AddAttributeType
+   * Clear all original ids.
+   * @sa RemoveOriginalIds, AddOriginalIds
    */
-  void ClearAttributeTypes();
+  void ClearOriginalIds();
   ///@}
 
   /**
@@ -219,9 +225,11 @@ protected:
   /**
    * Forward dataset attributes from OriginalDataObject to output.
    * Uses original ids attribute arrays to copy data.
+   * FieldData are always forwarded.
    */
   ///@{
-  void ForwardAttributes(vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output, int attribute);
+  void ForwardAttributes(vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output, int attribute,
+    const std::string& name);
   void ForwardAttributesToDataSet(vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output);
   void ForwardAttributesToComposite(vtkCompositeDataSet* output);
   ///@}
@@ -269,7 +277,7 @@ private:
   vtkWeakPointer<vtkCompositeDataSet> OriginalCompositeDataSet;
   vtkMTimeType CachedOriginalMeshTime = 0;
   vtkMTimeType CachedConsumerTime = 0;
-  std::set<int> AttributeTypes;
+  std::map<int, std::string> OriginalIdsName;
 };
 
 VTK_ABI_NAMESPACE_END

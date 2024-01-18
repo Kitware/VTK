@@ -34,10 +34,11 @@ void vtkDataObjectMeshCache::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CachedOriginalMeshTime: " << this->CachedOriginalMeshTime << "\n";
   os << indent << "CachedConsumerTime: " << this->CachedConsumerTime << "\n";
 
-  os << indent << "AttributeTypes:\n";
-  for (const auto& attribute : this->AttributeTypes)
+  os << indent << "OriginalIdsName:\n";
+  for (const auto& attribute : this->OriginalIdsName)
   {
-    os << indent.GetNextIndent() << vtkDataObject::GetAssociationTypeAsString(attribute) << "\n";
+    os << indent.GetNextIndent() << vtkDataObject::GetAssociationTypeAsString(attribute.first)
+       << " " << attribute.second << "\n";
   }
 
   Status status = this->GetStatus();
@@ -119,15 +120,15 @@ void vtkDataObjectMeshCache::SetOriginalDataObject(vtkDataObject* input)
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectMeshCache::ClearAttributeTypes()
+void vtkDataObjectMeshCache::ClearOriginalIds()
 {
-  this->AttributeTypes.clear();
-  vtkDebugMacro(" clear AttributeTypes");
+  this->OriginalIdsName.clear();
+  vtkDebugMacro(" clear OriginalIdsName");
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectMeshCache::AddAttributeType(int attribute)
+void vtkDataObjectMeshCache::AddOriginalIds(int attribute, const std::string& name)
 {
   if (attribute < 0 || attribute >= vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
   {
@@ -135,13 +136,13 @@ void vtkDataObjectMeshCache::AddAttributeType(int attribute)
     return;
   }
 
-  this->AttributeTypes.insert(attribute);
-  vtkDebugMacro(" add AttributeType: " << attribute);
+  this->OriginalIdsName[attribute] = name;
+  vtkDebugMacro(" set OriginalIds: " << attribute << " array name to " << name.c_str());
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectMeshCache::RemoveAttributeType(int attribute)
+void vtkDataObjectMeshCache::RemoveOriginalIds(int attribute)
 {
   if (attribute < 0 || attribute >= vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
   {
@@ -149,8 +150,8 @@ void vtkDataObjectMeshCache::RemoveAttributeType(int attribute)
     return;
   }
 
-  this->AttributeTypes.erase(attribute);
-  vtkDebugMacro(" remove AttributeType: " << attribute);
+  this->OriginalIdsName.erase(attribute);
+  vtkDebugMacro(" remove OriginalIdsName: " << attribute);
   this->Modified();
 }
 
@@ -291,7 +292,7 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
   status.AttributesIdsExists = this->CacheHasRequestedIds();
   if (!status.AttributesIdsExists)
   {
-    vtkDebugMacro("Mesh cache does not have original ids attributes arrays.");
+    vtkDebugMacro("Cache does not have requested ids");
   }
 
   vtkDebugMacro(" returning status");
@@ -342,10 +343,12 @@ void vtkDataObjectMeshCache::ForwardAttributesToDataSet(
     return;
   }
 
-  for (const auto& attribute : this->AttributeTypes)
+  for (const auto& attribute : this->OriginalIdsName)
   {
-    this->ForwardAttributes(input, cache, outputDataSet, attribute);
+    this->ForwardAttributes(input, cache, outputDataSet, attribute.first, attribute.second);
   }
+
+  outputDataSet->GetFieldData()->PassData(input->GetFieldData());
 }
 
 //------------------------------------------------------------------------------
@@ -361,8 +364,8 @@ void vtkDataObjectMeshCache::ForwardAttributesToComposite(vtkCompositeDataSet* o
     return;
   }
 
-  auto options =
-    vtk::DataObjectTreeOptions::TraverseSubTree | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
+  auto options = vtk::DataObjectTreeOptions::TraverseSubTree |
+    vtk::DataObjectTreeOptions::SkipEmptyNodes | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
   auto inputDataRange = vtk::Range(inputDataTree, options);
   auto outputDataRange = vtk::Range(outputDataTree, options);
   auto cacheDataRange = vtk::Range(cacheDataTree, options);
@@ -385,11 +388,13 @@ void vtkDataObjectMeshCache::ForwardAttributesToComposite(vtkCompositeDataSet* o
     outputBlock++;
     inputBlock++;
   }
+
+  outputDataTree->GetFieldData()->PassData(inputDataTree->GetFieldData());
 }
 
 //------------------------------------------------------------------------------
 void vtkDataObjectMeshCache::ForwardAttributes(
-  vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output, int attribute)
+  vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output, int attribute, const std::string& name)
 {
   vtkDebugMacro("Forward attribute " << vtkDataObject::GetAssociationTypeAsString(attribute));
 
@@ -397,15 +402,15 @@ void vtkDataObjectMeshCache::ForwardAttributes(
   auto outAttribute = output->GetAttributes(attribute);
   auto cacheAttribute = cache->GetAttributes(attribute);
 
-  auto originalIds = cacheAttribute->GetGlobalIds();
+  auto originalIds = cacheAttribute->GetArray(name.c_str());
   if (!originalIds)
   {
-    vtkWarningMacro(
+    vtkDebugMacro(
       "Global Ids not found for " << vtkDataObject::GetAssociationTypeAsString(attribute));
     return;
   }
 
-  outAttribute->CopyGlobalIdsOn();
+  outAttribute->CopyAllOn();
   outAttribute->CopyAllocate(inAttribute);
 
   // NOTE potential optimization:
@@ -422,24 +427,8 @@ void vtkDataObjectMeshCache::ForwardAttributes(
 //------------------------------------------------------------------------------
 bool vtkDataObjectMeshCache::HasRequestedIds(vtkDataObject* dataobject) const
 {
-  for (const auto& attribute : this->AttributeTypes)
   {
-    vtkDataSetAttributes* field = dataobject->GetAttributes(attribute);
-    if (!field)
-    {
-      vtkDebugMacro("Cache does not have requested attribute type " << attribute);
-      return false;
-    }
-
-    if (!field->GetGlobalIds())
-    {
-      vtkDebugMacro("Cache does not have global ids array for "
-        << vtkDataObject::GetAssociationTypeAsString(attribute));
-      return false;
-    }
   }
-
-  return true;
 }
 
 //------------------------------------------------------------------------------
