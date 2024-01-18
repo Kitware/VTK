@@ -31,14 +31,14 @@ class vtkInformation;
 class vtkOverlappingAMR;
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
+class vtkMultiBlockDataSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 
 /**
  * Reads data saved using the VTK HDF format which supports all
- * vtkDataSet types (image data, poly data, unstructured grid and
- * overlapping AMR are currently implemented) and serial as well
- * as parallel processing.
+ * vtkDataSet types (image data, poly data, unstructured grid, overlapping AMR, partitioned dataset
+ * collection and multiblock are currently implemented) and serial as well as parallel processing.
  *
  * Can also read transient data with directions and offsets present
  * in a supplemental 'VTKHDF/Steps' group for vtkUnstructuredGrid
@@ -179,7 +179,8 @@ protected:
   int Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkOverlappingAMR* data);
   int Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data);
-  void ReadRecursively(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data, int index);
+  int Read(vtkInformation* outInfo, vtkMultiBlockDataSet* data);
+  int ReadRecursively(vtkInformation* outInfo, vtkMultiBlockDataSet* data, const std::string& path);
   ///@}
 
   /**
@@ -232,11 +233,20 @@ private:
   void operator=(const vtkHDFReader&) = delete;
 
   /**
-   * Generate the hierarchy used for vtkPartitionedDataSetCollection and store it in Assembly.
+   * Generate the vtkDataAssembly used for vtkPartitionedDataSetCollection and store it in Assembly.
    */
   void GenerateAssembly();
-  void RetrieveStepsFromAssembly(int parent = 0);
-  void RetrieveDataArraysFromAssembly(int parent = 0);
+
+  /**
+   * Retrieve the number of steps in each composite element of the dataset.
+   * Return false if the number of steps is inconsistent across components, true otherwise.
+   */
+  bool RetrieveStepsFromAssembly();
+
+  /**
+   * Add array names from all composite elements to DataArraySelection array.
+   */
+  void RetrieveDataArraysFromAssembly();
 
 protected:
   /**

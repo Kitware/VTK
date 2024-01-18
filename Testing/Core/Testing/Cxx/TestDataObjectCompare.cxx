@@ -14,6 +14,7 @@
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMatrix3x3.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
@@ -35,6 +36,7 @@
 #include "vtkVariantArray.h"
 #include "vtkXMLHyperTreeGridReader.h"
 #include "vtkXMLImageDataReader.h"
+#include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLRectilinearGridReader.h"
@@ -683,6 +685,61 @@ std::vector<std::string> TestDataSetFailures(
 }
 
 //------------------------------------------------------------------------------
+std::vector<std::string> TestDataSetFailures(
+  vtkMultiBlockDataSet* mb, std::ostringstream& logStream)
+{
+  std::vector<std::string> retLog;
+
+  if (!mb)
+  {
+    return retLog;
+  }
+
+  for (unsigned int index = 0; index < mb->GetNumberOfBlocks(); ++index)
+  {
+    auto block = mb->GetBlock(index);
+
+    if (!block)
+    {
+      continue;
+    }
+
+    vtkLog(ERROR, << "datatype: " << block->GetClassName());
+
+    std::vector<std::string> childLog;
+
+    if (auto image = vtkImageData::SafeDownCast(block))
+    {
+      childLog = TestDataSetFailures(image, logStream);
+    }
+    else if (auto sg = vtkStructuredGrid::SafeDownCast(block))
+    {
+      childLog = TestDataSetFailures(sg, logStream);
+    }
+    else if (auto rg = vtkRectilinearGrid::SafeDownCast(block))
+    {
+      childLog = TestDataSetFailures(rg, logStream);
+    }
+    else if (auto ug = vtkUnstructuredGrid::SafeDownCast(block))
+    {
+      childLog = TestDataSetFailures(ug, logStream);
+    }
+    else if (auto htg = vtkHyperTreeGrid::SafeDownCast(block))
+    {
+      childLog = TestDataSetFailures(htg, logStream);
+    }
+    else if (auto polydata = vtkPolyData::SafeDownCast(block))
+    {
+      childLog = TestDataSetFailures(polydata, logStream);
+    }
+
+    retLog.insert(retLog.end(), childLog.begin(), childLog.end());
+  }
+
+  return retLog;
+}
+
+//------------------------------------------------------------------------------
 vtkNew<vtkTable> MakeTable()
 {
   vtkIdType N = 5;
@@ -838,6 +895,41 @@ bool TestDataSet(const std::string& root, std::string&& name)
 
 //------------------------------------------------------------------------------
 template <>
+bool TestDataSet<vtkMultiBlockDataSet, vtkXMLMultiBlockDataReader>(
+  const std::string& root, std::string&& name)
+{
+  vtkLog(INFO, "### Testing " << vtk::TypeName<vtkMultiBlockDataSet>());
+
+  vtkNew<vtkXMLMultiBlockDataReader> reader;
+  reader->SetFileName((root + name).c_str());
+  reader->Update();
+  auto ds = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+
+  if (!vtkTestUtilities::CompareDataObjects(ds, ds))
+  {
+    vtkLog(ERROR, "Datasets should be similar, but they are not.");
+    return false;
+  }
+
+  std::ostringstream logStream;
+
+  // Turning off ERROR logging so we can test that the utility correctly catches failures
+  TurnOffLogging(logStream);
+
+  auto retLog = TestDataSetFailures(ds, logStream);
+
+  TurnOnLogging();
+
+  for (const std::string& log : retLog)
+  {
+    vtkLog(ERROR, << log);
+  }
+
+  return retLog.empty();
+}
+
+//------------------------------------------------------------------------------
+template <>
 bool TestDataSet<vtkPartitionedDataSetCollection, vtkXMLPartitionedDataSetCollectionReader>(
   const std::string& root, std::string&& name)
 {
@@ -924,6 +1016,8 @@ int TestDataObjectCompare(int argc, char* argv[])
   retVal &=
     ::TestDataSet<vtkPartitionedDataSetCollection, vtkXMLPartitionedDataSetCollectionReader>(
       root, "partitioned_dataset_collection_template.vtpc");
+  retVal &= ::TestDataSet<vtkMultiBlockDataSet, vtkXMLMultiBlockDataReader>(
+    root, "multiblock_dataset_template.vtm");
 
   retVal &= ::TestTableAndArrays();
 

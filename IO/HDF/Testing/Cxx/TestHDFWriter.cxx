@@ -4,13 +4,17 @@
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkImageData.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLImageDataWriter.h"
+#include "vtkXMLMultiBlockDataReader.h"
+#include "vtkXMLPartitionedDataSetCollectionReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
@@ -29,7 +33,7 @@ bool TestEmptyPolyData(const std::string& tempDir)
 }
 
 //----------------------------------------------------------------------------
-bool TestWriteAndRead(vtkDataSet* data, const char* tempPath)
+bool TestWriteAndRead(vtkDataObject* data, const char* tempPath)
 {
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputData(data);
@@ -44,17 +48,17 @@ bool TestWriteAndRead(vtkDataSet* data, const char* tempPath)
   }
   reader->SetFileName(tempPath);
   reader->Update();
-  vtkDataSet* output = vtkDataSet::SafeDownCast(reader->GetOutput());
+  vtkDataObject* output = vtkDataObject::SafeDownCast(reader->GetOutput());
   if (output == nullptr)
   {
-    std::cerr << "vtkHDFReader does not output a vtkDataSet when reading: " << tempPath
+    std::cerr << "vtkHDFReader does not output a vtkDataObject when reading: " << tempPath
               << std::endl;
     return false;
   }
 
   if (!vtkTestUtilities::CompareDataObjects(output, data))
   {
-    std::cerr << "vtkDataset does not match: " << tempPath << std::endl;
+    std::cerr << "vtkDataObject does not match: " << tempPath << std::endl;
     return false;
   }
 
@@ -133,6 +137,65 @@ bool TestUnstructuredGrid(const std::string& tempDir, const std::string& dataRoo
 }
 
 //----------------------------------------------------------------------------
+bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
+{
+  std::vector<std::string> baseNamesMB = { "test_multiblock_hdf.vtm" };
+  for (const auto& baseName : baseNamesMB)
+  {
+    // Read the multiblock from vtm file
+    const std::string basePath = dataRoot + "/Data/vtkHDF/" + baseName;
+    vtkNew<vtkXMLMultiBlockDataReader> baseReader;
+    baseReader->SetFileName(basePath.c_str());
+    baseReader->Update();
+    vtkMultiBlockDataSet* baseData = vtkMultiBlockDataSet::SafeDownCast(baseReader->GetOutput());
+    if (baseData == nullptr)
+    {
+      std::cerr << "Can't read base data from: " << basePath << std::endl;
+      return false;
+    }
+
+    // Write and read the vtkMultiBlockDataSet in a temp file, compare with base
+    std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
+    if (!TestWriteAndRead(baseData, tempPath.c_str()))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::string& dataRoot)
+{
+  std::vector<std::string> baseNamesMB = { "dummy_pdc_structure.vtpc", "multi_ds_pdc.vtpc" };
+  for (const auto& baseName : baseNamesMB)
+  {
+    // Get a PDC from a vtpc file
+    const std::string basePath = dataRoot + "/Data/vtkHDF/" + baseName;
+    vtkNew<vtkXMLPartitionedDataSetCollectionReader> baseReader;
+    baseReader->SetFileName(basePath.c_str());
+    baseReader->Update();
+    vtkPartitionedDataSetCollection* baseData =
+      vtkPartitionedDataSetCollection::SafeDownCast(baseReader->GetOutput());
+    if (baseData == nullptr)
+    {
+      std::cerr << "Can't read base data from: " << basePath << std::endl;
+      return false;
+    }
+
+    // Write and read the vtkPartitionedDataSetCollection in a temp file, compare with base
+    std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
+    if (!TestWriteAndRead(baseData, tempPath.c_str()))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 int TestHDFWriter(int argc, char* argv[])
 {
   // Get temporary testing directory
@@ -157,6 +220,8 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestSpherePolyData(tempDir);
   testPasses &= TestComplexPolyData(tempDir, dataRoot);
   testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
+  testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
+  testPasses &= TestMultiBlock(tempDir, dataRoot);
 
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }

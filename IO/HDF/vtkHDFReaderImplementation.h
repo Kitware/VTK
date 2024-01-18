@@ -73,6 +73,10 @@ public:
    * Returns the names of arrays for 'attributeType' (point or cell).
    */
   std::vector<std::string> GetArrayNames(int attributeType);
+  /**
+   * Return the name of all children of an HDF group given its path
+   */
+  std::vector<std::string> GetOrderedChildrenOfGroup(const std::string& path);
   ///@{
   /**
    * Reads and returns a new vtkDataArray. The actual type of the array
@@ -102,6 +106,11 @@ public:
    * Returns the dimensions of a HDF dataset.
    */
   std::vector<hsize_t> GetDimensions(const char* dataset);
+
+  /**
+   * Return true if current root path is a soft link
+   */
+  bool IsPathSoftLink(const std::string& path);
 
   /**
    * Fills the given AMR data with the content of the opened HDF file.

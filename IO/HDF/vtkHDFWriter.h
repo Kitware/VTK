@@ -15,11 +15,16 @@
 #include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkCellArray;
+class vtkDataObjectTree;
+class vtkDataSet;
+class vtkPointSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
-class vtkPointSet;
-class vtkDataSet;
-class vtkCellArray;
+class vtkPartitionedDataSet;
+class vtkPartitionedDataSetCollection;
+class vtkMultiBlockDataSet;
 
 typedef int64_t hid_t;
 
@@ -63,7 +68,7 @@ public:
   ///@{
   /**
    * Get/set the flag to write all timesteps from the input dataset.
-   * When turned OFF, only write the first timestep.
+   * When turned OFF, only write the current timestep.
    */
   vtkSetMacro(WriteAllTimeSteps, bool);
   vtkGetMacro(WriteAllTimeSteps, bool);
@@ -74,16 +79,12 @@ public:
    * Configurable chunk size for transient (time-dependent) data, where arrays resized every
    * timestep, hence requiring chunking. Read more about chunks and chunk size here :
    * https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/
+   *
    * Defaults to 100.
    */
   vtkSetMacro(ChunkSize, int);
   vtkGetMacro(ChunkSize, int);
   ///@}
-
-  /**
-   * Write the dataset from the input in the file specified by the filename to the vtkHDF format.
-   */
-  void WriteData() override;
 
 protected:
   /**
@@ -95,6 +96,7 @@ protected:
     vtkInformationVector* outputVector) override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
@@ -108,13 +110,27 @@ protected:
   ~vtkHDFWriter() override;
 
 private:
+  /**
+   * Open destination file and write the input dataset to the file specified by the filename
+   * attribute in vtkHDF format.
+   */
+  void WriteData() override;
+
+  /**
+   * Dispatch the input vtkDataObject to the right writing function, depending on its dynamic type.
+   * Data will be written in the specified group, which must already exist.
+   */
+  void DispatchDataObject(hid_t group, vtkDataObject* input);
+
   ///@{
   /**
-   * Write the data to the current FileName in vtkHDF format.
+   * Write the given dataset to the current FileName in vtkHDF format.
    * returns true if the writing operation completes successfully.
    */
-  bool WriteDatasetToFile(vtkPolyData* input);
-  bool WriteDatasetToFile(vtkUnstructuredGrid* input);
+  bool WriteDatasetToFile(hid_t group, vtkPolyData* input);
+  bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input);
+  bool WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input);
+  bool WriteDatasetToFile(hid_t group, vtkDataObjectTree* input);
   ///@}
 
   ///@{
@@ -188,6 +204,27 @@ private:
    */
   bool AppendDataArrays(hid_t group, vtkDataObject* input);
 
+  ///@{
+  /**
+   * Append all available blocks of a given vtkPartitionedDataSetCollection to the same HDF5 group,
+   * without hierarchy.
+   */
+  bool AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pdc);
+  ///@}
+
+  /**
+   * Add the assembly associated to the given PDC to the specified group
+   * Individual blocks need to be added to the file beforehand.
+   */
+  bool AppendAssembly(hid_t group, vtkPartitionedDataSetCollection* pdc);
+
+  /**
+   * Append assembly and blocks of a multiblock dataset to the selected HDF5 group (usually root).
+   * datasetCount needs to be initialized to 0 beforehand. It is used to track the number of
+   * datasets during recursion.
+   */
+  bool AppendMultiblock(hid_t group, vtkMultiBlockDataSet* mb);
+
   /**
    * Append the offset data in the steps group for the current array for transient data
    */
@@ -201,16 +238,18 @@ private:
 
   class Implementation;
   std::unique_ptr<Implementation> Impl;
+
+  // Configurable properties
   char* FileName = nullptr;
   bool Overwrite = true;
-
-  // Transient-related configuration and variables
-  double* timeSteps = nullptr;
   bool WriteAllTimeSteps = true;
+  int ChunkSize = 100;
+
+  // Transient-related private variables
+  double* timeSteps = nullptr;
   bool IsTransient = false;
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 0;
-  int ChunkSize = 100;
 };
 VTK_ABI_NAMESPACE_END
 #endif
