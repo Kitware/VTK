@@ -1606,7 +1606,11 @@ struct TestDataObjectsImpl<vtkPartitionedDataSetCollection>
 
     vtkDataAssembly* assembly1 = t1->GetDataAssembly();
     vtkDataAssembly* assembly2 = t2->GetDataAssembly();
-    if (assembly1->GetChildNodes(0) != assembly2->GetChildNodes(0))
+    if (!assembly1 && !assembly2)
+    {
+      return true;
+    }
+    if (!assembly1 || !assembly2 || assembly1->GetChildNodes(0) != assembly2->GetChildNodes(0))
     {
       vtkLog(ERROR, "vtkPartitionedDataSetCollection Assembly tree structures do not match");
       return false;

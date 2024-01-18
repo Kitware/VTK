@@ -632,6 +632,14 @@ std::vector<std::string> TestDataSetFailures(
     return retLog;
   }
 
+  vtkNew<vtkPartitionedDataSetCollection> other;
+  other->DeepCopy(pdc);
+  other->SetDataAssembly(nullptr);
+
+  CheckErrorMessage<vtkPartitionedDataSetCollection>(
+    vtkTestUtilities::CompareDataObjects(pdc, other), logStream,
+    "vtkPartitionedDataSetCollection Assembly tree structures do not match", retLog, "Assembly");
+
   for (unsigned int index = 0; index < pdc->GetNumberOfPartitionedDataSets(); ++index)
   {
     vtkPartitionedDataSet* pd = pdc->GetPartitionedDataSet(index);
@@ -938,11 +946,20 @@ bool TestDataSet<vtkPartitionedDataSetCollection, vtkXMLPartitionedDataSetCollec
   vtkNew<vtkXMLPartitionedDataSetCollectionReader> reader;
   reader->SetFileName((root + name).c_str());
   reader->Update();
-  auto ds = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
+  auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
 
-  if (!vtkTestUtilities::CompareDataObjects(ds, ds))
+  if (!vtkTestUtilities::CompareDataObjects(pdc, pdc))
   {
-    vtkLog(ERROR, "Datasets should be similar, but they are not.");
+    vtkLog(ERROR, "PartitionedDataSetCollections should be similar, but they are not.");
+    return false;
+  }
+
+  vtkNew<vtkPartitionedDataSetCollection> other;
+  other->DeepCopy(pdc);
+  other->SetDataAssembly(nullptr);
+  if (!vtkTestUtilities::CompareDataObjects(other, other))
+  {
+    vtkLog(ERROR, "PartitionedDataSetCollections should be similar, but they are not.");
     return false;
   }
 
@@ -951,7 +968,7 @@ bool TestDataSet<vtkPartitionedDataSetCollection, vtkXMLPartitionedDataSetCollec
   // Turning off ERROR logging so we can test that the utility correctly catches failures
   TurnOffLogging(logStream);
 
-  auto retLog = TestDataSetFailures(ds, logStream);
+  auto retLog = TestDataSetFailures(pdc, logStream);
 
   TurnOnLogging();
 
