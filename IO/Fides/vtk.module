@@ -15,4 +15,3 @@ PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::fides
-  VTK::FiltersParallelDIY2
