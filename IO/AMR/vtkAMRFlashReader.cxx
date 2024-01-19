@@ -208,6 +208,8 @@ int vtkAMRFlashReader::FillMetaData()
     b2level[level]++;
   } // END for all blocks
 
+  this->SetMaxLevel(this->Internal->NumberOfLevels);
+
   return (1);
 }
 
