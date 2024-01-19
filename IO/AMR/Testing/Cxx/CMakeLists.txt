@@ -8,6 +8,7 @@ ExternalData_Expand_Arguments(VTKData _
 
 vtk_add_test_cxx(vtkIOAMRCxxTests tests
   NO_VALID NO_OUTPUT
+  TestAMRFlashReader.cxx
   TestAMReXGridReaderNodalMultiFab.cxx
   TestAMReXParticlesReader.cxx
   TestAMReXGridReaderNonZeroOrigin.cxx
