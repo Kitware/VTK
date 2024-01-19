@@ -603,6 +603,153 @@ int TestPolyDataTransientBase(
 }
 
 //------------------------------------------------------------------------------
+int TestPolyDataTransientPartitionedWithCache(
+  OpenerWorklet& opener, const std::string& dataRoot, bool testMeshMTime = false)
+{
+  // Generic Time data checks
+  if (opener.GetReader()->GetNumberOfSteps() != 10)
+  {
+    std::cerr << "Number of time steps is not correct: " << opener.GetReader()->GetNumberOfSteps()
+              << " != " << 10 << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto tRange = opener.GetReader()->GetTimeRange();
+  if (!vtkMathUtilities::FuzzyCompare(tRange[0], 0.0, CHECK_TOLERANCE) ||
+    !vtkMathUtilities::FuzzyCompare(tRange[1], 0.9, CHECK_TOLERANCE))
+  {
+    std::cerr << "Time range is incorrect: (0.0, 0.9) != (" << tRange[0] << ", " << tRange[1] << ")"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  std::array<int, 2> meshMTime{ 0, 0 };
+  for (std::size_t iStep = 0; iStep < 10; ++iStep)
+  {
+    // Open data at right time
+    vtkSmartPointer<vtkPartitionedDataSet> dSet =
+      vtkPartitionedDataSet::SafeDownCast(opener(iStep));
+
+    // Reference Geometry
+    vtkNew<vtkXMLPartitionedDataSetReader> refReader;
+    refReader->SetFileName((dataRoot +
+      "/Data/hdf_transient_partitioned_poly_data_twin/"
+      "hdf_transient_partitioned_poly_data_twin_00000" +
+      std::to_string(iStep) + ".vtpd")
+                             .c_str());
+    refReader->Update();
+
+    vtkPartitionedDataSet* refGeometry =
+      vtkPartitionedDataSet::SafeDownCast(refReader->GetOutputDataObject(0));
+
+    unsigned int dSetPartitionNb = dSet->GetNumberOfPartitions();
+    unsigned int refGeometryPartitionNb = refGeometry->GetNumberOfPartitions();
+
+    if (dSetPartitionNb != refGeometryPartitionNb)
+    {
+      std::cerr << "The number of partitions of the data is wrong :" << dSetPartitionNb
+                << " should be " << refGeometryPartitionNb << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    int maxMeshMTimePartition = -1;
+    for (int i = 0; i < refGeometryPartitionNb; i++)
+    {
+      auto refPartition = vtkPolyData::SafeDownCast(refGeometry->GetPartition(i));
+      auto dSetPartition = vtkPolyData::SafeDownCast(dSet->GetPartition(i));
+
+      GeometryCheckerWorklet gChecker(CHECK_TOLERANCE);
+      if (!gChecker(refPartition, dSetPartition))
+      {
+        std::cerr << "Geometry: Failed geometry checks for partition : " << i << std::endl;
+        return EXIT_FAILURE;
+      }
+
+      maxMeshMTimePartition =
+        std::max(static_cast<int>(vtkPolyData::SafeDownCast(dSetPartition)->GetMeshMTime()),
+          maxMeshMTimePartition);
+
+      CheckerWorklet checks(CHECK_TOLERANCE);
+
+      // Point Data checks
+      vtkDataArray* refpdata = refPartition->GetPointData()->GetArray("Warping");
+      auto lhsPRange =
+        vtk::DataArrayValueRange<3>(refPartition->GetPointData()->GetArray("Warping"));
+      auto getLHSPData = [&](vtkIdType iC) { return lhsPRange[iC]; };
+      vtkDataArray* dsetpdata = dSetPartition->GetPointData()->GetArray("Warping");
+      auto rhsPRange =
+        vtk::DataArrayValueRange<3>(dSetPartition->GetPointData()->GetArray("Warping"));
+      auto getRHSPData = [&](vtkIdType iC) { return rhsPRange[iC]; };
+      vtkDataArray* dpdata = dSetPartition->GetPointData()->GetArray("Warping");
+      if (!checks(0, dSetPartition->GetNumberOfPoints() * 3, getLHSPData, getRHSPData))
+      {
+        std::cerr << "PointData: Failed array checks at step " << iStep << " for partition :" << i
+                  << std::endl;
+        return EXIT_FAILURE;
+      }
+
+      // Cell Data checks
+      auto lhsCRange =
+        vtk::DataArrayValueRange<1>(refPartition->GetCellData()->GetArray("Materials"));
+      auto getLHSCData = [&](vtkIdType iC) { return lhsCRange[iC]; };
+      auto rhsCRange =
+        vtk::DataArrayValueRange<1>(dSetPartition->GetCellData()->GetArray("Materials"));
+      auto getRHSCData = [&](vtkIdType iC) { return rhsCRange[iC]; };
+
+      if (!checks(0, dSetPartition->GetNumberOfCells(), getLHSCData, getRHSCData))
+      {
+        std::cerr << "CellData: Failed array checks at step " << iStep << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    meshMTime[0] = meshMTime[1];
+    meshMTime[1] = maxMeshMTimePartition;
+    if (testMeshMTime && (iStep > 0 && iStep < 6))
+    {
+      if (meshMTime[0] != meshMTime[1])
+      {
+        std::cerr << "MTime: Failed MeshMTime check - previous = " << meshMTime[1]
+                  << " while current = " << meshMTime[0] << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    else if (testMeshMTime && (iStep == 6))
+    {
+      if (meshMTime[0] == meshMTime[1])
+      {
+        std::cerr << "MTime: Failed MeshMTime souldn't be equal - previous = " << meshMTime[1]
+                  << " while current = " << meshMTime[0] << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    // Local Time Checks
+    if (!vtkMathUtilities::FuzzyCompare(
+          opener.GetReader()->GetTimeValue(), static_cast<double>(iStep) / 10, CHECK_TOLERANCE))
+    {
+      std::cerr << "Property: TimeValue is wrong: " << opener.GetReader()->GetTimeValue()
+                << " != " << static_cast<double>(iStep) / 10 << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    auto timeArr = dSet->GetFieldData()->GetArray("Time");
+    if (!timeArr)
+    {
+      std::cerr << "No Time array in FieldData" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    if (!vtkMathUtilities::FuzzyCompare(
+          timeArr->GetComponent(0, 0), static_cast<double>(iStep) / 10, CHECK_TOLERANCE))
+    {
+      std::cerr << "FieldData: Time value is wrong: " << timeArr->GetComponent(0, 0)
+                << " != " << static_cast<double>(iStep) / 10 << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
 int TestPolyDataTransient(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
@@ -614,9 +761,11 @@ int TestPolyDataTransientWithCache(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
   opener.GetReader()->UseCacheOn();
+  opener.GetReader()->SetMergeParts(false);
+
   // We should be able to activate the MeshMTime testing once the cache can store
   // the intermediate vtkPoints and vtkCellArrays
-  return TestPolyDataTransientBase(opener, dataRoot, false /*testMeshMTime*/);
+  return TestPolyDataTransientPartitionedWithCache(opener, dataRoot, true /*testMeshMTime*/);
 }
 
 //------------------------------------------------------------------------------

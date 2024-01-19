@@ -21,6 +21,7 @@ PRIVATE_DEPENDS
   VTK::hdf5
   VTK::IOCore
   VTK::vtksys
+  VTK::FiltersTemporal
 TEST_DEPENDS
   VTK::FiltersSources
   VTK::ImagingCore

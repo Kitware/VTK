@@ -21,17 +21,20 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkCallbackCommand;
+class vtkCellData;
 class vtkCommand;
 class vtkDataArraySelection;
+class vtkDataObjectMeshCache;
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkImageData;
 class vtkInformationVector;
 class vtkInformation;
+class vtkMultiBlockDataSet;
 class vtkOverlappingAMR;
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
-class vtkMultiBlockDataSet;
+class vtkPointData;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 
@@ -160,6 +163,14 @@ public:
   vtkSetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
   vtkGetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
 
+  ///@{
+  /**
+   * Get or Set the Original id name of an attribute (POINT, CELL, FIELD...)
+   */
+  std::string GetAttributeOriginalIdName(vtkIdType attribute);
+  void SetAttributeOriginalIdName(vtkIdType attribute, const std::string& name);
+  ///@}
+
 protected:
   vtkHDFReader();
   ~vtkHDFReader() override;
@@ -232,6 +243,14 @@ private:
   vtkHDFReader(const vtkHDFReader&) = delete;
   void operator=(const vtkHDFReader&) = delete;
 
+  bool MeshGeometryChangedFromPreviousTimeStep = true;
+
+  vtkNew<vtkDataObjectMeshCache> MeshCache;
+  std::map<vtkIdType, std::string> AttributesOriginalIdName{
+    { vtkDataObject::POINT, "__pointsOriginalIds__" },
+    { vtkDataObject::CELL, "__cellOriginalIds__" }, { vtkDataObject::FIELD, "__fieldOriginalIds__" }
+  };
+
   /**
    * Generate the vtkDataAssembly used for vtkPartitionedDataSetCollection and store it in Assembly.
    */
@@ -247,6 +266,22 @@ private:
    * Add array names from all composite elements to DataArraySelection array.
    */
   void RetrieveDataArraysFromAssembly();
+
+  /**
+   * Helper function to add Ids in the attribute arrays of a dataset.
+   * Those ids are used in the DataObjectMeshCache to restore the
+   * corresponding attributes when copying the content of the cache.
+   * It returns a boolean indicating if the array was correctly added.
+   * Also returns false if the array already exists.
+   */
+  bool AddOriginalIds(vtkDataSetAttributes* attributes, vtkIdType size, const std::string& name);
+
+  /**
+   * Removes the arrays from the object given in parameter containing
+   * the original ids use in the static mesh cache. It allows to avoid
+   * passing those arrays to subsequent pipeline elements.
+   */
+  void CleanOriginalIds(vtkDataObject* output);
 
 protected:
   /**
