@@ -29,7 +29,7 @@ int CheckValue(const std::string& name, T actualValue, T expectedValue)
 
 } // END namespace
 
-int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
+static int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
 {
   vtkUniformGridAMRDataIterator* iter =
     vtkUniformGridAMRDataIterator::SafeDownCast(amr->NewIterator());
@@ -47,7 +47,7 @@ int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
   return maxLevel + 1;
 }
 
-int ComputeNumberOfVisibleCells(vtkOverlappingAMR* amr)
+static int ComputeNumberOfVisibleCells(vtkOverlappingAMR* amr)
 {
   int numVisibleCells(0);
   vtkCompositeDataIterator* iter = amr->NewIterator();
