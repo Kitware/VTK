@@ -808,6 +808,12 @@ vtkOpenVDBReader::vtkOpenVDBReader()
   openvdb::initialize();
 }
 
+//------------------------------------------------------------------------------
+vtkOpenVDBReader::~vtkOpenVDBReader()
+{
+  this->SetFileName(nullptr);
+}
+
 //------------------------------------------------------------------------
 bool vtkOpenVDBReader::LoadFile()
 {

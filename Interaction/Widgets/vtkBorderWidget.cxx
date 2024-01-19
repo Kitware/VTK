@@ -27,6 +27,8 @@ vtkBorderWidget::vtkBorderWidget()
     vtkCommand::LeftButtonPressEvent, vtkWidgetEvent::Select, this, vtkBorderWidget::SelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
     vtkWidgetEvent::EndSelect, this, vtkBorderWidget::EndSelectAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::LeaveEvent, vtkWidgetEvent::EndSelect, this, vtkBorderWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonPressEvent,
     vtkWidgetEvent::Translate, this, vtkBorderWidget::TranslateAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonReleaseEvent,

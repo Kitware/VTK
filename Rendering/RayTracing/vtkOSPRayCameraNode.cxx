@@ -91,7 +91,7 @@ void vtkOSPRayCameraNode::Render(bool prepass)
       }
       else
       {
-        ospSetFloat(ospCamera, "focusDistance", 0.0f);
+        ospSetFloat(ospCamera, "focusDistance", 1.0f);
         ospSetFloat(ospCamera, "apertureRadius", 0.0f);
       }
     }

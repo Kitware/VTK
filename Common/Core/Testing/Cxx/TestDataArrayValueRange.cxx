@@ -12,6 +12,7 @@
 #endif
 
 #include <algorithm>
+#include <cstdint>
 #include <numeric>
 #include <type_traits>
 #include <utility>
