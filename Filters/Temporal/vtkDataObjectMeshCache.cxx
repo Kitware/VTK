@@ -453,6 +453,20 @@ void vtkDataObjectMeshCache::CopyCacheToDataObject(vtkDataObject* output)
     vtkWarningMacro("Cannot copy to unsupported data type: " << output->GetClassName());
     return;
   }
+  vtkSmartPointer<vtkDataObject> input = nullptr;
+  if (this->HasConsumerNoInputPort())
+  {
+    input = vtkSmartPointer<vtkDataObject>::Take(output->NewInstance());
+    input->ShallowCopy(output);
+  }
+  else if (this->OriginalDataSet)
+  {
+    input = this->OriginalDataSet.Get();
+  }
+  else if (this->OriginalCompositeDataSet)
+  {
+    input = this->OriginalCompositeDataSet.Get();
+  }
 
   vtkDebugMacro(" copy Cache to data object");
   output->ShallowCopy(this->Cache);
@@ -463,11 +477,13 @@ void vtkDataObjectMeshCache::CopyCacheToDataObject(vtkDataObject* output)
   if (outputDataSet)
   {
     auto cacheDataSet = vtkDataSet::SafeDownCast(this->Cache);
-    this->ForwardAttributesToDataSet(this->OriginalDataSet, cacheDataSet, outputDataSet);
+    auto inputDataSet = vtkDataSet::SafeDownCast(input);
+    this->ForwardAttributesToDataSet(inputDataSet, cacheDataSet, outputDataSet);
   }
   else if (outputComposite)
   {
-    this->ForwardAttributesToComposite(outputComposite);
+    auto inputComposite = vtkCompositeDataSet::SafeDownCast(input);
+    this->ForwardAttributesToComposite(inputComposite, outputComposite);
   }
 }
 
@@ -489,9 +505,10 @@ void vtkDataObjectMeshCache::ForwardAttributesToDataSet(
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectMeshCache::ForwardAttributesToComposite(vtkCompositeDataSet* output)
+void vtkDataObjectMeshCache::ForwardAttributesToComposite(
+  vtkCompositeDataSet* input, vtkCompositeDataSet* output)
 {
-  auto inputDataTree = vtkDataObjectTree::SafeDownCast(this->OriginalCompositeDataSet);
+  auto inputDataTree = vtkDataObjectTree::SafeDownCast(input);
   auto outputDataTree = vtkDataObjectTree::SafeDownCast(output);
   auto cacheDataTree = vtkDataObjectTree::SafeDownCast(this->Cache);
 
@@ -580,6 +597,12 @@ void vtkDataObjectMeshCache::ClearAttributes(vtkDataObject* dataobject)
 {
   ClearAttributesWorker clearWorker;
   clearWorker.Compute(dataobject);
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataObjectMeshCache::HasConsumerNoInputPort() const
+{
+  return this->Consumer->GetNumberOfInputPorts() == 0;
 }
 
 VTK_ABI_NAMESPACE_END
