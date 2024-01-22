@@ -225,9 +225,9 @@ vtkFLUENTReader::~vtkFLUENTReader()
 int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  if (!this->FileName)
+  if (!this->Parsed)
   {
-    vtkErrorMacro("FileName has to be specified!");
+    vtkErrorMacro("The files have not been parsed successfully, aborting.");
     return 0;
   }
 
@@ -392,6 +392,8 @@ void vtkFLUENTReader::PrintSelf(ostream& os, vtkIndent indent)
 int vtkFLUENTReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
+  this->Parsed = false;
+
   if (!this->FileName)
   {
     vtkErrorMacro("FileName has to be specified!");
@@ -405,8 +407,15 @@ int vtkFLUENTReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   }
 
   this->LoadVariableNames();
-  this->ParseCaseFile(); // Reads Necessary Information from the .cas file.
-  this->CleanCells();    //  Removes unnecessary faces from the cells.
+
+  bool parse = this->ParseCaseFile(); // Reads Necessary Information from the .cas file.
+  if (!parse)
+  {
+    vtkErrorMacro("Unable to parse case file.");
+    return 0;
+  }
+
+  this->CleanCells(); //  Removes unnecessary faces from the cells.
   this->PopulateCellNodes();
   this->GetNumberOfCellZones();
   this->NumberOfScalars = 0;
@@ -437,6 +446,7 @@ int vtkFLUENTReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     }
   }
   this->NumberOfCells = static_cast<vtkIdType>(this->Cells->value.size());
+  this->Parsed = true;
   return 1;
 }
 
@@ -2349,11 +2359,13 @@ void vtkFLUENTReader::LoadVariableNames()
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::ParseCaseFile()
+bool vtkFLUENTReader::ParseCaseFile()
 {
   this->FluentCaseFile->clear();
   this->FluentCaseFile->seekg(0, ios::beg);
 
+  bool ret = true;
+  // XXX: Each of these parsing method should be improved for error reporting and robustness
   while (this->GetCaseChunk())
   {
 
@@ -2377,7 +2389,7 @@ void vtkFLUENTReader::ParseCaseFile()
         this->GetCellsAscii();
         break;
       case 13:
-        this->GetFacesAscii();
+        ret &= this->GetFacesAscii();
         break;
       case 18:
         this->GetPeriodicShadowFacesAscii();
@@ -2477,6 +2489,7 @@ void vtkFLUENTReader::ParseCaseFile()
         break;
     }
   }
+  return ret;
 }
 
 //------------------------------------------------------------------------------
@@ -2723,7 +2736,7 @@ void vtkFLUENTReader::GetCellsBinary()
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::GetFacesAscii()
+bool vtkFLUENTReader::GetFacesAscii()
 {
 
   if (this->CaseBuffer->value.at(5) == '0')
@@ -2759,6 +2772,11 @@ void vtkFLUENTReader::GetFacesAscii()
       else
       {
         numberOfNodesInFace = faceType;
+      }
+      if (this->Faces->value.size() < i)
+      {
+        vtkErrorMacro("Could not parse faces");
+        return false;
       }
       this->Faces->value[i - 1].nodes.resize(numberOfNodesInFace);
       for (int j = 0; j < numberOfNodesInFace; j++)
@@ -2800,6 +2818,7 @@ void vtkFLUENTReader::GetFacesAscii()
       }
     }
   }
+  return true;
 }
 
 //------------------------------------------------------------------------------
