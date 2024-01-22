@@ -52,6 +52,22 @@ bool TestFLUENTReaderMSHSurface(const std::string& filename)
   return true;
 }
 
+bool TestFLUENTReaderMSHSurfaceAscii(const std::string& filename)
+{
+  vtkNew<vtkFLUENTReader> reader;
+  reader->SetFileName(filename.c_str());
+  reader->Update();
+
+  vtkMultiBlockDataSet* set = reader->GetOutput();
+  Check(set->GetNumberOfBlocks() == 1, "Wrong number of blocks");
+  auto* grid = vtkUnstructuredGrid::SafeDownCast(set->GetBlock(0));
+  Check(grid, "Wrong block");
+  Check(grid->GetNumberOfPoints() == 4, "Wrong number of points");
+  Check(grid->GetNumberOfCells() == 1, "Wrong number of cells");
+
+  return true;
+}
+
 // std::string friendly wrapper for vtkTestUtilities::ExpandDataFileName
 std::string GetFilePath(int argc, char* argv[], const char* path)
 {
@@ -66,12 +82,17 @@ std::string GetFilePath(int argc, char* argv[], const char* path)
 
 int TestFLUENTReader(int argc, char* argv[])
 {
-  if (!TestFLUENTReaderMSH(GetFilePath(argc, argv, "Data/3D_cylinder_vol.msh")))
+  if (!::TestFLUENTReaderMSH(GetFilePath(argc, argv, "Data/3D_cylinder_vol.msh")))
   {
     return EXIT_FAILURE;
   }
 
-  if (!TestFLUENTReaderMSHSurface(GetFilePath(argc, argv, "Data/3D_cylinder_surf.msh")))
+  if (!::TestFLUENTReaderMSHSurface(GetFilePath(argc, argv, "Data/3D_cylinder_surf.msh")))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!::TestFLUENTReaderMSHSurfaceAscii(GetFilePath(argc, argv, "Data/fluent_quad.msh")))
   {
     return EXIT_FAILURE;
   }
