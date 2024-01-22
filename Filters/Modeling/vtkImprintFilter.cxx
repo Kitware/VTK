@@ -41,6 +41,7 @@ vtkImprintFilter::vtkImprintFilter()
   this->Tolerance = 0.001;
   this->MergeTolerance = 0.025;
   this->MergeToleranceType = RELATIVE_TO_MIN_EDGE_LENGTH;
+  this->ToleranceStrategy = DECOUPLED_TOLERANCES;
 
   this->OutputType = MERGED_IMPRINT;
   this->BoundaryEdgeInsertion = false;
@@ -1360,7 +1361,7 @@ struct ProjPoints
   }         // ProjPoints
 
   void Reduce() {}
-};
+}; // ProjPoints
 
 // Glue between dispatch and point processing algorithm
 struct ProjPointsWorker
@@ -1523,6 +1524,7 @@ struct ProduceIntersectionPoints
   double ProjTol2;
   double MergeTol;
   double MergeTol2;
+  int TolStrategy;
   vtkTargetPointClassifier* PtClassifier;
 
   // Keep track of output points and cells
@@ -1532,7 +1534,7 @@ struct ProduceIntersectionPoints
   ProduceIntersectionPoints(bool bedgeInsert, vtkPoints* outPts, vtkPolyData* imprint,
     vtkPointList* pList, vtkPolyData* candidateOutput, vtkStaticCellLocator* loc,
     vtkCandidateList* candidateList, vtkIdType offset, double projTol, double mergeTol,
-    vtkTargetPointClassifier* tpc, vtkImprintFilter* filter)
+    int tolStrategy, vtkTargetPointClassifier* tpc, vtkImprintFilter* filter)
     : BoundaryEdgeInsertion(bedgeInsert)
     , OutPts(outPts)
     , Imprint(imprint)
@@ -1543,6 +1545,7 @@ struct ProduceIntersectionPoints
     , TargetOffset(offset)
     , ProjTol(projTol)
     , MergeTol(mergeTol)
+    , TolStrategy(tolStrategy)
     , PtClassifier(tpc)
     , Filter(filter)
   {
@@ -1670,7 +1673,7 @@ struct ProduceIntersectionPoints
 
     // Okay we may need to add an intersection point. Check to see whether
     // the point is within tolerance of the target and imprint end points.
-    double xInt[3]; // The intersection point is on the target cell edge
+    double xInt[3]; // The intersection point on the target cell edge
     xInt[0] = y0[0] + v * (y1[0] - y0[0]);
     xInt[1] = y0[1] + v * (y1[1] - y0[1]);
     xInt[2] = y0[2] + v * (y1[2] - y0[2]);
@@ -2689,19 +2692,34 @@ struct Triangulate
 
 }; // Triangulate
 
-// Compute the minimum edge length of the mesh
-struct ComputeMinEdgeLength
+// Compute the minimum or average edge length of the target mesh.
+struct AverageEdgeLengthType
+{
+  vtkIdType NumEdges;
+  double Average;
+  AverageEdgeLengthType()
+    : NumEdges(0)
+    , Average(0)
+  {
+  }
+};
+
+struct ComputeEdgeLength
 {
   vtkPolyData* PData;
   double MinEdgeLength;
+  double AverageEdgeLength;
+  bool ComputeMinEdgeLen; // either edge min length or average edge length
 
   vtkSMPThreadLocal<double> MinLength2;
+  vtkSMPThreadLocal<AverageEdgeLengthType> AveLength;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
   vtkSMPThreadLocal<vtkSmartPointer<vtkIdList>> EdgeNeighbors;
 
-  ComputeMinEdgeLength(vtkPolyData* pd)
+  ComputeEdgeLength(vtkPolyData* pd, bool computeMinEdgeLen)
     : PData(pd)
     , MinEdgeLength(VTK_FLOAT_MAX)
+    , ComputeMinEdgeLen(computeMinEdgeLen)
   {
   }
 
@@ -2717,6 +2735,7 @@ struct ComputeMinEdgeLength
   {
     vtkPolyData* pd = this->PData;
     double& minLength2 = this->MinLength2.Local();
+    AverageEdgeLengthType& aveLength = this->AveLength.Local();
     vtkCellArrayIterator* iter = this->CellIterator.Local();
     vtkIdList* edgeNeighbors = this->EdgeNeighbors.Local();
     vtkIdType npts;
@@ -2740,7 +2759,16 @@ struct ComputeMinEdgeLength
           pd->GetPoint(v0, x0);
           pd->GetPoint(v1, x1);
           double len2 = vtkMath::Distance2BetweenPoints(x0, x1);
-          minLength2 = (len2 < minLength2 ? len2 : minLength2);
+          if (this->ComputeMinEdgeLen)
+          {
+            minLength2 = (len2 < minLength2 ? len2 : minLength2);
+          }
+          else
+          { // computing average length, accumulate running average
+            aveLength.NumEdges++;
+            aveLength.Average =
+              aveLength.Average + ((sqrt(len2) - aveLength.Average) / aveLength.NumEdges);
+          }
         }
       }
     }
@@ -2748,29 +2776,61 @@ struct ComputeMinEdgeLength
 
   void Reduce()
   {
-    double minLength2 = VTK_FLOAT_MAX;
-    auto lEnd = this->MinLength2.end();
-    for (auto lItr = this->MinLength2.begin(); lItr != lEnd; ++lItr)
+    if (this->ComputeMinEdgeLen)
     {
-      if (*lItr < minLength2)
+      double minLength2 = VTK_FLOAT_MAX;
+      auto lEnd = this->MinLength2.end();
+      for (auto lItr = this->MinLength2.begin(); lItr != lEnd; ++lItr)
       {
-        minLength2 = *lItr;
+        if (*lItr < minLength2)
+        {
+          minLength2 = *lItr;
+        }
       }
-    }
-    this->MinEdgeLength = sqrt(minLength2);
+      this->MinEdgeLength = sqrt(minLength2);
+    } // computing min edge length
+    else
+    {
+      // Determine the total number of edges processed.
+      vtkIdType totalEdges = 0;
+      auto aItr = this->AveLength.begin();
+      auto aEnd = this->AveLength.end();
+      for (; aItr != aEnd; ++aItr)
+      {
+        totalEdges += (*aItr).NumEdges;
+      }
+
+      // Now combine the averages computed on each thread
+      double aveLength = 0.0;
+      for (aItr = this->AveLength.begin(); aItr != aEnd; ++aItr)
+      {
+        aveLength += (static_cast<double>((*aItr).NumEdges) / totalEdges) * ((*aItr).Average);
+      }
+      this->AverageEdgeLength = aveLength;
+    } // computing average edge length
   }
 
-  // Cause execution of the edge length calculation
-  static double GetLength(vtkPolyData* pdata)
+  // Cause execution of the min edge length calculation.
+  static double GetMinLength(vtkPolyData* pdata)
   {
-    ComputeMinEdgeLength compEdgeLen(pdata);
+    ComputeEdgeLength compEdgeLen(pdata, true);
     vtkIdType numCells = pdata->GetNumberOfCells();
     vtkSMPTools::For(0, numCells, compEdgeLen);
 
     return compEdgeLen.MinEdgeLength;
   }
 
-}; // ComputeMinEdgeLength
+  // Cause execution of the average edge length calculation.
+  static double GetAverageLength(vtkPolyData* pdata)
+  {
+    ComputeEdgeLength compEdgeLen(pdata, false);
+    vtkIdType numCells = pdata->GetNumberOfCells();
+    vtkSMPTools::For(0, numCells, compEdgeLen);
+
+    return compEdgeLen.AverageEdgeLength;
+  }
+
+}; // ComputeEdgeLength
 
 } // anonymous
 
@@ -2785,7 +2845,11 @@ double vtkImprintFilter::ComputeMergeTolerance(vtkPolyData* pdata)
   }
   else if (this->MergeToleranceType == RELATIVE_TO_MIN_EDGE_LENGTH)
   {
-    return this->MergeTolerance * ComputeMinEdgeLength::GetLength(pdata);
+    return this->MergeTolerance * ComputeEdgeLength::GetMinLength(pdata);
+  }
+  else if (this->MergeToleranceType == RELATIVE_TO_AVERAGE_EDGE_LENGTH)
+  {
+    return this->MergeTolerance * ComputeEdgeLength::GetAverageLength(pdata);
   }
   else // if ( this->MergeToleranceType == ABSOLUTE )
   {
@@ -2934,12 +2998,19 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Adaptively classify the target points wrt the imprint. We avoid classifying all
   // of the points (there may be many); use topological checks whenever possible; and
   // use geometric checks as a last resort.
+  double projTol = this->Tolerance;
   double mergeTol = this->ComputeMergeTolerance(imprint);
   if (mergeTol <= 0.0)
   {
+    mergeTol = 0.0;
     vtkWarningMacro("Merge tolerance <= 0.0");
   }
-  vtkTargetPointClassifier tpc(candidateOutput, impLocator, this->Tolerance, mergeTol);
+  if (this->ToleranceStrategy == LINKED_TOLERANCES)
+  {
+    projTol = mergeTol;
+  }
+  vtkDebugMacro(<< "(Projection) Tolerance: " << projTol << ",  Merge Tolerance: " << mergeTol);
+  vtkTargetPointClassifier tpc(candidateOutput, impLocator, projTol, mergeTol);
 
   // Create an initial array of pointers to candidate cell information
   // structures, in which each struct contains information about the points
@@ -2967,9 +3038,9 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   using ProjPointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
   ProjPointsWorker ppWorker;
   if (!ProjPointsDispatch::Execute(imprintPts->GetData(), ppWorker, candidateOutput,
-        candidateCellLocator, &pList, this->Tolerance, mergeTol, &tpc, this))
+        candidateCellLocator, &pList, projTol, mergeTol, &tpc, this))
   {
-    ppWorker(imprintPts->GetData(), candidateOutput, candidateCellLocator, &pList, this->Tolerance,
+    ppWorker(imprintPts->GetData(), candidateOutput, candidateCellLocator, &pList, projTol,
       mergeTol, &tpc, this);
   }
 
@@ -2992,8 +3063,8 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Now produce edge intersection points and edge fragments. This an
   // intersection of the imprint edges against the target edges.
   ProduceIntersectionPoints pip(this->BoundaryEdgeInsertion, outPts, imprint, &pList,
-    candidateOutput, candidateCellLocator, &candidateList, numTargetPts, this->Tolerance, mergeTol,
-    &tpc, this);
+    candidateOutput, candidateCellLocator, &candidateList, numTargetPts, projTol, mergeTol,
+    this->ToleranceStrategy, &tpc, this);
   vtkSMPTools::For(0, numImprintCells, pip);
 
   if (this->OutputType == IMPRINTED_CELLS)
@@ -3067,6 +3138,8 @@ void vtkImprintFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
   os << indent << "Merge Tolerance Type: " << this->MergeToleranceType << "\n";
+
+  os << indent << "Tolerance Strategy: " << this->ToleranceStrategy << "\n";
 
   os << indent << "Output Type: " << this->OutputType << "\n";
 

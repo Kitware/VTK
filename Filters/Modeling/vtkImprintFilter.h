@@ -51,7 +51,7 @@
  * -- The algorithm assumes that the input target and imprint cells are convex.
  * -- If performing a PROJECTED_IMPRINT, the output is the imprint mesh with
  *    the point coordinates modified by projecting the imprint points onto
- *    the target. If the profection of an imprint point onto the target is
+ *    the target. If the projection of an imprint point onto the target is
  *    unsuccessful, the imprint point coordinates are not modified.
  * -- If performing a MERGED_IMPRINT, the number of output points is
  *    (numTargetPts + numImprintPts + numEdgeIntPts).
@@ -143,16 +143,19 @@ public:
   vtkGetMacro(Tolerance, double);
   ///@}
 
-  // Used to control how the merge tolerance is interpreted.
+  // Used to control how the merge tolerance value is interpreted.
   // ABSOLUTE_TOLERANCE is a tolerance expressed in world coordinates;
   // RELATIVE_TO_TOLERANCE is a tolerance relative to the projection
-  // tolerance; and RELATIVE_TO_MIN_EDGE_LENGTH is a tolerance relative
-  // to the minimum edge length of the tool/imprint mesh.
+  // tolerance (i.e., MergeTolerance is a scale factor on Tolerance);
+  // RELATIVE_TO_MIN_EDGE_LENGTH is a tolerance relative to the minimum edge
+  // length of the tool/imprint mesh; and RELATIVE_TO_AVERAGE_EDGE_LENGTH is
+  // a tolerance based on the average edge length of all imprint mesh edges.
   enum MergeTolType
   {
     ABSOLUTE_TOLERANCE = 0,
     RELATIVE_TO_PROJECTION_TOLERANCE = 1,
-    RELATIVE_TO_MIN_EDGE_LENGTH = 2
+    RELATIVE_TO_MIN_EDGE_LENGTH = 2,
+    RELATIVE_TO_AVERAGE_EDGE_LENGTH = 3
   };
 
   ///@{
@@ -161,7 +164,7 @@ public:
    * considered coincident to one another. This is important when performing
    * intersections and projections to reduce numerical issues.
    */
-  vtkSetClampMacro(MergeToleranceType, int, ABSOLUTE_TOLERANCE, RELATIVE_TO_MIN_EDGE_LENGTH);
+  vtkSetClampMacro(MergeToleranceType, int, ABSOLUTE_TOLERANCE, RELATIVE_TO_AVERAGE_EDGE_LENGTH);
   vtkGetMacro(MergeToleranceType, int);
   void SetMergeToleranceTypeToAbsolute() { this->SetMergeToleranceType(ABSOLUTE_TOLERANCE); }
   void SetMergeToleranceTypeToRelativeToProjection()
@@ -172,8 +175,38 @@ public:
   {
     this->SetMergeToleranceType(RELATIVE_TO_MIN_EDGE_LENGTH);
   }
+  void SetMergeToleranceTypeToAverageEdge()
+  {
+    this->SetMergeToleranceType(RELATIVE_TO_AVERAGE_EDGE_LENGTH);
+  }
   vtkSetClampMacro(MergeTolerance, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(MergeTolerance, double);
+  ///@}
+
+  // Used to control the relationship between the merge tolerance
+  // (MergeTolerance) and projection tolerance (Tolerance) as these need to
+  // be treated consistently to minimize numerical issues. The projection
+  // tolerance addresses projection of the imprint onto the target, while
+  // the merge tolerance is about computing accurate in-plane edge-edge
+  // intersections.
+  enum ToleranceStrategy
+  {
+    DECOUPLED_TOLERANCES = 0,
+    LINKED_TOLERANCES = 1
+  };
+
+  ///@{
+  /**
+   * Specify the relationship between the merge tolerance and the projection
+   * tolerance.  By default (DECOUPLED_TOLERANCES), the merge and projection
+   * tolerance are independent of one another.  Otherwise, the tolerances may
+   * be linked (LINKED_TOLERANCES), so that the projection tolerance is
+   * linked to (i.e., equal to) the merge tolerance.
+   */
+  vtkSetClampMacro(ToleranceStrategy, int, DECOUPLED_TOLERANCES, LINKED_TOLERANCES);
+  vtkGetMacro(ToleranceStrategy, int);
+  void SetToleranceStrategyToDecoupled() { this->SetToleranceStrategy(DECOUPLED_TOLERANCES); }
+  void SetToleranceStrategyToLinked() { this->SetToleranceStrategy(LINKED_TOLERANCES); }
   ///@}
 
   enum SpecifiedOutput
@@ -316,6 +349,7 @@ protected:
   double Tolerance;
   double MergeTolerance;
   int MergeToleranceType;
+  int ToleranceStrategy;
   double ComputeMergeTolerance(vtkPolyData* pdata);
 
   int OutputType;
