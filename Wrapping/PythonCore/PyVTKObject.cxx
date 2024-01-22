@@ -130,8 +130,8 @@ static PyMethodDef PyVTKClass_override_def = { "override", PyVTKClass_override, 
 //------------------------------------------------------------------------------
 // Add a class, add methods and members to its type object.  A return
 // value of nullptr signifies that the class was already added.
-PyTypeObject* PyVTKClass_Add(PyTypeObject* pytype, PyMethodDef* methods, PyGetSetDef* getsets,
-  const char* classname, vtknewfunc constructor)
+PyTypeObject* PyVTKClass_Add(
+  PyTypeObject* pytype, PyMethodDef* methods, const char* classname, vtknewfunc constructor)
 {
   // Check whether the type is already in the map (use classname as key),
   // and return it if so.  If not, then add it to the map.
@@ -172,16 +172,44 @@ PyTypeObject* PyVTKClass_Add(PyTypeObject* pytype, PyMethodDef* methods, PyGetSe
     PyDict_SetItemString(pytype->tp_dict, PyVTKClass_override_def.ml_name, func);
     Py_DECREF(func);
   }
+  return pytype;
+}
 
+void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* getsets)
+{
   // Add all of the getsets
   for (PyGetSetDef* getset = getsets; getset && getset->name; getset++)
   {
+    if (getset->get == nullptr)
+    {
+      // find a getter in superclass
+      if (pytype->tp_base != nullptr)
+      {
+        auto key = PyUnicode_FromString(getset->name);
+        if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key))
+        {
+          getset->get = superGetSet->get;
+        }
+        Py_DECREF(key);
+      }
+    }
+    else if (getset->set == nullptr)
+    {
+      // find a setter in superclass
+      if (pytype->tp_base != nullptr)
+      {
+        auto key = PyUnicode_FromString(getset->name);
+        if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key))
+        {
+          getset->set = superGetSet->set;
+        }
+        Py_DECREF(key);
+      }
+    }
     PyObject* descr = PyDescr_NewGetSet(pytype, getset);
     PyDict_SetItemString(pytype->tp_dict, getset->name, descr);
     Py_DECREF(descr);
   }
-
-  return pytype;
 }
 
 //------------------------------------------------------------------------------
@@ -249,7 +277,7 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 }
 
 //------------------------------------------------------------------------------
-PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
+PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* /*kwds*/)
 {
   // XXX(python3-abi3): all types will be heap types in abi3
   // If type was subclassed within python, then skip arg checks and

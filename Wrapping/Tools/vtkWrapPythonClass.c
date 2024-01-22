@@ -339,8 +339,8 @@ static void vtkWrapPython_GenerateObjectNew(
     "PyObject *Py%s_ClassNew()\n"
     "{\n"
     "  PyTypeObject *pytype = PyVTKClass_Add(\n"
-    "    &Py%s_Type, Py%s_Methods, Py%s_GetSets,\n",
-    classname, classname, classname, classname);
+    "    &Py%s_Type, Py%s_Methods,\n",
+    classname, classname, classname);
 
   if (strcmp(data->Name, classname) == 0)
   {
@@ -434,9 +434,11 @@ static void vtkWrapPython_GenerateObjectNew(
   }
 
   fprintf(fp,
+    "  PyVTKClass_AddCombinedGetSetDefinitions(pytype, Py%s_GetSets);\n"
     "  PyType_Ready(pytype);\n"
     "  return (PyObject *)pytype;\n"
-    "}\n\n");
+    "}\n\n",
+    classname);
 }
 
 /* -------------------------------------------------------------------- */
