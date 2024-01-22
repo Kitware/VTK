@@ -5,7 +5,6 @@
 
 #include "vtkDataArraySelection.h"
 #include "vtkFieldData.h"
-#include "vtkGhostCellsGenerator.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -45,7 +44,6 @@ struct vtkFidesReader::vtkFidesReaderImpl
   bool UseInlineEngine{ false };
   fides::Params AllParams;
   vtkNew<vtkStringArray> SourceNames;
-  vtkNew<vtkGhostCellsGenerator> GhostCellsGenerator;
 
   // Metadata of an individual group in ADIOS file
   // This metadata is populated in RequestInformation.
@@ -799,16 +797,6 @@ int vtkFidesReader::RequestData(
       }
     }
     pdsIdx++;
-  }
-
-  if (this->ConvertToVTK)
-  {
-    this->Impl->GhostCellsGenerator->SetInputData(output);
-    this->Impl->GhostCellsGenerator->BuildIfRequiredOff();
-    this->Impl->GhostCellsGenerator->SetNumberOfGhostLayers(
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-    this->Impl->GhostCellsGenerator->Update();
-    output->ShallowCopy(this->Impl->GhostCellsGenerator->GetOutput());
   }
 
   return 1;
