@@ -170,7 +170,13 @@ public:
   static int GetLogVerbosity();
   ///@}
 
-  static bool InitializeWithArgs(int initsigs, int argc, char* argv[]);
+  /**
+   * Initialize the Python interpreter, forwarding specified args to it.
+   * If programName is set, use it as the interpreter's program name. Otherwise, it
+   * will be set to "<path to python lib>/vtkpython"
+   */
+  static bool InitializeWithArgs(
+    int initsigs, int argc, char* argv[], const char* programName = nullptr);
 
 protected:
   vtkPythonInterpreter();
