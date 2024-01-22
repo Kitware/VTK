@@ -131,7 +131,6 @@ void vtkCameraOrientationWidget::ComputeWidgetState(int X, int Y, int modify /* 
 
   // Refresh representation to match interaction state.
   rep->ApplyInteractionState(interactionState);
-  this->Render();
 }
 
 //----------------------------------------------------------------------------
@@ -273,43 +272,44 @@ void vtkCameraOrientationWidget::MoveAction(vtkAbstractWidget* w)
   if (self->WidgetState != WidgetStateType::Active)
   {
     self->ComputeWidgetState(X, Y, 1);
-    return;
   }
   else // pick handle.
   {
     rep->ComputeInteractionState(X, Y, 0);
-  }
+    if (self->ParentRenderer == nullptr)
+    {
+      return;
+    }
+    auto cam = self->ParentRenderer->GetActiveCamera();
+    if (cam == nullptr)
+    {
+      return;
+    }
 
-  if (self->ParentRenderer == nullptr)
+    double e[2];
+    e[0] = static_cast<double>(X);
+    e[1] = static_cast<double>(Y);
+
+    // compute representation's azimuth, elevation
+    self->WidgetRep->WidgetInteraction(e);
+
+    // copy widget's az, elev to parent cam.
+    cam->Azimuth(rep->GetAzimuth());
+    cam->Elevation(rep->GetElevation());
+    cam->OrthogonalizeViewUp();
+    self->ParentRenderer->ResetCameraClippingRange();
+    if (self->Interactor->GetLightFollowCamera())
+    {
+      self->ParentRenderer->UpdateLightsGeometryToFollowCamera();
+    }
+
+    self->EventCallbackCommand->AbortFlagOn();
+    self->InvokeEvent(vtkCommand::InteractionEvent);
+  }
+  if (self->WidgetState != WidgetStateType::Inactive)
   {
-    return;
+    self->Render();
   }
-  auto cam = self->ParentRenderer->GetActiveCamera();
-  if (cam == nullptr)
-  {
-    return;
-  }
-
-  double e[2];
-  e[0] = static_cast<double>(X);
-  e[1] = static_cast<double>(Y);
-
-  // compute representation's azimuth, elevation
-  self->WidgetRep->WidgetInteraction(e);
-
-  // copy widget's az, elev to parent cam.
-  cam->Azimuth(rep->GetAzimuth());
-  cam->Elevation(rep->GetElevation());
-  cam->OrthogonalizeViewUp();
-  self->ParentRenderer->ResetCameraClippingRange();
-  if (self->Interactor->GetLightFollowCamera())
-  {
-    self->ParentRenderer->UpdateLightsGeometryToFollowCamera();
-  }
-
-  self->EventCallbackCommand->AbortFlagOn();
-  self->InvokeEvent(vtkCommand::InteractionEvent);
-  self->Render();
 }
 
 //-----------------------------------------------------------------------------
