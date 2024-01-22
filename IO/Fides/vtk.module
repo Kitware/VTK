@@ -15,9 +15,3 @@ PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::fides
-  VTK::FiltersParallelDIY2
-TEST_DEPENDS
-  VTK::ParallelCore
-  VTK::TestingCore
-TEST_OPTIONAL_DEPENDS
-  VTK::ParallelMPI
