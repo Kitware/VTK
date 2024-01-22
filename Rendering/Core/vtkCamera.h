@@ -422,6 +422,18 @@ public:
   void GetEyePosition(double eyePosition[3]);
   ///@}
 
+  ///@{
+  /**
+   * Using the LeftEye property to determine whether left or right
+   * eye is being requested, this method computes and returns the
+   * position of the requested eye, taking head orientation
+   * and eye separation into account.
+   * The eyePosition parameter is output only, all elements are
+   * overwritten.
+   */
+  void GetStereoEyePosition(double eyePosition[3]);
+  ///@}
+
   /**
    * Get normal vector from eye to screen rotated by EyeTransformMatrix.
    * This will be used only for offaxis frustum calculation.
