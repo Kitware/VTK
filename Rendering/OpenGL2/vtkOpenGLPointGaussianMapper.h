@@ -56,8 +56,9 @@ protected:
   void ReportReferences(vtkGarbageCollector* collector) override;
 
   std::vector<vtkOpenGLPointGaussianMapperHelper*> Helpers;
-  vtkOpenGLPointGaussianMapperHelper* CreateHelper();
-  void CopyMapperValuesToHelper(vtkOpenGLPointGaussianMapperHelper* helper);
+
+  virtual vtkOpenGLPointGaussianMapperHelper* CreateHelper();
+  virtual void CopyMapperValuesToHelper(vtkOpenGLPointGaussianMapperHelper* helper);
 
   vtkTimeStamp HelperUpdateTime;
   vtkTimeStamp ScaleTableUpdateTime;
