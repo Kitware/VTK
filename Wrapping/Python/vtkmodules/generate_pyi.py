@@ -36,6 +36,7 @@ To generate pyi files for your own modules in your own package:
 """
 
 from vtkmodules.vtkCommonCore import vtkObject, vtkSOADataArrayTemplate
+from keyword import iskeyword
 
 import sys
 import os
@@ -419,7 +420,7 @@ def class_pyi(c):
     items = others
     others = []
     for m,o in items:
-        if not m.startswith("__") and not ismethod(o) and not isclass(o):
+        if not m.startswith("__") and not ismethod(o) and not isclass(o) and not iskeyword(m):
             out += "    " + m + ":" + typename_forward(o) + "\n"
             count += 1
         else:
