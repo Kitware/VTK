@@ -103,6 +103,9 @@ extern "C"
   PyObject* PyVTKObject_New(PyTypeObject*, PyObject* args, PyObject* kwds);
 
   VTKWRAPPINGPYTHONCORE_EXPORT
+  int PyVTKObject_Init(PyObject* obj, PyObject* args, PyObject* kwds);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
   void PyVTKObject_Delete(PyObject* op);
 }
 

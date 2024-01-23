@@ -519,7 +519,7 @@ void vtkWrapPython_GenerateObjectType(FILE* fp, const char* module, const char* 
     "  nullptr, // tp_descr_get\n"
     "  nullptr, // tp_descr_set\n"
     "  offsetof(PyVTKObject, vtk_dict), // tp_dictoffset\n"
-    "  nullptr, // tp_init\n"
+    "  PyVTKObject_Init, // tp_init\n"
     "  nullptr, // tp_alloc\n"
     "  PyVTKObject_New, // tp_new\n"
     "  PyObject_GC_Del, // tp_free\n"
