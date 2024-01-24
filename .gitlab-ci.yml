@@ -72,7 +72,7 @@ readthedocs:build:
         - linux-x86_64
     needs: []
     dependencies: []
-    timeout: 10 minutes
+    timeout: 15 minutes
 
 ## Basic builds
 
