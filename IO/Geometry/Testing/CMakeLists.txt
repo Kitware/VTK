@@ -68,6 +68,7 @@ vtk_module_test_data(
   Data/Viewpoint/cow.obj
   Data/3D_cylinder_surf.msh
   Data/3D_cylinder_vol.msh
+  Data/fluent_quad.msh
   Data/absolute_indices.obj
   Data/cellcentered.tec
   Data/cellsnd.ascii.inp
