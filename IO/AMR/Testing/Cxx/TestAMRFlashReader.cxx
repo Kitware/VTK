@@ -55,12 +55,11 @@ static void ComputeNumberOfCells(
   vtkUniformGridAMRDataIterator* iter =
     vtkUniformGridAMRDataIterator::SafeDownCast(amr->NewIterator());
   iter->SkipEmptyNodesOn();
-  int numTotal = 0;
   for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(iter->GetCurrentDataObject());
     vtkIdType num = grid->GetNumberOfCells();
-    if (level == iter->GetCurrentLevel())
+    if (level == (int)iter->GetCurrentLevel())
     {
       for (vtkIdType i = 0; i < num; i++)
       {
