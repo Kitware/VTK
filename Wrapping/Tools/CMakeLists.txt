@@ -82,6 +82,7 @@ if (NOT TARGET WrapPython)
     vtkWrapPythonMethod.c
     vtkWrapPythonMethodDef.c
     vtkWrapPythonNamespace.c
+    vtkWrapPythonNumberProtocol.c
     vtkWrapPythonOverload.c
     vtkWrapPythonProperty.c
     vtkWrapPythonTemplate.c

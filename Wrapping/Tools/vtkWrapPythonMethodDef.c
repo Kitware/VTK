@@ -425,6 +425,62 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
       classname, classname);
   }
 
+  /* Adds a new 'execute' method on vtkAlgorithm */
+  else if (strcmp("vtkAlgorithm", data->Name) == 0)
+  {
+    fprintf(fp,
+      "  {\n"
+      "    \"execute\",\n"
+      "    [](PyObject* self, PyObject* args) -> PyObject*\n"
+      "    {\n"
+      "      vtkPythonArgs ap(self, args, \"execute\");\n"
+      "      vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
+      "      vtkAlgorithm *op = static_cast<vtkAlgorithm *>(vp);\n"
+      "      vtkDataObject *temp0 = nullptr;\n"
+      "      PyObject *result = nullptr;\n"
+      "      vtkAlgorithm* sourceAlgorithm = nullptr;\n"
+      "      if (ap.GetArgCount(args) == 1)\n"
+      "      {\n"
+      "        if (op && ap.CheckArgCount(1) &&\n"
+      "            ap.GetVTKObject(temp0, \"vtkDataObject\"))\n"
+      "        {\n"
+      "          vtkAlgorithm* next = op;\n"
+      "          while (next != nullptr)\n"
+      "          {\n"
+      "            int algPort = 0;\n"
+      "            sourceAlgorithm = next;\n"
+      "            next = sourceAlgorithm->GetInputAlgorithm(0, 0, algPort);\n"
+      "          }\n"
+      "          sourceAlgorithm->SetInputDataObject(temp0);\n"
+      "        }\n"
+      "      }\n"
+      "      if (ap.IsBound())\n"
+      "      {\n"
+      "        op->Update();\n"
+      "      }\n"
+      "      else\n"
+      "      {\n"
+      "        op->vtkAlgorithm::Update();\n"
+      "      }\n"
+      "      if (sourceAlgorithm != nullptr)\n"
+      "      {\n"
+      "        sourceAlgorithm->RemoveAllInputs();\n"
+      "      }\n"
+      "      if (!ap.ErrorOccurred())\n"
+      "      {\n"
+      "        result = ap.BuildVTKObject(op->GetOutputDataObject(0));\n"
+      "      }\n"
+      "      else\n"
+      "      {\n"
+      "        result = ap.BuildNone();\n"
+      "      }\n"
+      "      return result;\n"
+      "    },\n"
+      "    METH_VARARGS,\n"
+      "    \"execute(self, input: vtkDataObject=None)\\n\"\n"
+      "  },\n");
+  }
+
   /* python expects the method table to end with a "nullptr" entry */
   fprintf(fp,
     "  {nullptr, nullptr, 0, nullptr}\n"

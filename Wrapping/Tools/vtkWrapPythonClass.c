@@ -7,6 +7,7 @@
 #include "vtkWrapPythonEnum.h"
 #include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonMethodDef.h"
+#include "vtkWrapPythonNumberProtocol.h"
 #include "vtkWrapPythonProperty.h"
 #include "vtkWrapPythonTemplate.h"
 #include "vtkWrapPythonType.h"
@@ -443,7 +444,8 @@ static void vtkWrapPython_GenerateObjectNew(
 
 /* -------------------------------------------------------------------- */
 /* write out the type object */
-void vtkWrapPython_GenerateObjectType(FILE* fp, const char* module, const char* classname)
+void vtkWrapPython_GenerateObjectType(
+  FILE* fp, const char* module, const char* classname, const int hasNumberProtocol)
 {
   /* Generate the TypeObject */
   fprintf(fp,
@@ -468,8 +470,15 @@ void vtkWrapPython_GenerateObjectType(FILE* fp, const char* module, const char* 
     "  PyVTKObject_Repr, // tp_repr\n",
     classname, module, classname);
 
+  if (hasNumberProtocol)
+  {
+    fprintf(fp, "  Py%s_NumberMethods, // tp_as_number\n", classname);
+  }
+  else
+  {
+    fprintf(fp, "  nullptr, // tp_as_number\n");
+  }
   fprintf(fp,
-    "  nullptr, // tp_as_number\n"
     "  nullptr, // tp_as_sequence\n"
     "  nullptr, // tp_as_mapping\n"
     "  nullptr, // tp_hash\n"
@@ -595,6 +604,9 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
   /* now output all the methods are wrappable */
   vtkWrapPython_GenerateMethods(fp, classname, data, file_info, hinfo, is_vtkobject, 0);
 
+  /* now output number protocol definitions where acceptable */
+  int hasNumberProtocol = vtkWrapPython_GenerateNumberProtocolDefintions(fp, data);
+
   /* now output all the property getters and setters */
   vtkWrapPython_GenerateProperties(fp, classname, data, hinfo, properties, is_vtkobject);
 
@@ -609,7 +621,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
     vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
     fprintf(fp, ";\n\n");
 
-    vtkWrapPython_GenerateObjectType(fp, module, classname);
+    vtkWrapPython_GenerateObjectType(fp, module, classname, hasNumberProtocol);
     vtkWrapPython_GenerateObjectNew(fp, classname, data, hinfo, class_has_new);
   }
 
