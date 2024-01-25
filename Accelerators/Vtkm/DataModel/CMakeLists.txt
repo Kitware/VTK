@@ -48,7 +48,7 @@ vtkm_add_target_information(${vtkm_accel_target}
                             MODIFY_CUDA_FLAGS
                             DEVICE_SOURCES ${sources})
 
-if (TARGET vtkm::cuda)
+if (TARGET vtkm::cuda OR TARGET vtkm::kokkos_cuda)
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.
   # We are disabling all warnings as nvlink has no known way to suppress

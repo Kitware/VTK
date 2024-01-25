@@ -163,19 +163,40 @@ if(VTK_USE_CUDA)
 endif()
 
 #-----------------------------------------------------------------------------
-# Add an option to enable/disable HIP support.
-cmake_dependent_option(VTK_USE_HIP "Support HIP backend accelerator" OFF
+# Add an option to enable/disable KOKKOS support.
+cmake_dependent_option(VTK_USE_KOKKOS "Support KOKKOS backend accelerator" OFF
   "CMAKE_VERSION VERSION_GREATER_EQUAL 3.21;NOT VTK_USE_CUDA" OFF)
-mark_as_advanced(VTK_USE_HIP)
+mark_as_advanced(VTK_USE_KOKKOS)
+if(VTK_USE_KOKKOS)
+  set(VTK_KOKKOS_BACKEND:STRING "SERIAL" CACHE STRING "'HIP', 'SYCL', or 'CUDA'")
+endif()
+# If the Kokkos backend is set, it should imply that Kokkos is to used
+if(VTK_KOKKOS_BACKEND)
+  set(VTK_USE_KOKKOS ON)
+endif()
 
 if(VTK_USE_HIP)
+  message(WARNING "VTK_USE_HIP will be removed in future releases, please use VTK_USE_KOKKOS and VTK_KOKKOS_BACKEND")
+  set(VTK_USE_KOKKOS ON)
+  set(VTK_KOKKOS_BACKEND "HIP")
+endif()
+
+if(VTK_USE_KOKKOS)
   if(VTK_USE_CUDA)
-    message(FATAL_ERROR "VTK_USE_HIP and VTK_USE_CUDA are mutually exclusive, enable only one.")
+    message(FATAL_ERROR "VTK_USE_KOKKOS and VTK_USE_CUDA are mutually exclusive, enable only one.")
   endif()
   # This needs to be a top level flag as enable_language needs
   # to be called from CMake entry point for variables to have
   # the correct scope.
-  enable_language(HIP)
+  if (VTK_KOKKOS_BACKEND STREQUAL "HIP")
+    enable_language(HIP)
+  elseif (VTK_KOKKOS_BACKEND STREQUAL "CUDA")
+    enable_language(CUDA)
+  elseif (VTK_KOKKOS_BACKEND STREQUAL "SYCL")
+  elseif (VTK_KOKKOS_BACKEND STREQUAL "SERIAL")
+  else ()
+    message(FATAL_ERROR "VTK_KOKKOS_BACKEND not recognized")
+  endif()
 endif()
 
 #-----------------------------------------------------------------------------
