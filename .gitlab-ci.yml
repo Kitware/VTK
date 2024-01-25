@@ -60,18 +60,19 @@ dummy:build:
         GIT_STRATEGY: none
 
 ## readthedocs documentation build
-readthedocs:test:
+readthedocs:build:
+    stage: test
     extends:
       - .make_sphinx_docs
       - .sphinx_artifacts
       - .run_automatically
     tags:
-        - test
+        - build
         - docker
         - linux-x86_64
     needs: []
     dependencies: []
-    timeout: 10 minutes
+    timeout: 15 minutes
 
 ## Basic builds
 
