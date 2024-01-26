@@ -12,6 +12,9 @@ if (NOT DEFINED "ENV{CI_PROJECT_DIR}")
   set(CTEST_SOURCE_DIRECTORY "${project_dir}")
 else()
   set(CTEST_SOURCE_DIRECTORY "$ENV{CI_PROJECT_DIR}")
+  # Convert path to CMake style path to avoid `\` character clobbering
+  # when building the `CTEST_CONFIGURE_COMMAND`
+  file(TO_CMAKE_PATH "${CTEST_SOURCE_DIRECTORY}" CTEST_SOURCE_DIRECTORY)
   set(CTEST_SITE "gitlab-ci")
 endif()
 
@@ -52,6 +55,16 @@ if (NOT "$ENV{CMAKE_GENERATOR}" STREQUAL "")
 endif ()
 if (NOT CTEST_CMAKE_GENERATOR)
   set(CTEST_CMAKE_GENERATOR "Ninja")
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "mindeps")
+  set(mindeps_cmake "${CTEST_SOURCE_DIRECTORY}/.gitlab/cmake-mindeps/bin/cmake")
+  if (NOT EXISTS "${mindeps_cmake}")
+    message(FATAL_ERROR "Missing mindeps cmake, run `.gitlab/ci/cmake.sh mindeps`")
+  endif ()
+  set(_ctest_configure_command "${mindeps_cmake};${CTEST_SOURCE_DIRECTORY}")
+else ()
+  set(_ctest_configure_command "cmake;${CTEST_SOURCE_DIRECTORY}")
 endif ()
 
 # Determine the track to submit to.

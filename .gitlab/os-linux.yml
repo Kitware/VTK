@@ -482,7 +482,8 @@
 ## Linux-specific scripts
 
 .before_script_linux: &before_script_linux
-    - .gitlab/ci/cmake.sh
+    - .gitlab/ci/cmake.sh latest
+    - .gitlab/ci/cmake.sh mindeps
     - .gitlab/ci/ninja.sh
     - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
     - cmake --version

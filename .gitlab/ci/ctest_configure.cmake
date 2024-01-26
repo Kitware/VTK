@@ -1,7 +1,12 @@
 include("${CMAKE_CURRENT_LIST_DIR}/gitlab_ci.cmake")
 
 set(cmake_args
+  -G "${CTEST_CMAKE_GENERATOR}"
+  "-DCMAKE_BUILD_TYPE:STRING=${CTEST_BUILD_CONFIGURATION}"
   -C "${CMAKE_CURRENT_LIST_DIR}/configure_$ENV{CMAKE_CONFIGURATION}.cmake")
+
+list(INSERT _ctest_configure_command 1 ${cmake_args})
+string(REPLACE ";" " " CTEST_CONFIGURE_COMMAND "${_ctest_configure_command}")
 
 # Create an entry in CDash.
 ctest_start(Experimental TRACK "${ctest_track}")
@@ -14,7 +19,6 @@ ctest_update()
 
 # Configure the project.
 ctest_configure(
-  OPTIONS "${cmake_args}"
   RETURN_VALUE configure_result)
 
 # Read the files from the build directory.
