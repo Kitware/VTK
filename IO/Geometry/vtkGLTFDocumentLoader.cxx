@@ -801,9 +801,11 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
 bool vtkGLTFDocumentLoader::LoadImageData()
 {
   vtkNew<vtkImageReader2Factory> factory;
-
-  for (Image& image : this->InternalModel->Images)
+  size_t numberOfMeshes = this->InternalModel->Meshes.size();
+  size_t numberOfImages = this->InternalModel->Images.size();
+  for (size_t i = 0; i < numberOfImages; i++)
   {
+    auto& image = this->InternalModel->Images[i];
     vtkSmartPointer<vtkImageReader2> reader = nullptr;
     image.ImageData = vtkSmartPointer<vtkImageData>::New();
     std::vector<std::uint8_t> buffer;
@@ -878,6 +880,9 @@ bool vtkGLTFDocumentLoader::LoadImageData()
 
     reader->Update();
     image.ImageData = reader->GetOutput();
+    double progress =
+      (i + numberOfMeshes + 1) / static_cast<double>(numberOfMeshes + numberOfImages);
+    this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
   }
   return true;
 }
@@ -951,13 +956,14 @@ bool vtkGLTFDocumentLoader::LoadModelData(const std::vector<char>& glbBuffer)
 
   // Read primitive attributes from buffers
   size_t numberOfMeshes = this->InternalModel->Meshes.size();
+  size_t numberOfImages = this->InternalModel->Images.size();
   for (size_t i = 0; i < numberOfMeshes; i++)
   {
     for (Primitive& primitive : this->InternalModel->Meshes[i].Primitives)
     {
       this->ExtractPrimitiveAccessorData(primitive);
     }
-    double progress = (i + 1) / static_cast<double>(numberOfMeshes);
+    double progress = (i + 1) / static_cast<double>(numberOfMeshes + numberOfImages);
     this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
   }
   // Read additional buffer data
