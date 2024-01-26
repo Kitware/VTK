@@ -731,7 +731,6 @@ void vtkRenderWindowInteractor::RecognizeGesture(vtkCommand::EventIds event)
 
     if (this->CurrentGesture == vtkCommand::PinchEvent)
     {
-      vtkErrorMacro("See pinch");
       this->SetScale(newDistance / originalDistance);
       this->PinchEvent();
     }
