@@ -10,6 +10,31 @@ from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
 from vtkmodules.vtkFiltersModeling import vtkLinearExtrusionFilter
 from vtkmodules.vtkFiltersSources import vtkConeSource, vtkCylinderSource, vtkSphereSource
 
+
+class MockValidConnector(object):
+    ExecutedSetInputConnection = 0
+    ExecutedSetInputDataObject = 0
+
+    def __init__(self, alg, input_port=0, output_port=0):
+        self.algorithm = alg
+        self.input_port = input_port
+        self.output_port = output_port
+
+    def SetInputConnection(self, other):
+        MockValidConnector.ExecutedSetInputConnection += 1
+        self.algorithm.SetInputConnection(self.input_port, other)
+
+    def SetInputDataObject(self, other):
+        MockValidConnector.ExecutedSetInputDataObject += 1
+        self.algorithm.SetInputDataObject(self.input_port, other)
+
+
+class MockInvalidConnector(object):
+    def __init__(self, alg, input_port=0, output_port=0):
+        self.algorithm = alg
+        pass
+
+
 class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
     def testCaseAlgorithmToAlgorithm(self):
         ef = vtkSphereSource(radius=10) >> vtkElevationFilter()
@@ -110,6 +135,46 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
         self.assertEqual(output.number_of_cells, 11)
         self.assertEqual(output.point_data.scalars.name, "RegionId")
         self.assertEqual(output.point_data.scalars.range, (0, 10))
+
+    def testCaseAcceptValidRHS(self):
+        # Initially, both counters are 0.
+        self.assertEqual(MockValidConnector.ExecutedSetInputConnection, 0)
+        self.assertEqual(MockValidConnector.ExecutedSetInputDataObject, 0)
+
+        ef = vtkSphereSource() >> MockValidConnector(vtkElevationFilter())
+        self.assertEqual(MockValidConnector.ExecutedSetInputConnection, 1, "VTK wrapping did not call MockValidConnector.SetInputConnection")
+
+        ef = vtkImageData(dimensions=(10, 10, 1)) >> MockValidConnector(vtkElevationFilter())
+        self.assertEqual(MockValidConnector.ExecutedSetInputDataObject, 1, "VTK wrapping did not call MockValidConnector.SetInputDataObject")
+
+    def testCaseRejectInvalidRHS(self):
+        # Tests that you can't place just about anything on the right hand side of a vtkAlgorithm.__rshift__ operator.
+        # The RHS must have a function called SetInputConnection(self, other: vtkAlgorithmOutput).
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: 'vtkmodules.vtkFiltersSources.vtkSphereSource' and 'str'"):
+            pipeline = vtkSphereSource() >> "helloThere"
+
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: 'vtkmodules.vtkFiltersSources.vtkSphereSource' and 'int'"):
+            pipeline = vtkSphereSource() >> 2
+
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: 'str' and 'vtkmodules.vtkFiltersCore.vtkElevationFilter'"):
+            pipeline = "ImageData" >> vtkElevationFilter()
+
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: 'int' and 'vtkmodules.vtkFiltersCore.vtkElevationFilter'"):
+            pipeline = 2 >> vtkElevationFilter()
+
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: 'vtkmodules.vtkFiltersSources.vtkSphereSource' and 'MockInvalidConnector'"):
+            pipeline = vtkSphereSource() >> MockInvalidConnector(vtkElevationFilter())
+
+        # Tests that you can't place just about anything on the right hand side of a vtkDataObject.__rshift__ operator.
+        # The RHS must have a function called SetInputDataObject(self, other: vtkDataObject).
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: 'vtkmodules.vtkCommonDataModel.vtkImageData' and 'str'"):
+            pipeline = vtkImageData(dimensions=(10, 10, 1)) >> "helloThere"
+
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: 'vtkmodules.vtkCommonDataModel.vtkImageData' and 'int'"):
+            pipeline = vtkImageData(dimensions=(10, 10, 1)) >> 2
+
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: 'vtkmodules.vtkCommonDataModel.vtkImageData' and 'MockInvalidConnector'"):
+            pipeline = vtkImageData(dimensions=(10, 10, 1)) >> MockInvalidConnector(vtkElevationFilter())
 
 
 if __name__ == '__main__':

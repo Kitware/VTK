@@ -39,9 +39,18 @@ int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, ClassInfo* classInf
     fprintf(fp,
       "    [](PyObject* lhs, PyObject* rhs) -> PyObject*\n"
       "    {\n"
+      "      if (!PyObject_HasAttrString(lhs, \"GetOutputPort\"))\n"
+      "      {\n"
+      "        Py_RETURN_NOTIMPLEMENTED;\n"
+      "      }\n"
+      "      if (!PyObject_HasAttrString(rhs, \"SetInputConnection\"))\n"
+      "      {\n"
+      "        Py_RETURN_NOTIMPLEMENTED;\n"
+      "      }\n"
+      "      auto func = PyObject_GetAttrString(rhs, \"SetInputConnection\");\n"
       "      auto placeholder = PyTuple_New(0);\n"
       "      auto args = PyTuple_Pack(1, PyvtkAlgorithm_GetOutputPort(lhs, placeholder));\n"
-      "      PyvtkAlgorithm_SetInputConnection(rhs, args);\n"
+      "      PyObject_Call(func, args, nullptr);\n"
       "      Py_DECREF(args);\n"
       "      Py_DECREF(placeholder);\n"
       "      Py_INCREF(rhs); // keeps rhs alive.\n"
@@ -54,12 +63,21 @@ int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, ClassInfo* classInf
     // def func(lhs: vtkDataObject, rhs: vtkAlgorithm):
     //   rhs.input_data_object = lhs
     //   return rhs
-    // Go through PyObject_SetAttrString because
-    // vtkDataObjectPython.cxx can't access PyvtkAlgorithm_SetInputDataObject.
     fprintf(fp,
       "    [](PyObject* lhs, PyObject* rhs) -> PyObject*\n"
       "    {\n"
-      "      PyObject_SetAttrString(rhs, \"input_data_object\", lhs);\n"
+      "      if (!PyObject_TypeCheck(lhs, vtkPythonUtil::FindClassTypeObject(\"vtkDataObject\")))\n"
+      "      {\n"
+      "        Py_RETURN_NOTIMPLEMENTED;\n"
+      "      }\n"
+      "      if (!PyObject_HasAttrString(rhs, \"SetInputDataObject\"))\n"
+      "      {\n"
+      "        Py_RETURN_NOTIMPLEMENTED;\n"
+      "      }\n"
+      "      auto func = PyObject_GetAttrString(rhs, \"SetInputDataObject\");\n"
+      "      auto args = PyTuple_Pack(1, lhs);\n"
+      "      PyObject_Call(func, args, nullptr);\n"
+      "      Py_DECREF(args);\n"
       "      Py_INCREF(rhs); // keeps rhs alive.\n"
       "      return rhs;\n"
       "    }, // nb_rshift\n");
