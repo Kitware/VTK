@@ -65,9 +65,9 @@ constexpr int MAX_NB_OF_CONTOURS = std::numeric_limits<unsigned char>::max() + 1
 // Given contour values, find a "valid" epsilon value, allowing to discriminate values
 // by fuzzy comparison. Returned espilon correspond to the min difference between contour
 // values divided by 10.
-double FindEpsilon(vtkContourValues* contourValues)
+double FindEpsilon(vtkDataArray* contourValues)
 {
-  int numberOfContours = contourValues->GetNumberOfContours();
+  vtkIdType numberOfContours = contourValues->GetNumberOfTuples();
   if (numberOfContours == 0)
   {
     vtkErrorWithObjectMacro(nullptr, "No contour values found");
@@ -76,10 +76,10 @@ double FindEpsilon(vtkContourValues* contourValues)
 
   // Sort contour values
   std::vector<double> sortedContourValues;
-  sortedContourValues.resize(numberOfContours);
+  sortedContourValues.reserve(numberOfContours);
   for (int contourId = 0; contourId < numberOfContours; contourId++)
   {
-    sortedContourValues.emplace_back(contourValues->GetValue(contourId));
+    sortedContourValues.emplace_back(contourValues->GetTuple1(contourId));
   }
   std::sort(sortedContourValues.begin(), sortedContourValues.end());
 
@@ -88,7 +88,7 @@ double FindEpsilon(vtkContourValues* contourValues)
   double contourValue1 = sortedContourValues[0];
   for (int contourId = 1; contourId < numberOfContours; contourId++)
   {
-    double contourValue2 = contourValues->GetValue(contourId);
+    double contourValue2 = sortedContourValues[contourId];
     double difference = contourValue2 - contourValue1;
     contourValue1 = contourValue2; // For next iteration
 
@@ -110,10 +110,10 @@ double FindEpsilon(vtkContourValues* contourValues)
 // Given the contour array and the contour values, generate handles by associating
 // each value of contourArray to its corresponding index in contourValues
 vtkSmartPointer<vtkUnsignedCharArray> GenerateHandles(
-  vtkDataArray* contourArray, vtkContourValues* contourValues)
+  vtkDataArray* contourArray, vtkDataArray* contourValues)
 {
   vtkIdType nbOfPoints = contourArray->GetNumberOfTuples();
-  int numberOfContours = contourValues->GetNumberOfContours();
+  vtkIdType numberOfContours = contourValues->GetNumberOfTuples();
 
   // Initialize handles
   vtkNew<vtkUnsignedCharArray> handles;
@@ -131,7 +131,7 @@ vtkSmartPointer<vtkUnsignedCharArray> GenerateHandles(
     for (; contourId < numberOfContours; contourId++)
     {
       if (vtkMathUtilities::FuzzyCompare(
-            contourArray->GetTuple1(pointId), contourValues->GetValue(contourId), epsilon))
+            contourArray->GetTuple1(pointId), contourValues->GetTuple1(contourId), epsilon))
       {
         handles->SetValue(pointId, contourId);
         break;
@@ -159,8 +159,7 @@ struct ConvertToIndexedArrayWorker
     vtkIdType nbOfPoints = contourArray->GetNumberOfTuples();
     int numberOfContours = contourValues->GetNumberOfContours();
 
-    // Fill handles
-    vtkSmartPointer<vtkUnsignedCharArray> handles = ::GenerateHandles(contourArray, contourValues);
+    using ValueType = vtk::GetAPIType<ArrayType>;
 
     // Fill values indexed by handles
     vtkNew<ArrayType> valuesArray;
@@ -168,8 +167,13 @@ struct ConvertToIndexedArrayWorker
     valuesArray->SetNumberOfTuples(numberOfContours);
     for (int i = 0; i < numberOfContours; i++)
     {
-      valuesArray->SetValue(i, contourValues->GetValue(i));
+      ValueType newVal = 0;
+      vtkMath::RoundDoubleToIntegralIfNecessary(contourValues->GetValue(i), &newVal);
+      valuesArray->SetValue(i, newVal);
     }
+
+    // Fill handles
+    vtkSmartPointer<vtkUnsignedCharArray> handles = ::GenerateHandles(contourArray, valuesArray);
 
     // Create array carrying the fallback default value
     vtkNew<ArrayType> defaultValueArray;
@@ -186,7 +190,6 @@ struct ConvertToIndexedArrayWorker
     }
 
     // Create composite array (indexed values + default value)
-    using ValueType = vtk::GetAPIType<ArrayType>;
     std::vector<vtkDataArray*> arrays({ valuesArray, defaultValueArray });
 
     vtkNew<vtkCompositeArray<ValueType>> compositeArr;

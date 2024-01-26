@@ -46,6 +46,7 @@ set(test_sources
   TestHyperTreeGridBinary3DContour.cxx
   TestHyperTreeGridBinary3DContourDecomposePolyhedra.cxx
   TestHyperTreeGridBinary3DContourImplicit.cxx
+  TestHyperTreeGridBinary3DContourImplicitInteger.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridBinary3DFeatureEdges.cxx
   TestHyperTreeGridBinary3DGeometry.cxx
   TestHyperTreeGridBinaryClipPlanes.cxx
