@@ -822,4 +822,93 @@ int vtkFidesReader::FillOutputPortInformation(int vtkNotUsed(port), vtkInformati
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSetCollection");
   return 1;
 }
+
+int vtkFidesReader::GetNumberOfPointArrays()
+{
+  return this->PointDataArraySelection->GetNumberOfArrays();
+}
+
+const char* vtkFidesReader::GetPointArrayName(int index)
+{
+  return this->PointDataArraySelection->GetArrayName(index);
+}
+
+int vtkFidesReader::GetPointArrayStatus(const char* name)
+{
+  return this->PointDataArraySelection->ArrayIsEnabled(name);
+}
+
+void vtkFidesReader::SetPointArrayStatus(const char* name, int status)
+{
+  if (status)
+  {
+    this->PointDataArraySelection->EnableArray(name);
+  }
+  else
+  {
+    this->PointDataArraySelection->DisableArray(name);
+  }
+}
+
+int vtkFidesReader::GetNumberOfCellArrays()
+{
+  return this->CellDataArraySelection->GetNumberOfArrays();
+}
+
+const char* vtkFidesReader::GetCellArrayName(int index)
+{
+  return this->CellDataArraySelection->GetArrayName(index);
+}
+
+int vtkFidesReader::GetCellArrayStatus(const char* name)
+{
+  return this->CellDataArraySelection->ArrayIsEnabled(name);
+}
+
+void vtkFidesReader::SetCellArrayStatus(const char* name, int status)
+{
+  if (status)
+  {
+    this->CellDataArraySelection->EnableArray(name);
+  }
+  else
+  {
+    this->CellDataArraySelection->DisableArray(name);
+  }
+}
+
+int vtkFidesReader::GetNumberOfFieldArrays()
+{
+  return this->FieldDataArraySelection->GetNumberOfArrays();
+}
+
+const char* vtkFidesReader::GetFieldArrayName(int index)
+{
+  return this->FieldDataArraySelection->GetArrayName(index);
+}
+
+int vtkFidesReader::GetFieldArrayStatus(const char* name)
+{
+  return this->FieldDataArraySelection->ArrayIsEnabled(name);
+}
+
+void vtkFidesReader::SetFieldArrayStatus(const char* name, int status)
+{
+  if (status)
+  {
+    this->FieldDataArraySelection->EnableArray(name);
+  }
+  else
+  {
+    this->FieldDataArraySelection->DisableArray(name);
+  }
+}
+
+vtkMTimeType vtkFidesReader::GetMTime()
+{
+  auto curMax = std::max(this->Superclass::GetMTime(), this->PointDataArraySelection->GetMTime());
+  curMax = std::max(curMax, this->CellDataArraySelection->GetMTime());
+  return std::max(curMax, this->FieldDataArraySelection->GetMTime());
+}
+
 VTK_ABI_NAMESPACE_END
