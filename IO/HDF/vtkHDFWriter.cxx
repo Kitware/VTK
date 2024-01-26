@@ -189,7 +189,13 @@ void vtkHDFWriter::WriteData()
   }
 
   vtkDataObject* input = vtkDataObject::SafeDownCast(this->GetInput());
+  // First time step is considered static mesh
+  if (this->CurrentTimeIndex == 0)
+  {
+    this->UpdatePreviousStepMeshMTime(input);
+  }
   this->DispatchDataObject(this->Impl->GetRoot(), input);
+  this->UpdatePreviousStepMeshMTime(input);
 }
 
 //------------------------------------------------------------------------------
@@ -232,7 +238,7 @@ void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input)
   {
     if (!this->WriteDatasetToFile(group, partitioned))
     {
-      vtkErrorMacro(<< "Can't write unstructuredGrid to file:" << this->FileName);
+      vtkErrorMacro(<< "Can't write partitionedDataSet to file:" << this->FileName);
       return;
     }
     return;
@@ -271,7 +277,10 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input)
     writeSuccess &= this->Impl->WriteHeader(group, "PolyData");
   }
   writeSuccess &= this->AppendNumberOfPoints(group, input);
-  writeSuccess &= this->AppendPoints(group, input);
+  if (this->HasGeometryChangedFromPreviousStep(input) || this->CurrentTimeIndex == 0)
+  {
+    writeSuccess &= this->AppendPoints(group, input);
+  }
   writeSuccess &= this->AppendPrimitiveCells(group, input);
   writeSuccess &= this->AppendDataArrays(group, input);
   return writeSuccess;
@@ -301,12 +310,15 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input)
     writeSuccess &= this->Impl->WriteHeader(group, "UnstructuredGrid");
   }
   writeSuccess &= this->AppendNumberOfPoints(group, input);
-  writeSuccess &= this->AppendPoints(group, input);
   writeSuccess &= this->AppendNumberOfCells(group, cells);
-  writeSuccess &= this->AppendCellTypes(group, input);
   writeSuccess &= this->AppendNumberOfConnectivityIds(group, cells);
-  writeSuccess &= this->AppendConnectivity(group, cells);
-  writeSuccess &= this->AppendOffsets(group, cells);
+  if (this->HasGeometryChangedFromPreviousStep(input) || this->CurrentTimeIndex == 0)
+  {
+    writeSuccess &= this->AppendPoints(group, input);
+    writeSuccess &= this->AppendCellTypes(group, input);
+    writeSuccess &= this->AppendConnectivity(group, cells);
+    writeSuccess &= this->AppendOffsets(group, cells);
+  }
   writeSuccess &= this->AppendDataArrays(group, input);
   return writeSuccess;
 }
@@ -372,14 +384,25 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkUnstructuredGrid* input)
   hid_t stepsGroup = this->Impl->GetStepsGroup();
   bool result = true;
 
+  vtkIdType pointsOffset = 0;
+  vtkIdType connectivitiesIdOffset = 0;
+
+  if (this->HasGeometryChangedFromPreviousStep(input))
+  {
+    pointsOffset = input->GetNumberOfPoints();
+    connectivitiesIdOffset = input->GetCells()->GetNumberOfConnectivityIds();
+    result &= this->Impl->AddOrCreateSingleValueDataset(
+      stepsGroup, "PointOffsets", pointsOffset, true, true);
+    result &= this->Impl->AddOrCreateSingleValueDataset(
+      stepsGroup, "ConnectivityIdOffsets", connectivitiesIdOffset, true, true);
+  }
   // Don't write offsets for the last timestep
   if (this->CurrentTimeIndex < this->NumberOfTimeSteps - 1)
   {
-    result &= this->Impl->AddOrCreateSingleValueDataset(
-      stepsGroup, "PointOffsets", input->GetNumberOfPoints(), true);
+    result &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0, true);
     result &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "CellOffsets", 0, true);
-    result &= this->Impl->AddOrCreateSingleValueDataset(
-      stepsGroup, "ConnectivityIdOffsets", input->GetCells()->GetNumberOfConnectivityIds(), true);
+    result &=
+      this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "ConnectivityIdOffsets", 0, true);
     result &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0, true);
   }
 
@@ -395,16 +418,17 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
   }
 
   hid_t stepsGroup = this->Impl->GetStepsGroup();
-
-  // Don't write offsets for the last timestep
-  if (!(this->CurrentTimeIndex < this->NumberOfTimeSteps - 1))
+  bool result = true;
+  if (this->HasGeometryChangedFromPreviousStep(input))
   {
-    return true;
+    result &= this->Impl->AddOrCreateSingleValueDataset(
+      stepsGroup, "PointOffsets", input->GetNumberOfPoints(), true, true);
   }
-
-  bool result = this->Impl->AddOrCreateSingleValueDataset(
-    stepsGroup, "PointOffsets", input->GetNumberOfPoints(), true);
-  result &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0, true);
+  if (this->CurrentTimeIndex < this->NumberOfTimeSteps - 1)
+  {
+    result &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0, true);
+    result &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0, true);
+  }
   if (!result)
   {
     return false;
@@ -413,7 +437,6 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
   // Update connectivity and cell offsets for primitive types
   vtkHDF::ScopedH5DHandle connectivityOffsetsHandle =
     H5Dopen(stepsGroup, "ConnectivityIdOffsets", H5P_DEFAULT);
-  vtkHDF::ScopedH5SHandle currentDataspace = H5Dget_space(connectivityOffsetsHandle);
 
   // Get the connectivity offsets for the previous timestep
   std::vector<int> allValues;
@@ -422,34 +445,66 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
     H5S_ALL, H5P_DEFAULT, allValues.data());
 
   // Offset the offset by the previous timestep's offset
-  int connectivityOffsetArray[] = { 0, 0, 0, 0 };
+  std::vector<int> connectivityOffsetArray{ 0, 0, 0, 0 };
   auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
+
+  bool geometryUpdated = this->HasGeometryChangedFromPreviousStep(input);
+
   for (int i = 0; i < NUM_POLY_DATA_TOPOS; i++)
   {
     connectivityOffsetArray[i] += allValues[this->CurrentTimeIndex * NUM_POLY_DATA_TOPOS + i];
-    connectivityOffsetArray[i] += cellArrayTopos[i].cellArray->GetNumberOfConnectivityIds();
+    if (geometryUpdated)
+    {
+      connectivityOffsetArray[i] += cellArrayTopos[i].cellArray->GetNumberOfConnectivityIds();
+    }
   }
-
   vtkNew<vtkIntArray> connectivityOffsetvtkArray;
   connectivityOffsetvtkArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
-  connectivityOffsetvtkArray->SetArray(connectivityOffsetArray, NUM_POLY_DATA_TOPOS, 1);
-  if (connectivityOffsetsHandle == H5I_INVALID_HID ||
-    !this->Impl->AddArrayToDataset(connectivityOffsetsHandle, connectivityOffsetvtkArray))
+  connectivityOffsetvtkArray->SetArray(connectivityOffsetArray.data(), NUM_POLY_DATA_TOPOS, 1);
+
+  // When the geometry changes the previous offset needs to be overriden
+  if (geometryUpdated)
   {
-    return false;
+    // Need to deep copy the data since the pointer will be taken
+    vtkNew<vtkIntArray> connectivityOffsetvtkArrayCopy;
+    std::vector<int> connectivityOffsetArrayCopy = connectivityOffsetArray;
+    connectivityOffsetvtkArrayCopy->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
+    connectivityOffsetvtkArrayCopy->SetArray(
+      connectivityOffsetArrayCopy.data(), NUM_POLY_DATA_TOPOS, 1);
+
+    if (connectivityOffsetsHandle == H5I_INVALID_HID ||
+      !this->Impl->AddArrayToDataset(connectivityOffsetsHandle, connectivityOffsetvtkArrayCopy, 1))
+    {
+      return false;
+    }
   }
 
-  // Cells are always numbered starting from 0 for each timestep,
-  // so we don't have any offset
-  int cellOffsetArray[] = { 0, 0, 0, 0 };
-  vtkNew<vtkIntArray> cellOffsetvtkArray;
-  cellOffsetvtkArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
-  cellOffsetvtkArray->SetArray(cellOffsetArray, NUM_POLY_DATA_TOPOS, 1);
-  vtkHDF::ScopedH5DHandle cellOffsetsHandle = H5Dopen(stepsGroup, "CellOffsets", H5P_DEFAULT);
-  if (cellOffsetsHandle == H5I_INVALID_HID ||
-    !this->Impl->AddArrayToDataset(cellOffsetsHandle, cellOffsetvtkArray))
+  // Add offset for next timestep except the last timestep
+  if (this->CurrentTimeIndex < this->NumberOfTimeSteps - 1)
   {
-    return false;
+    if (connectivityOffsetsHandle == H5I_INVALID_HID ||
+      !this->Impl->AddArrayToDataset(connectivityOffsetsHandle, connectivityOffsetvtkArray))
+    {
+      return false;
+    }
+  }
+
+  // Don't write offsets for the last timestep
+  if (this->CurrentTimeIndex < this->NumberOfTimeSteps - 1)
+  {
+    // Cells are always numbered starting from 0 for each timestep,
+    // so we don't have any offset
+    int cellOffsetArray[] = { 0, 0, 0, 0 };
+    vtkNew<vtkIntArray> cellOffsetvtkArray;
+    cellOffsetvtkArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
+    cellOffsetvtkArray->SetArray(cellOffsetArray, NUM_POLY_DATA_TOPOS, 1);
+    vtkHDF::ScopedH5DHandle cellOffsetsHandle = H5Dopen(stepsGroup, "CellOffsets", H5P_DEFAULT);
+    if ((this->CurrentTimeIndex < this->NumberOfTimeSteps - 1) &&
+      (cellOffsetsHandle == H5I_INVALID_HID ||
+        !this->Impl->AddArrayToDataset(cellOffsetsHandle, cellOffsetvtkArray)))
+    {
+      return false;
+    }
   }
 
   return true;
@@ -765,18 +820,20 @@ bool vtkHDFWriter::AppendPrimitiveCells(hid_t baseGroup, vtkPolyData* input)
       return false;
     }
 
-    if (!this->AppendOffsets(group, cells))
+    if (this->HasGeometryChangedFromPreviousStep(input) || this->CurrentTimeIndex == 0)
     {
-      vtkErrorMacro(<< "Could not create Offsets dataset in group " << groupName
-                    << " when creating: " << this->FileName);
-      return false;
-    }
-
-    if (!this->AppendConnectivity(group, cells))
-    {
-      vtkErrorMacro(<< "Could not create Connectivity dataset in group " << groupName
-                    << " when creating: " << this->FileName);
-      return false;
+      if (!this->AppendOffsets(group, cells))
+      {
+        vtkErrorMacro(<< "Could not create Offsets dataset in group " << groupName
+                      << " when creating: " << this->FileName);
+        return false;
+      }
+      if (!this->AppendConnectivity(group, cells))
+      {
+        vtkErrorMacro(<< "Could not create Connectivity dataset in group " << groupName
+                      << " when creating: " << this->FileName);
+        return false;
+      }
     }
   }
   return true;
@@ -1017,7 +1074,7 @@ bool vtkHDFWriter::AppendTransientDataArray(hid_t arrayGroup, vtkAbstractArray* 
   {
     // Append offset to offset array
     if (!this->Impl->AddOrCreateSingleValueDataset(
-          offsetsGroup, arrayName, array->GetNumberOfTuples(), true))
+          offsetsGroup, arrayName, array->GetNumberOfTuples(), true, false))
     {
       vtkWarningMacro(<< "Could not insert a value in the offsets array: " << arrayName
                       << " when creating: " << this->FileName);
@@ -1026,6 +1083,34 @@ bool vtkHDFWriter::AppendTransientDataArray(hid_t arrayGroup, vtkAbstractArray* 
   }
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+/* TO IMPROVE
+ * The template here could be replaced by a vtkDataSet once the GetMeshMTime
+ * method will be implemented at its level.
+ */
+template <typename vtkStaticMeshDataSetT>
+bool vtkHDFWriter::HasGeometryChangedFromPreviousStep(vtkStaticMeshDataSetT* input)
+{
+  return input->GetMeshMTime() != this->PreviousStepMeshMTime;
+}
+
+//------------------------------------------------------------------------------
+/* TO IMPROVE
+ * Here too we could avoid casting and use vtkDataSet when it'll support
+ * the GetMeshMTime method.
+ */
+void vtkHDFWriter::UpdatePreviousStepMeshMTime(vtkDataObject* input)
+{
+  if (auto polyDataInput = vtkPolyData::SafeDownCast(input))
+  {
+    this->PreviousStepMeshMTime = polyDataInput->GetMeshMTime();
+  }
+  else if (auto unstructuredGridInput = vtkUnstructuredGrid::SafeDownCast(input))
+  {
+    this->PreviousStepMeshMTime = unstructuredGridInput->GetMeshMTime();
+  }
 }
 
 VTK_ABI_NAMESPACE_END
