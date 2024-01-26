@@ -22,7 +22,19 @@ ctest_read_custom_files("${CTEST_BINARY_DIRECTORY}")
 
 # We can now submit because we've configured. This is a cmb-superbuild-ism.
 ctest_submit(PARTS Update)
-ctest_submit(PARTS Configure)
+ctest_submit(
+  PARTS Configure
+  BUILD_ID build_id)
+
+include("${CMAKE_CURRENT_LIST_DIR}/ctest_annotation.cmake")
+if (DEFINED build_id)
+  ctest_annotation_report("${CTEST_BINARY_DIRECTORY}/annotations.json"
+    "Build Summary" "https://open.cdash.org/build/${build_id}"
+    "Update" "https://open.cdash.org/build/${build_id}/update"
+    "Configure" "https://open.cdash.org/build/${build_id}/configure"
+  )
+  store_build_id("${build_id}")
+endif ()
 
 if (configure_result)
   message(FATAL_ERROR

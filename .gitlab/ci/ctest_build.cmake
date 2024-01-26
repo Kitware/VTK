@@ -27,6 +27,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "doxygen")
     DoxygenDoc)
 endif ()
 
+set(num_errors 0)
 set(num_warnings 0)
 foreach (target IN LISTS targets_to_build)
   set(build_args)
@@ -44,10 +45,12 @@ foreach (target IN LISTS targets_to_build)
   endif ()
 
   ctest_build(
+    NUMBER_ERRORS num_errors_target
     NUMBER_WARNINGS num_warnings_target
     RETURN_VALUE    build_result
     ${build_args})
 
+  math(EXPR num_errors "${num_errors} + ${num_errors_target}")
   math(EXPR num_warnings "${num_warnings} + ${num_warnings_target}")
 
   ctest_submit(PARTS Build)
@@ -82,6 +85,14 @@ if (build_result)
     list(APPEND CTEST_NOTES_FILES ${logs})
     ctest_submit(PARTS Notes)
   endif ()
+endif ()
+
+include("${CMAKE_CURRENT_LIST_DIR}/ctest_annotation.cmake")
+if (DEFINED build_id)
+  ctest_annotation_report("${CTEST_BINARY_DIRECTORY}/annotations.json"
+      "Build Errors (${num_errors})" "https://open.cdash.org/viewBuildError.php?buildid=${build_id}"
+      "Build Warnings (${num_warnings})" "https://open.cdash.org/viewBuildError.php?type=1&buildid=${build_id}"
+  )
 endif ()
 
 if (build_result)
