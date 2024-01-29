@@ -174,9 +174,14 @@ public:
    * Initialize the Python interpreter, forwarding specified args to it.
    * If programName is set, use it as the interpreter's program name. Otherwise, it
    * will be set to "<path to python lib>/vtkpython"
+   * If libraryPath and landmark are set they are used for a second location
+   * for python modules, as in the case for ParaView built with external VTK.
+   * landmark is the relative path to the python modules such as 'vtkmodules/__init__.py'
+   * for VTK or 'paraview/__init__.py' for ParaView.
    */
-  static bool InitializeWithArgs(
-    int initsigs, int argc, char* argv[], const char* programName = nullptr);
+  static bool InitializeWithArgs(int initsigs, int argc, char* argv[],
+    const char* programName = nullptr, const char* libraryPath = nullptr,
+    const char* landmark = nullptr);
 
 protected:
   vtkPythonInterpreter();
