@@ -217,7 +217,7 @@ int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], do
             // now, do the expensive GetCell call and the expensive
             // intersect with line call
             this->DataSet->GetCell(cId, cell);
-            if (cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
+            if (cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) && t < tBest)
             {
               // Make sure that intersection occurs within this octant or else spurious cell
               // intersections can occur behind this bin which are not the correct answer.
