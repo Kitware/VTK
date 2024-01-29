@@ -172,6 +172,23 @@ public:
 
   ///@{
   /**
+   * Get/set the numerical notation, standard, scientific or mixed (0, 1, 2).
+   * Accepted values are vtkAxis::AUTO, vtkAxis::FIXED, vtkAxis::CUSTOM.
+   */
+  void SetNotation(int notation);
+  int GetNotation();
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the numerical precision to use, default is 2.
+   */
+  void SetPrecision(int val);
+  int GetPrecision();
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the labels text properties for the legend title and labels.
    */
   vtkGetObjectMacro(LegendTitleProperty, vtkTextProperty);
@@ -244,8 +261,8 @@ protected:
   vtkNew<vtkPoints> LegendPoints;
   vtkNew<vtkPolyDataMapper2D> LegendMapper;
   vtkNew<vtkActor2D> LegendActor;
-  vtkTextMapper* LabelMappers[6];
-  vtkActor2D* LabelActors[6];
+  vtkNew<vtkTextMapper> LabelMappers[6];
+  vtkNew<vtkActor2D> LabelActors[6];
   vtkNew<vtkTextProperty> LegendTitleProperty;
   vtkNew<vtkTextProperty> LegendLabelProperty;
   vtkNew<vtkCoordinate> Coordinate;

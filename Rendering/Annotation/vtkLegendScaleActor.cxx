@@ -113,9 +113,8 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LegendLabelProperty->SetFontSize(8);
   for (int i = 0; i < 6; i++)
   {
-    this->LabelMappers[i] = vtkTextMapper::New();
     this->LabelMappers[i]->SetTextProperty(this->LegendLabelProperty);
-    this->LabelActors[i] = vtkActor2D::New();
+    // this->LabelActors[i] = vtkActor2D::New();
     this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
   }
   this->LabelMappers[5]->SetTextProperty(this->LegendTitleProperty);
@@ -133,8 +132,7 @@ vtkLegendScaleActor::~vtkLegendScaleActor()
 {
   for (int i = 0; i < 6; i++)
   {
-    this->LabelMappers[i]->Delete();
-    this->LabelActors[i]->Delete();
+    // // this->LabelActors[i]->Delete();
   }
 }
 
@@ -479,12 +477,49 @@ void vtkLegendScaleActor::AllAxesOff()
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
+void vtkLegendScaleActor::SetNotation(int notation)
+{
+  if (this->GetNotation() != notation)
+  {
+    this->RightAxis->SetNotation(notation);
+    this->LeftAxis->SetNotation(notation);
+    this->TopAxis->SetNotation(notation);
+    this->BottomAxis->SetNotation(notation);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkLegendScaleActor::GetNotation()
+{
+  return this->RightAxis->GetNotation();
+}
+
+//----------------------------------------------------------------------------
+void vtkLegendScaleActor::SetPrecision(int val)
+{
+  if (this->GetPrecision() != val)
+  {
+    this->RightAxis->SetPrecision(val);
+    this->LeftAxis->SetPrecision(val);
+    this->TopAxis->SetPrecision(val);
+    this->BottomAxis->SetPrecision(val);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkLegendScaleActor::GetPrecision()
+{
+  return this->RightAxis->GetPrecision();
+}
+
 //------------------------------------------------------------------------------
 void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
-
   os << indent << "Label Mode: ";
   if (this->LabelMode == DISTANCE)
   {

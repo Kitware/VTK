@@ -56,6 +56,7 @@ class vtkPolyDataMapper2D;
 class vtkPolyData;
 class vtkTextMapper;
 class vtkTextProperty;
+class vtkAxis;
 
 class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor2D : public vtkActor2D
 {
@@ -348,6 +349,22 @@ public:
 
   ///@{
   /**
+   * Get/set the numerical notation, standard, scientific, fixed, or a
+   * printf-style format string.
+   */
+  virtual void SetNotation(int notation);
+  vtkGetMacro(Notation, int);
+
+  ///@{
+  /**
+   * Get/set the numerical precision to use, default is 2. This is ignored
+   * when Notation is STANDARD_NOTATION or PRINTF_NOTATION.
+   */
+  virtual void SetPrecision(int precision);
+  vtkGetMacro(Precision, int);
+
+  ///@{
+  /**
    * Specify whether to size the fonts relative to the viewport or relative to
    * length of the axis. By default, fonts are resized relative to the viewport.
    */
@@ -409,6 +426,9 @@ protected:
   int LastSize[2] = { 0, 0 };
   int LastMaxLabelSize[2] = { 0, 0 };
 
+  int Notation;  // The notation to use (standard, scientific, mixed)
+  int Precision; // Numerical precision to use, defaults to 2.
+
   int SizeFontRelativeToAxis = 0;
   vtkTypeBool UseFontSizeFromProperty = 0;
 
@@ -427,6 +447,7 @@ protected:
   vtkNew<vtkPolyData> Axis;
   vtkNew<vtkPolyDataMapper2D> AxisMapper;
   vtkNew<vtkActor2D> AxisActor;
+  vtkNew<vtkAxis> AxisHelper; // Used to provide text labels
 
   vtkTimeStamp AdjustedRangeBuildTime;
   vtkTimeStamp BuildTime;

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAxisActor2D.h"
 
+#include "vtkAxis.h"
 #include "vtkCellArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -447,8 +448,8 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
       for (i = 0; i < this->AdjustedNumberOfLabels; i++)
       {
         val = this->AdjustedRange[0] + i * interval;
-        snprintf(string, sizeof(string), this->LabelFormat, val);
-        this->LabelMappers[i]->SetInput(string);
+        // snprintf(string, sizeof(string), this->LabelFormat, val);
+        this->LabelMappers[i]->SetInput(this->AxisHelper->GenerateSimpleLabel(val).c_str());
 
         // Check if the label text has changed
 
@@ -830,6 +831,18 @@ double vtkAxisActor2D::ComputeStringOffset(double width, double height, double t
   double f1 = height * cos(theta);
   double f2 = width * sin(theta);
   return (1.2 * sqrt(f1 * f1 + f2 * f2));
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor2D::SetNotation(int notation)
+{
+  this->AxisHelper->SetNotation(notation);
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor2D::SetPrecision(int precision)
+{
+  this->AxisHelper->SetPrecision(precision);
 }
 
 //------------------------------------------------------------------------------

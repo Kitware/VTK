@@ -16,6 +16,7 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::RenderingCore
 PRIVATE_DEPENDS
+  VTK::ChartsCore
   VTK::CommonMath
   VTK::CommonTransforms
   VTK::FiltersCore
