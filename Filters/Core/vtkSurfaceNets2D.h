@@ -39,6 +39,11 @@
  * faithful to the published literature describing the surface nets
  * algorithm.)
  *
+ * See the following reference for more details about the implementation:
+ * W. Schroeder, S. Tsalikis, M. Halle, S. Frisken. A High-Performance
+ * SurfaceNets Discrete Isocontouring Algorithm. arXiv:2401.14906. 2024.
+ * (http://arxiv.org/abs/2401.14906).
+ *
  * The SurfaceNets algorithm was first proposed by Sarah Frisken.  Two
  * important papers include the description of surface nets for binary
  * objects (i.e., extracting just one segmented object from a volume) and
