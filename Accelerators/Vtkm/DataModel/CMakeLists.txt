@@ -59,8 +59,10 @@ if (TARGET vtkm::cuda)
   set(cuda_impl ${nowrap_sources} vtkmDataSet.cxx)
   set_source_files_properties(${cuda_impl} PROPERTIES LANGUAGE CUDA)
 
-  vtk_module_set_properties(VTK::AcceleratorsVTKmDataModel
-    CUDA_SEPARABLE_COMPILATION ON)
+  if (TARGET vtkm::cuda)
+    vtk_module_set_properties(VTK::AcceleratorsVTKmDataModel
+      CUDA_SEPARABLE_COMPILATION ON)
+  endif()
 
   vtk_module_compile_options(VTK::AcceleratorsVTKmDataModel
     PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
