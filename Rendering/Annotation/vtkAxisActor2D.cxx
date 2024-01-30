@@ -205,6 +205,8 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Labels Built: " << this->NumberOfLabelsBuilt << "\n";
   os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
 
+  os << indent << "Label value notation: " << this->GetNotation() << "\n";
+  os << indent << "Label value precision: " << this->GetPrecision() << "\n";
   os << indent << "Label Format: " << this->LabelFormat << "\n";
   os << indent << "Font Factor: " << this->FontFactor << "\n";
   os << indent << "Label Factor: " << this->LabelFactor << "\n";
@@ -793,7 +795,7 @@ void vtkAxisActor2D::ComputeRange(double inRange[2], double outRange[2], int vtk
     }
   }
 
-  // Adust if necessary
+  // Adjust if necessary
   if (inRange[0] > inRange[1])
   {
     sRange[0] = outRange[1];
@@ -840,9 +842,21 @@ void vtkAxisActor2D::SetNotation(int notation)
 }
 
 //------------------------------------------------------------------------------
+int vtkAxisActor2D::GetNotation()
+{
+  return this->AxisHelper->GetNotation();
+}
+
+//------------------------------------------------------------------------------
 void vtkAxisActor2D::SetPrecision(int precision)
 {
   this->AxisHelper->SetPrecision(precision);
+}
+
+//------------------------------------------------------------------------------
+int vtkAxisActor2D::GetPrecision()
+{
+  return this->AxisHelper->GetPrecision();
 }
 
 //------------------------------------------------------------------------------

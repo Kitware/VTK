@@ -352,16 +352,15 @@ public:
    * Get/set the numerical notation, standard, scientific, fixed, or a
    * printf-style format string.
    */
-  virtual void SetNotation(int notation);
-  vtkGetMacro(Notation, int);
+  void SetNotation(int notation);
+  int GetNotation();
 
   ///@{
   /**
-   * Get/set the numerical precision to use, default is 2. This is ignored
-   * when Notation is STANDARD_NOTATION or PRINTF_NOTATION.
+   * Get/set the numerical precision to use, default is 2.
    */
-  virtual void SetPrecision(int precision);
-  vtkGetMacro(Precision, int);
+  void SetPrecision(int precision);
+  int GetPrecision();
 
   ///@{
   /**
@@ -425,9 +424,6 @@ protected:
 
   int LastSize[2] = { 0, 0 };
   int LastMaxLabelSize[2] = { 0, 0 };
-
-  int Notation;  // The notation to use (standard, scientific, mixed)
-  int Precision; // Numerical precision to use, defaults to 2.
 
   int SizeFontRelativeToAxis = 0;
   vtkTypeBool UseFontSizeFromProperty = 0;

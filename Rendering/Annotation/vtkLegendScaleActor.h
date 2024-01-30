@@ -172,8 +172,7 @@ public:
 
   ///@{
   /**
-   * Get/set the numerical notation, standard, scientific or mixed (0, 1, 2).
-   * Accepted values are vtkAxis::AUTO, vtkAxis::FIXED, vtkAxis::CUSTOM.
+   * Get/set the numerical notation for axis labels: standard, scientific or mixed (0, 1, 2).
    */
   void SetNotation(int notation);
   int GetNotation();
@@ -181,10 +180,26 @@ public:
 
   ///@{
   /**
-   * Get/set the numerical precision to use, default is 2.
+   * Get/set the numerical precision to use for axis labels, default is 2.
    */
   void SetPrecision(int val);
   int GetPrecision();
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the number of ticks (and labels) for the horizontal axis, default is 5.
+   */
+  void SetNumberOfHorizontalLabels(int val);
+  int GetNumberOfHorizontalLabels();
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the number of ticks (and labels) for the vertical axis, default is 5.
+   */
+  void SetNumberOfVerticalLabels(int val);
+  int GetNumberOfVerticalLabels();
   ///@}
 
   ///@{

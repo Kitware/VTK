@@ -128,13 +128,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
 }
 
 //------------------------------------------------------------------------------
-vtkLegendScaleActor::~vtkLegendScaleActor()
-{
-  for (int i = 0; i < 6; i++)
-  {
-    // // this->LabelActors[i]->Delete();
-  }
-}
+vtkLegendScaleActor::~vtkLegendScaleActor() = default;
 
 //------------------------------------------------------------------------------
 void vtkLegendScaleActor::SetAdjustLabels(bool adjust)
@@ -513,6 +507,40 @@ void vtkLegendScaleActor::SetPrecision(int val)
 int vtkLegendScaleActor::GetPrecision()
 {
   return this->RightAxis->GetPrecision();
+}
+
+//----------------------------------------------------------------------------
+void vtkLegendScaleActor::SetNumberOfHorizontalLabels(int val)
+{
+  if (this->GetNumberOfHorizontalLabels() != val)
+  {
+    this->TopAxis->SetNumberOfLabels(val);
+    this->BottomAxis->SetNumberOfLabels(val);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkLegendScaleActor::GetNumberOfHorizontalLabels()
+{
+  return this->TopAxis->GetNumberOfLabels();
+}
+
+//----------------------------------------------------------------------------
+void vtkLegendScaleActor::SetNumberOfVerticalLabels(int val)
+{
+  if (this->GetNumberOfVerticalLabels() != val)
+  {
+    this->LeftAxis->SetNumberOfLabels(val);
+    this->RightAxis->SetNumberOfLabels(val);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkLegendScaleActor::GetNumberOfVerticalLabels()
+{
+  return this->LeftAxis->GetNumberOfLabels();
 }
 
 //------------------------------------------------------------------------------
