@@ -33,9 +33,6 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
   win->SetInteractor(iren);
 
   // Components of the multiblock data set
-  vtkNew<vtkSphereSource> sphereSource;
-  sphereSource->SetRadius(2.0);
-
   vtkNew<vtkCylinderSource> cylinderSource;
   cylinderSource->SetRadius(1.5);
   cylinderSource->SetHeight(2.0);
@@ -44,7 +41,7 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
   // Set up the multiblock data set consisting of a ring of blocks
   vtkSmartPointer<vtkMultiBlockDataSet> data = vtkSmartPointer<vtkMultiBlockDataSet>::New();
 
-  int numBlocks = 16;
+  int numBlocks = 15;
   data->SetNumberOfBlocks(numBlocks);
 
   double radius = 10.0;
@@ -60,9 +57,9 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
     // Every third block does not have the color array
     if (i % 3 == 0)
     {
-      sphereSource->SetCenter(x, y, 0.0);
-      sphereSource->Update();
-      pd->DeepCopy(sphereSource->GetOutput());
+      cylinderSource->SetCenter(x, y, 0.0);
+      cylinderSource->Update();
+      pd->DeepCopy(cylinderSource->GetOutput());
     }
     else
     {
