@@ -33,6 +33,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor2D;
+class vtkProperty2D;
 class vtkTextProperty;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
@@ -216,6 +217,15 @@ public:
   ///@{
   /// Set the axes text properties.
   void SetAxesTextProperty(vtkTextProperty* property);
+
+  // Set the axes 2D property
+  void SetAxesProperty(vtkProperty2D* property);
+
+  /**
+   * Return the property used for the right axis
+   * which should be the same as the other ones if set using `SetAxesProperty`
+   */
+  vtkProperty2D* GetAxesProperty();
 
   /// Set the axes to get font size from text property.
   void SetUseFontSizeFromProperty(bool sizeFromProp);

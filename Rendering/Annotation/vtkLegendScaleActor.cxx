@@ -13,6 +13,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
@@ -30,6 +31,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->RightAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->RightAxis->SetFontFactor(0.6);
   this->RightAxis->SetNumberOfLabels(5);
+  // this->RightAxis->SetProperty(this->AxisProperty);
   this->RightAxis->AdjustLabelsOff();
 
   this->TopAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
@@ -37,6 +39,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->TopAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->TopAxis->SetFontFactor(0.6);
   this->TopAxis->SetNumberOfLabels(5);
+  // this->TopAxis->SetProperty(this->AxisProperty);
   this->TopAxis->AdjustLabelsOff();
 
   this->LeftAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
@@ -44,6 +47,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LeftAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->LeftAxis->SetFontFactor(0.6);
   this->LeftAxis->SetNumberOfLabels(5);
+  // this->LeftAxis->SetProperty(this->AxisProperty);
   this->LeftAxis->AdjustLabelsOff();
 
   this->BottomAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
@@ -51,6 +55,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->BottomAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->BottomAxis->SetFontFactor(0.6);
   this->BottomAxis->SetNumberOfLabels(5);
+  // this->BottomAxis->SetProperty(this->AxisProperty);
   this->BottomAxis->AdjustLabelsOff();
 
   this->Legend->SetPoints(this->LegendPoints);
@@ -162,6 +167,25 @@ void vtkLegendScaleActor::SetAxesTextProperty(vtkTextProperty* prop)
   this->BottomAxis->SetTitleTextProperty(prop);
 
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkLegendScaleActor::SetAxesProperty(vtkProperty2D* prop)
+{
+  if (this->GetAxesProperty() != prop)
+  {
+    this->RightAxis->SetProperty(prop);
+    this->TopAxis->SetProperty(prop);
+    this->LeftAxis->SetProperty(prop);
+    this->BottomAxis->SetProperty(prop);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkProperty2D* vtkLegendScaleActor::GetAxesProperty()
+{
+  return this->RightAxis->GetProperty();
 }
 
 //------------------------------------------------------------------------------
