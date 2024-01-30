@@ -1,143 +1,190 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkStreaklineFilter.h"
-#include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
+#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkSetGet.h"
-#include "vtkSmartPointer.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 
-#include <algorithm>
-#include <cassert>
 #include <vector>
 
-#define DEBUGSTREAKLINEFILTER 1
-#ifdef DEBUGSTREAKLINEFILTER
-#define Assert(a) assert(a)
-#else
-#define Assert(a)
-#endif
-
 VTK_ABI_NAMESPACE_BEGIN
-class StreakParticle
-{
-public:
-  vtkIdType Id;
-  float Age;
 
-  StreakParticle(vtkIdType id, float age)
-    : Id(id)
-    , Age(age)
+namespace
+{
+//------------------------------------------------------------------------------
+template <class ArrayT>
+void FillCellArrays(
+  const std::vector<std::vector<vtkIdType>>& streaks, vtkCellArray* verts, vtkCellArray* lines)
+{
+  vtkNew<ArrayT> vertsConnectivity, vertsOffsets, linesConnectivity, linesOffsets;
+  vertsOffsets->InsertNextValue(0);
+  linesOffsets->InsertNextValue(0);
+  vtkIdType nverts = 0, nlines = 0;
+
+  for (const auto& streak : streaks)
   {
+    auto insertNextCell = [&streak](ArrayT* connectivity, ArrayT* offsets, vtkIdType& n) {
+      for (vtkIdType pointId : streak)
+      {
+        connectivity->InsertNextValue(pointId);
+      }
+      n += streak.size();
+      offsets->InsertNextValue(n);
+    };
+
+    if (streak.size() == 1)
+    {
+      insertNextCell(vertsConnectivity, vertsOffsets, nverts);
+    }
+    else
+    {
+      insertNextCell(linesConnectivity, linesOffsets, nlines);
+    }
   }
 
-  bool operator<(const StreakParticle& other) const { return this->Age > other.Age; }
-};
-
-typedef std::vector<StreakParticle> Streak;
+  verts->SetData(vertsOffsets, vertsConnectivity);
+  lines->SetData(linesOffsets, linesConnectivity);
+}
+} // anonymous namespace
 
 vtkObjectFactoryNewMacro(vtkStreaklineFilter);
 
-void StreaklineFilterInternal::Initialize(vtkParticleTracerBase* filter)
+//------------------------------------------------------------------------------
+int vtkStreaklineFilter::Initialize(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  this->Filter = filter;
-  this->Filter->ForceReinjectionEveryNSteps = 1;
-  this->Filter->IgnorePipelineTime = 1;
+  int retVal = this->Superclass::Initialize(request, inputVector, outputVector);
+  this->ForceReinjectionEveryNSteps = 1;
+  return retVal;
 }
 
-int StreaklineFilterInternal::OutputParticles(vtkPolyData* particles)
+//------------------------------------------------------------------------------
+int vtkStreaklineFilter::Finalize(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  this->Filter->Output = particles;
+  int retVal = this->Superclass::Finalize(request, inputVector, outputVector);
 
-  return 1;
-}
+  vtkNew<vtkPointData> pd;
+  vtkNew<vtkPoints> points;
 
-void StreaklineFilterInternal::Finalize()
-{
-  vtkPoints* points = this->Filter->Output->GetPoints();
-  if (!points)
+  pd->CopyAllocate(this->OutputPointData, this->OutputPointData->GetNumberOfTuples());
+  pd->CopyData(this->OutputPointData, 0, this->OutputPointData->GetNumberOfTuples(), 0);
+  points->DeepCopy(this->OutputCoordinates);
+
+  // Strategy: we send all the particles to the root node
+  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
-    return;
+    vtkNew<vtkPolyData> ps;
+    if (this->Controller->GetLocalProcessId() != 0)
+    {
+      ps->GetPointData()->ShallowCopy(this->OutputPointData);
+      ps->SetPoints(this->OutputCoordinates);
+    }
+    std::vector<vtkSmartPointer<vtkDataObject>> recvBuffer;
+    this->Controller->Gather(ps, recvBuffer, 0);
+
+    // Non root ranks have nothing to do
+    if (this->Controller->GetLocalProcessId() != 0)
+    {
+      return retVal;
+    }
+
+    for (auto& recv : recvBuffer)
+    {
+      auto ds = vtkDataSet::SafeDownCast(recv);
+      vtkIdType n = ds->GetNumberOfPoints();
+      if (!n)
+      {
+        continue;
+      }
+      vtkIdType end = points->GetNumberOfPoints();
+      // If root rank has no particles, it doesn't have arrays allocated in pd,
+      // so let's allocate them here using what we received
+      if (!pd->GetNumberOfTuples())
+      {
+        pd->CopyAllocate(ds->GetPointData(), n);
+      }
+      if (!pd->GetNumberOfTuples())
+      {
+        pd->CopyAllocate(ds->GetPointData(), ds->GetNumberOfPoints());
+      }
+      pd->CopyData(ds->GetPointData(), end, n, 0);
+      points->InsertPoints(end, n, 0, ds->GetPoints());
+    }
   }
 
-  vtkPointData* pd = this->Filter->Output->GetPointData();
-  Assert(pd);
-  vtkFloatArray* particleAge = vtkArrayDownCast<vtkFloatArray>(pd->GetArray("ParticleAge"));
-  Assert(particleAge);
-  vtkIntArray* seedIds = vtkArrayDownCast<vtkIntArray>(pd->GetArray("InjectedPointId"));
-  Assert(seedIds);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  auto output = vtkPolyData::SafeDownCast(vtkDataObject::GetData(outInfo));
+  output->Initialize();
 
-  if (seedIds)
+  vtkIdType n = points->GetNumberOfPoints();
+
+  if (!n)
   {
-    std::vector<Streak> streaks; // the streak lines in the current time step
-    for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
-    {
-      int streakId = seedIds->GetValue(i);
-      for (int j = static_cast<int>(streaks.size()); j <= streakId; j++)
-      {
-        streaks.emplace_back();
-      }
-      Streak& streak = streaks[streakId];
-      float age = particleAge->GetValue(i);
-      streak.emplace_back(i, age);
-    }
+    return retVal;
+  }
 
-    // sort streaks based on age
-    for (unsigned int i = 0; i < streaks.size(); i++)
-    {
-      Streak& streak(streaks[i]);
-      std::sort(streak.begin(), streak.end());
-    }
+  std::vector<std::vector<vtkIdType>> streaks(this->GetCurrentTimeIndex() + 1);
 
-    this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
-    this->Filter->Output->SetVerts(nullptr);
-    vtkCellArray* outLines = this->Filter->Output->GetLines();
-    Assert(outLines->GetNumberOfCells() == 0);
-    Assert(outLines);
-    for (unsigned int i = 0; i < streaks.size(); i++)
-    {
-      const Streak& streak(streaks[i]);
-      vtkNew<vtkIdList> ids;
+  auto ageArray = this->GetParticleAge(pd);
 
-      for (unsigned int j = 0; j < streak.size(); j++)
-      {
-        Assert(j == 0 || streak[j].Age <= streak[j - 1].Age);
-        if (j == 0 || streak[j].Age < streak[j - 1].Age)
-        {
-          ids->InsertNextId(streak[j].Id);
-        }
-      }
-      if (ids->GetNumberOfIds() > 1)
-      {
-        outLines->InsertNextCell(ids);
-      }
+  // We sort streaks by age, addoing points as they come, indexed as seen by OutputPointData
+  // and OutputCoordinates
+  for (vtkIdType pointId = 0; pointId < ageArray->GetNumberOfValues(); ++pointId)
+  {
+    streaks[this->GetCurrentTimeIndex() - ageArray->GetValue(pointId)].emplace_back(pointId);
+  }
+
+  // We are going to map the output point ids to the point ids produced by Execute.
+  vtkNew<vtkIdList> mapping;
+  mapping->SetNumberOfIds(n);
+  vtkIdType* ids = mapping->GetPointer(0);
+
+  for (const auto& streak : streaks)
+  {
+    for (vtkIdType pointId : streak)
+    {
+      *(ids++) = pointId;
     }
   }
+
+  vtkNew<vtkCellArray> verts;
+  vtkNew<vtkCellArray> lines;
+  vtkNew<vtkPoints> outPoints;
+
+  output->GetPointData()->CopyAllocate(pd, n);
+  output->GetPointData()->CopyData(pd, mapping);
+  output->SetPoints(points);
+  outPoints->GetData()->InsertTuplesStartingAt(0, mapping, points->GetData());
+
+#ifdef VTK_USE_64BIT_IDS
+  if (!(n >> 31))
+  {
+    verts->ConvertTo32BitStorage();
+    lines->ConvertTo32BitStorage();
+    FillCellArrays<vtkCellArray::ArrayType32>(streaks, verts, lines);
+  }
+#else
+  if (false)
+  {
+  }
+#endif
+  else
+  {
+    FillCellArrays<vtkCellArray::ArrayType64>(streaks, verts, lines);
+  }
+
+  output->SetVerts(verts);
+  output->SetLines(lines);
+
+  return retVal;
 }
 
-vtkStreaklineFilter::vtkStreaklineFilter()
-{
-  this->It.Initialize(this);
-}
-
-int vtkStreaklineFilter::OutputParticles(vtkPolyData* particles)
-{
-  return this->It.OutputParticles(particles);
-}
-
-void vtkStreaklineFilter::Finalize()
-{
-  return this->It.Finalize();
-}
-
-void vtkStreaklineFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  Superclass::PrintSelf(os, indent);
-}
 VTK_ABI_NAMESPACE_END

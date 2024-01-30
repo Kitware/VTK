@@ -593,6 +593,11 @@ template <class DerivedT, class ValueTypeT>
 void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuplesStartingAt(
   vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
 {
+  if (!srcIds->GetNumberOfIds())
+  {
+    return;
+  }
+
   // First, check for the common case of typeid(source) == typeid(this). This
   // way we don't waste time redoing the other checks in the superclass, and
   // can avoid doing a dispatch for the most common usage of this method.

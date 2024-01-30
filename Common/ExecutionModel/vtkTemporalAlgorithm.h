@@ -172,9 +172,15 @@ protected:
    */
   bool RunBackward = false;
 
-private:
-  vtkTemporalAlgorithm(const vtkTemporalAlgorithm&) = delete;
-  void operator=(const vtkTemporalAlgorithm&) = delete;
+  ///@{
+  /**
+   * When the information key `NO_PRIOR_TEMPORAL_ACCESS()` is not set on the input port, this is
+   * used to keep track of which iteration we are currently executing, and when to terminate.
+   */
+  std::vector<double> InputTimeSteps;
+  int TerminationTimeIndex = 0;
+  int CurrentTimeIndex = 0;
+  ///@}
 
   /**
    * Returns true if the cache must be reinitialized before executing the current time step.
@@ -193,21 +199,15 @@ private:
    */
   bool NoPriorTimeStepAccess = false;
 
-  ///@{
-  /**
-   * When the information key `NO_PRIOR_TEMPORAL_ACCESS()` is not set on the input port, this is
-   * used to keep track of which iteration we are currently executing, and when to terminate.
-   */
-  std::vector<double> InputTimeSteps;
-  int TerminationTimeIndex = 0;
-  int CurrentTimeIndex = 0;
-  ///@}
-
   /**
    * Array only used when the information key `NO_PRIOR_TEMPORAL_ACCESS()` is set.
    * It is put in the output's field data.
    */
   vtkNew<vtkDoubleArray> ProcessedTimeSteps;
+
+private:
+  vtkTemporalAlgorithm(const vtkTemporalAlgorithm&) = delete;
+  void operator=(const vtkTemporalAlgorithm&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

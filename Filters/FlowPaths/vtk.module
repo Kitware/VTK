@@ -2,6 +2,8 @@ NAME
   VTK::FiltersFlowPaths
 LIBRARY_NAME
   vtkFiltersFlowPaths
+KIT
+  VTK::Parallel
 DESCRIPTION
   Filters and algorithms for streamlines
 IMPLEMENTABLE
@@ -24,12 +26,14 @@ PRIVATE_DEPENDS
   VTK::FiltersModeling
   VTK::FiltersSources
   VTK::IOCore
+  VTK::ParallelCore
   VTK::eigen
 TEST_DEPENDS
   VTK::FiltersAMR
   VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersGeometry
+  VTK::FiltersHybrid
   VTK::FiltersImaging
   VTK::FiltersSources
   VTK::IOXML

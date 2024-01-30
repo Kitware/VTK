@@ -946,6 +946,12 @@ struct DataSetPointMapper<vtkPointSet>
       return true;
     };
 
+    if (!ps1->GetNumberOfPoints() && !ps2->GetNumberOfPoints())
+    {
+      // Nothing to compare
+      this->Success = true;
+      return;
+    }
     if (!testValidInput(ps1) || !testValidInput(ps2))
     {
       this->Success = false;

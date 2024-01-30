@@ -202,6 +202,11 @@ int vtkTemporalAlgorithm<AlgorithmT>::RequestData(
       return 0;
     }
     request->Remove(vtkSDDP::CONTINUE_EXECUTING());
+    if (!this->IntegrateFullTimeSeries || this->NoPriorTimeStepAccess)
+    {
+      vtkDataObject::GetData(outInfo)->GetInformation()->Set(
+        vtkDataObject::DATA_TIME_STEP(), this->GetCurrentTimeStep());
+    }
   }
 
   if (this->NoPriorTimeStepAccess)

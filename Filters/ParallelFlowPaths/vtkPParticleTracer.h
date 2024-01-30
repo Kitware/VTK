@@ -14,24 +14,24 @@
 #ifndef vtkPParticleTracer_h
 #define vtkPParticleTracer_h
 
-#include "vtkPParticleTracerBase.h"
+#include "vtkParticleTracer.h"
 #include "vtkSmartPointer.h" // For protected ivars.
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracer : public vtkPParticleTracerBase
+VTK_DEPRECATED_IN_9_4_0("Use vtkParticleTracer instead")
+class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracer : public vtkParticleTracer
 {
 public:
-  vtkTypeMacro(vtkPParticleTracer, vtkPParticleTracerBase);
+  vtkTypeMacro(vtkPParticleTracer, vtkParticleTracer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPParticleTracer* New();
 
 protected:
-  vtkPParticleTracer();
+  vtkPParticleTracer() = default;
   ~vtkPParticleTracer() override = default;
-  int OutputParticles(vtkPolyData* poly) override;
 
 private:
   vtkPParticleTracer(const vtkPParticleTracer&) = delete;

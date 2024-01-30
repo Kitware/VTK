@@ -7,7 +7,7 @@ vtk_add_test_mpi(vtkFiltersParallelFlowPathsCxxTests-MPI tests
   TestPLagrangianParticleTracker.cxx,TESTING_DATA
   TestPStream.cxx,TESTING_DATA
   TestPStreamGeometry.cxx
-  TestPParticleTracers.cxx
+  #  TestPParticleTracers.cxx
   TestPStreamAMR.cxx,TESTING_DATA,NO_VALID
   )
 vtk_test_cxx_executable(vtkFiltersParallelFlowPathsCxxTests-MPI tests

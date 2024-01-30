@@ -23,8 +23,8 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracer : public vtkParticleTracerBas
 {
 public:
   vtkTypeMacro(vtkParticleTracer, vtkParticleTracerBase);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkParticleTracer* New();
 
 protected:
@@ -32,7 +32,7 @@ protected:
   ~vtkParticleTracer() override = default;
   vtkParticleTracer(const vtkParticleTracer&) = delete;
   void operator=(const vtkParticleTracer&) = delete;
-  int OutputParticles(vtkPolyData* poly) override;
+  int Finalize(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 };
 
 VTK_ABI_NAMESPACE_END
