@@ -162,6 +162,48 @@ public:
    */
   vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
 
+  /**
+   * Object to perform field array selection before update.
+   */
+  vtkGetObjectMacro(FieldDataArraySelection, vtkDataArraySelection);
+
+  ///@{
+  /**
+   * Get the number of point or cell arrays available in the input.
+   */
+  int GetNumberOfPointArrays();
+  int GetNumberOfCellArrays();
+  int GetNumberOfFieldArrays();
+  ///@}
+
+  ///@{
+  /**
+   * Get the name of the point or cell array with the given index in
+   * the input.
+   */
+  const char* GetPointArrayName(int index);
+  const char* GetCellArrayName(int index);
+  const char* GetFieldArrayName(int index);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set whether the point or cell array with the given name is to
+   * be read.
+   */
+  int GetPointArrayStatus(const char* name);
+  int GetCellArrayStatus(const char* name);
+  int GetFieldArrayStatus(const char* name);
+  void SetPointArrayStatus(const char* name, int status);
+  void SetCellArrayStatus(const char* name, int status);
+  void SetFieldArrayStatus(const char* name, int status);
+  ///@}
+
+  /**
+   * Overridden to take into account mtimes for vtkDataArraySelection instances.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkFidesReader();
   ~vtkFidesReader() override;
