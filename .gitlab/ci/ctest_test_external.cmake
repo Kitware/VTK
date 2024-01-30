@@ -1,4 +1,8 @@
 include("${CMAKE_CURRENT_LIST_DIR}/gitlab_ci.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/ctest_annotation.cmake")
+
+set(annotation_report_file "${CTEST_BINARY_DIRECTORY}/annotations.json")
+set(annotation_report)
 
 set(CTEST_SOURCE_DIRECTORY "${CTEST_SOURCE_DIRECTORY}/Testing/External")
 set(cmake_args
@@ -26,9 +30,19 @@ ctest_read_custom_files("${CTEST_BINARY_DIRECTORY}")
 
 # We can now submit because we've configured. This is a cmb-superbuild-ism.
 ctest_submit(PARTS Update)
-ctest_submit(PARTS Configure)
+ctest_submit(PARTS Configure
+  BUILD_ID build_id)
+
+if (DEFINED build_id)
+  list(APPEND annoataion_report
+    "Build Summary" "https://open.cdash.org/build/${build_id}"
+    "Update" "https://open.cdash.org/build/${build_id}/update"
+    "Configure" "https://open.cdash.org/build/${build_id}/configure"
+  )
+endif ()
 
 if (configure_result)
+  ctest_annotation_report("${annotation_report_file}" ${annotation_report})
   ctest_submit(PARTS Done)
   message(FATAL_ERROR
     "Failed to configure")
@@ -60,6 +74,13 @@ ctest_build(
 
 ctest_submit(PARTS Build)
 
+if (DEFINED build_id)
+  list(APPEND annoataion_report
+      "Build Errors (${num_errors})" "https://open.cdash.org/viewBuildError.php?buildid=${build_id}"
+      "Build Warnings (${num_warnings})" "https://open.cdash.org/viewBuildError.php?type=1&buildid=${build_id}"
+  )
+endif ()
+
 if (build_result)
   file(GLOB logs
     "${CTEST_SOURCE_DIRECTORY}/compile_output.log")
@@ -69,7 +90,15 @@ if (build_result)
   endif ()
 endif ()
 
+if (DEFINED build_id)
+  list(APPEND annoataion_report
+      "Build Errors (${num_errors})" "https://open.cdash.org/viewBuildError.php?buildid=${build_id}"
+      "Build Warnings (${num_warnings})" "https://open.cdash.org/viewBuildError.php?type=1&buildid=${build_id}"
+  )
+endif ()
+
 if (build_result)
+  ctest_annotation_report("${annotation_report_file}" ${annotation_report})
   ctest_submit(PARTS Done)
   message(FATAL_ERROR
     "Failed to build")
@@ -90,10 +119,21 @@ ctest_test(APPEND
   REPEAT UNTIL_PASS:3)
 ctest_submit(PARTS Test)
 
+if (DEFINED build_id)
+  list(APPEND annoataion_report
+    "All Tests"     "https://open.cdash.org/viewTest.php?buildid=${build_id}"
+    "Test Failures" "https://open.cdash.org/viewTest.php?onlyfailed&buildid=${build_id}"
+    "Tests Not Run" "https://open.cdash.org/viewTest.php?onlynotrun&buildid=${build_id}"
+    "Test Passes"   "https://open.cdash.org/viewTest.php?onlypassed&buildid=${build_id}"
+  )
+endif ()
+
 if (test_result)
+  ctest_annotation_report("${annotation_report_file}" ${annotation_report})
   ctest_submit(PARTS Done)
   message(FATAL_ERROR
     "Failed to test")
 endif ()
 
+ctest_annotation_report("${annotation_report_file}" ${annotation_report})
 ctest_submit(PARTS Done)

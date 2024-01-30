@@ -3,7 +3,9 @@
 set -e
 
 readonly mindeps_version="3.12.4"
+readonly mindeps_prefix="cmake-mindeps"
 readonly latest_version="3.26.3"
+readonly latest_prefix="cmake"
 
 case "$( uname -s )" in
     Linux)
@@ -31,27 +33,36 @@ readonly mindeps_platform
 readonly latest_sha256sum
 readonly latest_platform
 
-use_mindeps=false
-if [ "$CI_JOB_STAGE" = "test" ]; then
-    : # Skip old CMake for testing as some of the features are useful.
-elif echo "$CMAKE_CONFIGURATION" | grep -q -e 'mindeps'; then
-    use_mindeps=true
-fi
 
-readonly use_mindeps
+# Select the CMake version to install
+readonly cmake_version="${1:-latest}"
 
-if $use_mindeps; then
-    version="$mindeps_version"
-    sha256sum="$mindeps_sha256sum"
-    platform="$mindeps_platform"
-else
-    version="$latest_version"
-    sha256sum="$latest_sha256sum"
-    platform="$latest_platform"
-fi
+case "$cmake_version" in
+    latest)
+        version="$latest_version"
+        sha256sum="$latest_sha256sum"
+        platform="$latest_platform"
+        prefix="$latest_prefix"
+        ;;
+    mindeps)
+        version="$mindeps_version"
+        sha256sum="$mindeps_sha256sum"
+        platform="$mindeps_platform"
+        prefix="$mindeps_prefix"
+
+        # Skip if we're not in a `mindeps` job.
+        if ! echo "$CMAKE_CONFIGURATION" | grep -q -e 'mindeps'; then
+            exit 0
+        fi
+        ;;
+    *)
+        echo "Unknown CMake version: $cmake_version"
+        exit 1
+esac
 readonly version
 readonly sha256sum
 readonly platform
+readonly prefix
 
 readonly filename="cmake-$version-$platform"
 readonly tarball="$filename.tar.gz"
@@ -62,8 +73,8 @@ echo "$sha256sum  $tarball" > cmake.sha256sum
 curl -OL "https://github.com/Kitware/CMake/releases/download/v$version/$tarball"
 $shatool --check cmake.sha256sum
 tar xf "$tarball"
-mv "$filename" cmake
+mv "$filename" "$prefix"
 
 if [ "$( uname -s )" = "Darwin" ]; then
-    ln -s CMake.app/Contents/bin cmake/bin
+    ln -s CMake.app/Contents/bin "$prefix/bin"
 fi

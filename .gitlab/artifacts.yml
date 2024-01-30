@@ -1,10 +1,25 @@
 # Lists of paths for artifacts of various stages.
 
-.cmake_build_artifacts:
+.cmake_annotations_artifacts:
     artifacts:
         expire_in: 1d
         # Because build logs are in here, we should always upload artifacts.
         when: always
+        reports:
+            annotations:
+                - build/annotations.json
+        paths:
+            - build/cdash-build-id
+
+.cmake_build_artifacts:
+    extends: .cmake_annotations_artifacts
+    artifacts:
+        expire_in: 1d
+        # Because build logs are in here, we should always upload artifacts.
+        when: always
+        reports:
+            annotations:
+                - build/annotations.json
         paths:
             # Install tree
             - build/install/
@@ -41,6 +56,7 @@
 
             # CDash files.
             - build/DartConfiguration.tcl
+            - build/cdash-build-id
 
             # Virtual environment
             - build/ci-venv/
@@ -57,6 +73,7 @@
             - build/**/*.spdx
 
 .cmake_junit_artifacts:
+    extends: .cmake_annotations_artifacts
     artifacts:
         expire_in: 1d
         # Tests failing should still upload the artifact for further testing.
@@ -68,6 +85,7 @@
             - compile_output.log
 
 .cmake_test_artifacts:
+    extends: .cmake_annotations_artifacts
     artifacts:
         expire_in: 1d
         # Tests failing should still upload the artifact for further testing.
@@ -86,6 +104,7 @@
             - build/Testing/Temporary/Last*.log
 
 .cmake_tidy_artifacts:
+    extends: .cmake_annotations_artifacts
     artifacts:
         expire_in: 1d
         when: always
@@ -93,6 +112,7 @@
             - compile_output.log
 
 .cmake_doxygen_artifacts:
+    extends: .cmake_annotations_artifacts
     artifacts:
         expire_in: 1d
         when: always
@@ -103,6 +123,7 @@
             - build/install/
 
 .cmake_wheel_artifacts:
+    extends: .cmake_annotations_artifacts
     artifacts:
         expire_in: 1d
         when: always
@@ -114,6 +135,7 @@
             - build/*-wheel-sdk-*.tar.xz
 
 .cmake_release_artifacts:
+    extends: .cmake_annotations_artifacts
     artifacts:
         expire_in: 1d
         when: always
