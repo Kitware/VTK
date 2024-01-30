@@ -1656,26 +1656,55 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
 
   // Search for dimensions
   // We can have a specified slice ID before that but it's not mandatory
-  std::string name;
-  if (!parser.Parse(name))
+  std::string SLCFID;
+  // create a token for parser.Parse
+  std::string token;
+  if (!parser.Parse(token))
   {
-    vtkErrorMacro("Could not parse name of slice at line " << parser.LineNumber);
+    vtkErrorMacro("Could not parse SLCF ID of slice at line " << parser.LineNumber);
     return false;
   }
 
-  // if we have an ampersand immediately, it means no name prefix was provided.
-  if (name == "&")
+  SLCFID = token;
+
+  // if we have an ampersand immediately, it means no prefix was provided.
+  if (SLCFID == "&")
   {
-    name = "";
+    SLCFID = "";
   }
   else
   {
-    // if there is a space between the name and a % or # symbol
-    if (name == "%" || name == "#")
+
+    // Testing for a space
+    // for FDS version 6.8+, the first keyword will indicate the SLICETYPE
+    if (token == "%" || token == "#")
     {
-      if (!parser.Parse(name))
+      if (!parser.Parse(token))
       {
         vtkErrorMacro("Could not parse name of slice at line " << parser.LineNumber);
+        return false;
+      }
+      SLCFID = token;
+    }
+    // The SLCF ID can have spaces in it, so we should capture all text up till the ampersand
+    while (token != "&")
+    {
+      if (!parser.Parse(token))
+      {
+        vtkErrorMacro(
+          "Error parsing SLCF ID at end of " << SLCFID << " at line " << parser.LineNumber);
+        return false;
+      }
+
+      // build the SLCFID until we hit the ampersand
+      if (token != "&")
+      {
+        SLCFID.append("_" + token);
+      }
+
+      if (parser.Result == vtkParseResult::EndOfLine)
+      {
+        vtkErrorMacro("Expected & at end of " << SLCFID << " at line " << parser.LineNumber);
         return false;
       }
     }
@@ -1684,26 +1713,11 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
     std::array<std::string, 2> wildcards = { "#", "%" };
     for (const auto& wildcard : wildcards)
     {
-      for (std::string::size_type iStr = name.find(wildcard); iStr != std::string::npos;
-           iStr = name.find(wildcard))
+      for (std::string::size_type iStr = SLCFID.find(wildcard); iStr != std::string::npos;
+           iStr = SLCFID.find(wildcard))
       {
-        name.erase(iStr, 1);
+        SLCFID.erase(iStr, 1);
       }
-    }
-
-    // Parse ampersand after the name
-    std::string ampersand;
-    if (!parser.Parse(ampersand))
-    {
-      vtkErrorMacro(
-        "Error parsing ampersand at end of " << name << " at line " << parser.LineNumber);
-      return false;
-    }
-
-    if (ampersand != "&")
-    {
-      vtkErrorMacro("Expected & at end of " << name << " at line " << parser.LineNumber);
-      return false;
     }
   }
 
@@ -1742,11 +1756,11 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
     return false;
   }
 
-  if (!name.empty())
+  if (!SLCFID.empty())
   {
-    name += "_";
+    SLCFID += "_";
   }
-  name += namePostFix;
+  SLCFID += namePostFix;
 
   if (!parser.DiscardLine())
   {
@@ -1767,8 +1781,8 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
 
   sData.TimeValues = ::ParseTimeStepsInSliceFile(sData.FileName);
 
-  name = this->SanitizeName(name);
-  const int idx = this->Assembly->AddNode(name.c_str(), baseNodes[SLICES]);
+  SLCFID = this->SanitizeName(SLCFID);
+  const int idx = this->Assembly->AddNode(SLCFID.c_str(), baseNodes[SLICES]);
   this->Internals->Slices.emplace(idx, sData);
   this->Internals->MaxNbOfPartitions++;
 
@@ -1841,7 +1855,6 @@ bool vtkFDSReader::ParseBNDF()
 
   return true;
 }
-
 // ----------------------------------------------------------------------------
 int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
