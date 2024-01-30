@@ -31,7 +31,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->RightAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->RightAxis->SetFontFactor(0.6);
   this->RightAxis->SetNumberOfLabels(5);
-  // this->RightAxis->SetProperty(this->AxisProperty);
   this->RightAxis->AdjustLabelsOff();
 
   this->TopAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
@@ -39,7 +38,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->TopAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->TopAxis->SetFontFactor(0.6);
   this->TopAxis->SetNumberOfLabels(5);
-  // this->TopAxis->SetProperty(this->AxisProperty);
   this->TopAxis->AdjustLabelsOff();
 
   this->LeftAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
@@ -47,7 +45,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LeftAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->LeftAxis->SetFontFactor(0.6);
   this->LeftAxis->SetNumberOfLabels(5);
-  // this->LeftAxis->SetProperty(this->AxisProperty);
   this->LeftAxis->AdjustLabelsOff();
 
   this->BottomAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
@@ -55,7 +52,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->BottomAxis->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->BottomAxis->SetFontFactor(0.6);
   this->BottomAxis->SetNumberOfLabels(5);
-  // this->BottomAxis->SetProperty(this->AxisProperty);
   this->BottomAxis->AdjustLabelsOff();
 
   this->Legend->SetPoints(this->LegendPoints);
@@ -119,7 +115,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   for (int i = 0; i < 6; i++)
   {
     this->LabelMappers[i]->SetTextProperty(this->LegendLabelProperty);
-    // this->LabelActors[i] = vtkActor2D::New();
     this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
   }
   this->LabelMappers[5]->SetTextProperty(this->LegendTitleProperty);
@@ -572,6 +567,7 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
+
   os << indent << "Label Mode: ";
   if (this->LabelMode == DISTANCE)
   {
@@ -594,6 +590,12 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Left Border Offset: " << this->LeftBorderOffset << "\n";
   os << indent << "Bottom Border Offset: " << this->BottomBorderOffset << "\n";
 
+  os << indent << "Label value notation: " << this->GetNotation() << "\n";
+  os << indent << "Label value precision: " << this->GetPrecision() << "\n";
+
+  os << indent << "Number of vertical labels: " << this->GetNumberOfVerticalLabels() << "\n";
+  os << indent << "Number of horizontal labels: " << this->GetNumberOfHorizontalLabels() << "\n";
+
   os << indent << "Legend Title Property: ";
   if (this->LegendTitleProperty)
   {
@@ -607,6 +609,15 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
   if (this->LegendLabelProperty)
   {
     os << this->LegendLabelProperty << "\n";
+  }
+  else
+  {
+    os << "(none)\n";
+  }
+  os << indent << "Axes 2D Property: ";
+  if (this->GetAxesProperty())
+  {
+    os << this->GetAxesProperty() << "\n";
   }
   else
   {

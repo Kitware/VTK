@@ -19,6 +19,7 @@ PRIVATE_DEPENDS
   VTK::ChartsCore
   VTK::CommonMath
   VTK::CommonTransforms
+  VTK::doubleconversion
   VTK::FiltersCore
   VTK::FiltersGeneral
   VTK::FiltersSources

@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAxisActor2D.h"
 
-#include "vtkAxis.h"
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+// #include "vtkNumberToString.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
@@ -13,6 +13,11 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
+
+// clang-format off
+#include "vtk_doubleconversion.h"
+#include VTK_DOUBLECONVERSION_HEADER(double-conversion.h)
+// clang-format on
 
 #include <cmath>
 #include <limits>
@@ -451,15 +456,48 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
       for (i = 0; i < this->AdjustedNumberOfLabels; i++)
       {
         val = this->AdjustedRange[0] + i * interval;
-        // snprintf(string, sizeof(string), this->LabelFormat, val);
-        this->LabelMappers[i]->SetInput(this->AxisHelper->GenerateSimpleLabel(val).c_str());
 
-        // Check if the label text has changed
-
-        if (this->LabelMappers[i]->GetMTime() > labeltime)
+        if (this->GetNotation() == 0)
         {
-          labeltime = this->LabelMappers[i]->GetMTime();
+          // Use default legend notation : don't use vtkNumberToString
+          // for the default setting in order to ensure retrocompatibility
+          snprintf(string, sizeof(string), this->LabelFormat, val);
+          this->LabelMappers[i]->SetInput(string);
         }
+        else if (this->GetNotation() == 1)
+        {
+          constexpr int flags = double_conversion::DoubleToStringConverter::UNIQUE_ZERO |
+            double_conversion::DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN;
+          double_conversion::DoubleToStringConverter converter(
+            flags, "Infinity", "NaN", 'e', 0, 999, 999, 0);
+
+          std::array<char, 256> buf;
+          double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
+          builder.Reset();
+          converter.ToExponential(val, this->GetPrecision(), &builder);
+          const std::string input = builder.Finalize();
+          this->LabelMappers[i]->SetInput(input.c_str());
+        }
+        else
+        {
+          constexpr int flags = double_conversion::DoubleToStringConverter::UNIQUE_ZERO |
+            double_conversion::DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN;
+          double_conversion::DoubleToStringConverter converter(
+            flags, "Infinity", "NaN", 'e', 0, 999, 999, 0);
+
+          std::array<char, 256> buf;
+          double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
+          builder.Reset();
+          converter.ToFixed(val, this->GetPrecision(), &builder);
+          const std::string input = builder.Finalize();
+          this->LabelMappers[i]->SetInput(input.c_str());
+        }
+      }
+
+      // Check if the label text has changed
+      if (this->LabelMappers[i]->GetMTime() > labeltime)
+      {
+        labeltime = this->LabelMappers[i]->GetMTime();
       }
     }
 
@@ -834,30 +872,6 @@ double vtkAxisActor2D::ComputeStringOffset(double width, double height, double t
   double f1 = height * cos(theta);
   double f2 = width * sin(theta);
   return (1.2 * sqrt(f1 * f1 + f2 * f2));
-}
-
-//------------------------------------------------------------------------------
-void vtkAxisActor2D::SetNotation(int notation)
-{
-  this->AxisHelper->SetNotation(notation);
-}
-
-//------------------------------------------------------------------------------
-int vtkAxisActor2D::GetNotation()
-{
-  return this->AxisHelper->GetNotation();
-}
-
-//------------------------------------------------------------------------------
-void vtkAxisActor2D::SetPrecision(int precision)
-{
-  this->AxisHelper->SetPrecision(precision);
-}
-
-//------------------------------------------------------------------------------
-int vtkAxisActor2D::GetPrecision()
-{
-  return this->AxisHelper->GetPrecision();
 }
 
 //------------------------------------------------------------------------------

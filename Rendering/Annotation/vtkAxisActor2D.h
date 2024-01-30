@@ -56,7 +56,6 @@ class vtkPolyDataMapper2D;
 class vtkPolyData;
 class vtkTextMapper;
 class vtkTextProperty;
-class vtkAxis;
 
 class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor2D : public vtkActor2D
 {
@@ -135,6 +134,27 @@ public:
    */
   vtkSetClampMacro(NumberOfLabels, int, 2, VTK_MAX_LABELS);
   vtkGetMacro(NumberOfLabels, int);
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the numerical precision to use, default is 2.
+   * Precision is only used for scientific and fixed-point notations
+   */
+  vtkSetClampMacro(Precision, int, 0, VTK_INT_MAX);
+  vtkGetMacro(Precision, int);
+  ///@}
+
+  ///@{
+  /**
+   * Get/set number notation to use.
+   * Options are:
+   *  - Mixed (0, default)
+   *  - Scientific (1)
+   *  - Fixed-point (2)
+   */
+  vtkSetClampMacro(Notation, int, 0, 2);
+  vtkGetMacro(Notation, int);
   ///@}
 
   ///@{
@@ -349,21 +369,6 @@ public:
 
   ///@{
   /**
-   * Get/set the numerical notation, standard, scientific, fixed, or a
-   * printf-style format string.
-   */
-  void SetNotation(int notation);
-  int GetNotation();
-
-  ///@{
-  /**
-   * Get/set the numerical precision to use, default is 2.
-   */
-  void SetPrecision(int precision);
-  int GetPrecision();
-
-  ///@{
-  /**
    * Specify whether to size the fonts relative to the viewport or relative to
    * length of the axis. By default, fonts are resized relative to the viewport.
    */
@@ -414,6 +419,9 @@ protected:
   int AdjustedNumberOfLabels = 5;
   int NumberOfLabelsBuilt = 0;
 
+  int Notation = 0;
+  int Precision = 2;
+
   vtkTypeBool AxisVisibility = 1;
   vtkTypeBool TickVisibility = 1;
   vtkTypeBool LabelVisibility = 1;
@@ -443,7 +451,6 @@ protected:
   vtkNew<vtkPolyData> Axis;
   vtkNew<vtkPolyDataMapper2D> AxisMapper;
   vtkNew<vtkActor2D> AxisActor;
-  vtkNew<vtkAxis> AxisHelper; // Used to provide text labels
 
   vtkTimeStamp AdjustedRangeBuildTime;
   vtkTimeStamp BuildTime;

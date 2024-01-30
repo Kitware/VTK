@@ -173,7 +173,8 @@ public:
 
   ///@{
   /**
-   * Get/set the numerical notation for axis labels: standard, scientific or mixed (0, 1, 2).
+   * Get/set the numerical notation for axes labels: standard, scientific or mixed (0, 1, 2).
+   * Default is 0.
    */
   void SetNotation(int notation);
   int GetNotation();
