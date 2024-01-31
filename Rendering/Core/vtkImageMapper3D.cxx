@@ -753,21 +753,6 @@ static VTK_THREAD_RETURN_TYPE vtkImageMapperMapColors(void* arg)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-//------------------------------------------------------------------------------
-// Given an image and an extent that describes a single slice, this method
-// will return a contiguous block of unsigned char data that can be loaded
-// into a texture.
-// The values of xsize, ysize, bytesPerPixel, and reuseTexture must be
-// pre-loaded with the current texture size and depth, with subTexture
-// set to 1 if only a subTexture is to be generated.
-// When the method returns, these values will be set to the dimensions
-// of the data that was produced, and subTexture will remain set to 1
-// if xsize,ysize describe a subtexture size.
-// If subTexture is not set to one upon return, then xsize,ysize will
-// describe the full texture size, with the assumption that the full
-// texture must be reloaded.
-// If reuseData is false upon return, then the returned array must be
-// freed after use with delete [].
 unsigned char* vtkImageMapper3D::MakeTextureData(vtkImageProperty* property, vtkImageData* input,
   int extent[6], int& xsize, int& ysize, int& bytesPerPixel, bool& reuseTexture, bool& reuseData)
 {

@@ -179,8 +179,19 @@ protected:
 
   /**
    * Perform window/level and color mapping operations to produce
-   * unsigned char data that can be used as a texture.  See the
-   * source file for more information.
+   * unsigned char data that can be used as a texture.
+   *
+   * Given an image and an extent that describes a single slice, this method
+   * will return a contiguous block of unsigned char data that can be loaded
+   * into a texture.
+   * The values of xsize, ysize, bytesPerPixel, must be pre-loaded with the
+   * current texture size and depth.
+   * When the method returns, these values will be set to the dimensions
+   * of the data that was produced.
+   * The values of reuseData and reuseTexture are typically pre-loaded with true.
+   * If reuseTexture is false upon return, then texture size or format has changed
+   * If reuseData is false upon return, then the returned array must be
+   * freed after use with delete [].
    */
   unsigned char* MakeTextureData(vtkImageProperty* property, vtkImageData* input, int extent[6],
     int& xsize, int& ysize, int& bytesPerPixel, bool& reuseTexture, bool& reuseData);
