@@ -79,6 +79,8 @@ public:
   vtkIdType GetNumberOfContours();
   void GenerateValues(int numContours, double range[2]);
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
+  void SetContourValues(const std::vector<double>& values);
+  std::vector<double> GetContourValues();
   ///@}
 
   /**
@@ -206,6 +208,16 @@ public:
   vtkBooleanMacro(FastMode, bool);
   ///@}
 
+  /**
+   * Sets the name of the input array to be used for generating
+   * the isosurfaces. This is a convenience method and it calls
+   * SetInputArrayToProcess().
+   */
+  void SetInputArray(const std::string& name)
+  {
+    this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, name.c_str());
+  }
+
 protected:
   vtkContourFilter();
   ~vtkContourFilter() override;
@@ -317,6 +329,37 @@ inline void vtkContourFilter::GenerateValues(int numContours, double range[2])
 inline void vtkContourFilter::GenerateValues(int numContours, double rangeStart, double rangeEnd)
 {
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
+}
+
+/**
+ * Convenience method to set all of the contour values at once.
+ * Loops over the vector elements and calls SetValue()
+ */
+inline void vtkContourFilter::SetContourValues(const std::vector<double>& values)
+{
+  int numContours = static_cast<int>(values.size());
+  this->SetNumberOfContours(numContours);
+  for (int i = 0; i < numContours; i++)
+  {
+    this->SetValue(i, values[i]);
+  }
+}
+
+/**
+ * Convenience method to get all of the contour values at once.
+ * The returned vector is a copy and cannot be used to modify
+ * contour values.
+ */
+inline std::vector<double> vtkContourFilter::GetContourValues()
+{
+  std::vector<double> contours;
+  int numContours = this->GetNumberOfContours();
+  contours.reserve(numContours);
+  for (int i = 0; i < numContours; i++)
+  {
+    contours.push_back(this->GetValue(i));
+  }
+  return contours;
 }
 
 VTK_ABI_NAMESPACE_END
