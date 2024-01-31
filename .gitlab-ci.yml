@@ -656,6 +656,7 @@ wheel-linux-python38-x86_64:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python38-x86_64:build
     needs:
@@ -667,6 +668,7 @@ wheel-linux-python38-x86_64:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python38-x86_64:build
     needs:
@@ -688,6 +690,7 @@ wheel-linux-python38-x86_64-osmesa:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python38-x86_64-osmesa:build
     needs:
@@ -699,6 +702,7 @@ wheel-linux-python38-x86_64-osmesa:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python38-x86_64-osmesa:build
     needs:
@@ -720,6 +724,7 @@ wheel-linux-python38-x86_64-egl:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python38-x86_64-egl:build
     needs:
@@ -731,6 +736,7 @@ wheel-linux-python38-x86_64-egl:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python38-x86_64-egl:build
     needs:
@@ -752,6 +758,7 @@ wheel-linux-python39-x86_64:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python39-x86_64:build
     needs:
@@ -763,6 +770,7 @@ wheel-linux-python39-x86_64:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python39-x86_64:build
     needs:
@@ -784,6 +792,7 @@ wheel-linux-python39-x86_64-osmesa:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python39-x86_64-osmesa:build
     needs:
@@ -795,6 +804,7 @@ wheel-linux-python39-x86_64-osmesa:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python39-x86_64-osmesa:build
     needs:
@@ -816,6 +826,7 @@ wheel-linux-python39-x86_64-egl:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python39-x86_64-egl:build
     needs:
@@ -827,6 +838,7 @@ wheel-linux-python39-x86_64-egl:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python39-x86_64-egl:build
     needs:
@@ -848,6 +860,7 @@ wheel-linux-python310-x86_64:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python310-x86_64:build
     needs:
@@ -859,6 +872,7 @@ wheel-linux-python310-x86_64:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python310-x86_64:build
     needs:
@@ -880,6 +894,7 @@ wheel-linux-python310-x86_64-osmesa:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python310-x86_64-osmesa:build
     needs:
@@ -891,6 +906,7 @@ wheel-linux-python310-x86_64-osmesa:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python310-x86_64-osmesa:build
     needs:
@@ -912,6 +928,7 @@ wheel-linux-python310-x86_64-egl:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python310-x86_64-egl:build
     needs:
@@ -923,6 +940,7 @@ wheel-linux-python310-x86_64-egl:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python310-x86_64-egl:build
     needs:
@@ -944,6 +962,7 @@ wheel-linux-python311-x86_64:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python311-x86_64:build
     needs:
@@ -955,6 +974,7 @@ wheel-linux-python311-x86_64:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python311-x86_64:build
     needs:
@@ -976,6 +996,7 @@ wheel-linux-python311-x86_64-osmesa:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python311-x86_64-osmesa:build
     needs:
@@ -987,6 +1008,7 @@ wheel-linux-python311-x86_64-osmesa:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python311-x86_64-osmesa:build
     needs:
@@ -1008,6 +1030,7 @@ wheel-linux-python311-x86_64-egl:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python311-x86_64-egl:build
     needs:
@@ -1019,6 +1042,7 @@ wheel-linux-python311-x86_64-egl:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python311-x86_64-egl:build
     needs:
@@ -1040,6 +1064,7 @@ wheel-linux-python312-x86_64:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python312-x86_64:build
     needs:
@@ -1051,6 +1076,7 @@ wheel-linux-python312-x86_64:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python312-x86_64:build
     needs:
@@ -1072,6 +1098,7 @@ wheel-linux-python312-x86_64-osmesa:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python312-x86_64-osmesa:build
     needs:
@@ -1083,6 +1110,7 @@ wheel-linux-python312-x86_64-osmesa:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python312-x86_64-osmesa:build
     needs:
@@ -1104,6 +1132,7 @@ wheel-linux-python312-x86_64-egl:test:
         - .cmake_test_wheel_linux
         - .linux_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python312-x86_64-egl:build
     needs:
@@ -1115,6 +1144,7 @@ wheel-linux-python312-x86_64-egl:test-x11:
         - .cmake_test_wheel_linux_x11
         - .linux_tester_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-linux-python312-x86_64-egl:build
     needs:
@@ -1933,6 +1963,7 @@ wheel-macos-python36-x86_64:test:
         - .cmake_test_wheel_macos
         - .macos_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python36-x86_64:build
     needs:
@@ -1955,6 +1986,7 @@ wheel-macos-python37-x86_64:test:
         - .cmake_test_wheel_macos
         - .macos_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python37-x86_64:build
     needs:
@@ -1977,6 +2009,7 @@ wheel-macos-python38-x86_64:test:
         - .cmake_test_wheel_macos
         - .macos_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python38-x86_64:build
     needs:
@@ -1998,6 +2031,7 @@ wheel-macos-python39-arm64:test:
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python39-arm64:build
     needs:
@@ -2020,6 +2054,7 @@ wheel-macos-python39-x86_64:test:
         - .cmake_test_wheel_macos
         - .macos_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python39-x86_64:build
     needs:
@@ -2041,6 +2076,7 @@ wheel-macos-python310-arm64:test:
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python310-arm64:build
     needs:
@@ -2063,6 +2099,7 @@ wheel-macos-python310-x86_64:test:
         - .cmake_test_wheel_macos
         - .macos_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python310-x86_64:build
     needs:
@@ -2084,6 +2121,7 @@ wheel-macos-python311-arm64:test:
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python311-arm64:build
     needs:
@@ -2106,6 +2144,7 @@ wheel-macos-python311-x86_64:test:
         - .cmake_test_wheel_macos
         - .macos_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python311-x86_64:build
     needs:
@@ -2127,6 +2166,7 @@ wheel-macos-python312-arm64:test:
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python312-arm64:build
     needs:
@@ -2149,6 +2189,7 @@ wheel-macos-python312-x86_64:test:
         - .cmake_test_wheel_macos
         - .macos_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-macos-python312-x86_64:build
     needs:
@@ -2173,6 +2214,7 @@ windows-vs2022-kits-mpi-python-qt:test:
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - windows-vs2022-kits-mpi-python-qt:build
     needs:
@@ -2325,6 +2367,7 @@ wheel-windows-python37-x86_64:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python37-x86_64:build
     needs:
@@ -2346,6 +2389,7 @@ wheel-windows-python37-x86_64-osmesa:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python37-x86_64-osmesa:build
     needs:
@@ -2367,6 +2411,7 @@ wheel-windows-python38-x86_64:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python38-x86_64:build
     needs:
@@ -2388,6 +2433,7 @@ wheel-windows-python38-x86_64-osmesa:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python38-x86_64-osmesa:build
     needs:
@@ -2409,6 +2455,7 @@ wheel-windows-python39-x86_64:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python39-x86_64:build
     needs:
@@ -2430,6 +2477,7 @@ wheel-windows-python39-x86_64-osmesa:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .merged_only
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python39-x86_64-osmesa:build
     needs:
@@ -2451,6 +2499,7 @@ wheel-windows-python310-x86_64:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python310-x86_64:build
     needs:
@@ -2472,6 +2521,7 @@ wheel-windows-python310-x86_64-osmesa:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python310-x86_64-osmesa:build
     needs:
@@ -2493,6 +2543,7 @@ wheel-windows-python311-x86_64:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python311-x86_64:build
     needs:
@@ -2514,6 +2565,7 @@ wheel-windows-python311-x86_64-osmesa:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python311-x86_64-osmesa:build
     needs:
@@ -2535,6 +2587,7 @@ wheel-windows-python312-x86_64:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python312-x86_64:build
     needs:
@@ -2556,6 +2609,7 @@ wheel-windows-python312-x86_64-osmesa:test:
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
         - .run_automatically
+        - .cdash_annotations_artifacts
     dependencies:
         - wheel-windows-python312-x86_64-osmesa:build
     needs:
