@@ -120,9 +120,13 @@ class Pipeline(object):
             return Pipeline.DATA
         return Pipeline.UNKNOWN
 
-    def execute(self):
+    def execute(self, input_data=None):
         """Execute the last algorithm in the pipeline and return its
         output."""
+        if input_data:
+            from vtkmodules.vtkCommonExecutionModel import vtkTrivialProducer
+            tp = vtkTrivialProducer(output=input_data)
+            self.first.SetInputConnection(tp.GetOutputPort())
         return self.last.execute()
 
     def __rshift__(self, rhs):
