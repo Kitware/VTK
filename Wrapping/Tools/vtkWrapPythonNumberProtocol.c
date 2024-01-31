@@ -29,59 +29,48 @@ int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, ClassInfo* classInf
     "    nullptr, // nb_invert\n"
     "    nullptr, // nb_lshift\n",
     classInfo->Name);
-  if (isVtkAlgorithm)
-  {
-    // lhs >> rhs is equivalent to:
-    // def func(lhs: vtkAlgorithm, rhs: vtkAlgorithm):
-    //   rhs.input_connection = lhs.output_port
-    //   return rhs
-    // The generated code uses wrapped C function directly without going through python properties.
-    fprintf(fp,
-      "    [](PyObject* lhs, PyObject* rhs) -> PyObject*\n"
-      "    {\n"
-      "      if (!PyObject_HasAttrString(lhs, \"GetOutputPort\"))\n"
-      "      {\n"
-      "        Py_RETURN_NOTIMPLEMENTED;\n"
-      "      }\n"
-      "      if (!PyObject_HasAttrString(rhs, \"SetInputConnection\"))\n"
-      "      {\n"
-      "        Py_RETURN_NOTIMPLEMENTED;\n"
-      "      }\n"
-      "      auto func = PyObject_GetAttrString(rhs, \"SetInputConnection\");\n"
-      "      auto placeholder = PyTuple_New(0);\n"
-      "      auto args = PyTuple_Pack(1, PyvtkAlgorithm_GetOutputPort(lhs, placeholder));\n"
-      "      PyObject_Call(func, args, nullptr);\n"
-      "      Py_DECREF(args);\n"
-      "      Py_DECREF(placeholder);\n"
-      "      Py_INCREF(rhs); // keeps rhs alive.\n"
-      "      return rhs;\n"
-      "    }, // nb_rshift\n");
-  }
-  else if (isVtkDataObject)
-  {
-    // lhs >> rhs is equivalent to:
-    // def func(lhs: vtkDataObject, rhs: vtkAlgorithm):
-    //   rhs.input_data_object = lhs
-    //   return rhs
-    fprintf(fp,
-      "    [](PyObject* lhs, PyObject* rhs) -> PyObject*\n"
-      "    {\n"
-      "      if (!PyObject_TypeCheck(lhs, vtkPythonUtil::FindClassTypeObject(\"vtkDataObject\")))\n"
-      "      {\n"
-      "        Py_RETURN_NOTIMPLEMENTED;\n"
-      "      }\n"
-      "      if (!PyObject_HasAttrString(rhs, \"SetInputDataObject\"))\n"
-      "      {\n"
-      "        Py_RETURN_NOTIMPLEMENTED;\n"
-      "      }\n"
-      "      auto func = PyObject_GetAttrString(rhs, \"SetInputDataObject\");\n"
-      "      auto args = PyTuple_Pack(1, lhs);\n"
-      "      PyObject_Call(func, args, nullptr);\n"
-      "      Py_DECREF(args);\n"
-      "      Py_INCREF(rhs); // keeps rhs alive.\n"
-      "      return rhs;\n"
-      "    }, // nb_rshift\n");
-  }
+  // lhs >> rhs is equivalent to:
+  // def func(lhs: vtkDataObject, rhs: vtkAlgorithm):
+  //   rhs.input_data_object = lhs
+  //   return rhs
+  fprintf(fp,
+    "    [](PyObject* lhs, PyObject* rhs) -> PyObject*\n"
+    "    {\n"
+    "      // Import the module\n"
+    "      PyObject *moduleName = PyUnicode_DecodeFSDefault(\"vtkmodules.util.execution_model\");\n"
+    "      PyObject *internalModule = PyImport_Import(moduleName);\n"
+    "      Py_DECREF(moduleName);\n"
+    "      PyObject *pipeline = nullptr;\n"
+    "      if (internalModule != nullptr)\n"
+    "      {\n"
+    "        // Get the class from the module\n"
+    "        PyObject *pipelineClass = PyObject_GetAttrString(internalModule, \"Pipeline\");\n"
+    "        if (pipelineClass != nullptr)\n"
+    "        {\n"
+    "          // Create an instance of the class\n"
+    "          auto args = PyTuple_Pack(2, lhs, rhs); // Pass any arguments required by your "
+    "constructor\n"
+    "          pipeline = PyObject_CallObject(pipelineClass, args);\n"
+    "          Py_XDECREF(args);\n"
+    "          if (pipeline == nullptr)\n"
+    "          {\n"
+    "            return nullptr;\n"
+    "          }\n"
+    "          Py_DECREF(pipelineClass);\n"
+    "        }\n"
+    "        else\n"
+    "        {\n"
+    "           return nullptr;\n"
+    "        }\n"
+    "        Py_DECREF(internalModule);\n"
+    "      }\n"
+    "      else\n"
+    "      {\n"
+    "        return nullptr;\n"
+    "      }\n"
+    "      return pipeline;\n"
+    "    }, // nb_rshift\n");
+
   fprintf(fp,
     "    nullptr, // nb_and\n"
     "    nullptr, // nb_xor\n"
