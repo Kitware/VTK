@@ -9,8 +9,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 void InitializeVTKm()
 {
-// Only Kokkos HIP backend needs to be initialized
-#ifdef VTKM_HIP
+// Kokkos enabled devices needs to be initialized
+#ifdef VTK_USE_KOKKOS
   static bool isInitialized{ false };
   if (!isInitialized)
   {

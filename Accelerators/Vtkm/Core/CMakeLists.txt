@@ -53,11 +53,12 @@ if (TARGET vtkm::cuda)
   vtk_module_set_properties(VTK::AcceleratorsVTKmCore CUDA_SEPARABLE_COMPILATION ON)
 
 elseif (TARGET vtkm::kokkos_cuda)
-  string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
+  add_compile_definitions(VTK_USE_KOKKOS)
   set_source_files_properties(${device_sources} PROPERTIES LANGUAGE CUDA)
   kokkos_compilation(SOURCE ${device_sources})
 
 elseif (TARGET vtkm::kokkos_hip)
+  add_compile_definitions(VTK_USE_KOKKOS)
   set_source_files_properties(${device_sources} PROPERTIES LANGUAGE HIP)
   kokkos_compilation(SOURCE ${device_sources})
 endif ()
