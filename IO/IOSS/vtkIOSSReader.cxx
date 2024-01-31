@@ -228,20 +228,7 @@ public:
    */
   void ClearCache() { this->Cache.Clear(); }
   void ResetCacheAccessCounts() { this->Cache.ResetAccessCounts(); }
-  void ClearCacheUnused()
-  {
-    switch (this->Format)
-    {
-      case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
-        // For Catalyst, we don't want to hold on to the cache for longer than
-        // the RequestData pass. For we clear it entirely here.
-        this->Cache.Clear();
-        break;
-      default:
-        this->Cache.ClearUnused();
-        break;
-    }
-  }
+  void ClearCacheUnused() { this->Cache.ClearUnused(); }
   ///@}
 
   /**
@@ -2807,6 +2794,7 @@ vtkInformationKeyMacro(vtkIOSSReader, ENTITY_ID, Integer);
 //----------------------------------------------------------------------------
 vtkIOSSReader::vtkIOSSReader()
   : Controller(nullptr)
+  , Caching(false)
   , MergeExodusEntityBlocks(false)
   , ElementAndSideIds(true)
   , GenerateFileId(false)
@@ -2896,6 +2884,17 @@ void vtkIOSSReader::SetScanForRelatedFiles(bool val)
     this->ScanForRelatedFiles = val;
     auto& internals = (*this->Internals);
     internals.FileNamesMTime.Modified();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::SetCaching(bool val)
+{
+  if (this->Caching != val)
+  {
+    this->Internals->ClearCache();
+    this->Caching = val;
     this->Modified();
   }
 }
@@ -3231,7 +3230,17 @@ int vtkIOSSReader::ReadMesh(
     }
   }
 
-  internals.ClearCacheUnused();
+  if (!this->GetCaching() ||
+    internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::CATALYST)
+  {
+    // We don't want to hold on to the cache for longer than the RequestData pass.
+    // For we clear it entirely here.
+    internals.ClearCache();
+  }
+  else
+  {
+    internals.ClearCacheUnused();
+  }
   internals.ReleaseRegions();
   return 1;
 }
