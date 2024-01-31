@@ -66,12 +66,12 @@
 #include <utility>
 
 VTK_ABI_NAMESPACE_BEGIN
-struct DatabaseParitionInfo
+struct DatabasePartitionInfo
 {
   int ProcessCount = 0;
   std::set<int> Ranks;
 
-  bool operator==(const DatabaseParitionInfo& other) const
+  bool operator==(const DatabasePartitionInfo& other) const
   {
     return this->ProcessCount == other.ProcessCount && this->Ranks == other.Ranks;
   }
@@ -177,7 +177,7 @@ class vtkIOSSReader::vtkInternals
 
   double DisplacementMagnitude = 1.;
 
-  using DatabaseNamesType = std::map<std::string, DatabaseParitionInfo>;
+  using DatabaseNamesType = std::map<std::string, DatabasePartitionInfo>;
   DatabaseNamesType UnfilteredDatabaseNames;
   DatabaseNamesType DatabaseNames;
   vtkTimeStamp DatabaseNamesMTime;
@@ -808,7 +808,7 @@ bool vtkIOSSReader::vtkInternals::UpdateDatabaseNames(vtkIOSSReader* self)
     }
     else
     {
-      databases.insert(std::make_pair(fname, DatabaseParitionInfo()));
+      databases.insert(std::make_pair(fname, DatabasePartitionInfo()));
     }
   }
 
@@ -992,7 +992,7 @@ bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* 
   const auto rank = controller ? controller->GetLocalProcessId() : 0;
   const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
 
-  // This has to be done all all ranks since not all files in a database have
+  // This has to be done all ranks since not all files in a database have
   // all the blocks consequently need not have all the fields.
   std::array<std::set<vtkIOSSUtilities::EntityNameType>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES>
     entity_names;
@@ -1284,7 +1284,7 @@ bool vtkIOSSReader::vtkInternals::GenerateOutput(
     const int entity_node =
       assembly->AddNode(vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(etype));
 
-    // check if we are gonna merge all of the blocks/sets of an entity type into a single one
+    // check if we are going to merge all the blocks/sets of an entity type into a single one
     const bool mergeEntityBlocks =
       this->GetFormat() == vtkIOSSUtilities::DatabaseFormatType::EXODUS &&
       self->GetMergeExodusEntityBlocks();
@@ -3057,13 +3057,13 @@ int vtkIOSSReader::ReadMesh(
     // this should not be necessary. ReadMetaData returns false when
     // `UpdateDatabaseNames` fails. At which point vtkReaderAlgorithm should
     // never call `RequestData` leading to a call to this method. However, it
-    // does, for some reason. Hence adding this check here.
+    // does, for some reason. Hence, adding this check here.
     // ref: paraview/paraview#19951.
     return 0;
   }
 
   // This is the first method that gets called when generating data.
-  // Reset internal cache counters so we can flush fields not accessed.
+  // Reset internal cache counters, so we can flush fields not accessed.
   internals.ResetCacheAccessCounts();
 
   auto collection = vtkPartitionedDataSetCollection::SafeDownCast(output);
@@ -3116,7 +3116,7 @@ int vtkIOSSReader::ReadMesh(
     internals.ReadAssemblies(collection, dbaseHandles[0]);
   }
 
-  // check if we are gonna merge all of the blocks/sets of an entity type into a single one
+  // check if we are going to merge all the blocks/sets of an entity type into a single one
   const bool mergeEntityBlocks =
     internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::EXODUS &&
     this->GetMergeExodusEntityBlocks();
