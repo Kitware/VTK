@@ -334,7 +334,7 @@ template <typename ArrayHandleType>
 auto TransformForScalarRange(const ArrayHandleType& src,
   const vtkm::cont::ArrayHandle<vtkm::UInt8>& ghost, vtkm::UInt8 ghostValueToSkip, bool finitesOnly)
 {
-  DecoratorForScalarRanage decorator{ ghostValueToSkip, finitesOnly };
+  DecoratorForScalarRanage decorator{ DecoratorParameters{ ghostValueToSkip, finitesOnly } };
   return vtkm::cont::make_ArrayHandleDecorator(src.GetNumberOfValues(), decorator, src, ghost);
 }
 
@@ -342,7 +342,7 @@ template <typename ArrayHandleType>
 auto TransformForVectorRange(const ArrayHandleType& src,
   const vtkm::cont::ArrayHandle<vtkm::UInt8>& ghost, vtkm::UInt8 ghostValueToSkip, bool finitesOnly)
 {
-  DecoratorForVectorRanage decorator{ ghostValueToSkip, finitesOnly };
+  DecoratorForVectorRanage decorator{ DecoratorParameters{ ghostValueToSkip, finitesOnly } };
   return vtkm::cont::make_ArrayHandleDecorator(src.GetNumberOfValues(), decorator, src, ghost);
 }
 

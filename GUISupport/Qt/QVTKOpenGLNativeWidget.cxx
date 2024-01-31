@@ -209,6 +209,8 @@ void QVTKOpenGLNativeWidget::initializeGL()
     ostate->Reset();
     // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL
     ostate->vtkglDepthFunc(GL_LEQUAL);
+    // By default, Qt disables the depth test but VTK expects it to be enabled.
+    ostate->vtkglEnable(GL_DEPTH_TEST);
 
     // When a QOpenGLWidget is told to use a QSurfaceFormat with samples > 0,
     // QOpenGLWidget doesn't actually create a context with multi-samples and

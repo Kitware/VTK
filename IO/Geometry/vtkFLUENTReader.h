@@ -153,7 +153,7 @@ protected:
   virtual int GetDataChunk();
   virtual void GetSpeciesVariableNames();
 
-  virtual void ParseCaseFile();
+  virtual bool ParseCaseFile();
   virtual int GetDimension();
   virtual void GetLittleEndianFlag();
   virtual void GetNodesAscii();
@@ -161,7 +161,7 @@ protected:
   virtual void GetNodesDoublePrecision();
   virtual void GetCellsAscii();
   virtual void GetCellsBinary();
-  virtual void GetFacesAscii();
+  virtual bool GetFacesAscii();
   virtual void GetFacesBinary();
   virtual void GetPeriodicShadowFacesAscii();
   virtual void GetPeriodicShadowFacesBinary();
@@ -240,6 +240,8 @@ protected:
 private:
   vtkFLUENTReader(const vtkFLUENTReader&) = delete;
   void operator=(const vtkFLUENTReader&) = delete;
+
+  bool Parsed = false;
 };
 VTK_ABI_NAMESPACE_END
 #endif
