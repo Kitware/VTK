@@ -156,6 +156,13 @@ if (@vtk_opengl_preference_set@) # vtk_opengl_preference_set
   set(OpenGL_GL_PREFERENCE "@vtk_opengl_preference@")
 endif ()
 
+# Ensure that python is found based on location, not on version
+# See https://cmake.org/cmake/help/latest/module/FindPython.html
+if (DEFINED Python3_FIND_STRATEGY)
+  set("${CMAKE_FIND_PACKAGE_NAME}_Python3_FIND_STRATEGY_save" "${Python3_FIND_STRATEGY}")
+endif ()
+set(Python3_FIND_STRATEGY LOCATION)
+
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-find-packages.cmake")
 
 if (@vtk_opengl_preference_set@) # vtk_opengl_preference_set
@@ -165,6 +172,13 @@ if (@vtk_opengl_preference_set@) # vtk_opengl_preference_set
   else ()
     unset(OpenGL_GL_PREFERENCE)
   endif ()
+endif ()
+
+if (DEFINED "${CMAKE_FIND_PACKAGE_NAME}_Python3_FIND_STRATEGY_save")
+  set(Python3_FIND_STRATEGY "${${CMAKE_FIND_PACKAGE_NAME}_Python3_FIND_STRATEGY_save}")
+  unset("${CMAKE_FIND_PACKAGE_NAME}_Python3_FIND_STRATEGY_save")
+else ()
+  unset(Python3_FIND_STRATEGY)
 endif ()
 
 if (TARGET VTK::opengl)
