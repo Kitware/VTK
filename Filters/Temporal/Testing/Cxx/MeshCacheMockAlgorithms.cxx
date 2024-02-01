@@ -4,6 +4,7 @@
 #include "MeshCacheMockAlgorithms.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObjectMeshCache.h"
 #include "vtkIdTypeArray.h"
@@ -16,7 +17,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-constexpr int NB_OF_POINTS = 3;
+constexpr int NB_OF_POINTS = 4;
 
 /************************************************************************
  * vtkStaticDataSource
@@ -34,11 +35,18 @@ vtkStaticDataSource::vtkStaticDataSource()
   points->SetPoint(0, 0.0, 0.0, 0.0);
   points->SetPoint(1, 1.0, 0.0, 0.0);
   points->SetPoint(2, 0.0, 1.0, 0.0);
+  points->SetPoint(3, 1.0, 1.0, 1.0);
+
   vtkNew<vtkCellArray> cells;
-  cells->InsertNextCell(numberOfPoints);
+  cells->InsertNextCell(3);
   cells->InsertCellPoint(0);
   cells->InsertCellPoint(1);
   cells->InsertCellPoint(2);
+
+  cells->InsertNextCell(3);
+  cells->InsertCellPoint(1);
+  cells->InsertCellPoint(2);
+  cells->InsertCellPoint(3);
 
   this->SourceOutput->SetPoints(points);
   this->SourceOutput->SetPolys(cells);
@@ -49,6 +57,13 @@ vtkStaticDataSource::vtkStaticDataSource()
   this->SourceOutput->GetPointData()->SetGlobalIds(ids);
   auto idsRange = vtk::DataArrayValueRange(ids);
   std::iota(idsRange.begin(), idsRange.end(), 0);
+
+  vtkCellData* cd = this->SourceOutput->GetCellData();
+  vtkNew<vtkUnsignedCharArray> ghostCells;
+  ghostCells->SetName(vtkDataSetAttributes::GhostArrayName());
+  ghostCells->InsertNextValue(0);
+  ghostCells->InsertNextValue(vtkDataSetAttributes::HIDDENCELL);
+  cd->AddArray(ghostCells);
 }
 
 //------------------------------------------------------------------------------
@@ -62,6 +77,11 @@ int vtkStaticDataSource::RequestData(
   auto dataRange = vtk::DataArrayValueRange(data);
   std::iota(dataRange.begin(), dataRange.end(), this->StartData);
 
+  if (!this->GenerateGhosts)
+  {
+    this->SourceOutput->GetCellData()->Initialize();
+  }
+
   vtkPolyData* output = vtkPolyData::GetData(outputVector);
   output->ShallowCopy(this->SourceOutput);
 
@@ -73,6 +93,17 @@ void vtkStaticDataSource::MarkMeshModified()
 {
   this->SourceOutput->GetPoints()->Modified();
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkStaticDataSource::MarkGhostsModified()
+{
+  vtkCellData* cd = this->SourceOutput->GetCellData();
+  auto ghostCells = cd->GetArray(vtkDataSetAttributes::GhostArrayName());
+  if (ghostCells)
+  {
+    ghostCells->Modified();
+  }
 }
 
 /************************************************************************

@@ -36,6 +36,7 @@ class vtkStaticDataSource : public vtkPolyDataAlgorithm
 {
   vtkNew<vtkPolyData> SourceOutput;
   int StartData = 0;
+  bool GenerateGhosts = false;
 
 public:
   vtkTypeMacro(vtkStaticDataSource, vtkPolyDataAlgorithm);
@@ -45,6 +46,10 @@ public:
   ~vtkStaticDataSource() override = default;
 
   vtkSetMacro(StartData, int);
+
+  vtkSetMacro(GenerateGhosts, bool);
+
+  void MarkGhostsModified();
 
   int RequestData(
     vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
