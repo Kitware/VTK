@@ -4,7 +4,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkMath.h"
-// #include "vtkNumberToString.h"
+#include "vtkNumberToString.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
@@ -13,11 +13,6 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-
-// clang-format off
-#include "vtk_doubleconversion.h"
-#include VTK_DOUBLECONVERSION_HEADER(double-conversion.h)
-// clang-format on
 
 #include <cmath>
 #include <limits>
@@ -464,33 +459,13 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
           snprintf(string, sizeof(string), this->LabelFormat, val);
           this->LabelMappers[i]->SetInput(string);
         }
-        else if (this->GetNotation() == 1)
-        {
-          constexpr int flags = double_conversion::DoubleToStringConverter::UNIQUE_ZERO |
-            double_conversion::DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN;
-          double_conversion::DoubleToStringConverter converter(
-            flags, "Infinity", "NaN", 'e', 0, 999, 999, 0);
-
-          std::array<char, 256> buf;
-          double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
-          builder.Reset();
-          converter.ToExponential(val, this->GetPrecision(), &builder);
-          const std::string input = builder.Finalize();
-          this->LabelMappers[i]->SetInput(input.c_str());
-        }
         else
         {
-          constexpr int flags = double_conversion::DoubleToStringConverter::UNIQUE_ZERO |
-            double_conversion::DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN;
-          double_conversion::DoubleToStringConverter converter(
-            flags, "Infinity", "NaN", 'e', 0, 999, 999, 0);
-
-          std::array<char, 256> buf;
-          double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
-          builder.Reset();
-          converter.ToFixed(val, this->GetPrecision(), &builder);
-          const std::string input = builder.Finalize();
-          this->LabelMappers[i]->SetInput(input.c_str());
+          vtkNumberToString converter;
+          converter.SetNotation(this->GetNotation());
+          converter.SetPrecision(this->GetPrecision());
+          std::string formattedString = converter.Convert(val);
+          this->LabelMappers[i]->SetInput(formattedString.c_str());
         }
       }
 

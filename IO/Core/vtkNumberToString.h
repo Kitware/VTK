@@ -95,7 +95,9 @@ public:
    * Mixed (0) will choose between fixed-point and scientific notation
    * depending on HighExponent and LowExponent.
    * Scientific (1) will always use scientific notation
-   * Fixed (2) will always use fixed-point notation
+   * Fixed (2) will always use fixed-point notation.
+   * Note that Fixed can't be used for values that have more than 60 digits either
+   * before or after the decimal point.
    * Default is 0 (Mixed)
    */
   void SetNotation(int notation);

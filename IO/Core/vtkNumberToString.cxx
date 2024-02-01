@@ -112,6 +112,7 @@ std::string vtkNumberToString::Convert(double val)
   return builder.Finalize();
 }
 
+//------------------------------------------------------------------------------
 std::string vtkNumberToString::Convert(float val)
 {
   // Copied from double-conversion::EcmaScriptConverter
@@ -135,7 +136,7 @@ std::string vtkNumberToString::Convert(float val)
   }
   else
   {
-    converter.ToShortest(val, &builder);
+    converter.ToShortestSingle(val, &builder);
   }
   return builder.Finalize();
 }

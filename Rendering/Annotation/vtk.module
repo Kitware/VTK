@@ -16,10 +16,9 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::RenderingCore
 PRIVATE_DEPENDS
-  VTK::ChartsCore
   VTK::CommonMath
   VTK::CommonTransforms
-  VTK::doubleconversion
+  VTK::IOCore
   VTK::FiltersCore
   VTK::FiltersGeneral
   VTK::FiltersSources
