@@ -238,18 +238,12 @@ private:
   vtkDataObjectMeshCache(const vtkDataObjectMeshCache&) = delete;
   void operator=(const vtkDataObjectMeshCache&) = delete;
 
-  /**
-   * Get the reference mesh time.
-   */
-  vtkMTimeType GetMeshTime(vtkDataSet* dataset) const;
+  vtkDataObject* GetOriginalDataObject() const;
+
   /**
    * Get the OriginalDataSet mesh time.
    */
   vtkMTimeType GetOriginalMeshTime() const;
-  /**
-   * Return the max mesh time for composite leaves.
-   */
-  vtkMTimeType GetOriginalCompositeMaxMeshTime() const;
 
   /**
    * Return true if the cached dataobject has the required ids arrays.
@@ -258,18 +252,11 @@ private:
    * @sa SetOriginalIdsName HasRequestedIds
    */
   bool CacheHasRequestedIds() const;
-  /**
-   * Return true if the data object have the requested ids arrays.
-   * @sa SetOriginalIdsName.
-   */
-  bool HasRequestedIds(vtkDataObject* dataobject) const;
 
   /**
-   * Return true if the dataset is of a supported type.
-   * vtkPolyData and vtkUnstructuredGrid are supported for now.
+   * Clear all dataset attributes from given data object.
    */
-  bool IsSupportedDataSet(vtkDataObject* dataset) const;
-  bool IsSupportedComposite(vtkDataObject* data) const;
+  void ClearAttributes(vtkDataObject*);
 
   vtkWeakPointer<vtkObject> Consumer;
   vtkSmartPointer<vtkDataObject> Cache;
