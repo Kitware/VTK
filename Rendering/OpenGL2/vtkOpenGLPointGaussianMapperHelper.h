@@ -5,14 +5,17 @@
 #define vtkOpenGLPointGaussianMapperHelper_h
 
 #include "vtkOpenGLPolyDataMapper.h"
-#include "vtkPointGaussianMapper.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkPointGaussianMapper;
+
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPointGaussianMapperHelper : public vtkOpenGLPolyDataMapper
 {
 public:
   static vtkOpenGLPointGaussianMapperHelper* New();
   vtkTypeMacro(vtkOpenGLPointGaussianMapperHelper, vtkOpenGLPolyDataMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkPointGaussianMapper* Owner;
 
