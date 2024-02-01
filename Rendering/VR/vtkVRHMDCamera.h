@@ -46,6 +46,22 @@ protected:
   virtual void UpdateWorldToEyeMatrices(vtkRenderer*) = 0;
   virtual void UpdateEyeToProjectionMatrices(vtkRenderer*) = 0;
 
+  /**
+   * Compute the projection transform for the VR head-mounted display (HMD) camera.
+   *
+   * If the HMD tracking is enabled (GetTrackHMD() returns true), the function ignores
+   * the aspect argument provided and uses the left or right eye matrices explicitly
+   * created for the VR viewport.
+   *
+   * If HMD tracking is disabled, the default projection transform computation from
+   * vtkCamera is used.
+   *
+   * @warning This method should only be used within `vtkCamera.cxx`.
+   *
+   * @sa vtkCamera::ComputeProjectionTransform, vtkVRCamera::SetTrackHMD
+   */
+  void ComputeProjectionTransform(double aspect, double nearz, double farz) override;
+
   // all the matrices below are stored in VTK convention
   // as A = Mx where x is a column vector.
 
