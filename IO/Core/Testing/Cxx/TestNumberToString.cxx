@@ -5,6 +5,7 @@
 
 #include "vtkNumberToString.h"
 #include "vtkTypeTraits.h"
+#include <cmath>
 #include <limits>
 #include <sstream>
 #include <vtkMinimalStandardRandomSequence.h>
@@ -14,6 +15,8 @@ template <typename T>
 int TestConvertPrecision(unsigned int samples);
 template <typename T>
 int TestConvertLowHigh(unsigned int samples);
+template <typename T>
+int TestConvertNotations(unsigned int samples);
 template <typename T>
 int ConvertNumericLimitsValue(const char* t, T);
 }
@@ -67,6 +70,11 @@ int TestNumberToString(int, char*[])
   }
 
   if (TestConvertLowHigh<float>(samples) || TestConvertLowHigh<double>(samples))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (TestConvertNotations<float>(samples) || TestConvertNotations<double>(samples))
   {
     return EXIT_FAILURE;
   }
@@ -159,6 +167,48 @@ int TestConvertLowHigh(unsigned int samples)
         if (convertedValue != value)
         {
           std::cout << "ERROR: " << value << " != " << convertedValue << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+template <typename T>
+int TestConvertNotations(unsigned int samples)
+{
+  for (int precision = 1; precision <= 10; precision++)
+  {
+    for (int notation = vtkNumberToString::Notation::Scientific;
+         notation <= vtkNumberToString::Notation::Fixed; notation++)
+    {
+      std::cout << "Testing notation: " << notation << ", precision: " << precision << "."
+                << std::endl;
+      vtkNumberToString converter;
+      converter.SetNotation(notation);
+      converter.SetPrecision(precision);
+      vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+        vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+      for (unsigned int i = 0; i < samples; ++i)
+      {
+        randomSequence->Next();
+        T value = randomSequence->GetRangeValue(
+          std::numeric_limits<T>::min() * 2, std::numeric_limits<T>::max() / 2);
+
+        if (notation == vtkNumberToString::Notation::Fixed && value > 9e59 || value > 9e-59)
+        {
+          continue; // Fixed-point can't have more than 60 characters before point.
+        }
+        std::string str = converter.Convert(value);
+        T convertedValue = std::stod(str);
+        T acceptablePrecision =
+          2 * std::pow(10, std::floor(std::log10(convertedValue)) - precision);
+        if (std::abs(convertedValue - value) >= acceptablePrecision)
+        {
+          std::cout << "ERROR: " << value << " - " << convertedValue << "<" << acceptablePrecision
+                    << std::endl;
           return EXIT_FAILURE;
         }
       }
