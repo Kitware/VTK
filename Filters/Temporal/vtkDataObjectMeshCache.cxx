@@ -178,6 +178,18 @@ struct ClearAttributesWorker : public GenericDataObjectWorker
     }
   }
 };
+
+/**
+ * Worker to count number of datasets.
+ */
+struct NumberOfDataSetWorker : public GenericDataObjectWorker
+{
+  ~NumberOfDataSetWorker() override = default;
+
+  void ComputeDataSet(vtkDataSet* vtkNotUsed(dataset)) override { this->NumberOfDataSets++; }
+  vtkIdType NumberOfDataSets = 0;
+};
+
 //------------------------------------------------------------------------------
 void vtkDataObjectMeshCache::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -303,6 +315,7 @@ void vtkDataObjectMeshCache::UpdateCache(vtkDataObject* output)
   this->Cache->ShallowCopy(output);
   this->CachedOriginalMeshTime = this->GetOriginalMeshTime();
   this->CachedConsumerTime = this->Consumer->GetMTime();
+
   vtkDebugMacro(" update Cache: " << this->Cache.GetPointer());
   this->Modified();
 }
@@ -318,7 +331,11 @@ void vtkDataObjectMeshCache::InvalidateCache()
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkDataObjectMeshCache::GetNumberOfDataSets(vtkDataObject* dataobject) const
 {
+  NumberOfDataSetWorker countWorker;
+  countWorker.Compute(dataobject);
+  return countWorker.NumberOfDataSets;
 }
 
 //------------------------------------------------------------------------------
@@ -384,6 +401,13 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
   if (!status.ConsumerUnmodified)
   {
     vtkDebugMacro("Consumer modification time has changed.");
+  }
+
+  status.OriginalMeshUnmodified = this->GetNumberOfDataSets(this->Cache) ==
+    this->GetNumberOfDataSets(this->GetOriginalDataObject());
+  if (!status.OriginalMeshUnmodified)
+  {
+    vtkDebugMacro("Input structure has changed.");
   }
 
   auto originalMeshMTime = this->GetOriginalMeshTime();

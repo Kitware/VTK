@@ -238,12 +238,23 @@ private:
   vtkDataObjectMeshCache(const vtkDataObjectMeshCache&) = delete;
   void operator=(const vtkDataObjectMeshCache&) = delete;
 
+  /**
+   * Get the original dataobject.
+   */
   vtkDataObject* GetOriginalDataObject() const;
 
   /**
    * Get the OriginalDataSet mesh time.
    */
   vtkMTimeType GetOriginalMeshTime() const;
+
+  /**
+   * Return the number of datasets contained in dataobject.
+   * Return 1 if dataobject is itself a vtkDataSet.
+   * Return the number of non empty dataset leaves for a composite.
+   * Return 0 otherwise.
+   */
+  vtkIdType GetNumberOfDataSets(vtkDataObject* dataobject) const;
 
   /**
    * Return true if the cached dataobject has the required ids arrays.
