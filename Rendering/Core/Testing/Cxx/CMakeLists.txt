@@ -98,6 +98,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestSplitViewportStereoHorizontal.cxx
   TestStereoBackgroundLeft.cxx
   TestStereoBackgroundRight.cxx
+  TestStereoEyeSeparation.cxx
   TestTexturedBackground.cxx
   TestTexturedCylinder.cxx
   TestTextureRGBA.cxx
