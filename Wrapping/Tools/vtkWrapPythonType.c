@@ -818,10 +818,11 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
       "  PyTypeObject *pytype = PyVTKSpecialType_Add(\n"
       "    &Py%s_Type,\n"
       "    Py%s_Methods,\n"
+      "    Py%s_GetSets,\n"
       "    Py%s_%*.*s_Methods,\n"
       "    &Py%s_CCopy);\n"
       "\n",
-      classname, classname, classname, (int)n, (int)n, constructor, classname);
+      classname, classname, classname, classname, (int)n, (int)n, constructor, classname);
   }
   else if (constructor)
   {
@@ -829,10 +830,11 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
       "  PyTypeObject *pytype = PyVTKSpecialType_Add(\n"
       "    &Py%s_Type,\n"
       "    Py%s_Methods,\n"
+      "    Py%s_GetSets,\n"
       "    Py%s_%*.*s_Methods,\n"
       "    nullptr);\n"
       "\n",
-      classname, classname, classname, (int)n, (int)n, constructor);
+      classname, classname, classname, classname, (int)n, (int)n, constructor);
   }
   else
   {
@@ -840,10 +842,11 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
       "  PyTypeObject *pytype = PyVTKSpecialType_Add(\n"
       "    &Py%s_Type,\n"
       "    Py%s_Methods,\n"
+      "    Py%s_GetSets,\n"
       "    nullptr,\n"
       "    nullptr);\n"
       "\n",
-      classname, classname);
+      classname, classname, classname);
   }
 
   /* if type is already ready, then return */

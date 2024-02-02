@@ -60,8 +60,8 @@ VTK_ABI_NAMESPACE_END
 extern "C"
 {
   VTKWRAPPINGPYTHONCORE_EXPORT
-  PyTypeObject* PyVTKSpecialType_Add(
-    PyTypeObject* pytype, PyMethodDef* methods, PyMethodDef* constructors, vtkcopyfunc copyfunc);
+  PyTypeObject* PyVTKSpecialType_Add(PyTypeObject* pytype, PyMethodDef* methods,
+    PyGetSetDef* getsets, PyMethodDef* constructors, vtkcopyfunc copyfunc);
 
   VTKWRAPPINGPYTHONCORE_EXPORT
   PyObject* PyVTKSpecialObject_New(const char* classname, void* ptr);

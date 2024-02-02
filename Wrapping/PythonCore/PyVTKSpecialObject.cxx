@@ -234,8 +234,8 @@ PyObject* PyVTKSpecialObject_CopyNew(const char* classname, const void* ptr)
 //------------------------------------------------------------------------------
 // Add a special type, add methods and members to its type object.
 // A return value of nullptr signifies that it was already added.
-PyTypeObject* PyVTKSpecialType_Add(
-  PyTypeObject* pytype, PyMethodDef* methods, PyMethodDef* constructors, vtkcopyfunc copyfunc)
+PyTypeObject* PyVTKSpecialType_Add(PyTypeObject* pytype, PyMethodDef* methods, PyGetSetDef* getsets,
+  PyMethodDef* constructors, vtkcopyfunc copyfunc)
 {
   // Check whether the type is already in the map (use classname as key),
   // and return it if so.  If not, then add it to the map.
@@ -256,6 +256,14 @@ PyTypeObject* PyVTKSpecialType_Add(
     PyObject* func = PyVTKMethodDescriptor_New(pytype, meth);
     PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
     Py_DECREF(func);
+  }
+
+  // Add all of the getsets
+  for (PyGetSetDef* getset = getsets; getset && getset->name; getset++)
+  {
+    PyObject* descr = PyDescr_NewGetSet(pytype, getset);
+    PyDict_SetItemString(pytype->tp_dict, getset->name, descr);
+    Py_DECREF(descr);
   }
 
   return pytype;

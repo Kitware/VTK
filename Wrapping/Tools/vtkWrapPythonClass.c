@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWrapPythonClass.h"
+#include "vtkParseProperties.h"
 #include "vtkWrapPythonConstant.h"
 #include "vtkWrapPythonEnum.h"
 #include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonMethodDef.h"
+#include "vtkWrapPythonProperty.h"
 #include "vtkWrapPythonTemplate.h"
 #include "vtkWrapPythonType.h"
 
@@ -337,8 +339,8 @@ static void vtkWrapPython_GenerateObjectNew(
     "PyObject *Py%s_ClassNew()\n"
     "{\n"
     "  PyTypeObject *pytype = PyVTKClass_Add(\n"
-    "    &Py%s_Type, Py%s_Methods,\n",
-    classname, classname, classname);
+    "    &Py%s_Type, Py%s_Methods, Py%s_GetSets,\n",
+    classname, classname, classname, classname);
 
   if (strcmp(data->Name, classname) == 0)
   {
@@ -584,8 +586,18 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
     }
   }
 
+  /* The call to generate methods below erases some occurrences, so parse all properties before
+   * methods are generated */
+  ClassProperties* properties = vtkParseProperties_Create(data, hinfo);
+
   /* now output all the methods are wrappable */
   vtkWrapPython_GenerateMethods(fp, classname, data, file_info, hinfo, is_vtkobject, 0);
+
+  /* now output all the property getters and setters */
+  vtkWrapPython_GenerateProperties(fp, classname, data, hinfo, properties, is_vtkobject);
+
+  /* Free properties */
+  vtkParseProperties_Free(properties);
 
   /* output the class initialization function for VTK objects */
   if (is_vtkobject)

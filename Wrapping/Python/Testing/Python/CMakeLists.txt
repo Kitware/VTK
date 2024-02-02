@@ -11,6 +11,7 @@ set(python_tests
   TestChar.py
   TestErrorObserver.py
   TestPickleSupport.py
+  TestProperty.py
 )
 
 if (TARGET vtkpythonmodules_pyi)

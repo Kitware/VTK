@@ -83,6 +83,7 @@ if (NOT TARGET WrapPython)
     vtkWrapPythonMethodDef.c
     vtkWrapPythonNamespace.c
     vtkWrapPythonOverload.c
+    vtkWrapPythonProperty.c
     vtkWrapPythonTemplate.c
     vtkWrapPythonType.c)
   target_link_libraries(WrapPython

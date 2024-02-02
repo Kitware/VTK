@@ -130,8 +130,8 @@ static PyMethodDef PyVTKClass_override_def = { "override", PyVTKClass_override, 
 //------------------------------------------------------------------------------
 // Add a class, add methods and members to its type object.  A return
 // value of nullptr signifies that the class was already added.
-PyTypeObject* PyVTKClass_Add(
-  PyTypeObject* pytype, PyMethodDef* methods, const char* classname, vtknewfunc constructor)
+PyTypeObject* PyVTKClass_Add(PyTypeObject* pytype, PyMethodDef* methods, PyGetSetDef* getsets,
+  const char* classname, vtknewfunc constructor)
 {
   // Check whether the type is already in the map (use classname as key),
   // and return it if so.  If not, then add it to the map.
@@ -171,6 +171,14 @@ PyTypeObject* PyVTKClass_Add(
     PyObject* func = PyDescr_NewClassMethod(pytype, &PyVTKClass_override_def);
     PyDict_SetItemString(pytype->tp_dict, PyVTKClass_override_def.ml_name, func);
     Py_DECREF(func);
+  }
+
+  // Add all of the getsets
+  for (PyGetSetDef* getset = getsets; getset && getset->name; getset++)
+  {
+    PyObject* descr = PyDescr_NewGetSet(pytype, getset);
+    PyDict_SetItemString(pytype->tp_dict, getset->name, descr);
+    Py_DECREF(descr);
   }
 
   return pytype;
