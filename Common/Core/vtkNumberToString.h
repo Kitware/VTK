@@ -6,8 +6,8 @@
  *
  * This class uses the double-conversion library to convert float and double
  * numbers to std::string without numerical precision errors.
- * You can use specify the output format using SetNotation to either Notation::Mixed,
- * Notation::Scientific or Notation::Fixed. In Mixed mode (default),
+ * You can use specify the output format using SetNotation to either Mixed,
+ * Scientific or Fixed. In Mixed mode (default),
  * it is possible to specify the low and high exponent where the string representation
  * will switch to scientific notation instead of fixed point notation.
  *
@@ -37,7 +37,7 @@
  *  #include "vtkNumberToString.h"
  *  double a = 4.2;
  *  vtkNumberToString converter;
- *  converter.SetNotation(vtkNumberToString::Notation::Scientific);
+ *  converter.SetNotation(Scientific);
  *  converter.SetPrecision(4);
  *  std::cout << converter.Convert(a) << std::endl;
  * @endcode
@@ -46,15 +46,15 @@
 #ifndef vtkNumberToString_h
 #define vtkNumberToString_h
 
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_3_0
-#include "vtkIOCoreModule.h" // For export macro
+#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkTypeTraits.h"
 
 #include <ostream>
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOCORE_EXPORT vtkNumberToString
+class VTKCOMMONCORE_EXPORT vtkNumberToString
 {
 public:
   ///@{
@@ -82,6 +82,7 @@ public:
    */
   void SetHighExponent(int highExponent);
   int GetHighExponent();
+  ///@}
 
   enum Notation
   {
@@ -90,6 +91,7 @@ public:
     Fixed
   };
 
+  ///@{
   /**
    * Set/Get the notation used for string conversion.
    * Mixed (0) will choose between fixed-point and scientific notation
@@ -102,7 +104,9 @@ public:
    */
   void SetNotation(int notation);
   int GetNotation();
+  ///@}
 
+  ///@{
   /**
    * Set/Get the floating-point precision used for string conversion.
    * The precision specifies the number of decimal places to display for
@@ -113,6 +117,7 @@ public:
    */
   void SetPrecision(int precision);
   int GetPrecision();
+  ///@}
 
   ///@{
   /**
@@ -160,12 +165,12 @@ public:
 private:
   int LowExponent = -6;
   int HighExponent = 20;
-  int Notation = Notation::Mixed;
+  int Notation = Mixed;
   int Precision = 2;
 };
 
-VTKIOCORE_EXPORT ostream& operator<<(ostream& stream, const vtkNumberToString::TagDouble& tag);
-VTKIOCORE_EXPORT ostream& operator<<(ostream& stream, const vtkNumberToString::TagFloat& tag);
+VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& stream, const vtkNumberToString::TagDouble& tag);
+VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& stream, const vtkNumberToString::TagFloat& tag);
 
 VTK_ABI_NAMESPACE_END
 #endif

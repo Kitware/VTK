@@ -18,7 +18,6 @@ set(classes
   vtkLZ4DataCompressor
   vtkLZMADataCompressor
   vtkMemoryResourceStream
-  vtkNumberToString
   vtkOutputStream
   vtkResourceParser
   vtkResourceStream

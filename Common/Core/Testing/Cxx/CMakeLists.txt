@@ -142,6 +142,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestMinimalStandardRandomSequence.cxx
   TestNew.cxx
   TestNumberOfGenerationsFromBase.cxx
+  TestNumberToString.cxx
   TestObjectFactory.cxx
   TestObservers.cxx
   TestObserversPerformance.cxx

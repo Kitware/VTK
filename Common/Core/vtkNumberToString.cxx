@@ -97,11 +97,11 @@ std::string vtkNumberToString::Convert(double val)
   double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
   builder.Reset();
 
-  if (this->GetNotation() == Notation::Scientific)
+  if (this->GetNotation() == Scientific)
   {
     converter.ToExponential(val, this->Precision, &builder);
   }
-  else if (this->GetNotation() == Notation::Fixed)
+  else if (this->GetNotation() == Fixed)
   {
     converter.ToFixed(val, this->Precision, &builder);
   }
@@ -126,11 +126,11 @@ std::string vtkNumberToString::Convert(float val)
   double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
   builder.Reset();
 
-  if (this->GetNotation() == Notation::Scientific)
+  if (this->GetNotation() == Scientific)
   {
     converter.ToExponential(val, this->Precision, &builder);
   }
-  else if (this->GetNotation() == Notation::Fixed)
+  else if (this->GetNotation() == Fixed)
   {
     converter.ToFixed(val, this->Precision, &builder);
   }

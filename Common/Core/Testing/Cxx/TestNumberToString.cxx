@@ -97,8 +97,7 @@ int TestConvertPrecision(unsigned int samples)
     // Now convert numbers to strings. Read the strings as floats and doubles
     // and compare the results with the original values.
     {
-      vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
-        vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+      vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
       for (unsigned int i = 0; i < samples; ++i)
       {
         randomSequence->Next();
@@ -155,8 +154,7 @@ int TestConvertLowHigh(unsigned int samples)
       vtkNumberToString converter;
       converter.SetLowExponent(iLow);
       converter.SetHighExponent(iHigh);
-      vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
-        vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+      vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
       for (unsigned int i = 0; i < samples; ++i)
       {
         randomSequence->Next();
@@ -181,23 +179,22 @@ int TestConvertNotations(unsigned int samples)
 {
   for (int precision = 1; precision <= 10; precision++)
   {
-    for (int notation = vtkNumberToString::Notation::Scientific;
-         notation <= vtkNumberToString::Notation::Fixed; notation++)
+    for (int notation = vtkNumberToString::Scientific; notation <= vtkNumberToString::Fixed;
+         notation++)
     {
       std::cout << "Testing notation: " << notation << ", precision: " << precision << "."
                 << std::endl;
       vtkNumberToString converter;
       converter.SetNotation(notation);
       converter.SetPrecision(precision);
-      vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
-        vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+      vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
       for (unsigned int i = 0; i < samples; ++i)
       {
         randomSequence->Next();
         T value = randomSequence->GetRangeValue(
           std::numeric_limits<T>::min() * 2, std::numeric_limits<T>::max() / 2);
 
-        if (notation == vtkNumberToString::Notation::Fixed && value > 9e59 || value > 9e-59)
+        if (notation == vtkNumberToString::Fixed && (value > 9e59 || value < 9e-59))
         {
           continue; // Fixed-point can't have more than 60 characters before point.
         }

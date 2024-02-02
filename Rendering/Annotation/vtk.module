@@ -18,7 +18,6 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonMath
   VTK::CommonTransforms
-  VTK::IOCore
   VTK::FiltersCore
   VTK::FiltersGeneral
   VTK::FiltersSources
