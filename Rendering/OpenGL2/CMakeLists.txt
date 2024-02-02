@@ -115,8 +115,9 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 
 set(nowrap_headers
-  vtkOpenGLShaderDeclaration.h
   vtkCompositeMapperHelper2.h
+  vtkOpenGLPointGaussianMapperHelper.h
+  vtkOpenGLShaderDeclaration.h
 )
 
 # add opengl support test executable on windows

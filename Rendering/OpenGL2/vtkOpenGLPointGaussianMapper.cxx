@@ -66,6 +66,19 @@ vtkOpenGLPointGaussianMapperHelper::vtkOpenGLPointGaussianMapperHelper()
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLPointGaussianMapperHelper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "UsingPoints: " << (this->UsingPoints ? "true" : "false") << endl;
+  os << indent << "BoundScale: " << this->BoundScale << endl;
+  os << indent << "FlatIndex: " << this->FlatIndex << endl;
+  os << indent << "OpacityScale: " << this->OpacityScale << endl;
+  os << indent << "ScaleScale: " << this->ScaleScale << endl;
+  os << indent << "OpacityOffset: " << this->OpacityOffset << endl;
+  os << indent << "ScaleOffset: " << this->ScaleOffset << endl;
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLPointGaussianMapperHelper::GetShaderTemplate(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
