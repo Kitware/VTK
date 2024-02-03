@@ -37,6 +37,7 @@ vtkPointGaussianMapper::~vtkPointGaussianMapper()
 {
   this->SetScaleArray(nullptr);
   this->SetOpacityArray(nullptr);
+  this->SetRotationArray(nullptr);
   this->SetSplatShaderCode(nullptr);
   this->SetScalarOpacityFunction(nullptr);
   this->SetScaleFunction(nullptr);
