@@ -14,6 +14,7 @@ set(python_tests
   TestErrorObserver.py
   TestPickleSupport.py
   TestProperty.py
+  TestUpdateAndCall.py
 )
 
 if (TARGET vtkpythonmodules_pyi)

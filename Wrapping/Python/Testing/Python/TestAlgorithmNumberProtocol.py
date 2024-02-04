@@ -58,7 +58,7 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
         self.assertIsInstance(pipeline.last.GetInputConnection(0, 0).producer, vtkPolyDataConnectivityFilter)
         self.assertEqual(pipeline.last.GetInputConnection(0, 0).producer.color_regions, True)
 
-        output = pipeline.execute()
+        output = pipeline()
         self.assertIsInstance(output, vtkPolyData)
         self.assertEqual(output.number_of_points, 23808)
         self.assertEqual(output.number_of_cells, 7936)
@@ -97,7 +97,7 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
                 .GetInputDataObject(0, 0)           # this is vtkImageData
                 .dimensions, (10, 10, 1))
 
-        output = pipeline.execute()
+        output = pipeline()
         self.assertIsInstance(output, vtkPolyData)
         self.assertEqual(output.number_of_points, 100)
         self.assertEqual(output.number_of_cells, 81)
@@ -117,16 +117,16 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
         self.assertIsInstance(pipeline.last.GetInputConnection(0, 0).producer, vtkPolyDataConnectivityFilter)
         self.assertEqual(pipeline.last.GetInputConnection(0, 0).producer.color_regions, True)
 
-        cone = vtkConeSource(radius=5, resolution=8, height=2).execute()
-        output = pipeline.execute(cone)
+        cone = vtkConeSource(radius=5, resolution=8, height=2)()
+        output = pipeline(cone)
         self.assertIsInstance(output, vtkPolyData)
         self.assertEqual(output.number_of_points, 32)
         self.assertEqual(output.number_of_cells, 9)
         self.assertEqual(output.point_data.scalars.name, "RegionId")
         self.assertEqual(output.point_data.scalars.range, (0, 8))
 
-        cylinder = vtkCylinderSource(radius=6, resolution=9, height=3).execute()
-        output = pipeline.execute(cylinder)
+        cylinder = vtkCylinderSource(radius=6, resolution=9, height=3)()
+        output = pipeline(cylinder)
         self.assertIsInstance(output, vtkPolyData)
         self.assertEqual(output.number_of_points, 54)
         self.assertEqual(output.number_of_cells, 11)
