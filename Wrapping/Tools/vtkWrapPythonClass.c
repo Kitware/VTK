@@ -273,6 +273,26 @@ void vtkWrapPython_ClassDoc(
       fprintf(
         fp, "  \"%s%s", vtkWrapText_QuoteString(temp, 500), ccp[i] == '\0' ? "\\n\"" : "\"\n");
     }
+    if (data->Name && strcmp(data->Name, "vtkAlgorithm") == 0)
+    {
+      fprintf(fp, "\n  \"vtkAlgorithm defines two additional methods in Python: \\n\\n\"\n");
+      fprintf(
+        fp, "  \"update(): This method updates the pipeline connected to this algorithm\\n\"\n");
+      fprintf(fp, "  \"and returns an Output object with an output property. This property\\n\"\n");
+      fprintf(
+        fp, "  \"provides either a single data object (for algorithms with single output\\n\"\n");
+      fprintf(fp, "  \"or a tuple (for algorithms with multiple outputs).\\n\\n\"\n");
+      fprintf(
+        fp, "  \"__call__() (or just ()): This method takes a data object as input (or\\n\"\n");
+      fprintf(fp, "  \"a tuple for repeatable inputs for algorithms such as append)\\n\"\n");
+      fprintf(fp, "  \"and returns the output the same way as update()\\n\\n\"\n");
+      fprintf(fp, "  \"vtkAlgorithm also implements the >> operator which can be used to\\n\"\n");
+      fprintf(
+        fp, "  \"connect algorithms to form pipelines. The >> operator returns a Pipeline\\n\"\n");
+      fprintf(
+        fp, "  \"object which can be used to execute the pipeline with the update() and\\n\"\n");
+      fprintf(fp, "  \"__call__() methods.\\n\"");
+    }
   }
 }
 

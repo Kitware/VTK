@@ -448,7 +448,7 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
       "        if (outputClass != nullptr)\n"
       "        {\n"
       "          // Create an instance of the class\n"
-      "          auto self_arg = PyTuple_Pack(1, self);\n"
+      "          auto* self_arg = PyTuple_Pack(1, self);\n"
       "          output = PyObject_Call(outputClass, self_arg, kwargs);\n"
       "          Py_XDECREF(self_arg);\n"
       "          if (output == nullptr)\n"
@@ -471,7 +471,10 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
       "    return output;\n"
       "  }),\n"
       "  METH_VARARGS|METH_KEYWORDS,\n"
-      "  \"update(self, **kwargs)\\n\"\n"
+      "  \"This method updates the pipeline connected to this algorithm\\n\"\n"
+      "  \"and returns an Output object with an output property. This property\\n\"\n"
+      "  \"provides either a single data object (for algorithms with single output\\n\"\n"
+      "  \"or a tuple (for algorithms with multiple outputs).\\n\"\n"
       "  },\n");
   }
 
