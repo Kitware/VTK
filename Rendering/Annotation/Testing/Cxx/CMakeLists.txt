@@ -31,6 +31,7 @@ vtk_add_test_cxx(vtkRenderingAnnotationCxxTests tests
   TestLegendBoxActor2.cxx
   TestLegendScaleActor.cxx
   TestLegendScaleActorCustomLabels.cxx
+  TestLegendScaleActorDefault.cxx
   TestPieChartActor.cxx
   TestPolarAxes.cxx
   TestScalarBar.cxx

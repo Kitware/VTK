@@ -9,10 +9,10 @@
  * render window indicate (in a variety of ways) the scale of what the camera
  * is viewing. An option also exists for displaying a scale legend.
  *
- * The axes can be programmed either to display distance scales or x-y
+ * The axes can be programmed either to display distance scales or
  * coordinate values. By default, the scales display a distance. However,
- * if you know that the view is down the z-axis, the scales can be programmed
- * to display x-y coordinate values.
+ * if you know that the view is down a scene axis, the scales can be programmed
+ * to display coordinate values.
  *
  * @warning
  * Please be aware that the axes and scale values are subject to perspective
@@ -25,7 +25,7 @@
 #ifndef vtkLegendScaleActor_h
 #define vtkLegendScaleActor_h
 
-#include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
+#include "vtkDeprecation.h" // for deprecation
 #include "vtkProp.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
@@ -61,20 +61,24 @@ public:
   enum AttributeLocation
   {
     DISTANCE = 0,
-    XY_COORDINATES = 1
+    COORDINATES = 1,
+    XY_COORDINATES = COORDINATES
   };
 
   ///@{
   /**
    * Specify the mode for labeling the scale axes. By default, the axes are
    * labeled with the distance between points (centered at a distance of
-   * 0.0). Alternatively if you know that the view is down the z-axis; the
-   * axes can be labeled with x-y coordinate values.
+   * 0.0). Alternatively if you know that the view is align with the scene axes,
+   * axes can be labeled with coordinates values.
    */
-  vtkSetClampMacro(LabelMode, int, DISTANCE, XY_COORDINATES);
+  vtkSetClampMacro(LabelMode, int, DISTANCE, COORDINATES);
   vtkGetMacro(LabelMode, int);
   void SetLabelModeToDistance() { this->SetLabelMode(DISTANCE); }
+  VTK_DEPRECATED_IN_9_4_0("This class can now determine current plane. Please use the generic "
+                          "SetLabelModeToCoordinates instead.")
   void SetLabelModeToXYCoordinates() { this->SetLabelMode(XY_COORDINATES); }
+  void SetLabelModeToCoordinates() { this->SetLabelMode(COORDINATES); }
   ///@}
 
   ///@{
@@ -206,6 +210,15 @@ public:
 
   ///@{
   /**
+   * Get/Set the origin of the data.
+   * Used only in Coordinates mode.
+   */
+  vtkSetVector3Macro(Origin, double);
+  vtkGetVector3Macro(Origin, double);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the labels text properties for the legend title and labels.
    */
   vtkGetObjectMacro(LegendTitleProperty, vtkTextProperty);
@@ -298,6 +311,15 @@ protected:
 private:
   vtkLegendScaleActor(const vtkLegendScaleActor&) = delete;
   void operator=(const vtkLegendScaleActor&) = delete;
+
+  /**
+   * Compute and set range for axis.
+   * In coordinate mode, the viewport is expected to be aligned with the scene axes.
+   * In distance mode, the sign can be inverted.
+   */
+  void UpdateAxisRange(vtkAxisActor2D* axis, vtkViewport* viewport, bool invert = false);
+
+  double Origin[3] = { 0, 0, 0 };
 };
 
 VTK_ABI_NAMESPACE_END

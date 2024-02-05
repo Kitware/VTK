@@ -41,7 +41,7 @@ int TestLegendScaleActorCustomLabels(int argc, char* argv[])
   // Create the Legend actor and configure it
   vtkNew<vtkLegendScaleActor> legendActor;
   legendActor->TopAxisVisibilityOn();
-  legendActor->SetLabelModeToXYCoordinates();
+  legendActor->SetLabelModeToCoordinates();
   legendActor->AllAxesOff();
   legendActor->RightAxisVisibilityOn();
   legendActor->BottomAxisVisibilityOn();
