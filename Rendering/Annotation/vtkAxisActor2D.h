@@ -52,8 +52,9 @@
 #include "vtkNew.h" // for vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkPolyDataMapper2D;
+class vtkPoints;
 class vtkPolyData;
+class vtkPolyDataMapper2D;
 class vtkTextMapper;
 class vtkTextProperty;
 
@@ -197,6 +198,11 @@ public:
   }
   ///@}
 
+  /**
+   * Return the positions of ticks along the axis
+   */
+  vtkPoints* GetTickPositions();
+
   ///@{
   /**
    * Set/Get the title of the scalar bar actor,
@@ -322,6 +328,14 @@ public:
   vtkGetMacro(LabelFactor, double);
   ///@}
 
+  /**
+   * Rebuild the geometry using the provided viewport,
+   * and trigger opaque geometry render only if `render` parameter is true.
+   * This is used when we need a geometry update (e.g. to draw the grid using tick positions),
+   * but the axis should not be rendered.
+   */
+  int UpdateGeometryAndRenderOpaqueGeometry(vtkViewport* viewport, bool render);
+
   ///@{
   /**
    * Draw the axis.
@@ -418,6 +432,7 @@ protected:
   double AdjustedRange[2];
   int AdjustedNumberOfLabels = 5;
   int NumberOfLabelsBuilt = 0;
+  vtkNew<vtkPoints> TicksStartPos;
 
   int Notation = 0;
   int Precision = 2;

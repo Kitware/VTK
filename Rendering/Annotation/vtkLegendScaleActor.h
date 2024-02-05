@@ -41,6 +41,7 @@ class vtkActor2D;
 class vtkTextMapper;
 class vtkPoints;
 class vtkCoordinate;
+class vtkAxisGridActorPrivate;
 
 class VTKRENDERINGANNOTATION_EXPORT vtkLegendScaleActor : public vtkProp
 {
@@ -124,6 +125,15 @@ public:
    */
   void AllAnnotationsOn();
   void AllAnnotationsOff();
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get visibility of the grid.
+   */
+  vtkSetMacro(GridVisibility, bool);
+  vtkGetMacro(GridVisibility, bool);
+  vtkBooleanMacro(GridVisibility, bool);
   ///@}
 
   ///@{
@@ -232,7 +242,9 @@ public:
   /// Set the axes text properties.
   void SetAxesTextProperty(vtkTextProperty* property);
 
-  // Set the axes 2D property
+  /**
+   *  Set the 2D property for both axis and grid
+   */
   void SetAxesProperty(vtkProperty2D* property);
 
   /**
@@ -287,6 +299,11 @@ protected:
   vtkNew<vtkAxisActor2D> TopAxis;
   vtkNew<vtkAxisActor2D> LeftAxis;
   vtkNew<vtkAxisActor2D> BottomAxis;
+
+  // Support for grid
+  vtkNew<vtkAxisGridActorPrivate> GridActor;
+  vtkNew<vtkPolyDataMapper2D> GridMapper;
+  bool GridVisibility = false;
 
   // Control the display of the axes
   vtkTypeBool RightAxisVisibility = 1;

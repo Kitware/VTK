@@ -93,6 +93,17 @@ vtkAxisActor2D::~vtkAxisActor2D()
 }
 
 //------------------------------------------------------------------------------
+int vtkAxisActor2D::UpdateGeometryAndRenderOpaqueGeometry(vtkViewport* viewport, bool render)
+{
+  this->BuildAxis(viewport);
+  if (render)
+  {
+    return this->RenderOpaqueGeometry(viewport);
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 // Build the axis, ticks, title, and labels and render.
 
 int vtkAxisActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
@@ -217,11 +228,8 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Adjust Labels: " << (this->AdjustLabels ? "On\n" : "Off\n");
 
   os << indent << "Axis Visibility: " << (this->AxisVisibility ? "On\n" : "Off\n");
-
   os << indent << "Tick Visibility: " << (this->TickVisibility ? "On\n" : "Off\n");
-
   os << indent << "Label Visibility: " << (this->LabelVisibility ? "On\n" : "Off\n");
-
   os << indent << "Title Visibility: " << (this->TitleVisibility ? "On\n" : "Off\n");
 
   os << indent << "MinorTickLength: " << this->MinorTickLength << endl;
@@ -394,6 +402,10 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
   }
 
   // Only draw the inner ticks (not the start/end ticks)
+  if (numTicks >= 2)
+  {
+    this->TicksStartPos->SetNumberOfPoints(numTicks - 2);
+  }
   for (i = 1; i < numTicks - 1; i++)
   {
     int tickLength = 0;
@@ -407,6 +419,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
     }
     xTick[0] = p1[0] + i * p21[0] * distance;
     xTick[1] = p1[1] + i * p21[1] * distance;
+    this->TicksStartPos->SetPoint(i - 1, xTick);
     pts->InsertNextPoint(xTick);
     xTick[0] = xTick[0] + tickLength * sin(theta);
     xTick[1] = xTick[1] - tickLength * cos(theta);
@@ -604,6 +617,12 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
   } // If title visible
 
   this->BuildTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkPoints* vtkAxisActor2D::GetTickPositions()
+{
+  return this->TicksStartPos;
 }
 
 //------------------------------------------------------------------------------

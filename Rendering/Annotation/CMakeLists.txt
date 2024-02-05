@@ -23,10 +23,14 @@ set(classes
   vtkSpiderPlotActor
   vtkXYPlotActor)
 
+set(private_classes
+vtkAxisGridActorPrivate)
+
 set(nowrap_headers
   vtkScalarBarActorInternal.h)
 
 vtk_module_add_module(VTK::RenderingAnnotation
   CLASSES ${classes}
+  PRIVATE_CLASSES ${private_classes}
   NOWRAP_HEADERS ${nowrap_headers})
 vtk_add_test_mangling(VTK::RenderingAnnotation)
