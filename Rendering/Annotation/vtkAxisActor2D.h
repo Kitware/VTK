@@ -138,6 +138,27 @@ public:
 
   ///@{
   /**
+   * Get/set the numerical precision to use, default is 2.
+   * Precision is only used for scientific and fixed-point notations
+   */
+  vtkSetClampMacro(Precision, int, 0, VTK_INT_MAX);
+  vtkGetMacro(Precision, int);
+  ///@}
+
+  ///@{
+  /**
+   * Get/set number notation to use.
+   * Options are:
+   *  - Mixed (0, default)
+   *  - Scientific (1)
+   *  - Fixed-point (2)
+   */
+  vtkSetClampMacro(Notation, int, 0, 2);
+  vtkGetMacro(Notation, int);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the format with which to print the labels on the scalar
    * bar.
    */
@@ -397,6 +418,9 @@ protected:
   double AdjustedRange[2];
   int AdjustedNumberOfLabels = 5;
   int NumberOfLabelsBuilt = 0;
+
+  int Notation = 0;
+  int Precision = 2;
 
   vtkTypeBool AxisVisibility = 1;
   vtkTypeBool TickVisibility = 1;

@@ -60,6 +60,30 @@ int vtkNumberToString::GetHighExponent()
 }
 
 //------------------------------------------------------------------------------
+void vtkNumberToString::SetNotation(int notation)
+{
+  this->Notation = notation;
+}
+
+//------------------------------------------------------------------------------
+int vtkNumberToString::GetNotation()
+{
+  return this->Notation;
+}
+
+//------------------------------------------------------------------------------
+void vtkNumberToString::SetPrecision(int precision)
+{
+  this->Precision = precision;
+}
+
+//------------------------------------------------------------------------------
+int vtkNumberToString::GetPrecision()
+{
+  return this->Precision;
+}
+
+//------------------------------------------------------------------------------
 std::string vtkNumberToString::Convert(double val)
 {
   // Copied from double-conversion::EcmaScriptConverter
@@ -72,10 +96,23 @@ std::string vtkNumberToString::Convert(double val)
   std::array<char, 256> buf;
   double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
   builder.Reset();
-  converter.ToShortest(val, &builder);
+
+  if (this->GetNotation() == Scientific)
+  {
+    converter.ToExponential(val, this->Precision, &builder);
+  }
+  else if (this->GetNotation() == Fixed)
+  {
+    converter.ToFixed(val, this->Precision, &builder);
+  }
+  else
+  {
+    converter.ToShortest(val, &builder);
+  }
   return builder.Finalize();
 }
 
+//------------------------------------------------------------------------------
 std::string vtkNumberToString::Convert(float val)
 {
   // Copied from double-conversion::EcmaScriptConverter
@@ -88,7 +125,19 @@ std::string vtkNumberToString::Convert(float val)
   std::array<char, 256> buf;
   double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
   builder.Reset();
-  converter.ToShortestSingle(val, &builder);
+
+  if (this->GetNotation() == Scientific)
+  {
+    converter.ToExponential(val, this->Precision, &builder);
+  }
+  else if (this->GetNotation() == Fixed)
+  {
+    converter.ToFixed(val, this->Precision, &builder);
+  }
+  else
+  {
+    converter.ToShortestSingle(val, &builder);
+  }
   return builder.Finalize();
 }
 

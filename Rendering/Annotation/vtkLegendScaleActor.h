@@ -33,6 +33,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor2D;
+class vtkProperty2D;
 class vtkTextProperty;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
@@ -172,6 +173,39 @@ public:
 
   ///@{
   /**
+   * Get/set the numerical notation for axes labels: standard, scientific or mixed (0, 1, 2).
+   * Default is 0.
+   */
+  void SetNotation(int notation);
+  int GetNotation();
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the numerical precision to use for axis labels, default is 2.
+   */
+  void SetPrecision(int val);
+  int GetPrecision();
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the number of ticks (and labels) for the horizontal axis, default is 5.
+   */
+  void SetNumberOfHorizontalLabels(int val);
+  int GetNumberOfHorizontalLabels();
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the number of ticks (and labels) for the vertical axis, default is 5.
+   */
+  void SetNumberOfVerticalLabels(int val);
+  int GetNumberOfVerticalLabels();
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the labels text properties for the legend title and labels.
    */
   vtkGetObjectMacro(LegendTitleProperty, vtkTextProperty);
@@ -184,6 +218,15 @@ public:
   ///@{
   /// Set the axes text properties.
   void SetAxesTextProperty(vtkTextProperty* property);
+
+  // Set the axes 2D property
+  void SetAxesProperty(vtkProperty2D* property);
+
+  /**
+   * Return the property used for the right axis
+   * which should be the same as the other ones if set using `SetAxesProperty`
+   */
+  vtkProperty2D* GetAxesProperty();
 
   /// Set the axes to get font size from text property.
   void SetUseFontSizeFromProperty(bool sizeFromProp);
@@ -244,8 +287,8 @@ protected:
   vtkNew<vtkPoints> LegendPoints;
   vtkNew<vtkPolyDataMapper2D> LegendMapper;
   vtkNew<vtkActor2D> LegendActor;
-  vtkTextMapper* LabelMappers[6];
-  vtkActor2D* LabelActors[6];
+  vtkNew<vtkTextMapper> LabelMappers[6];
+  vtkNew<vtkActor2D> LabelActors[6];
   vtkNew<vtkTextProperty> LegendTitleProperty;
   vtkNew<vtkTextProperty> LegendLabelProperty;
   vtkNew<vtkCoordinate> Coordinate;

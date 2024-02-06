@@ -4,9 +4,11 @@
 
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkNumberToString.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
@@ -204,6 +206,8 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Labels Built: " << this->NumberOfLabelsBuilt << "\n";
   os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
 
+  os << indent << "Label value notation: " << this->GetNotation() << "\n";
+  os << indent << "Label value precision: " << this->GetPrecision() << "\n";
   os << indent << "Label Format: " << this->LabelFormat << "\n";
   os << indent << "Font Factor: " << this->FontFactor << "\n";
   os << indent << "Label Factor: " << this->LabelFactor << "\n";
@@ -447,15 +451,28 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
       for (i = 0; i < this->AdjustedNumberOfLabels; i++)
       {
         val = this->AdjustedRange[0] + i * interval;
-        snprintf(string, sizeof(string), this->LabelFormat, val);
-        this->LabelMappers[i]->SetInput(string);
 
-        // Check if the label text has changed
-
-        if (this->LabelMappers[i]->GetMTime() > labeltime)
+        if (this->GetNotation() == 0)
         {
-          labeltime = this->LabelMappers[i]->GetMTime();
+          // Use default legend notation : don't use vtkNumberToString
+          // for the default setting in order to ensure retrocompatibility
+          snprintf(string, sizeof(string), this->LabelFormat, val);
+          this->LabelMappers[i]->SetInput(string);
         }
+        else
+        {
+          vtkNumberToString converter;
+          converter.SetNotation(this->GetNotation());
+          converter.SetPrecision(this->GetPrecision());
+          std::string formattedString = converter.Convert(val);
+          this->LabelMappers[i]->SetInput(formattedString.c_str());
+        }
+      }
+
+      // Check if the label text has changed
+      if (this->LabelMappers[i]->GetMTime() > labeltime)
+      {
+        labeltime = this->LabelMappers[i]->GetMTime();
       }
     }
 
@@ -792,7 +809,7 @@ void vtkAxisActor2D::ComputeRange(double inRange[2], double outRange[2], int vtk
     }
   }
 
-  // Adust if necessary
+  // Adjust if necessary
   if (inRange[0] > inRange[1])
   {
     sRange[0] = outRange[1];

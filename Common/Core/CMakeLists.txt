@@ -297,6 +297,7 @@ set(classes
   vtkMersenneTwister
   vtkMinimalStandardRandomSequence
   vtkMultiThreader
+  vtkNumberToString
   vtkOStrStreamWrapper
   vtkOStreamWrapper
   vtkObject

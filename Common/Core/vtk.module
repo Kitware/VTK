@@ -25,6 +25,7 @@ DEPENDS
   VTK::token
 PRIVATE_DEPENDS
   VTK::fast_float
+  VTK::doubleconversion
 OPTIONAL_DEPENDS
   VTK::loguru
 TEST_DEPENDS

@@ -13,6 +13,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
@@ -113,9 +114,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LegendLabelProperty->SetFontSize(8);
   for (int i = 0; i < 6; i++)
   {
-    this->LabelMappers[i] = vtkTextMapper::New();
     this->LabelMappers[i]->SetTextProperty(this->LegendLabelProperty);
-    this->LabelActors[i] = vtkActor2D::New();
     this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
   }
   this->LabelMappers[5]->SetTextProperty(this->LegendTitleProperty);
@@ -129,14 +128,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
 }
 
 //------------------------------------------------------------------------------
-vtkLegendScaleActor::~vtkLegendScaleActor()
-{
-  for (int i = 0; i < 6; i++)
-  {
-    this->LabelMappers[i]->Delete();
-    this->LabelActors[i]->Delete();
-  }
-}
+vtkLegendScaleActor::~vtkLegendScaleActor() = default;
 
 //------------------------------------------------------------------------------
 void vtkLegendScaleActor::SetAdjustLabels(bool adjust)
@@ -170,6 +162,25 @@ void vtkLegendScaleActor::SetAxesTextProperty(vtkTextProperty* prop)
   this->BottomAxis->SetTitleTextProperty(prop);
 
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkLegendScaleActor::SetAxesProperty(vtkProperty2D* prop)
+{
+  if (this->GetAxesProperty() != prop)
+  {
+    this->RightAxis->SetProperty(prop);
+    this->TopAxis->SetProperty(prop);
+    this->LeftAxis->SetProperty(prop);
+    this->BottomAxis->SetProperty(prop);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkProperty2D* vtkLegendScaleActor::GetAxesProperty()
+{
+  return this->RightAxis->GetProperty();
 }
 
 //------------------------------------------------------------------------------
@@ -479,6 +490,78 @@ void vtkLegendScaleActor::AllAxesOff()
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
+void vtkLegendScaleActor::SetNotation(int notation)
+{
+  if (this->GetNotation() != notation)
+  {
+    this->RightAxis->SetNotation(notation);
+    this->LeftAxis->SetNotation(notation);
+    this->TopAxis->SetNotation(notation);
+    this->BottomAxis->SetNotation(notation);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkLegendScaleActor::GetNotation()
+{
+  return this->RightAxis->GetNotation();
+}
+
+//----------------------------------------------------------------------------
+void vtkLegendScaleActor::SetPrecision(int val)
+{
+  if (this->GetPrecision() != val)
+  {
+    this->RightAxis->SetPrecision(val);
+    this->LeftAxis->SetPrecision(val);
+    this->TopAxis->SetPrecision(val);
+    this->BottomAxis->SetPrecision(val);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkLegendScaleActor::GetPrecision()
+{
+  return this->RightAxis->GetPrecision();
+}
+
+//----------------------------------------------------------------------------
+void vtkLegendScaleActor::SetNumberOfHorizontalLabels(int val)
+{
+  if (this->GetNumberOfHorizontalLabels() != val)
+  {
+    this->TopAxis->SetNumberOfLabels(val);
+    this->BottomAxis->SetNumberOfLabels(val);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkLegendScaleActor::GetNumberOfHorizontalLabels()
+{
+  return this->TopAxis->GetNumberOfLabels();
+}
+
+//----------------------------------------------------------------------------
+void vtkLegendScaleActor::SetNumberOfVerticalLabels(int val)
+{
+  if (this->GetNumberOfVerticalLabels() != val)
+  {
+    this->LeftAxis->SetNumberOfLabels(val);
+    this->RightAxis->SetNumberOfLabels(val);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkLegendScaleActor::GetNumberOfVerticalLabels()
+{
+  return this->LeftAxis->GetNumberOfLabels();
+}
+
 //------------------------------------------------------------------------------
 void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -507,6 +590,12 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Left Border Offset: " << this->LeftBorderOffset << "\n";
   os << indent << "Bottom Border Offset: " << this->BottomBorderOffset << "\n";
 
+  os << indent << "Label value notation: " << this->GetNotation() << "\n";
+  os << indent << "Label value precision: " << this->GetPrecision() << "\n";
+
+  os << indent << "Number of vertical labels: " << this->GetNumberOfVerticalLabels() << "\n";
+  os << indent << "Number of horizontal labels: " << this->GetNumberOfHorizontalLabels() << "\n";
+
   os << indent << "Legend Title Property: ";
   if (this->LegendTitleProperty)
   {
@@ -520,6 +609,15 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
   if (this->LegendLabelProperty)
   {
     os << this->LegendLabelProperty << "\n";
+  }
+  else
+  {
+    os << "(none)\n";
+  }
+  os << indent << "Axes 2D Property: ";
+  if (this->GetAxesProperty())
+  {
+    os << this->GetAxesProperty() << "\n";
   }
   else
   {

@@ -23,7 +23,6 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonMisc
-  VTK::doubleconversion
   VTK::lz4
   VTK::lzma
   VTK::utf8
