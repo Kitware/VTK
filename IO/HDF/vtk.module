@@ -23,7 +23,11 @@ PRIVATE_DEPENDS
   VTK::vtksys
   VTK::FiltersTemporal
 TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::FiltersHybrid
+  VTK::FiltersPoints
   VTK::FiltersSources
+  VTK::FiltersTemporal
   VTK::ImagingCore
   VTK::IOGeometry
   VTK::IOXML
