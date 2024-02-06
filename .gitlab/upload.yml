@@ -13,7 +13,7 @@
         - dnf install -y --setopt=install_weak_deps=False rsync openssh-clients
         - chmod 400 $RSYNC_KEY_PATH
         - ssh-keygen -y -f $RSYNC_KEY_PATH > $RSYNC_KEY_PATH.pub
-        - rsync -tv --recursive -e "ssh -i $RSYNC_KEY_PATH -o StrictHostKeyChecking=no" $RSYNC_SOURCE kitware@web.kitware.com:$RSYNC_DESTINATION/
+        - rsync -tv $RSYNC_DELETE_ARG --recursive -e "ssh -i $RSYNC_KEY_PATH -o StrictHostKeyChecking=no" $RSYNC_SOURCE kitware@web.kitware.com:$RSYNC_DESTINATION/
 
 .rsync_upload_docs:
     extends: .rsync_upload
@@ -21,6 +21,9 @@
         name: rsync-upload-docs
     variables:
         RSYNC_KEY_PATH: $RSYNC_DOCS_KEY
+        RSYNC_DELETE_ARG: --delete
+
+    interruptible: false
 
 .rsync_upload_wheel_sdk:
     extends: .rsync_upload
