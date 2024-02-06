@@ -483,9 +483,9 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
       }
 
       // Check if the label text has changed
-      if (this->LabelMappers[i]->GetMTime() > labeltime)
+      if (this->LabelMappers[this->AdjustedNumberOfLabels - 1]->GetMTime() > labeltime)
       {
-        labeltime = this->LabelMappers[i]->GetMTime();
+        labeltime = this->LabelMappers[this->AdjustedNumberOfLabels - 1]->GetMTime();
       }
     }
 
