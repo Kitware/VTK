@@ -402,7 +402,6 @@ int TestUGTransientPartitioned(
               << std::endl;
     return EXIT_FAILURE;
   }
-  std::array<int, 2> meshMTime{ 0, 0 };
 
   std::array<vtkMTimeType, 2> meshMTime{ 0, 0 };
   for (std::size_t iStep = 0; iStep < 10; ++iStep)
