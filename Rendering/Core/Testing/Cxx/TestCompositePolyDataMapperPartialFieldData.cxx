@@ -16,14 +16,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkSphereSource.h"
 
 // Test for multiblock data sets with field data arrays defined on
 // only a subset of the blocks. The expected behavior is to have
 // coloring by scalars on the blocks with the data array and coloring
 // as though scalar mapping is turned off in the blocks without the
 // data array.
-int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
+int TestCompositePolyDataMapperPartialFieldData(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =

@@ -1,11 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkCompositeDataDisplayAttributes.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkCylinderSource.h"
 #include "vtkElevationFilter.h"
 #include "vtkMath.h"
@@ -17,14 +14,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkSphereSource.h"
 
-// Test for multiblock data sets with field data arrays defined on
+// Test for multiblock data sets with point data arrays defined on
 // only a subset of the blocks. The expected behavior is to have
 // coloring by scalars on the blocks with the data array and coloring
 // as though scalar mapping is turned off in the blocks without the
 // data array.
-int TestMultiBlockPartialArrayPointData(int argc, char* argv[])
+int TestCompositePolyDataMapperPartialPointData(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -34,9 +30,6 @@ int TestMultiBlockPartialArrayPointData(int argc, char* argv[])
   win->SetInteractor(iren);
 
   // Components of the multiblock data set
-  vtkNew<vtkSphereSource> sphereSource;
-  sphereSource->SetRadius(2.0);
-
   vtkNew<vtkCylinderSource> cylinderSource;
   cylinderSource->SetRadius(1.5);
   cylinderSource->SetHeight(2.0);
@@ -50,7 +43,7 @@ int TestMultiBlockPartialArrayPointData(int argc, char* argv[])
   // Set up the multiblock data set consisting of a ring of blocks
   vtkSmartPointer<vtkMultiBlockDataSet> data = vtkSmartPointer<vtkMultiBlockDataSet>::New();
 
-  int numBlocks = 16;
+  int numBlocks = 15;
   data->SetNumberOfBlocks(numBlocks);
 
   double radius = 10.0;
@@ -66,9 +59,9 @@ int TestMultiBlockPartialArrayPointData(int argc, char* argv[])
     // Every third block does not have the color array
     if (i % 3 == 0)
     {
-      sphereSource->SetCenter(x, y, 0.0);
-      sphereSource->Update();
-      pd->DeepCopy(sphereSource->GetOutput());
+      cylinderSource->SetCenter(x, y, 0.0);
+      cylinderSource->Update();
+      pd->DeepCopy(cylinderSource->GetOutput());
       data->SetBlock(i, pd);
     }
     else
@@ -81,8 +74,8 @@ int TestMultiBlockPartialArrayPointData(int argc, char* argv[])
     pd->Delete();
   }
 
-  vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
-    vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+  vtkSmartPointer<vtkCompositePolyDataMapper> mapper =
+    vtkSmartPointer<vtkCompositePolyDataMapper>::New();
   mapper->SetInputDataObject(data);
 
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
