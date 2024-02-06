@@ -2052,6 +2052,8 @@ vtkMTimeType vtkPolyData::GetMeshMTime()
   {
     time = vtkMath::Max(this->Strips->GetMTime(), time);
   }
+  time = vtkMath::Max(this->GetGhostCellsTime(), time);
+
   return time;
 }
 

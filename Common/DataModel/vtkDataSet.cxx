@@ -1155,4 +1155,17 @@ void vtkDataSet::OnDataModified(vtkObject* source, unsigned long, void* clientda
     This->UpdateCellGhostArrayCache();
   }
 }
+
+//------------------------------------------------------------------------------
+vtkMTimeType vtkDataSet::GetGhostCellsTime()
+{
+  vtkMTimeType time = 0;
+  if (auto ghostcells = this->GetCellGhostArray())
+  {
+    time = ghostcells->GetMTime();
+  }
+
+  return time;
+}
+
 VTK_ABI_NAMESPACE_END

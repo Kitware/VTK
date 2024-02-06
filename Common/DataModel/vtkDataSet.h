@@ -545,6 +545,12 @@ protected:
   vtkNew<vtkGenericCell> GenericCell; // used by GetCell()
 
   /**
+   * Return the MTime of the ghost cells array.
+   * Return 0 if no such array.
+   */
+  vtkMTimeType GetGhostCellsTime();
+
+  /**
    * Compute the range of the scalars and cache it into ScalarRange
    * only if the cache became invalid (ScalarRangeComputeTime).
    */
