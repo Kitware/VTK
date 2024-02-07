@@ -149,11 +149,10 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
     hierarchy->SetAttribute(node, "amr_level", level);
 
     const auto numDataSets = amr->GetNumberOfDataSets(level);
-    if (numDataSets > 0)
+    // Add the composite index for each dataset in the AMR level.
+    for (unsigned int cc = 0; cc < numDataSets; ++cc)
     {
-      // since a level doesn't have a composite index (see vtkAMRInformation::GetIndex),
-      // we add composite indices for all datasets within a level.
-      hierarchy->AddDataSetIndex(node, amr->GetCompositeIndex(level, 0));
+      hierarchy->AddDataSetIndex(node, amr->GetCompositeIndex(level, cc));
     }
     hierarchy->SetAttribute(node, "number_of_datasets", numDataSets);
     if (output)
@@ -164,6 +163,8 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
       {
         output->SetPartition(level, cc, amr->GetDataSet(level, cc));
       }
+      output->GetMetaData(level)->Set(
+        vtkCompositeDataSet::NAME(), "Level " + std::to_string(level));
     }
   }
 
