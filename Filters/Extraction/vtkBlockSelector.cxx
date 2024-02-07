@@ -12,7 +12,6 @@
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStringArray.h"
-#include "vtkUniformGridAMRDataIterator.h"
 
 #include <set>
 #include <string>
