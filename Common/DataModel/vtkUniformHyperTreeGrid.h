@@ -73,11 +73,11 @@ public:
   void SetGridScale(double);
 
   /**
-   * Return a pointer to the geometry bounding box in the form
+   * Return a pointer to the grid bounding box in the form
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetGridBounds(double bounds[6]) override;
 
   ///@{
   /**
