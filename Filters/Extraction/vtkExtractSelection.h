@@ -5,14 +5,23 @@
  * @brief   extract a subset from a vtkDataSet.
  *
  * vtkExtractSelection extracts some subset of cells and points from
- * its input dataobject. The dataobject is given on its first input port.
+ * its input data object. The data object is given on its first input port.
  * The subset is described by the contents of the vtkSelection on its
  * second input port.  Depending on the contents of the vtkSelection
  * this will create various vtkSelectors to identify the
  * selected elements.
  *
- * This filter supports vtkCompositeDataSet (output is vtkMultiBlockDataSet),
- * vtkTable and vtkDataSet (output is vtkUnstructuredGrid).
+ * This filter supports vtkCompositeDataSet, vtkDataSet, vtkHyperTreeGrid and vtkTable.
+ *
+ * 1. If preserve topology is on, the output type is the same as the input.
+ * 2. If preserve topology is on.
+ *    1. If input is a subclass of vtkDataObjectTree, the output is the same subclass.
+ *    2. If input is vtkUniformGridAMR, the output is vtkPartitionedDataSetCollection.
+ *    3. If input is vtkDataSet, the output is vtkUnstructuredGrid.
+ *    4. If input is vtkHyperTreeGrid, the output is vtkHyperTreeGrid or vtkUnstructuredGrid
+ *       depending on the HyperTreeGridToUnstructuredGrid flag.
+ *    5. If input is vtkTable, the output is vtkTable.
+ *
  * Other types of input are not processed and the corresponding output is a
  * default constructed object of the input type.
  *
