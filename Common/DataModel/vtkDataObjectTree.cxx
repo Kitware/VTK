@@ -11,8 +11,10 @@
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkLegacy.h"
-#include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkUniformGridAMR.h"
+#include "vtkUniformGridAMRDataIterator.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -141,7 +143,7 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
   {
     return;
   }
-  vtkDataObjectTree* dObjTree = vtkDataObjectTree::SafeDownCast(compositeSource);
+  auto dObjTree = vtkDataObjectTree::SafeDownCast(compositeSource);
   if (dObjTree == this)
   {
     return;
@@ -150,32 +152,7 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
   this->Superclass::CopyStructure(compositeSource);
   this->Internals->Children.clear();
 
-  if (!dObjTree)
-  {
-    // WARNING:
-    // If we copy the structure of from a non-tree composite data set
-    // we create a special structure of two levels, the first level
-    // is just a single multipiece and the second level are all the data sets.
-    // This is likely to change in the future!
-    vtkNew<vtkMultiPieceDataSet> mds;
-    this->SetChild(0, mds);
-
-    vtkNew<vtkInformation> info;
-    info->Set(vtkCompositeDataSet::NAME(), "All Blocks");
-    this->SetChildMetaData(0, info);
-
-    int totalNumBlocks = 0;
-    vtkCompositeDataIterator* iter = compositeSource->NewIterator();
-    iter->SkipEmptyNodesOff();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
-      totalNumBlocks++;
-    }
-    iter->Delete();
-
-    mds->SetNumberOfChildren(totalNumBlocks);
-  }
-  else
+  if (dObjTree)
   {
     this->Internals->Children.resize(dObjTree->Internals->Children.size());
 
@@ -206,6 +183,46 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
       }
     }
   }
+  else if (auto amr = vtkUniformGridAMR::SafeDownCast(compositeSource))
+  {
+    this->SetNumberOfChildren(amr->GetNumberOfLevels());
+    vtkNew<vtkPartitionedDataSet> tempPds;
+    for (unsigned int level = 0; level < amr->GetNumberOfLevels(); level++)
+    {
+      auto child = vtk::TakeSmartPointer(this->CreateForCopyStructure(tempPds));
+      child->SetNumberOfChildren(amr->GetNumberOfDataSets(level));
+      this->SetChild(level, child);
+
+      vtkNew<vtkInformation> info;
+      info->Set(vtkCompositeDataSet::NAME(), "Level " + std::to_string(level));
+      this->SetChildMetaData(level, info);
+    }
+  }
+  else
+  {
+    // WARNING:
+    // If we copy the structure from a non-tree composite data set
+    // we create a special structure of two levels, the first level
+    // is just a single partitioned dataSet and the second level are all the data sets.
+    // This is likely to change in the future!
+    vtkNew<vtkPartitionedDataSet> tempPds;
+    auto pds = vtk::TakeSmartPointer(this->CreateForCopyStructure(tempPds));
+    this->SetChild(0, pds);
+
+    vtkNew<vtkInformation> info;
+    info->Set(vtkCompositeDataSet::NAME(), "All Blocks");
+    this->SetChildMetaData(0, info);
+
+    int totalNumBlocks = 0;
+    auto iter = vtk::TakeSmartPointer(compositeSource->NewIterator());
+    iter->SkipEmptyNodesOff();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      ++totalNumBlocks;
+    }
+
+    pds->SetNumberOfChildren(totalNumBlocks);
+  }
   this->Modified();
 }
 
@@ -218,9 +235,9 @@ vtkDataObjectTree* vtkDataObjectTree::CreateForCopyStructure(vtkDataObjectTree* 
 //------------------------------------------------------------------------------
 vtkDataObjectTreeIterator* vtkDataObjectTree::NewTreeIterator()
 {
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::New();
-  iter->SetDataSet(this);
-  return iter;
+  vtkDataObjectTreeIterator* dObjTreeIter = vtkDataObjectTreeIterator::New();
+  dObjTreeIter->SetDataSet(this);
+  return dObjTreeIter;
 }
 
 //------------------------------------------------------------------------------
@@ -232,10 +249,9 @@ vtkCompositeDataIterator* vtkDataObjectTree::NewIterator()
 //------------------------------------------------------------------------------
 void vtkDataObjectTree::SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj)
 {
-  vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
-  if (treeIter)
+  if (auto dObjTreeIter = vtkDataObjectTreeIterator::SafeDownCast(iter))
   {
-    this->SetDataSetFrom(treeIter, dataObj);
+    this->SetDataSetFrom(dObjTreeIter, dataObj);
     return;
   }
 
@@ -245,34 +261,58 @@ void vtkDataObjectTree::SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject
     return;
   }
 
-  // WARNING: We are doing something special here. See comments
-  // in CopyStructure()
-
-  unsigned int index = iter->GetCurrentFlatIndex();
-  if (this->GetNumberOfChildren() != 1)
+  auto uniformGridAMRIter = vtkUniformGridAMRDataIterator::SafeDownCast(iter);
+  if (uniformGridAMRIter)
   {
-    vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-    return;
+    if (uniformGridAMRIter->GetCurrentLevel() < this->GetNumberOfChildren())
+    {
+      auto parent =
+        vtkDataObjectTree::SafeDownCast(this->GetChild(uniformGridAMRIter->GetCurrentLevel()));
+      if (parent)
+      {
+        parent->SetChild(uniformGridAMRIter->GetCurrentIndex(), dataObj);
+      }
+      else
+      {
+        vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+      }
+    }
+    else
+    {
+      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+    }
   }
-  vtkMultiPieceDataSet* parent = vtkMultiPieceDataSet::SafeDownCast(this->GetChild(0));
-  if (!parent)
+  else
   {
-    vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-    return;
+    // WARNING: We are doing something special here. See comments
+    // in CopyStructure()
+    unsigned int index = iter->GetCurrentFlatIndex();
+    if (this->GetNumberOfChildren() != 1)
+    {
+      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+      return;
+    }
+    auto parent = vtkPartitionedDataSet::SafeDownCast(this->GetChild(0));
+    if (!parent)
+    {
+      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+      return;
+    }
+    parent->SetChild(index, dataObj);
   }
-  parent->SetChild(index, dataObj);
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectTree::SetDataSetFrom(vtkDataObjectTreeIterator* iter, vtkDataObject* dataObj)
+void vtkDataObjectTree::SetDataSetFrom(
+  vtkDataObjectTreeIterator* dObjTreeIter, vtkDataObject* dataObj)
 {
-  if (!iter || iter->IsDoneWithTraversal())
+  if (!dObjTreeIter || dObjTreeIter->IsDoneWithTraversal())
   {
     vtkErrorMacro("Invalid iterator location.");
     return;
   }
 
-  vtkDataObjectTreeIndex index = iter->GetCurrentIndex();
+  vtkDataObjectTreeIndex index = dObjTreeIter->GetCurrentIndex();
 
   if (index.empty())
   {
@@ -287,8 +327,7 @@ void vtkDataObjectTree::SetDataSetFrom(vtkDataObjectTreeIterator* iter, vtkDataO
   {
     if (!parent || parent->GetNumberOfChildren() <= index[cc])
     {
-      vtkErrorMacro("Structure does not match. "
-                    "You must use CopyStructure before calling this method.");
+      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
       return;
     }
     parent = vtkDataObjectTree::SafeDownCast(parent->GetChild(index[cc]));
@@ -296,8 +335,7 @@ void vtkDataObjectTree::SetDataSetFrom(vtkDataObjectTreeIterator* iter, vtkDataO
 
   if (!parent || parent->GetNumberOfChildren() <= index.back())
   {
-    vtkErrorMacro("Structure does not match. "
-                  "You must use CopyStructure before calling this method.");
+    vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
     return;
   }
 
@@ -313,8 +351,59 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
     return nullptr;
   }
 
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter);
-  if (!iter)
+  if (auto dObjTreeIter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter))
+  {
+    vtkDataObjectTreeIndex index = dObjTreeIter->GetCurrentIndex();
+
+    if (index.empty())
+    {
+      // Sanity check.
+      vtkErrorMacro("Invalid index returned by iterator.");
+      return nullptr;
+    }
+
+    vtkDataObjectTree* parent = this;
+    int numIndices = static_cast<int>(index.size());
+    for (int cc = 0; cc < numIndices - 1; cc++)
+    {
+      if (!parent || parent->GetNumberOfChildren() <= index[cc])
+      {
+        vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+        return nullptr;
+      }
+      parent = vtkDataObjectTree::SafeDownCast(parent->GetChild(index[cc]));
+    }
+
+    if (!parent || parent->GetNumberOfChildren() <= index.back())
+    {
+      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+      return nullptr;
+    }
+
+    return parent->GetChild(index.back());
+  }
+  else if (auto amrIter = vtkUniformGridAMRDataIterator::SafeDownCast(compositeIter))
+  {
+    if (amrIter->GetCurrentLevel() < this->GetNumberOfChildren())
+    {
+      auto parent = vtkDataObjectTree::SafeDownCast(this->GetChild(amrIter->GetCurrentLevel()));
+      if (parent)
+      {
+        return parent->GetChild(amrIter->GetCurrentIndex());
+      }
+      else
+      {
+        vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+        return nullptr;
+      }
+    }
+    else
+    {
+      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+      return nullptr;
+    }
+  }
+  else
   {
     // WARNING: We are doing something special here. See comments
     // in CopyStructure()
@@ -326,7 +415,7 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
       vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
       return nullptr;
     }
-    vtkMultiPieceDataSet* parent = vtkMultiPieceDataSet::SafeDownCast(this->GetChild(0));
+    auto parent = vtkPartitionedDataSet::SafeDownCast(this->GetChild(0));
     if (!parent)
     {
       vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
@@ -342,50 +431,19 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
       return nullptr;
     }
   }
-
-  vtkDataObjectTreeIndex index = iter->GetCurrentIndex();
-
-  if (index.empty())
-  {
-    // Sanity check.
-    vtkErrorMacro("Invalid index returned by iterator.");
-    return nullptr;
-  }
-
-  vtkDataObjectTree* parent = this;
-  int numIndices = static_cast<int>(index.size());
-  for (int cc = 0; cc < numIndices - 1; cc++)
-  {
-    if (!parent || parent->GetNumberOfChildren() <= index[cc])
-    {
-      vtkErrorMacro("Structure does not match. "
-                    "You must use CopyStructure before calling this method.");
-      return nullptr;
-    }
-    parent = vtkDataObjectTree::SafeDownCast(parent->GetChild(index[cc]));
-  }
-
-  if (!parent || parent->GetNumberOfChildren() <= index.back())
-  {
-    vtkErrorMacro("Structure does not match. "
-                  "You must use CopyStructure before calling this method.");
-    return nullptr;
-  }
-
-  return parent->GetChild(index.back());
 }
 
 //------------------------------------------------------------------------------
 vtkInformation* vtkDataObjectTree::GetMetaData(vtkCompositeDataIterator* compositeIter)
 {
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter);
-  if (!iter || iter->IsDoneWithTraversal())
+  auto dObjTreeIter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter);
+  if (!dObjTreeIter || dObjTreeIter->IsDoneWithTraversal())
   {
     vtkErrorMacro("Invalid iterator location.");
     return nullptr;
   }
 
-  vtkDataObjectTreeIndex index = iter->GetCurrentIndex();
+  vtkDataObjectTreeIndex index = dObjTreeIter->GetCurrentIndex();
 
   if (index.empty())
   {
@@ -400,8 +458,7 @@ vtkInformation* vtkDataObjectTree::GetMetaData(vtkCompositeDataIterator* composi
   {
     if (!parent || parent->GetNumberOfChildren() <= index[cc])
     {
-      vtkErrorMacro("Structure does not match. "
-                    "You must use CopyStructure before calling this method.");
+      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
       return nullptr;
     }
     parent = vtkDataObjectTree::SafeDownCast(parent->GetChild(index[cc]));
@@ -409,8 +466,7 @@ vtkInformation* vtkDataObjectTree::GetMetaData(vtkCompositeDataIterator* composi
 
   if (!parent || parent->GetNumberOfChildren() <= index.back())
   {
-    vtkErrorMacro("Structure does not match. "
-                  "You must use CopyStructure before calling this method.");
+    vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
     return nullptr;
   }
 
@@ -420,14 +476,14 @@ vtkInformation* vtkDataObjectTree::GetMetaData(vtkCompositeDataIterator* composi
 //------------------------------------------------------------------------------
 vtkTypeBool vtkDataObjectTree::HasMetaData(vtkCompositeDataIterator* compositeIter)
 {
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter);
-  if (!iter || iter->IsDoneWithTraversal())
+  auto dObjTreeIter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter);
+  if (!dObjTreeIter || dObjTreeIter->IsDoneWithTraversal())
   {
     vtkErrorMacro("Invalid iterator location.");
     return 0;
   }
 
-  vtkDataObjectTreeIndex index = iter->GetCurrentIndex();
+  vtkDataObjectTreeIndex index = dObjTreeIter->GetCurrentIndex();
 
   if (index.empty())
   {
@@ -442,8 +498,7 @@ vtkTypeBool vtkDataObjectTree::HasMetaData(vtkCompositeDataIterator* compositeIt
   {
     if (!parent || parent->GetNumberOfChildren() <= index[cc])
     {
-      vtkErrorMacro("Structure does not match. "
-                    "You must use CopyStructure before calling this method.");
+      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
       return 0;
     }
     parent = vtkDataObjectTree::SafeDownCast(parent->GetChild(index[cc]));
@@ -451,8 +506,7 @@ vtkTypeBool vtkDataObjectTree::HasMetaData(vtkCompositeDataIterator* compositeIt
 
   if (!parent || parent->GetNumberOfChildren() <= index.back())
   {
-    vtkErrorMacro("Structure does not match. "
-                  "You must use CopyStructure before calling this method.");
+    vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
     return 0;
   }
 
@@ -470,18 +524,15 @@ void vtkDataObjectTree::CompositeShallowCopy(vtkCompositeDataSet* src)
   this->Internals->Children.clear();
   this->Superclass::CompositeShallowCopy(src);
 
-  vtkDataObjectTree* from = vtkDataObjectTree::SafeDownCast(src);
-  if (from)
+  if (auto from = vtkDataObjectTree::SafeDownCast(src))
   {
     unsigned int numChildren = from->GetNumberOfChildren();
     this->SetNumberOfChildren(numChildren);
     for (unsigned int cc = 0; cc < numChildren; cc++)
     {
-      vtkDataObject* child = from->GetChild(cc);
-      if (child)
+      if (auto child = from->GetChild(cc))
       {
-        vtkDataObjectTree* childTree = vtkDataObjectTree::SafeDownCast(child);
-        if (childTree)
+        if (auto childTree = vtkDataObjectTree::SafeDownCast(child))
         {
           vtkDataObjectTree* clone = childTree->NewInstance();
           clone->CompositeShallowCopy(childTree);
@@ -514,15 +565,13 @@ void vtkDataObjectTree::DeepCopy(vtkDataObject* src)
   this->Internals->Children.clear();
   this->Superclass::DeepCopy(src);
 
-  vtkDataObjectTree* from = vtkDataObjectTree::SafeDownCast(src);
-  if (from)
+  if (auto from = vtkDataObjectTree::SafeDownCast(src))
   {
     unsigned int numChildren = from->GetNumberOfChildren();
     this->SetNumberOfChildren(numChildren);
     for (unsigned int cc = 0; cc < numChildren; cc++)
     {
-      vtkDataObject* fromChild = from->GetChild(cc);
-      if (fromChild)
+      if (auto fromChild = from->GetChild(cc))
       {
         vtkDataObject* toChild = fromChild->NewInstance();
         toChild->DeepCopy(fromChild);
@@ -550,15 +599,13 @@ void vtkDataObjectTree::ShallowCopy(vtkDataObject* src)
   this->Internals->Children.clear();
   this->Superclass::ShallowCopy(src);
 
-  vtkDataObjectTree* from = vtkDataObjectTree::SafeDownCast(src);
-  if (from)
+  if (auto from = vtkDataObjectTree::SafeDownCast(src))
   {
     unsigned int numChildren = from->GetNumberOfChildren();
     this->SetNumberOfChildren(numChildren);
     for (unsigned int cc = 0; cc < numChildren; cc++)
     {
-      vtkDataObject* child = from->GetChild(cc);
-      if (child)
+      if (auto child = from->GetChild(cc))
       {
         auto clone = child->NewInstance();
         clone->ShallowCopy(child);
@@ -593,16 +640,15 @@ void vtkDataObjectTree::Initialize()
 vtkIdType vtkDataObjectTree::GetNumberOfPoints()
 {
   vtkIdType numPts = 0;
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(this->NewIterator());
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  auto dObjTreeIter = vtk::TakeSmartPointer(this->NewIterator());
+  for (dObjTreeIter->InitTraversal(); !dObjTreeIter->IsDoneWithTraversal();
+       dObjTreeIter->GoToNextItem())
   {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds)
+    if (auto ds = vtkDataSet::SafeDownCast(dObjTreeIter->GetCurrentDataObject()))
     {
       numPts += ds->GetNumberOfPoints();
     }
   }
-  iter->Delete();
   return numPts;
 }
 
@@ -610,19 +656,19 @@ vtkIdType vtkDataObjectTree::GetNumberOfPoints()
 vtkIdType vtkDataObjectTree::GetNumberOfCells()
 {
   vtkIdType numCells = 0;
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(this->NewIterator());
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  auto dObjTreeIter = vtk::TakeSmartPointer(this->NewIterator());
+  for (dObjTreeIter->InitTraversal(); !dObjTreeIter->IsDoneWithTraversal();
+       dObjTreeIter->GoToNextItem())
   {
-    if (auto* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()))
+    if (auto ds = vtkDataSet::SafeDownCast(dObjTreeIter->GetCurrentDataObject()))
     {
       numCells += ds->GetNumberOfCells();
     }
-    else if (auto* cg = vtkCellGrid::SafeDownCast(iter->GetCurrentDataObject()))
+    else if (auto cg = vtkCellGrid::SafeDownCast(dObjTreeIter->GetCurrentDataObject()))
     {
       numCells += cg->GetNumberOfCells();
     }
   }
-  iter->Delete();
   return numCells;
 }
 
@@ -630,13 +676,13 @@ vtkIdType vtkDataObjectTree::GetNumberOfCells()
 unsigned long vtkDataObjectTree::GetActualMemorySize()
 {
   unsigned long memSize = 0;
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(this->NewIterator());
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  auto dObjTreeIter = vtk::TakeSmartPointer(this->NewIterator());
+  for (dObjTreeIter->InitTraversal(); !dObjTreeIter->IsDoneWithTraversal();
+       dObjTreeIter->GoToNextItem())
   {
-    vtkDataObject* dobj = iter->GetCurrentDataObject();
+    vtkDataObject* dobj = dObjTreeIter->GetCurrentDataObject();
     memSize += dobj->GetActualMemorySize();
   }
-  iter->Delete();
   return memSize;
 }
 
