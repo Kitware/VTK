@@ -82,7 +82,15 @@ static void write_path(FILE* fout, const char* path)
   c = path;
   while (*c)
   {
-    if (*c == ' ')
+    if (*c == '$')
+    {
+      fprintf(fout, "\\$");
+    }
+    else if (*c == '#')
+    {
+      fprintf(fout, "\\#");
+    }
+    else if (*c == ' ')
     {
       fprintf(fout, "\\ ");
     }
