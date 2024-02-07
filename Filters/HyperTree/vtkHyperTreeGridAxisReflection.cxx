@@ -224,9 +224,12 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
     outNormals = vtkDoubleArray::New();
     outNormals->SetNumberOfComponents(3);
     outNormals->SetNumberOfTuples(nTuples);
+    outNormals->SetName("outNormals");
+
     outIntercepts = vtkDoubleArray::New();
     outIntercepts->SetNumberOfComponents(3);
     outIntercepts->SetNumberOfTuples(nTuples);
+    outIntercepts->SetName("outIntercepts");
 
     // Reflect interface normals if present
     // Iterate over all cells

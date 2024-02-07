@@ -371,7 +371,7 @@ void vtkCamera::ComputeViewTransform()
   else
   {
     double pe[3] = { 0.0 };
-    this->GetEyePosition(pe);
+    this->GetStereoEyePosition(pe);
 
     // Create the view point offset matrix
     vtkSmartPointer<vtkMatrix4x4> T = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -462,25 +462,7 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
   double n = this->ClippingRange[0];
   double f = this->ClippingRange[1];
   double pe[3] = { 0.0 };
-
-  // Create an eye at the origin so it's easy to do the left/right shifting
-  double E[4] = { 0.0, 0.0, 0.0, 1.0 };
-  double shiftDistance = this->EyeSeparation / 2.0;
-
-  if (this->LeftEye)
-  {
-    E[0] -= shiftDistance;
-  }
-  else
-  {
-    E[0] += shiftDistance;
-  }
-
-  // Now transform the "origin eye" to its real position and orientation
-  this->EyeTransformMatrix->MultiplyPoint(E, E);
-  pe[0] = E[0];
-  pe[1] = E[1];
-  pe[2] = E[2];
+  this->GetStereoEyePosition(pe);
 
   double pa[4] = { this->ScreenBottomLeft[0], this->ScreenBottomLeft[1], this->ScreenBottomLeft[2],
     1.0 };
@@ -1921,6 +1903,35 @@ void vtkCamera::GetEyePosition(double eyePosition[3])
   eyePosition[0] = this->EyeTransformMatrix->GetElement(0, 3);
   eyePosition[1] = this->EyeTransformMatrix->GetElement(1, 3);
   eyePosition[2] = this->EyeTransformMatrix->GetElement(2, 3);
+}
+
+//------------------------------------------------------------------------------
+void vtkCamera::GetStereoEyePosition(double eyePosition[3])
+{
+  if (!eyePosition)
+  {
+    vtkErrorMacro(<< "ERROR: Invalid or nullptr eye position\n");
+    return;
+  }
+
+  // Create an eye at the origin so it's easy to do the left/right shifting
+  double E[4] = { 0.0, 0.0, 0.0, 1.0 };
+  double shiftDistance = this->EyeSeparation / 2.0;
+
+  if (this->LeftEye)
+  {
+    E[0] -= shiftDistance;
+  }
+  else
+  {
+    E[0] += shiftDistance;
+  }
+
+  // Now transform the "origin eye" to its real position and orientation
+  this->EyeTransformMatrix->MultiplyPoint(E, E);
+  eyePosition[0] = E[0];
+  eyePosition[1] = E[1];
+  eyePosition[2] = E[2];
 }
 
 //------------------------------------------------------------------------------

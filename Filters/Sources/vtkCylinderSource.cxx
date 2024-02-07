@@ -26,6 +26,7 @@ vtkCylinderSource::vtkCylinderSource(int res)
   this->Radius = 0.5;
   this->Capping = 1;
   this->CapsuleCap = 0;
+  this->LatLongTessellation = 0;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
   this->OutputPointsPrecision = SINGLE_PRECISION;
 
