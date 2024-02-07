@@ -297,6 +297,26 @@ void vtkGenericEnSightReader::SetTimeValue(float value)
 }
 
 //------------------------------------------------------------------------------
+void vtkGenericEnSightReader::SanitizeFileName(std::string& filename)
+{
+  char quotes = '\"';
+  size_t found = filename.find(quotes);
+  if (found != std::string::npos)
+  {
+    filename.erase(std::remove(filename.begin(), filename.end(), quotes), filename.end());
+  }
+
+  // the strings we're using this on probably only have trailing spaces, but we'll
+  // include others just in case
+  std::string whitespaces(" \t\n\r");
+  found = filename.find_last_not_of(whitespaces);
+  if (found != std::string::npos)
+  {
+    filename.erase(found + 1);
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
 {
   char line[256], subLine[256], subLine1[256], subLine2[256], binaryLine[81];
@@ -419,14 +439,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             // The EnSight Gold Case file can reference the geometry file using quotes,
             // in case
             std::string filenameString(fileName);
-            char quotes = '\"';
-            size_t found = filenameString.find(quotes);
-            if (found != std::string::npos)
-            {
-              filenameString.erase(
-                std::remove(filenameString.begin(), filenameString.end(), quotes),
-                filenameString.end());
-            }
+            this->SanitizeFileName(filenameString);
             sfilename = "";
             if (this->FilePath)
             {
