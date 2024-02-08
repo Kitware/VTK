@@ -247,7 +247,8 @@ vtkPolyDataMapper::MapperHashType vtkOpenGLPolyDataMapper::GenerateHash(vtkPolyD
     polydata, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
   bool hasScalars = this->ScalarVisibility && (scalars != nullptr);
   bool hasPointScalars = hasScalars && !cellFlag;
-  bool hasCellScalars = hasScalars && cellFlag == 1;
+  // Field data scalar mode treats field data like cell data
+  bool hasCellScalars = hasScalars && (cellFlag == 1 || cellFlag == 2);
 
   bool usesPointNormals = polydata->GetPointData()->GetNormals() != nullptr;
   bool usesPointTexCoords = polydata->GetPointData()->GetTCoords() != nullptr;
