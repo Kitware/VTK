@@ -1,6 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This tests the terrain annotation capabilities in VTK.
 #include "vtkAxisActor2D.h"
 #include "vtkCamera.h"
 #include "vtkInteractorStyleTrackballCamera.h"
@@ -14,7 +13,9 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//------------------------------------------------------------------------------
+/**
+ * This tests the legend scale actor with custom configurations.
+ */
 int TestLegendScaleActor(int argc, char* argv[])
 {
   // Create the RenderWindow, Renderer and both Actors
@@ -34,6 +35,7 @@ int TestLegendScaleActor(int argc, char* argv[])
   // Create a test pipeline
   //
   vtkNew<vtkSphereSource> ss;
+  ss->SetCenter(1, 2, 3);
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(ss->GetOutputPort());
   vtkNew<vtkActor> sph;
@@ -42,14 +44,16 @@ int TestLegendScaleActor(int argc, char* argv[])
   // Create the actor
   vtkNew<vtkLegendScaleActor> legendActor;
   legendActor->TopAxisVisibilityOn();
-  legendActor->SetLabelModeToXYCoordinates();
+  legendActor->SetLabelModeToCoordinates();
   legendActor->AllAxesOff();
   legendActor->LeftAxisVisibilityOn();
   legendActor->TopAxisVisibilityOn();
+  legendActor->LegendVisibilityOff();
   legendActor->SetLeftBorderOffset(70);
   legendActor->SetTopBorderOffset(50);
   legendActor->GetTopAxis()->SetNumberOfLabels(3);
   legendActor->SetCornerOffsetFactor(1);
+  legendActor->SetOrigin(1, 1, 1);
 
   vtkNew<vtkTextProperty> textProp;
   textProp->SetColor(1, 0.5, 0);
@@ -63,6 +67,7 @@ int TestLegendScaleActor(int argc, char* argv[])
   ren1->AddViewProp(legendActor);
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300, 300);
+  ren1->ResetCamera();
 
   // render the image
   //

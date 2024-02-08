@@ -279,6 +279,47 @@ int vtkLegendScaleActor::RenderOverlay(vtkViewport* viewport)
 }
 
 //------------------------------------------------------------------------------
+void vtkLegendScaleActor::UpdateAxisRange(vtkAxisActor2D* axis, vtkViewport* viewport, bool invert)
+{
+  double* minPoint = axis->GetPositionCoordinate()->GetComputedWorldValue(viewport);
+  double* maxPoint = axis->GetPosition2Coordinate()->GetComputedWorldValue(viewport);
+
+  double range[2];
+  if (this->LabelMode == COORDINATES)
+  {
+    int mainOrientation = 0;
+    double size = 0;
+    for (int comp = 0; comp < 3; comp++)
+    {
+      // COORDINATES is expected to be used only if the screen is parallel
+      // to one of the main planes, i.e. vtkAxisActor2D should be aligned with
+      // one of the scene axes. So find it.
+      double componentSize = std::abs(maxPoint[comp] - minPoint[comp]);
+      if (componentSize > size)
+      {
+        mainOrientation = comp;
+      }
+    }
+
+    range[0] = minPoint[mainOrientation] - this->Origin[mainOrientation];
+    range[1] = maxPoint[mainOrientation] - this->Origin[mainOrientation];
+  }
+  else
+  {
+    double d = sqrt(vtkMath::Distance2BetweenPoints(minPoint, maxPoint));
+    range[0] = -d / 2;
+    range[1] = d / 2;
+    if (invert)
+    {
+      range[0] = -range[0];
+      range[1] = -range[1];
+    }
+  }
+
+  axis->SetRange(range);
+}
+
+//------------------------------------------------------------------------------
 void vtkLegendScaleActor::BuildRepresentation(vtkViewport* viewport)
 {
   // it's probably best just to rerender every time
@@ -322,49 +363,10 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport* viewport)
         0.0);
     }
 
-    // Now specify the axis values
-    if (this->LabelMode == XY_COORDINATES)
-    {
-      double* xL = this->RightAxis->GetPositionCoordinate()->GetComputedWorldValue(viewport);
-      double* xR = this->RightAxis->GetPosition2Coordinate()->GetComputedWorldValue(viewport);
-      this->RightAxis->SetRange(xL[1], xR[1]);
-
-      xL = this->TopAxis->GetPositionCoordinate()->GetComputedWorldValue(viewport);
-      xR = this->TopAxis->GetPosition2Coordinate()->GetComputedWorldValue(viewport);
-      this->TopAxis->SetRange(xL[0], xR[0]);
-
-      xL = this->LeftAxis->GetPositionCoordinate()->GetComputedWorldValue(viewport);
-      xR = this->LeftAxis->GetPosition2Coordinate()->GetComputedWorldValue(viewport);
-      this->LeftAxis->SetRange(xL[1], xR[1]);
-
-      xL = this->BottomAxis->GetPositionCoordinate()->GetComputedWorldValue(viewport);
-      xR = this->BottomAxis->GetPosition2Coordinate()->GetComputedWorldValue(viewport);
-      this->BottomAxis->SetRange(xL[0], xR[0]);
-    }
-    else // distance between points
-    {
-      double d;
-
-      double* xL = this->RightAxis->GetPositionCoordinate()->GetComputedWorldValue(viewport);
-      double* xR = this->RightAxis->GetPosition2Coordinate()->GetComputedWorldValue(viewport);
-      d = sqrt(vtkMath::Distance2BetweenPoints(xL, xR));
-      this->RightAxis->SetRange(-d / 2.0, d / 2.0);
-
-      xL = this->TopAxis->GetPositionCoordinate()->GetComputedWorldValue(viewport);
-      xR = this->TopAxis->GetPosition2Coordinate()->GetComputedWorldValue(viewport);
-      d = sqrt(vtkMath::Distance2BetweenPoints(xL, xR));
-      this->TopAxis->SetRange(d / 2.0, -d / 2.0);
-
-      xL = this->LeftAxis->GetPositionCoordinate()->GetComputedWorldValue(viewport);
-      xR = this->LeftAxis->GetPosition2Coordinate()->GetComputedWorldValue(viewport);
-      d = sqrt(vtkMath::Distance2BetweenPoints(xL, xR));
-      this->LeftAxis->SetRange(d / 2.0, -d / 2.0);
-
-      xL = this->BottomAxis->GetPositionCoordinate()->GetComputedWorldValue(viewport);
-      xR = this->BottomAxis->GetPosition2Coordinate()->GetComputedWorldValue(viewport);
-      d = sqrt(vtkMath::Distance2BetweenPoints(xL, xR));
-      this->BottomAxis->SetRange(-d / 2.0, d / 2.0);
-    }
+    this->UpdateAxisRange(this->RightAxis, viewport);
+    this->UpdateAxisRange(this->TopAxis, viewport, true);
+    this->UpdateAxisRange(this->LeftAxis, viewport, true);
+    this->UpdateAxisRange(this->BottomAxis, viewport);
 
     if (this->LegendVisibility)
     {
