@@ -53,9 +53,17 @@ static void write_path(FILE* fout, const char* path)
 
   for (c = path; *c != '\0'; ++c)
   {
-    if (*c == ':')
+    if (*c == '\\')
     {
-      fprintf(fout, "\\:");
+      fprintf(fout, "\\\\");
+    }
+    else if (*c == '$')
+    {
+      fprintf(fout, "\\$");
+    }
+    else if (*c == '#')
+    {
+      fprintf(fout, "\\#");
     }
     else if (*c == ' ')
     {
