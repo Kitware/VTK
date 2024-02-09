@@ -44,14 +44,14 @@ typedef struct ClassPropertyMethods_
 
 static int isSetMethod(const char* name)
 {
-  return (name && name[0] == 'S' && name[1] == 'e' && name[2] == 't' && isupper(name[3]));
+  return name && (!strncmp(name, "Set", 3) && (strlen(name) > 3) && isupper(name[3]));
 }
 
 static int isSetNthMethod(const char* name)
 {
   if (isSetMethod(name))
   {
-    return (name[3] == 'N' && name[4] == 't' && name[5] == 'h' && isupper(name[6]));
+    return (!strncmp(&name[3], "Nth", 3) && (strlen(name) > 6) && isupper(name[6]));
   }
 
   return 0;
@@ -64,9 +64,7 @@ static int isSetNumberOfMethod(const char* name)
   if (isSetMethod(name))
   {
     n = strlen(name);
-    return (name[3] == 'N' && name[4] == 'u' && name[5] == 'm' && name[6] == 'b' &&
-      name[7] == 'e' && name[8] == 'r' && name[9] == 'O' && name[10] == 'f' && isupper(name[11]) &&
-      name[n - 1] == 's');
+    return (!strncmp(&name[3], "NumberOf", 8) && n > 11 && isupper(name[11]) && name[n - 1] == 's');
   }
 
   return 0;
@@ -74,14 +72,14 @@ static int isSetNumberOfMethod(const char* name)
 
 static int isGetMethod(const char* name)
 {
-  return (name && name[0] == 'G' && name[1] == 'e' && name[2] == 't' && isupper(name[3]));
+  return (name && !strncmp(name, "Get", 3) && (strlen(name) > 3) && isupper(name[3]));
 }
 
 static int isGetNthMethod(const char* name)
 {
   if (isGetMethod(name))
   {
-    return (name[3] == 'N' && name[4] == 't' && name[5] == 'h' && isupper(name[6]));
+    return (!strncmp(&name[3], "Nth", 3) && (strlen(name) > 6) && isupper(name[6]));
   }
 
   return 0;
@@ -94,9 +92,7 @@ static int isGetNumberOfMethod(const char* name)
   if (isGetMethod(name))
   {
     n = strlen(name);
-    return (name[3] == 'N' && name[4] == 'u' && name[5] == 'm' && name[6] == 'b' &&
-      name[7] == 'e' && name[8] == 'r' && name[9] == 'O' && name[10] == 'f' && isupper(name[11]) &&
-      name[n - 1] == 's');
+    return (!strncmp(&name[3], "NumberOf", 8) && n > 11 && isupper(name[11]) && name[n - 1] == 's');
   }
 
   return 0;
@@ -109,8 +105,8 @@ static int isBooleanMethod(const char* name)
   if (name)
   {
     n = strlen(name);
-    if ((n > 2 && name[n - 2] == 'O' && name[n - 1] == 'n') ||
-      (n > 3 && name[n - 3] == 'O' && name[n - 2] == 'f' && name[n - 1] == 'f'))
+    if (((n > 2) && !strncmp(&name[n - 2], "On", 2)) ||
+      ((n > 3) && !strncmp(&name[n - 3], "Off", 3)))
     {
       return 1;
     }
@@ -128,8 +124,7 @@ static int isEnumeratedMethod(const char* name)
     n = strlen(name) - 3;
     for (i = 3; i < n; i++)
     {
-      if (name[i + 0] == 'T' && name[i + 1] == 'o' &&
-        (isupper(name[i + 2]) || isdigit(name[i + 2])))
+      if (!strncmp(&name[i], "To", 2) && (isupper(name[i + 2]) || isdigit(name[i + 2])))
       {
         return 1;
       }
@@ -146,13 +141,9 @@ static int isAsStringMethod(const char* name)
   if (isGetMethod(name))
   {
     n = strlen(name);
-    if (n > 11)
+    if (!strncmp(&name[n - 8], "AsString", 8))
     {
-      if (name[n - 8] == 'A' && name[n - 7] == 's' && name[n - 6] == 'S' && name[n - 5] == 't' &&
-        name[n - 4] == 'r' && name[n - 3] == 'i' && name[n - 2] == 'n' && name[n - 1] == 'g')
-      {
-        return 1;
-      }
+      return 1;
     }
   }
 
@@ -161,14 +152,14 @@ static int isAsStringMethod(const char* name)
 
 static int isAddMethod(const char* name)
 {
-  return (name && name[0] == 'A' && name[1] == 'd' && name[2] == 'd' && isupper(name[3]) &&
+  return (name && !strncmp(name, "Add", 3) && (strlen(name) > 3) && isupper(name[3]) &&
     !isBooleanMethod(name));
 }
 
 static int isRemoveMethod(const char* name)
 {
-  return (name && name[0] == 'R' && name[1] == 'e' && name[2] == 'm' && name[3] == 'o' &&
-    name[4] == 'v' && name[5] == 'e' && isupper(name[6]) && !isBooleanMethod(name));
+  return (name && !strncmp(name, "Remove", 6) && (strlen(name) > 6) && isupper(name[6]) &&
+    !isBooleanMethod(name));
 }
 
 static int isRemoveAllMethod(const char* name)
@@ -178,8 +169,7 @@ static int isRemoveAllMethod(const char* name)
   if (isRemoveMethod(name))
   {
     n = strlen(name);
-    return (
-      name[6] == 'A' && name[7] == 'l' && name[8] == 'l' && isupper(name[9]) && name[n - 1] == 's');
+    return (!strncmp(&name[6], "All", 3) && (n > 9) && isupper(name[9]));
   }
 
   return 0;
@@ -192,7 +182,7 @@ static int isGetMinValueMethod(const char* name)
   if (isGetMethod(name))
   {
     n = strlen(name);
-    if (n > 11 && strcmp("MinValue", &name[n - 8]) == 0)
+    if (n > 11 && strncmp("MinValue", &name[n - 8], 8) == 0)
     {
       return 1;
     }
@@ -208,7 +198,7 @@ static int isGetMaxValueMethod(const char* name)
   if (isGetMethod(name))
   {
     n = strlen(name);
-    if (n > 11 && strcmp("MaxValue", &name[n - 8]) == 0)
+    if (n > 11 && strncmp("MaxValue", &name[n - 8], 8) == 0)
     {
       return 1;
     }
@@ -389,13 +379,12 @@ static const char* nameWithoutPrefix(const char* name)
 
 static int isValidSuffix(const char* methName, const char* propertyName, const char* suffix)
 {
-  if ((suffix[0] == 'O' && suffix[1] == 'n' && suffix[2] == '\0') ||
-    (suffix[0] == 'O' && suffix[1] == 'f' && suffix[2] == 'f' && suffix[3] == '\0'))
+  if (!strncmp(suffix, "On", 2) || !strncmp(suffix, "Off", 3))
   {
     return 1;
   }
 
-  else if (isSetMethod(methName) && suffix[0] == 'T' && suffix[1] == 'o' &&
+  else if (isSetMethod(methName) && !strncmp(suffix, "To", 2) &&
     (isupper(suffix[2]) || isdigit(suffix[2])))
   {
     return 1;
@@ -403,11 +392,10 @@ static int isValidSuffix(const char* methName, const char* propertyName, const c
 
   /* AsString or MaxValue or MinValue or AsN or */
   else if (isGetMethod(methName) &&
-    ((suffix[0] == 'A' && suffix[1] == 's' && ((suffix[2] == 'S') || isdigit(suffix[2]))) ||
-      (((suffix[0] == 'M' && suffix[1] == 'a' && suffix[2] == 'x') ||
-         (suffix[0] == 'M' && suffix[1] == 'i' && suffix[2] == 'n')) &&
-        (suffix[3] == 'V' && suffix[4] == 'a' && suffix[5] == 'l' && suffix[6] == 'u' &&
-          suffix[7] == 'e' && suffix[8] == '\0'))))
+    ((!strncmp(suffix, "As", 2) && (strlen(suffix) > 2) &&
+       ((suffix[2] == 'S') || isdigit(suffix[2]))) ||
+      ((!strncmp(suffix, "Max", 3) || !strncmp(suffix, "Min", 3)) &&
+        !strncmp(&suffix[3], "Value", 5))))
   {
     return 1;
   }
@@ -740,21 +728,21 @@ static int methodMatchesProperty(
   }
   else if (isGetMinValueMethod(meth->Name))
   {
-    if (n >= 8 && strcmp(&propertyName[n - 8], "MinValue") == 0)
+    if (n >= 8 && strncmp(&propertyName[n - 8], "MinValue", 8) == 0)
     {
       *longMatch = 1;
     }
   }
   else if (isGetMaxValueMethod(meth->Name))
   {
-    if (n >= 8 && strcmp(&propertyName[n - 8], "MaxValue") == 0)
+    if (n >= 8 && strncmp(&propertyName[n - 8], "MaxValue", 8) == 0)
     {
       *longMatch = 1;
     }
   }
   else if (isAsStringMethod(meth->Name))
   {
-    if (n >= 8 && strcmp(&propertyName[n - 8], "AsString") == 0)
+    if (n >= 8 && strncmp(&propertyName[n - 8], "AsString", 8) == 0)
     {
       *longMatch = 1;
     }
@@ -1022,7 +1010,7 @@ static void findAllMatches(const HierarchyInfo* hinfo, PropertyInfo* property, i
         if (meth->IsEnumerated)
         {
           m = strlen(property->Name);
-          if (meth->Name[3 + m] == 'T' && meth->Name[4 + m] == 'o' &&
+          if (!strncmp(&meth->Name[3 + m], "To", 2) &&
             (isdigit(meth->Name[5 + m]) || isupper(meth->Name[5 + m])))
           {
             if (property->EnumConstantNames == 0)
