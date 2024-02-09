@@ -1,6 +1,8 @@
 """Utility classes to help with the simpler Python interface
 for connecting and executing pipelines."""
 
+__all__ = ['select_ports', 'Pipeline', 'Output']
+
 def _call(first, last, inp=None, port=0):
     """Set the input of the first filter, update the pipeline
     and return the output."""
@@ -94,12 +96,15 @@ class select_ports(object):
             self.output_port = 0
 
     def SetInputConnection(self, inp):
+        "Forwards to underlying algorithm and port."
         self.algorithm.SetInputConnection(self.input_port, inp)
 
     def AddInputConnection(self, inp):
+        "Forwards to underlying algorithm and port."
         self.algorithm.AddInputConnection(self.input_port, inp)
 
     def GetOutputPort(self):
+        "Returns the output port of the underlying algorithm."
         return self.algorithm.GetOutputPort(self.output_port)
 
     def update(self):
@@ -108,12 +113,19 @@ class select_ports(object):
         return self.algorithm.update()
 
     def __rshift__(self, rhs):
+        "Creates a pipeline between the underlying port and an algorithm."
         return Pipeline(self, rhs)
 
     def __rrshift__(self, rhs):
+        """Creates a pipeline between the underlying port and an algorithm.
+        This is to handle sequence >> select_ports where the port can
+        accept multiple connections."""
         return Pipeline(rhs, self)
 
     def __call__(self, inp=None):
+        """Executes the underlying algorithm by passing input data to
+        the selected input port. Returns a single output or a tuple
+        if there are multiple outputs."""
         return _call(self.algorithm, self.algorithm, inp, self.input_port)
 
 class Pipeline(object):
@@ -202,20 +214,30 @@ class Pipeline(object):
         return self.last.update()
 
     def __call__(self, inp=None):
-        """Set the input of the first filter, update the pipeline
-        and return the output."""
+        """Sets the input of the first filter, update the pipeline
+        and returns the output. A single data object or a tuple
+        of data objects (when there are multiple outputs) are
+        returned."""
         return _call(self.first, self.last, inp)
 
     def __rshift__(self, rhs):
+        """Used to connect two pipeline items. The left side can
+        be a data object, an algorithm or a pipeline. The right
+        side can be an algorithm or a pipeline."""
         return Pipeline(self, rhs)
 
 class Output(object):
+    """Helper object to represent the output of an algorithms as
+    returned by the update() method. Implements the output property
+    enabling calling update().output."""
     def __init__(self, algorithm, **kwargs):
         self.algorithm = algorithm
         self.algorithm.Update()
 
     @property
     def output(self):
+        """Returns a single data object or a tuple of data objects
+        if there are multiple outputs."""
         if self.algorithm.GetNumberOfOutputPorts() == 1:
             return self.algorithm.GetOutputDataObject(0)
         else:
