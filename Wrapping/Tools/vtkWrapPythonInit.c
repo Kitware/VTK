@@ -128,16 +128,24 @@ static void CreateImplFile(
 
   fprintf(fout, "\n");
   fprintf(fout, "  vtkPythonUtil::AddModule(\"%s\");\n\n", libName);
-  fprintf(fout, "  if (strcmp(\"vtkCommonDataModel\", \"%s\") == 0)\n", libName);
-  fprintf(fout, "  {\n");
-  fprintf(fout, "   // Import the module\n");
-  fprintf(
-    fout, "   PyObject *moduleName = PyUnicode_DecodeFSDefault(\"vtkmodules.util.data_model\");\n");
-  fprintf(fout, "   PyObject *internalModule = PyImport_Import(moduleName);\n");
-  fprintf(fout, "   Py_DECREF(moduleName);\n");
-  fprintf(fout, "  }\n");
-  fprintf(fout, "  return m;\n");
-  fprintf(fout, "}\n\n");
+  fprintf(fout, "  if (strncmp(\"vtkCommonDataModel\", \"%s\", 18) == 0)\n", libName);
+  fprintf(fout,
+    "  {\n"
+    "    // Import the module\n"
+    "    if (PyObject *moduleName = PyUnicode_DecodeFSDefault(\"vtkmodules.util.data_model\"))\n"
+    "    {\n"
+    "      if (PyObject *internalModule = PyImport_Import(moduleName))\n"
+    "      {\n"
+    "        Py_DECREF(internalModule);\n"
+    "      }\n"
+    "      else\n"
+    "      {\n"
+    "        return nullptr;\n"
+    "      }\n"
+    "      Py_DECREF(moduleName);\n"
+    "    }\n"
+    "  }\n"
+    "}\n\n");
 }
 
 int VTK_PARSE_MAIN(int argc, const char* argv[])
