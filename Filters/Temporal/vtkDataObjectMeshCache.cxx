@@ -368,9 +368,9 @@ void vtkDataObjectMeshCache::Status::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OriginalDataDefined: " << this->OriginalDataDefined << "\n";
   os << indent << "ConsumerDefined: " << this->ConsumerDefined << "\n";
   os << indent << "CacheDefined: " << this->CacheDefined << "\n";
-  os << indent << "DependeciesUnmodified: " << this->OriginalMeshUnmodified << "\n";
+  os << indent << "OriginalMeshUnmodified: " << this->OriginalMeshUnmodified << "\n";
   os << indent << "ConsumerUnmodified: " << this->ConsumerUnmodified << "\n";
-  os << indent << "AttributesIdsDefined: " << this->AttributesIdsExists << "\n";
+  os << indent << "AttributesIdsExists: " << this->AttributesIdsExists << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -418,7 +418,7 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
       "Invalid input mesh time. Input may be of unsupported type or has no valid mesh.");
   }
 
-  status.OriginalMeshUnmodified &= (originalMeshMTime <= this->CachedOriginalMeshTime);
+  status.OriginalMeshUnmodified &= (originalMeshMTime == this->CachedOriginalMeshTime);
   if (!status.OriginalMeshUnmodified)
   {
     vtkDebugMacro("Input mesh time has changed.");
