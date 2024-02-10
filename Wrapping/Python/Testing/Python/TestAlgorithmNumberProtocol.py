@@ -25,6 +25,9 @@ class MockValidConnector(object):
         MockValidConnector.ExecutedSetInputConnection += 1
         self.algorithm.SetInputConnection(self.input_port, other)
 
+    def GetInputPortInformation(self, port):
+        return self.algorithm.GetInputPortInformation(self.input_port)
+
 
 class MockInvalidConnector(object):
     def __init__(self, alg, input_port=0, output_port=0):

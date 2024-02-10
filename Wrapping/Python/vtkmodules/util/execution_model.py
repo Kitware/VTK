@@ -107,6 +107,9 @@ class select_ports(object):
         "Returns the output port of the underlying algorithm."
         return self.algorithm.GetOutputPort(self.output_port)
 
+    def GetInputPortInformation(self, port):
+        return self.algorithm.GetInputPortInformation(self.input_port)
+
     def update(self):
         """Execute the algorithm and return the output from the selected
         output port."""
@@ -161,6 +164,11 @@ class Pipeline(object):
             self._connect(lhs, rhs, rhs_alg, "SetInputConnection")
 
     def _connect(self, lhs, rhs, rhs_alg, connect_method):
+        from vtkmodules.vtkCommonExecutionModel import vtkAlgorithm
+        inInfo = rhs_alg.GetInputPortInformation(0)
+        if inInfo.Has(vtkAlgorithm.INPUT_IS_REPEATABLE()):
+            connect_method = 'AddInputConnection'
+
         left_type = self._determine_type(lhs)
         right_type = self._determine_type(rhs)
         if left_type == Pipeline.UNKNOWN:
