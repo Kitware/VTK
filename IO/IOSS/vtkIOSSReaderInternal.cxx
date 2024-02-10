@@ -38,6 +38,12 @@
 #include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
 
+// Ioss includes
+#include <vtk_ioss.h>
+// clang-format off
+#include VTK_IOSS(Ioss_TransformFactory.h)
+// clang-format on
+
 #include <algorithm>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -1239,7 +1245,7 @@ void vtkIOSSReaderInternal::GenerateElementAndSideIds(vtkDataSet* dataset, Ioss:
               << "[.\n";
 #endif
     // ioss element_side_raw is 1-indexed; make it 0-indexed for VTK.
-    auto transform = std::unique_ptr<Ioss::Transform>(Iotr::Factory::create("offset"));
+    auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
     transform->set_property("offset", -1);
 
     auto element_side_raw =
