@@ -19,6 +19,7 @@ set(classes
   vtkPieChartActor
   vtkPolarAxesActor
   vtkProp3DAxisFollower
+  vtkRadialGridActor2D
   vtkScalarBarActor
   vtkSpiderPlotActor
   vtkXYPlotActor)
