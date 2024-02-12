@@ -2456,6 +2456,9 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
       return -1;
     }
   }
+
+  this->ApplyRigidBodyTransforms(partId, name, output);
+
   return lineRead;
 }
 
@@ -2531,6 +2534,8 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(
       }
     }
   }
+
+  this->ApplyRigidBodyTransforms(partId, name, output);
 
   points->Delete();
   // reading next line to check for EOF
@@ -2622,6 +2627,8 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(
   yCoords->Delete();
   zCoords->Delete();
 
+  this->ApplyRigidBodyTransforms(partId, name, output);
+
   // reading next line to check for EOF
   lineRead = this->ReadNextDataLine(line);
   return lineRead;
@@ -2692,6 +2699,8 @@ int vtkEnSightGoldReader::CreateImageDataOutput(
       this->ReadNextDataLine(line);
     }
   }
+
+  this->ApplyRigidBodyTransforms(partId, name, output);
 
   // reading next line to check for EOF
   lineRead = this->ReadNextDataLine(line);
