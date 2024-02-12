@@ -188,6 +188,19 @@ public:
     int Material;
     int Mode;
     int CellSize; // 1, 2 or 3, depending on draw mode
+
+    // Primitive-specific extension metadata
+    struct Extensions
+    {
+      // KHR_draco_mesh_compression extension
+      struct KHRDracoMeshCompression
+      {
+        int BufferView = -1;
+        std::map<std::string, int> AttributeIndices;
+      };
+      Primitive::Extensions::KHRDracoMeshCompression KHRDracoMetaData;
+    };
+    Primitive::Extensions ExtensionMetaData;
   };
 
   /**
@@ -574,7 +587,7 @@ public:
   /**
    * Get the list of extensions that are supported by this loader
    */
-  const std::vector<std::string>& GetSupportedExtensions();
+  virtual std::vector<std::string> GetSupportedExtensions();
 
   /**
    * Get the list of extensions that are used by the current model
@@ -599,6 +612,13 @@ public:
    */
   static void ComputeJointMatrices(const Model& model, const Skin& skin, Node& node,
     std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats);
+
+  /**
+   * Some extensions require a preparation on the model before building VTK objects.
+   * That's the case of KHR_draco_mesh_compression for example for which the preparation is
+   * deferred to the subclass because a dependency to Draco is required.
+   */
+  virtual void PrepareData() {}
 
 protected:
   vtkGLTFDocumentLoader() = default;

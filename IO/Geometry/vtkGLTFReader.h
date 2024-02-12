@@ -212,6 +212,12 @@ protected:
    */
   void StoreTextureData();
 
+  /**
+   * Initialize the document loader.
+   * Can be subclassed to instantiate a custom loader.
+   */
+  virtual void InitializeLoader();
+
   char* FileName = nullptr;
   vtkSmartPointer<vtkResourceStream> Stream;
   vtkMTimeType LastStreamTimeStamp = 0;

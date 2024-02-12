@@ -954,6 +954,8 @@ bool vtkGLTFDocumentLoader::LoadModelData(const std::vector<char>& glbBuffer)
     return false;
   }
 
+  this->PrepareData();
+
   // Read primitive attributes from buffers
   size_t numberOfMeshes = this->InternalModel->Meshes.size();
   size_t numberOfImages = this->InternalModel->Images.size();
@@ -1527,7 +1529,7 @@ std::shared_ptr<vtkGLTFDocumentLoader::Model> vtkGLTFDocumentLoader::GetInternal
 }
 
 //------------------------------------------------------------------------------
-const std::vector<std::string>& vtkGLTFDocumentLoader::GetSupportedExtensions()
+std::vector<std::string> vtkGLTFDocumentLoader::GetSupportedExtensions()
 {
   return vtkGLTFDocumentLoader::SupportedExtensions;
 }
