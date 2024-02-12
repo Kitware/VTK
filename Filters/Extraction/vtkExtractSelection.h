@@ -77,6 +77,19 @@ public:
   vtkBooleanMacro(HyperTreeGridToUnstructuredGrid, bool);
   ///@}
 
+  ///@{
+  /**
+   * This flag controls whether the extraction filter tests for ghost arrays in the input dataset.
+   * When enabled, points/cells masked using ghost arrays are ignored from the extraction step and
+   * do not pass through to the output.
+   *
+   * Default is set to false
+   */
+  vtkGetMacro(TestGhostArrays, bool);
+  vtkSetMacro(TestGhostArrays, bool);
+  vtkBooleanMacro(TestGhostArrays, bool);
+  ///@}
+
 protected:
   vtkExtractSelection();
   ~vtkExtractSelection() override;
@@ -171,6 +184,7 @@ protected:
     vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside, bool extractAll);
 
   bool PreserveTopology = false;
+  bool TestGhostArrays = false;
 
 private:
   vtkExtractSelection(const vtkExtractSelection&) = delete;
