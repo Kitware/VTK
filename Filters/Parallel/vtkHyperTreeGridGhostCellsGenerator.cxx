@@ -8,6 +8,7 @@
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
+#include "vtkHyperTreeGridOrientedCursor.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -226,6 +227,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   assert(input->GetDimension() > 1);
 
   // Determining who are my neighbors
+  vtkNew<vtkHyperTreeGridOrientedCursor> inOrientedCursor;
   unsigned i, j, k = 0;
   input->InitializeTreeIterator(inHTs);
   switch (input->GetDimension())
@@ -234,18 +236,25 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     {
       while (inHTs.GetNextTree(inTreeIndex))
       {
+        input->InitializeOrientedCursor(inOrientedCursor, inTreeIndex);
+        if (inOrientedCursor->IsMasked())
+        {
+          continue;
+        }
         input->GetLevelZeroCoordinatesFromIndex(inTreeIndex, i, j, k);
         // Avoiding over / under flowing the grid
         for (int rj = ((j > 0) ? -1 : 0); rj < (((j + 1) < cellDims[1]) ? 2 : 1); ++rj)
         {
           for (int ri = ((i > 0) ? -1 : 0); ri < (((i + 1) < cellDims[0]) ? 2 : 1); ++ri)
           {
-            int neighbor = (i + ri) * cellDims[1] + j + rj;
+            vtkIdType neighbor = -1;
+            input->GetIndexFromLevelZeroCoordinates(neighbor, i + ri, j + rj, 0);
             int id = hyperTreesMapToProcesses[neighbor];
             if (id >= 0 && id != processId)
             {
-              // Construction a neighborhood mask to extract the interface in ExtractInterface later
-              // on Same encoding as vtkHyperTreeGrid::GetChildMask
+              // Build a neighborhood mask to extract the interface in
+              // ExtractInterface later on.
+              // Same encoding as vtkHyperTreeGrid::GetChildMask
               sendBuffer[id][inTreeIndex].mask |= 1
                 << (8 * sizeof(int) - 1 - (ri + 1 + (rj + 1) * 3));
               // Not receiving anything from this guy since we will send him stuff
@@ -262,6 +271,11 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     {
       while (inHTs.GetNextTree(inTreeIndex))
       {
+        input->InitializeOrientedCursor(inOrientedCursor, inTreeIndex);
+        if (inOrientedCursor->IsMasked())
+        {
+          continue;
+        }
         input->GetLevelZeroCoordinatesFromIndex(inTreeIndex, i, j, k);
         // Avoiding over / under flowing the grid
         for (int rk = ((k > 0) ? -1 : 0); rk < (((k + 1) < cellDims[2]) ? 2 : 1); ++rk)
@@ -270,12 +284,14 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
           {
             for (int ri = ((i > 0) ? -1 : 0); ri < (((i + 1) < cellDims[0]) ? 2 : 1); ++ri)
             {
-              int neighbor = ((k + rk) * cellDims[1] + j + rj) * cellDims[0] + i + ri;
+              vtkIdType neighbor = -1;
+              input->GetIndexFromLevelZeroCoordinates(neighbor, i + ri, j + rj, k + rk);
               int id = hyperTreesMapToProcesses[neighbor];
               if (id >= 0 && id != processId)
               {
-                // Construction a neighborhood mask to extract the interface in ExtractInterface
-                // later on Same encoding as vtkHyperTreeGrid::GetChildMask
+                // Build a neighborhood mask to extract the interface in
+                // ExtractInterface later on.
+                // Same encoding as vtkHyperTreeGrid::GetChildMask
                 sendBuffer[id][inTreeIndex].mask |= 1
                   << (8 * sizeof(int) - 1 - (ri + 1 + (rj + 1) * 3 + (rk + 1) * 9));
                 // Not receiving anything from this guy since we will send him stuff
