@@ -326,63 +326,102 @@ MET_ValueToDouble(MET_ValueEnumType _type, const void * _data, std::streamoff _i
 }
 
 bool
-MET_DoubleToValue(double _value, MET_ValueEnumType _type, void * _data, std::streamoff _index)
+MET_DoubleToValueN(double _value, MET_ValueEnumType _type, void * _data, size_t _dataSize, std::streamoff _index)
 {
   switch (_type)
   {
     case MET_ASCII_CHAR:
     case MET_CHAR:
     case MET_CHAR_ARRAY:
-      (static_cast<MET_CHAR_TYPE *>(_data))[_index] = static_cast<MET_CHAR_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_CHAR_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_CHAR_TYPE>(_value);
       return true;
+    }
     case MET_UCHAR:
     case MET_UCHAR_ARRAY:
-      (static_cast<MET_UCHAR_TYPE *>(_data))[_index] = static_cast<MET_UCHAR_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_UCHAR_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_UCHAR_TYPE>(_value);
       return true;
+    }
     case MET_SHORT:
     case MET_SHORT_ARRAY:
-      (static_cast<MET_SHORT_TYPE *>(_data))[_index] = static_cast<MET_SHORT_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_SHORT_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_SHORT_TYPE>(_value);
       return true;
+    }
     case MET_USHORT:
     case MET_USHORT_ARRAY:
-      (static_cast<MET_USHORT_TYPE *>(_data))[_index] = static_cast<MET_USHORT_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_USHORT_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_USHORT_TYPE>(_value);
       return true;
+    }
     case MET_INT:
     case MET_INT_ARRAY:
-      (static_cast<MET_INT_TYPE *>(_data))[_index] = static_cast<MET_INT_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_INT_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_INT_TYPE>(_value);
       return true;
+    }
     case MET_LONG:
     case MET_LONG_ARRAY:
-      (static_cast<MET_LONG_TYPE *>(_data))[_index] = static_cast<MET_LONG_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_LONG_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_LONG_TYPE>(_value);
       return true;
+    }
     case MET_UINT:
     case MET_UINT_ARRAY:
-      (static_cast<MET_UINT_TYPE *>(_data))[_index] = static_cast<MET_UINT_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_UINT_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_UINT_TYPE>(_value);
       return true;
+    }
     case MET_ULONG:
     case MET_ULONG_ARRAY:
-      (static_cast<MET_ULONG_TYPE *>(_data))[_index] = static_cast<MET_ULONG_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_ULONG_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_ULONG_TYPE>(_value);
       return true;
+    }
     case MET_LONG_LONG:
     case MET_LONG_LONG_ARRAY:
-      (static_cast<MET_LONG_LONG_TYPE *>(_data))[_index] = static_cast<MET_LONG_LONG_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_LONG_LONG_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_LONG_LONG_TYPE>(_value);
       return true;
+    }
     case MET_ULONG_LONG:
     case MET_ULONG_LONG_ARRAY:
-      (static_cast<MET_ULONG_LONG_TYPE *>(_data))[_index] = static_cast<MET_ULONG_LONG_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_ULONG_LONG_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_ULONG_LONG_TYPE>(_value);
       return true;
+    }
     case MET_FLOAT:
     case MET_FLOAT_ARRAY:
     case MET_FLOAT_MATRIX:
-      (static_cast<MET_FLOAT_TYPE *>(_data))[_index] = static_cast<MET_FLOAT_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_FLOAT_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_FLOAT_TYPE>(_value);
       return true;
+    }
     case MET_DOUBLE:
     case MET_DOUBLE_ARRAY:
-      (static_cast<MET_DOUBLE_TYPE *>(_data))[_index] = static_cast<MET_DOUBLE_TYPE>(_value);
+    {
+      auto ptr = static_cast<MET_DOUBLE_TYPE *>(_data);
+      ptr[_index] = static_cast<MET_DOUBLE_TYPE>(_value);
       return true;
+    }
     case MET_STRING:
-      sprintf(&((static_cast<MET_ASCII_CHAR_TYPE *>(_data))[_index]), "%f", _value);
+    {
+      auto ptr = static_cast<MET_ASCII_CHAR_TYPE *>(_data);
+      snprintf(&(ptr[_index]), _dataSize - _index, "%f", _value);
       return true;
+    }
     case MET_NONE:
     case MET_OTHER:
     default:
@@ -391,11 +430,19 @@ MET_DoubleToValue(double _value, MET_ValueEnumType _type, void * _data, std::str
 }
 
 bool
-MET_ValueToValue(MET_ValueEnumType _fromType,
+MET_DoubleToValue(double _value, MET_ValueEnumType _type, void * _data, std::streamoff _index)
+{
+  // We don't know the buffer size, so just use a big number.
+  return MET_DoubleToValueN(_value, _type, _data, SIZE_MAX, _index);
+}
+
+bool
+MET_ValueToValueN(MET_ValueEnumType _fromType,
                  const void *      _fromData,
                  std::streamoff    _index,
                  MET_ValueEnumType _toType,
                  void *            _toData,
+                 size_t            _toDataSize,
                  double            _fromMin,
                  double            _fromMax,
                  double            _toMin,
@@ -420,61 +467,124 @@ MET_ValueToValue(MET_ValueEnumType _fromType,
     case MET_ASCII_CHAR:
     case MET_CHAR:
     case MET_CHAR_ARRAY:
-      ((static_cast<MET_CHAR_TYPE *>(_toData))[_index]) = static_cast<MET_CHAR_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_CHAR_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_CHAR_TYPE>(tf);
       return true;
+    }
     case MET_UCHAR:
     case MET_UCHAR_ARRAY:
-      ((static_cast<MET_UCHAR_TYPE *>(_toData))[_index]) = static_cast<MET_UCHAR_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_UCHAR_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_UCHAR_TYPE>(tf);
       return true;
+    }
     case MET_SHORT:
     case MET_SHORT_ARRAY:
-      ((static_cast<MET_SHORT_TYPE *>(_toData))[_index]) = static_cast<MET_SHORT_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_SHORT_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_SHORT_TYPE>(tf);
       return true;
+    }
     case MET_USHORT:
     case MET_USHORT_ARRAY:
-      ((static_cast<MET_USHORT_TYPE *>(_toData))[_index]) = static_cast<MET_USHORT_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_USHORT_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_USHORT_TYPE>(tf);
       return true;
+    }
     case MET_INT:
     case MET_INT_ARRAY:
-      ((static_cast<MET_INT_TYPE *>(_toData))[_index]) = static_cast<MET_INT_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_INT_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_INT_TYPE>(tf);
       return true;
+    }
     case MET_LONG:
     case MET_LONG_ARRAY:
-      ((static_cast<MET_LONG_TYPE *>(_toData))[_index]) = static_cast<MET_LONG_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_LONG_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_LONG_TYPE>(tf);
       return true;
+    }
     case MET_UINT:
     case MET_UINT_ARRAY:
-      ((static_cast<MET_UINT_TYPE *>(_toData))[_index]) = static_cast<MET_UINT_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_UINT_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_UINT_TYPE>(tf);
       return true;
+    }
     case MET_ULONG:
     case MET_ULONG_ARRAY:
-      ((static_cast<MET_ULONG_TYPE *>(_toData))[_index]) = static_cast<MET_ULONG_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_ULONG_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_ULONG_TYPE>(tf);
       return true;
+    }
     case MET_LONG_LONG:
     case MET_LONG_LONG_ARRAY:
-      ((static_cast<MET_LONG_LONG_TYPE *>(_toData))[_index]) = static_cast<MET_LONG_LONG_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_LONG_LONG_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_LONG_LONG_TYPE>(tf);
       return true;
+    }
     case MET_ULONG_LONG:
     case MET_ULONG_LONG_ARRAY:
-      ((static_cast<MET_ULONG_LONG_TYPE *>(_toData))[_index]) = static_cast<MET_ULONG_LONG_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_ULONG_LONG_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_ULONG_LONG_TYPE>(tf);
       return true;
+    }
     case MET_DOUBLE:
     case MET_DOUBLE_ARRAY:
-      ((static_cast<MET_DOUBLE_TYPE *>(_toData))[_index]) = static_cast<MET_DOUBLE_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_DOUBLE_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_DOUBLE_TYPE>(tf);
       return true;
+    }
     case MET_FLOAT:
     case MET_FLOAT_ARRAY:
     case MET_FLOAT_MATRIX:
-      ((static_cast<MET_FLOAT_TYPE *>(_toData))[_index]) = static_cast<MET_FLOAT_TYPE>(tf);
+    {
+      auto ptr = static_cast<MET_FLOAT_TYPE *>(_toData);
+      ptr[_index] = static_cast<MET_FLOAT_TYPE>(tf);
       return true;
+    }
     case MET_STRING:
-      sprintf(&((static_cast<MET_ASCII_CHAR_TYPE *>(_toData))[_index]), "%f", tf);
+    {
+      auto ptr = static_cast<MET_ASCII_CHAR_TYPE *>(_toData);
+      snprintf(&(ptr[_index]), _toDataSize - _index, "%f", tf);
       return true;
+    }
     case MET_NONE:
     case MET_OTHER:
     default:
       return false;
   }
+}
+
+bool
+MET_ValueToValue(MET_ValueEnumType _fromType,
+                 const void *      _fromData,
+                 std::streamoff    _index,
+                 MET_ValueEnumType _toType,
+                 void *            _toData,
+                 double            _fromMin,
+                 double            _fromMax,
+                 double            _toMin,
+                 double            _toMax)
+{
+  // We don't know the buffer size, so just use a big number.
+  return MET_ValueToValueN(_fromType,
+                          _fromData,
+                          _index,
+                          _toType,
+                          _toData,
+                          SIZE_MAX,
+                          _fromMin,
+                          _fromMax,
+                          _toMin,
+                          _toMax);
 }
 
 // Uncompress a stream given an uncompressedSeekPosition
