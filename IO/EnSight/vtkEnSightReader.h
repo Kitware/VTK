@@ -10,10 +10,10 @@
 
 #include "vtkGenericEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
-#include "vtkNew.h"             // for vtkNew
 #include "vtkSmartPointer.h"    // for vtkSmartPointer
 
-#include <map> // for std::map
+#include <map>    // for std::map
+#include <vector> // for std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
@@ -178,7 +178,7 @@ protected:
   /**
    * Helper method for reading matrices specified in rigid body files
    */
-  void ReadRigidBodyMatrixLines(char* line, vtkTransform* transform);
+  int ReadRigidBodyMatrixLines(char* line, vtkTransform* transform, bool& applyToVectors);
 
   /**
    * Apply rigid body transforms to the specified part, if there are any.
@@ -394,8 +394,12 @@ protected:
   struct PartTransforms
   {
     // Pre and post transforms do not change over time
-    vtkNew<vtkTransform> PreTransforms;
-    vtkNew<vtkTransform> PostTransforms;
+    // We have to track each transform separately, because some transforms need to be
+    // applied to geometry and vectors, while others should only be applied to the geometry
+    std::vector<vtkSmartPointer<vtkTransform>> PreTransforms;
+    std::vector<bool> PreTransformsApplyToVectors;
+    std::vector<vtkSmartPointer<vtkTransform>> PostTransforms;
+    std::vector<bool> PostTransformsApplyToVectors;
 
     // EnSight format requires specifying the eet file per part, but according to the user manual
     // use of different eet files for the same dataset is not actually allowed

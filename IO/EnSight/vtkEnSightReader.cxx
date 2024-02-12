@@ -1486,7 +1486,8 @@ int vtkEnSightReader::ReadCaseFile()
 }
 
 //------------------------------------------------------------------------------
-void vtkEnSightReader::ReadRigidBodyMatrixLines(char* line, vtkTransform* transform)
+int vtkEnSightReader::ReadRigidBodyMatrixLines(
+  char* line, vtkTransform* transform, bool& applyToVectors)
 {
   vtkDebugMacro("Reading matrix lines");
   // reads all 4 matrix lines into a vtkMatrix4x4 and concatenates it into transform
@@ -1512,16 +1513,17 @@ void vtkEnSightReader::ReadRigidBodyMatrixLines(char* line, vtkTransform* transf
   else
   {
     vtkErrorMacro("could not correctly read matrix line for line: " << line);
+    return 0;
   }
 
   if (transType[0] != 'M')
   {
     vtkErrorMacro("The transform type " << transType << " should be a matrix");
+    return 0;
   }
 
-  // TODO need to figure out how to flag M vs Mv...
-  // could potentially keep track of which transform id is a Mv matrix so we can later grab it and
-  // apply where needed?
+  applyToVectors = vtksys::SystemTools::StringStartsWith(transType, "Mv");
+
   vtkNew<vtkMatrix4x4> matrix;
   for (int row = 0; row < 4; ++row)
   {
@@ -1543,6 +1545,7 @@ void vtkEnSightReader::ReadRigidBodyMatrixLines(char* line, vtkTransform* transf
     }
   }
   transform->Concatenate(matrix);
+  return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -1702,24 +1705,7 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
     bool pretransform = true;
     while (this->ReadNextDataLine(line) && transIdx < numTransformations)
     {
-      vtkTransform* transform;
-      if (pretransform)
-      {
-        transform = currentPartTransform.PreTransforms;
-      }
-      else
-      {
-        transform = currentPartTransform.PostTransforms;
-      }
-      transform->PostMultiply();
-
-      if (strncmp(line, "M:", 2) == 0 || strncmp(line, "Mv:", 3) == 0)
-      {
-        // M matrices applied only to geometry
-        // Mv matrices applied to geometry and vectors
-        this->ReadRigidBodyMatrixLines(line, transform);
-      }
-      else if (strncmp(line, "Eul:", 4) == 0)
+      if (strncmp(line, "Eul:", 4) == 0)
       {
         // we can't actually read this file yet because ReadNextDataLine
         // operates on this->IS, so we have to read this whole file first,
@@ -1736,11 +1722,40 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
         vtkDebugMacro("Eul section EET file: " << currentPartTransform.EETFilename);
         vtkDebugMacro("EET title: " << currentPartTransform.EETTransTitle);
         pretransform = false;
+        transIdx++;
+        continue;
+      }
+
+      vtkTransform* transform;
+      if (pretransform)
+      {
+        currentPartTransform.PreTransforms.emplace_back(vtkSmartPointer<vtkTransform>::New());
+        transform = currentPartTransform.PreTransforms.back();
+      }
+      else
+      {
+        currentPartTransform.PostTransforms.emplace_back(vtkSmartPointer<vtkTransform>::New());
+        transform = currentPartTransform.PostTransforms.back();
+      }
+      transform->PostMultiply();
+      bool applyToVectors = false;
+
+      if (strncmp(line, "M:", 2) == 0 || strncmp(line, "Mv:", 3) == 0)
+      {
+        // M matrices applied only to geometry
+        // Mv matrices applied to geometry and vectors
+        if (!this->ReadRigidBodyMatrixLines(line, transform, applyToVectors))
+        {
+          // some error happened reading the matrix lines
+          delete this->IS;
+          this->IS = nullptr;
+          return 0;
+        }
       }
       else
       {
         // other possibilities are all single values
-        // TODO rotations and scaling should be applied to geometry and vectors
+        // rotations and scaling should be applied to geometry and vectors
         // translations are only applied to geometry
         double value;
         if (sscanf(line, " %s %lf", subLine, &value) != 2)
@@ -1755,26 +1770,32 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
         if (transStr == "Tx:")
         {
           transform->Translate(value, 0, 0);
+          applyToVectors = false;
         }
         else if (transStr == "Ty:")
         {
           transform->Translate(0, value, 0);
+          applyToVectors = false;
         }
         else if (transStr == "Tz:")
         {
           transform->Translate(0, 0, value);
+          applyToVectors = false;
         }
         else if (transStr == "Sx:")
         {
           transform->Scale(value, 1, 1);
+          applyToVectors = true;
         }
         else if (transStr == "Sy:")
         {
           transform->Scale(1, value, 1);
+          applyToVectors = true;
         }
         else if (transStr == "Sz:")
         {
           transform->Scale(1, 1, value);
+          applyToVectors = true;
         }
         else
         {
@@ -1788,6 +1809,7 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
             this->IS = nullptr;
             return 0;
           }
+          applyToVectors = true;
 
           if (transStr.size() == 4 && transStr[2] == 'r')
           {
@@ -1811,6 +1833,16 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
           }
         }
       }
+
+      if (pretransform)
+      {
+        currentPartTransform.PreTransformsApplyToVectors.push_back(applyToVectors);
+      }
+      else
+      {
+        currentPartTransform.PostTransformsApplyToVectors.push_back(applyToVectors);
+      }
+
       transIdx++;
     }
 
@@ -2088,10 +2120,32 @@ int vtkEnSightReader::ApplyRigidBodyTransforms(int partId, const char* name, vtk
   }
 
   // first we need to concatenate pretransforms, euler transforms, and post transforms
+  // We have to apply some transforms with TransformAllInputVectors on and some with it off.
   const auto& partTransforms = this->RigidBodyTransforms[partName];
-  vtkNew<vtkTransform> allTransforms;
-  allTransforms->PostMultiply();
-  allTransforms->Concatenate(partTransforms.PreTransforms);
+
+  std::vector<vtkSmartPointer<vtkTransformFilter>> transformPipeline;
+  // first check to see if we have any pretransforms
+  for (unsigned int i = 0; i < partTransforms.PreTransforms.size(); i++)
+  {
+    transformPipeline.push_back(vtkSmartPointer<vtkTransformFilter>::New());
+    vtkTransformFilter* filter = transformPipeline.back();
+
+    if (i == 0)
+    {
+      filter->SetInputData(output);
+    }
+    else
+    {
+      filter->SetInputConnection(transformPipeline[i - 1]->GetOutputPort(0));
+    }
+
+    filter->SetTransform(partTransforms.PreTransforms[i]);
+
+    if (partTransforms.PreTransformsApplyToVectors[i])
+    {
+      filter->TransformAllInputVectorsOn();
+    }
+  }
 
   // now find the correct euler transform
   auto eulerTitle = partTransforms.EETTransTitle;
@@ -2114,14 +2168,38 @@ int vtkEnSightReader::ApplyRigidBodyTransforms(int partId, const char* name, vtk
   }
 
   auto eulerTransform = this->EulerTransformsMap[eulerTitle][this->ActualTimeValue];
-  allTransforms->Concatenate(eulerTransform);
-  allTransforms->Concatenate(partTransforms.PostTransforms);
+  transformPipeline.push_back(vtkSmartPointer<vtkTransformFilter>::New());
+  vtkTransformFilter* filter = transformPipeline.back();
+  if (transformPipeline.size() > 1)
+  {
+    filter->SetInputConnection(transformPipeline[transformPipeline.size() - 2]->GetOutputPort(0));
+  }
+  else
+  {
+    filter->SetInputData(output);
+  }
+  filter->SetTransform(eulerTransform);
 
-  vtkNew<vtkTransformFilter> filter;
-  filter->SetInputData(output);
-  filter->SetTransform(allTransforms);
-  filter->Update();
-  output->ShallowCopy(filter->GetOutput());
+  // now handle any post transforms
+  for (unsigned int i = 0; i < partTransforms.PostTransforms.size(); i++)
+  {
+    // there's always at least 1 transform in the pipeline at this point
+    auto prevTransFilter = transformPipeline.back();
+
+    transformPipeline.push_back(vtkSmartPointer<vtkTransformFilter>::New());
+    vtkTransformFilter* curFilter = transformPipeline.back();
+
+    curFilter->SetInputConnection(prevTransFilter->GetOutputPort(0));
+    curFilter->SetTransform(partTransforms.PostTransforms[i]);
+
+    if (partTransforms.PostTransformsApplyToVectors[i])
+    {
+      curFilter->TransformAllInputVectorsOn();
+    }
+  }
+
+  transformPipeline.back()->Update();
+  output->ShallowCopy(transformPipeline.back()->GetOutput());
   return 1;
 }
 
