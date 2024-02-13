@@ -33,7 +33,10 @@
 #ifndef vtkImporter_h
 #define vtkImporter_h
 
+#include "vtkDataAssembly.h"   // for vtkDataAssembly
 #include "vtkIOImportModule.h" // For export macro
+#include "vtkSmartPointer.h"   // for vtkSmartPointer
+
 #include "vtkObject.h"
 
 #include <string> // for std::string
@@ -57,6 +60,15 @@ public:
    * lights.
    */
   vtkGetObjectMacro(Renderer, vtkRenderer);
+  ///@}
+
+  ///@{
+  /**
+   * Get the hierarchy of actors, cameras and lights in the renderer.
+   * Implementations should strive to pack the hierarchy information from
+   * the file in to a vtkDataAssembly using node names from the file.
+   */
+  vtkGetObjectMacro(SceneHierarchy, vtkDataAssembly);
   ///@}
 
   ///@{
@@ -161,6 +173,7 @@ protected:
 
   vtkRenderer* Renderer;
   vtkRenderWindow* RenderWindow;
+  vtkSmartPointer<vtkDataAssembly> SceneHierarchy;
 
   virtual void ReadData();
 

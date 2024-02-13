@@ -33,6 +33,13 @@ int TestGLTFImporter(int argc, char* argv[])
 
   importer->SetCamera(cameraIndex);
   importer->Update();
+  auto hierarchy = importer->GetSceneHierarchy();
+  if (hierarchy == nullptr || hierarchy->GetNumberOfChildren(0) == 0)
+  {
+    hierarchy->Print(std::cout);
+    std::cerr << "ERROR: scene hierarchy cannot be null!\n";
+    return 1;
+  }
   renderWindow->Render();
 
   int retVal = vtkRegressionTestImage(renderWindow);
