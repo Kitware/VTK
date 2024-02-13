@@ -125,7 +125,7 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
 
   if (array_type != vtkAbstractArray::AoSDataArrayTemplate)
   {
-    vtkLog(ERROR, "Unsupported data array type: " << data_array->GetDataTypeAsString());
+    vtkLog(ERROR, "Unsupported data array type: " << data_array->GetArrayTypeAsString());
     return false;
   }
 
