@@ -118,7 +118,7 @@ int TestAnariCellData(int argc, char* argv[])
 
   vtkAnariRendererNode::SetLibraryName("environment", ren);
   vtkAnariRendererNode::SetSamplesPerPixel(6, ren);
-  vtkAnariRendererNode::SetLightFalloff(.5, ren);
+  vtkAnariRendererNode::SetLightFalloff(1.0, ren);
   vtkAnariRendererNode::SetUseDenoiser(1, ren);
   vtkAnariRendererNode::SetCompositeOnGL(1, ren);
   vtkAnariRendererNode::SetAmbientIntensity(0.5, ren);
