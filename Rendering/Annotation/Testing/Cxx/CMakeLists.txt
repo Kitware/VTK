@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkRenderingAnnotationCxxTests tests
   TestAxisActor.cxx
+  TestAxisActor2D.cxx
   TestAxisActor3D.cxx
   TestAxisActorMode2D.cxx
   TestAxisActorText3D.cxx
