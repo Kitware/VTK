@@ -1109,15 +1109,15 @@ bool vtkGLTFDocumentLoaderInternals::LoadPrimitive(
         auto& meshComp = primitive.ExtensionMetaData.KHRDracoMetaData;
         vtkGLTFUtils::GetIntValue(extension.value(), "bufferView", meshComp.BufferView);
 
-        const auto& glTFAttributes = extension.value()["attributes"];
-        if (!glTFAttributes.empty() && glTFAttributes.is_object())
+        const auto& dracoAttributes = extension.value()["attributes"];
+        if (!dracoAttributes.empty() && dracoAttributes.is_object())
         {
-          for (const auto& glTFAttribute : glTFAttributes.items())
+          for (const auto& dracoAttr : dracoAttributes.items())
           {
             int indice;
-            if (vtkGLTFUtils::GetIntValue(glTFAttributes, glTFAttribute.key(), indice))
+            if (vtkGLTFUtils::GetIntValue(dracoAttributes, dracoAttr.key(), indice))
             {
-              meshComp.AttributeIndices[glTFAttribute.key()] = indice;
+              meshComp.AttributeIndices[dracoAttr.key()] = indice;
             }
           }
         }
