@@ -6,36 +6,30 @@
 #endif
 
 #include "vtkAnariRendererNode.h"
+
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkAnariActorNode.h"
 #include "vtkAnariCameraNode.h"
 #include "vtkAnariLightNode.h"
 #include "vtkAnariProfiling.h"
 #include "vtkAnariVolumeNode.h"
-
-#include "vtkAbstractVolumeMapper.h"
-#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
-#include "vtkCollectionIterator.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkLight.h"
 #include "vtkLogger.h"
 #include "vtkMapper.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
-#include "vtkTransform.h"
 
-#include <algorithm>
 #include <cmath>
-#include <map>
 #include <memory>
 
 #include <anari/anari_cpp/ext/std.h>
@@ -78,14 +72,12 @@ namespace anari_vtk
 struct RendererParameters
 {
   RendererParameters()
-    : Subtype()
-    , Denoise(false)
+    : Denoise(false)
     , SamplesPerPixel(-1)
     , AmbientSamples(-1)
     , LightFalloff(-1.f)
     , AmbientIntensity(-1.f)
     , MaxDepth(0)
-    , DebugMethod()
   {
   }
 
@@ -104,7 +96,6 @@ struct SurfaceState
   SurfaceState()
     : changed(false)
     , used(false)
-    , Surfaces()
   {
   }
 
@@ -118,7 +109,6 @@ struct VolumeState
   VolumeState()
     : changed(false)
     , used(false)
-    , Volumes()
   {
   }
 
@@ -132,7 +122,6 @@ struct LightState
   LightState()
     : changed(false)
     , used(false)
-    , Lights()
   {
   }
 
@@ -354,7 +343,7 @@ bool vtkAnariRendererNodeInternals::InitAnari()
 
   const char* libraryName = vtkAnariRendererNode::GetLibraryName(this->Owner->GetRenderer());
   vtkDebugWithObjectMacro(
-    this->Owner, << "VTK Library name: " << (libraryName != nullptr) ? libraryName : "nullptr");
+    this->Owner, << "VTK Library name: " << ((libraryName != nullptr) ? libraryName : "nullptr"));
 
   if (libraryName != nullptr)
   {
@@ -557,14 +546,14 @@ void vtkAnariRendererNodeInternals::ClearSurfaces()
 //----------------------------------------------------------------------------
 void vtkAnariRendererNodeInternals::AddVolume(anari::Volume volume, const bool changed)
 {
+  if (this->AnariVolumeState.used)
+  {
+    this->ClearVolumes();
+    this->AnariVolumeState.used = false;
+  }
+
   if (volume != nullptr)
   {
-    if (this->AnariVolumeState.used)
-    {
-      this->ClearVolumes();
-      this->AnariVolumeState.used = false;
-    }
-
     this->AnariVolumeState.Volumes.emplace_back(volume);
   }
 
@@ -986,7 +975,7 @@ const char* vtkAnariRendererNode::GetLibraryName(vtkRenderer* renderer)
 {
   if (!renderer)
   {
-    nullptr;
+    return nullptr;
   }
 
   vtkInformation* info = renderer->GetInformation();
@@ -1046,7 +1035,7 @@ const char* vtkAnariRendererNode::GetDebugLibraryName(vtkRenderer* renderer)
 {
   if (!renderer)
   {
-    "debug";
+    return "debug";
   }
 
   vtkInformation* info = renderer->GetInformation();
