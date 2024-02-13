@@ -193,6 +193,7 @@ public:
     struct Extensions
     {
       // KHR_draco_mesh_compression extension
+      // Only metadata are read (decoding and modifying the internal model is not done yet)
       struct KHRDracoMeshCompression
       {
         int BufferView = -1;
@@ -615,8 +616,9 @@ public:
 
   /**
    * Some extensions require a preparation on the model before building VTK objects.
-   * That's the case of KHR_draco_mesh_compression for example for which the preparation is
-   * deferred to the subclass because a dependency to Draco is required.
+   * For example, a subclass supporting KHR_draco_mesh_compression could override this function
+   * to consume the extension metadata and modify the internal model.
+   * This is not done in VTK yet which does not modify the internal model once read.
    */
   virtual void PrepareData() {}
 

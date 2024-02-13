@@ -356,10 +356,7 @@ vtkGLTFImporter::~vtkGLTFImporter()
 //------------------------------------------------------------------------------
 void vtkGLTFImporter::InitializeLoader()
 {
-  if (!this->Loader)
-  {
-    this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
-  }
+  this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
 }
 
 //------------------------------------------------------------------------------
