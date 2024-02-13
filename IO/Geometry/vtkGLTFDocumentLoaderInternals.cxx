@@ -1097,6 +1097,34 @@ bool vtkGLTFDocumentLoaderInternals::LoadPrimitive(
     }
   }
 
+  // extensions
+  auto rootExtIt = root.find("extensions");
+
+  if (rootExtIt != root.end() && rootExtIt.value().is_object())
+  {
+    for (const auto& extension : rootExtIt.value().items())
+    {
+      if (extension.key() == "KHR_draco_mesh_compression")
+      {
+        auto& meshComp = primitive.ExtensionMetaData.KHRDracoMetaData;
+        vtkGLTFUtils::GetIntValue(extension.value(), "bufferView", meshComp.BufferView);
+
+        const auto& dracoAttributes = extension.value()["attributes"];
+        if (!dracoAttributes.empty() && dracoAttributes.is_object())
+        {
+          for (const auto& dracoAttr : dracoAttributes.items())
+          {
+            int indice;
+            if (vtkGLTFUtils::GetIntValue(dracoAttributes, dracoAttr.key(), indice))
+            {
+              meshComp.AttributeIndices[dracoAttr.key()] = indice;
+            }
+          }
+        }
+      }
+    }
+  }
+
   return true;
 }
 
@@ -1287,7 +1315,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
   }
 
   // Check for extensions
-  const auto& supportedExtensions = this->Self->GetSupportedExtensions();
+  auto supportedExtensions = this->Self->GetSupportedExtensions();
   for (const auto& extensionRequiredByModel : root["extensionsRequired"])
   {
     if (!extensionRequiredByModel.is_string())

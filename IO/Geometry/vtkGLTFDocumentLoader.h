@@ -188,6 +188,20 @@ public:
     int Material;
     int Mode;
     int CellSize; // 1, 2 or 3, depending on draw mode
+
+    // Primitive-specific extension metadata
+    struct Extensions
+    {
+      // KHR_draco_mesh_compression extension
+      // Only metadata are read (decoding and modifying the internal model is not done yet)
+      struct KHRDracoMeshCompression
+      {
+        int BufferView = -1;
+        std::map<std::string, int> AttributeIndices;
+      };
+      Primitive::Extensions::KHRDracoMeshCompression KHRDracoMetaData;
+    };
+    Primitive::Extensions ExtensionMetaData;
   };
 
   /**
@@ -574,7 +588,7 @@ public:
   /**
    * Get the list of extensions that are supported by this loader
    */
-  const std::vector<std::string>& GetSupportedExtensions();
+  virtual std::vector<std::string> GetSupportedExtensions();
 
   /**
    * Get the list of extensions that are used by the current model
@@ -599,6 +613,14 @@ public:
    */
   static void ComputeJointMatrices(const Model& model, const Skin& skin, Node& node,
     std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats);
+
+  /**
+   * Some extensions require a preparation on the model before building VTK objects.
+   * For example, a subclass supporting KHR_draco_mesh_compression could override this function
+   * to consume the extension metadata and modify the internal model.
+   * This is not done in VTK yet which does not modify the internal model once read.
+   */
+  virtual void PrepareData() {}
 
 protected:
   vtkGLTFDocumentLoader() = default;

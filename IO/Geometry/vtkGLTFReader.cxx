@@ -666,6 +666,12 @@ void vtkGLTFReader::StoreTextureData()
 }
 
 //------------------------------------------------------------------------------
+void vtkGLTFReader::InitializeLoader()
+{
+  this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+}
+
+//------------------------------------------------------------------------------
 int vtkGLTFReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -689,7 +695,7 @@ int vtkGLTFReader::RequestInformation(
       this->Textures.clear();
     }
 
-    this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+    this->InitializeLoader();
     if (!this->Loader->LoadModelMetaDataFromStream(this->Stream, this->URILoader))
     {
       vtkErrorMacro("Error loading model metadata from stream");
@@ -738,7 +744,7 @@ int vtkGLTFReader::RequestInformation(
     // Load model metadata if not done previously
     if (!this->IsMetaDataLoaded)
     {
-      this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+      this->InitializeLoader();
       if (!this->Loader->LoadModelMetaDataFromFile(this->FileName))
       {
         vtkErrorMacro("Error loading model metadata from file " << this->FileName);

@@ -354,6 +354,12 @@ vtkGLTFImporter::~vtkGLTFImporter()
 }
 
 //------------------------------------------------------------------------------
+void vtkGLTFImporter::InitializeLoader()
+{
+  this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+}
+
+//------------------------------------------------------------------------------
 int vtkGLTFImporter::ImportBegin()
 {
   // Make sure we have a file to read.
@@ -365,7 +371,7 @@ int vtkGLTFImporter::ImportBegin()
 
   this->Textures.clear();
 
-  this->Loader.TakeReference(vtkGLTFDocumentLoader::New());
+  this->InitializeLoader();
   this->SceneHierarchy.TakeReference(vtkDataAssembly::New());
 
   vtkNew<vtkEventForwarderCommand> forwarder;
