@@ -131,91 +131,85 @@ int vtkAMRCutPlane::RequestData(vtkInformation* vtkNotUsed(rqst),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // STEP 0: Get input object
-  vtkInformation* input = inputVector[0]->GetInformationObject(0);
-  assert("pre: input information object is nullptr" && (input != nullptr));
-  vtkOverlappingAMR* inputAMR =
-    vtkOverlappingAMR::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
-  assert("pre: input AMR dataset is nullptr!" && (inputAMR != nullptr));
+  vtkOverlappingAMR* input = vtkOverlappingAMR::GetData(inputVector[0]);
+  if (!input)
+  {
+    vtkErrorMacro("Input AMR dataset is nullptr!");
+    return 0;
+  }
 
   // STEP 1: Get output object
-  vtkInformation* output = outputVector->GetInformationObject(0);
-  assert("pre: output information is nullptr" && (output != nullptr));
-  vtkMultiBlockDataSet* mbds =
-    vtkMultiBlockDataSet::SafeDownCast(output->Get(vtkDataObject::DATA_OBJECT()));
-  assert("pre: output multi-block dataset is nullptr" && (mbds != nullptr));
+  auto output = vtkMultiBlockDataSet::GetData(outputVector);
+  if (!output)
+  {
+    vtkErrorMacro("Output multi-block dataset is nullptr!");
+    return 0;
+  }
 
-  if (this->IsAMRData2D(inputAMR))
+  if (this->IsAMRData2D(input))
   {
     // Return an empty multi-block, we cannot cut a 2-D dataset
     return 1;
   }
 
-  vtkPlane* cutPlane = this->GetCutPlane(inputAMR);
-  assert("pre: cutPlane should not be nullptr!" && (cutPlane != nullptr));
-
-  unsigned int blockIdx = 0;
-  unsigned int level = 0;
-  bool abort = false;
-  for (; level < inputAMR->GetNumberOfLevels() && !abort; ++level)
+  auto cutPlane = vtk::TakeSmartPointer(this->GetCutPlane(input));
+  if (!cutPlane)
   {
-    unsigned int dataIdx = 0;
-    for (; dataIdx < inputAMR->GetNumberOfDataSets(level); ++dataIdx)
+    vtkErrorMacro("Cut plane is nullptr!");
+    return 0;
+  }
+
+  output->CopyStructure(input);
+
+  auto inIter = vtk::TakeSmartPointer(input->NewIterator());
+  for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
+  {
+    if (this->CheckAbort())
     {
-      if (this->CheckAbort())
+      break;
+    }
+    auto grid = vtkUniformGrid::SafeDownCast(inIter->GetCurrentDataObject());
+    if (this->UseNativeCutter == 1)
+    {
+      if (grid != nullptr)
       {
-        abort = true;
-        break;
-      }
-      vtkUniformGrid* grid = inputAMR->GetDataSet(level, dataIdx);
-      if (this->UseNativeCutter == 1)
-      {
-        if (grid != nullptr)
-        {
-          vtkNew<vtkCutter> myCutter;
-          myCutter->SetInputData(grid);
-          myCutter->SetCutFunction(cutPlane);
-          myCutter->SetContainerAlgorithm(this);
-          myCutter->Update();
-          mbds->SetBlock(blockIdx, myCutter->GetOutput());
-          ++blockIdx;
-        }
-        else
-        {
-          mbds->SetBlock(blockIdx, nullptr);
-          ++blockIdx;
-        }
+        vtkNew<vtkCutter> myCutter;
+        myCutter->SetInputData(grid);
+        myCutter->SetCutFunction(cutPlane);
+        myCutter->SetContainerAlgorithm(this);
+        myCutter->Update();
+        output->SetDataSet(inIter, myCutter->GetOutput());
       }
       else
       {
-        if (grid != nullptr)
-        {
-          this->CutAMRBlock(cutPlane, blockIdx, grid, mbds);
-          ++blockIdx;
-        }
-        else
-        {
-          mbds->SetBlock(blockIdx, nullptr);
-          ++blockIdx;
-        }
+        output->SetDataSet(inIter, nullptr);
       }
-    } // END for all data
-  }   // END for all levels
-
-  cutPlane->Delete();
+    }
+    else
+    {
+      if (grid != nullptr)
+      {
+        output->SetDataSet(inIter, this->CutAMRBlock(cutPlane, grid));
+      }
+      else
+      {
+        output->SetDataSet(inIter, nullptr);
+      }
+    }
+  }
   return 1;
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRCutPlane::CutAMRBlock(
-  vtkPlane* cutPlane, unsigned int blockIdx, vtkUniformGrid* grid, vtkMultiBlockDataSet* output)
+vtkSmartPointer<vtkUnstructuredGrid> vtkAMRCutPlane::CutAMRBlock(
+  vtkPlane* cutPlane, vtkUniformGrid* grid)
 {
-  assert("pre: multiblock output object is nullptr!" && (output != nullptr));
   assert("pre: grid is nullptr" && (grid != nullptr));
 
-  vtkUnstructuredGrid* mesh = vtkUnstructuredGrid::New();
-  vtkPoints* meshPts = vtkPoints::New();
+  vtkNew<vtkUnstructuredGrid> mesh;
+  vtkNew<vtkPoints> meshPts;
   meshPts->SetDataTypeToDouble();
-  vtkCellArray* cells = vtkCellArray::New();
+  vtkNew<vtkCellArray> cells;
 
   // Maps points from the input grid to the output grid
   std::map<vtkIdType, vtkIdType> grdPntMapping;
@@ -239,7 +233,6 @@ void vtkAMRCutPlane::CutAMRBlock(
 
   // Insert the points
   mesh->SetPoints(meshPts);
-  meshPts->Delete();
 
   std::vector<int> types;
   if (grid->GetDataDimension() == 3)
@@ -249,23 +242,18 @@ void vtkAMRCutPlane::CutAMRBlock(
   else
   {
     vtkErrorMacro("Cannot cut a grid of dimension=" << grid->GetDataDimension());
-    output->SetBlock(blockIdx, nullptr);
-    return;
+    return nullptr;
   }
 
   // Insert the cells
   mesh->SetCells(types.data(), cells);
-  cells->Delete();
 
   // Extract fields
   this->ExtractPointDataFromGrid(
     grid, grdPntMapping, mesh->GetNumberOfPoints(), mesh->GetPointData());
   this->ExtractCellDataFromGrid(grid, extractedCells, mesh->GetCellData());
 
-  output->SetBlock(blockIdx, mesh);
-  mesh->Delete();
-  grdPntMapping.clear();
-  extractedCells.clear();
+  return mesh;
 }
 
 //------------------------------------------------------------------------------
@@ -277,8 +265,7 @@ void vtkAMRCutPlane::ExtractCellFromGrid(vtkUniformGrid* grid, vtkCell* cell,
   assert("pre: cells is nullptr" && (cells != nullptr));
 
   cells->InsertNextCell(cell->GetNumberOfPoints());
-  vtkIdType nodeIdx = 0;
-  for (; nodeIdx < cell->GetNumberOfPoints(); ++nodeIdx)
+  for (vtkIdType nodeIdx = 0; nodeIdx < cell->GetNumberOfPoints(); ++nodeIdx)
   {
     // Get the point ID w.r.t. the grid
     vtkIdType meshPntIdx = cell->GetPointId(nodeIdx);

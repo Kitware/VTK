@@ -27,6 +27,7 @@ class vtkInformationVector;
 class vtkIndent;
 class vtkPlane;
 class vtkUniformGrid;
+class vtkUnstructuredGrid;
 class vtkCell;
 class vtkPoints;
 class vtkCellArray;
@@ -168,8 +169,7 @@ protected:
   /**
    * Applies cutting to an AMR block
    */
-  void CutAMRBlock(
-    vtkPlane* cutPlane, unsigned int blockIdx, vtkUniformGrid* grid, vtkMultiBlockDataSet* dataSet);
+  vtkSmartPointer<vtkUnstructuredGrid> CutAMRBlock(vtkPlane* cutPlane, vtkUniformGrid* grid);
 
   int LevelOfResolution;
   double Center[3];
