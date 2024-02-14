@@ -4,7 +4,7 @@
 
 import vtkmodules.test.Testing as vtkTesting
 from vtkmodules.vtkCommonDataModel import vtkImageData, vtkPolyData
-from vtkmodules.vtkFiltersCore import vtkElevationFilter, vtkPolyDataConnectivityFilter, vtkPolyDataNormals, VTK_EXTRACT_ALL_REGIONS
+from vtkmodules.vtkFiltersCore import vtkElevationFilter, vtkPolyDataConnectivityFilter, vtkPolyDataNormals, VTK_EXTRACT_ALL_REGIONS, vtkAppendFilter
 from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
 from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
 from vtkmodules.vtkFiltersModeling import vtkLinearExtrusionFilter
@@ -175,7 +175,17 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
 
         with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: vtkImageData and MockInvalidConnector"):
             pipeline = vtkImageData(dimensions=(10, 10, 1)) >> MockInvalidConnector(vtkElevationFilter())
-
+    def testClearInput(self):
+        s = vtkShrinkFilter()
+        vtkSphereSource() >> s
+        self.assertTrue(s.GetInputAlgorithm(0, 0).IsA("vtkSphereSource"))
+        None >> s
+        self.assertEqual(s.GetInputAlgorithm(0,0), None)
+        a = vtkAppendFilter()
+        (vtkConeSource(), vtkSphereSource()) >> a
+        self.assertEqual(a.GetNumberOfInputConnections(0), 2)
+        [] >> a
+        self.assertEqual(a.GetNumberOfInputConnections(0), 0)
 
 if __name__ == '__main__':
     vtkTesting.main([(TestAlgorithmNumberProtocol, 'test')])

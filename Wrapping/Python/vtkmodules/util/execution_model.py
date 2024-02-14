@@ -119,11 +119,15 @@ class select_ports(object):
         "Creates a pipeline between the underlying port and an algorithm."
         return Pipeline(self, rhs)
 
-    def __rrshift__(self, rhs):
+    def __rrshift__(self, lhs):
         """Creates a pipeline between the underlying port and an algorithm.
         This is to handle sequence >> select_ports where the port can
         accept multiple connections."""
-        return Pipeline(rhs, self)
+        from collections.abc import Sequence
+        if lhs is None or (isinstance(lhs, Sequence) and len(lhs == 0)):
+            self.algorithm.RemoveAllInputConnections(self.input_port)
+            return self
+        return Pipeline(lhs, self)
 
     def __call__(self, inp=None):
         """Executes the underlying algorithm by passing input data to
@@ -233,6 +237,14 @@ class Pipeline(object):
         be a data object, an algorithm or a pipeline. The right
         side can be an algorithm or a pipeline."""
         return Pipeline(self, rhs)
+
+    def __rrshift__(self, lhs):
+        """Creates a pipeline between a sequence input and a pipeline."""
+        from collections.abc import Sequence
+        if lhs is None or (isinstance(lhs, Sequence) and len(lhs) == 0):
+            self.first.RemoveAllInputConnections(0)
+            return self
+        return Pipeline(lhs, self)
 
 class Output(object):
     """Helper object to represent the output of an algorithms as
