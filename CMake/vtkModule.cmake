@@ -2353,9 +2353,10 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
 
       [USE_EXTERNAL <ON|OFF>]
 
-      [INSTALL_HEADERS    <ON|OFF>]
-      [HEADERS_COMPONENT  <component>]
-      [USE_FILE_SETS      <ON|OFF>]
+      [INSTALL_HEADERS             <ON|OFF>]
+      [HEADERS_COMPONENT           <component>]
+      [HEADERS_EXCLUDE_FROM_ALL    <ON|OFF>]
+      [USE_FILE_SETS               <ON|OFF>]
 
       [TARGETS_COMPONENT  <component>]
       [INSTALL_EXPORT     <export>]
@@ -2411,6 +2412,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
   * ``HEADERS_COMPONENT``: (Defaults to ``development``) The install component to
     use for header installation. Note that other SDK-related bits use the same
     component (e.g., CMake module files).
+  * ``HEADERS_EXCLUDE_FROM_ALL``: (Defaults to ``OFF``) Whether to install the headers
+    component in ALL or not.
   * ``USE_FILE_SETS``: (Defaults to ``OFF``) Whether to use ``FILE_SET`` source
     specification or not.
   * ``TARGETS_COMPONENT``: ``Defaults to ``runtime``) The install component to use
@@ -2478,6 +2481,7 @@ function (vtk_module_build)
     # Headers
     INSTALL_HEADERS
     HEADERS_COMPONENT
+    HEADERS_EXCLUDE_FROM_ALL
     USE_FILE_SETS
 
     # Targets
@@ -2550,6 +2554,10 @@ function (vtk_module_build)
 
   if (NOT DEFINED _vtk_build_INSTALL_HEADERS)
     set(_vtk_build_INSTALL_HEADERS ON)
+  endif ()
+
+  if (NOT DEFINED _vtk_build_HEADERS_EXCLUDE_FROM_ALL)
+    set(_vtk_build_HEADERS_EXCLUDE_FROM_ALL OFF)
   endif ()
 
   if (NOT DEFINED _vtk_build_USE_FILE_SETS)
@@ -2991,12 +2999,19 @@ function (vtk_module_build)
       EXPORT    "${_vtk_build_INSTALL_EXPORT}"
       ${_vtk_build_namespace}
       FILE      "${CMAKE_BINARY_DIR}/${_vtk_build_CMAKE_DESTINATION}/${_vtk_build_PACKAGE}-targets.cmake")
+
+    set(_vtk_build_exclude_from_all "")
+    if (_vtk_build_HEADERS_EXCLUDE_FROM_ALL)
+      set(_vtk_build_exclude_from_all "EXCLUDE_FROM_ALL")
+    endif ()
+
     install(
       EXPORT      "${_vtk_build_INSTALL_EXPORT}"
       DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
       ${_vtk_build_namespace}
       FILE        "${_vtk_build_PACKAGE}-targets.cmake"
-      COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
+      COMPONENT   "${_vtk_build_HEADERS_COMPONENT}"
+      ${_vtk_build_exclude_from_all})
 
     if (_vtk_build_INSTALL_HEADERS)
       file(APPEND "${_vtk_build_properties_install_file}"
@@ -3006,7 +3021,8 @@ function (vtk_module_build)
         FILES       "${_vtk_build_properties_install_file}"
         DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
         RENAME      "${_vtk_build_properties_filename}"
-        COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
+        COMPONENT   "${_vtk_build_HEADERS_COMPONENT}"
+        ${_vtk_build_exclude_from_all})
     endif ()
   endif ()
 
@@ -3516,7 +3532,8 @@ endfunction ()
 
   Write wrap hierarchy files for the module currently being built. This also
   installs the hierarchy file for use by dependent projects if ``INSTALL_HEADERS``
-  is set.
+  is set. This function honors the ``HEADERS_COMPONENT``, and 
+  ``HEADERS_EXCLUDE_FROM_ALL`` arguments to :cmake:command:`vtk_module_build`.
 
   .. code-block:: cmake
 
@@ -3712,11 +3729,18 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
     set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_hierarchy_install" "\${_vtk_module_import_prefix}/${_vtk_build_HIERARCHY_DESTINATION}/${_vtk_hierarchy_filename}")
+
+    set(_vtk_hierarchy_exclude_from_all "")
+    if (_vtk_build_HEADERS_EXCLUDE_FROM_ALL)
+      set(_vtk_hierarchy_exclude_from_all "EXCLUDE_FROM_ALL")
+    endif ()
+
     install(
       FILES       "${_vtk_hierarchy_file}"
       DESTINATION "${_vtk_build_HIERARCHY_DESTINATION}"
       RENAME      "${_vtk_hierarchy_filename}"
-      COMPONENT   "${_vtk_hierarchy_headers_component}")
+      COMPONENT   "${_vtk_hierarchy_headers_component}"
+      ${_vtk_hierarchy_exclude_from_all})
   endif ()
 endfunction ()
 
@@ -4604,7 +4628,7 @@ endfunction ()
 
   To facilitate the installation of headers in various ways, the this function is
   available. This function honors the ``INSTALL_HEADERS``, ``HEADERS_DESTINATION``,
-  and ``HEADERS_COMPONENT`` arguments to :cmake:command:`vtk_module_build`.
+  ``HEADERS_COMPONENT``, and ``HEADERS_EXCLUDE_FROM_ALL`` arguments to :cmake:command:`vtk_module_build`.
 
   .. code-block:: cmake
 
@@ -4654,6 +4678,12 @@ function (vtk_module_install_headers)
       endif ()
     endif ()
   endif ()
+
+  set(_vtk_install_headers_exclude_from_all "")
+  if (_vtk_build_HEADERS_EXCLUDE_FROM_ALL)
+    set(_vtk_install_headers_exclude_from_all "EXCLUDE_FROM_ALL")
+  endif ()
+
   if (_vtk_install_headers_USE_RELATIVE_PATHS)
     set(_vtk_install_headers_destination_file_subdir "")
     foreach (_vtk_install_headers_file IN LISTS _vtk_install_headers_FILES)
@@ -4668,13 +4698,15 @@ function (vtk_module_install_headers)
       install(
         FILES       ${_vtk_install_headers_file}
         DESTINATION "${_vtk_install_headers_destination}/${_vtk_install_headers_destination_file_subdir}"
-        COMPONENT   "${_vtk_install_headers_headers_component}")
+        COMPONENT   "${_vtk_install_headers_headers_component}"
+        ${_vtk_install_headers_exclude_from_all})
     endforeach ()
   elseif (_vtk_install_headers_FILES)
     install(
       FILES       ${_vtk_install_headers_FILES}
       DESTINATION "${_vtk_install_headers_destination}"
-      COMPONENT   "${_vtk_install_headers_headers_component}")
+      COMPONENT   "${_vtk_install_headers_headers_component}"
+      ${_vtk_install_headers_exclude_from_all})
   endif ()
   set(_vtk_install_headers_destination_directory_subdir "")
   foreach (_vtk_install_headers_directory IN LISTS _vtk_install_headers_DIRECTORIES)
@@ -4691,7 +4723,8 @@ function (vtk_module_install_headers)
     install(
       DIRECTORY   "${_vtk_install_headers_directory}"
       DESTINATION "${_vtk_install_headers_destination}/${_vtk_install_headers_destination_directory_subdir}"
-      COMPONENT   "${_vtk_install_headers_headers_component}")
+      COMPONENT   "${_vtk_install_headers_headers_component}"
+      ${_vtk_install_headers_exclude_from_all})
   endforeach ()
 endfunction ()
 
