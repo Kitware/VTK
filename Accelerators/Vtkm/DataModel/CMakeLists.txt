@@ -48,7 +48,7 @@ vtkm_add_target_information(${vtkm_accel_target}
                             MODIFY_CUDA_FLAGS
                             DEVICE_SOURCES ${sources})
 
-if (TARGET vtkm::cuda OR TARGET vtkm::kokkos_cuda)
+if (TARGET vtkm::cuda)
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.
   # We are disabling all warnings as nvlink has no known way to suppress
@@ -59,12 +59,18 @@ if (TARGET vtkm::cuda OR TARGET vtkm::kokkos_cuda)
   set(cuda_impl ${nowrap_sources} vtkmDataSet.cxx)
   set_source_files_properties(${cuda_impl} PROPERTIES LANGUAGE CUDA)
 
-  vtk_module_set_properties(VTK::AcceleratorsVTKmDataModel
-    CUDA_SEPARABLE_COMPILATION ON)
+  vtk_module_set_properties(VTK::AcceleratorsVTKmDataModel CUDA_SEPARABLE_COMPILATION ON)
 
   vtk_module_compile_options(VTK::AcceleratorsVTKmDataModel
     PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
-endif ()
+
+elseif (TARGET vtkm::kokkos_cuda)
+  list(TRANSFORM nowrap_classes APPEND ".cxx" OUTPUT_VARIABLE nowrap_sources)
+  set(cuda_impl ${nowrap_sources} vtkmDataSet.cxx)
+  set_source_files_properties(${cuda_impl} PROPERTIES LANGUAGE CUDA)
+  kokkos_compilation(SOURCE ${cuda_impl})
+
+endif()
 
 if (MSVC)
   set(msvc_warning_flags
