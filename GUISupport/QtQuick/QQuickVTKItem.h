@@ -122,9 +122,18 @@ public:
   void dispatch_async(std::function<void(vtkRenderWindow* renderWindow, vtkUserData userData)> f);
   ///@}
 
-protected:
+  /**
+   * Schedules an update on the vtkRenderWindow encapsulated in this item
+   *
+   * This function triggers a render on the VTK render window and ensures that the render happens on
+   * the QML render thread.
+   *
+   * \note This public method can be invoked after updating a VTK pipeline parameter
+   * programmatically to update the item.
+   */
   void scheduleRender();
 
+protected:
   bool event(QEvent*) override;
 
   QSGNode* updatePaintNode(QSGNode*, UpdatePaintNodeData*) override;
