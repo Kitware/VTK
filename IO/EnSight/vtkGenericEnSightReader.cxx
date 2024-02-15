@@ -285,7 +285,7 @@ int vtkGenericEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-void vtkGenericEnSightReader::SetTimeValue(float value)
+void vtkGenericEnSightReader::SetTimeValue(double value)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting TimeValue to " << value);
   if (this->TimeValue != value)
