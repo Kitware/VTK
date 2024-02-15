@@ -4,6 +4,8 @@
 // This test volume renders a synthetic dataset with unsigned char values,
 // with the composite method.
 
+#include <vtkAnariPass.h>
+#include <vtkAnariRendererNode.h>
 #include <vtkCamera.h>
 #include <vtkClipPolyData.h>
 #include <vtkColorTransferFunction.h>
@@ -99,15 +101,25 @@ int TestAnariSmartVolumeMapper(int argc, char* argv[])
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
 
+  vtkNew<vtkAnariPass> anariPass;
+  ren->SetPass(anariPass);
+  vtkAnariRendererNode::SetLibraryName("environment", ren);
+  vtkAnariRendererNode::SetSamplesPerPixel(6, ren);
+  vtkAnariRendererNode::SetLightFalloff(.5, ren);
+  vtkAnariRendererNode::SetUseDenoiser(1, ren);
+  vtkAnariRendererNode::SetCompositeOnGL(1, ren);
+
   ren->AddViewProp(volume);
   ren->AddActor(dssActor);
-  renWin->Render();
+  ren->ResetCamera();
+
+  ren->GetActiveCamera()->Pitch(-40);
   ren->ResetCamera();
 
   iren->Initialize();
   iren->SetDesiredUpdateRate(30.0);
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 1.0);
+  int retVal = vtkRegressionTestImage(renWin);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

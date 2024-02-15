@@ -2078,11 +2078,6 @@ void vtkAnariPolyDataMapperNode::Render(bool prepass)
     vtkAnariActorNode* anariActorNode = vtkAnariActorNode::SafeDownCast(this->Parent);
     vtkActor* actor = vtkActor::SafeDownCast(anariActorNode->GetRenderable());
 
-    if (actor->GetVisibility() == false)
-    {
-      return;
-    }
-
     auto anariRendererNode =
       static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
     this->SetAnariConfig(anariRendererNode);
@@ -2099,35 +2094,38 @@ void vtkAnariPolyDataMapperNode::Render(bool prepass)
     this->RenderTime = inTime;
     this->ClearSurfaces();
 
-    vtkPolyData* poly = nullptr;
-    vtkPolyDataMapper* polyDataMapper = vtkPolyDataMapper::SafeDownCast(actor->GetMapper());
-
-    if (polyDataMapper && polyDataMapper->GetNumberOfInputPorts() > 0)
+    if (actor->GetVisibility() != false)
     {
-      poly = polyDataMapper->GetInput();
-    }
-    else
-    {
-      vtkNew<vtkDataSetSurfaceFilter> geometryExtractor;
+      vtkPolyData* poly = nullptr;
+      vtkPolyDataMapper* polyDataMapper = vtkPolyDataMapper::SafeDownCast(actor->GetMapper());
 
-      geometryExtractor->SetInputData(actor->GetMapper()->GetInput());
-      geometryExtractor->Update();
-
-      poly = static_cast<vtkPolyData*>(geometryExtractor->GetOutput());
-    }
-
-    if (poly)
-    {
-      vtkProperty* property = actor->GetProperty();
-      std::string materialName = "matte";
-
-      if (property->GetMaterialName() != nullptr)
+      if (polyDataMapper && polyDataMapper->GetNumberOfInputPorts() > 0)
       {
-        materialName = property->GetMaterialName();
+        poly = polyDataMapper->GetInput();
+      }
+      else
+      {
+        vtkNew<vtkDataSetSurfaceFilter> geometryExtractor;
+
+        geometryExtractor->SetInputData(actor->GetMapper()->GetInput());
+        geometryExtractor->Update();
+
+        poly = static_cast<vtkPolyData*>(geometryExtractor->GetOutput());
       }
 
-      this->AnariRenderPoly(
-        anariActorNode, poly, property->GetColor(), property->GetOpacity(), materialName);
+      if (poly)
+      {
+        vtkProperty* property = actor->GetProperty();
+        std::string materialName = "matte";
+
+        if (property->GetMaterialName() != nullptr)
+        {
+          materialName = property->GetMaterialName();
+        }
+
+        this->AnariRenderPoly(
+          anariActorNode, poly, property->GetColor(), property->GetOpacity(), materialName);
+      }
     }
 
     this->RenderSurfaceModels(true);

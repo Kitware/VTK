@@ -138,7 +138,7 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
 
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 1.0);
+    int retVal = vtkRegressionTestImage(renWin);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

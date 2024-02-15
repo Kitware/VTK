@@ -112,7 +112,7 @@ int TestAnariScalarBar(int argc, char* argv[])
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 1.0);
+  int retVal = vtkRegressionTestImage(renWin);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

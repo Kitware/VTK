@@ -1117,7 +1117,7 @@ int TestAnariVolumeWavelet(int argc, char* argv[])
     recorder->Play();
     recorder->Off();
 
-    int retVal = vtkRegressionTestImageThreshold(renderWindow, 1.0);
+    int retVal = vtkRegressionTestImage(renderWindow);
     return !retVal;
   }
 

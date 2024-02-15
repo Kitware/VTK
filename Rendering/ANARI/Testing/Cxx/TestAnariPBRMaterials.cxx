@@ -149,7 +149,7 @@ int TestAnariPBRMaterials(int argc, char* argv[])
 
   if (extensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 50.0);
+    int retVal = vtkRegressionTestImage(renWin);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

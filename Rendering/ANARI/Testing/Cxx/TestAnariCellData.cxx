@@ -118,7 +118,7 @@ int TestAnariCellData(int argc, char* argv[])
 
   vtkAnariRendererNode::SetLibraryName("environment", ren);
   vtkAnariRendererNode::SetSamplesPerPixel(6, ren);
-  vtkAnariRendererNode::SetLightFalloff(.5, ren);
+  vtkAnariRendererNode::SetLightFalloff(1.0, ren);
   vtkAnariRendererNode::SetUseDenoiser(1, ren);
   vtkAnariRendererNode::SetCompositeOnGL(1, ren);
   vtkAnariRendererNode::SetAmbientIntensity(0.5, ren);
@@ -131,7 +131,7 @@ int TestAnariCellData(int argc, char* argv[])
 
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 1.0);
+    int retVal = vtkRegressionTestImage(renWin);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

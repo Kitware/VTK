@@ -1,31 +1,33 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test verifies that we can render dynamic objects (changing mesh)
-// and that changing vtk state changes the resulting image accordingly.
+// This test verifies that we can hot swap ANARI and GL backends.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
+//              In interactive mode it responds to the keys listed
+//              vtkAnariTestInteractor.h
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkLight.h"
-#include "vtkLightCollection.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPLYReader.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
 #include "vtkAnariTestInteractor.h"
 
-int TestAnariDynamicObject(int argc, char* argv[])
+int TestAnariPassVisibility(int argc, char* argv[])
 {
   vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
@@ -44,25 +46,33 @@ int TestAnariDynamicObject(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);
-  vtkNew<vtkSphereSource> sphere;
-  sphere->SetPhiResolution(100);
-  sphere->SetThetaResolution(100);
+
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
+  vtkNew<vtkPLYReader> polysource;
+  polysource->SetFileName(fileName);
+
+  vtkNew<vtkPolyDataNormals> normals;
+  normals->SetInputConnection(polysource->GetOutputPort());
+
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(sphere->GetOutputPort());
-
+  mapper->SetInputConnection(normals->GetOutputPort());
   vtkNew<vtkActor> actor;
-  vtkProperty* prop = actor->GetProperty();
-  prop->SetMaterialName("matte");
-  prop->SetColor(1.0, 0.0, 0.0); // Red
-  actor->SetMapper(mapper);
   renderer->AddActor(actor);
-
-  renderer->SetBackground(0.1, 0.1, 1.0);
+  actor->SetMapper(mapper);
+  auto prop = actor->GetProperty();
+  prop->SetMaterialName("matte");
+  prop->SetDiffuseColor(1.0, 1.0, 1.0);
+  renderer->SetBackground(0.0, 0.0, 0.5);
   renWin->SetSize(400, 400);
-  renWin->Render();
 
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
+
+  vtkAnariRendererNode::SetLibraryName("environment", renderer);
+  vtkAnariRendererNode::SetSamplesPerPixel(2, renderer);
+  vtkAnariRendererNode::SetLightFalloff(.2, renderer);
+  vtkAnariRendererNode::SetUseDenoiser(1, renderer);
+  vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
 
   if (useDebugDevice)
   {
@@ -71,56 +81,22 @@ int TestAnariDynamicObject(int argc, char* argv[])
 
     std::string traceDir = testing->GetTempDirectory();
     traceDir += "/anari-trace";
-    traceDir += "/TestAnariDynamicObject";
+    traceDir += "/TestAnariPassVisibility";
     vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), renderer);
   }
 
-  vtkAnariRendererNode::SetLibraryName("environment", renderer);
-  vtkAnariRendererNode::SetSamplesPerPixel(6, renderer);
-  vtkAnariRendererNode::SetLightFalloff(.5, renderer);
-  vtkAnariRendererNode::SetUseDenoiser(1, renderer);
-  vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
-
-  renWin->Render();
-
-  vtkLight* light = vtkLight::SafeDownCast(renderer->GetLights()->GetItemAsObject(0));
-  double lColor[3];
-  lColor[0] = 0.5;
-  lColor[1] = 0.5;
-  lColor[2] = 0.5;
-  light->SetDiffuseColor(lColor[0], lColor[1], lColor[2]);
-
-  vtkCamera* camera = renderer->GetActiveCamera();
-  double position[3];
-  camera->GetPosition(position);
-  camera->SetClippingRange(0.01, 1000.0);
-
-#define MAXFRAME 20
-  double inc = 1.0 / (double)MAXFRAME;
-
-  for (int i = 0; i < MAXFRAME; i++)
+  for (int i = 1; i < 3; i++)
   {
-    double I = (double)i / (double)MAXFRAME;
-    renWin->SetSize(400 + i, 400 - i);
-    sphere->SetPhiResolution(3 + i);
-    sphere->SetThetaResolution(3 + i);
-
-    lColor[0] += inc / 2;
-    lColor[1] -= inc / 2;
-    light->SetDiffuseColor(lColor[0], lColor[1], lColor[2]);
-
-    if (i < (MAXFRAME / 2))
+    if (i % 2)
     {
-      position[2] += inc * 5;
+      cerr << "Render visible" << endl;
+      actor->SetVisibility(true);
     }
     else
     {
-      position[2] -= inc * 5;
+      cerr << "Render invisible" << endl;
+      actor->SetVisibility(false);
     }
-
-    camera->SetPosition(position);
-
-    renderer->SetBackground(0.0, I, 1 - I);
     renWin->Render();
   }
 

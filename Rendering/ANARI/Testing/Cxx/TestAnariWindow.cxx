@@ -109,7 +109,7 @@ int TestAnariWindow(int argc, char* argv[])
   renderer->ResetCamera();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renderWindow, 1.0);
+  int retVal = vtkRegressionTestImage(renderWindow);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
