@@ -359,8 +359,8 @@ protected:
   int MeasuredTimeSet;
   int MeasuredFileSet;
 
-  float GeometryTimeValue;
-  float MeasuredTimeValue;
+  double GeometryTimeValue;
+  double MeasuredTimeValue;
 
   vtkTypeBool UseTimeSets;
   vtkSetMacro(UseTimeSets, vtkTypeBool);
