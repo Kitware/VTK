@@ -26,6 +26,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestDataObjectToPartitionedDataSetCollection.cxx,NO_VALID
   TestDecimatePolylineFilter.cxx
   TestDecimatePro.cxx,NO_VALID
+  TestDecimateProDegenerateTriangles.cxx,NO_VALID
   TestDelaunay2D.cxx
   TestDelaunay2DBestFittingPlane.cxx,NO_VALID
   TestDelaunay2DConstrained.cxx,NO_VALID
