@@ -5,6 +5,7 @@ set(classes
   vtkAppendCompositeDataLeaves
   vtkAppendDataSets
   vtkAppendFilter
+  vtkAppendPartitionedDataSetCollection
   vtkAppendPolyData
   vtkAppendSelection
   vtkArrayCalculator
