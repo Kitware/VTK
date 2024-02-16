@@ -6,6 +6,7 @@ set(classes
   vtkHyperTreeGridContour
   vtkHyperTreeGridDepthLimiter
   vtkHyperTreeGridEvaluateCoarse
+  vtkHyperTreeGridExtractGhostCells
   vtkHyperTreeGridFeatureEdges
   vtkHyperTreeGridGeometry
   vtkHyperTreeGridGradient
