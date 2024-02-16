@@ -54,7 +54,7 @@ int TestContourImplicitArrays(int argc, char* argv[])
 
   vtkNew<vtkContourFilter> contour;
   contour->SetInputData(baseGrid);
-  contour->SetValue(0, 0.0);
+  contour->SetContourValues({ 0.0 });
 
   contour->Update();
 

@@ -59,9 +59,8 @@ int TestResampleWithDataSet2(int argc, char* argv[])
   // Render
   vtkNew<vtkContourFilter> toPoly;
   toPoly->SetInputData(result);
-  toPoly->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "vtkValidPointMask");
-  toPoly->SetValue(0, 0.5);
+  toPoly->SetInputArray("vtkValidPointMask");
+  toPoly->SetContourValues({ 0.5 });
 
   vtkNew<vtkArrayCalculator> calculator;
   calculator->SetInputConnection(toPoly->GetOutputPort());
