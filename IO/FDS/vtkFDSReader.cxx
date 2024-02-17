@@ -1675,7 +1675,7 @@ bool vtkFDSReader::ParseSLCFSLCC(const std::vector<int>& baseNodes)
   else
   {
 
-    // Testing for a space
+    // Discard immediately the % or # symbol if there is a space between it and the slice id
     // for FDS version 6.8+, the first keyword will indicate the SLICETYPE
     if (token == "%" || token == "#")
     {
