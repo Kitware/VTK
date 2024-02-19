@@ -939,8 +939,7 @@ void vtkExtractSelection::ExtractSelectedCells(
     ghostArray = input->GetCellGhostArray();
     for (vtkIdType cc = 0; cc < numCells; ++cc)
     {
-      if (this->TestGhostArrays &&
-        ghostArray->GetVariantValue(cc) == vtkDataSetAttributes::HIDDENCELL)
+      if (ghostArray && ghostArray->GetVariantValue(cc) == vtkDataSetAttributes::HIDDENCELL)
       {
         // skip this cell
         continue;
@@ -993,8 +992,7 @@ void vtkExtractSelection::ExtractSelectedPoints(
     ghostArray = input->GetPointGhostArray();
     for (vtkIdType cc = 0; cc < numPts; ++cc)
     {
-      if (this->TestGhostArrays &&
-        ghostArray->GetVariantValue(cc) == vtkDataSetAttributes::HIDDENPOINT)
+      if (ghostArray && ghostArray->GetVariantValue(cc) == vtkDataSetAttributes::HIDDENPOINT)
       {
         // skip this point
         continue;

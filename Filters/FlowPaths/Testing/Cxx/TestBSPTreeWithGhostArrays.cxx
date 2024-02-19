@@ -109,7 +109,6 @@ int TestBSPTreeWithGhostArrays(int argc, char* argv[])
   //
   extract->SetInputData(sphere);
   extract->SetSelectionConnection(selection->GetOutputPort());
-  extract->TestGhostArraysOn(); // Remove hidden points/cells from extraction
   extract->Update();
 
   vtkSmartPointer<vtkUnstructuredGrid> extractedCells =
