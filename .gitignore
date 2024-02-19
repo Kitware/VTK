@@ -20,6 +20,3 @@ xcuserdata
 # Exclude Visual Studio stuff
 .vs*
 CMakeSettings.json
-
-#exclude vim backupfiles
-*~
