@@ -3,7 +3,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkDecimatePro.h"
-#include "vtkSmartPointer.h"
+#include "vtkNew.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
@@ -12,7 +12,7 @@ namespace
 void DecimatePro(vtkPolyData* inputPolyData, double targetReduction, bool preserveTopology,
   double featureAngle, bool boundaryVertexDeletion)
 {
-  vtkSmartPointer<vtkDecimatePro> decimatePro = vtkSmartPointer<vtkDecimatePro>::New();
+  vtkNew<vtkDecimatePro> decimatePro;
   decimatePro->SetInputData(inputPolyData);
   decimatePro->SetTargetReduction(targetReduction);
   decimatePro->SetPreserveTopology(preserveTopology);
