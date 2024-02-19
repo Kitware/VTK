@@ -556,7 +556,13 @@ int vtkDecimatePro::EvaluateVertex(
     // Ensure the triangle is valid : every vertex must be different
     if (verts[0] == verts[1] || verts[1] == verts[2] || verts[0] == verts[2])
     {
-      vtkWarningMacro(<< "Skip degenerate triangle (Cell " << t.id << ")");
+      vtkIdType commonPoint = verts[0];
+
+      if (verts[1] == verts[2])
+        commonPoint = verts[1];
+
+      vtkWarningMacro(<< "Skipping vertex " << ptId << " (Degenerate triangle at cell " << t.id
+                      << ")");
       return VTK_DEGENERATE_VERTEX;
     }
 
@@ -641,7 +647,8 @@ int vtkDecimatePro::EvaluateVertex(
       // Ensure the triangle is valid : every vertex must be different
       if (verts[0] == verts[1] || verts[1] == verts[2] || verts[0] == verts[2])
       {
-        vtkWarningMacro(<< "Skip degenerate triangle (Cell " << t.id << ")");
+        vtkWarningMacro(<< "Skipping vertex " << ptId << " (Degenerate triangle at cell " << t.id
+                        << ")");
         return VTK_DEGENERATE_VERTEX;
       }
 
