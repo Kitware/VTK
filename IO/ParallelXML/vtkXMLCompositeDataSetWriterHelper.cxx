@@ -80,6 +80,7 @@ vtkXMLWriterBase* vtkXMLCompositeDataSetWriterHelper::GetWriter(int dataType)
     writer->SetEncodeAppendedData(this->Writer->GetEncodeAppendedData());
     writer->SetHeaderType(this->Writer->GetHeaderType());
     writer->SetIdType(this->Writer->GetIdType());
+    writer->SetWriteTimeValue(this->Writer->GetWriteTimeValue());
     this->WriterCache[dataType].TakeReference(writer);
     return writer;
   }

@@ -111,6 +111,7 @@ int vtkXMLPTableWriter::WritePiece(int index)
   pWriter->SetEncodeAppendedData(this->EncodeAppendedData);
   pWriter->SetHeaderType(this->HeaderType);
   pWriter->SetBlockSize(this->BlockSize);
+  pWriter->SetWriteTimeValue(this->GetWriteTimeValue());
 
   // Write the piece.
   int result = pWriter->Write();

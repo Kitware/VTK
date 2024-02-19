@@ -41,6 +41,7 @@ bool vtkXMLDataWriterHelper::OpenFile()
   this->SetIdType(this->Writer->GetIdType());
   this->SetWriteToOutputString(this->Writer->GetWriteToOutputString());
   this->SetFileName(this->Writer->GetFileName());
+  this->SetWriteTimeValue(this->Writer->GetWriteTimeValue());
 
   return this->Superclass::OpenStream() != 0;
 }
@@ -73,11 +74,11 @@ bool vtkXMLDataWriterHelper::AddGlobalFieldData(vtkCompositeDataSet* input)
   auto meta = input->GetInformation();
   const bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) != 0;
   auto fieldData = input->GetFieldData();
-  if ((fieldData && fieldData->GetNumberOfArrays()) || hasTime)
+  if ((fieldData && fieldData->GetNumberOfArrays()) || (hasTime && this->GetWriteTimeValue()))
   {
     vtkNew<vtkFieldData> fieldDataCopy;
     fieldDataCopy->ShallowCopy(fieldData);
-    if (hasTime)
+    if (hasTime && this->GetWriteTimeValue())
     {
       vtkNew<vtkDoubleArray> time;
       time->SetNumberOfTuples(1);
