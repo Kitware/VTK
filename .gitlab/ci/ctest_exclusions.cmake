@@ -1,9 +1,6 @@
 set(test_exclusions
   # Random Memory Leak #18599
-  "^VTK::FiltersCorePython-probe$"
-
-  # This test just seems to be incorrect.
-  "^VTK::FiltersSelectionCxx-TestLinearSelector3D$")
+  "^VTK::FiltersCorePython-probe$")
 
 if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
