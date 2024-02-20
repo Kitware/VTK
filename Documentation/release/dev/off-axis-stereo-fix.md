@@ -11,7 +11,7 @@ distance apart from each other, regardless of the objects location w.r.t. the
 screen, and regardless of the the eye position w.r.t. the object and screen.
 
 This change moves computation of the left/right eye into a new method
-ComputeEyePosition() and uses that from both the projection and view transform
+GetStereoEyePosition() and uses that from both the projection and view transform
 computations.
 
 Also adds a test to render three disks at different locations with respect to
