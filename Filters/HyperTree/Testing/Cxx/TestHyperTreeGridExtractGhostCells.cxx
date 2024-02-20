@@ -1,17 +1,15 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkCellData.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridExtractGhostCells.h"
+#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkTestUtilities.h"
-#include "vtkXMLHyperTreeGridReader.h"
-
-#include "vtkBitArray.h"
-#include "vtkCellData.h"
-#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkXMLHyperTreeGridReader.h"
 
 #include "vtkLogger.h"
 

@@ -9,7 +9,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkXMLHyperTreeGridWriter.h"
 
 #include "vtkLogger.h"
 
@@ -146,31 +145,6 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   else
   {
     vtkLog(WARNING, << "test run on " << nbRanks << " ranks (2 expected). Cannot compare result");
-  }
-
-  if (myRank == 0)
-  {
-    vtkNew<vtkXMLHyperTreeGridWriter> writerSource;
-    writerSource->SetFileName("HTGSource0_test.htg");
-    writerSource->SetInputData(htgSource->GetHyperTreeGridOutput());
-    writerSource->Write();
-
-    vtkNew<vtkXMLHyperTreeGridWriter> writerEnd;
-    writerSource->SetFileName("HTGEnd0_test.htg");
-    writerSource->SetInputData(htg);
-    writerSource->Write();
-  }
-  else
-  {
-    vtkNew<vtkXMLHyperTreeGridWriter> writerSource;
-    writerSource->SetFileName("HTGSource1_test.htg");
-    writerSource->SetInputData(htgSource->GetHyperTreeGridOutput());
-    writerSource->Write();
-
-    vtkNew<vtkXMLHyperTreeGridWriter> writerEnd;
-    writerSource->SetFileName("HTGEnd1_test.htg");
-    writerSource->SetInputData(htg);
-    writerSource->Write();
   }
 
   controller->Finalize();
