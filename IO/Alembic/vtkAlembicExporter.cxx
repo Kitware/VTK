@@ -13,9 +13,9 @@
 #include "vtkCollectionRange.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkExtractVOI.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
-#include "vtkImageFlip.h"
 #include "vtkMapper.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -217,13 +217,24 @@ void WriteMesh(
   if (vertColor)
   {
     OCompoundProperty arbParams = mesh.getArbGeomParams();
-    // Keep as unsigned char, although we could convert to floats if needed.
-    C4cArraySample valSamp(
-      (const C4c*)vertColor->GetVoidPointer(0), vertColor->GetNumberOfTuples());
+    // Convert to floats with values between 0 and 1.
+    std::vector<float> rgbaAsFloat;
+    rgbaAsFloat.resize(vertColor->GetNumberOfTuples() * vertColor->GetNumberOfComponents());
+    size_t counter = 0;
+    for (vtkIdType i = 0; i < vertColor->GetNumberOfTuples(); i++)
+    {
+      for (vtkIdType j = 0; j < vertColor->GetNumberOfComponents(); j++)
+      {
+        rgbaAsFloat[counter] = ((float)vertColor->GetTypedComponent(i, j) / 255.);
+        counter++;
+      }
+    }
+
+    C4fArraySample valSamp((const C4f*)rgbaAsFloat.data(), vertColor->GetNumberOfTuples());
 
     // "rgba" is a magic name for some Alembic imports, 3DSMax
-    OC4cGeomParam color(arbParams, "rgba", false, kVertexScope, 1);
-    OC4cGeomParam::Sample colorSamp(valSamp, kVertexScope);
+    OC4fGeomParam color(arbParams, "rgba", false, kVertexScope, 1);
+    OC4fGeomParam::Sample colorSamp(valSamp, kVertexScope);
 
     color.set(colorSamp);
   }
@@ -302,18 +313,22 @@ size_t WriteTexture(vtkActor* aPart, const char* fileName, size_t index,
     strm << baseName << "_tex" << index << ".png";
     std::string fname = strm.str();
 
-    // flip Y
+    // we don't want the NaN color in the texture file
     vtkNew<vtkTrivialProducer> triv;
     triv->SetOutput(id);
-    vtkNew<vtkImageFlip> flip;
-    flip->SetFilteredAxis(1);
-    flip->SetInputConnection(triv->GetOutputPort());
+
+    vtkNew<vtkExtractVOI> extractVOI;
+    extractVOI->SetInputConnection(triv->GetOutputPort());
+    int extent[6];
+    id->GetExtent(extent);
+    extent[3] = 0;
+    extractVOI->SetVOI(extent);
 
     // Alembic has no standard way to store image data, so write a separate PNG
     vtkNew<vtkPNGWriter> png;
     png->SetFileName(fname.c_str());
     png->SetCompressionLevel(5);
-    png->SetInputConnection(flip->GetOutputPort());
+    png->SetInputConnection(extractVOI->GetOutputPort());
     png->Write();
 
     textureSource = texIndex;
