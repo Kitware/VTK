@@ -11,7 +11,6 @@
 
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
-#include <QOpenGLPaintDevice>
 #include <QPainter>
 #include <QWidget>
 
