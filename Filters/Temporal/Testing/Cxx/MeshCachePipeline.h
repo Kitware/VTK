@@ -62,13 +62,15 @@ class TestMeshPipeline : public TestPipelineInterface
   vtkNew<vtkStaticDataSource> StaticMeshSource;
 
 public:
-  TestMeshPipeline();
+  TestMeshPipeline(bool useGhost = false);
   ~TestMeshPipeline() override = default;
 
   void UpdateInputData(int start) override;
   void MarkInputMeshModified() override;
   vtkMTimeType GetOutputMeshMTime() override;
   vtkMTimeType GetInputMeshMTime() override;
+  void SetUseGhosts(bool useghost);
+  void MarkGhostsModified();
 };
 
 /**

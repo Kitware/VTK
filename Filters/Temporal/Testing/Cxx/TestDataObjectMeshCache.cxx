@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkCellData.h"
 #include "vtkDataObject.h"
 #include "vtkDataObjectMeshCache.h"
 #include "vtkHyperTreeGrid.h"
@@ -22,16 +23,16 @@
 
 namespace details
 {
-std::array<int, 3> modifiedData = { 42, 43, 44 };
+std::array<int, 4> modifiedData = { 42, 43, 44, 45 };
 }
 
 namespace compositeDetails
 {
-std::array<int, 3> modifiedData = { 100, 101, 102 };
-std::array<int, 3> modifiedData2 = { 103, 104, 105 };
+std::array<int, 4> modifiedData = { 100, 101, 102, 103 };
+std::array<int, 4> modifiedData2 = { 104, 105, 106, 107 };
 
 void setupExpectedArray(
-  vtkPartitionedDataSetCollection* pdc, int partition, const std::array<int, 3>& data)
+  vtkPartitionedDataSetCollection* pdc, int partition, const std::array<int, 4>& data)
 {
   vtkNew<vtkIntArray> expectedArray;
   expectedArray->SetName(mockArraysName::pointData.c_str());
@@ -111,13 +112,14 @@ bool TestCacheInitialization(TestPipelineInterface* pipeline)
   status = cache->GetStatus();
   if ((status != expected) || !status.enabled())
   {
+    cache->PrintSelf(std::cout, vtkIndent());
     vtkLog(ERROR, "CacheInitialization: error while caching data.");
     return false;
   }
 
   // set attribute ids
   // filter forward input cell data to point data.
-  cache->AddAttributeType(vtkDataObject::POINT);
+  cache->AddOriginalIds(vtkDataObject::POINT, mockArraysName::pointIds);
   status = cache->GetStatus();
   if (status != expected)
   {
@@ -204,21 +206,21 @@ bool TestAttributesIds(TestPipelineInterface* pipeline)
   expected.ConsumerUnmodified = true;
   expected.AttributesIdsExists = true;
 
-  cache->RemoveAttributeType(vtkDataObject::POINT);
+  cache->RemoveOriginalIds(vtkDataObject::POINT);
   vtkDataObjectMeshCache::Status status = cache->GetStatus();
   vtkLogIf(ERROR, status != expected, "AttributesIds: error when resetting attributes ids.");
   vtkLogIf(ERROR, !status.enabled(), "AttributesIds: without attributes cache should be usable.");
 
-  cache->ClearAttributeTypes();
+  cache->ClearOriginalIds();
   expected.AttributesIdsExists = false;
-  cache->AddAttributeType(vtkDataObject::CELL);
+  cache->AddOriginalIds(vtkDataObject::CELL, mockArraysName::pointIds);
   status = cache->GetStatus();
   vtkLogIf(
     ERROR, status != expected, "AttributesIds: error when adding attribute without global ids.");
   vtkLogIf(ERROR, status.enabled(), "AttributesIds: inexisting global ids should disable cache.");
 
-  cache->ClearAttributeTypes();
-  cache->AddAttributeType(vtkDataObject::VERTEX);
+  cache->ClearOriginalIds();
+  cache->AddOriginalIds(vtkDataObject::VERTEX, mockArraysName::pointIds);
   status = cache->GetStatus();
   vtkLogIf(ERROR, status != expected,
     "AttributesIds: error when setting ids on inexisting attribute type.");
@@ -251,6 +253,9 @@ bool TestUseCache(TestMeshPipeline* pipeline)
 
   vtkNew<vtkPolyData> expectedOutput;
   expectedOutput->DeepCopy(pipeline->GetFilterOutputData());
+  // we forward only point data
+  expectedOutput->GetCellData()->Initialize();
+  assert(expectedOutput->GetCellData()->GetGhostArray() == nullptr);
 
   pipeline->InitializeCache(cache);
   pipeline->UpdateInputData(details::modifiedData[0]);
@@ -262,24 +267,82 @@ bool TestUseCache(TestMeshPipeline* pipeline)
   status = cache->GetStatus();
   vtkLogIf(ERROR, !status.enabled(), "UseCache: using cache should not invalidate it.");
 
-  bool sameMeshTime = pipeline->GetOutputMeshMTime() == cacheOutput->GetMeshMTime();
-  vtkLogIf(
-    ERROR, !sameMeshTime, "UseCache: cache should have same mesh mtime than previous output.");
+  // Cell data arrays are not forwarded.
+  // This concerns also ghostcells array that is used in GetMeshMTime. So cache output
+  // may appears as older than pipeline data.
+  bool sameMeshTime = pipeline->GetOutputMeshMTime() >= cacheOutput->GetMeshMTime();
   vtkLogIf(ERROR, !sameMeshTime,
-    "expected: " << pipeline->GetInputMeshMTime() << " but has: " << cacheOutput->GetMeshMTime());
-
-  sameMeshTime = pipeline->GetInputMeshMTime() == cacheOutput->GetMeshMTime();
-  vtkLogIf(ERROR, !sameMeshTime, "UseCache: cache should have same mesh mtime than filter input.");
+    "UseCache: cache should have same mesh mtime than previous output. Expected");
   vtkLogIf(ERROR, !sameMeshTime,
     "expected: " << pipeline->GetInputMeshMTime() << " but has: " << cacheOutput->GetMeshMTime());
 
   vtkNew<vtkIntArray> expectedArray;
   expectedArray->SetName(mockArraysName::pointData.c_str());
-  expectedArray->SetArray(details::modifiedData.data(), 3, 1);
+  expectedArray->SetArray(details::modifiedData.data(), 4, 1);
   expectedOutput->GetPointData()->AddArray(expectedArray);
 
   bool sameData = vtkTestUtilities::CompareDataObjects(cacheOutput, expectedOutput);
   vtkLogIf(ERROR, !sameData, "UseCache: wrong cache output.");
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestMeshOnly(TestMeshPipeline* pipeline)
+{
+  vtkNew<vtkDataObjectMeshCache> cache;
+
+  vtkNew<vtkPolyData> expectedOutput;
+  expectedOutput->DeepCopy(pipeline->GetFilterOutputData());
+  expectedOutput->GetPointData()->Initialize();
+  expectedOutput->GetCellData()->Initialize();
+
+  pipeline->InitializeCache(cache);
+  cache->ClearOriginalIds();
+
+  vtkDataObjectMeshCache::Status status = cache->GetStatus();
+  vtkLogIf(ERROR, !status.enabled(), "MeshOnly: expect usable cache.");
+  vtkNew<vtkPolyData> cacheOutput;
+  cache->CopyCacheToDataObject(cacheOutput);
+  status = cache->GetStatus();
+  vtkLogIf(ERROR, !status.enabled(), "MeshOnly: using cache should not invalidate it.");
+
+  bool sameData = vtkTestUtilities::CompareDataObjects(cacheOutput, expectedOutput);
+  vtkLogIf(ERROR, !sameData, "MeshOnly: wrong cache output.");
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestGhostCells(TestMeshPipeline* pipeline)
+{
+  vtkNew<vtkDataObjectMeshCache> cache;
+
+  vtkNew<vtkPolyData> expectedOutput;
+  expectedOutput->DeepCopy(pipeline->GetFilterOutputData());
+  expectedOutput->GetPointData()->Initialize();
+
+  pipeline->InitializeCache(cache);
+
+  vtkDataObjectMeshCache::Status status = cache->GetStatus();
+  vtkLogIf(ERROR, !status.enabled(), "GhostCells: expect usable cache.");
+
+  pipeline->SetUseGhosts(false);
+  status = cache->GetStatus();
+  vtkLogIf(ERROR, status.enabled(), "GhostCells: removing ghosts should invalidate cache.");
+
+  pipeline->SetUseGhosts(true);
+  status = cache->GetStatus();
+  vtkLogIf(ERROR, status.enabled(), "GhostCells: adding ghosts should invalidate cache.");
+
+  pipeline->MarkGhostsModified();
+  status = cache->GetStatus();
+  vtkLogIf(ERROR, status.enabled(), "GhostCells: modified ghosts should invalidate cache.");
+
+  vtkNew<vtkPolyData> cacheOutput;
+  cache->CopyCacheToDataObject(cacheOutput);
+  bool hasGhosts = cacheOutput->GetCellData()->GetGhostArray() != nullptr;
+  vtkLogIf(ERROR, hasGhosts, "GhostCells: cache output should not have ghost array");
 
   return true;
 }
@@ -388,7 +451,7 @@ bool TestUnsupportedCalls(TestPipelineInterface* pipeline)
   cache->CopyCacheToDataObject(table);
   cache->GetStatus();
 
-  cache->AddAttributeType(-1);
+  cache->AddOriginalIds(-1, "ids");
   nbOfFailures += observer->CheckWarningMessage("Invalid attribute type: -1");
   cache->GetStatus();
 
@@ -422,6 +485,28 @@ int TestDataObjectMeshCache(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     success = success && TestInvalidateCache(invalidatePipeline.get());
     std::unique_ptr<TestMeshPipeline> usePipeline(new TestMeshPipeline());
     success = success && TestUseCache(usePipeline.get());
+    std::unique_ptr<TestMeshPipeline> meshOnlyPipeline(new TestMeshPipeline());
+    success = success && TestMeshOnly(meshOnlyPipeline.get());
+  }
+
+  // simple dataset with ghosts
+  if (success)
+  {
+    vtkLogScopeF(INFO, "Test ghost cells");
+    std::unique_ptr<TestMeshPipeline> initPipeline(new TestMeshPipeline(true));
+    success = success && TestCacheInitialization(initPipeline.get());
+    std::unique_ptr<TestMeshPipeline> timePipeline(new TestMeshPipeline(true));
+    success = success && TestModifiedTime(timePipeline.get());
+    std::unique_ptr<TestMeshPipeline> idsPipeline(new TestMeshPipeline(true));
+    success = success && TestAttributesIds(idsPipeline.get());
+    std::unique_ptr<TestMeshPipeline> invalidatePipeline(new TestMeshPipeline(true));
+    success = success && TestInvalidateCache(invalidatePipeline.get());
+    std::unique_ptr<TestMeshPipeline> usePipeline(new TestMeshPipeline(true));
+    success = success && TestUseCache(usePipeline.get());
+    std::unique_ptr<TestMeshPipeline> meshOnlyPipeline(new TestMeshPipeline(true));
+    success = success && TestMeshOnly(meshOnlyPipeline.get());
+    std::unique_ptr<TestMeshPipeline> ghostCellsPipeline(new TestMeshPipeline(true));
+    success = success && TestGhostCells(ghostCellsPipeline.get());
   }
 
   // composite

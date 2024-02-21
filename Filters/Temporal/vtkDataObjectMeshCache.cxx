@@ -15,6 +15,181 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectMeshCache);
 
+/**
+ * Interface to dispatch work over every contained vtkDataSet.
+ * If input is a vtkDataSet subclass, forward it directly to
+ * ComputeDataSet.
+ * If input is a vtkDataObjectTree subclass, iterate over
+ * inner non empty vtkDataSet leaves.
+ */
+struct GenericDataObjectWorker
+{
+  virtual ~GenericDataObjectWorker() = default;
+
+  /**
+   * Entry point. In the end, call ComputeDataSet for every
+   * contained vtkDataSet.
+   */
+  void Compute(vtkDataObject* dataobject)
+  {
+    auto dataset = vtkDataSet::SafeDownCast(dataobject);
+    if (dataset)
+    {
+      this->ComputeDataSet(dataset);
+      return;
+    }
+    auto composite = vtkDataObjectTree::SafeDownCast(dataobject);
+    if (composite)
+    {
+      this->ComputeComposite(composite);
+      return;
+    }
+
+    this->SkippedData = true;
+  }
+
+  /**
+   * Iterate over inner vtkDataSet to call ComputeDataSet
+   */
+  void ComputeComposite(vtkDataObjectTree* composite)
+  {
+    auto options = vtk::DataObjectTreeOptions::TraverseSubTree |
+      vtk::DataObjectTreeOptions::SkipEmptyNodes | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
+    for (auto dataLeaf : vtk::Range(composite, options))
+    {
+      auto dataset = vtkDataSet::SafeDownCast(dataLeaf);
+      if (dataset)
+      {
+        this->ComputeDataSet(dataset);
+      }
+      else
+      {
+        this->SkippedData = true;
+      }
+    }
+  }
+
+  /**
+   * To be reimplemented to do the actual work.
+   * Will be called multiple times for composite.
+   */
+  virtual void ComputeDataSet(vtkDataSet* dataset) = 0;
+
+  bool SkippedData = false;
+};
+
+/**
+ * Worker to compute mesh mtime.
+ * For composite, return the max value.
+ */
+struct MeshMTimeWorker : public GenericDataObjectWorker
+{
+  ~MeshMTimeWorker() override = default;
+
+  void ComputeDataSet(vtkDataSet* dataset) override
+  {
+    auto polydata = vtkPolyData::SafeDownCast(dataset);
+    auto ugrid = vtkUnstructuredGrid::SafeDownCast(dataset);
+
+    if (polydata)
+    {
+      this->MeshTime = std::max(this->MeshTime, polydata->GetMeshMTime());
+    }
+
+    if (ugrid)
+    {
+      this->MeshTime = std::max(this->MeshTime, ugrid->GetMeshMTime());
+    }
+  }
+
+  vtkMTimeType MeshTime = 0;
+};
+
+/**
+ * Worker to verify if data is supported.
+ * If input is not a dataset, Supported() will return false.
+ * If any inner dataset is unsupported, Supported() will return false.
+ * Otherwise, Supported() return true;
+ */
+struct SupportedDataWorker : public GenericDataObjectWorker
+{
+  ~SupportedDataWorker() override = default;
+
+  bool Supported() { return !this->SkippedData && this->SupportedLeaves; }
+
+  void ComputeDataSet(vtkDataSet* dataset) override
+  {
+    bool supportedLeaf =
+      vtkPolyData::SafeDownCast(dataset) || vtkUnstructuredGrid::SafeDownCast(dataset);
+    this->SupportedLeaves = this->SupportedLeaves && supportedLeaf;
+  }
+
+  bool SupportedLeaves = true;
+};
+
+/**
+ * Worker to verify that data has requested arrays.
+ * OriginalIdsName is the map of requested array names per attribute type.
+ * HasRequestedIds is set to false if a requested array is not found.
+ */
+struct RequestedIdsWorker : public GenericDataObjectWorker
+{
+  ~RequestedIdsWorker() override = default;
+
+  void ComputeDataSet(vtkDataSet* dataset) override
+  {
+    for (const auto& attribute : this->OriginalIdsName)
+    {
+      vtkDataSetAttributes* field = dataset->GetAttributes(attribute.first);
+      if (!field)
+      {
+        this->HasRequestedIds = false;
+        continue;
+      }
+
+      if (!field->GetArray(attribute.second.c_str()))
+      {
+        this->HasRequestedIds = false;
+      }
+    }
+  }
+
+  std::map<int, std::string> OriginalIdsName;
+  bool HasRequestedIds = true;
+};
+
+/**
+ * Worker to clear dataset attributes from data.
+ */
+struct ClearAttributesWorker : public GenericDataObjectWorker
+{
+  ~ClearAttributesWorker() override = default;
+
+  void ComputeDataSet(vtkDataSet* dataset) override
+  {
+    for (int attribute = vtkDataObject::POINT; attribute < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES;
+         attribute++)
+    {
+      vtkFieldData* field = dataset->GetAttributesAsFieldData(attribute);
+      if (field)
+      {
+        field->Initialize();
+      }
+    }
+  }
+};
+
+/**
+ * Worker to count number of datasets.
+ */
+struct NumberOfDataSetWorker : public GenericDataObjectWorker
+{
+  ~NumberOfDataSetWorker() override = default;
+
+  void ComputeDataSet(vtkDataSet* vtkNotUsed(dataset)) override { this->NumberOfDataSets++; }
+  vtkIdType NumberOfDataSets = 0;
+};
+
 //------------------------------------------------------------------------------
 void vtkDataObjectMeshCache::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -34,10 +209,11 @@ void vtkDataObjectMeshCache::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CachedOriginalMeshTime: " << this->CachedOriginalMeshTime << "\n";
   os << indent << "CachedConsumerTime: " << this->CachedConsumerTime << "\n";
 
-  os << indent << "AttributeTypes:\n";
-  for (const auto& attribute : this->AttributeTypes)
+  os << indent << "OriginalIdsName:\n";
+  for (const auto& attribute : this->OriginalIdsName)
   {
-    os << indent.GetNextIndent() << vtkDataObject::GetAssociationTypeAsString(attribute) << "\n";
+    os << indent.GetNextIndent() << vtkDataObject::GetAssociationTypeAsString(attribute.first)
+       << " " << attribute.second << "\n";
   }
 
   Status status = this->GetStatus();
@@ -48,40 +224,11 @@ void vtkDataObjectMeshCache::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 bool vtkDataObjectMeshCache::IsSupportedData(vtkDataObject* dataobject) const
 {
-  bool supported = this->IsSupportedDataSet(dataobject) || this->IsSupportedComposite(dataobject);
-  vtkDebugMacro(" return IsSupportedData: " << supported);
-  return supported;
-}
+  SupportedDataWorker supportWorker;
+  supportWorker.Compute(dataobject);
 
-//------------------------------------------------------------------------------
-bool vtkDataObjectMeshCache::IsSupportedDataSet(vtkDataObject* dataset) const
-{
-  return vtkPolyData::SafeDownCast(dataset) || vtkUnstructuredGrid::SafeDownCast(dataset);
-}
-
-//------------------------------------------------------------------------------
-bool vtkDataObjectMeshCache::IsSupportedComposite(vtkDataObject* dataset) const
-{
-  auto dataObjectTree = vtkDataObjectTree::SafeDownCast(dataset);
-  if (!dataObjectTree)
-  {
-    return false;
-  }
-
-  bool supportedLeaves = true;
-  auto options =
-    vtk::DataObjectTreeOptions::TraverseSubTree | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
-  for (auto dataLeaf : vtk::Range(dataObjectTree, options))
-  {
-    if (!this->IsSupportedDataSet(dataLeaf))
-    {
-      vtkDebugMacro("Unsupported block type: " << dataLeaf->GetClassName());
-      supportedLeaves = false;
-      break;
-    }
-  }
-
-  return supportedLeaves;
+  vtkDebugMacro(" return IsSupportedData: " << supportWorker.Supported());
+  return supportWorker.Supported();
 }
 
 //------------------------------------------------------------------------------
@@ -93,17 +240,11 @@ void vtkDataObjectMeshCache::SetOriginalDataObject(vtkDataObject* input)
     return;
   }
 
-  if (this->IsSupportedDataSet(input))
+  if (this->IsSupportedData(input))
   {
     this->OriginalDataSet = vtkDataSet::SafeDownCast(input);
-    vtkDebugMacro(" set OriginalDataSet: " << this->OriginalDataSet.GetPointer());
-    this->Modified();
-    return;
-  }
-  else if (this->IsSupportedComposite(input))
-  {
     this->OriginalCompositeDataSet = vtkCompositeDataSet::SafeDownCast(input);
-    vtkDebugMacro(" set OriginalCompositeDataSet: " << this->OriginalCompositeDataSet.GetPointer());
+    vtkDebugMacro(" set OriginalDataObject: " << input);
     this->Modified();
     return;
   }
@@ -119,15 +260,15 @@ void vtkDataObjectMeshCache::SetOriginalDataObject(vtkDataObject* input)
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectMeshCache::ClearAttributeTypes()
+void vtkDataObjectMeshCache::ClearOriginalIds()
 {
-  this->AttributeTypes.clear();
-  vtkDebugMacro(" clear AttributeTypes");
+  this->OriginalIdsName.clear();
+  vtkDebugMacro(" clear OriginalIdsName");
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectMeshCache::AddAttributeType(int attribute)
+void vtkDataObjectMeshCache::AddOriginalIds(int attribute, const std::string& name)
 {
   if (attribute < 0 || attribute >= vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
   {
@@ -135,13 +276,13 @@ void vtkDataObjectMeshCache::AddAttributeType(int attribute)
     return;
   }
 
-  this->AttributeTypes.insert(attribute);
-  vtkDebugMacro(" add AttributeType: " << attribute);
+  this->OriginalIdsName[attribute] = name;
+  vtkDebugMacro(" set OriginalIds: " << attribute << " array name to " << name.c_str());
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectMeshCache::RemoveAttributeType(int attribute)
+void vtkDataObjectMeshCache::RemoveOriginalIds(int attribute)
 {
   if (attribute < 0 || attribute >= vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
   {
@@ -149,8 +290,8 @@ void vtkDataObjectMeshCache::RemoveAttributeType(int attribute)
     return;
   }
 
-  this->AttributeTypes.erase(attribute);
-  vtkDebugMacro(" remove AttributeType: " << attribute);
+  this->OriginalIdsName.erase(attribute);
+  vtkDebugMacro(" remove OriginalIdsName: " << attribute);
   this->Modified();
 }
 
@@ -163,7 +304,8 @@ void vtkDataObjectMeshCache::UpdateCache(vtkDataObject* output)
     return;
   }
 
-  if (!this->IsSupportedDataSet(output) && !this->IsSupportedComposite(output))
+  bool isSupported = this->IsSupportedData(output);
+  if (!isSupported)
   {
     vtkWarningMacro("Cannot update from unsupported data type: " << output->GetClassName());
     return;
@@ -173,6 +315,7 @@ void vtkDataObjectMeshCache::UpdateCache(vtkDataObject* output)
   this->Cache->ShallowCopy(output);
   this->CachedOriginalMeshTime = this->GetOriginalMeshTime();
   this->CachedConsumerTime = this->Consumer->GetMTime();
+
   vtkDebugMacro(" update Cache: " << this->Cache.GetPointer());
   this->Modified();
 }
@@ -188,57 +331,35 @@ void vtkDataObjectMeshCache::InvalidateCache()
 }
 
 //------------------------------------------------------------------------------
-vtkMTimeType vtkDataObjectMeshCache::GetMeshTime(vtkDataSet* dataset) const
+vtkIdType vtkDataObjectMeshCache::GetNumberOfDataSets(vtkDataObject* dataobject) const
 {
-  auto polydata = vtkPolyData::SafeDownCast(dataset);
-  if (polydata)
-  {
-    return polydata->GetMeshMTime();
-  }
-  auto ugrid = vtkUnstructuredGrid::SafeDownCast(dataset);
-  if (ugrid)
-  {
-    return ugrid->GetMeshMTime();
-  }
-
-  return 0;
+  NumberOfDataSetWorker countWorker;
+  countWorker.Compute(dataobject);
+  return countWorker.NumberOfDataSets;
 }
 
 //------------------------------------------------------------------------------
 vtkMTimeType vtkDataObjectMeshCache::GetOriginalMeshTime() const
 {
+  MeshMTimeWorker meshtime;
+  meshtime.Compute(this->GetOriginalDataObject());
+  return meshtime.MeshTime;
+}
+
+//------------------------------------------------------------------------------
+vtkDataObject* vtkDataObjectMeshCache::GetOriginalDataObject() const
+{
   if (this->OriginalDataSet)
   {
-    return this->GetMeshTime(this->OriginalDataSet);
+    return this->OriginalDataSet;
   }
 
   if (this->OriginalCompositeDataSet)
   {
-    return this->GetOriginalCompositeMaxMeshTime();
+    return this->OriginalCompositeDataSet;
   }
 
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-vtkMTimeType vtkDataObjectMeshCache::GetOriginalCompositeMaxMeshTime() const
-{
-  vtkMTimeType maxTime = 0;
-  auto outputDataTree = vtkDataObjectTree::SafeDownCast(this->OriginalCompositeDataSet);
-  if (!outputDataTree)
-  {
-    return 0;
-  }
-
-  auto options =
-    vtk::DataObjectTreeOptions::TraverseSubTree | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
-  for (auto dataLeaf : vtk::Range(outputDataTree, options))
-  {
-    auto dataSet = vtkDataSet::SafeDownCast(dataLeaf.GetDataObject());
-    maxTime = std::max(maxTime, this->GetMeshTime(dataSet));
-  }
-
-  return maxTime;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -247,9 +368,9 @@ void vtkDataObjectMeshCache::Status::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OriginalDataDefined: " << this->OriginalDataDefined << "\n";
   os << indent << "ConsumerDefined: " << this->ConsumerDefined << "\n";
   os << indent << "CacheDefined: " << this->CacheDefined << "\n";
-  os << indent << "DependeciesUnmodified: " << this->OriginalMeshUnmodified << "\n";
+  os << indent << "OriginalMeshUnmodified: " << this->OriginalMeshUnmodified << "\n";
   os << indent << "ConsumerUnmodified: " << this->ConsumerUnmodified << "\n";
-  os << indent << "AttributesIdsDefined: " << this->AttributesIdsExists << "\n";
+  os << indent << "AttributesIdsExists: " << this->AttributesIdsExists << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -282,7 +403,22 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
     vtkDebugMacro("Consumer modification time has changed.");
   }
 
-  status.OriginalMeshUnmodified = this->GetOriginalMeshTime() <= this->CachedOriginalMeshTime;
+  status.OriginalMeshUnmodified = this->GetNumberOfDataSets(this->Cache) ==
+    this->GetNumberOfDataSets(this->GetOriginalDataObject());
+  if (!status.OriginalMeshUnmodified)
+  {
+    vtkDebugMacro("Input structure has changed.");
+  }
+
+  auto originalMeshMTime = this->GetOriginalMeshTime();
+  status.OriginalMeshUnmodified &= originalMeshMTime > 0;
+  if (!status.OriginalMeshUnmodified)
+  {
+    vtkDebugMacro(
+      "Invalid input mesh time. Input may be of unsupported type or has no valid mesh.");
+  }
+
+  status.OriginalMeshUnmodified &= (originalMeshMTime == this->CachedOriginalMeshTime);
   if (!status.OriginalMeshUnmodified)
   {
     vtkDebugMacro("Input mesh time has changed.");
@@ -291,7 +427,7 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
   status.AttributesIdsExists = this->CacheHasRequestedIds();
   if (!status.AttributesIdsExists)
   {
-    vtkDebugMacro("Mesh cache does not have original ids attributes arrays.");
+    vtkDebugMacro("Cache does not have requested ids");
   }
 
   vtkDebugMacro(" returning status");
@@ -311,7 +447,8 @@ void vtkDataObjectMeshCache::CopyCacheToDataObject(vtkDataObject* output)
     vtkWarningMacro("Cannot copy from nullptr");
     return;
   }
-  if (!this->IsSupportedDataSet(output) && !this->IsSupportedComposite(output))
+
+  if (!this->IsSupportedData(output))
   {
     vtkWarningMacro("Cannot copy to unsupported data type: " << output->GetClassName());
     return;
@@ -319,16 +456,17 @@ void vtkDataObjectMeshCache::CopyCacheToDataObject(vtkDataObject* output)
 
   vtkDebugMacro(" copy Cache to data object");
   output->ShallowCopy(this->Cache);
+  this->ClearAttributes(output);
 
-  if (this->OriginalDataSet)
+  auto outputDataSet = vtkDataSet::SafeDownCast(output);
+  auto outputComposite = vtkCompositeDataSet::SafeDownCast(output);
+  if (outputDataSet)
   {
-    auto outputDataSet = vtkDataSet::SafeDownCast(output);
     auto cacheDataSet = vtkDataSet::SafeDownCast(this->Cache);
     this->ForwardAttributesToDataSet(this->OriginalDataSet, cacheDataSet, outputDataSet);
   }
-  else if (this->OriginalCompositeDataSet)
+  else if (outputComposite)
   {
-    auto outputComposite = vtkCompositeDataSet::SafeDownCast(output);
     this->ForwardAttributesToComposite(outputComposite);
   }
 }
@@ -342,10 +480,12 @@ void vtkDataObjectMeshCache::ForwardAttributesToDataSet(
     return;
   }
 
-  for (const auto& attribute : this->AttributeTypes)
+  for (const auto& attribute : this->OriginalIdsName)
   {
-    this->ForwardAttributes(input, cache, outputDataSet, attribute);
+    this->ForwardAttributes(input, cache, outputDataSet, attribute.first, attribute.second);
   }
+
+  outputDataSet->GetFieldData()->PassData(input->GetFieldData());
 }
 
 //------------------------------------------------------------------------------
@@ -361,8 +501,8 @@ void vtkDataObjectMeshCache::ForwardAttributesToComposite(vtkCompositeDataSet* o
     return;
   }
 
-  auto options =
-    vtk::DataObjectTreeOptions::TraverseSubTree | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
+  auto options = vtk::DataObjectTreeOptions::TraverseSubTree |
+    vtk::DataObjectTreeOptions::SkipEmptyNodes | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
   auto inputDataRange = vtk::Range(inputDataTree, options);
   auto outputDataRange = vtk::Range(outputDataTree, options);
   auto cacheDataRange = vtk::Range(cacheDataTree, options);
@@ -385,11 +525,13 @@ void vtkDataObjectMeshCache::ForwardAttributesToComposite(vtkCompositeDataSet* o
     outputBlock++;
     inputBlock++;
   }
+
+  outputDataTree->GetFieldData()->PassData(inputDataTree->GetFieldData());
 }
 
 //------------------------------------------------------------------------------
 void vtkDataObjectMeshCache::ForwardAttributes(
-  vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output, int attribute)
+  vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output, int attribute, const std::string& name)
 {
   vtkDebugMacro("Forward attribute " << vtkDataObject::GetAssociationTypeAsString(attribute));
 
@@ -397,15 +539,15 @@ void vtkDataObjectMeshCache::ForwardAttributes(
   auto outAttribute = output->GetAttributes(attribute);
   auto cacheAttribute = cache->GetAttributes(attribute);
 
-  auto originalIds = cacheAttribute->GetGlobalIds();
+  auto originalIds = cacheAttribute->GetArray(name.c_str());
   if (!originalIds)
   {
-    vtkWarningMacro(
+    vtkDebugMacro(
       "Global Ids not found for " << vtkDataObject::GetAssociationTypeAsString(attribute));
     return;
   }
 
-  outAttribute->CopyGlobalIdsOn();
+  outAttribute->CopyAllOn();
   outAttribute->CopyAllocate(inAttribute);
 
   // NOTE potential optimization:
@@ -420,58 +562,24 @@ void vtkDataObjectMeshCache::ForwardAttributes(
 }
 
 //------------------------------------------------------------------------------
-bool vtkDataObjectMeshCache::HasRequestedIds(vtkDataObject* dataobject) const
+bool vtkDataObjectMeshCache::CacheHasRequestedIds() const
 {
-  for (const auto& attribute : this->AttributeTypes)
+  if (this->OriginalIdsName.empty())
   {
-    vtkDataSetAttributes* field = dataobject->GetAttributes(attribute);
-    if (!field)
-    {
-      vtkDebugMacro("Cache does not have requested attribute type " << attribute);
-      return false;
-    }
-
-    if (!field->GetGlobalIds())
-    {
-      vtkDebugMacro("Cache does not have global ids array for "
-        << vtkDataObject::GetAssociationTypeAsString(attribute));
-      return false;
-    }
+    return true;
   }
 
-  return true;
+  RequestedIdsWorker idsWorker;
+  idsWorker.OriginalIdsName = this->OriginalIdsName;
+  idsWorker.Compute(this->Cache);
+  return idsWorker.HasRequestedIds;
 }
 
 //------------------------------------------------------------------------------
-bool vtkDataObjectMeshCache::CacheHasRequestedIds() const
+void vtkDataObjectMeshCache::ClearAttributes(vtkDataObject* dataobject)
 {
-  if (this->AttributeTypes.empty())
-  {
-    return true;
-  }
-
-  if (this->OriginalDataSet)
-  {
-    return this->HasRequestedIds(this->Cache);
-  }
-  else if (this->OriginalCompositeDataSet)
-  {
-    auto cacheDataTree = vtkDataObjectTree::SafeDownCast(this->Cache);
-    auto options =
-      vtk::DataObjectTreeOptions::TraverseSubTree | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
-    auto cacheDataRange = vtk::Range(cacheDataTree, options);
-    for (auto leafDataObject : cacheDataRange)
-    {
-      if (!this->HasRequestedIds(leafDataObject))
-      {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  return true;
+  ClearAttributesWorker clearWorker;
+  clearWorker.Compute(dataobject);
 }
 
 VTK_ABI_NAMESPACE_END

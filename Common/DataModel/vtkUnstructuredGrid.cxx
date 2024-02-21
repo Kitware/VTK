@@ -625,8 +625,12 @@ int vtkUnstructuredGrid::InitializeFacesRepresentation(vtkIdType numPrevCells)
 //------------------------------------------------------------------------------
 vtkMTimeType vtkUnstructuredGrid::GetMeshMTime()
 {
-  return vtkMath::Max(this->Points ? this->Points->GetMTime() : 0,
+  vtkMTimeType time = vtkMath::Max(this->Points ? this->Points->GetMTime() : 0,
     this->Connectivity ? this->Connectivity->GetMTime() : 0);
+
+  time = vtkMath::Max(this->GetGhostCellsTime(), time);
+
+  return time;
 }
 
 //------------------------------------------------------------------------------

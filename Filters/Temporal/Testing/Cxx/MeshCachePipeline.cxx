@@ -10,55 +10,70 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+/**
+ * TestPipelineInterface
+ */
 //------------------------------------------------------------------------------
 void TestPipelineInterface::InitializeCache(vtkDataObjectMeshCache* cache)
 {
   cache->SetOriginalDataObject(this->GetFilterInputData());
   cache->SetConsumer(this->ConsumerFilter);
-  cache->AddAttributeType(vtkDataObject::POINT);
+  cache->AddOriginalIds(vtkDataObject::POINT, mockArraysName::pointIds);
   cache->UpdateCache(this->GetFilterOutputData());
 }
 
+//------------------------------------------------------------------------------
 void TestPipelineInterface::MarkConsumerModified()
 {
   this->ConsumerFilter->Modified();
 }
 
+//------------------------------------------------------------------------------
 vtkDataObject* TestPipelineInterface::GetFilterInputData()
 {
   return this->ConsumerFilter->GetInput();
 }
 
+//------------------------------------------------------------------------------
 vtkDataObject* TestPipelineInterface::GetFilterOutputData()
 {
   return this->ConsumerFilter->GetOutput();
 }
 
+/**
+ * TestMeshPipeline
+ */
 //------------------------------------------------------------------------------
-TestMeshPipeline::TestMeshPipeline()
+TestMeshPipeline::TestMeshPipeline(bool useghosts)
 {
+  this->StaticMeshSource->SetGenerateGhosts(useghosts);
+  this->StaticMeshSource->Update();
   this->ConsumerFilter->SetInputConnection(this->StaticMeshSource->GetOutputPort());
   this->ConsumerFilter->Update();
 }
 
+//------------------------------------------------------------------------------
 void TestMeshPipeline::UpdateInputData(int startData)
 {
   this->StaticMeshSource->SetStartData(startData);
   this->StaticMeshSource->Update();
 }
 
+//------------------------------------------------------------------------------
 void TestMeshPipeline::MarkInputMeshModified()
 {
   this->StaticMeshSource->MarkMeshModified();
   this->StaticMeshSource->Update();
 }
 
+//------------------------------------------------------------------------------
 vtkMTimeType TestMeshPipeline::GetInputMeshMTime()
 {
   auto polydata = vtkPolyData::SafeDownCast(this->GetFilterInputData());
   return polydata->GetMeshMTime();
 }
 
+//------------------------------------------------------------------------------
 vtkMTimeType TestMeshPipeline::GetOutputMeshMTime()
 {
   auto polydata = vtkPolyData::SafeDownCast(this->GetFilterOutputData());
@@ -66,12 +81,30 @@ vtkMTimeType TestMeshPipeline::GetOutputMeshMTime()
 }
 
 //------------------------------------------------------------------------------
+void TestMeshPipeline::MarkGhostsModified()
+{
+  this->StaticMeshSource->MarkGhostsModified();
+  this->StaticMeshSource->Update();
+}
+
+//------------------------------------------------------------------------------
+void TestMeshPipeline::SetUseGhosts(bool useghost)
+{
+  this->StaticMeshSource->SetGenerateGhosts(useghost);
+  this->StaticMeshSource->Update();
+}
+
+/**
+ * TestCompositePipeline
+ */
+//------------------------------------------------------------------------------
 TestCompositePipeline::TestCompositePipeline()
 {
   this->ConsumerFilter->SetInputConnection(this->StaticCompositeSource->GetOutputPort());
   this->ConsumerFilter->Update();
 }
 
+//------------------------------------------------------------------------------
 void TestCompositePipeline::UpdateInputData(int start)
 {
   this->StaticCompositeSource->SetStartData(start);
@@ -79,12 +112,14 @@ void TestCompositePipeline::UpdateInputData(int start)
   this->ConsumerFilter->Update();
 }
 
+//------------------------------------------------------------------------------
 void TestCompositePipeline::MarkInputMeshModified()
 {
   this->StaticCompositeSource->MarkMeshModified();
   this->StaticCompositeSource->Update();
 }
 
+//------------------------------------------------------------------------------
 vtkMTimeType TestCompositePipeline::GetInputMeshMTime()
 {
   auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(this->GetFilterInputData());
@@ -93,6 +128,7 @@ vtkMTimeType TestCompositePipeline::GetInputMeshMTime()
   return poly->GetMeshMTime();
 }
 
+//------------------------------------------------------------------------------
 vtkMTimeType TestCompositePipeline::GetOutputMeshMTime()
 {
   auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(this->GetFilterOutputData());
