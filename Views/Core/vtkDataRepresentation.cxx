@@ -162,18 +162,25 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
   std::pair<int, int> p(port, conn);
   vtkAlgorithmOutput* input = this->GetInputConnection(port, conn);
   vtkDataObject* inputDObj = this->GetInputDataObject(port, conn);
-  if (this->Implementation->InputInternal.find(p) == this->Implementation->InputInternal.end() ||
-    this->Implementation->InputInternal[p].first != input ||
+
+  if (this->Implementation->InputInternal.find(p) == this->Implementation->InputInternal.end())
+  {
+    vtkNew<vtkTrivialProducer> producer;
+    this->SetInternalInput(port, conn, producer);
+
+    auto copy = vtkSmartPointer<vtkDataObject>::Take(inputDObj->NewInstance());
+    copy->ShallowCopy(inputDObj);
+    producer->SetOutput(copy);
+  }
+
+  if (this->Implementation->InputInternal[p].first != input ||
     this->Implementation->InputInternal[p].second->GetMTime() < inputDObj->GetMTime())
   {
     this->Implementation->InputInternal[p].first = input;
-    vtkDataObject* copy = inputDObj->NewInstance();
+    auto copy = vtkSmartPointer<vtkDataObject>::Take(inputDObj->NewInstance());
     copy->ShallowCopy(inputDObj);
-    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    auto tp = this->Implementation->InputInternal[p].second;
     tp->SetOutput(copy);
-    copy->Delete();
-    this->Implementation->InputInternal[p].second = tp;
-    tp->Delete();
   }
 
   return this->Implementation->InputInternal[p].second->GetOutputPort();
