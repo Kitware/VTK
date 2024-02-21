@@ -165,10 +165,7 @@ inline std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolu
 
   toShaderStr << "uniform int in_noOfComponents;\n"
                  "\n"
-                 "uniform sampler2D in_depthSampler;\n"
-                 "\n"
-                 "// Camera position\n"
-                 "uniform vec3 in_cameraPos;\n";
+                 "uniform sampler2D in_depthSampler;\n";
 
   vtkOpenGLGPUVolumeRayCastMapper* glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   if (glMapper->GetUseJittering())
@@ -197,6 +194,10 @@ inline std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolu
               << numTransf
               << "];\n"
                  "uniform vec3 in_texMax["
+              << numTransf
+              << "];\n"
+                 "// Eye position in dataset space\n"
+                 "uniform vec3 in_eyePosObjs["
               << numTransf
               << "];\n"
                  "uniform mat4 in_cellToPoint["
@@ -253,8 +254,6 @@ inline std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolu
                  "vec3 g_rayJitter = vec3(0.0);\n"
                  "\n"
                  "uniform vec2 in_averageIPRange;\n";
-
-  toShaderStr << "vec4 g_eyePosObjs[" << numInputs << "];\n";
 
   const bool hasGradientOpacity = HasGradientOpacity(inputs);
   if (totalNumberOfLights > 0 || hasGradientOpacity)
@@ -417,18 +416,6 @@ inline std::string BaseInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mappe
         \n  g_rayOrigin = ip_textureCoords.xyz;";
   }
 
-  shaderStr << "\
-      \n\
-      \n  // Eye position in dataset space\
-      \n  g_eyePosObj = in_inverseVolumeMatrix[0] * vec4(in_cameraPos, 1.0);";
-  for (int i = 0; i < numInputs; ++i)
-  {
-    // In multi-volume case the first volume matrix is of the bounding box
-    shaderStr << "\
-      \n  g_eyePosObjs["
-              << i << "] = in_inverseVolumeMatrix[" << (numInputs > 1 ? i + 1 : i)
-              << "] * vec4(in_cameraPos, 1.0);";
-  }
   shaderStr << "\n\
       \n  // Getting the ray marching direction (in dataset space)\
       \n  vec3 rayDir = computeRayDirection();\
@@ -489,12 +476,11 @@ inline std::string BaseInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mappe
       // In multi-volume case the first volume matrix is of the bounding box
       shaderStr << "\
         \n  g_lightPosObj["
-                << i << "] = (in_inverseVolumeMatrix[" << (numInputs > 1 ? i + 1 : i) << "] *\
-        \n                      vec4(in_cameraPos, 1.0));\
+                << i << "] = vec4(in_eyePosObjs[" << (numInputs > 1 ? i + 1 : i) << "], 1.0);\
         \n  g_ldir["
                 << i << "] = normalize(g_lightPosObj[" << i << "].xyz - ip_vertexPos);\
         \n  g_vdir["
-                << i << "] = normalize(g_eyePosObjs[" << i << "].xyz - ip_vertexPos);\
+                << i << "] = normalize(in_eyePosObjs[" << i << "].xyz - ip_vertexPos);\
         \n  g_h["
                 << i << "] = normalize(g_ldir[" << i << "] + g_vdir[" << i << "]);";
     }
@@ -1466,7 +1452,7 @@ inline std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkV
     if (defaultLighting)
     {
       shaderStr += R"***(
-  tex_light = (in_inverseTextureDatasetMatrix[0] * in_inverseVolumeMatrix[0] * vec4(in_cameraPos, 1.0)).xyz;
+  tex_light = (in_inverseTextureDatasetMatrix[0] * vec4(in_eyePosObjs[0], 1.0)).xyz;
   phase = phase_function(-1); // always angle of pi
   vol_shadow = volumeShadow(g_dataPos, tex_light, 1.0, component, in_volume[0], 0, label);
   secondary_contrib += vol_shadow * phase * color.rgb * in_diffuse[component] * in_lightDiffuseColor[0];
@@ -1714,7 +1700,7 @@ inline std::string ComputeRayDirectionDeclaration(vtkRenderer* ren,
     return std::string("\
         \nvec3 computeRayDirection()\
         \n  {\
-        \n  return normalize(ip_vertexPos.xyz - g_eyePosObj.xyz);\
+        \n  return normalize(ip_vertexPos.xyz - in_eyePosObjs[0].xyz);\
         \n  }");
   }
   else
