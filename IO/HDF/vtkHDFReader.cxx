@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHDFReader.h"
+#include "vtkAMRUtilities.h"
 #include "vtkAffineArray.h"
 #include "vtkAppendDataSets.h"
 #include "vtkArrayIteratorIncludes.h"
@@ -798,7 +799,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
     vtkSmartPointer<vtkAbstractArray> array;
     vtkIdType offset = -1;
     vtkIdType size = -1;
-    if (this->HasTransientData)
+    if (this->Impl->GetDataSetType() != VTK_OVERLAPPING_AMR && this->HasTransientData)
     {
       // If the field data is transient we expect it to have NumberSteps number of tuples
       // and as many components as necessary
@@ -1526,11 +1527,46 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
 {
   data->SetOrigin(this->Origin);
 
-  if (!this->Impl->FillAMR(
-        data, this->MaximumLevelsToReadByDefaultForAMR, this->Origin, this->DataArraySelection))
+  unsigned int maxLevel = this->MaximumLevelsToReadByDefaultForAMR > 0
+    ? this->MaximumLevelsToReadByDefaultForAMR
+    : std::numeric_limits<unsigned int>::max();
+
+  if (this->GetHasTemporalData())
   {
-    return 0;
+    if (!this->Impl->ComputeAMROffsetsPerLevels(this->DataArraySelection, this->Step, maxLevel))
+    {
+      return false;
+    }
   }
+  else
+  {
+    if (!this->Impl->ComputeAMRBlocksPerLevels(maxLevel))
+    {
+      return false;
+    }
+  }
+
+  unsigned int level = 0;
+
+  if (!this->Impl->ReadAMRTopology(
+        data, level, maxLevel, this->Origin, this->GetHasTransientData()))
+  {
+    return 1;
+  }
+
+  if (!this->DataArraySelection)
+  {
+    vtkErrorMacro("NULL dataArraySelection ");
+    return false;
+  }
+
+  if (!this->Impl->ReadAMRData(
+        data, level, maxLevel, this->DataArraySelection, this->GetHasTransientData()))
+  {
+    return 1;
+  }
+
+  vtkAMRUtilities::BlankCells(data);
 
   return 1;
 }

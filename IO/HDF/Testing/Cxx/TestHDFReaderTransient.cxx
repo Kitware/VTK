@@ -3,6 +3,7 @@
 
 #include "vtkHDFReader.h"
 
+#include "vtkAMRBox.h"
 #include "vtkAppendDataSets.h"
 #include "vtkAppendFilter.h"
 #include "vtkCellData.h"
@@ -12,15 +13,18 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLPartitionedDataSetReader.h"
 #include "vtkXMLPolyDataReader.h"
+#include "vtkXMLUniformGridAMRReader.h"
 
 #include <cstdlib>
 #include <map>
@@ -59,6 +63,7 @@ int TestUGTransientWithCachePartitioned(const std::string& dataRoot);
 int TestUGTransientPartitionedNoCache(const std::string& dataRoot);
 int TestImageDataTransientWithCache(const std::string& dataRoot);
 int TestPolyDataTransientWithCache(const std::string& dataRoot);
+int TestOverlappingAMRTransient(const std::string& dataRoot);
 }
 
 //------------------------------------------------------------------------------
@@ -75,6 +80,8 @@ int TestHDFReaderTransient(int argc, char* argv[])
   res |= ::TestUGTransientWithCachePartitioned(dataRoot);
   res |= ::TestImageDataTransientWithCache(dataRoot);
   res |= ::TestPolyDataTransientWithCache(dataRoot);
+  res |= ::TestOverlappingAMRTransient(dataRoot);
+
   return res;
 }
 
@@ -101,6 +108,17 @@ public:
     this->Reader->Update();
     vtkSmartPointer<vtkDataObject> res = this->Reader->GetOutputDataObject(0);
     return res;
+  }
+
+  vtkOverlappingAMR* GetDataObjectAsAMR()
+  {
+    return vtkOverlappingAMR::SafeDownCast(this->Reader->GetOutput());
+  }
+
+  void UpdateStep(std::size_t timeStep)
+  {
+    this->Reader->SetStep(timeStep);
+    this->Reader->Update();
   }
 
   vtkHDFReader* GetReader() { return this->Reader; }
@@ -981,6 +999,103 @@ int TestPolyDataTransientWithOffset(const std::string& dataRoot)
       std::cerr << "Expected range for the offset array to be between 0 and 10080 but got ["
                 << range[0] << "," << range[1] << "]" << std::endl;
       return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestOverlappingAMRTransient(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/vtkHDF/test_transient_overlapping_amr.vtkhdf");
+
+  // Generic Time data checks
+  vtkIdType nbSteps = 3;
+  if (opener.GetReader()->GetNumberOfSteps() != nbSteps)
+  {
+    std::cerr << "Number of time steps is not correct: " << opener.GetReader()->GetNumberOfSteps()
+              << " != " << nbSteps << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto tRange = opener.GetReader()->GetTimeRange();
+  if (!vtkMathUtilities::FuzzyCompare(tRange[0], 0.0, CHECK_TOLERANCE) ||
+    !vtkMathUtilities::FuzzyCompare(tRange[1], 1.0, CHECK_TOLERANCE))
+  {
+    std::cerr << "Time range is incorrect: (0.0, 1.0) != (" << tRange[0] << ", " << tRange[1] << ")"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  for (vtkIdType iStep = 0; iStep < nbSteps; iStep++)
+  {
+    // Open data at right time
+    opener.UpdateStep(iStep);
+    auto dSet = opener.GetDataObjectAsAMR();
+
+    vtkNew<vtkXMLUniformGridAMRReader> outputReader;
+    std::string expectedFileName = dataRoot +
+      "/Data/vtkHDF/Transient/transient_expected_overlapping_amr_" + std::to_string(iStep) +
+      ".vthb";
+    outputReader->SetFileName(expectedFileName.c_str());
+    outputReader->SetMaximumLevelsToReadByDefault(0);
+    outputReader->Update();
+    auto expectedData = vtkOverlappingAMR::SafeDownCast(outputReader->GetOutput());
+
+    if (dSet == nullptr || expectedData == nullptr)
+    {
+      std::cerr << "Input dataset is empty at timestep " << iStep << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    unsigned int numLevels = dSet->GetNumberOfLevels();
+    if (numLevels != expectedData->GetNumberOfLevels())
+    {
+      std::cerr << "Expected " << expectedData->GetNumberOfLevels() << "levels but got "
+                << numLevels << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    auto origin = dSet->GetOrigin();
+    auto expectedOrigin = expectedData->GetOrigin();
+    bool wrongOriginX =
+      !vtkMathUtilities::FuzzyCompare(origin[0], expectedOrigin[0], CHECK_TOLERANCE);
+    bool wrongOriginY =
+      !vtkMathUtilities::FuzzyCompare(origin[1], expectedOrigin[1], CHECK_TOLERANCE);
+    bool wrongOriginZ =
+      !vtkMathUtilities::FuzzyCompare(origin[2], expectedOrigin[2], CHECK_TOLERANCE);
+
+    if (wrongOriginX || wrongOriginY || wrongOriginZ)
+    {
+      std::cerr << "Wrong origin, it should be {" << expectedOrigin[0] << "," << expectedOrigin[1]
+                << "," << expectedOrigin[2] << "} but got {" << origin[0] << "," << origin[1] << ","
+                << origin[2] << "}." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    for (unsigned int levelIndex = 0; levelIndex < expectedData->GetNumberOfLevels(); ++levelIndex)
+    {
+      if (dSet->GetNumberOfDataSets(levelIndex) != expectedData->GetNumberOfDataSets(levelIndex))
+      {
+        std::cerr << "Number of datasets does not match for level " << levelIndex
+                  << ". Expected: " << expectedData->GetNumberOfDataSets(0)
+                  << " got: " << dSet->GetNumberOfDataSets(0) << std::endl;
+        return EXIT_FAILURE;
+      }
+
+      for (unsigned int datasetIndex = 0;
+           datasetIndex < expectedData->GetNumberOfDataSets(levelIndex); ++datasetIndex)
+      {
+        auto dataset = dSet->GetDataSet(levelIndex, datasetIndex);
+        auto expectedDataset = expectedData->GetDataSet(levelIndex, datasetIndex);
+        if (!vtkTestUtilities::CompareDataObjects(dataset, expectedDataset))
+        {
+          std::cerr << "Datasets does not match for level " << levelIndex << " dataset "
+                    << datasetIndex << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
     }
   }
 

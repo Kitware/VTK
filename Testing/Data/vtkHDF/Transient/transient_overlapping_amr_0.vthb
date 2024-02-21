@@ -1,0 +1,25 @@
+<VTKFile type="vtkOverlappingAMR" version="1.1" byte_order="LittleEndian" header_type="UInt64">
+  <vtkOverlappingAMR origin="-2 -2 0" grid_description="XYZ">
+    <Block level="0" spacing="0.5 0.5 0.5">
+      <DataSet index="0" amr_box="0 4 0 4 0 4" file="transient_expected_overlapping_amr_0/transient_expected_overlapping_amr_0_0.vti"/>
+    </Block>
+    <Block level="1" spacing="0.25 0.25 0.25">
+      <DataSet index="0" amr_box="0 3 0 5 0 9" file="transient_expected_overlapping_amr_0/transient_expected_overlapping_amr_0_1.vti"/>
+      <DataSet index="1" amr_box="6 9 4 9 0 9" file="transient_expected_overlapping_amr_0/transient_expected_overlapping_amr_0_2.vti"/>
+    </Block>
+  </vtkOverlappingAMR>
+  <FieldData>
+    <DataArray type="Int64" Name="Dummy" NumberOfTuples="1" format="binary" RangeMin="1" RangeMax="1">
+      CAAAAAAAAAABAAAAAAAAAA==
+    </DataArray>
+    <DataArray type="Float64" Name="TimeValues" NumberOfTuples="1" format="binary" RangeMin="0" RangeMax="0">
+      CAAAAAAAAAAAAAAAAAAAAA==
+    </DataArray>
+    <DataArray type="Float64" Name="Time" NumberOfTuples="1" format="binary" RangeMin="0" RangeMax="0">
+      CAAAAAAAAAAAAAAAAAAAAA==
+    </DataArray>
+    <DataArray type="Float64" Name="TimeValue" NumberOfTuples="1" format="binary" RangeMin="0.5" RangeMax="0.5">
+      CAAAAAAAAAAAAAAAAADgPw==
+    </DataArray>
+  </FieldData>
+</VTKFile>

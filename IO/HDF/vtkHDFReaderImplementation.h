@@ -112,16 +112,6 @@ public:
    */
   bool IsPathSoftLink(const std::string& path);
 
-  /**
-   * Fills the given AMR data with the content of the opened HDF file.
-   * The number of level to read is limited by the maximumLevelsToReadByDefault argument.
-   * maximumLevelsToReadByDefault == 0 means to read all levels (no limit).
-   * Only the selected data array in dataArraySelection are added to the AMR data.
-   * Returns true on success.
-   */
-  bool FillAMR(vtkOverlappingAMR* data, unsigned int maximumLevelsToReadByDefault, double origin[3],
-    vtkDataArraySelection* dataArraySelection[3]);
-
   ///@{
   /**
    * Fills the given Assembly with the content of the opened HDF file.
@@ -161,6 +151,34 @@ public:
    * Initialize meta information of the implementation based on root name specified.
    */
   bool RetrieveHDFInformation(const std::string& rootName);
+
+  ///@{
+  /**
+   * Specific public API for AMR supports.
+   */
+  /**
+   * Retrieve for each required level AMRBlocks size and position.
+   */
+  bool ComputeAMRBlocksPerLevels(unsigned int maxLevel);
+
+  /**
+   * Retrieve offset for AMRBox, point/cell/field arrays for each level.
+   */
+  bool ComputeAMROffsetsPerLevels(
+    vtkDataArraySelection* dataArraySelection[3], vtkIdType step, unsigned int maxLevel);
+
+  /**
+   * Read the AMR topology based on offset data on AMRBlocks.
+   */
+  bool ReadAMRTopology(vtkOverlappingAMR* data, unsigned int level, unsigned int maxLevel,
+    double origin[3], bool isTemporalData);
+
+  /**
+   * Read the AMR data based on offset on point/cell/field datas.
+   */
+  bool ReadAMRData(vtkOverlappingAMR* data, unsigned int level, unsigned int maxLevel,
+    vtkDataArraySelection* dataArraySelection[3], bool isTemporalData);
+  ///@}
 
 protected:
   /**
@@ -258,15 +276,37 @@ private:
 
   ///@{
   /**
-   * These methods are valid only with AMR data set type.
+   * Specific methods and structure of AMR support.
    */
-  bool ComputeAMRBlocksPerLevels(std::vector<int>& levels);
+  struct AMRBlocksInformation
+  {
+    std::vector<int> BlocksPerLevel;
+    std::vector<int> BlockOffsetsPerLevel;
+    std::map<std::string, std::vector<int>> CellOffsetsPerLevel;
+    std::map<std::string, std::vector<int>> PointOffsetsPerLevel;
+    std::map<std::string, std::vector<int>> FieldOffsetsPerLevel;
+    std::map<std::string, std::vector<int>> FieldSizesPerLevel;
+
+    void Clear()
+    {
+      this->BlocksPerLevel.clear();
+      this->BlockOffsetsPerLevel.clear();
+      this->PointOffsetsPerLevel.clear();
+      this->CellOffsetsPerLevel.clear();
+      this->FieldOffsetsPerLevel.clear();
+      this->FieldSizesPerLevel.clear();
+    }
+  };
+
+  AMRBlocksInformation AMRInformation;
+
   bool ReadLevelSpacing(hid_t levelGroupID, double* spacing);
-  bool ReadAMRBoxRawValues(hid_t levelGroupID, std::vector<int>& amrBoxRawData);
+  bool ReadAMRBoxRawValues(
+    hid_t levelGroupID, std::vector<int>& amrBoxRawData, int level, bool isTemporalData);
   bool ReadLevelTopology(unsigned int level, const std::string& levelGroupName,
-    vtkOverlappingAMR* data, double origin[3]);
+    vtkOverlappingAMR* data, double origin[3], bool isTemporalData);
   bool ReadLevelData(unsigned int level, const std::string& levelGroupName, vtkOverlappingAMR* data,
-    vtkDataArraySelection* dataArraySelection[3]);
+    vtkDataArraySelection* dataArraySelection[3], bool isTemporalData);
   ///@}
 };
 

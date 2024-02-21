@@ -114,6 +114,18 @@ vtk_module_test_data(
   Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_0_0.vtp
   Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_1_0.vtp
   Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_2_0.vtu
+
+  Data/vtkHDF/test_transient_overlapping_amr.vtkhdf
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_0.vthb
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_0/transient_expected_overlapping_amr_0_0.vti
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_0/transient_expected_overlapping_amr_0_1.vti
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_0/transient_expected_overlapping_amr_0_2.vti
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_1.vthb
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_1/transient_expected_overlapping_amr_1_0.vti
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_1/transient_expected_overlapping_amr_1_1.vti
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_2.vthb
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_2/transient_expected_overlapping_amr_2_0.vti
+  Data/vtkHDF/Transient/transient_expected_overlapping_amr_2/transient_expected_overlapping_amr_2_1.vti
 )
 
 add_subdirectory(Cxx)
