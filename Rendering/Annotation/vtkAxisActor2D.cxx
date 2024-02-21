@@ -293,6 +293,48 @@ bool vtkAxisActor2D::ShouldRebuild(vtkViewport* viewport)
 }
 
 //------------------------------------------------------------------------------
+double vtkAxisActor2D::GetViewportAxisLength(vtkViewport* viewport)
+{
+  int* x = this->PositionCoordinate->GetComputedViewportValue(viewport);
+  double p1[3];
+  p1[0] = x[0];
+  p1[1] = x[1];
+  p1[2] = 0.0;
+
+  x = this->Position2Coordinate->GetComputedViewportValue(viewport);
+  double p2[3];
+  p2[0] = x[0];
+  p2[1] = x[1];
+  p2[2] = 0.0;
+
+  double axis[3];
+  axis[0] = p2[0] - p1[0];
+  axis[1] = p2[1] - p1[1];
+  axis[2] = 0.0;
+  double length = vtkMath::Norm(axis);
+
+  return length;
+}
+
+//------------------------------------------------------------------------------
+double vtkAxisActor2D::GetViewportRulerDistance(vtkViewport* viewport)
+{
+  double wp1[3], wp2[3], wp21[3];
+  this->PositionCoordinate->GetValue(wp1);
+  this->Position2Coordinate->GetValue(wp2);
+  wp21[0] = wp2[0] - wp1[0];
+  wp21[1] = wp2[1] - wp1[1];
+  wp21[2] = wp2[2] - wp1[2];
+  const double worldLength = vtkMath::Norm(wp21);
+  // Tick distance was computed in world coordinates, convert to viewport
+  // coordinates.
+  double length = this->GetViewportAxisLength(viewport);
+  const double worldToLocalRatio = (worldLength <= 0.0 ? 0.0 : length / worldLength);
+  double distance = this->RulerDistance * worldToLocalRatio;
+  return distance;
+}
+
+//------------------------------------------------------------------------------
 double vtkAxisActor2D::GetAxisAngle(vtkViewport* viewport)
 {
   int* x = this->PositionCoordinate->GetComputedViewportValue(viewport);
@@ -312,6 +354,41 @@ double vtkAxisActor2D::GetAxisAngle(vtkViewport* viewport)
 }
 
 //------------------------------------------------------------------------------
+void vtkAxisActor2D::UpdateTicksValueAndPosition(vtkViewport* viewport)
+{
+  // Sum of all the ticks: minor and majors. Contains the start and end ticks.
+  int totalNumberOfTicks = (this->AdjustedNumberOfLabels - 1) * (this->NumberOfMinorTicks + 1) + 1;
+  double viewportAxisLength = this->GetViewportAxisLength(viewport);
+  // Distance between each minor tick.
+  double distance;
+  if (this->RulerMode)
+  {
+    double viewportRulerDistance = this->GetViewportRulerDistance(viewport);
+    distance = viewportRulerDistance / (this->NumberOfMinorTicks + 1);
+  }
+  else
+  {
+    distance = viewportAxisLength / (totalNumberOfTicks - 1);
+  }
+
+  this->TickValues.clear();
+  this->NormalizedTickPositions.clear();
+  for (int tick = 0; tick < totalNumberOfTicks; tick++)
+  {
+    double pos = distance * tick / viewportAxisLength;
+    pos = vtkMath::ClampValue(pos, 0., 1.);
+    this->NormalizedTickPositions.push_back(pos);
+
+    if (tick % (this->NumberOfMinorTicks + 1) == 0)
+    {
+      double value =
+        this->AdjustedRange[0] + pos * (this->AdjustedRange[1] - this->AdjustedRange[0]);
+      this->TickValues.push_back(value);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
 {
   this->Axis->Initialize();
@@ -321,74 +398,47 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
   this->Axis->SetPoints(pts);
   this->Axis->SetLines(lines);
 
-  // Compute the location of tick marks and labels
-
-  this->UpdateAdjustedRange();
-
   // Generate the axis and tick marks.
   // We'll do our computation in viewport coordinates. First determine the
   // location of the endpoints.
   int* x = this->PositionCoordinate->GetComputedViewportValue(viewport);
-  double p1[3];
-  p1[0] = x[0];
-  p1[1] = x[1];
-  p1[2] = 0.0;
+  double axisStart[3];
+  axisStart[0] = x[0];
+  axisStart[1] = x[1];
+  axisStart[2] = 0.0;
 
   x = this->Position2Coordinate->GetComputedViewportValue(viewport);
-  double p2[3];
-  p2[0] = x[0];
-  p2[1] = x[1];
-  p2[2] = 0.0;
+  double axisEnd[3];
+  axisEnd[0] = x[0];
+  axisEnd[1] = x[1];
+  axisEnd[2] = 0.0;
 
   // Generate point along axis (as well as tick points)
   double theta = this->GetAxisAngle(viewport);
 
   // First axis point, where first tick is located
   vtkIdType ptIds[2];
-  ptIds[0] = pts->InsertNextPoint(p1);
-  double xTick[3];
-  xTick[0] = p1[0] + this->TickLength * sin(theta);
-  xTick[1] = p1[1] - this->TickLength * cos(theta);
-  xTick[2] = 0.0;
-  pts->InsertNextPoint(xTick);
+  ptIds[0] = pts->InsertNextPoint(axisStart);
+  double tickPos[3];
+  tickPos[0] = axisStart[0] + this->TickLength * sin(theta);
+  tickPos[1] = axisStart[1] - this->TickLength * cos(theta);
+  tickPos[2] = 0.0;
+  pts->InsertNextPoint(tickPos);
 
-  // Set up creation of ticks
-  double p21[3], length;
-  p21[0] = p2[0] - p1[0];
-  p21[1] = p2[1] - p1[1];
-  p21[2] = p2[2] - p1[2];
-  length = vtkMath::Normalize(p21);
+  double normalizedAxis[3];
+  normalizedAxis[0] = axisEnd[0] - axisStart[0];
+  normalizedAxis[1] = axisEnd[1] - axisStart[1];
+  normalizedAxis[2] = 0.0;
+  double axisLength = vtkMath::Normalize(normalizedAxis);
 
-  // Sum of all the ticks: minor and majors. Contains the start and end ticks.
-  int numTicks = (this->AdjustedNumberOfLabels - 1) * (this->NumberOfMinorTicks + 1) + 1;
-  // Distance between each minor tick.
-  double distance;
-  if (this->RulerMode)
-  {
-    double wp1[3], wp2[3], wp21[3];
-    this->PositionCoordinate->GetValue(wp1);
-    this->Position2Coordinate->GetValue(wp2);
-    wp21[0] = wp2[0] - wp1[0];
-    wp21[1] = wp2[1] - wp1[1];
-    wp21[2] = wp2[2] - wp1[2];
-    const double worldLength = vtkMath::Norm(wp21);
-    const double worldDistance = this->RulerDistance / (this->NumberOfMinorTicks + 1);
-    // Tick distance was computed in world coordinates, convert to viewport
-    // coordinates.
-    const double worldToLocalRatio = (worldLength <= 0.0 ? 0.0 : length / worldLength);
-    distance = worldDistance * worldToLocalRatio;
-  }
-  else
-  {
-    distance = length / (numTicks - 1);
-  }
+  int totalNumberOfTicks = static_cast<int>(this->NormalizedTickPositions.size());
 
   // Only draw the inner ticks (not the start/end ticks)
-  if (numTicks >= 2)
+  if (totalNumberOfTicks >= 2)
   {
-    this->TicksStartPos->SetNumberOfPoints(numTicks - 2);
+    this->TicksStartPos->SetNumberOfPoints(totalNumberOfTicks - 2);
   }
-  for (int i = 1; i < numTicks - 1; i++)
+  for (int i = 1; i < totalNumberOfTicks - 1; i++)
   {
     int tickLength = 0;
     if (i % (this->NumberOfMinorTicks + 1) == 0)
@@ -399,20 +449,21 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
     {
       tickLength = this->MinorTickLength;
     }
-    xTick[0] = p1[0] + i * p21[0] * distance;
-    xTick[1] = p1[1] + i * p21[1] * distance;
-    this->TicksStartPos->SetPoint(i - 1, xTick);
-    pts->InsertNextPoint(xTick);
-    xTick[0] = xTick[0] + tickLength * sin(theta);
-    xTick[1] = xTick[1] - tickLength * cos(theta);
-    pts->InsertNextPoint(xTick);
+
+    tickPos[0] = axisStart[0] + this->NormalizedTickPositions[i] * normalizedAxis[0] * axisLength;
+    tickPos[1] = axisStart[1] + this->NormalizedTickPositions[i] * normalizedAxis[1] * axisLength;
+    this->TicksStartPos->SetPoint(i - 1, tickPos);
+    pts->InsertNextPoint(tickPos);
+    tickPos[0] = tickPos[0] + tickLength * sin(theta);
+    tickPos[1] = tickPos[1] - tickLength * cos(theta);
+    pts->InsertNextPoint(tickPos);
   }
 
   // Last axis point
-  ptIds[1] = pts->InsertNextPoint(p2);
-  xTick[0] = p2[0] + this->TickLength * sin(theta);
-  xTick[1] = p2[1] - this->TickLength * cos(theta);
-  pts->InsertNextPoint(xTick);
+  ptIds[1] = pts->InsertNextPoint(axisEnd);
+  tickPos[0] = axisEnd[0] + this->TickLength * sin(theta);
+  tickPos[1] = axisEnd[1] - this->TickLength * cos(theta);
+  pts->InsertNextPoint(tickPos);
 
   // Add the axis if requested
   if (this->AxisVisibility)
@@ -423,7 +474,7 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
   // Create lines representing the tick marks
   if (this->TickVisibility)
   {
-    for (int i = 0; i < numTicks; i++)
+    for (int i = 0; i < totalNumberOfTicks; i++)
     {
       ptIds[0] = 2 * i;
       ptIds[1] = 2 * i + 1;
@@ -435,10 +486,6 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
 //------------------------------------------------------------------------------
 void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
 {
-  double interval =
-    (this->AdjustedRange[1] - this->AdjustedRange[0]) / (this->AdjustedNumberOfLabels - 1);
-  char string[512];
-
   // Update the labels text. Do it only if the range has been adjusted,
   // i.e. if we think that new labels must be created.
   // WARNING: if LabelFormat has changed, they should be recreated too
@@ -448,14 +495,19 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
   vtkMTimeType labeltime = this->AdjustedRangeBuildTime;
   if (this->AdjustedRangeBuildTime > this->BuildTime)
   {
+    if (this->AdjustedNumberOfLabels != static_cast<int>(this->TickValues.size()))
+    {
+      vtkErrorMacro("inconsistent number of labels");
+    }
+
     for (int i = 0; i < this->AdjustedNumberOfLabels; i++)
     {
-      double val = this->AdjustedRange[0] + i * interval;
-
+      double val = this->TickValues[i];
       if (this->GetNotation() == 0)
       {
         // Use default legend notation : don't use vtkNumberToString
         // for the default setting in order to ensure retrocompatibility
+        char string[512];
         snprintf(string, sizeof(string), this->LabelFormat, val);
         this->LabelMappers[i]->SetInput(string);
       }
@@ -658,6 +710,11 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
   vtkDebugMacro(<< "Rebuilding axis");
 
   this->AxisActor->SetProperty(this->GetProperty());
+
+  // Compute the location of tick marks and labels
+  this->UpdateAdjustedRange();
+
+  this->UpdateTicksValueAndPosition(viewport);
 
   this->BuildTicksPolyData(viewport);
 

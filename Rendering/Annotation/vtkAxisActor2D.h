@@ -491,6 +491,14 @@ private:
    * Return true if axis should actually be rebuild.
    */
   bool ShouldRebuild(vtkViewport* viewport);
+
+  /**
+   * Update Ticks value and position.
+   * Values are major ticks values that will be displayed (see AdjustedRange)
+   * Positions are the position of each major and minor tick relative
+   * to the axis (so in [0, 1])
+   */
+  void UpdateTicksValueAndPosition(vtkViewport* viewport);
   /**
    * Build the inner polydata: create points and lines.
    */
@@ -513,6 +521,20 @@ private:
    * Update member used as cache for change detection.
    */
   void UpdateCachedInformations(vtkViewport* viewport);
+
+  /**
+   * Get the RulerDistance in Viewport coordinates.
+   */
+  double GetViewportRulerDistance(vtkViewport* viewport);
+
+  /**
+   * Get the axis length in viewport coordinates.
+   */
+  double GetViewportAxisLength(vtkViewport* viewport);
+
+  // tick position in axis, normalized on axis length.
+  std::vector<double> NormalizedTickPositions;
+  std::vector<double> TickValues;
 };
 
 VTK_ABI_NAMESPACE_END
