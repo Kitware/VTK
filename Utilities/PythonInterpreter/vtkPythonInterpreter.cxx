@@ -168,6 +168,8 @@ bool vtkPythonInterpreter::ConsoleBuffering = false;
 std::string vtkPythonInterpreter::StdErrBuffer;
 std::string vtkPythonInterpreter::StdOutBuffer;
 int vtkPythonInterpreter::LogVerbosity = vtkLogger::VERBOSITY_TRACE;
+std::string vtkPythonInterpreter::LibraryPath;
+std::string vtkPythonInterpreter::Landmark;
 
 #if PY_VERSION_HEX >= 0x03000000
 struct CharDeleter
@@ -394,8 +396,15 @@ void SetupPythonPaths(bool isolated, std::string vtklib, const char* landmark)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv[],
-  const char* programName, const char* libraryPath, const char* landmark)
+void vtkPythonInterpreter::SetUserPythonPath(const char* libraryPath, const char* landmark)
+{
+  vtkPythonInterpreter::LibraryPath = libraryPath;
+  vtkPythonInterpreter::Landmark = landmark;
+}
+
+//------------------------------------------------------------------------------
+bool vtkPythonInterpreter::InitializeWithArgs(
+  int initsigs, int argc, char* argv[], const char* programName)
 {
   bool isolated = vtkPythonPreConfig();
 
@@ -518,9 +527,10 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
     // specified paths are preferred to the ones `vtkPythonInterpreter` adds.
     std::string vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
     SetupPythonPaths(isolated, vtklib, "vtkmodules/__init__.py");
-    if (libraryPath)
+    if (!vtkPythonInterpreter::LibraryPath.empty())
     {
-      SetupPythonPaths(isolated, libraryPath, landmark);
+      SetupPythonPaths(isolated, vtkPythonInterpreter::LibraryPath.c_str(),
+        vtkPythonInterpreter::Landmark.c_str());
     }
 
     for (size_t cc = 0; cc < PythonPaths.size(); cc++)
