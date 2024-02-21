@@ -2947,6 +2947,8 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
     }
     lineRead = this->ReadLine(line);
   }
+  this->ApplyRigidBodyTransforms(partId, name, output);
+
   return lineRead;
 }
 
@@ -3061,6 +3063,8 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(
     delete[] elementIds;
   }
 
+  this->ApplyRigidBodyTransforms(partId, name, output);
+
   return lineRead;
 }
 
@@ -3164,6 +3168,8 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(
   yCoords->Delete();
   zCoords->Delete();
 
+  this->ApplyRigidBodyTransforms(partId, name, output);
+
   // reading next line to check for EOF
   lineRead = this->ReadLine(line);
   return lineRead;
@@ -3229,6 +3235,8 @@ int vtkEnSightGoldBinaryReader::CreateImageDataOutput(
     this->ReadIntArray(tempArray, numPts);
     delete[] tempArray;
   }
+
+  this->ApplyRigidBodyTransforms(partId, name, output);
 
   // reading next line to check for EOF
   lineRead = this->ReadLine(line);
