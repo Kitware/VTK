@@ -473,6 +473,37 @@ protected:
 private:
   vtkAxisActor2D(const vtkAxisActor2D&) = delete;
   void operator=(const vtkAxisActor2D&) = delete;
+
+  /**
+   * Return true if axis coordinates have changed or if viewport was resized.
+   */
+  bool PositionsChangedOrViewportResized(vtkViewport* viewport);
+  /**
+   * Return true if axis should actually be rebuild.
+   */
+  bool ShouldRebuild(vtkViewport* viewport);
+  /**
+   * Build the inner polydata: create points and lines.
+   */
+  void BuildTicksPolyData(vtkViewport* viewport);
+  /**
+   * Build the labels : convert number to text and position it.
+   */
+  void BuildLabels(vtkViewport* viewport);
+  /**
+   * Build the title
+   */
+  void BuildTitle(vtkViewport* viewport);
+
+  /**
+   * Get the angle of the axis in the viewport
+   */
+  double GetAxisAngle(vtkViewport* viewport);
+
+  /**
+   * Update member used as cache for change detection.
+   */
+  void UpdateCachedInformations(vtkViewport* viewport);
 };
 
 VTK_ABI_NAMESPACE_END
