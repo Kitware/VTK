@@ -4,7 +4,6 @@
 
 #include "vtkDataArrayCollection.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIdListCollection.h"
 #include "vtkInformation.h"
@@ -201,7 +200,7 @@ int vtkEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
   int i, timeSet, fileSet, timeStep, timeStepInFile, fileNum;
   vtkDataArray* times;
   vtkIdList *numStepsList, *filenameNumbers;
-  float newTime;
+  double newTime;
   int numSteps;
   char* fileName;
   int filenameNum;
@@ -1010,7 +1009,7 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
   char formatLine[256];
   char subLine[256];
   int timeSet, numTimeSteps, i, filenameNum, increment, lineRead;
-  float timeStep;
+  double timeStep;
 
   // found TIME section
   int firstTimeStep = 1;
@@ -1173,14 +1172,14 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
     }
 
     // 'time values:' --- to obtain timeStep(s)
-    vtkFloatArray* timeValues = vtkFloatArray::New();
+    vtkDoubleArray* timeValues = vtkDoubleArray::New();
     timeValues->SetNumberOfComponents(1);
     timeValues->SetNumberOfTuples(numTimeSteps);
 
     // Time values may be provided on the line(s) following  'time values:',
     // as is usually the case --- not "inline". Thus we need to go to the
     // FIRST line that indeed contains time values.
-    if (sscanf(line, "%*s %*s %f", &timeStep) != 1)
+    if (sscanf(line, "%*s %*s %lf", &timeStep) != 1)
     {
       // not "inline"
       if (this->ReadNextDataLine(line) == 0)
@@ -1201,7 +1200,7 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
 
     for (i = 0; i < numTimeSteps; i++)
     {
-      strcat(formatLine, "%f ");
+      strcat(formatLine, "%lf ");
 
       // More lines might be needed to provide the remaining time values
       // and then formatLine and subLine need to be updated. 'while' is used
@@ -1222,12 +1221,12 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
         }
 
         // to access a new line
-        strcpy(formatLine, "%f ");
+        strcpy(formatLine, "%lf ");
         strcpy(subLine, "");
       }
 
       timeValues->SetComponent(i, 0, timeStep);
-      strcat(subLine, "%*f ");
+      strcat(subLine, "%*lf ");
       strcpy(formatLine, subLine);
 
       // init min and max only upon the access to the FIRST 'timeStep'
@@ -2210,7 +2209,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet* output)
   char description[256];
   int timeSet, fileSet, timeStep, timeStepInFile, numSteps;
   vtkDataArray* times;
-  float newTime;
+  double newTime;
   vtkIdList *numStepsList, *filenameNumbers;
   int fileNum;
   int validTime, filenameNum;

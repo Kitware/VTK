@@ -130,16 +130,16 @@ public:
   /**
    * Set/Get the time value at which to get the value.
    */
-  virtual void SetTimeValue(float value);
-  vtkGetMacro(TimeValue, float);
+  virtual void SetTimeValue(double value);
+  vtkGetMacro(TimeValue, double);
   ///@}
 
   ///@{
   /**
    * Get the minimum or maximum time value for this data set.
    */
-  vtkGetMacro(MinimumTimeValue, float);
-  vtkGetMacro(MaximumTimeValue, float);
+  vtkGetMacro(MinimumTimeValue, double);
+  vtkGetMacro(MaximumTimeValue, double);
   ///@}
 
   ///@{
@@ -415,9 +415,9 @@ protected:
   int NumberOfComplexScalarsPerElement;
   int NumberOfComplexVectorsPerElement;
 
-  float TimeValue;
-  float MinimumTimeValue;
-  float MaximumTimeValue;
+  double TimeValue;
+  double MinimumTimeValue;
+  double MaximumTimeValue;
 
   // Flag for whether TimeValue has been set.
   int TimeValueInitialized;
