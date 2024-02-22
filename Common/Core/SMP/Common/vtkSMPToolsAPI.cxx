@@ -163,6 +163,23 @@ void vtkSMPToolsAPI::RefreshNumberOfThread()
 }
 
 //------------------------------------------------------------------------------
+int vtkSMPToolsAPI::GetEstimatedDefaultNumberOfThreads()
+{
+  switch (this->ActivatedBackend)
+  {
+    case BackendType::Sequential:
+      return this->SequentialBackend->GetEstimatedDefaultNumberOfThreads();
+    case BackendType::STDThread:
+      return this->STDThreadBackend->GetEstimatedDefaultNumberOfThreads();
+    case BackendType::TBB:
+      return this->TBBBackend->GetEstimatedDefaultNumberOfThreads();
+    case BackendType::OpenMP:
+      return this->OpenMPBackend->GetEstimatedDefaultNumberOfThreads();
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 int vtkSMPToolsAPI::GetEstimatedNumberOfThreads()
 {
   switch (this->ActivatedBackend)

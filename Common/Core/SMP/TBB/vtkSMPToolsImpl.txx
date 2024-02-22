@@ -200,6 +200,10 @@ void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int);
 
 //--------------------------------------------------------------------------------
 template <>
+int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedDefaultNumberOfThreads();
+
+//--------------------------------------------------------------------------------
+template <>
 int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedNumberOfThreads();
 
 //--------------------------------------------------------------------------------

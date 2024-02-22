@@ -125,6 +125,10 @@ int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads();
 
 //--------------------------------------------------------------------------------
 template <>
+int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedDefaultNumberOfThreads();
+
+//--------------------------------------------------------------------------------
+template <>
 bool vtkSMPToolsImpl<BackendType::STDThread>::GetSingleThread();
 
 //--------------------------------------------------------------------------------

@@ -14,12 +14,12 @@ namespace detail
 namespace smp
 {
 VTK_ABI_NAMESPACE_BEGIN
-static int specifiedNumThreads; // Default initialized to zero
+static int specifiedNumThreadsSTD; // Default initialized to zero
 
 //------------------------------------------------------------------------------
 int GetNumberOfThreadsSTDThread()
 {
-  return specifiedNumThreads ? specifiedNumThreads : std::thread::hardware_concurrency();
+  return specifiedNumThreadsSTD ? specifiedNumThreadsSTD : std::thread::hardware_concurrency();
 }
 
 //------------------------------------------------------------------------------
@@ -36,13 +36,13 @@ void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int numThreads)
     }
     else
     {
-      specifiedNumThreads = 0;
+      specifiedNumThreadsSTD = 0;
     }
   }
   if (numThreads > 0)
   {
     numThreads = std::min(numThreads, maxThreads);
-    specifiedNumThreads = numThreads;
+    specifiedNumThreadsSTD = numThreads;
   }
 }
 
@@ -50,7 +50,14 @@ void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int numThreads)
 template <>
 int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads()
 {
-  return specifiedNumThreads > 0 ? specifiedNumThreads : std::thread::hardware_concurrency();
+  return specifiedNumThreadsSTD > 0 ? specifiedNumThreadsSTD : std::thread::hardware_concurrency();
+}
+
+//------------------------------------------------------------------------------
+template <>
+int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedDefaultNumberOfThreads()
+{
+  return std::thread::hardware_concurrency();
 }
 
 //------------------------------------------------------------------------------

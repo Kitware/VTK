@@ -35,6 +35,13 @@ int vtkSMPTools::GetEstimatedNumberOfThreads()
 }
 
 //------------------------------------------------------------------------------
+int vtkSMPTools::GetEstimatedDefaultNumberOfThreads()
+{
+  auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+  return SMPToolsAPI.GetEstimatedDefaultNumberOfThreads();
+}
+
+//------------------------------------------------------------------------------
 void vtkSMPTools::SetNestedParallelism(bool isNested)
 {
   auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
