@@ -125,7 +125,7 @@ int vtkAxisActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 
   if (this->LabelVisibility)
   {
-    for (i = 0; i < this->NumberOfLabelsBuilt; i++)
+    for (i = 0; i < this->AdjustedNumberOfLabels; i++)
     {
       renderedSomething += this->LabelActors[i]->RenderOpaqueGeometry(viewport);
     }
@@ -154,7 +154,7 @@ int vtkAxisActor2D::RenderOverlay(vtkViewport* viewport)
 
   if (this->LabelVisibility)
   {
-    for (i = 0; i < this->NumberOfLabelsBuilt; i++)
+    for (i = 0; i < this->AdjustedNumberOfLabels; i++)
     {
       renderedSomething += this->LabelActors[i]->RenderOverlay(viewport);
     }
