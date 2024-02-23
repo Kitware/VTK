@@ -551,8 +551,6 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
   {
     double xTick[3];
     pts->GetPoint((this->NumberOfMinorTicks + 1) * 2 * i + 1, xTick);
-    int stringSize[2];
-    this->LabelMappers[i]->GetSize(viewport, stringSize);
     double theta = this->GetAxisAngle(viewport);
     vtkAxisActor2D::SetOffsetPosition(xTick, theta, this->LastMaxLabelSize[0],
       this->LastMaxLabelSize[1], this->TickOffset, this->LabelActors[i]);
