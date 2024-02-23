@@ -95,8 +95,10 @@ public:
 
   ///@{
   /**
-   * Specify the (min,max) axis range. This will be used in the generation
+   * Specify the (min,max) axis display text range. This will be used in the generation
    * of labels, if labels are visible.
+   * This does not impact the position of ticks.
+   * @see SetNumberOfLabels, SetRulerMode, SetRulerDistance
    */
   vtkSetVector2Macro(Range, double);
   vtkGetVectorMacro(Range, double, 2);
@@ -107,6 +109,8 @@ public:
    * Specify whether this axis should act like a measuring tape (or ruler) with
    * specified major tick spacing. If enabled, the distance between major ticks
    * is controlled by the RulerDistance ivar.
+   * Note that the displayed values are still controlled by Range, and are not related
+   * to the actual distance.
    */
   vtkSetMacro(RulerMode, vtkTypeBool);
   vtkGetMacro(RulerMode, vtkTypeBool);
@@ -117,6 +121,7 @@ public:
   /**
    * Specify the RulerDistance which indicates the spacing of the major ticks.
    * This ivar only has effect when the RulerMode is on.
+   * This is specified in World coordinates.
    */
   vtkSetClampMacro(RulerDistance, double, 0, VTK_FLOAT_MAX);
   vtkGetMacro(RulerDistance, double);
@@ -175,6 +180,10 @@ public:
    * Call GetAdjustedRange and GetAdjustedNumberOfLabels to get the adjusted
    * range and number of labels. Note that if RulerMode is on, then the
    * number of labels is a function of the range and ruler distance.
+   *
+   * Note: as it modifies the display text and not any actual position,
+   * you should probably not use this mode when displaying distance
+   * or coordinates, as they will be wrong.
    */
   vtkSetMacro(AdjustLabels, vtkTypeBool);
   vtkGetMacro(AdjustLabels, vtkTypeBool);
