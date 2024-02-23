@@ -4,6 +4,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkNumberToString.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -324,8 +325,6 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
 
   this->UpdateAdjustedRange();
 
-  this->NumberOfLabelsBuilt = this->AdjustedNumberOfLabels;
-
   // Generate the axis and tick marks.
   // We'll do our computation in viewport coordinates. First determine the
   // location of the endpoints.
@@ -361,7 +360,7 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
   length = vtkMath::Normalize(p21);
 
   // Sum of all the ticks: minor and majors. Contains the start and end ticks.
-  int numTicks;
+  int numTicks = (this->AdjustedNumberOfLabels - 1) * (this->NumberOfMinorTicks + 1) + 1;
   // Distance between each minor tick.
   double distance;
   if (this->RulerMode)
@@ -374,14 +373,6 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
     wp21[2] = wp2[2] - wp1[2];
     const double worldLength = vtkMath::Norm(wp21);
     const double worldDistance = this->RulerDistance / (this->NumberOfMinorTicks + 1);
-    numTicks = static_cast<int>(worldDistance <= 0.0 ? 0.0 : (worldLength / worldDistance));
-    const double precision = std::numeric_limits<double>::epsilon();
-    const bool hasRemainderInDivision =
-      worldDistance <= 0.0 ? false : std::fmod(worldLength, worldDistance) > precision;
-    // numTicks must contain the start and end ticks
-    // Don't add the end tick if it is already in numTicks:
-    //   when wLength / wDistance is an integer.
-    numTicks += hasRemainderInDivision ? 2 : 1;
     // Tick distance was computed in world coordinates, convert to viewport
     // coordinates.
     const double worldToLocalRatio = (worldLength <= 0.0 ? 0.0 : length / worldLength);
@@ -389,7 +380,6 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
   }
   else
   {
-    numTicks = (this->AdjustedNumberOfLabels - 1) * (this->NumberOfMinorTicks + 1) + 1;
     distance = length / (numTicks - 1);
   }
 
@@ -723,6 +713,28 @@ void vtkAxisActor2D::UpdateAdjustedRange()
     this->AdjustedRange[0] = this->Range[0];
     this->AdjustedRange[1] = this->Range[1];
   }
+
+  if (this->RulerMode)
+  {
+    double wp1[3], wp2[3], wp21[3];
+    this->PositionCoordinate->GetValue(wp1);
+    this->Position2Coordinate->GetValue(wp2);
+    wp21[0] = wp2[0] - wp1[0];
+    wp21[1] = wp2[1] - wp1[1];
+    wp21[2] = wp2[2] - wp1[2];
+    const double worldLength = vtkMath::Norm(wp21);
+    this->AdjustedNumberOfLabels = worldLength / this->RulerDistance;
+    if (vtkMathUtilities::FuzzyCompare<double>(
+          this->AdjustedNumberOfLabels * this->RulerDistance, worldLength))
+    {
+      this->AdjustedNumberOfLabels += 1;
+    }
+    this->AdjustedNumberOfLabels += 2;
+  }
+
+  // for compatibility
+  this->NumberOfLabelsBuilt = this->AdjustedNumberOfLabels;
+
   this->AdjustedRangeBuildTime.Modified();
 }
 
