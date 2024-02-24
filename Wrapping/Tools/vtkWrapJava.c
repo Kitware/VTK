@@ -731,7 +731,7 @@ int DoneOne(void)
 {
   int i, j;
   int match;
-  FunctionInfo* fi;
+  const FunctionInfo* fi;
 
   for (i = 0; i < numberOfWrappedFunctions; i++)
   {
@@ -884,7 +884,7 @@ void HandleDataArray(FILE* fp, const ClassInfo* data)
 
 static int isClassWrapped(const char* classname)
 {
-  HierarchyEntry* entry;
+  const HierarchyEntry* entry;
 
   if (hierarchyInfo)
   {

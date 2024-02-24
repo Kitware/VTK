@@ -1285,8 +1285,8 @@ static int override_compatible(unsigned int t1, unsigned int t2)
 /* Compare two functions */
 int vtkParse_CompareFunctionSignature(const FunctionInfo* func1, const FunctionInfo* func2)
 {
-  ValueInfo* p1;
-  ValueInfo* p2;
+  const ValueInfo* p1;
+  const ValueInfo* p2;
   int j;
   int k;
   int match = 0;

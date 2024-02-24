@@ -90,7 +90,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
   const char* classname;
   const char* ownincfile = "";
   ClassInfo* data;
-  ValueInfo* val;
+  const ValueInfo* val;
   const char** includedHeaders = NULL;
   size_t nIncludedHeaders = 0;
 

@@ -736,7 +736,7 @@ void vtkParseHierarchy_Free(HierarchyInfo* info)
 int vtkParseHierarchy_IsTypeOfTemplated(const HierarchyInfo* info, const HierarchyEntry* entry,
   const char* classname, const char* baseclass, const char** baseclass_with_args)
 {
-  HierarchyEntry* tmph;
+  const HierarchyEntry* tmph;
   const char* name = NULL;
   const char* supername;
   char* tmp;
@@ -1299,7 +1299,7 @@ const char* vtkParseHierarchy_QualifiedEnumName(
   /* check the hierarchy information for the enum type */
   if (hinfo)
   {
-    HierarchyEntry* entry;
+    const HierarchyEntry* entry;
     entry = vtkParseHierarchy_FindEntry(hinfo, name);
     if (entry && entry->IsEnum)
     {

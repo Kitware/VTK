@@ -1378,7 +1378,7 @@ int preproc_evaluate_conditional(PreprocessInfo* info, StringTokenizer* tokens)
  */
 static int preproc_evaluate_if(PreprocessInfo* info, StringTokenizer* tokens)
 {
-  MacroInfo* macro;
+  const MacroInfo* macro;
   int v1, v2;
   int result = VTK_PARSE_OK;
 

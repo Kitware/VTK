@@ -652,7 +652,7 @@ static void vtkWrapPython_CustomMethods(
 static void vtkWrapPython_ReplaceAddObserver(FILE* fp, const char* classname, ClassInfo* data)
 {
   int i;
-  FunctionInfo* theFunc;
+  const FunctionInfo* theFunc;
 
   /* the python vtkObject needs special hooks for observers */
   if (strcmp("vtkObject", classname) == 0)
@@ -767,7 +767,7 @@ static void vtkWrapPython_ReplaceAddObserver(FILE* fp, const char* classname, Cl
 static void vtkWrapPython_ReplaceInvokeEvent(FILE* fp, const char* classname, ClassInfo* data)
 {
   int i;
-  FunctionInfo* theFunc;
+  const FunctionInfo* theFunc;
 
   /* the python vtkObject needs a special InvokeEvent to turn any
      calldata into an appropriately unwrapped void pointer */

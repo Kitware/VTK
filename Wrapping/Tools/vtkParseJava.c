@@ -340,7 +340,7 @@ int DoneOne(void)
 {
   int i, j;
   int match;
-  FunctionInfo* fi;
+  const FunctionInfo* fi;
 
   for (i = 0; i < numberOfWrappedFunctions; i++)
   {
@@ -443,7 +443,7 @@ void HandleDataArray(FILE* fp, const ClassInfo* data)
 
 static int isClassWrapped(const char* classname)
 {
-  HierarchyEntry* entry;
+  const HierarchyEntry* entry;
 
   if (hierarchyInfo)
   {
@@ -1152,7 +1152,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     size_t cc;
     size_t len;
     char* dir;
-    char* fname;
+    const char* fname;
     const char javaDone[] = "VTKJavaWrapped";
     FILE* tfp;
     fname = options->OutputFileName;

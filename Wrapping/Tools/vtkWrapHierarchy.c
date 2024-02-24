@@ -111,7 +111,7 @@ static char* append_scope_to_line(char* line, size_t* m, size_t* maxlen, const c
 static char* append_template_to_line(
   char* line, size_t* m, size_t* maxlen, TemplateInfo* template_args)
 {
-  ValueInfo* arg;
+  const ValueInfo* arg;
   int j;
 
   line = append_to_line(line, "<", m, maxlen);

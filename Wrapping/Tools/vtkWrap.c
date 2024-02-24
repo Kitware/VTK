@@ -446,7 +446,7 @@ int vtkWrap_CountRequiredArguments(const FunctionInfo* f)
 
 int vtkWrap_IsVTKObjectBaseType(const HierarchyInfo* hinfo, const char* classname)
 {
-  HierarchyEntry* entry;
+  const HierarchyEntry* entry;
 
   if (hinfo)
   {
@@ -475,7 +475,7 @@ int vtkWrap_IsVTKObjectBaseType(const HierarchyInfo* hinfo, const char* classnam
 
 int vtkWrap_IsSpecialType(const HierarchyInfo* hinfo, const char* classname)
 {
-  HierarchyEntry* entry;
+  const HierarchyEntry* entry;
 
   if (hinfo)
   {
@@ -504,7 +504,7 @@ int vtkWrap_IsSpecialType(const HierarchyInfo* hinfo, const char* classname)
 
 int vtkWrap_IsTypeOf(const HierarchyInfo* hinfo, const char* classname, const char* superclass)
 {
-  HierarchyEntry* entry;
+  const HierarchyEntry* entry;
 
   if (strcmp(classname, superclass) == 0)
   {
@@ -530,7 +530,7 @@ int vtkWrap_IsClassWrapped(const HierarchyInfo* hinfo, const char* classname)
 {
   if (hinfo)
   {
-    HierarchyEntry* entry;
+    const HierarchyEntry* entry;
     entry = vtkParseHierarchy_FindEntry(hinfo, classname);
 
     if (entry && !vtkParseHierarchy_GetProperty(entry, "WRAPEXCLUDE"))
@@ -550,7 +550,7 @@ int vtkWrap_IsClassWrapped(const HierarchyInfo* hinfo, const char* classname)
 /* Check whether the destructor is public */
 int vtkWrap_HasPublicDestructor(ClassInfo* data)
 {
-  FunctionInfo* func;
+  const FunctionInfo* func;
   int i;
 
   for (i = 0; i < data->NumberOfFunctions; i++)
@@ -570,7 +570,7 @@ int vtkWrap_HasPublicDestructor(ClassInfo* data)
 /* Check whether the copy constructor is public */
 int vtkWrap_HasPublicCopyConstructor(ClassInfo* data)
 {
-  FunctionInfo* func;
+  const FunctionInfo* func;
   int i;
 
   for (i = 0; i < data->NumberOfFunctions; i++)
@@ -592,7 +592,7 @@ int vtkWrap_HasPublicCopyConstructor(ClassInfo* data)
 /* Get the size for subclasses of vtkTuple */
 int vtkWrap_GetTupleSize(const ClassInfo* data, const HierarchyInfo* hinfo)
 {
-  HierarchyEntry* entry;
+  const HierarchyEntry* entry;
   const char* classname = NULL;
   size_t m;
   int size = 0;
