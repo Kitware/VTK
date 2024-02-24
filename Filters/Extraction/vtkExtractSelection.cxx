@@ -120,8 +120,8 @@ int vtkExtractSelection::RequestDataObject(
   }
   else if (vtkCompositeDataSet::SafeDownCast(inputDO))
   {
-    // For other composite datasets, we create a vtkMultiBlockDataSet as output;
-    outputType = VTK_MULTIBLOCK_DATA_SET;
+    // For other composite datasets, we create a vtkPartitionedDataSetCollection as output;
+    outputType = VTK_PARTITIONED_DATA_SET_COLLECTION;
   }
   else if (vtkDataSet::SafeDownCast(inputDO) ||
     (this->HyperTreeGridToUnstructuredGrid && vtkHyperTreeGrid::SafeDownCast(inputDO)))
@@ -314,8 +314,7 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     assert(outputCD != nullptr);
     outputCD->CopyStructure(inputCD);
 
-    vtkSmartPointer<vtkCompositeDataIterator> inIter;
-    inIter.TakeReference(inputCD->NewIterator());
+    auto inIter = vtk::TakeSmartPointer(inputCD->NewIterator());
 
     // Initialize the output composite dataset to have blocks with the same type
     // as the input.
@@ -365,39 +364,31 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     vtkLogStartScope(TRACE, "evaluate expression and extract output");
     // Now iterate again over the composite dataset and evaluate the expression to
     // combine all the insidedness arrays and then extract the elements.
-    vtkSmartPointer<vtkCompositeDataIterator> outIter;
-    outIter.TakeReference(outputCD->NewIterator());
     bool globalEvaluationResult = true;
-    // input iterator is needed because if inputCD is subclass of vtkUniformGridAMR,
-    // GetDataSet requires the iterator to be vtkUniformGridAMRDataIterator
-    vtkTypeBool isUniformGridAMR = outputCD->IsA("vtkUniformGridAMR");
-    if (isUniformGridAMR)
-    {
-      inIter->GoToFirstItem();
-    }
-    for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
+    // we use the input iterator instead of the output one, because if inputCD is subclass of
+    // vtkUniformGridAMR, GetDataSet requires the iterator to be vtkUniformGridAMRDataIterator
+    for (inIter->GoToFirstItem(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
     {
       if (this->CheckAbort())
       {
         break;
       }
-      auto outputBlock = outIter->GetCurrentDataObject();
-      if (outputBlock)
+      auto inBlock = inIter->GetCurrentDataObject();
+      auto outBlock = outputCD->GetDataSet(inIter);
+      if (inBlock && outBlock)
       {
         // Evaluate the expression.
-        auto evaluationResult = this->EvaluateSelection(outputBlock, assoc, selection, selectors);
+        auto evaluationResult = this->EvaluateSelection(outBlock, assoc, selection, selectors);
         if (evaluationResult != EvaluationResult::INVALID)
         {
           vtkSmartPointer<vtkUnsignedCharArray> colorArray =
-            this->EvaluateColorArrayInSelection(outputBlock, assoc, selection);
+            this->EvaluateColorArrayInSelection(outBlock, assoc, selection);
 
           // Extract the elements.
-          auto iter = isUniformGridAMR ? inIter : outIter;
-          auto extractResult =
-            this->ExtractElements(inputCD->GetDataSet(iter), assoc, evaluationResult, outputBlock);
+          auto extractResult = this->ExtractElements(inBlock, assoc, evaluationResult, outBlock);
 
           this->AddColorArrayOnObject(extractResult, colorArray);
-          outputCD->SetDataSet(outIter, extractResult);
+          outputCD->SetDataSet(inIter, extractResult);
         }
         else
         {
@@ -405,19 +396,15 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
           break;
         }
       }
-      if (isUniformGridAMR)
-      {
-        inIter->GoToNextItem();
-      }
     }
     vtkLogEndScope("evaluate expression and extract output");
     // check for evaluate result errors
     if (!globalEvaluationResult)
     {
       // If the expression evaluation failed, then we need to set all the blocks to null.
-      for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
+      for (inIter->GoToFirstItem(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
       {
-        outputCD->SetDataSet(outIter, nullptr);
+        outputCD->SetDataSet(inIter, nullptr);
       }
       return 0;
     }

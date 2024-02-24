@@ -301,6 +301,12 @@ public:
   vtkGetMacro(Normalize, bool);
   ///@}
 
+  /**
+   * Use of this method is discouraged, it creates a memory copy of the data into
+   * a contiguous AoS-ordered buffer internally.
+   */
+  void* GetVoidPointer(vtkIdType valueIdx) override;
+
 protected:
   vtkPeriodicDataArray();
   ~vtkPeriodicDataArray() override;
@@ -361,10 +367,11 @@ private:
 
   friend class vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>;
 
-  Scalar* TempScalarArray;               // Temporary array used by GetTypedTuple methods
-  double* TempDoubleArray;               // Temporary array used by GetTuple vethods
-  vtkIdType TempTupleIdx;                // Location of currently stored Temp Tuple to use as cache
-  vtkAOSDataArrayTemplate<Scalar>* Data; // Original data
+  Scalar* TempScalarArray;                // Temporary array used by GetTypedTuple methods
+  double* TempDoubleArray;                // Temporary array used by GetTuple vethods
+  vtkIdType TempTupleIdx;                 // Location of currently stored Temp Tuple to use as cache
+  vtkAOSDataArrayTemplate<Scalar>* Data;  // Original data
+  vtkAOSDataArrayTemplate<Scalar>* Cache; // Only used by void pointer
 
   bool InvalidRange = true;
   double PeriodicRange[6]; // Transformed periodic range

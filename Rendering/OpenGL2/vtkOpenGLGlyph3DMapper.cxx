@@ -800,7 +800,8 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     }
 
     // source can be null.
-    vtkDataObject* source = sourceCache[index];
+    vtkDataObject* source =
+      index < static_cast<int>(sourceCache.size()) ? sourceCache[index] : nullptr;
 
     // Make sure we're not indexing into empty glyph
     if (source)

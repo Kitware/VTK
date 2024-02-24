@@ -685,6 +685,18 @@ void vtkPeriodicDataArray<Scalar>::InvalidateRange()
 
 //------------------------------------------------------------------------------
 template <class Scalar>
+void* vtkPeriodicDataArray<Scalar>::GetVoidPointer(vtkIdType valueIdx)
+{
+  if (!this->Cache)
+  {
+    this->Cache = vtkAOSDataArrayTemplate<Scalar>::New();
+    this->Cache->DeepCopy(this);
+  }
+  return this->Cache->GetVoidPointer(valueIdx);
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
 vtkPeriodicDataArray<Scalar>::vtkPeriodicDataArray()
 {
   this->NumberOfComponents = 0;
@@ -692,6 +704,7 @@ vtkPeriodicDataArray<Scalar>::vtkPeriodicDataArray()
   this->TempDoubleArray = nullptr;
   this->TempTupleIdx = -1;
   this->Data = nullptr;
+  this->Cache = nullptr;
   this->MaxId = -1;
   this->Size = 0;
 
@@ -706,5 +719,10 @@ template <class Scalar>
 vtkPeriodicDataArray<Scalar>::~vtkPeriodicDataArray()
 {
   this->Initialize();
+  if (this->Cache)
+  {
+    this->Cache->Delete();
+    this->Cache = nullptr;
+  }
 }
 VTK_ABI_NAMESPACE_END
