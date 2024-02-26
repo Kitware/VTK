@@ -123,7 +123,8 @@ void vtkXMLHyperTreeGridReader::CalculateHTs(const vtkHyperTreeGrid* grid)
   {
     this->SelectedHTs = INDICES_BOUNDING_BOX;
     // if coord_min{x,y,z} < HTG->coord_min{x,y,z} then ht_idx{x,y,z} = 0
-    double* htg_bbox = const_cast<vtkHyperTreeGrid*>(grid)->GetBounds();
+    double htg_bbox[6];
+    const_cast<vtkHyperTreeGrid*>(grid)->GetGridBounds(htg_bbox);
     this->IndicesBoundingBox[0] = this->CoordinatesBoundingBox[0] <= htg_bbox[0]
       ? 0
       : grid->FindDichotomicX(this->CoordinatesBoundingBox[0]);

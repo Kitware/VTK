@@ -169,12 +169,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
 
   // Generate default information
-  this->Bounds[0] = 0.0;
-  this->Bounds[1] = -1.0;
-  this->Bounds[2] = 0.0;
-  this->Bounds[3] = -1.0;
-  this->Bounds[4] = 0.0;
-  this->Bounds[5] = -1.0;
+  vtkMath::UninitializeBounds(this->Bounds);
 
   this->Center[0] = 0.0;
   this->Center[1] = 0.0;
@@ -271,12 +266,7 @@ void vtkHyperTreeGrid::Initialize()
   this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
 
   // Generate default information
-  this->Bounds[0] = 0.0;
-  this->Bounds[1] = -1.0;
-  this->Bounds[2] = 0.0;
-  this->Bounds[3] = -1.0;
-  this->Bounds[4] = 0.0;
-  this->Bounds[5] = -1.0;
+  vtkMath::UninitializeBounds(this->Bounds);
 
   this->Center[0] = 0.0;
   this->Center[1] = 0.0;
@@ -1634,7 +1624,75 @@ unsigned int vtkHyperTreeGrid::GetChildMask(unsigned int child)
 }
 
 //------------------------------------------------------------------------------
+// Helper functions for vtkHyperTreeGrid::GetBounds()
+namespace
+{
+//------------------------------------------------------------------------------
+// Recursively traverses a hyper tree, appending geometry bounds to non-masked leaf nodes.
+void RecursivelyExpandTreeBounds(
+  vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkBoundingBox& bounds)
+{
+  if (cursor->IsLeaf())
+  {
+    double cursorBounds[6];
+    cursor->GetBounds(cursorBounds);
+    bounds.AddBounds(cursorBounds);
+    return;
+  }
+
+  auto childNb = cursor->GetNumberOfChildren();
+  for (unsigned char itChild = 0; itChild < childNb; itChild++)
+  {
+    cursor->ToChild(itChild);
+    if (!cursor->IsMasked())
+    {
+      ::RecursivelyExpandTreeBounds(cursor, bounds);
+    }
+    cursor->ToParent();
+  }
+}
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGrid::ComputeBounds()
+{
+  if (this->GetMTime() > this->ComputeTime)
+  {
+    vtkIdType inIndex;
+    vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
+    this->InitializeTreeIterator(it);
+    vtkBoundingBox mergedBounds;
+    while (it.GetNextTree(inIndex))
+    {
+      auto cursor = vtk::TakeSmartPointer(this->NewNonOrientedGeometryCursor(inIndex));
+      if (!cursor->IsMasked())
+      {
+        vtkBoundingBox bounds;
+        ::RecursivelyExpandTreeBounds(cursor, bounds);
+        mergedBounds.AddBox(bounds);
+      }
+    }
+    mergedBounds.GetBounds(this->Bounds);
+    this->ComputeTime.Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 double* vtkHyperTreeGrid::GetBounds()
+{
+  this->ComputeBounds();
+  return this->Bounds;
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGrid::GetBounds(double* obds)
+{
+  this->ComputeBounds();
+  memcpy(obds, this->Bounds, 6 * sizeof(double));
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGrid::GetGridBounds(double* bounds)
 {
   assert("pre: exist_coordinates_explict" && this->WithCoordinates);
 
@@ -1645,33 +1703,24 @@ double* vtkHyperTreeGrid::GetBounds()
   {
     if (!coords[i] || !coords[i]->GetNumberOfTuples())
     {
-      return nullptr;
+      return;
     }
   }
 
-  // Get bounds from coordinate arrays
+  // Get grid bounds from coordinate arrays
   for (unsigned int i = 0; i < 3; ++i)
   {
     unsigned int di = 2 * i;
     unsigned int dip = di + 1;
-    this->Bounds[di] = coords[i]->GetComponent(0, 0);
-    this->Bounds[dip] = coords[i]->GetComponent(coords[i]->GetNumberOfTuples() - 1, 0);
+    bounds[di] = coords[i]->GetComponent(0, 0);
+    bounds[dip] = coords[i]->GetComponent(coords[i]->GetNumberOfTuples() - 1, 0);
 
     // Ensure that the bounds are increasing
-    if (this->Bounds[di] > this->Bounds[dip])
+    if (bounds[di] > bounds[dip])
     {
-      std::swap(this->Bounds[di], this->Bounds[dip]);
+      std::swap(bounds[di], bounds[dip]);
     }
   }
-
-  return this->Bounds;
-}
-
-//------------------------------------------------------------------------------
-void vtkHyperTreeGrid::GetBounds(double* obds)
-{
-  double* bds = this->GetBounds();
-  memcpy(obds, bds, 6 * sizeof(double));
 }
 
 //------------------------------------------------------------------------------

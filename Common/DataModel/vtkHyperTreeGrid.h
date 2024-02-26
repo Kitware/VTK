@@ -733,18 +733,30 @@ public:
   ///@}
 
   /**
-   * Return a pointer to the geometry bounding box in the form
-   * (xmin,xmax, ymin,ymax, zmin,zmax).
+   * Compute the hyper tree grid bounding box ignoring masked cells.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  virtual double* GetBounds() VTK_SIZEHINT(6);
+  virtual void ComputeBounds();
 
+  ///@{
   /**
    * Return a pointer to the geometry bounding box in the form
    * (xmin,xmax, ymin,ymax, zmin,zmax).
+   *
+   * This method was incorrectly providing grid bounds before vtk 9.4,
+   * grid bounds are available in GetGridBounds() if needed.
    * THIS METHOD IS NOT THREAD SAFE.
    */
+  virtual double* GetBounds() VTK_SIZEHINT(6);
   void GetBounds(double bounds[6]);
+  ///@}
+
+  /**
+   * Return a pointer to the grid bounding box in the form
+   * (xmin,xmax, ymin,ymax, zmin,zmax).
+   * THIS METHOD IS NOT THREAD SAFE.
+   */
+  virtual void GetGridBounds(double bounds[6]);
 
   /**
    * Get the center of the bounding box.
@@ -818,6 +830,8 @@ protected:
 private:
   unsigned int Orientation; // 0, 1, or 2
   unsigned int Axis[2];
+
+  vtkTimeStamp ComputeTime;
 
 protected:
   unsigned int NumberOfChildren;

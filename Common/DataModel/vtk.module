@@ -38,6 +38,7 @@ TEST_DEPENDS
   VTK::FiltersGeneric
   VTK::FiltersGeometry
   VTK::FiltersModeling
+  VTK::FiltersHyperTree
   VTK::ImagingCore
   VTK::ImagingSources
   VTK::IOGeometry

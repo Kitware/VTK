@@ -376,7 +376,7 @@ void vtkUniformHyperTreeGrid::CopyStructure(vtkDataObject* ds)
 }
 
 //------------------------------------------------------------------------------
-double* vtkUniformHyperTreeGrid::GetBounds()
+void vtkUniformHyperTreeGrid::GetGridBounds(double* bounds)
 {
   // Recompute each call
   // Compute bounds from uniform grid parameters
@@ -384,24 +384,22 @@ double* vtkUniformHyperTreeGrid::GetBounds()
   {
     unsigned int di = 2 * i;
     unsigned int dip = di + 1;
-    this->Bounds[di] = this->Origin[i];
+    bounds[di] = this->Origin[i];
     if (this->GetDimensions()[i] == 1)
     {
-      this->Bounds[dip] = this->Origin[i];
+      bounds[dip] = this->Origin[i];
     }
     else
     {
-      this->Bounds[dip] = this->Origin[i] + this->GetCellDims()[i] * this->GridScale[i];
+      bounds[dip] = this->Origin[i] + this->GetCellDims()[i] * this->GridScale[i];
     }
 
     // Ensure that the bounds are increasing
-    if (this->Bounds[di] > this->Bounds[dip])
+    if (bounds[di] > bounds[dip])
     {
-      std::swap(this->Bounds[di], this->Bounds[dip]);
+      std::swap(bounds[di], bounds[dip]);
     }
   }
-
-  return this->Bounds;
 }
 
 //------------------------------------------------------------------------------
