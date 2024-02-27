@@ -506,8 +506,13 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         std::string meshNodeName;
         if (!mesh.Name.empty())
         {
-          this->OutputsDescription += mesh.Name + " ";
-          meshNodeName = vtkDataAssembly::MakeValidNodeName(mesh.Name.c_str());
+          std::string primitiveName = mesh.Name;
+          if (mesh.Primitives.size() > 1)
+          {
+            primitiveName += "_primitive_" + std::to_string(primitiveId++);
+          }
+          this->OutputsDescription += primitiveName;
+          meshNodeName = vtkDataAssembly::MakeValidNodeName(primitiveName.c_str());
         }
         else
         {
