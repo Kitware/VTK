@@ -7,6 +7,12 @@ if (POLICY CMP0091) # XXX(cmake-3.15)
   endif ()
 endif ()
 
+find_package(MFC)
+if (NOT MFC_FOUND)
+  message(FATAL_ERROR "Could not find MFC libraries."
+    " Please install them from the Microsoft Visual Studio Installer.")
+endif ()
+
 # Determine whether the shared or static MFC implementation to use.
 if (use_policy_0091) # XXX(cmake-3.15)
   if (NOT CMAKE_MSVC_RUNTIME_LIBRARY OR # The default uses `DLL`.
