@@ -84,11 +84,6 @@ public:
   static QSurfaceFormat defaultFormat(bool stereo_capable = false);
 
   /**
-   * Get the context to use for rendering.
-   */
-  QOpenGLContext* context() const;
-
-  /**
    * Call this method in `paintGL` to request a render. This may trigger a
    * `vtkRenderWindow::Render` if this class determines the buffers may be
    * obsolete.
