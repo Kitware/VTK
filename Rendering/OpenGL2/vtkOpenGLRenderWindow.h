@@ -438,6 +438,14 @@ public:
   ///@}
 
   ///@{
+  /**
+   * Give a target bit size for depth buffers of created Framebuffer Objects. Default is 32.
+   */
+  vtkSetMacro(RenderBufferTargetDepthSize, int);
+  vtkGetMacro(RenderBufferTargetDepthSize, int);
+  ///@}
+
+  ///@{
   // copy depth values from a source framebuffer to a destination framebuffer
   // using texture maps to do the copy. The source framebufferobject must be texture
   // backed. This method is designed to work around issues with trying to blit depth
@@ -571,6 +579,9 @@ protected:
 
   // keep track of in case we need to recreate the framebuffer
   int LastMultiSamples;
+
+  // how much bits to use for depth of created Framebuffers
+  int RenderBufferTargetDepthSize;
 
   int ScreenSize[2];
 

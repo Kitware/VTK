@@ -431,6 +431,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   // this->DepthRenderBufferObject = 0;
   this->AlphaBitPlanes = 8;
   this->Capabilities = nullptr;
+  this->RenderBufferTargetDepthSize = 32;
 
   this->TQuad2DVBO = nullptr;
   this->NoiseTextureObject = nullptr;
@@ -2516,8 +2517,8 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
 #else
       this->MultiSamples ? false : true, // textures
 #endif
-      1, VTK_UNSIGNED_CHAR, // 1 color buffer uchar
-      true, 32,             // depth buffer
+      1, VTK_UNSIGNED_CHAR,                    // 1 color buffer uchar
+      true, this->RenderBufferTargetDepthSize, // depth buffer
       this->MultiSamples, this->StencilCapable != 0);
     this->LastMultiSamples = this->MultiSamples;
     this->GetState()->PopFramebufferBindings();
@@ -2531,9 +2532,9 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
   {
     this->GetState()->PushFramebufferBindings();
     this->DisplayFramebuffer->PopulateFramebuffer(width, height,
-      true,                 // textures
-      2, VTK_UNSIGNED_CHAR, // 1 color buffer uchar
-      true, 32,             // depth buffer
+      true,                                    // textures
+      2, VTK_UNSIGNED_CHAR,                    // 1 color buffer uchar
+      true, this->RenderBufferTargetDepthSize, // depth buffer
       0, this->StencilCapable != 0);
     this->GetState()->PopFramebufferBindings();
   }
@@ -2546,9 +2547,9 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
   {
     this->GetState()->PushFramebufferBindings();
     this->ResolveFramebuffer->PopulateFramebuffer(width, height,
-      true,                 // textures
-      1, VTK_UNSIGNED_CHAR, // 1 color buffer uchar
-      true, 32,             // depth buffer
+      true,                                    // textures
+      1, VTK_UNSIGNED_CHAR,                    // 1 color buffer uchar
+      true, this->RenderBufferTargetDepthSize, // depth buffer
       0, this->StencilCapable != 0);
     this->GetState()->PopFramebufferBindings();
   }
