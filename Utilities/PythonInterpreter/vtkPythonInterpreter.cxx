@@ -529,8 +529,8 @@ bool vtkPythonInterpreter::InitializeWithArgs(
     SetupPythonPaths(isolated, vtklib, "vtkmodules/__init__.py");
     if (!vtkPythonInterpreter::LibraryPath.empty())
     {
-      SetupPythonPaths(isolated, vtkPythonInterpreter::LibraryPath.c_str(),
-        vtkPythonInterpreter::Landmark.c_str());
+      SetupPythonPaths(
+        isolated, vtkPythonInterpreter::LibraryPath, vtkPythonInterpreter::Landmark.c_str());
     }
 
     for (size_t cc = 0; cc < PythonPaths.size(); cc++)
