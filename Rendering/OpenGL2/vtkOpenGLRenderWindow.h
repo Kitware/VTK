@@ -366,9 +366,16 @@ public:
   void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
-   * Blit a display framebuffer into a currently bound draw destination
+   * Blit a display framebuffer into a currently bound draw destination,
+   * color only
    */
   void BlitDisplayFramebuffer();
+
+  /**
+   * Blit a display framebuffer into a currently bound draw destination,
+   * color and depth
+   */
+  void BlitDisplayFramebufferColorAndDepth();
 
   /**
    * Blit a display buffer into a currently bound draw destination
@@ -392,9 +399,10 @@ public:
    */
   enum FrameBlitModes
   {
-    BlitToHardware, // hardware buffers
-    BlitToCurrent,  // currently bound draw framebuffer
-    NoBlit          // no blit, GUI or external code will handle the blit
+    BlitToHardware,         // hardware buffers
+    BlitToCurrent,          // currently bound draw framebuffer, without depth buffer
+    BlitToCurrentWithDepth, // currently bound draw framebuffer, including depth buffer
+    NoBlit                  // no blit, GUI or external code will handle the blit
   };
 
   ///@{
@@ -418,13 +426,19 @@ public:
    *   It is useful when an external framebuffer is bound just before
    *   the vtkRenderWindow::Frame() call. You’ll need this when integrating
    *   VTK with other UI frameworks because these UI frameworks create/have
-   *   their own framebuffers.
+   *   their own framebuffers. This only blits the color buffer.
+   * - BlitToCurrentWithDepth: Almost the same as BlitToCurrent, but this mode
+   *   also blits the depth buffer.
    * - NoBlit: no blit. The GUI or external code will handle the blit.
    */
   vtkSetClampMacro(FrameBlitMode, FrameBlitModes, BlitToHardware, NoBlit);
   vtkGetMacro(FrameBlitMode, FrameBlitModes);
   void SetFrameBlitModeToBlitToHardware() { this->SetFrameBlitMode(BlitToHardware); }
   void SetFrameBlitModeToBlitToCurrent() { this->SetFrameBlitMode(BlitToCurrent); }
+  void SetFrameBlitModeToBlitToCurrentWithDepth()
+  {
+    this->SetFrameBlitMode(BlitToCurrentWithDepth);
+  }
   void SetFrameBlitModeToNoBlit() { this->SetFrameBlitMode(NoBlit); }
   ///@}
 
