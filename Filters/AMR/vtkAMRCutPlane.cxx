@@ -257,6 +257,16 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkAMRCutPlane::CutAMRBlock(
 }
 
 //------------------------------------------------------------------------------
+void vtkAMRCutPlane::CutAMRBlock(
+  vtkPlane* cutPlane, unsigned int blockIdx, vtkUniformGrid* grid, vtkMultiBlockDataSet* dataSet)
+{
+  if (auto mesh = this->CutAMRBlock(cutPlane, grid))
+  {
+    dataSet->SetBlock(blockIdx, mesh);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkAMRCutPlane::ExtractCellFromGrid(vtkUniformGrid* grid, vtkCell* cell,
   std::map<vtkIdType, vtkIdType>& grdPntMapping, vtkPoints* nodes, vtkCellArray* cells)
 {

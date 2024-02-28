@@ -12,6 +12,7 @@
 #ifndef vtkAMRCutPlane_h
 #define vtkAMRCutPlane_h
 
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
@@ -170,6 +171,13 @@ protected:
    * Applies cutting to an AMR block
    */
   vtkSmartPointer<vtkUnstructuredGrid> CutAMRBlock(vtkPlane* cutPlane, vtkUniformGrid* grid);
+
+  /**
+   * Applies cutting to an AMR block
+   */
+  VTK_DEPRECATED_IN_9_4_0("Use CutAMRBlock(vtkPlane*, vtkUniformGrid*) instead.")
+  void CutAMRBlock(
+    vtkPlane* cutPlane, unsigned int blockIdx, vtkUniformGrid* grid, vtkMultiBlockDataSet* dataSet);
 
   int LevelOfResolution;
   double Center[3];
