@@ -1381,6 +1381,10 @@ void vtkOpenGLRenderWindow::Frame()
       {
         this->BlitDisplayFramebuffer();
       }
+      if (this->FrameBlitMode == BlitToCurrentWithDepth)
+      {
+        this->BlitDisplayFramebufferColorAndDepth();
+      }
     }
   }
 }
@@ -1564,6 +1568,12 @@ void vtkOpenGLRenderWindow::BlitDisplayFramebuffer()
 {
   this->BlitDisplayFramebuffer(0, 0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0],
     this->Size[1], GL_COLOR_BUFFER_BIT, GL_NEAREST);
+}
+
+void vtkOpenGLRenderWindow::BlitDisplayFramebufferColorAndDepth()
+{
+  this->BlitDisplayFramebuffer(0, 0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0],
+    this->Size[1], GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 }
 
 void vtkOpenGLRenderWindow::BlitDisplayFramebuffer(int right, int srcX, int srcY, int srcWidth,
