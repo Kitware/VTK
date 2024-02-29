@@ -103,6 +103,7 @@ int vtkXMLPDataSetWriter::WriteInternal()
   writer->SetEncodeAppendedData(this->GetEncodeAppendedData());
   writer->SetHeaderType(this->GetHeaderType());
   writer->SetIdType(this->GetIdType());
+  writer->SetWriteTimeValue(this->GetWriteTimeValue());
   writer->SetNumberOfPieces(this->GetNumberOfPieces());
   writer->SetGhostLevel(this->GetGhostLevel());
   writer->SetStartPiece(this->GetStartPiece());

@@ -22,6 +22,7 @@ set(all_tests
   TestXMLUnstructuredGridReader.cxx
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
   TestXMLLegacyFileReadIdTypeArrays.cxx,NO_VALID,NO_OUTPUT
+  TestXMLWriteTimeValue.cxx,NO_VALID
   )
 
 if ((NOT DEFINED MSVC_VERSION) OR (MSVC_VERSION GREATER 1800))

@@ -199,6 +199,17 @@ public:
   vtkBooleanMacro(EncodeAppendedData, bool);
   ///@}
 
+  ///@{
+  /**
+   * Control whether to write "TimeValue" field data.
+   * This TimeValue is the current time value in the pipeline information
+   * key at the time of writing. Default to true.
+   */
+  vtkGetMacro(WriteTimeValue, bool);
+  vtkSetMacro(WriteTimeValue, bool);
+  vtkBooleanMacro(WriteTimeValue, bool);
+  ///@}
+
   /**
    * Get the default file extension for files written by this writer.
    */
@@ -262,6 +273,8 @@ protected:
 private:
   vtkXMLWriterBase(const vtkXMLWriterBase&) = delete;
   void operator=(const vtkXMLWriterBase&) = delete;
+
+  bool WriteTimeValue = true;
 };
 
 VTK_ABI_NAMESPACE_END

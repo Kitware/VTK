@@ -43,11 +43,11 @@ void vtkXMLPDataWriter::WritePData(vtkIndent indent)
 
   vtkInformation* meta = input->GetInformation();
   bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) != 0;
-  if ((fieldData && fieldData->GetNumberOfArrays()) || hasTime)
+  if ((fieldData && fieldData->GetNumberOfArrays()) || (hasTime && this->GetWriteTimeValue()))
   {
     vtkNew<vtkFieldData> fieldDataCopy;
     fieldDataCopy->ShallowCopy(fieldData);
-    if (hasTime)
+    if (hasTime && this->GetWriteTimeValue())
     {
       vtkNew<vtkDoubleArray> time;
       time->SetNumberOfTuples(1);
@@ -113,6 +113,7 @@ int vtkXMLPDataWriter::WritePiece(int index)
   pWriter->SetEncodeAppendedData(this->EncodeAppendedData);
   pWriter->SetHeaderType(this->HeaderType);
   pWriter->SetBlockSize(this->BlockSize);
+  pWriter->SetWriteTimeValue(this->GetWriteTimeValue());
 
   // Write the piece.
   int result = pWriter->Write();
