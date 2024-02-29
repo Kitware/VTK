@@ -487,6 +487,7 @@ private:
    * Return true if axis coordinates have changed or if viewport was resized.
    */
   bool PositionsChangedOrViewportResized(vtkViewport* viewport);
+
   /**
    * Return true if axis should actually be rebuild.
    */
@@ -499,14 +500,17 @@ private:
    * to the axis (so in [0, 1])
    */
   void UpdateTicksValueAndPosition(vtkViewport* viewport);
+
   /**
    * Build the inner polydata: create points and lines.
    */
   void BuildTicksPolyData(vtkViewport* viewport);
+
   /**
    * Build the labels : convert number to text and position it.
    */
   void BuildLabels(vtkViewport* viewport);
+
   /**
    * Build the title
    */

@@ -24,6 +24,8 @@ vtkStandardNewMacro(vtkAxisActor2D);
 vtkCxxSetObjectMacro(vtkAxisActor2D, LabelTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkAxisActor2D, TitleTextProperty, vtkTextProperty);
 
+static constexpr int MAX_FONT_SIZE = 1000;
+
 //------------------------------------------------------------------------------
 // Instantiate this object.
 vtkAxisActor2D::vtkAxisActor2D()
@@ -246,11 +248,11 @@ bool vtkAxisActor2D::PositionsChangedOrViewportResized(vtkViewport* viewport)
 {
   // Check to see whether we have to rebuild everything
   // Viewport change may not require rebuild
-  int* lastPosition = this->PositionCoordinate->GetComputedViewportValue(viewport);
-  int* lastPosition2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
-  bool positionsHaveChanged =
-    (lastPosition[0] != this->LastPosition[0] || lastPosition[1] != this->LastPosition[1] ||
-      lastPosition2[0] != this->LastPosition2[0] || lastPosition2[1] != this->LastPosition2[1]);
+  int* currentPosition = this->PositionCoordinate->GetComputedViewportValue(viewport);
+  int* currentPosition2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
+  bool positionsHaveChanged = (currentPosition[0] != this->LastPosition[0] ||
+    currentPosition[1] != this->LastPosition[1] || currentPosition2[0] != this->LastPosition2[0] ||
+    currentPosition2[1] != this->LastPosition2[1]);
 
   // See whether fonts have to be rebuilt (font size depends on viewport size)
   int* size = viewport->GetSize();
@@ -308,12 +310,8 @@ double vtkAxisActor2D::GetViewportAxisLength(vtkViewport* viewport)
   p2[2] = 0.0;
 
   double axis[3];
-  axis[0] = p2[0] - p1[0];
-  axis[1] = p2[1] - p1[1];
-  axis[2] = 0.0;
-  double length = vtkMath::Norm(axis);
-
-  return length;
+  vtkMath::Subtract(p2, p1, axis);
+  return vtkMath::Norm(axis);
 }
 
 //------------------------------------------------------------------------------
@@ -322,30 +320,21 @@ double vtkAxisActor2D::GetViewportRulerDistance(vtkViewport* viewport)
   double wp1[3], wp2[3], wp21[3];
   this->PositionCoordinate->GetValue(wp1);
   this->Position2Coordinate->GetValue(wp2);
-  wp21[0] = wp2[0] - wp1[0];
-  wp21[1] = wp2[1] - wp1[1];
-  wp21[2] = wp2[2] - wp1[2];
+  vtkMath::Subtract(wp2, wp1, wp21);
+
   const double worldLength = vtkMath::Norm(wp21);
   // Tick distance was computed in world coordinates, convert to viewport
   // coordinates.
   double length = this->GetViewportAxisLength(viewport);
   const double worldToLocalRatio = (worldLength <= 0.0 ? 0.0 : length / worldLength);
-  double distance = this->RulerDistance * worldToLocalRatio;
-  return distance;
+  return this->RulerDistance * worldToLocalRatio;
 }
 
 //------------------------------------------------------------------------------
 double vtkAxisActor2D::GetAxisAngle(vtkViewport* viewport)
 {
-  int* x = this->PositionCoordinate->GetComputedViewportValue(viewport);
-  double p1[3];
-  p1[0] = x[0];
-  p1[1] = x[1];
-
-  x = this->Position2Coordinate->GetComputedViewportValue(viewport);
-  double p2[3];
-  p2[0] = x[0];
-  p2[1] = x[1];
+  int* p1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
+  int* p2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
 
   double deltaX = p2[0] - p1[0];
   double deltaY = p2[1] - p1[1];
@@ -420,15 +409,13 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
   vtkIdType ptIds[2];
   ptIds[0] = pts->InsertNextPoint(axisStart);
   double tickPos[3];
-  tickPos[0] = axisStart[0] + this->TickLength * sin(theta);
-  tickPos[1] = axisStart[1] - this->TickLength * cos(theta);
+  tickPos[0] = axisStart[0] + this->TickLength * std::sin(theta);
+  tickPos[1] = axisStart[1] - this->TickLength * std::cos(theta);
   tickPos[2] = 0.0;
   pts->InsertNextPoint(tickPos);
 
   double normalizedAxis[3];
-  normalizedAxis[0] = axisEnd[0] - axisStart[0];
-  normalizedAxis[1] = axisEnd[1] - axisStart[1];
-  normalizedAxis[2] = 0.0;
+  vtkMath::Subtract(axisEnd, axisStart, normalizedAxis);
   double axisLength = vtkMath::Normalize(normalizedAxis);
 
   int totalNumberOfTicks = static_cast<int>(this->NormalizedTickPositions.size());
@@ -454,15 +441,15 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
     tickPos[1] = axisStart[1] + this->NormalizedTickPositions[i] * normalizedAxis[1] * axisLength;
     this->TicksStartPos->SetPoint(i - 1, tickPos);
     pts->InsertNextPoint(tickPos);
-    tickPos[0] = tickPos[0] + tickLength * sin(theta);
-    tickPos[1] = tickPos[1] - tickLength * cos(theta);
+    tickPos[0] = tickPos[0] + tickLength * std::sin(theta);
+    tickPos[1] = tickPos[1] - tickLength * std::cos(theta);
     pts->InsertNextPoint(tickPos);
   }
 
   // Last axis point
   ptIds[1] = pts->InsertNextPoint(axisEnd);
-  tickPos[0] = axisEnd[0] + this->TickLength * sin(theta);
-  tickPos[1] = axisEnd[1] - this->TickLength * cos(theta);
+  tickPos[0] = axisEnd[0] + this->TickLength * std::sin(theta);
+  tickPos[1] = axisEnd[1] - this->TickLength * std::cos(theta);
   pts->InsertNextPoint(tickPos);
 
   // Add the axis if requested
@@ -552,7 +539,7 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
   {
     xp1 = this->PositionCoordinate->GetComputedDoubleViewportValue(viewport);
     xp2 = this->Position2Coordinate->GetComputedDoubleViewportValue(viewport);
-    len = sqrt((xp2[0] - xp1[0]) * (xp2[0] - xp1[0]) + (xp2[1] - xp1[1]) * (xp2[1] - xp1[1]));
+    len = std::sqrt((xp2[0] - xp1[0]) * (xp2[0] - xp1[0]) + (xp2[1] - xp1[1]) * (xp2[1] - xp1[1]));
   }
 
   // Resize the mappers if needed (i.e. viewport has changed, than
@@ -572,7 +559,9 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
       }
       else
       {
-        int minFontSize = 1000, fontSize, minLabel = 0;
+        int minFontSize = MAX_FONT_SIZE;
+        int fontSize;
+        int minLabel = 0;
         for (int i = 0; i < this->AdjustedNumberOfLabels; i++)
         {
           fontSize = this->LabelMappers[i]->SetConstrainedFontSize(viewport,
@@ -646,7 +635,8 @@ void vtkAxisActor2D::BuildTitle(vtkViewport* viewport)
         {
           xp1 = this->PositionCoordinate->GetComputedDoubleViewportValue(viewport);
           xp2 = this->Position2Coordinate->GetComputedDoubleViewportValue(viewport);
-          len = sqrt((xp2[0] - xp1[0]) * (xp2[0] - xp1[0]) + (xp2[1] - xp1[1]) * (xp2[1] - xp1[1]));
+          len = std::sqrt(
+            (xp2[0] - xp1[0]) * (xp2[0] - xp1[0]) + (xp2[1] - xp1[1]) * (xp2[1] - xp1[1]));
         }
 
         this->TitleMapper->SetConstrainedFontSize(
@@ -670,8 +660,8 @@ void vtkAxisActor2D::BuildTitle(vtkViewport* viewport)
   xTick[0] = x1[0] + (x2[0] - x1[0]) * this->TitlePosition;
   xTick[1] = x1[1] + (x2[1] - x1[1]) * this->TitlePosition;
   double theta = this->GetAxisAngle(viewport);
-  xTick[0] = xTick[0] + (this->TickLength + this->TickOffset) * sin(theta);
-  xTick[1] = xTick[1] - (this->TickLength + this->TickOffset) * cos(theta);
+  xTick[0] = xTick[0] + (this->TickLength + this->TickOffset) * std::sin(theta);
+  xTick[1] = xTick[1] - (this->TickLength + this->TickOffset) * std::cos(theta);
 
   double offset = 0.0;
   if (this->LabelVisibility)
@@ -711,7 +701,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
 
   this->AxisActor->SetProperty(this->GetProperty());
 
-  // Compute the location of tick marks and labels
   this->UpdateAdjustedRange();
 
   this->UpdateTicksValueAndPosition(viewport);
@@ -774,9 +763,7 @@ void vtkAxisActor2D::UpdateAdjustedRange()
     double wp1[3], wp2[3], wp21[3];
     this->PositionCoordinate->GetValue(wp1);
     this->Position2Coordinate->GetValue(wp2);
-    wp21[0] = wp2[0] - wp1[0];
-    wp21[1] = wp2[1] - wp1[1];
-    wp21[2] = wp2[2] - wp1[2];
+    vtkMath::Subtract(wp2, wp1, wp21);
     const double worldLength = vtkMath::Norm(wp21);
     this->AdjustedNumberOfLabels = worldLength / this->RulerDistance;
     if (vtkMathUtilities::FuzzyCompare<double>(
@@ -789,6 +776,14 @@ void vtkAxisActor2D::UpdateAdjustedRange()
 
   // for compatibility
   this->NumberOfLabelsBuilt = this->AdjustedNumberOfLabels;
+
+  if (this->AdjustedNumberOfLabels < 1)
+  {
+    vtkWarningMacro(
+      "Axis expects to have at least 1 label. Will use 1 instead of the computed number "
+      << this->AdjustedNumberOfLabels);
+    this->AdjustedNumberOfLabels = 1;
+  }
 
   this->AdjustedRangeBuildTime.Modified();
 }
@@ -987,8 +982,8 @@ void vtkAxisActor2D::SetOffsetPosition(
   x = stringWidth / 2.0 + offset;
   y = stringHeight / 2.0 + offset;
 
-  center[0] = xTick[0] + x * sin(theta);
-  center[1] = xTick[1] - y * cos(theta);
+  center[0] = xTick[0] + x * std::sin(theta);
+  center[1] = xTick[1] - y * std::cos(theta);
 
   pos[0] = static_cast<int>(center[0] - stringWidth / 2.0);
   pos[1] = static_cast<int>(center[1] - stringHeight / 2.0);
@@ -999,9 +994,9 @@ void vtkAxisActor2D::SetOffsetPosition(
 //------------------------------------------------------------------------------
 double vtkAxisActor2D::ComputeStringOffset(double width, double height, double theta)
 {
-  double f1 = height * cos(theta);
-  double f2 = width * sin(theta);
-  return (1.2 * sqrt(f1 * f1 + f2 * f2));
+  double f1 = height * std::cos(theta);
+  double f2 = width * std::sin(theta);
+  return (1.2 * std::sqrt(f1 * f1 + f2 * f2));
 }
 
 //------------------------------------------------------------------------------
