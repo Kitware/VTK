@@ -6,8 +6,11 @@
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
 #include "vtkPointData.h"
+#include "vtkTriangle.h"
 
 #include <array>
 
@@ -231,10 +234,62 @@ int vtkCompositeInterpolatedVelocityField::SnapPointOnCell(double* pOrigin, doub
   {
     return 0;
   }
-  pSnap[0] = this->LastClosestPoint[0];
-  pSnap[1] = this->LastClosestPoint[1];
-  pSnap[2] = this->LastClosestPoint[2];
-  return 1;
+
+  // check cell is a 2D cell
+  if (this->CurrentCell->GetCellDimension() != 2)
+  {
+    // not a 2D cell, do not snap
+    return 0;
+  }
+
+  this->LastDataSet->GetCellPoints(this->LastCellId, this->PointIds);
+  if (this->PointIds->GetNumberOfIds() < 3)
+  {
+    // Not enough points, ignore the cell and do not snap
+    return 0;
+  }
+
+  // Recover first three points, this assumes the 2D cell is planar
+  double p0[3];
+  double p1[3];
+  double p2[3];
+  this->LastDataSet->GetPoint(this->PointIds->GetId(0), p0);
+  this->LastDataSet->GetPoint(this->PointIds->GetId(1), p1);
+  this->LastDataSet->GetPoint(this->PointIds->GetId(2), p2);
+
+  // Check points are not aligned
+  double vec0[3];
+  double vec1[3];
+  double vec2[3];
+  vtkMath::Subtract(p0, p1, vec0);
+  vtkMath::Subtract(p0, p2, vec1);
+  vtkMath::Cross(vec0, vec1, vec2);
+  if (vtkMathUtilities::FuzzyCompare(vec2[0], 0.) && vtkMathUtilities::FuzzyCompare(vec2[1], 0.) &&
+    vtkMathUtilities::FuzzyCompare(vec2[2], 0.))
+  {
+    // Points are aligned, ignore the cell and do not snap
+    return 0;
+  }
+
+  double normal[3];
+  double projected[3];
+  vtkTriangle::ComputeNormal(p0, p1, p2, normal);
+  vtkNew<vtkPlane> projectionPlane;
+  projectionPlane->SetOrigin(p0);
+  projectionPlane->SetNormal(normal);
+  projectionPlane->ProjectPoint(pOrigin, projected);
+
+  double dist2;
+  if (this->CurrentCell->EvaluatePosition(
+        projected, nullptr, this->LastSubId, this->LastPCoords, dist2, this->Weights.data()) == 1)
+  {
+    // Projection is indeed on the cell, use the closest point found earlier
+    pSnap[0] = this->LastClosestPoint[0];
+    pSnap[1] = this->LastClosestPoint[1];
+    pSnap[2] = this->LastClosestPoint[2];
+    return 1;
+  }
+  return 0;
 }
 
 //------------------------------------------------------------------------------
