@@ -9,7 +9,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkXMLHyperTreeGridWriter.h"
 
 #include "vtkLogger.h"
 
