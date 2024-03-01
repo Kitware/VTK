@@ -429,4 +429,37 @@ void vtkRenderWindowInteractor3D::GetStartingPhysicalEventPose(
   }
   poseMatrix->DeepCopy(StartingPhysicalEventPoses[pointerIndex]);
 }
+
+//------------------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::GetStartingPhysicalToWorldMatrix(
+  vtkMatrix4x4* startingPhysicalToWorldMatrix)
+{
+  if (startingPhysicalToWorldMatrix)
+  {
+    startingPhysicalToWorldMatrix->DeepCopy(this->StartingPhysicalToWorldMatrix);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::SetStartingPhysicalToWorldMatrix(
+  vtkMatrix4x4* startingPhysicalToWorldMatrix)
+{
+  if (!startingPhysicalToWorldMatrix)
+  {
+    return;
+  }
+  this->StartingPhysicalToWorldMatrix->DeepCopy(startingPhysicalToWorldMatrix);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::SetStartingPhysicalEventPose(
+  vtkMatrix4x4* poseMatrix, vtkEventDataDevice device)
+{
+  int pointerIndex = static_cast<int>(device);
+  if (pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS || !poseMatrix)
+  {
+    return;
+  }
+  this->StartingPhysicalEventPoses[pointerIndex]->DeepCopy(poseMatrix);
+}
 VTK_ABI_NAMESPACE_END

@@ -104,35 +104,6 @@ public:
   void ConvertPoseToWorldCoordinates(vtkMatrix4x4* poseInTrackingCoordinates, double pos[3],
     double wxyz[4], double ppos[3], double wdir[3]);
 
-  /**
-   * Return starting physical to world matrix.
-   */
-  void GetStartingPhysicalToWorldMatrix(vtkMatrix4x4* startingPhysicalToWorldMatrix);
-
-  /**
-   * Set starting physical to world matrix.
-   *
-   * This method is intended to be used when defining a custom heuristic
-   * for recognizing complex gestures.
-   *
-   * This method **does not** call `this->Modified()`.
-   *
-   * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
-   */
-  void SetStartingPhysicalToWorldMatrix(vtkMatrix4x4* startingPhysicalToWorldMatrix);
-
-  /**
-   * Set starting physical event pose.
-   *
-   * This method is intended to be used when defining a custom heuristic
-   * for recognizing complex gestures.
-   *
-   * This method **does not** call `this->Modified()`.
-   *
-   * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
-   */
-  void SetStartingPhysicalEventPose(vtkMatrix4x4* poseMatrix, vtkEventDataDevice device);
-
   ///@{
   /**
    * Assign an event or std::function to an event path.
@@ -260,11 +231,6 @@ protected:
   static void (*ClassExitMethodArgDelete)(void*);
   static void* ClassExitMethodArg;
   ///@}
-
-  /**
-   * Store physical to world matrix at the start of a complex gesture.
-   */
-  vtkNew<vtkMatrix4x4> StartingPhysicalToWorldMatrix;
 
   int DeviceInputDownCount[vtkEventDataNumberOfDevices];
 
