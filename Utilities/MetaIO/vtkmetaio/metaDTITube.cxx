@@ -655,7 +655,8 @@ MetaDTITube::M_Write()
     const DTITubePnt::FieldListType & extraList = (*(m_PointList.begin()))->GetExtraFields();
     pntDim += static_cast<unsigned int>(extraList.size());
 
-    char * data = new char[pntDim * m_NPoints * elementSize];
+    const size_t dataSize = pntDim * m_NPoints * elementSize;
+    char * data = new char[dataSize];
     int    i = 0;
     int    d;
     while (it != itEnd)
@@ -664,14 +665,14 @@ MetaDTITube::M_Write()
       {
         float x = (*it)->m_X[d];
         MET_SwapByteIfSystemMSB(&x, MET_FLOAT);
-        MET_DoubleToValue(static_cast<double>(x), m_ElementType, data, i++);
+        MET_DoubleToValueN(static_cast<double>(x), m_ElementType, data, dataSize, i++);
       }
 
       for (d = 0; d < 6; d++)
       {
         float x = (*it)->m_TensorMatrix[d];
         MET_SwapByteIfSystemMSB(&x, MET_FLOAT);
-        MET_DoubleToValue(static_cast<double>(x), m_ElementType, data, i++);
+        MET_DoubleToValueN(static_cast<double>(x), m_ElementType, data, dataSize, i++);
       }
 
       // Add the extra fields
@@ -682,7 +683,7 @@ MetaDTITube::M_Write()
       {
         float x = (*itFields).second;
         MET_SwapByteIfSystemMSB(&x, MET_FLOAT);
-        MET_DoubleToValue(static_cast<double>(x), m_ElementType, data, i++);
+        MET_DoubleToValueN(static_cast<double>(x), m_ElementType, data, dataSize, i++);
         ++itFields;
       }
 

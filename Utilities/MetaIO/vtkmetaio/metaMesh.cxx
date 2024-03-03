@@ -1162,20 +1162,21 @@ MetaMesh::M_Write()
     int                           elementSize;
     MET_SizeOfType(m_PointType, &elementSize);
 
-    char * data = new char[(m_NDims)*m_NPoints * elementSize + m_NPoints * sizeof(int)];
+    const size_t dataSize = (m_NDims)*m_NPoints * elementSize + m_NPoints * sizeof(int);
+    char * data = new char[dataSize];
     int    i = 0;
     int    d;
     while (it != itEnd)
     {
       int pntId = (*it)->m_Id;
       MET_SwapByteIfSystemMSB(&pntId, MET_INT);
-      MET_DoubleToValue(static_cast<double>(pntId), MET_INT, data, i++);
+      MET_DoubleToValueN(static_cast<double>(pntId), MET_INT, data, dataSize, i++);
 
       for (d = 0; d < m_NDims; d++)
       {
         float pntX = (*it)->m_X[d];
         MET_SwapByteIfSystemMSB(&pntX, MET_FLOAT);
-        MET_DoubleToValue(static_cast<double>(pntX), m_PointType, data, i++);
+        MET_DoubleToValueN(static_cast<double>(pntX), m_PointType, data, dataSize, i++);
       }
       ++it;
     }
@@ -1235,7 +1236,8 @@ MetaMesh::M_Write()
       if (m_BinaryData)
       {
         auto         totalCellsSize = static_cast<unsigned int>(m_CellListArray[i]->size() * (MET_CellSize[i] + 1));
-        char *       data = new char[totalCellsSize * sizeof(int)];
+        const size_t dataSize = totalCellsSize * sizeof(int);
+        char *       data = new char[dataSize];
         unsigned int d;
         int          j = 0;
         CellListType::const_iterator it = m_CellListArray[i]->begin();
@@ -1244,13 +1246,13 @@ MetaMesh::M_Write()
         {
           int cellId = (*it)->m_Id;
           MET_SwapByteIfSystemMSB(&cellId, MET_INT);
-          MET_DoubleToValue(static_cast<double>(cellId), MET_INT, data, j++);
+          MET_DoubleToValueN(static_cast<double>(cellId), MET_INT, data, dataSize, j++);
 
           for (d = 0; d < (*it)->m_Dim; d++)
           {
             int pntId = (*it)->m_PointsId[d];
             MET_SwapByteIfSystemMSB(&pntId, MET_INT);
-            MET_DoubleToValue(static_cast<double>(pntId), MET_INT, data, j++);
+            MET_DoubleToValueN(static_cast<double>(pntId), MET_INT, data, dataSize, j++);
           }
           ++it;
         }
@@ -1319,7 +1321,8 @@ MetaMesh::M_Write()
     /** Then copy all cell links */
     if (m_BinaryData)
     {
-      char *                           data = new char[cellLinksSize * sizeof(int)];
+      const size_t                     dataSize = cellLinksSize * sizeof(int);
+      char *                           data = new char[dataSize];
       int                              j = 0;
       CellLinkListType::const_iterator it = m_CellLinks.begin();
       CellLinkListType::const_iterator itEnd = m_CellLinks.end();
@@ -1327,11 +1330,11 @@ MetaMesh::M_Write()
       {
         int clId = (*it)->m_Id;
         MET_SwapByteIfSystemMSB(&clId, MET_INT);
-        MET_DoubleToValue(static_cast<double>(clId), MET_INT, data, j++);
+        MET_DoubleToValueN(static_cast<double>(clId), MET_INT, data, dataSize, j++);
 
         int linkSize = static_cast<int>((*it)->m_Links.size());
         MET_SwapByteIfSystemMSB(&linkSize, MET_INT);
-        MET_DoubleToValue(static_cast<double>(linkSize), MET_INT, data, j++);
+        MET_DoubleToValueN(static_cast<double>(linkSize), MET_INT, data, dataSize, j++);
 
         std::list<int>::const_iterator it2 = (*it)->m_Links.begin();
         std::list<int>::const_iterator it2End = (*it)->m_Links.end();
@@ -1339,7 +1342,7 @@ MetaMesh::M_Write()
         {
           int links = (*it2);
           MET_SwapByteIfSystemMSB(&links, MET_INT);
-          MET_DoubleToValue(static_cast<double>(links), MET_INT, data, j++);
+          MET_DoubleToValueN(static_cast<double>(links), MET_INT, data, dataSize, j++);
           ++it2;
         }
         ++it;

@@ -904,7 +904,8 @@ MetaImage::ConvertElementDataTo(MET_ValueEnumType _elementType, double _toMin, d
 {
   int eSize;
   MET_SizeOfType(_elementType, &eSize);
-  void * newElementData = new char[static_cast<size_t>(m_Quantity * m_ElementNumberOfChannels * eSize)];
+  const size_t newElementDataSize = static_cast<size_t>(m_Quantity * m_ElementNumberOfChannels * eSize);
+  void * newElementData = new char[newElementDataSize];
 
   ElementByteOrderFix();
   if (!ElementMinMaxValid())
@@ -914,8 +915,8 @@ MetaImage::ConvertElementDataTo(MET_ValueEnumType _elementType, double _toMin, d
 
   for (size_t i = 0; i < static_cast<size_t>(m_Quantity * m_ElementNumberOfChannels); i++)
   {
-    MET_ValueToValue(
-      m_ElementType, m_ElementData, i, _elementType, newElementData, m_ElementMin, m_ElementMax, _toMin, _toMax);
+    MET_ValueToValueN(
+      m_ElementType, m_ElementData, i, _elementType, newElementData, newElementDataSize, m_ElementMin, m_ElementMax, _toMin, _toMax);
   }
 
   if (m_AutoFreeElementData)
