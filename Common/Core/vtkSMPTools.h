@@ -411,6 +411,14 @@ public:
   static int GetEstimatedNumberOfThreads();
 
   /**
+   * Get the estimated number of threads being used by the backend by default.
+   * This should be used as just an estimate since the number of threads may
+   * vary dynamically and a particular task may not be executed on all the
+   * available threads.
+   */
+  static int GetEstimatedDefaultNumberOfThreads();
+
+  /**
    * /!\ This method is not thread safe.
    * If true enable nested parallelism for underlying backends.
    * When enabled the comportement is different for each backend:

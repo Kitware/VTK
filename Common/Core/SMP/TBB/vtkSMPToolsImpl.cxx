@@ -31,6 +31,7 @@ static tbb::task_arena* taskArena;
 static std::mutex* vtkSMPToolsCS;
 static std::stack<int>* threadIdStack;
 static std::mutex* threadIdStackLock;
+static int specifiedNumThreadsTBB; // Default initialized to zero
 
 //------------------------------------------------------------------------------
 // Must NOT be initialized. Default initialization to zero is necessary.
@@ -90,15 +91,17 @@ void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int numThreads)
     else if (taskArena->is_active())
     {
       taskArena->terminate();
+      specifiedNumThreadsTBB = 0;
     }
   }
-  if (numThreads > 0 && numThreads != taskArena->max_concurrency())
+  if (numThreads > 0 && numThreads <= taskArena->max_concurrency())
   {
     if (taskArena->is_active())
     {
       taskArena->terminate();
     }
     taskArena->initialize(numThreads);
+    specifiedNumThreadsTBB = numThreads;
   }
 
   vtkSMPToolsCS->unlock();
@@ -107,6 +110,13 @@ void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int numThreads)
 //------------------------------------------------------------------------------
 template <>
 int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedNumberOfThreads()
+{
+  return specifiedNumThreadsTBB > 0 ? specifiedNumThreadsTBB : taskArena->max_concurrency();
+}
+
+//------------------------------------------------------------------------------
+template <>
+int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedDefaultNumberOfThreads()
 {
   return taskArena->max_concurrency();
 }

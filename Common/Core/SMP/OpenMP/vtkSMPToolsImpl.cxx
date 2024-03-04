@@ -15,7 +15,7 @@ namespace detail
 namespace smp
 {
 VTK_ABI_NAMESPACE_BEGIN
-static int specifiedNumThreads; // Default initialized to zero
+static int specifiedNumThreadsOMP; // Default initialized to zero
 static std::stack<int>* threadIdStack;
 
 //------------------------------------------------------------------------------
@@ -53,9 +53,9 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
     {
       numThreads = std::atoi(vtkSmpNumThreads);
     }
-    else if (specifiedNumThreads)
+    else if (specifiedNumThreadsOMP)
     {
-      specifiedNumThreads = 0;
+      specifiedNumThreadsOMP = 0;
       omp_set_num_threads(maxThreads);
     }
   }
@@ -63,7 +63,7 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
   if (numThreads > 0)
   {
     numThreads = std::min(numThreads, maxThreads);
-    specifiedNumThreads = numThreads;
+    specifiedNumThreadsOMP = numThreads;
     omp_set_num_threads(numThreads);
   }
 }
@@ -71,7 +71,7 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
 //------------------------------------------------------------------------------
 int GetNumberOfThreadsOpenMP()
 {
-  return specifiedNumThreads ? specifiedNumThreads : omp_get_max_threads();
+  return specifiedNumThreadsOMP ? specifiedNumThreadsOMP : omp_get_max_threads();
 }
 
 //------------------------------------------------------------------------------
@@ -85,6 +85,13 @@ template <>
 int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedNumberOfThreads()
 {
   return GetNumberOfThreadsOpenMP();
+}
+
+//------------------------------------------------------------------------------
+template <>
+int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedDefaultNumberOfThreads()
+{
+  return omp_get_max_threads();
 }
 
 //------------------------------------------------------------------------------

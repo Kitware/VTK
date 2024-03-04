@@ -53,6 +53,9 @@ public:
   int GetEstimatedNumberOfThreads();
 
   //--------------------------------------------------------------------------------
+  int GetEstimatedDefaultNumberOfThreads();
+
+  //--------------------------------------------------------------------------------
   void SetNestedParallelism(bool isNested) { this->NestedActivated = isNested; }
 
   //--------------------------------------------------------------------------------

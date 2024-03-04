@@ -153,6 +153,10 @@ int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedNumberOfThreads();
 
 //--------------------------------------------------------------------------------
 template <>
+int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedDefaultNumberOfThreads();
+
+//--------------------------------------------------------------------------------
+template <>
 bool vtkSMPToolsImpl<BackendType::OpenMP>::GetSingleThread();
 
 VTK_ABI_NAMESPACE_END
