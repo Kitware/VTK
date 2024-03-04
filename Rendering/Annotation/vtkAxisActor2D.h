@@ -498,6 +498,7 @@ private:
    * Values are major ticks values that will be displayed (see AdjustedRange)
    * Positions are the position of each major and minor tick relative
    * to the axis (so in [0, 1])
+   * Update NumberOfLabelsBuilt.
    */
   void UpdateTicksValueAndPosition(vtkViewport* viewport);
 

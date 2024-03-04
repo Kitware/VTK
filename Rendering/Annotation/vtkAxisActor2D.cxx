@@ -128,7 +128,7 @@ int vtkAxisActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 
   if (this->LabelVisibility)
   {
-    for (i = 0; i < this->AdjustedNumberOfLabels; i++)
+    for (i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
       renderedSomething += this->LabelActors[i]->RenderOpaqueGeometry(viewport);
     }
@@ -157,7 +157,7 @@ int vtkAxisActor2D::RenderOverlay(vtkViewport* viewport)
 
   if (this->LabelVisibility)
   {
-    for (i = 0; i < this->AdjustedNumberOfLabels; i++)
+    for (i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
       renderedSomething += this->LabelActors[i]->RenderOverlay(viewport);
     }
@@ -375,6 +375,8 @@ void vtkAxisActor2D::UpdateTicksValueAndPosition(vtkViewport* viewport)
       this->TickValues.push_back(value);
     }
   }
+
+  this->NumberOfLabelsBuilt = static_cast<int>(this->TickValues.size());
 }
 
 //------------------------------------------------------------------------------
@@ -480,14 +482,21 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
   // UpdateAdjustedRange(), which is the function that update
   // AdjustedRangeBuildTime or not.
   vtkMTimeType labeltime = this->AdjustedRangeBuildTime;
+  int nbOfLabels = static_cast<int>(this->TickValues.size());
+  if (this->NumberOfLabelsBuilt != nbOfLabels)
+  {
+    vtkErrorMacro("Inconsistent number of labels. Got " << nbOfLabels << " values but expects "
+                                                        << this->NumberOfLabelsBuilt);
+  }
+
+  if (nbOfLabels < 1)
+  {
+    return;
+  }
+
   if (this->AdjustedRangeBuildTime > this->BuildTime)
   {
-    if (this->AdjustedNumberOfLabels != static_cast<int>(this->TickValues.size()))
-    {
-      vtkErrorMacro("inconsistent number of labels");
-    }
-
-    for (int i = 0; i < this->AdjustedNumberOfLabels; i++)
+    for (int i = 0; i < nbOfLabels; i++)
     {
       double val = this->TickValues[i];
       if (this->GetNotation() == 0)
@@ -509,14 +518,14 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
     }
 
     // Check if the label text has changed
-    if (this->LabelMappers[this->AdjustedNumberOfLabels - 1]->GetMTime() > labeltime)
+    if (this->LabelMappers[this->NumberOfLabelsBuilt - 1]->GetMTime() > labeltime)
     {
-      labeltime = this->LabelMappers[this->AdjustedNumberOfLabels - 1]->GetMTime();
+      labeltime = this->LabelMappers[this->NumberOfLabelsBuilt - 1]->GetMTime();
     }
   }
 
   // Copy prop and text prop eventually
-  for (int i = 0; i < this->AdjustedNumberOfLabels; i++)
+  for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
   {
     if (this->LabelTextProperty->GetMTime() > this->BuildTime ||
       this->AdjustedRangeBuildTime > this->BuildTime)
@@ -554,7 +563,7 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
       if (!this->SizeFontRelativeToAxis)
       {
         vtkTextMapper::SetMultipleRelativeFontSize(viewport, this->LabelMappers,
-          this->AdjustedNumberOfLabels, size, this->LastMaxLabelSize,
+          this->NumberOfLabelsBuilt, size, this->LastMaxLabelSize,
           0.015 * this->FontFactor * this->LabelFactor);
       }
       else
@@ -562,18 +571,17 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
         int minFontSize = MAX_FONT_SIZE;
         int fontSize;
         int minLabel = 0;
-        for (int i = 0; i < this->AdjustedNumberOfLabels; i++)
+        for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
         {
           fontSize = this->LabelMappers[i]->SetConstrainedFontSize(viewport,
-            static_cast<int>((1.0 / this->AdjustedNumberOfLabels) * len),
-            static_cast<int>(0.2 * len));
+            static_cast<int>((1.0 / this->NumberOfLabelsBuilt) * len), static_cast<int>(0.2 * len));
           if (fontSize < minFontSize)
           {
             minFontSize = fontSize;
             minLabel = i;
           }
         }
-        for (int i = 0; i < this->AdjustedNumberOfLabels; i++)
+        for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
         {
           this->LabelMappers[i]->GetTextProperty()->SetFontSize(minFontSize);
         }
@@ -588,7 +596,7 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
 
   vtkPoints* pts = this->Axis->GetPoints();
   // Position the mappers
-  for (int i = 0; i < this->AdjustedNumberOfLabels; i++)
+  for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
   {
     double xTick[3];
     pts->GetPoint((this->NumberOfMinorTicks + 1) * 2 * i + 1, xTick);
@@ -773,9 +781,6 @@ void vtkAxisActor2D::UpdateAdjustedRange()
     }
     this->AdjustedNumberOfLabels += 2;
   }
-
-  // for compatibility
-  this->NumberOfLabelsBuilt = this->AdjustedNumberOfLabels;
 
   if (this->AdjustedNumberOfLabels < 1)
   {
