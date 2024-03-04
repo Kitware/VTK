@@ -826,14 +826,14 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkGenericCell* cell, vtkIdType cell
   {
     tol2 = this->Tolerance * this->Tolerance;
   }
-  for (int iz = idxBounds[4]; iz <= idxBounds[5]; iz++)
+  for (vtkIdType iz = idxBounds[4]; iz <= idxBounds[5]; iz++)
   {
     double p[3];
     p[2] = start[2] + iz * spacing[2];
-    for (int iy = idxBounds[2]; iy <= idxBounds[3]; iy++)
+    for (vtkIdType iy = idxBounds[2]; iy <= idxBounds[3]; iy++)
     {
       p[1] = start[1] + iy * spacing[1];
-      for (int ix = idxBounds[0]; ix <= idxBounds[1]; ix++)
+      for (vtkIdType ix = idxBounds[0]; ix <= idxBounds[1]; ix++)
       {
         // skip processed points
         const vtkIdType ptId = ix + dim[0] * (iy + dim[1] * iz);
