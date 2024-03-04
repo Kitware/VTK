@@ -133,7 +133,7 @@ int TestDecimatePolylineFilter(int argc, char* argv[])
 
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.3);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

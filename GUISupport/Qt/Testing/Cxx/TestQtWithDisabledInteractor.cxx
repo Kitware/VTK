@@ -76,7 +76,7 @@ int TestQtWithDisabledInteractor(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  int retVal = vtktesting->RegressionTest(fileName, 0);
+  int retVal = vtktesting->RegressionTest(fileName, 0.05);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:

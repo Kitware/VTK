@@ -142,7 +142,7 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  int retVal = vtkRegressionTestImageThreshold(win.GetPointer(), 15);
+  int retVal = vtkRegressionTestImageThreshold(win.GetPointer(), 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

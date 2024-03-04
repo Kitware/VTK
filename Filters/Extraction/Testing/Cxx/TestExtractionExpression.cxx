@@ -365,7 +365,7 @@ int TestExtractionExpression(int argc, char* argv[])
   double bounds[6];
   sampleData->GetBounds(bounds);
 
-  int retVal = vtkRegressionTestImageThreshold(renwin, 85);
+  int retVal = vtkRegressionTestImageThreshold(renwin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     rwi->Start();

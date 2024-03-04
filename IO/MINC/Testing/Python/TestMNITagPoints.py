@@ -147,6 +147,8 @@ try:
 
     renWin.SetSize(300, 300)
 
+    threshold = 0.06
+
     renWin.Render()
     try:
         os.remove(fname)

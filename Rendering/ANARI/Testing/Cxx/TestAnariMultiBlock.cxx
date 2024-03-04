@@ -84,7 +84,7 @@ int TestAnariMultiBlock(int argc, char* argv[])
   vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
 
   renWin->Render();
-  int retVal = vtkRegressionTestImageThreshold(renWin, 70.0);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

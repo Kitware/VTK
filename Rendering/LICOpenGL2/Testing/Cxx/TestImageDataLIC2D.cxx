@@ -353,7 +353,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   vtkSmartPointer<vtkTrivialProducer> tp = vtkSmartPointer<vtkTrivialProducer>::New();
 
   tp->SetOutput(pngDataSet);
-  int retVal = (tester->RegressionTest(tp, 10) == vtkTesting::PASSED) ? 0 : -4;
+  int retVal = (tester->RegressionTest(tp, 0.05) == vtkTesting::PASSED) ? 0 : -4;
   if (retVal)
   {
     cerr << "ERROR: test failed." << endl;

@@ -121,7 +121,7 @@ int TestSmartVolumeMapper(int argc, char* argv[])
   iren->Initialize();
   iren->SetDesiredUpdateRate(30.0);
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 50.0);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

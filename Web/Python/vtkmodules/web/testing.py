@@ -351,7 +351,7 @@ def compare_images(test_img, baseline_img, tmp_dir="."):
     t.AddArgument(baseline_img)
 
     # Perform the image comparison test and print out the result.
-    return t.RegressionTest(test_img, 0.0)
+    return t.RegressionTest(test_img, 0.05)
 
 
 # =============================================================================

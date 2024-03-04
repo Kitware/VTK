@@ -81,6 +81,7 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  LOOSE_VALID
   TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} -1
 )
 

@@ -85,7 +85,7 @@ int TestFinalColorWindowLevel(int argc, char* argv[])
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 70);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
   // Interact with the data at 3 frames per second
   iren->SetDesiredUpdateRate(3.0);

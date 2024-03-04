@@ -318,7 +318,7 @@ int TestFollowerPicking(int argc, char* argv[])
   recorder->Play();
   recorder->Off();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 10);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

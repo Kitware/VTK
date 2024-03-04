@@ -185,7 +185,7 @@ int TestAnariPBRMapping(int argc, char* argv[])
 
   if (extensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 50.0);
+    int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

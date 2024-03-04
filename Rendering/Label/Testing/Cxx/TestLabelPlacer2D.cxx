@@ -2485,7 +2485,7 @@ int TestLabelPlacer2D(int argc, char* argv[])
 
   // rw->Render();
 
-  int retval = vtkRegressionTestImageThreshold(rw, 60.0);
+  int retval = vtkRegressionTestImageThreshold(rw, 0.05);
   if (retval == vtkRegressionTester::DO_INTERACTOR)
   {
     ri->Start();

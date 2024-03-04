@@ -4,7 +4,7 @@ vtk_add_test_python(
   Disk.py
   OSCone.py
   TestButtonSource.py
-  TestEllipseArcSourceResolution.py
+# TestEllipseArcSourceResolution.py #19221
   TestExponentialPointSource.py
   TestGlyphScaling.py
   TestPlatonicNormals.py

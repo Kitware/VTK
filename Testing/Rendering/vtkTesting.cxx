@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTesting.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkDummyController.h"
@@ -11,9 +13,13 @@
 #include "vtkImageData.h"
 #include "vtkImageDifference.h"
 #include "vtkImageExtractComponents.h"
+#include "vtkImageRGBToXYZ.h"
+#include "vtkImageSSIM.h"
 #include "vtkImageShiftScale.h"
+#include "vtkImageXYZToLAB.h"
 #include "vtkInformation.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -23,12 +29,20 @@
 #include "vtkPointSet.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkWindowToImageFilter.h"
 
+#include "vtkImageRGBToHSI.h"
+
 #include <sstream>
 #include <vtksys/SystemTools.hxx>
+
+#include <array>
+#include <numeric>
+
+#include "vtkXMLImageDataWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTesting);
@@ -493,6 +507,111 @@ int vtkTesting::RegressionTest(const string& pngFileName, double thresh, ostream
 
   return this->RegressionTest(src, thresh, os);
 }
+
+namespace
+{
+//------------------------------------------------------------------------------
+std::array<double, 3> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double))
+{
+  std::array<double, 3> measure = {};
+
+  auto data = vtk::DataArrayTupleRange<3>(array);
+
+  for (auto lab : data)
+  {
+    for (int dim = 0; dim < 3; ++dim)
+    {
+      measure[dim] += f(1.0 - lab[dim]);
+    }
+  }
+
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    measure[dim] /= array->GetNumberOfTuples();
+  }
+
+  return measure;
+}
+
+//------------------------------------------------------------------------------
+std::array<double, 3> ComputeMinkowski1(vtkDoubleArray* array)
+{
+  return ComputeMinkowski(array, &std::abs);
+}
+
+//------------------------------------------------------------------------------
+std::array<double, 3> ComputeMinkowski2(vtkDoubleArray* array)
+{
+  auto f = [](double v) { return v * v; };
+  auto measure = ComputeMinkowski(array, f);
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    measure[dim] = std::sqrt(measure[dim]);
+  }
+  return measure;
+}
+
+//------------------------------------------------------------------------------
+std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, double (*f)(double))
+{
+  std::array<double, 3> measure = {};
+
+  auto data = vtk::DataArrayTupleRange<3>(array);
+
+  constexpr int N = 100;
+  std::array<double, N> hist[3] = {};
+
+  for (auto lab : data)
+  {
+    for (int dim = 0; dim < 3; ++dim)
+    {
+      ++hist[dim][std::round(lab[dim] * (N - 1))];
+    }
+  }
+
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    std::array<double, N> cfd;
+    std::partial_sum(hist[dim].begin(), hist[dim].end(), cfd.begin());
+
+    for (std::size_t i = 0; i < N - 1; ++i)
+    {
+      measure[dim] += f(cfd[i]);
+    }
+
+    measure[dim] += f(cfd.back() - array->GetNumberOfTuples());
+  }
+
+  return measure;
+}
+
+//------------------------------------------------------------------------------
+std::array<double, 3> ComputeWasserstein1(vtkDoubleArray* array)
+{
+  auto measure = ComputeWasserstein(array, &std::abs);
+  vtkIdType div = array->GetNumberOfTuples() * (100 - 1);
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    measure[dim] /= div;
+  }
+  return measure;
+}
+
+//------------------------------------------------------------------------------
+std::array<double, 3> ComputeWasserstein2(vtkDoubleArray* array)
+{
+  auto f = [](double v) { return v * v; };
+  auto measure = ComputeWasserstein(array, f);
+  vtkIdType div = array->GetNumberOfTuples() * array->GetNumberOfTuples() * (100 - 1);
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    measure[dim] /= div;
+    measure[dim] = std::sqrt(measure[dim]);
+  }
+  return measure;
+}
+} // anonymoun namespace
+
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os)
 {
@@ -554,7 +673,38 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   rtExtract->SetComponents(0, 1, 2);
   rtExtract->Update();
 
-  vtkNew<vtkImageDifference> rtId;
+  auto createLegacyDiffFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract) {
+    auto alg = vtkSmartPointer<vtkAlgorithm>::Take(vtkImageDifference::New());
+    alg->SetInputConnection(source->GetOutputPort());
+    alg->SetInputConnection(1, extract->GetOutputPort());
+    return alg;
+  };
+
+  auto createSSIMFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract) {
+    auto createPipeline = [](vtkAlgorithm* alg) {
+      vtkNew<vtkImageShiftScale> normalizer;
+      vtkNew<vtkImageRGBToXYZ> rgb2xyz;
+      vtkNew<vtkImageXYZToLAB> xyz2lab;
+
+      normalizer->SetScale(1.0 / 255);
+      normalizer->SetOutputScalarTypeToDouble();
+      normalizer->SetInputConnection(alg->GetOutputPort());
+      rgb2xyz->SetInputConnection(normalizer->GetOutputPort());
+      xyz2lab->SetInputConnection(rgb2xyz->GetOutputPort());
+
+      return xyz2lab;
+    };
+
+    auto pipeline1 = createPipeline(source);
+    auto pipeline2 = createPipeline(extract);
+
+    auto ssim = vtkImageSSIM::New();
+    ssim->SetInputToLab();
+    auto alg = vtkSmartPointer<vtkAlgorithm>::Take(ssim);
+    alg->SetInputConnection(pipeline1->GetOutputPort());
+    alg->SetInputConnection(1, pipeline2->GetOutputPort());
+    return alg;
+  };
 
   vtkNew<vtkImageClip> ic1;
   ic1->SetClipData(1);
@@ -573,21 +723,112 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     wExt2[2] + this->BorderOffset, wExt2[3] - this->BorderOffset, wExt2[4], wExt2[5]);
 
   int ext1[6], ext2[6];
-  rtId->SetInputConnection(ic1->GetOutputPort());
   ic1->Update();
   ic1->GetOutput()->GetExtent(ext1);
-  rtId->SetImageConnection(ic2->GetOutputPort());
   ic2->Update();
   ic2->GetOutput()->GetExtent(ext2);
 
   double minError = VTK_DOUBLE_MAX;
 
+  enum
+  {
+    LEGACY,
+    LOOSE,
+    TIGHT,
+    NONE
+  };
+
+  int imageCompareMethod = [] {
+    auto imageCompareString = [] {
+      if (!vtksys::SystemTools::HasEnv("VTK_TESTING_IMAGE_COMPARE_METHOD"))
+      {
+        vtkLog(WARNING, "Environment variable VTK_TESTING_IMAGE_COMPARE_METHOD is not set.");
+        return std::string("LEGACY_VALID");
+      }
+
+      return std::string(vtksys::SystemTools::GetEnv("VTK_TESTING_IMAGE_COMPARE_METHOD"));
+    }();
+
+    vtkLog(INFO, "Using " << imageCompareString << " image comparison method.");
+    if (imageCompareString == "LEGACY_VALID")
+    {
+      return LEGACY;
+    }
+    else if (imageCompareString == "TIGHT_VALID")
+    {
+      return TIGHT;
+    }
+    else if (imageCompareString == "LOOSE_VALID")
+    {
+      return LOOSE;
+    }
+    return NONE;
+  }();
+
+  auto rtId =
+    imageCompareMethod == LEGACY ? createLegacyDiffFilter(ic1, ic2) : createSSIMFilter(ic1, ic2);
+
+  auto executeComparison = [&](double& err) {
+    rtId->Update();
+
+    vtkDoubleArray* scalars = vtkArrayDownCast<vtkDoubleArray>(
+      vtkDataSet::SafeDownCast(rtId->GetOutputDataObject(0))->GetPointData()->GetScalars());
+
+    auto arrayMax = [](const std::array<double, 3>& v) {
+      return std::max(std::max(v[0], v[1]), v[2]);
+    };
+
+    if (imageCompareMethod == LEGACY)
+    {
+      err = vtkImageDifference::SafeDownCast(rtId)->GetThresholdedError();
+    }
+    else
+    {
+      auto mink1 = ComputeMinkowski1(scalars);
+      auto mink2 = ComputeMinkowski2(scalars);
+      auto wass1 = ComputeWasserstein1(scalars);
+      auto wass2 = ComputeWasserstein2(scalars);
+
+      vtkLog(INFO,
+        "When comparing images, error is defined as the maximum of all individual"
+          << " values within the used method (TIGHT or LOOSE) using the threshold " << thresh);
+      vtkLog(
+        INFO, "Error computations on Lab channels using Minkownski and Wasserstein distances:");
+      vtkLog(INFO, "TIGHT_VALID metric (euclidian) :");
+      vtkLog(INFO, "mink2 = [" << mink2[0] << ", " << mink2[1] << ", " << mink2[2] << "]");
+      vtkLog(INFO, "wass2 = [" << wass2[0] << ", " << wass2[1] << ", " << wass2[2] << "]");
+      vtkLog(INFO, "LOOSE_VALID metric (manhattan / earth's mover) :");
+      vtkLog(INFO, "mink1 = [" << mink1[0] << ", " << mink1[1] << ", " << mink1[2] << "]");
+      vtkLog(INFO, "wass1 = [" << wass1[0] << ", " << wass1[1] << ", " << wass1[2] << "]");
+      vtkLog(INFO,
+        "Note: if the test fails but is visually acceptable, one can make the test pass"
+          << " by changing the method (TIGHT_VALID vs LOOSE_VALID) and the threshold in CMake.");
+
+      switch (imageCompareMethod)
+      {
+        case TIGHT:
+        {
+          err = std::max(arrayMax(mink2), arrayMax(wass2));
+          break;
+        }
+        case LOOSE:
+          err = std::max(arrayMax(mink1), arrayMax(wass1));
+          break;
+        default:
+          vtkLog(ERROR,
+            "Image comparison method not set correctly."
+              << " If not using the \"LEGACY_VALID\" method, it should be \"TIGHT_VALID\" or "
+                 "\"LOOSE_VALID\");");
+      }
+    }
+  };
+
   if ((ext2[1] - ext2[0]) == (ext1[1] - ext1[0]) && (ext2[3] - ext2[2]) == (ext1[3] - ext1[2]) &&
     (ext2[5] - ext2[4]) == (ext1[5] - ext1[4]))
   {
-    // Cannot compute difference unless image sizes are the same
-    rtId->Update();
-    minError = rtId->GetThresholdedError();
+    vtkLog(INFO, "Comparing baselines using the default image baseline.");
+
+    executeComparison(minError);
   }
 
   this->ImageDifference = minError;
@@ -596,7 +837,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   {
     // Make sure there was actually a difference image before
     // accepting the error measure.
-    vtkImageData* output = rtId->GetOutput();
+    vtkImageData* output = vtkImageData::SafeDownCast(rtId->GetOutputDataObject(0));
     if (output)
     {
       int dims[3];
@@ -640,13 +881,13 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
       wExt2[2] + this->BorderOffset, wExt2[3] - this->BorderOffset, wExt2[4], wExt2[5]);
     ic2->UpdateWholeExtent();
 
-    rtId->GetImage()->GetExtent(ext2);
+    vtkImageData::SafeDownCast(ic2->GetOutputDataObject(0))->GetExtent(ext2);
     if ((ext2[1] - ext2[0]) == (ext1[1] - ext1[0]) && (ext2[3] - ext2[2]) == (ext1[3] - ext1[2]) &&
       (ext2[5] - ext2[4]) == (ext1[5] - ext1[4]))
     {
+      vtkLog(INFO, "Trying onother baseline.");
       // Cannot compute difference unless image sizes are the same
-      rtId->Update();
-      error = rtId->GetThresholdedError();
+      executeComparison(error);
     }
     else
     {
@@ -657,7 +898,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     {
       // Make sure there was actually a difference image before
       // accepting the error measure.
-      vtkImageData* output = rtId->GetOutput();
+      vtkImageData* output = vtkImageData::SafeDownCast(rtId->GetOutputDataObject(0));
       if (output)
       {
         int dims[3];
@@ -740,7 +981,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   }
 
   rtPng->Update();
-  rtId->GetImage()->GetExtent(ext2);
+  vtkImageData::SafeDownCast(ic2->GetOutputDataObject(0))->GetExtent(ext2);
 
   // If no image differences produced an image, do not write a
   // difference image.
@@ -773,6 +1014,30 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     {
       diffFilename = diffFilename.substr(0, dotPos);
     }
+
+    if (imageCompareMethod != LEGACY)
+    {
+      auto ssim = vtkImageData::SafeDownCast(rtId->GetOutputDataObject(0));
+      vtkDataSet* current = vtkDataSet::SafeDownCast(rtId->GetExecutive()->GetInputData(0, 0));
+      vtkDataSet* baseline = vtkDataSet::SafeDownCast(rtId->GetExecutive()->GetInputData(1, 0));
+      auto addOriginalArray = [&ssim](vtkDataSet* ds, std::string&& name) {
+        vtkDataArray* scalars = ds->GetPointData()->GetScalars();
+        auto array = vtkSmartPointer<vtkDataArray>::Take(scalars->NewInstance());
+        array->ShallowCopy(scalars);
+        array->SetName(name.c_str());
+        ssim->GetPointData()->AddArray(array);
+      };
+      addOriginalArray(baseline, "Baseline");
+      addOriginalArray(current, "Current");
+
+      std::string vtiName = diffFilename + ".vti";
+
+      vtkNew<vtkXMLImageDataWriter> vtiWriter;
+      vtiWriter->SetFileName(vtiName.c_str());
+      vtiWriter->SetInputData(ssim);
+      vtiWriter->Write();
+    }
+
     diffFilename += ".diff.png";
     FILE* rtDout = vtksys::SystemTools::Fopen(diffFilename, "wb");
     if (rtDout)
@@ -783,7 +1048,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
       vtkNew<vtkImageShiftScale> rtGamma;
       rtGamma->SetInputConnection(rtId->GetOutputPort());
       rtGamma->SetShift(0);
-      rtGamma->SetScale(10);
+      rtGamma->SetScale(imageCompareMethod == LEGACY ? 10 : 255);
+      rtGamma->SetOutputScalarTypeToUnsignedChar();
       rtGamma->ClampOverflowOn();
 
       vtkNew<vtkPNGWriter> rtPngw;

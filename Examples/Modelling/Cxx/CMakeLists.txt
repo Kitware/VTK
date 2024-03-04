@@ -60,6 +60,9 @@ if (BUILD_TESTING)
         DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/financial.txt}
         -V DATA{${CMAKE_CURRENT_SOURCE_DIR}/Baseline/finance.png}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set_property(TEST ModellingExampleCxx-finance
+      PROPERTY
+        ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 
     ExternalData_Add_Target(ModellingData)
   endif ()

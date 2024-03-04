@@ -233,7 +233,7 @@ int TestAnariCylinder(int argc, char* argv[])
   renderer->GetActiveCamera()->Elevation(30); // adjust to show more
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 5100.0);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

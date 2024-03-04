@@ -134,7 +134,7 @@ int TestDataSetSurfaceFilterWithBlankedImageData(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   renWin->Render();
-  int retValTmp = vtkRegressionTestImageThreshold(renWin, 3.0);
+  int retValTmp = vtkRegressionTestImageThreshold(renWin, 0.05);
   if (retValTmp == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

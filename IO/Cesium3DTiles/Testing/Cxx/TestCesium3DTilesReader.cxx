@@ -58,7 +58,7 @@ int TestCesium3DTilesReader(int argc, char* argv[])
   vtkCamera* camera = renderer->GetActiveCamera();
   camera->Elevation(-90);
 
-  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.2);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

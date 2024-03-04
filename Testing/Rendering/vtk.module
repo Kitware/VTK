@@ -10,6 +10,8 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
+  VTK::ImagingColor
+  VTK::IOXML
   VTK::RenderingCore
   VTK::TestingCore
 PRIVATE_DEPENDS

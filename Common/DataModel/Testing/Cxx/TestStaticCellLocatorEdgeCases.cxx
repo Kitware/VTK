@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkTestUtilities.h"
 #include <vtkCell.h>
 #include <vtkGenericCell.h>
 #include <vtkIdList.h>
@@ -22,11 +23,6 @@ static int TestCell(vtkDataSet* ds, int cellId, double x1[3], double x2[3], doub
 
 int TestStaticCellLocatorEdgeCases(int argc, char* argv[])
 {
-  if (argc < 2)
-  {
-    cout << "Not enough arguments.";
-    return EXIT_FAILURE;
-  }
 
   //===========
   // Test Setup
@@ -35,7 +31,7 @@ int TestStaticCellLocatorEdgeCases(int argc, char* argv[])
   double tol = 1E-15; // tolerance only used in TestCell
 
   vtkNew<vtkXMLPolyDataReader> reader;
-  char* fname = argv[1];
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/test_surface.vtp");
   reader->SetFileName(fname);
   reader->Update();
   vtkDataSet* data = reader->GetOutput();

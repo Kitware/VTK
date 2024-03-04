@@ -65,7 +65,7 @@ int TestMinIntensityRendering(int argc, char* argv[])
   ren->AddViewProp(volume);
 
   renWin->Render();
-  int retVal = vtkRegressionTestImageThreshold(renWin, 70);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

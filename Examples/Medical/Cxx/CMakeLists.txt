@@ -82,6 +82,9 @@ if (BUILD_TESTING)
           ${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing/Data/headsq/quarter
           -V DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/Baseline/${test}.png}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+      set_property(TEST "MedicalExampleCxx-${test}"
+        PROPERTY
+          ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
     endforeach()
 
     ExternalData_Add_Target(MedicalData)

@@ -192,7 +192,7 @@ int TestImageStencilData(int argc, char* argv[])
 
   vtkSmartPointer<vtkTrivialProducer> producer = vtkSmartPointer<vtkTrivialProducer>::New();
   producer->SetOutput(image);
-  int retval = testing->RegressionTest(producer, 10);
+  int retval = testing->RegressionTest(producer, 0.05);
   testing->Delete();
   image->Delete();
 

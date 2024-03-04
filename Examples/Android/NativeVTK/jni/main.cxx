@@ -171,7 +171,7 @@ void android_main(struct android_app* state)
       std::string validFile = dataPath + "/NativeVTKValid.png";
       tst->AddArgument("-V");
       tst->AddArgument(validFile.c_str());
-      int result = tst->RegressionTest(outputFile.c_str(), 10.0, ofs);
+      int result = tst->RegressionTest(outputFile.c_str(), 0.05, ofs);
       ofs.close();
 
       ANativeActivity_finish(state->activity);

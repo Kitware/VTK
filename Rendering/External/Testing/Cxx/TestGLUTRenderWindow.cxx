@@ -148,7 +148,7 @@ void test()
   t->SetRenderWindow(externalVTKWidget->GetRenderWindow());
   if (!tested)
   {
-    retVal = t->RegressionTest(0);
+    retVal = t->RegressionTest(0.05);
     tested = true;
   }
   t->Delete();

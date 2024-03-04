@@ -171,7 +171,7 @@ int TestHyperTreeGridTernary3DAxisCut(int argc, char* argv[])
     return 1; // Failed
   }
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 30);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

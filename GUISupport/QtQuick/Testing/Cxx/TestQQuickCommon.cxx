@@ -209,7 +209,7 @@ int performTest(int argc, char* argv[], const char* filename)
   std::string vImage = tmpDir + "/" + validName;
   im.save(QString::fromStdString(vImage), "PNG");
 
-  int retVal = vtktesting->RegressionTest(vImage, 10);
+  int retVal = vtktesting->RegressionTest(vImage, 0.05);
 
   switch (retVal)
   {

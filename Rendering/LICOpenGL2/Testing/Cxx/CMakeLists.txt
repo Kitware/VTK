@@ -35,6 +35,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --data=DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/disk_out_ref_surface.vtp}
     --vectors=V
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedDefaults APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedBlended
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -49,6 +52,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --enhance-contrast=1
     --lic-intensity=0.8
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedBlended APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedMapped
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -63,6 +69,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --enhance-contrast=4
     --color-mode=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedMapped APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedEnhancedVectorNormalizeOff
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -78,6 +87,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --enhance-contrast=1
     --color-mode=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedEnhancedVectorNormalizeOff APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedBlendedSmallGrain
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -97,6 +109,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --enhance-contrast=1
     --lic-intensity=0.8
     )
+  set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedBlendedSmallGrain APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedMappedSmallGrain
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -115,6 +130,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --enhance-contrast=4
     --color-mode=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedMappedSmallGrain APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedMappedSmallVectorNormalizeOff
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -135,6 +153,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --low-lic-contrast-enhancement-factor=0.05
     --color-mode=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedMappedSmallVectorNormalizeOff APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedDefaultsColor
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -148,6 +169,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --vectors=V
     --color-by-mag=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedDefaultsColor APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorBlendedSmallGrain
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -168,6 +192,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --color-by-mag=1
     --lic-intensity=0.6
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorBlendedSmallGrain APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorMappedSmallGrain
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -187,6 +214,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --color-by-mag=1
     --color-mode=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorMappedSmallGrain APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorBlendedSmallGrainMask
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -209,6 +239,10 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --mask-intensity=0.2
     --mask-color 1.0 1.0 1.0
     )
+set_property(TEST
+    VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorBlendedSmallGrainMask APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorMappedSmallGrainMask
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -232,6 +266,10 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --mask-intensity=0.2
     --mask-color 1.0 1.0 1.0
     )
+set_property(TEST
+    VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorMappedSmallGrainMask APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedSmallGrainMask
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -254,6 +292,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --map-mode-bias=0.05
     --mask-intensity=0.2
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedSmallGrainMask APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 # surface lic on a slice
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarDefaults
@@ -268,6 +309,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --num-steps=40
     --lic-intensity=0.8
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarDefaults APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarContrastEnhanced
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -282,6 +326,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --enhance-contrast=1
     --color-mode=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarContrastEnhanced APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarVectorNormalizeOff
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -303,6 +350,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --color-by-mag=1
     --color-mode=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarVectorNormalizeOff APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarVectorNormalizeOffMediumGrainUniform
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -325,6 +375,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --color-by-mag=1
     --color-mode=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarVectorNormalizeOffMediumGrainUniform APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarVectorNormalizeOffMediumGrainPerlin
   COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
@@ -347,6 +400,9 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --color-mode=1
     --anti-alias=1
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICPlanarVectorNormalizeOffMediumGrainPerlin APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 
 vtk_module_test_data(
   Data/ex-blow_5/,REGEX:.*)
@@ -376,3 +432,6 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     --mask-intensity=0.41
     --mask-color 0 0 0
     )
+set_property(TEST VTK::RenderingLICOpenGL2Cxx-SurfaceLICMultiBlockContrastEnhancedPerlin APPEND
+  PROPERTY
+    ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")

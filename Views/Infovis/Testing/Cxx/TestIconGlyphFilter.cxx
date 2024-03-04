@@ -113,7 +113,7 @@ int TestIconGlyphFilter(int argc, char* argv[])
 
   view->GetInteractor()->Initialize();
   view->Render();
-  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 18);
+  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     view->GetInteractor()->Start();

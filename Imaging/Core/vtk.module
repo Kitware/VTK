@@ -29,6 +29,7 @@ TEST_DEPENDS
   VTK::FiltersHybrid
   VTK::FiltersModeling
   VTK::FiltersSources
+  VTK::ImagingColor
   VTK::ImagingGeneral
   VTK::ImagingHybrid
   VTK::ImagingMath
@@ -39,6 +40,7 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::IOImage
   VTK::IOLegacy
+  VTK::IOXML
   VTK::RenderingImage
   VTK::RenderingOpenGL2
   VTK::TestingRendering

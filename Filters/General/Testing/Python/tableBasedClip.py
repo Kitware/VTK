@@ -264,7 +264,7 @@ class TestClip(Testing.vtkTest):
         rtTester.AddArgument("tableBasedClip.png")
         rtTester.SetRenderWindow(rw)
         rw.Render()
-        rtResult = rtTester.RegressionTest(10)
+        rtResult = rtTester.RegressionTest(0.05)
 
     def testClipOnNormal(self):
         eg = vtkEnSightGoldReader()

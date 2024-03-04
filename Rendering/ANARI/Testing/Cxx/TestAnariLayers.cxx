@@ -94,7 +94,7 @@ int TestAnariLayers(int argc, char* argv[])
   renWin->SetSize(400, 400);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 1.0);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

@@ -109,7 +109,7 @@ int TestCompositePolyDataMapper2PartialFieldData(int argc, char* argv[])
 
   win->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(win, 15);
+  int retVal = vtkRegressionTestImageThreshold(win, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

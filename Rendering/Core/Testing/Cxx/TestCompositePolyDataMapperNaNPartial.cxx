@@ -90,7 +90,7 @@ int TestCompositePolyDataMapperNaNPartial(int argc, char* argv[])
   renderer->ResetCamera();
 
   renWin->Render();
-  int retVal = vtkRegressionTestImageThreshold(renWin.GetPointer(), 15);
+  int retVal = vtkRegressionTestImageThreshold(renWin.GetPointer(), 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

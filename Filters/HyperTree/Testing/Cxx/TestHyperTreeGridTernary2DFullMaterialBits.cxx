@@ -255,7 +255,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 70);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

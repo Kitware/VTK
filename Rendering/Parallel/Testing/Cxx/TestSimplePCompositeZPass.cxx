@@ -302,7 +302,7 @@ void MyProcess::Execute()
     camera->Elevation(10.0);
     renderer->ResetCamera();
     // testing code
-    double thresh = 10;
+    double thresh = 0.05;
     int i;
     VTK_CREATE(vtkTesting, testing);
     for (i = 0; i < this->Argc; ++i)

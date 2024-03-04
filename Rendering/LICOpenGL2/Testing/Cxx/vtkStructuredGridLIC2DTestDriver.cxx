@@ -290,7 +290,7 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
 
   renWin->Render();
   int reply =
-    (!tester->IsValidImageSpecified() || (tester->RegressionTest(10) == vtkTesting::PASSED))
+    (!tester->IsValidImageSpecified() || (tester->RegressionTest(0.05) == vtkTesting::PASSED))
     ? /*success*/ 0
     : /*failure*/ 1;
 
