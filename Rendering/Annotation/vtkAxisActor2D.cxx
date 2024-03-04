@@ -404,17 +404,11 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
   axisEnd[1] = x[1];
   axisEnd[2] = 0.0;
 
+  // axis extremity
+  vtkIdType axisPoints[2];
+  axisPoints[0] = pts->InsertNextPoint(axisStart);
   // Generate point along axis (as well as tick points)
   double theta = this->GetAxisAngle(viewport);
-
-  // First axis point, where first tick is located
-  vtkIdType ptIds[2];
-  ptIds[0] = pts->InsertNextPoint(axisStart);
-  double tickPos[3];
-  tickPos[0] = axisStart[0] + this->TickLength * std::sin(theta);
-  tickPos[1] = axisStart[1] - this->TickLength * std::cos(theta);
-  tickPos[2] = 0.0;
-  pts->InsertNextPoint(tickPos);
 
   double normalizedAxis[3];
   vtkMath::Subtract(axisEnd, axisStart, normalizedAxis);
@@ -422,15 +416,12 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
 
   int totalNumberOfTicks = static_cast<int>(this->NormalizedTickPositions.size());
 
-  // Only draw the inner ticks (not the start/end ticks)
-  if (totalNumberOfTicks >= 2)
-  {
-    this->TicksStartPos->SetNumberOfPoints(totalNumberOfTicks - 2);
-  }
-  for (int i = 1; i < totalNumberOfTicks - 1; i++)
+  this->TicksStartPos->SetNumberOfPoints(totalNumberOfTicks);
+
+  for (int tick = 0; tick < totalNumberOfTicks; tick++)
   {
     int tickLength = 0;
-    if (i % (this->NumberOfMinorTicks + 1) == 0)
+    if (tick % (this->NumberOfMinorTicks + 1) == 0)
     {
       tickLength = this->TickLength;
     }
@@ -439,36 +430,34 @@ void vtkAxisActor2D::BuildTicksPolyData(vtkViewport* viewport)
       tickLength = this->MinorTickLength;
     }
 
-    tickPos[0] = axisStart[0] + this->NormalizedTickPositions[i] * normalizedAxis[0] * axisLength;
-    tickPos[1] = axisStart[1] + this->NormalizedTickPositions[i] * normalizedAxis[1] * axisLength;
-    this->TicksStartPos->SetPoint(i - 1, tickPos);
-    pts->InsertNextPoint(tickPos);
+    double tickPos[3];
+    tickPos[2] = 0;
+    tickPos[0] =
+      axisStart[0] + this->NormalizedTickPositions[tick] * normalizedAxis[0] * axisLength;
+    tickPos[1] =
+      axisStart[1] + this->NormalizedTickPositions[tick] * normalizedAxis[1] * axisLength;
+    this->TicksStartPos->SetPoint(tick, tickPos);
+
+    vtkIdType tickPoints[2];
+    tickPoints[0] = pts->InsertNextPoint(tickPos);
+
     tickPos[0] = tickPos[0] + tickLength * std::sin(theta);
     tickPos[1] = tickPos[1] - tickLength * std::cos(theta);
-    pts->InsertNextPoint(tickPos);
+    tickPoints[1] = pts->InsertNextPoint(tickPos);
+
+    if (this->TickVisibility)
+    {
+      lines->InsertNextCell(2, tickPoints);
+    }
   }
 
-  // Last axis point
-  ptIds[1] = pts->InsertNextPoint(axisEnd);
-  tickPos[0] = axisEnd[0] + this->TickLength * std::sin(theta);
-  tickPos[1] = axisEnd[1] - this->TickLength * std::cos(theta);
-  pts->InsertNextPoint(tickPos);
+  // last point
+  axisPoints[1] = pts->InsertNextPoint(axisEnd);
 
   // Add the axis if requested
   if (this->AxisVisibility)
   {
-    lines->InsertNextCell(2, ptIds);
-  }
-
-  // Create lines representing the tick marks
-  if (this->TickVisibility)
-  {
-    for (int i = 0; i < totalNumberOfTicks; i++)
-    {
-      ptIds[0] = 2 * i;
-      ptIds[1] = 2 * i + 1;
-      lines->InsertNextCell(2, ptIds);
-    }
+    lines->InsertNextCell(2, axisPoints);
   }
 }
 
@@ -599,7 +588,11 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
   {
     double xTick[3];
-    pts->GetPoint((this->NumberOfMinorTicks + 1) * 2 * i + 1, xTick);
+    vtkIdType tickId = (this->NumberOfMinorTicks + 1) * i;
+    // first point in the list is the Axis start, not a tick point.
+    vtkIdType startPointId = tickId * 2 + 1;
+    vtkIdType endPointId = startPointId + 1;
+    pts->GetPoint(endPointId, xTick);
     double theta = this->GetAxisAngle(viewport);
     vtkAxisActor2D::SetOffsetPosition(xTick, theta, this->LastMaxLabelSize[0],
       this->LastMaxLabelSize[1], this->TickOffset, this->LabelActors[i]);
