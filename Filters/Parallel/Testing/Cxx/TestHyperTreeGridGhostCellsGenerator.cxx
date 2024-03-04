@@ -18,7 +18,8 @@ namespace
  * For a given non-null array, return 0 if the number of components, tuples and range match with the
  * arguments, and return 1 otherwise.
  */
-int CheckArray(vtkDataArray* array, int numberComponents, int numberTuples, const double* range)
+int CheckArray(
+  vtkDataArray* array, int numberComponents, int numberTuples, const double* range, int rank)
 {
   int ret = EXIT_SUCCESS;
   if (!array)
@@ -28,23 +29,24 @@ int CheckArray(vtkDataArray* array, int numberComponents, int numberTuples, cons
   }
   if (array->GetNumberOfComponents() != numberComponents)
   {
-    vtkErrorWithObjectMacro(nullptr, << "Wrong number of components in the scalar cell field. Has "
-                                     << array->GetNumberOfComponents() << " but expect "
-                                     << numberComponents);
+    vtkErrorWithObjectMacro(
+      nullptr, << "Wrong number of components in the scalar cell field for process" << rank
+               << ". Has " << array->GetNumberOfComponents() << " but expect " << numberComponents);
     ret = EXIT_FAILURE;
   }
   if (array->GetNumberOfTuples() != numberTuples)
   {
-    vtkErrorWithObjectMacro(nullptr, << "Wrong number of tuples in the scalar cell field. Has "
-                                     << array->GetNumberOfTuples() << " but expect "
-                                     << numberTuples);
+    vtkErrorWithObjectMacro(
+      nullptr, << "Wrong number of tuples in the scalar cell field for process" << rank << ". Has "
+               << array->GetNumberOfTuples() << " but expect " << numberTuples);
     ret = EXIT_FAILURE;
   }
   if (array->GetRange()[0] != range[0] || array->GetRange()[1] != range[1])
   {
-    vtkErrorWithObjectMacro(nullptr, << "Wrong range for the the scalar cell field. Got ["
-                                     << array->GetRange()[0] << "," << array->GetRange()[1]
-                                     << "] but expected [" << range[0] << "," << range[1] << "]");
+    vtkErrorWithObjectMacro(nullptr, << "Wrong range for the the scalar cell field for process"
+                                     << rank << ". Got [" << array->GetRange()[0] << ","
+                                     << array->GetRange()[1] << "] but expected [" << range[0]
+                                     << "," << range[1] << "]");
     ret = EXIT_FAILURE;
   }
   return ret;
@@ -61,8 +63,8 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(controller);
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
-  const int expectedNbOfCells[2] = { 432, 480 };
-  const double expectedScalarRange[2] = { 0, 10347 };
+  const int expectedNbOfCells[4] = { 352, 408, 344, 464 };
+  const double expectedScalarRange[2] = { 0, 30257 };
 
   // Initialize log
   std::string threadName = "rank #";
@@ -71,7 +73,7 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
 
   // Setup pipeline
   vtkNew<vtkRandomHyperTreeGridSource> htgSource;
-  htgSource->SetSeed(1);
+  htgSource->SetSeed(3);
   htgSource->SetMaxDepth(3);
   htgSource->SetDimensions(3, 3, 3);
   htgSource->UpdatePiece(myRank, nbRanks, 0);
@@ -116,27 +118,30 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
     ret = EXIT_FAILURE;
   }
 
-  // This test is supposed to run on 2 nodes. In that case we can compare
+  // This test is supposed to run on 4 nodes. In that case we can compare
   // with expected values
-  if (nbRanks == 2)
+  if (nbRanks == 4)
   {
     if (expectedNbOfCells[myRank] != nbOfCells)
     {
-      vtkErrorWithObjectMacro(nullptr, << "Wrong number of ghost cells generated. Has " << nbOfCells
-                                       << " but expect " << expectedNbOfCells[myRank]);
+      vtkErrorWithObjectMacro(nullptr, << "Wrong number of ghost cells generated for process "
+                                       << myRank << ". Has " << nbOfCells << " but expect "
+                                       << expectedNbOfCells[myRank]);
       ret = EXIT_FAILURE;
     }
 
     // Ghost cells should also have cell data values, transmitted by their neighbors
     vtkDataArray* outScalar = htg->GetCellData()->GetScalars("ScalarArray");
-    if (::CheckArray(outScalar, 1, expectedNbOfCells[myRank], expectedScalarRange) == EXIT_FAILURE)
+    if (::CheckArray(outScalar, 1, expectedNbOfCells[myRank], expectedScalarRange, myRank) ==
+      EXIT_FAILURE)
     {
       vtkErrorWithObjectMacro(nullptr, << "Scalar array does not match");
       ret = EXIT_FAILURE;
     }
 
     vtkDataArray* outVector = htg->GetCellData()->GetVectors("VectorArray");
-    if (::CheckArray(outVector, 3, expectedNbOfCells[myRank], expectedScalarRange) == EXIT_FAILURE)
+    if (::CheckArray(outVector, 3, expectedNbOfCells[myRank], expectedScalarRange, myRank) ==
+      EXIT_FAILURE)
     {
       vtkErrorWithObjectMacro(nullptr, << "Vector array does not match");
       ret = EXIT_FAILURE;
@@ -144,7 +149,7 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   }
   else
   {
-    vtkLog(WARNING, << "test run on " << nbRanks << " ranks (2 expected). Cannot compare result");
+    vtkLog(WARNING, << "test run on " << nbRanks << " ranks (4 expected). Cannot compare result");
   }
 
   controller->Finalize();

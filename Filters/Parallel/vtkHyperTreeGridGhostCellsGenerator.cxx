@@ -130,6 +130,8 @@ int vtkHyperTreeGridGhostCellsGenerator::FillOutputPortInformation(int, vtkInfor
 int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
+  vtkDebugMacro(<< "Start processing trees");
+
   // Downcast output data object to hyper tree grid
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
   if (!output)
@@ -307,6 +309,8 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     }
   }
 
+  vtkDebugMacro("Exchanging sizes with neighbors");
+
   // Exchanging size with my neighbors
   for (int id = 0; id < numberOfProcesses; ++id)
   {
@@ -376,10 +380,9 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   }
 
   // Synchronizing
-  vtkDebugMacro("Barrier");
   controller->Barrier();
 
-  // Sending masks and parent state of each node
+  vtkDebugMacro("Send masks and parent state of each node");
   for (int id = 0; id < numberOfProcesses; ++id)
   {
     if (id != processId)
@@ -425,7 +428,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
             len += dlen;
           }
         }
-        vtkDebugMacro("Send: data to " << id);
+        vtkDebugMacro("Send mask data from " << processId << " to " << id);
         this->Internals->Controller->Send(buf.data(), len, id, HTGGCG_DATA_EXCHANGE_TAG);
       }
     }
@@ -506,7 +509,6 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
               numberOfValues +=
                 this->CreateGhostTree(outCursor, isParent, recvTreeBuffer.indices.data());
 
-              // TODO Bug potentiel si localement on n'a pas de masque... mais le voisin si :D
               if (hyperTreesMapToProcesses[nbHTs + process])
               {
                 vtkNew<vtkBitArray> mask;
@@ -541,15 +543,26 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     }
   }
 
+  // Pre-compute the total number of values associated to each cell
+  int totalCellSize = 0;
+  vtkCellData* pd = output->GetCellData();
+  int nbArray = pd->GetNumberOfArrays();
+  for (int arrayId = 0; arrayId < nbArray; arrayId++)
+  {
+    vtkDataArray* outArray = pd->GetArray(arrayId);
+    totalCellSize += outArray->GetNumberOfComponents();
+  }
+  vtkDebugMacro("Computed total cell data size: " << totalCellSize);
+
   // Synchronizing
-  vtkDebugMacro("Barrier");
   this->Internals->Controller->Barrier();
 
-  // We now send the data stored on each node
+  vtkDebugMacro("Send data stored on each node");
   for (int id = 0; id < numberOfProcesses; ++id)
   {
     if (id != processId)
     {
+      vtkDebugMacro("Begin sending to process " << id);
       auto sendIt = sendBuffer.find(id);
       if (sendIt != sendBuffer.end())
       {
@@ -557,23 +570,15 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
         std::vector<double> buf;
         vtkIdType totalLength = 0;
         vtkIdType writeOffset = 0;
+
         for (auto&& sendTreeBufferPair : sendTreeMap)
         {
           auto&& sendTreeBuffer = sendTreeBufferPair.second;
           if (sendTreeBuffer.count)
           {
-            vtkCellData* pd = input->GetCellData();
-            int nbArray = pd->GetNumberOfArrays();
-            vtkIdType currentLength = 0;
-
-            // Compute total length of arrays to be sent
-            for (int arrayId = 0; arrayId < nbArray; ++arrayId)
-            {
-              vtkDataArray* inArray = pd->GetArray(arrayId);
-              currentLength += inArray->GetNumberOfComponents();
-            }
-            currentLength *= sendTreeBuffer.count;
-            totalLength += currentLength;
+            vtkDebugMacro("New sendTreeBufferPair with " << sendTreeBuffer.count
+                                                         << " elements for process " << id);
+            totalLength += totalCellSize * sendTreeBuffer.count;
             buf.resize(totalLength);
 
             // Fill send buffer with array data
@@ -591,13 +596,15 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
             }
           }
         }
-        vtkDebugMacro("Send: data2 from " << id);
+        vtkDebugMacro("Send arrays data to " << id);
         this->Internals->Controller->Send(buf.data(), totalLength, id, HTGGCG_DATA2_EXCHANGE_TAG);
+        vtkDebugMacro("Done sending array data to " << id);
       }
     }
     else
     {
-      // We receive the data
+      vtkDebugMacro("Receiving cell data from the other processes");
+
       std::size_t iRecv = 0;
       for (auto itRecvBuffer = recvBuffer.begin(); itRecvBuffer != recvBuffer.end(); ++itRecvBuffer)
       {
@@ -613,6 +620,8 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
           }
         }
         int process = targetRecvBuffer->first;
+        vtkDebugMacro("Begin receiving data from process " << process);
+
         auto&& recvTreeMap = targetRecvBuffer->second;
         if (flags[process] == INITIALIZE_TREE)
         {
@@ -620,20 +629,10 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
           unsigned long totalLength = 0;
           for (auto&& recvTreeBufferPair : recvTreeMap)
           {
-            vtkCellData* pd = output->GetCellData();
-            int nbArray = pd->GetNumberOfArrays();
-            int currentLen = 0;
-            for (int arrayId = 0; arrayId < nbArray; arrayId++)
-            {
-              vtkDataArray* outArray = pd->GetArray(arrayId);
-              currentLen += outArray->GetNumberOfComponents();
-            }
-            currentLen *= recvTreeBufferPair.second.count;
-            totalLength += currentLen;
+            totalLength += totalCellSize * recvTreeBufferPair.second.count;
           }
 
           std::vector<double> buf(totalLength);
-          vtkDebugMacro("Receive: data2 from " << process);
           this->Internals->Controller->Receive(
             buf.data(), totalLength, process, HTGGCG_DATA2_EXCHANGE_TAG);
 
@@ -642,20 +641,16 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
           for (auto&& recvTreeBufferPair : recvTreeMap)
           {
             auto&& recvTreeBuffer = recvTreeBufferPair.second;
-            vtkCellData* pd = output->GetCellData();
-            int nbArray = pd->GetNumberOfArrays();
 
             for (int arrayId = 0; arrayId < nbArray; ++arrayId)
             {
               vtkDataArray* outArray = pd->GetArray(arrayId);
-              outArray->SetNumberOfValues(outArray->GetNumberOfValues() +
-                recvTreeBufferPair.second.count * outArray->GetNumberOfComponents());
 
               for (vtkIdType tupleId = 0; tupleId < recvTreeBuffer.count; ++tupleId)
               {
                 for (int compIdx = 0; compIdx < outArray->GetNumberOfComponents(); compIdx++)
                 {
-                  outArray->SetComponent(
+                  outArray->InsertComponent(
                     recvTreeBuffer.indices[tupleId], compIdx, buf[readOffset++]);
                 }
               }
@@ -668,7 +663,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     }
   }
 
-  vtkDebugMacro("Barrier");
+  vtkDebugMacro("Create ghost array and mask");
   this->Internals->Controller->Barrier();
   {
     vtkNew<vtkUnsignedCharArray> scalars;
