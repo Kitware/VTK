@@ -12,6 +12,7 @@ vtk_module_add_module(VTK::IOPostgreSQL
   SOURCES vtkIOPostgreSQL_AutoInit.cxx)
 
 vtk_module_link(VTK::IOPostgreSQL
+  NO_KIT_EXPORT_IF_SHARED
   PRIVATE
     PostgreSQL::PostgreSQL)
 vtk_add_test_mangling(VTK::IOPostgreSQL)

@@ -23,6 +23,7 @@ endif ()
 vtk_module_add_module(VTK::IOPDAL
   CLASSES ${classes})
 vtk_module_link(VTK::IOPDAL
+  NO_KIT_EXPORT_IF_SHARED
   PRIVATE
     ${pdal_libraries})
 
