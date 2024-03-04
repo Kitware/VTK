@@ -22,6 +22,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 // starting point in viewport coordinate. X = Y = 30
 static constexpr int START_POINT = 30;
+static constexpr int END_POINT = 270;
 
 /**
  * Mock vtkAxisActor2D to access inner member for comparison.
@@ -57,8 +58,6 @@ public:
 
 /**
  * Compare the provided vtkPoints with TickPositions from axis.
- * TickPositions are only the *inner* ticks, i.e. without the starting and ending tick.
- * So expect two less points than actual number of ticks.
  */
 inline bool CompareTicksPosition(
   vtkAxisActor2D* axis, vtkRenderWindow* window, vtkPoints* expectedPoints)
