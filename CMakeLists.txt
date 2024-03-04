@@ -228,7 +228,7 @@ endif ()
 
 #-----------------------------------------------------------------------------
 # Add an option to enable/disable catalyst2 support.
-option(VTK_ENABLE_CATALYST "Build IOCatalystConduit module and VTK catalyst implementation." OFF)
+option(VTK_ENABLE_CATALYST "Build catalyst-dependent modules, including the VTK catalyst implementation." OFF)
 mark_as_advanced(VTK_ENABLE_CATALYST)
 
 #-----------------------------------------------------------------------------
@@ -302,17 +302,23 @@ endif ()
 if (VTK_ENABLE_LOGGING)
   list(APPEND vtk_requested_modules
     VTK::loguru)
-  set("_vtk_module_reason_VTK::loguru"
-    "via `VTK_ENABLE_LOGGING`")
+else ()
+  list(APPEND vtk_rejected_modules
+    VTK::loguru)
 endif ()
+set("_vtk_module_reason_VTK::loguru"
+  "via `VTK_ENABLE_LOGGING`")
 if (VTK_ENABLE_CATALYST)
   list(APPEND vtk_requested_modules
+    VTK::catalyst)
+  # This is kept because it may be how users are enabling the module today.
+  list(APPEND vtk_requested_modules
     VTK::IOCatalystConduit)
-else()
+else ()
   list(APPEND vtk_rejected_modules
-    VTK::IOCatalystConduit)
-endif()
-set("_vtk_module_reason_VTK::IOCatalystConduit"
+    VTK::catalyst)
+endif ()
+set("_vtk_module_reason_VTK::catalyst"
   "via `VTK_ENABLE_CATALYST`")
 if (VTK_ENABLE_WEBGPU)
   list(APPEND vtk_requested_modules
