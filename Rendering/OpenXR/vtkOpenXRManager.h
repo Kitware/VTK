@@ -616,8 +616,11 @@ protected:
 
   bool UseDepthExtension = false;
   bool SessionRunning = false;
-  // After each WaitAndBeginFrame, the OpenXR runtime may inform us that
-  // the current frame should not be rendered. Store it to avoid a render
+  // Following each WaitAndBeginFrame operation, the OpenXR runtime may indicate
+  // whether the current frame should be rendered using the `XrFrameState.shouldRender`
+  // property. We store this information to optimize rendering and prevent unnecessary
+  // render calls. For further details, refer to:
+  // https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrFrameState.html
   bool ShouldRenderCurrentFrame = false;
   // If true, the function UpdateActionData will store
   // pose velocities for pose actions

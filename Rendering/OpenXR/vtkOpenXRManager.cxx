@@ -259,6 +259,10 @@ bool vtkOpenXRManager::BeginSession()
 //------------------------------------------------------------------------------
 bool vtkOpenXRManager::WaitAndBeginFrame()
 {
+  // Proactively reset the flag to avoid any attempted rendering in case
+  // the function exits prematurely.
+  this->ShouldRenderCurrentFrame = false;
+
   VTK_CHECK_NULL_XRHANDLE(this->Session, "vtkOpenXRManager::WaitAndBeginFrame, Session");
 
   // Wait frame
