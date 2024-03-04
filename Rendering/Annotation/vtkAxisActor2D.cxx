@@ -345,34 +345,50 @@ double vtkAxisActor2D::GetAxisAngle(vtkViewport* viewport)
 //------------------------------------------------------------------------------
 void vtkAxisActor2D::UpdateTicksValueAndPosition(vtkViewport* viewport)
 {
-  // Sum of all the ticks: minor and majors. Contains the start and end ticks.
-  int totalNumberOfTicks = (this->AdjustedNumberOfLabels - 1) * (this->NumberOfMinorTicks + 1) + 1;
-  double viewportAxisLength = this->GetViewportAxisLength(viewport);
-  // Distance between each minor tick.
-  double distance;
-  if (this->RulerMode)
-  {
-    double viewportRulerDistance = this->GetViewportRulerDistance(viewport);
-    distance = viewportRulerDistance / (this->NumberOfMinorTicks + 1);
-  }
-  else
-  {
-    distance = viewportAxisLength / (totalNumberOfTicks - 1);
-  }
+  // viewport distances
+  const double viewportAxisLength = this->GetViewportAxisLength(viewport);
+  const double viewportRulerDistance = this->GetViewportRulerDistance(viewport);
+
+  // normalized on axis size.
+  const double majorLengthRatio = this->RulerMode ? viewportRulerDistance / viewportAxisLength
+                                                  : 1. / (this->AdjustedNumberOfLabels - 1);
+  const double minorLengthRatio = majorLengthRatio / (this->NumberOfMinorTicks + 1);
+
+  // values (in `Range` unit)
+  const double majorDelta = (this->AdjustedRange[1] - this->AdjustedRange[0]) * majorLengthRatio;
+  const double minorDelta = (this->AdjustedRange[1] - this->AdjustedRange[0]) * minorLengthRatio;
+
+  // factor for Range to Axis normalized value conversion.
+  const double scale = 1. / (this->Range[1] - this->Range[0]);
 
   this->TickValues.clear();
   this->NormalizedTickPositions.clear();
-  for (int tick = 0; tick < totalNumberOfTicks; tick++)
-  {
-    double pos = distance * tick / viewportAxisLength;
-    pos = vtkMath::ClampValue(pos, 0., 1.);
-    this->NormalizedTickPositions.push_back(pos);
 
-    if (tick % (this->NumberOfMinorTicks + 1) == 0)
+  const double minValue = std::min(this->Range[0], this->Range[1]);
+  const double maxValue = std::max(this->Range[0], this->Range[1]);
+
+  for (int major = 0; major < this->AdjustedNumberOfLabels; major++)
+  {
+    double value = this->AdjustedRange[0] + major * majorDelta;
+    double position = (value - this->Range[0]) * scale;
+
+    if (position < 0 || value < minValue || position > 1 || value > maxValue)
     {
-      double value =
-        this->AdjustedRange[0] + pos * (this->AdjustedRange[1] - this->AdjustedRange[0]);
-      this->TickValues.push_back(value);
+      continue;
+    }
+
+    this->NormalizedTickPositions.push_back(position);
+    this->TickValues.push_back(value);
+
+    for (int minor = 1; minor <= this->NumberOfMinorTicks; minor++)
+    {
+      value = value + minor * minorDelta;
+      position = (value - this->Range[0]) * scale;
+      if (position > 1)
+      {
+        continue;
+      }
+      this->NormalizedTickPositions.push_back(position);
     }
   }
 
