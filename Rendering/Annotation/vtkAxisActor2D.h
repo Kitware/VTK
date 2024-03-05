@@ -174,20 +174,51 @@ public:
 
   ///@{
   /**
+   * Set/Get if the labels and ticks should be snapped to
+   * match rounded values. It updates `AdjustedRange`
+   *
+   * It differs from `AdjustLabels` in that takes NumberOfLabels into account
+   * and try to produce the nearest count of labels.
+   * When SnapLabelsToGrid is on, `AdjustLabels` is ignored.
+   *
+   * When `AdjustedRange` is larger than `Range`, some ticks may be
+   * outside of `Range`. They are not displayed.
+   *
+   * Default is false.
+   *
+   * see GetAdjustedRange, GetAdjustedNumberOfLabels
+   */
+  vtkSetMacro(SnapLabelsToGrid, bool);
+  vtkGetMacro(SnapLabelsToGrid, bool);
+  vtkBooleanMacro(SnapLabelsToGrid, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the flag that controls whether the labels and ticks are
    * adjusted for "nice" numerical values to make it easier to read
-   * the labels. The adjustment is based in the Range instance variable.
-   * Call GetAdjustedRange and GetAdjustedNumberOfLabels to get the adjusted
-   * range and number of labels. Note that if RulerMode is on, then the
-   * number of labels is a function of the range and ruler distance.
+   * the labels.
    *
-   * Note: as it modifies the display text and not any actual position,
-   * you should probably not use this mode when displaying distance
-   * or coordinates, as they will be wrong.
+   * When on (default), the `Range` is sligthly modified (see `AdjustedRange`),
+   * and it creates `AdjustedNumberOfLabels` ticks.
+   * When `AdjustedRange` is larger than `Range`, some ticks may be
+   * outside of `Range`. They are not displayed.
+   *
+   * Default is true.
+   * This is ignored if SnapLabelsToGrid is true. Please prefer SnapLabelsToGrid.
+   *
+   * see GetAdjustedRange, GetAdjustedNumberOfLabels
    */
   vtkSetMacro(AdjustLabels, vtkTypeBool);
   vtkGetMacro(AdjustLabels, vtkTypeBool);
   vtkBooleanMacro(AdjustLabels, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Get the axis range adjusted for nice tick values.
+   * If AdjustLabels is OFF and SnapLabelsToGrid is off, this is equivalent to Range.
+   */
   virtual double* GetAdjustedRange()
   {
     this->UpdateAdjustedRange();
@@ -200,12 +231,16 @@ public:
     _arg2 = this->AdjustedRange[1];
   }
   virtual void GetAdjustedRange(double _arg[2]) { this->GetAdjustedRange(_arg[0], _arg[1]); }
+  ///@}
+
+  /**
+   * Get the number of labels
+   */
   virtual int GetAdjustedNumberOfLabels()
   {
     this->UpdateAdjustedRange();
     return this->AdjustedNumberOfLabels;
   }
-  ///@}
 
   /**
    * Return the positions of ticks along the axis
@@ -540,6 +575,8 @@ private:
   // tick position in axis, normalized on axis length.
   std::vector<double> NormalizedTickPositions;
   std::vector<double> TickValues;
+
+  bool SnapLabelsToGrid = false;
 };
 
 VTK_ABI_NAMESPACE_END

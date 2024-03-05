@@ -98,6 +98,7 @@ bool TestAdjustLabels()
   vtkNew<vtkAxisActor2DMock> axis;
   vtkNew<vtkRenderWindow> window;
   SetupPipeline(axis, window);
+  axis->SnapLabelsToGridOn();
   axis->SetNotation(vtkNumberToString::Fixed);
   axis->SetPrecision(2);
   axis->SetRange(0, 1.);

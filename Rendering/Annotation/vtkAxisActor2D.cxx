@@ -24,7 +24,279 @@ vtkStandardNewMacro(vtkAxisActor2D);
 vtkCxxSetObjectMacro(vtkAxisActor2D, LabelTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkAxisActor2D, TitleTextProperty, vtkTextProperty);
 
-static constexpr int MAX_FONT_SIZE = 1000;
+namespace legacy
+{
+// this is a helper function that computes some useful functions
+// for an axis. It returns the number of ticks
+static int vtkAxisActor2DComputeTicks(double sRange[2], double& interval, double& root)
+{
+  // first we try assuming the first value is reasonable
+  int numTicks;
+  double range = fabs(sRange[1] - sRange[0]);
+  int rootPower = static_cast<int>(floor(log10(range) - 1));
+  root = pow(10.0, rootPower);
+  // val will be between 10 and 100 inclusive of 10 but not 100
+  double val = range / root;
+  // first we check for an exact match
+  for (numTicks = 5; numTicks < 9; ++numTicks)
+  {
+    if (fabs(val / (numTicks - 1.0) - floor(val / (numTicks - 1.0))) < .0001)
+    {
+      interval = val * root / (numTicks - 1.0);
+      return numTicks;
+    }
+  }
+
+  // if there isn't an exact match find a reasonable value
+  int newIntScale = 10;
+  if (val > 10)
+  {
+    newIntScale = 12;
+  }
+  if (val > 12)
+  {
+    newIntScale = 15;
+  }
+  if (val > 15)
+  {
+    newIntScale = 18;
+  }
+  if (val > 18)
+  {
+    newIntScale = 20;
+  }
+  if (val > 20)
+  {
+    newIntScale = 25;
+  }
+  if (val > 25)
+  {
+    newIntScale = 30;
+  }
+  if (val > 30)
+  {
+    newIntScale = 40;
+  }
+  if (val > 40)
+  {
+    newIntScale = 50;
+  }
+  if (val > 50)
+  {
+    newIntScale = 60;
+  }
+  if (val > 60)
+  {
+    newIntScale = 70;
+  }
+  if (val > 70)
+  {
+    newIntScale = 80;
+  }
+  if (val > 80)
+  {
+    newIntScale = 90;
+  }
+  if (val > 90)
+  {
+    newIntScale = 100;
+  }
+
+  // how many ticks should we have
+  switch (newIntScale)
+  {
+    case 12:
+    case 20:
+    case 40:
+    case 80:
+      numTicks = 5;
+      break;
+    case 18:
+    case 30:
+    case 60:
+    case 90:
+      numTicks = 7;
+      break;
+    case 10:
+    case 15:
+    case 25:
+    case 50:
+    case 100:
+      numTicks = 6;
+      break;
+    case 70:
+      numTicks = 8;
+      break;
+  }
+
+  interval = newIntScale * root / (numTicks - 1.0);
+  return numTicks;
+}
+
+void ComputeRange(double inRange[2], double outRange[2], int& numTicks, double& interval)
+{
+  // Handle the range
+  double sRange[2];
+  if (inRange[0] < inRange[1])
+  {
+    sRange[0] = inRange[0];
+    sRange[1] = inRange[1];
+  }
+  else if (inRange[0] > inRange[1])
+  {
+    sRange[1] = inRange[0];
+    sRange[0] = inRange[1];
+  }
+  else // they're equal, so perturb them by 1 percent
+  {
+    double perturb = 100.;
+    if (inRange[0] == 0.0)
+    { // if they are both zero, then just perturb about zero
+      sRange[0] = -1 / perturb;
+      sRange[1] = 1 / perturb;
+    }
+    else
+    {
+      sRange[0] = inRange[0] - inRange[0] / perturb;
+      sRange[1] = inRange[0] + inRange[0] / perturb;
+    }
+  }
+
+  double root;
+  numTicks = vtkAxisActor2DComputeTicks(sRange, interval, root);
+
+  // is the starting point reasonable?
+  if (fabs(sRange[0] / root - floor(sRange[0] / root)) < 0.01)
+  {
+    outRange[0] = sRange[0];
+    outRange[1] = outRange[0] + (numTicks - 1.0) * interval;
+  }
+  else
+  {
+    // OK the starting point is not a good number, so we must widen the range
+    // First see if the current range will handle moving the start point
+    outRange[0] = floor(sRange[0] / root) * root;
+    if (outRange[0] + (numTicks - 1.0) * interval <= sRange[1])
+    {
+      outRange[1] = outRange[0] + (numTicks - 1.0) * interval;
+    }
+    else
+    {
+      // Finally in this case we must switch to a larger range to
+      // have reasonable starting and ending values
+      sRange[0] = outRange[0];
+      numTicks = vtkAxisActor2DComputeTicks(sRange, interval, root);
+      outRange[1] = outRange[0] + (numTicks - 1.0) * interval;
+    }
+  }
+
+  // Adjust if necessary
+  if (inRange[0] > inRange[1])
+  {
+    sRange[0] = outRange[1];
+    outRange[1] = outRange[0];
+    outRange[0] = sRange[0];
+    interval = -interval;
+  }
+}
+}
+
+namespace details
+{
+constexpr int MAX_FONT_SIZE = 1000;
+
+constexpr std::array<int, 13> ACCEPTABLE_LABELS = { 10, 12, 15, 18, 20, 25, 30, 40, 50, 60, 80, 90,
+  100 };
+
+/**
+ * Compute an interval that split range depending on targetedNumTicks,
+ * while beeing "rounded" for nice display. Actually, we snap the labels
+ * to be one of the following, multiply by a power of ten:
+ * [10, 12, 15, 18, 20, 25, 30, 40, 50, 60, 80, 90]
+ * (see ACCEPTABLE_LABELS)
+ *
+ * Return the computed number of ticks, that may differ from the target.
+ */
+int SnapTicksToRoundValues(double range[2], int targetedNumTicks, double& interval)
+{
+  double delta = std::fabs(range[1] - range[0]);
+  double roughInterval = delta / targetedNumTicks;
+
+  // get order of magnitude of the range
+  int rootPower = static_cast<int>(floor(log10(roughInterval) - 1));
+  double root = pow(10.0, rootPower);
+
+  // roundedInterval will be between 10 and 100 inclusive of 10 but not 100
+  // and has 2 significant digits
+  int roundedInterval = roughInterval / root;
+
+  auto resulting =
+    std::lower_bound(ACCEPTABLE_LABELS.begin(), ACCEPTABLE_LABELS.end(), roundedInterval);
+  if (resulting != ACCEPTABLE_LABELS.end())
+  {
+    roundedInterval = *resulting;
+  }
+
+  // scale back rounded interval to actual range
+  interval = roundedInterval * root;
+  int numTicks = (delta / interval) + 1;
+
+  return numTicks;
+}
+
+/**
+ * Update Range, so outRange can be split into `numberOfTick`
+ * rounded values, including bounds.
+ *
+ * @see SnapTicksToRoundValues
+ */
+void AdjustAndSplitRange(double inRange[2], int inNumTicks, double outRange[2], int& numberOfTicks)
+{
+  // Handle the range
+  double sRange[2];
+  if (inRange[0] < inRange[1])
+  {
+    sRange[0] = inRange[0];
+    sRange[1] = inRange[1];
+  }
+  else if (inRange[0] > inRange[1])
+  {
+    sRange[1] = inRange[0];
+    sRange[0] = inRange[1];
+  }
+  else // they're equal, so perturb them by 1 percent
+  {
+    double perturb = 100.;
+    if (inRange[0] == 0.0)
+    { // if they are both zero, then just perturb about zero
+      sRange[0] = -1 / perturb;
+      sRange[1] = 1 / perturb;
+    }
+    else
+    {
+      sRange[0] = inRange[0] - inRange[0] / perturb;
+      sRange[1] = inRange[0] + inRange[0] / perturb;
+    }
+  }
+
+  double interval;
+  numberOfTicks = details::SnapTicksToRoundValues(sRange, inNumTicks, interval);
+
+  // round range to start on a multiple of Interval.
+  outRange[0] = static_cast<int>(sRange[0] / interval) * interval;
+  outRange[1] = outRange[0] + (numberOfTicks - 1) * interval;
+
+  // Adjust if necessary
+  if (inRange[0] > inRange[1])
+  {
+    sRange[0] = outRange[1];
+    outRange[1] = outRange[0];
+    outRange[0] = sRange[0];
+    interval = -interval;
+  }
+}
+
+};
 
 //------------------------------------------------------------------------------
 // Instantiate this object.
@@ -229,6 +501,7 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tick Offset: " << this->TickOffset << "\n";
 
   os << indent << "Adjust Labels: " << (this->AdjustLabels ? "On\n" : "Off\n");
+  os << indent << "Snap Labels To Grid: " << (this->SnapLabelsToGrid ? "On\n" : "Off\n");
 
   os << indent << "Axis Visibility: " << (this->AxisVisibility ? "On\n" : "Off\n");
   os << indent << "Tick Visibility: " << (this->TickVisibility ? "On\n" : "Off\n");
@@ -573,7 +846,7 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
       }
       else
       {
-        int minFontSize = MAX_FONT_SIZE;
+        int minFontSize = details::MAX_FONT_SIZE;
         int fontSize;
         int minLabel = 0;
         for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
@@ -762,7 +1035,12 @@ void vtkAxisActor2D::UpdateAdjustedRange()
     return;
   }
 
-  if (this->AdjustLabels)
+  if (this->SnapLabelsToGrid)
+  {
+    details::AdjustAndSplitRange(
+      this->Range, this->NumberOfLabels, this->AdjustedRange, this->AdjustedNumberOfLabels);
+  }
+  else if (this->AdjustLabels)
   {
     double interval;
     vtkAxisActor2D::ComputeRange(this->Range, this->AdjustedRange, this->NumberOfLabels,
@@ -802,185 +1080,11 @@ void vtkAxisActor2D::UpdateAdjustedRange()
   this->AdjustedRangeBuildTime.Modified();
 }
 
-// this is a helper function that computes some useful functions
-// for an axis. It returns the number of ticks
-static int vtkAxisActor2DComputeTicks(double sRange[2], double& interval, double& root)
-{
-  // first we try assuming the first value is reasonable
-  int numTicks;
-  double range = fabs(sRange[1] - sRange[0]);
-  int rootPower = static_cast<int>(floor(log10(range) - 1));
-  root = pow(10.0, rootPower);
-  // val will be between 10 and 100 inclusive of 10 but not 100
-  double val = range / root;
-  // first we check for an exact match
-  for (numTicks = 5; numTicks < 9; ++numTicks)
-  {
-    if (fabs(val / (numTicks - 1.0) - floor(val / (numTicks - 1.0))) < .0001)
-    {
-      interval = val * root / (numTicks - 1.0);
-      return numTicks;
-    }
-  }
-
-  // if there isn't an exact match find a reasonable value
-  int newIntScale = 10;
-  if (val > 10)
-  {
-    newIntScale = 12;
-  }
-  if (val > 12)
-  {
-    newIntScale = 15;
-  }
-  if (val > 15)
-  {
-    newIntScale = 18;
-  }
-  if (val > 18)
-  {
-    newIntScale = 20;
-  }
-  if (val > 20)
-  {
-    newIntScale = 25;
-  }
-  if (val > 25)
-  {
-    newIntScale = 30;
-  }
-  if (val > 30)
-  {
-    newIntScale = 40;
-  }
-  if (val > 40)
-  {
-    newIntScale = 50;
-  }
-  if (val > 50)
-  {
-    newIntScale = 60;
-  }
-  if (val > 60)
-  {
-    newIntScale = 70;
-  }
-  if (val > 70)
-  {
-    newIntScale = 80;
-  }
-  if (val > 80)
-  {
-    newIntScale = 90;
-  }
-  if (val > 90)
-  {
-    newIntScale = 100;
-  }
-
-  // how many ticks should we have
-  switch (newIntScale)
-  {
-    case 12:
-    case 20:
-    case 40:
-    case 80:
-      numTicks = 5;
-      break;
-    case 18:
-    case 30:
-    case 60:
-    case 90:
-      numTicks = 7;
-      break;
-    case 10:
-    case 15:
-    case 25:
-    case 50:
-    case 100:
-      numTicks = 6;
-      break;
-    case 70:
-      numTicks = 8;
-      break;
-  }
-
-  interval = newIntScale * root / (numTicks - 1.0);
-  return numTicks;
-}
-
 //------------------------------------------------------------------------------
-// this method takes an initial range and an initial number of ticks and then
-// computes a final range and number of ticks so that two properties are
-// satisfied. First the final range includes at least the initial range, and
-// second the final range divided by the number of ticks (minus one) will be a
-// reasonable interval
 void vtkAxisActor2D::ComputeRange(double inRange[2], double outRange[2], int vtkNotUsed(inNumTicks),
   int& numTicks, double& interval)
 {
-  // Handle the range
-  double sRange[2];
-  if (inRange[0] < inRange[1])
-  {
-    sRange[0] = inRange[0];
-    sRange[1] = inRange[1];
-  }
-  else if (inRange[0] > inRange[1])
-  {
-    sRange[1] = inRange[0];
-    sRange[0] = inRange[1];
-  }
-  else // they're equal, so perturb them by 1 percent
-  {
-    double perturb = 100.;
-    if (inRange[0] == 0.0)
-    { // if they are both zero, then just perturb about zero
-      sRange[0] = -1 / perturb;
-      sRange[1] = 1 / perturb;
-    }
-    else
-    {
-      sRange[0] = inRange[0] - inRange[0] / perturb;
-      sRange[1] = inRange[0] + inRange[0] / perturb;
-    }
-  }
-
-  double root;
-  numTicks = vtkAxisActor2DComputeTicks(sRange, interval, root);
-
-  // is the starting point reasonable?
-  if (fabs(sRange[0] / root - floor(sRange[0] / root)) < 0.01)
-  {
-    outRange[0] = sRange[0];
-    outRange[1] = outRange[0] + (numTicks - 1.0) * interval;
-  }
-  else
-  {
-    // OK the starting point is not a good number, so we must widen the range
-    // First see if the current range will handle moving the start point
-    outRange[0] = floor(sRange[0] / root) * root;
-    if (outRange[0] + (numTicks - 1.0) * interval <= sRange[1])
-    {
-      outRange[1] = outRange[0] + (numTicks - 1.0) * interval;
-    }
-    else
-    {
-      // Finally in this case we must switch to a larger range to
-      // have reasonable starting and ending values
-      sRange[0] = outRange[0];
-      numTicks = vtkAxisActor2DComputeTicks(sRange, interval, root);
-      outRange[1] = outRange[0] + (numTicks - 1.0) * interval;
-    }
-  }
-
-  // Adjust if necessary
-  if (inRange[0] > inRange[1])
-  {
-    sRange[0] = outRange[1];
-    outRange[1] = outRange[0];
-    outRange[0] = sRange[0];
-    interval = -interval;
-  }
+  legacy::ComputeRange(inRange, outRange, numTicks, interval);
 }
 
 //------------------------------------------------------------------------------
@@ -1023,6 +1127,7 @@ void vtkAxisActor2D::ShallowCopy(vtkProp* prop)
     this->SetNumberOfLabels(a->GetNumberOfLabels());
     this->SetLabelFormat(a->GetLabelFormat());
     this->SetAdjustLabels(a->GetAdjustLabels());
+    this->SetSnapLabelsToGrid(a->GetSnapLabelsToGrid());
     this->SetTitle(a->GetTitle());
     this->SetTickLength(a->GetTickLength());
     this->SetTickOffset(a->GetTickOffset());
