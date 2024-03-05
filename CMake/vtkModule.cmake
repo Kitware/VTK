@@ -3794,7 +3794,7 @@ function (_vtk_module_add_file_set target)
 
   if ((DEFINED _vtk_build_USE_FILE_SETS AND NOT _vtk_build_USE_FILE_SETS) OR
       CMAKE_VERSION VERSION_LESS "3.23")
-    # XXX(cmake-3.19): Using a non-`INTERACE` `FILE_SET`s with `INTERFACE`
+    # XXX(cmake-3.19): Using a non-`INTERFACE` `FILE_SET`s with `INTERFACE`
     # targets was added in CMake 3.19.
     if (CMAKE_VERSION VERSION_LESS "3.19")
       get_property(_vtk_add_file_set_type
