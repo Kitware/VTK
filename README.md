@@ -90,7 +90,7 @@ See [Copyright.txt][vtk-copyright] for details.
 [kitware]: https://www.kitware.com/
 [kitware-support]: https://www.kitware.com/support/
 [vtk-banner]: vtkBanner.gif
-[vtk-build]: Documentation/dev/build.md#building-vtk
+[vtk-build]: Documentation/docs/build_instructions/build.md
 [vtk-contributing]: CONTRIBUTING.md#contributing-to-vtk
 [vtk-copyright]: Copyright.txt
 [vtk-discourse]: https://discourse.vtk.org/
