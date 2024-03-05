@@ -935,11 +935,10 @@ void vtkExtractSelection::ExtractSelectedCells(
     // convert insideness array to cell ids to extract.
     vtkNew<vtkIdList> ids;
     ids->Allocate(numCells);
-    vtkDataArray* ghostArray = nullptr;
-    ghostArray = input->GetCellGhostArray();
+    vtkUnsignedCharArray* ghostArray = input->GetCellGhostArray();
     for (vtkIdType cc = 0; cc < numCells; ++cc)
     {
-      if (ghostArray && ghostArray->GetVariantValue(cc) == vtkDataSetAttributes::HIDDENCELL)
+      if (ghostArray && ghostArray->GetValue(cc) == vtkDataSetAttributes::HIDDENCELL)
       {
         // skip this cell
         continue;
@@ -988,11 +987,10 @@ void vtkExtractSelection::ExtractSelectedPoints(
     }
     vtkNew<vtkIdList> ids;
     ids->Allocate(numPts);
-    vtkDataArray* ghostArray = nullptr;
-    ghostArray = input->GetPointGhostArray();
+    vtkUnsignedCharArray* ghostArray = input->GetPointGhostArray();
     for (vtkIdType cc = 0; cc < numPts; ++cc)
     {
-      if (ghostArray && ghostArray->GetVariantValue(cc) == vtkDataSetAttributes::HIDDENPOINT)
+      if (ghostArray && ghostArray->GetValue(cc) == vtkDataSetAttributes::HIDDENPOINT)
       {
         // skip this point
         continue;
