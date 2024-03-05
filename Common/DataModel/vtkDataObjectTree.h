@@ -141,6 +141,29 @@ public:
    */
   vtkIdType GetNumberOfCells() override;
 
+  /**
+   * Get the number of children.
+   */
+  unsigned int GetNumberOfChildren();
+
+  /**
+   * Returns a child dataset at a given index.
+   */
+  vtkDataObject* GetChild(unsigned int index);
+
+  /**
+   * Returns the meta-data at a given index. If the index is valid, however, no
+   * information object is set, then a new one will created and returned.
+   * To avoid unnecessary creation, use HasMetaData().
+   */
+  vtkInformation* GetChildMetaData(unsigned int index);
+
+  /**
+   * Returns if meta-data information is available for the given child index.
+   * Returns 1 is present, 0 otherwise.
+   */
+  vtkTypeBool HasChildMetaData(unsigned int index);
+
   ///@{
   /**
    * Retrieve an instance of this class from an information object.
@@ -164,11 +187,6 @@ protected:
   void SetNumberOfChildren(unsigned int num);
 
   /**
-   * Get the number of children.
-   */
-  unsigned int GetNumberOfChildren();
-
-  /**
    * Set child dataset at a given index. The number of children is adjusted to
    * to be greater than the index specified.
    */
@@ -180,27 +198,9 @@ protected:
   void RemoveChild(unsigned int index);
 
   /**
-   * Returns a child dataset at a given index.
-   */
-  vtkDataObject* GetChild(unsigned int index);
-
-  /**
-   * Returns the meta-data at a given index. If the index is valid, however, no
-   * information object is set, then a new one will created and returned.
-   * To avoid unnecessary creation, use HasMetaData().
-   */
-  vtkInformation* GetChildMetaData(unsigned int index);
-
-  /**
    * Sets the meta-data at a given index.
    */
   void SetChildMetaData(unsigned int index, vtkInformation* info);
-
-  /**
-   * Returns if meta-data information is available for the given child index.
-   * Returns 1 is present, 0 otherwise.
-   */
-  vtkTypeBool HasChildMetaData(unsigned int index);
 
   /**
    * When copying structure from another vtkDataObjectTree, this method gets

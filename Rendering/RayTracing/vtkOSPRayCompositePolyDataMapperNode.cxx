@@ -5,13 +5,11 @@
 #include "vtkActor.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePolyDataMapper.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkMultiPieceDataSet.h"
+#include "vtkDataObjectTree.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
 //============================================================================
@@ -147,26 +145,22 @@ void vtkOSPRayCompositePolyDataMapperNode::RenderBlock(vtkOSPRayRendererNode* or
     this->BlockState.Material.push(material);
   }
 
-  // Advance flat-index. After this point, flat_index no longer points to this
-  // block.
+  // Advance flat-index. After this point, flat_index no longer points to this block.
   flat_index++;
 
-  vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
-  vtkMultiPieceDataSet* mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
-  if (mbds || mpds)
+  if (auto dataObjTree = vtkDataObjectTree::SafeDownCast(dobj))
   {
-    unsigned int numChildren = mbds ? mbds->GetNumberOfBlocks() : mpds->GetNumberOfPieces();
-    for (unsigned int cc = 0; cc < numChildren; cc++)
+    for (unsigned int i = 0, numChildren = dataObjTree->GetNumberOfChildren(); i < numChildren; ++i)
     {
-      vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
-      if (child == nullptr)
+      if (auto child = dataObjTree->GetChild(i))
       {
-        // speeds things up when dealing with nullptr blocks (which is common with
-        // AMRs).
-        flat_index++;
-        continue;
+        this->RenderBlock(orn, cpdm, actor, child, flat_index);
       }
-      this->RenderBlock(orn, cpdm, actor, child, flat_index);
+      else
+      {
+        // speeds things up when dealing with nullptr blocks (which is common with AMRs).
+        flat_index++;
+      }
     }
   }
   else if (dobj && this->BlockState.Visibility.top() == true &&
