@@ -20,3 +20,5 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
   VTK::ParallelCore
   VTK::vtksys
+OPTIONAL_DEPENDS
+  VTK::ParallelMPI
