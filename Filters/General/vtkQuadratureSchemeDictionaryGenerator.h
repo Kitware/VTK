@@ -19,6 +19,7 @@
 #define vtkQuadratureSchemeDictionaryGenerator_h
 
 #include "vtkDataSetAlgorithm.h"
+#include "vtkDeprecation.h"          // For deprecation
 #include "vtkFiltersGeneralModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -35,8 +36,6 @@ public:
   static vtkQuadratureSchemeDictionaryGenerator* New();
 
 protected:
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-  int FillOutputPortInformation(int port, vtkInformation* info) override;
   int RequestData(
     vtkInformation* req, vtkInformationVector** input, vtkInformationVector* output) override;
   vtkQuadratureSchemeDictionaryGenerator();
@@ -52,6 +51,8 @@ private:
    * input data set. The same definition will be used
    * for all point data arrays.
    */
+  int Generate(vtkDataSet* usgOut);
+  VTK_DEPRECATED_IN_9_4_0("Uses the vtkDataSet version instead.")
   int Generate(vtkUnstructuredGrid* usgOut);
   ///@}
 };
