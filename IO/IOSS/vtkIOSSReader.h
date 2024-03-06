@@ -265,7 +265,18 @@ public:
 
   ///@{
   /**
-   * When this flag is on, blocks/sets of like exodus types will be merged.
+   * When this flag is on, caching of data across time-steps is enabled.
+   *
+   * This flag is false/off by default.
+   */
+  void SetCaching(bool value);
+  vtkGetMacro(Caching, bool);
+  vtkBooleanMacro(Caching, bool);
+  ///@}
+
+  ///@{
+  /**
+   * When this flag is on, blocks/sets of exodus like types will be merged.
    *
    * Note: This flag is ignored for non-exodus data.
    */
@@ -646,6 +657,7 @@ private:
   vtkNew<vtkStringArray> EntityIdMapStrings[NUMBER_OF_ENTITY_TYPES + 1];
 
   vtkMultiProcessController* Controller;
+  bool Caching;
   bool MergeExodusEntityBlocks;
   bool ElementAndSideIds;
   bool GenerateFileId;

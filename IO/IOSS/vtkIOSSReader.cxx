@@ -4,21 +4,16 @@
 #include "vtkIOSSFilesScanner.h"
 #include "vtkIOSSUtilities.h"
 
-#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataSet.h"
 #include "vtkExtractGrid.h"
-#include "vtkHexahedron.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkLagrangeHexahedron.h"
-#include "vtkLagrangeInterpolation.h"
-#include "vtkLagrangeQuadrilateral.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
@@ -27,13 +22,11 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
-#include "vtkQuad.h"
 #include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
-#include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
@@ -73,12 +66,12 @@
 #include <utility>
 
 VTK_ABI_NAMESPACE_BEGIN
-struct DatabaseParitionInfo
+struct DatabasePartitionInfo
 {
   int ProcessCount = 0;
   std::set<int> Ranks;
 
-  bool operator==(const DatabaseParitionInfo& other) const
+  bool operator==(const DatabasePartitionInfo& other) const
   {
     return this->ProcessCount == other.ProcessCount && this->Ranks == other.Ranks;
   }
@@ -184,7 +177,7 @@ class vtkIOSSReader::vtkInternals
 
   double DisplacementMagnitude = 1.;
 
-  using DatabaseNamesType = std::map<std::string, DatabaseParitionInfo>;
+  using DatabaseNamesType = std::map<std::string, DatabasePartitionInfo>;
   DatabaseNamesType UnfilteredDatabaseNames;
   DatabaseNamesType DatabaseNames;
   vtkTimeStamp DatabaseNamesMTime;
@@ -235,20 +228,7 @@ public:
    */
   void ClearCache() { this->Cache.Clear(); }
   void ResetCacheAccessCounts() { this->Cache.ResetAccessCounts(); }
-  void ClearCacheUnused()
-  {
-    switch (this->Format)
-    {
-      case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
-        // For Catalyst, we don't want to hold on to the cache for longer than
-        // the RequestData pass. For we clear it entirely here.
-        this->Cache.Clear();
-        break;
-      default:
-        this->Cache.ClearUnused();
-        break;
-    }
-  }
+  void ClearCacheUnused() { this->Cache.ClearUnused(); }
   ///@}
 
   /**
@@ -815,7 +795,7 @@ bool vtkIOSSReader::vtkInternals::UpdateDatabaseNames(vtkIOSSReader* self)
     }
     else
     {
-      databases.insert(std::make_pair(fname, DatabaseParitionInfo()));
+      databases.insert(std::make_pair(fname, DatabasePartitionInfo()));
     }
   }
 
@@ -999,7 +979,7 @@ bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* 
   const auto rank = controller ? controller->GetLocalProcessId() : 0;
   const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
 
-  // This has to be done all all ranks since not all files in a database have
+  // This has to be done all ranks since not all files in a database have
   // all the blocks consequently need not have all the fields.
   std::array<std::set<vtkIOSSUtilities::EntityNameType>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES>
     entity_names;
@@ -1291,7 +1271,7 @@ bool vtkIOSSReader::vtkInternals::GenerateOutput(
     const int entity_node =
       assembly->AddNode(vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(etype));
 
-    // check if we are gonna merge all of the blocks/sets of an entity type into a single one
+    // check if we are going to merge all the blocks/sets of an entity type into a single one
     const bool mergeEntityBlocks =
       this->GetFormat() == vtkIOSSUtilities::DatabaseFormatType::EXODUS &&
       self->GetMergeExodusEntityBlocks();
@@ -2814,6 +2794,7 @@ vtkInformationKeyMacro(vtkIOSSReader, ENTITY_ID, Integer);
 //----------------------------------------------------------------------------
 vtkIOSSReader::vtkIOSSReader()
   : Controller(nullptr)
+  , Caching(false)
   , MergeExodusEntityBlocks(false)
   , ElementAndSideIds(true)
   , GenerateFileId(false)
@@ -2903,6 +2884,17 @@ void vtkIOSSReader::SetScanForRelatedFiles(bool val)
     this->ScanForRelatedFiles = val;
     auto& internals = (*this->Internals);
     internals.FileNamesMTime.Modified();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::SetCaching(bool val)
+{
+  if (this->Caching != val)
+  {
+    this->Internals->ClearCache();
+    this->Caching = val;
     this->Modified();
   }
 }
@@ -3064,13 +3056,13 @@ int vtkIOSSReader::ReadMesh(
     // this should not be necessary. ReadMetaData returns false when
     // `UpdateDatabaseNames` fails. At which point vtkReaderAlgorithm should
     // never call `RequestData` leading to a call to this method. However, it
-    // does, for some reason. Hence adding this check here.
+    // does, for some reason. Hence, adding this check here.
     // ref: paraview/paraview#19951.
     return 0;
   }
 
   // This is the first method that gets called when generating data.
-  // Reset internal cache counters so we can flush fields not accessed.
+  // Reset internal cache counters, so we can flush fields not accessed.
   internals.ResetCacheAccessCounts();
 
   auto collection = vtkPartitionedDataSetCollection::SafeDownCast(output);
@@ -3123,7 +3115,7 @@ int vtkIOSSReader::ReadMesh(
     internals.ReadAssemblies(collection, dbaseHandles[0]);
   }
 
-  // check if we are gonna merge all of the blocks/sets of an entity type into a single one
+  // check if we are going to merge all the blocks/sets of an entity type into a single one
   const bool mergeEntityBlocks =
     internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::EXODUS &&
     this->GetMergeExodusEntityBlocks();
@@ -3238,7 +3230,17 @@ int vtkIOSSReader::ReadMesh(
     }
   }
 
-  internals.ClearCacheUnused();
+  if (!this->GetCaching() ||
+    internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::CATALYST)
+  {
+    // We don't want to hold on to the cache for longer than the RequestData pass.
+    // For we clear it entirely here.
+    internals.ClearCache();
+  }
+  else
+  {
+    internals.ClearCacheUnused();
+  }
   internals.ReleaseRegions();
   return 1;
 }
