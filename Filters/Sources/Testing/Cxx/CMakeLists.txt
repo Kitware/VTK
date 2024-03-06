@@ -42,29 +42,21 @@ vtk_test_cxx_executable(vtkFiltersSourcesCxxTests tests
   )
 
 if(TARGET VTK::ParallelMPI)
-  set(vtkFiltersSourcesCxxTests-MPI_NUMPROCS 1)
-  vtk_add_test_mpi(vtkFiltersSourcesCxxTests-MPI test_1_procs
-    TESTING_DATA
-    TestSpatioTemporalHarmonicsSourceDistributed.cxx
-   )
    set(vtkFiltersSourcesCxxTests-MPI_NUMPROCS 2)
-   vtk_add_test_mpi(vtkFiltersSourcesCxxTests-MPI test_2_procs
-     TestRandomHyperTreeGridSourceDistributed2,TestRandomHyperTreeGridSourceDistributed.cxx
+   vtk_add_test_mpi(vtkFiltersSourcesCxxTests-MPI tests_mpi_2
+     TESTING_DATA
+     TestSpatioTemporalHarmonicsSourceDistributed.cxx
    )
-   set(vtkFiltersSourcesCxxTests-MPI_NUMPROCS 4)
-   vtk_add_test_mpi(vtkFiltersSourcesCxxTests-MPI test_4_procs
-     TestRandomHyperTreeGridSourceDistributed4,TestRandomHyperTreeGridSourceDistributed.cxx
-   )
-   set(vtkFiltersSourcesCxxTests-MPI_NUMPROCS 6)
-   vtk_add_test_mpi(vtkFiltersSourcesCxxTests-MPI test_6_procs
-     TestRandomHyperTreeGridSourceDistributed6,TestRandomHyperTreeGridSourceDistributed.cxx
+   set(vtkFiltersSourcesCxxTests-MPI_NUMPROCS 3)
+   vtk_add_test_mpi(vtkFiltersSourcesCxxTests-MPI tests_mpi_3
+     TESTING_DATA
+     TestRandomHyperTreeGridSourceMPI3,TestRandomHyperTreeGridSourceDistributed.cxx
    )
    set(tests_mpi
-     ${test_1_procs}
-     ${test_2_procs}
-     ${test_4_procs}
-     ${test_6_procs}
+     ${tests_mpi_2}
+     ${tests_mpi_3}
    )
-
-  vtk_test_cxx_executable(vtkFiltersSourcesCxxTests-MPI tests_mpi)
+  vtk_test_cxx_executable(vtkFiltersSourcesCxxTests-MPI tests_mpi
+    RENDERING_FACTORY
+  )
 endif()

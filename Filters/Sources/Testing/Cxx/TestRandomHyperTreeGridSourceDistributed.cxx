@@ -67,9 +67,9 @@ int TestRandomHyperTreeGridSourceDistributed(int argc, char* argv[])
   source->SetMaskedFraction(maskedFraction);
   source->Update();
 
-  if (source->GetMaskedCellProportion() > maskedFraction)
+  if (source->GetActualMaskedCellFraction() > maskedFraction)
   {
-    std::cout << "The masked cell proportion is " << source->GetMaskedCellProportion()
+    std::cout << "The masked cell proportion is " << source->GetActualMaskedCellFraction()
               << " and it should be less or equal than " << maskedFraction << std::endl;
     result = 0;
   }
@@ -92,17 +92,6 @@ int TestRandomHyperTreeGridSourceDistributed(int argc, char* argv[])
 
   renderer->AddActor(actor);
 
-  std::ostringstream labelStr;
-  labelStr << "NumPieces: " << numProcs;
-
-  vtkNew<vtkTextActor> label;
-  label->SetInput(labelStr.str().c_str());
-  label->GetTextProperty()->SetVerticalJustificationToBottom();
-  label->GetTextProperty()->SetJustificationToCentered();
-  label->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
-  label->GetPositionCoordinate()->SetValue(0.5, 0.);
-  renderer->AddActor(label);
-
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Zoom(1.3);
   if (myId == 0)
@@ -113,6 +102,11 @@ int TestRandomHyperTreeGridSourceDistributed(int argc, char* argv[])
     renderer->ResetCameraClippingRange();
 
     renWin->Render();
+    result = vtkRegressionTester::Test(argc, argv, renWin, 10);
+    if (result == vtkRegressionTester::DO_INTERACTOR)
+    {
+      prm->StartInteractor();
+    }
     controller->TriggerBreakRMIs();
   }
   else
@@ -123,5 +117,5 @@ int TestRandomHyperTreeGridSourceDistributed(int argc, char* argv[])
   controller->Broadcast(&result, 1, 0);
 
   controller->Finalize();
-  return result ? EXIT_SUCCESS : EXIT_FAILURE;
+  return result == 1 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

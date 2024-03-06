@@ -32,14 +32,19 @@ bool ConstructScene(vtkRenderer* renderer, int numPieces)
     vtkNew<vtkRandomHyperTreeGridSource> source;
     source->SetDimensions(5, 5, 2); // GridCell 4, 4, 1
     source->SetSeed(371399);
-    source->SetSplitFraction(0.25);
+    source->SetSplitFraction(0.5);
     source->SetMaskedFraction(maskedFraction);
     source->Update();
+    int nbChildrenPerNode = 8; // (branching factor = 2) ^ (dimension = 3)
+    double errorMargin = 1.0 / nbChildrenPerNode;
 
-    if (source->GetMaskedCellProportion() > maskedFraction)
+    // fixed error tolerance
+    if (source->GetActualMaskedCellFraction() > errorMargin + maskedFraction ||
+      source->GetActualMaskedCellFraction() < maskedFraction - errorMargin)
     {
-      std::cout << "The masked cell proportion is " << source->GetMaskedCellProportion()
-                << " and it should be less or equal than " << maskedFraction << std::endl;
+      std::cout << "The masked cell proportion is " << source->GetActualMaskedCellFraction()
+                << " and it should around +/-" << errorMargin << " : " << maskedFraction
+                << std::endl;
       result = false;
     }
 
@@ -70,13 +75,6 @@ bool ConstructScene(vtkRenderer* renderer, int numPieces)
   label->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   label->GetPositionCoordinate()->SetValue(0.5, 0.);
   renderer->AddActor(label);
-
-  /*
-   * Camera is a bit confusing since it shows a 2D plane
-   * while the HTG is actually 3D.
-   */
-  renderer->ResetCamera();
-  renderer->GetActiveCamera()->Zoom(1.3);
   return result;
 }
 
