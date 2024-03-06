@@ -27,8 +27,7 @@ class vtkHyperTreeGridScales
 {
 public:
   /**
-   * JB Construit cette classe a partir du scale de la maille
-   * d'origine d'un HyperTree et du subdivision factor
+   * Build this class from the original scale mesh and subdivision factor
    */
   vtkHyperTreeGridScales(double branchfactor, const double scale[3])
     : BranchFactor(branchfactor)
@@ -39,41 +38,26 @@ public:
 
   ~vtkHyperTreeGridScales() = default;
 
-  /**
-   * JB Retourne le scale des mailles du niveau demande
-   */
   double GetBranchFactor() const { return this->BranchFactor; }
 
-  /**
-   * JB Retourne le scale des mailles du niveau demande
-   */
   double* GetScale(unsigned int level) const
   {
     this->Update(level);
     return this->CellScales.data() + 3 * level;
   }
 
-  /**
-   * JB
-   */
   double GetScaleX(unsigned int level) const
   {
     this->Update(level);
     return this->CellScales[3 * level + 0];
   }
 
-  /**
-   * JB
-   */
   double GetScaleY(unsigned int level) const
   {
     this->Update(level);
     return this->CellScales[3 * level + 1];
   }
 
-  /**
-   * JB
-   */
   double GetScaleZ(unsigned int level) const
   {
     this->Update(level);
@@ -81,7 +65,7 @@ public:
   }
 
   /**
-   * JB Retourne le scale des mailles du niveau demande
+   * Return the mesh scale at the given level
    */
   void GetScale(unsigned int level, double scale[3]) const
   {
@@ -89,9 +73,6 @@ public:
     memcpy(scale, this->CellScales.data() + 3 * level, 3 * sizeof(double));
   }
 
-  /**
-   * JB
-   */
   unsigned int GetCurrentFailLevel() const { return this->CurrentFailLevel; }
 
 private:
@@ -99,9 +80,7 @@ private:
   vtkHyperTreeGridScales& operator=(const vtkHyperTreeGridScales&) = delete;
 
   /**
-   * JB Update the cell scales table afin de repondre que la
-   * table puisse retourner la taille de la maille pour ce niveau
-   * demande
+   * Update the cell scale table in order for the table to return the mesh at the given level.
    */
   void Update(unsigned int level) const
   {

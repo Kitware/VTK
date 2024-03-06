@@ -199,7 +199,7 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
     input->GetCellDims(gridSize);
 
     bool isInit = false;
-    if (this->Dimension == 2) // JB A verifier
+    if (this->Dimension == 2)
     {
       input->Get2DAxes(this->Axis1, this->Axis2);
       isInit = true;
@@ -212,12 +212,9 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
     double bounds[6];
     input->GetBounds(bounds);
 
-    // JB Recupere le branch factor
     int f = input->GetBranchFactor();
 
-    // JB Le calcul qui suit a pour objet de determiner le niveau de parcours en profondeur utile
-    // pour l'affichage
-    // JB en fonction de la distance
+    // Compute the depth-first-search depth for display
     if (isInit)
     {
       // JB Taille Moyenne d'une maille du niveau 0 dans les coordonnees reelles suivant chaque

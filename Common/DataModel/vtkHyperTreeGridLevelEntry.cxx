@@ -25,7 +25,6 @@ vtkHyperTreeGridLevelEntry::vtkHyperTreeGridLevelEntry(
 vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor>
 vtkHyperTreeGridLevelEntry::GetHyperTreeGridNonOrientedCursor(vtkHyperTreeGrid* grid)
 {
-  // JB assert ( "pre: level==0" && this->Level == 0 );
   vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor> cursor =
     vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor>::New();
   cursor->Initialize(grid, this->GetTree(), this->Level, this->Index);
@@ -61,9 +60,6 @@ vtkHyperTree* vtkHyperTreeGridLevelEntry::Initialize(
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridLevelEntry::GetGlobalNodeIndex() const
 {
-  // JB BAD assert( "pre: not_tree" &&
-  //     JB BAD     this->Tree );
-  // Pourquoi ceci juste dans cette fonction entry ?
   if (this->Tree)
   {
     return this->Tree->GetGlobalIndexFromLocal(this->Index);
@@ -89,14 +85,12 @@ void vtkHyperTreeGridLevelEntry::SetGlobalIndexFromLocal(vtkIdType index)
 void vtkHyperTreeGridLevelEntry::SetMask(const vtkHyperTreeGrid* grid, bool value)
 {
   assert("pre: not_tree" && this->Tree);
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
   const_cast<vtkHyperTreeGrid*>(grid)->GetMask()->InsertTuple1(this->GetGlobalNodeIndex(), value);
 }
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridLevelEntry::IsMasked(const vtkHyperTreeGrid* grid) const
 {
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
   if (this->Tree && const_cast<vtkHyperTreeGrid*>(grid)->HasMask())
   {
     return const_cast<vtkHyperTreeGrid*>(grid)->GetMask()->GetValue(this->GetGlobalNodeIndex()) !=
@@ -121,7 +115,6 @@ bool vtkHyperTreeGridLevelEntry::IsLeaf(const vtkHyperTreeGrid* grid) const
 void vtkHyperTreeGridLevelEntry::SubdivideLeaf(const vtkHyperTreeGrid* grid)
 {
   assert("pre: not_tree" && this->Tree);
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
   assert(
     "pre: depth_limiter" && this->Level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
   assert("pre: is_masked" && !this->IsMasked(grid));
@@ -151,7 +144,6 @@ void vtkHyperTreeGridLevelEntry::ToChild(const vtkHyperTreeGrid* grid, unsigned 
   assert("pre: not_tree" && this->Tree);
   assert("pre: not_leaf" && !this->IsLeaf(grid));
   assert("pre: valid_child" && ichild < this->Tree->GetNumberOfChildren());
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
   assert(
     "pre: depth_limiter" && this->Level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
   assert("pre: is_masked" && !this->IsMasked(grid));

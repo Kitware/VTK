@@ -10,9 +10,8 @@
  * following threshold: a cell is considered to be within range if its
  * value for the active scalar is within a specified range (inclusive).
  * The output remains a hyper tree grid.
- * JB Un parametre (JustCreateNewMask=true) permet de ne pas faire
- * le choix de la creation d'un nouveau HTG mais
- * de redefinir juste le masque.
+ * A parameter (JustCreateNewMask) allows to only redefine the mask
+ * and not create a new HTG.
  *
  * @sa
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm vtkThreshold

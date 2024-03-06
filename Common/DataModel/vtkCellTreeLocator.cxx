@@ -502,8 +502,6 @@ private:
           }
         }
 
-        // JB : added if (...) to stop floating point error if rmin is unset
-        // this happens when some buckets are empty (bad volume calc)
         if (lMaxValue != -VTK_DOUBLE_MAX && rMinValue != VTK_DOUBLE_MAX)
         {
           sum += buckets[d][n].Cnt;

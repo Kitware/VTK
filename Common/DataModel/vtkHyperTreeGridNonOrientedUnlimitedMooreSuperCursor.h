@@ -35,7 +35,7 @@ public:
 
   /**
    * Initialize cursor at root of given tree index in grid.
-   * JB Le create ne s'applique que sur le HT central.
+   * "create" only applies to the central HT
    */
   void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false) override;
 
@@ -43,7 +43,6 @@ public:
    * Return the list of cursors pointing to the leaves touching a
    * given corner of the cell.
    * Return whether the considered cell is the owner of said corner.
-   * JB Utilise aujourd'hui dans les filtres vtkHyperTreeGridContour et vtkHyperTreeGridPlaneCutter.
    */
   bool GetCornerCursors(unsigned int, unsigned int, vtkIdList*);
 

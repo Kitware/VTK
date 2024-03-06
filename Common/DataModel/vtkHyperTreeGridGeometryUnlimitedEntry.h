@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTreeGridGeometryUnlimitedEntry
-JB
  * @brief   GeometryUnlimitedEntry is a cache data for cursors requiring coordinates
  *
  * cf. vtkHyperTreeGridEntry

@@ -83,7 +83,6 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::SetGlobalIndexFromLocal(vtkIdT
 void vtkHyperTreeGridGeometryUnlimitedLevelEntry::SetMask(const vtkHyperTreeGrid* grid, bool value)
 {
   assert("pre: not_tree" && this->Tree);
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
   const_cast<vtkHyperTreeGrid*>(grid)->GetMask()->InsertTuple1(this->GetGlobalNodeIndex(), value);
 }
 
@@ -95,7 +94,6 @@ bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsMasked(const vtkHyperTreeGri
     return const_cast<vtkHyperTreeGrid*>(grid)->GetMask()->GetValue(this->GetGlobalNodeIndex()) !=
       0;
   }
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
   return false;
 }
 

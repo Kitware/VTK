@@ -32,7 +32,6 @@ void vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::Initialize(
   }
   assert("pre: Non_same_grid" && this->Grid == grid);
 
-  // JB Initialize caracteristique
   switch (grid->GetNumberOfChildren())
   {
     case 2:
@@ -91,7 +90,6 @@ void vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::Initialize(
     }
   } // switch Dimension
 
-  // JB Pour le niveau zero tout est defini
   this->CentralCursor->Initialize(grid, treeIndex, create);
   //
   this->CurrentFirstNonValidEntryByLevel = 0;
@@ -107,7 +105,6 @@ void vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::Initialize(
     isOld = false;
     this->Entries.resize(this->FirstNonValidEntryByLevel[this->CurrentFirstNonValidEntryByLevel]);
   }
-  // JB Pour le niveau zero tout est reference
   this->FirstCurrentNeighboorReferenceEntry = 0;
   if (this->ReferenceEntries.size() <=
     this->FirstCurrentNeighboorReferenceEntry + this->NumberOfCursors - 1)
@@ -129,7 +126,6 @@ void vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::Initialize(
   unsigned int n[3];
   grid->GetCellDims(n);
 
-  // JB Initialisation des cursors
   switch (grid->GetDimension())
   {
     case 1:

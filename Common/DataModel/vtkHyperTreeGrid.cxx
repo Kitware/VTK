@@ -1094,10 +1094,6 @@ vtkHyperTree* vtkHyperTreeGrid::GetTree(vtkIdType index, bool create)
     this->HyperTrees[index] = tree;
     tree->Delete();
 
-    // JB pour initialiser le scales au niveau de HT
-    // Esperons qu'aucun HT n'est cree hors de l'appel a cette methode
-    // Ce service ne devrait pas exister ou etre visible car c'est au niveau d'un HT ou d'un
-    // cursor que cet appel est fait
     if (!tree->HasScales())
     {
       double origin[3];

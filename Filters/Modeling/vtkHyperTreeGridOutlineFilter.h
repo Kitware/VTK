@@ -51,7 +51,6 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  // JBL Pour moi, c'est un defaut de design de vtkHyperTreeGridAlgorithm
   int ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO) override;
 
 private:

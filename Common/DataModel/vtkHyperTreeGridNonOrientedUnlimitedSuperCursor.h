@@ -40,7 +40,7 @@ public:
 
   /**
    * Initialize cursor at root of given tree index in grid.
-   * JB Le create ne s'applique que sur le HT central.
+   * "create" only applies to the central HT
    */
   virtual void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false) = 0;
 
@@ -59,7 +59,7 @@ public:
   ///@}
 
   /**
-   * JB Return if a Tree pointing exist
+   * Return if a Tree pointing exist
    */
   bool HasTree(unsigned int icursor);
 
@@ -86,14 +86,11 @@ public:
   vtkIdType GetGlobalNodeIndex();
 
   /**
-   * JB Return the global index (relative to the grid) of the
+   * Return the global index (relative to the grid) of the
    * neighbor icursor current vertex in the tree.
    */
   vtkIdType GetGlobalNodeIndex(unsigned int icursor);
 
-  /**
-   * JB
-   */
   vtkHyperTree* GetInformation(
     unsigned int icursor, unsigned int& level, bool& leaf, vtkIdType& id);
 
@@ -109,19 +106,10 @@ public:
    */
   unsigned char GetNumberOfChildren();
 
-  /**
-   * JB
-   */
   void SetGlobalIndexStart(vtkIdType index);
 
-  /**
-   * JB
-   */
   void SetGlobalIndexFromLocal(vtkIdType index);
 
-  /**
-   * JB
-   */
   double* GetOrigin();
   double* GetSize();
 
@@ -139,13 +127,13 @@ public:
   bool IsMasked(unsigned int icursor);
 
   /**
-   * JB Coordonnees de la boite englobante
+   * Bounding box coordinates
    */
   void GetBounds(double bounds[6]);
   void GetBounds(unsigned int icursor, double bounds[6]);
 
   /**
-   * JB Coordonnees du centre de la maille
+   * Mesh center coordinates
    */
   void GetPoint(double point[3]);
   void GetPoint(unsigned int icursor, double point[3]);
@@ -218,9 +206,6 @@ public:
    */
   void ToParent();
 
-  /**
-   * JB
-   */
   unsigned int GetNumberOfCursors() { return this->NumberOfCursors; }
 
   /**
@@ -251,42 +236,33 @@ protected:
   ~vtkHyperTreeGridNonOrientedUnlimitedSuperCursor() override;
 
   /**
-   * JB Reference sur l'hyper tree grid parcouru actuellement.
+   * Reference to the HTG currently processed
    */
   vtkHyperTreeGrid* Grid = nullptr;
 
-  /**
-   * JB
-   */
   vtkSmartPointer<vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor> CentralCursor;
 
   /**
-   * JB Hyper tree grid to which the cursor is attached
+   * Hyper tree grid to which the cursor is attached
    */
   unsigned int CurrentFirstNonValidEntryByLevel = 0;
   std::vector<unsigned int> FirstNonValidEntryByLevel;
   std::vector<vtkHyperTreeGridGeometryUnlimitedLevelEntry> Entries;
 
   /**
-   * JB La derniere reference valide pour decrire tous les voisins.
-   * C'est donc aussi l'offset du premier voisin du dernier niveau.
+   * The last valid reference to describe neighbors.
+   * It is also the offset of the first neighbor at the deepest level.
    */
   unsigned int FirstCurrentNeighboorReferenceEntry = 0;
   std::vector<unsigned int> ReferenceEntries;
 
-  /**
-   * JB
-   */
   unsigned int GetIndiceEntry(unsigned int icursor);
 
   /**
-   * JB La valeur precedente. Dans le voisinage, ce n'est pas forcement un parent.
+   * The previous value. In the neighborhood, it does not have to be a parent.
    */
   unsigned int GetIndicePreviousEntry(unsigned int icursor);
 
-  /**
-   * JB
-   */
   unsigned int IndiceCentralCursor = 0;
 
   // Number of cursors in supercursor

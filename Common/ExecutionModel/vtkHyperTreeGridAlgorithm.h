@@ -149,7 +149,7 @@ protected:
 
   ///@{
   /**
-   * JB Si a vrai, l'objet output aura le meme type que le type d'objet en entree input.
+   * If set, the output object will have the same type as the input object.
    */
   bool AppropriateOutput;
   ///@}

@@ -61,10 +61,6 @@ vtkHyperTree* vtkUniformHyperTreeGrid::GetTree(vtkIdType index, bool create)
     this->HyperTrees[index] = tree;
     tree->Delete();
 
-    // JB pour initialiser le scales au niveau de HT
-    // Esperons qu'aucun HT n'est cree hors de l'appel a cette methode
-    // Ce service ne devrait pas exister ou etre visible car c'est au niveau d'un HT ou d'un
-    // cursor que cet appel est fait
     if (!tree->HasScales())
     {
       if (!this->Scales)
@@ -175,7 +171,6 @@ void vtkUniformHyperTreeGrid::SetXCoordinates(vtkDataArray* m_XCoordinates)
 {
   std::cerr << "Bad to call vtkUniformHyperTreeGrid::SetXCoordinates" << std::endl;
   bool isConform = true;
-  // TODO JB Verifier la conformite a un UHTG
   if (!isConform)
   {
     throw std::domain_error("Cannot use SetXCoordinates on UniformHyperTreeGrid");
@@ -214,7 +209,6 @@ void vtkUniformHyperTreeGrid::SetYCoordinates(vtkDataArray* m_YCoordinates)
 {
   std::cerr << "Bad to call vtkUniformHyperTreeGrid::SetYCoordinates" << std::endl;
   bool isConform = true;
-  // TODO JB Verifier la conformite a un UHTG
   if (!isConform)
   {
     throw std::domain_error("Cannot use SetYCoordinates on UniformHyperTreeGrid");
@@ -253,7 +247,6 @@ void vtkUniformHyperTreeGrid::SetZCoordinates(vtkDataArray* m_ZCoordinates)
 {
   std::cerr << "Bad to call vtkUniformHyperTreeGrid::SetZCoordinates" << std::endl;
   bool isConform = true;
-  // TODO JB Verifier la conformite a un UHTG
   if (!isConform)
   {
     throw std::domain_error("Cannot use SetZCoordinates on UniformHyperTreeGrid");
