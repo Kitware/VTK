@@ -25,15 +25,15 @@ if (TARGET VTK::ParallelMPI)
     UnitTestPMaskPoints.cxx
     TestGenerateProcessIds.cxx,NO_VALID
     TestPOutlineFilter.cxx,NO_VALID
-    TestHyperTreeGridGhostCellsGenerator.cxx,NO_VALID
     )
 
   # We want 4 processes to test the vtkAggregateDataSetFilter
-  # properly
+  # and vtkHyperTreeGridGhostCellsGenerator properly
   set(vtkFiltersParallelCxxTests-MPI_NUMPROCS 4)
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI no_data_tests_4_procs
     AggregateDataSet.cxx
-    )
+    TestHyperTreeGridGhostCellsGenerator.cxx,NO_VALID
+  )
 
 
   set(all_tests
