@@ -31,6 +31,8 @@ class vtkBitArray;
 class vtkCellData;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
+class vtkMultiProcessController;
+class vtkUnsignedCharArray;
 
 class VTKFILTERSPARALLEL_EXPORT vtkHyperTreeGridGhostCellsGenerator
   : public vtkHyperTreeGridAlgorithm
@@ -42,7 +44,7 @@ public:
 
 protected:
   vtkHyperTreeGridGhostCellsGenerator();
-  ~vtkHyperTreeGridGhostCellsGenerator() override;
+  ~vtkHyperTreeGridGhostCellsGenerator() = default;
 
   struct vtkInternals;
 
@@ -52,12 +54,15 @@ protected:
   int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
-   * Main routine to extract cells based on thresholded value
+   * Main routine to generate ghost cells using information
+   * from the neighboring HTGs.
    */
   int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
-   * Copies the input to the output, filling memory gaps if present.
+   * Recursively copy the input tree (cell data and mask information)
+   * pointed by the cursor to the output.
+   * Fills memory gaps if present.
    */
   void CopyInputTreeToOutput(vtkHyperTreeGridNonOrientedCursor* inCursor,
     vtkHyperTreeGridNonOrientedCursor* outCursor, vtkCellData* inCellData, vtkCellData* outCellData,
