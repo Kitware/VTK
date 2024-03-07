@@ -1796,16 +1796,23 @@ endfunction ()
   function does extra work in kit builds, so circumventing it may break in kit
   builds.
 
+  The ``NO_KIT_EXPORT_IF_SHARED`` argument may be passed to additionally prevent
+  leaking ``PRIVATE`` link targets from kit builds. Intended to be used for
+  targets coming from a ``vtk_module_find_package(PRIVATE_IF_SHARED)`` call.
+  Applies to all ``PRIVATE`` arguments; if different treatment is needed for
+  subsets of these arguments, use a separate call to ``vtk_module_link``.
+
   .. code-block:: cmake
 
     vtk_module_link(<module>
+      [NO_KIT_EXPORT_IF_SHARED]
       [PUBLIC     <link item>...]
       [PRIVATE    <link item>...]
       [INTERFACE  <link item>...])
 #]==]
 function (vtk_module_link module)
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_link
-    ""
+    "NO_KIT_EXPORT_IF_SHARED"
     ""
     "INTERFACE;PUBLIC;PRIVATE")
 
@@ -1826,9 +1833,15 @@ function (vtk_module_link module)
         CREATE_IF_NEEDED
         SETUP_TARGET_NAME _vtk_link_private_kit_link_target)
       foreach (_vtk_link_private IN LISTS _vtk_link_PRIVATE)
+        set(_vtk_link_private
+          "$<LINK_ONLY:${_vtk_link_private}>")
+        if (_vtk_link_NO_KIT_EXPORT_IF_SHARED AND BUILD_SHARED_LIBS)
+          set(_vtk_link_private
+            "$<BUILD_INTERFACE:${_vtk_link_private}>")
+        endif ()
         target_link_libraries("${_vtk_link_private_kit_link_target}"
           INTERFACE
-            "$<LINK_ONLY:${_vtk_link_private}>")
+            "${_vtk_link_private}")
       endforeach ()
     endif ()
   endif ()
