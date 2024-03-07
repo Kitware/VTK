@@ -526,7 +526,7 @@ protected:
     const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right = 0);
 
   /**
-   * Create the offScreen framebuffer
+   * Create the offScreen framebuffers or resize them if they are already created.
    * Return if the creation was successful or not.
    * \pre positive_width: width>0
    * \pre positive_height: height>0

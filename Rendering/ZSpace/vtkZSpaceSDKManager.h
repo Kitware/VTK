@@ -104,6 +104,24 @@ public:
 
   ///@{
   /**
+   * These functions are overriden by vtkZSpaceCoreCompatibility (specific to zSpace Inspire).
+   * @see vtkZSpaceCoreCompatibility
+   */
+  virtual void EnableGraphicsBinding(){};
+  virtual void SubmitFrame(unsigned int vtkNotUsed(leftText), unsigned int vtkNotUsed(rightText)){};
+  virtual void GetPerEyeImageResolution(int* vtkNotUsed(width), int* vtkNotUsed(height)){};
+  ///@}
+
+  enum StereoDisplayMode
+  {
+    QUAD_BUFFER_STEREO = 0,
+    STEREO_DISPLAY_API = 1
+  };
+
+  virtual StereoDisplayMode GetStereoDisplayMode() { return QUAD_BUFFER_STEREO; };
+
+  ///@{
+  /**
    * Set the render windwow the manager makes viewport computations
    * from.
    */

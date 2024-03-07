@@ -669,6 +669,8 @@ const char* vtkRenderWindow::GetStereoTypeAsString(int type)
       return "Fake";
     case VTK_STEREO_EMULATE:
       return "Emulate";
+    case VTK_STEREO_ZSPACE_INSPIRE:
+      return "Inspire";
     default:
       return "";
   }

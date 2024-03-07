@@ -256,7 +256,8 @@ void QVTKOpenGLWindow::paintGL()
       this->RenderWindowAdapter->blitRightEye(
         this->defaultFramebufferObject(), GL_BACK_RIGHT, QRect(QPoint(0, 0), deviceSize));
     }
-    else
+    // Prevent blitting with "ZSpace Inspire" mode since ZSpace API will take care of it
+    else if (this->RenderWindow->GetStereoType() != VTK_STEREO_ZSPACE_INSPIRE)
     {
       this->RenderWindowAdapter->blit(
         this->defaultFramebufferObject(), GL_BACK_LEFT, QRect(QPoint(0, 0), deviceSize));

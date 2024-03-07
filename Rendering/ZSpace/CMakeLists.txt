@@ -1,9 +1,11 @@
 set(classes
   vtkZSpaceCamera
+  vtkZSpaceGenericRenderWindow
   vtkZSpaceHardwarePicker
   vtkZSpaceInteractorStyle
   vtkZSpaceRayActor
   vtkZSpaceRenderer
+  vtkZSpaceWin32RenderWindow
   vtkZSpaceRenderWindowInteractor
   vtkZSpaceSDKManager)
 
