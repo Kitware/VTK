@@ -223,8 +223,8 @@ int SnapTicksToRoundValues(double range[2], int targetedNumTicks, double& interv
   double roughInterval = delta / targetedNumTicks;
 
   // get order of magnitude of the range
-  int rootPower = static_cast<int>(floor(log10(roughInterval) - 1));
-  double root = pow(10.0, rootPower);
+  int rootPower = static_cast<int>(std::floor(std::log10(roughInterval) - 1));
+  double root = std::pow(10.0, rootPower);
 
   // roundedInterval will be between 10 and 100 inclusive of 10 but not 100
   // and has 2 significant digits
@@ -612,7 +612,7 @@ double vtkAxisActor2D::GetAxisAngle(vtkViewport* viewport)
   double deltaX = p2[0] - p1[0];
   double deltaY = p2[1] - p1[1];
 
-  return (deltaX == 0. && deltaY == 0.) ? 0. : atan2(deltaY, deltaX);
+  return (deltaX == 0. && deltaY == 0.) ? 0. : std::atan2(deltaY, deltaX);
 }
 
 //------------------------------------------------------------------------------
