@@ -2894,8 +2894,12 @@ function (vtk_module_build)
         get_property(_vtk_build_kit_module_optional_depends GLOBAL
           PROPERTY "_vtk_module_${_vtk_build_kit_module}_optional_depends")
         foreach (_vtk_build_kit_module_private_depend IN LISTS _vtk_build_kit_module_private_depends _vtk_build_kit_module_optional_depends)
-          if (NOT TARGET "${_vtk_build_kit_module_private_depend}")
-            continue ()
+          if (_vtk_build_kit_module_private_depend IN_LIST _vtk_build_kit_module_optional_depends)
+            _vtk_module_optional_dependency_exists("${_vtk_build_kit_module_private_depend}"
+              SATISFIED_VAR _vtk_build_kit_module_has_optional_dep)
+            if (NOT _vtk_build_kit_module_has_optional_dep)
+              continue ()
+            endif ()
           endif ()
 
           # But we don't need to link to modules that are part of the kit we are
@@ -4191,7 +4195,9 @@ function (vtk_module_add_module name)
     get_property(_vtk_add_module_optional_depends GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_module}_optional_depends")
     foreach (_vtk_add_module_optional_depend IN LISTS _vtk_add_module_optional_depends)
-      if (TARGET "${_vtk_add_module_optional_depend}")
+      _vtk_module_optional_dependency_exists("${_vtk_add_module_optional_depend}"
+        SATISFIED_VAR _vtk_add_module_optional_depend_exists)
+      if (_vtk_add_module_optional_depend_exists)
         set(_vtk_add_module_optional_depend_link "${_vtk_add_module_optional_depend}")
         if (_vtk_add_module_build_with_kit)
           get_property(_vtk_add_module_optional_depend_kit GLOBAL
@@ -4216,7 +4222,7 @@ function (vtk_module_add_module name)
       string(REPLACE "::" "_" _vtk_add_module_optional_depend_safe "${_vtk_add_module_optional_depend}")
       target_compile_definitions("${_vtk_add_module_real_target}"
         PRIVATE
-          "VTK_MODULE_ENABLE_${_vtk_add_module_optional_depend_safe}=$<TARGET_EXISTS:${_vtk_add_module_optional_depend}>")
+          "VTK_MODULE_ENABLE_${_vtk_add_module_optional_depend_safe}=$<BOOL:${_vtk_add_module_optional_depend_exists}>")
     endforeach ()
 
     if (_vtk_add_module_private_depends_forward_link)
@@ -4868,10 +4874,12 @@ function (vtk_module_add_executable name)
     get_property(_vtk_add_executable_optional_depends GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_module}_optional_depends")
     foreach (_vtk_add_executable_optional_depend IN LISTS _vtk_add_executable_optional_depends)
+      _vtk_module_optional_dependency_exists("${_vtk_add_executable_optional_depend}"
+        SATISFIED_VAR _vtk_add_executable_optional_depend_exists)
       string(REPLACE "::" "_" _vtk_add_executable_optional_depend_safe "${_vtk_add_executable_optional_depend}")
       target_compile_definitions("${_vtk_add_executable_target_name}"
         PRIVATE
-          "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=$<TARGET_EXISTS:{_vtk_add_executable_optional_depend}>")
+          "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=$<BOOL:{_vtk_add_executable_optional_depend_exists}>")
     endforeach ()
 
     if (_vtk_module_warnings)
