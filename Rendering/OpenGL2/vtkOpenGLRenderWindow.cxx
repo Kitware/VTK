@@ -404,7 +404,6 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->MultiSamples = vtksys::SystemTools::HasEnv("VTK_TESTING")
     ? 0
     : vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
-  std::cout << "Multi " << this->MultiSamples << std::endl;
 
   delete[] this->WindowName;
   this->WindowName = new char[strlen(defaultWindowName) + 1];
