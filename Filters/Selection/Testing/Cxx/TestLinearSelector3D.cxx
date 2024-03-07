@@ -24,8 +24,8 @@
 // Reference values
 const vtkIdType cardSelection[] = {
   54,
-  54,
-  108,
+  76,
+  130,
   45,
 };
 
