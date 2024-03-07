@@ -130,6 +130,73 @@ function (_vtk_module_split_module_name name prefix)
 endfunction ()
 
 #[==[.rst:
+.. cmake:command:: _vtk_module_optional_dependency_exists
+
+ Detect whether an optional dependency exists or not.
+ |module-internal|
+
+ Optional dependencies need to be detected
+ namespace and target name part.
+
+ .. code-block:: cmake
+
+    _vtk_module_split_module_name(<dependency>
+      SATISFIED_VAR <var>
+      [PACKAGE <package>])
+
+ The result will be returned in the variable specified by ``SATISFIED_VAR``. If
+ ``PACKAGE`` is not given, ``_vtk_build_PACKAGE`` will be used if defined,
+ otherwise an error will be raised.
+#]==]
+function (_vtk_module_optional_dependency_exists dependency)
+  cmake_parse_arguments(_vtk_optional_dep
+    ""
+    "SATISFIED_VAR;PACKAGE"
+    ""
+    ${ARGN})
+
+  if (_vtk_optional_dep_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for `_vtk_module_optional_dependency_exists`: "
+      "${_vtk_optional_dep_UNPARSED_ARGUMENTS}")
+  endif ()
+
+  if (NOT _vtk_optional_dep_PACKAGE)
+    if (NOT DEFINED _vtk_build_PACKAGE)
+      message(FATAL_ERROR
+        "The `PACKAGE` argument is required outside of `vtk_module_build` "
+        "usage.")
+    endif ()
+    set(_vtk_optional_dep_PACKAGE
+      "${_vtk_build_PACKAGE}")
+  endif ()
+
+  if (NOT _vtk_optional_dep_SATISFIED_VAR)
+    message(FATAL_ERROR
+      "The `SATISFIED_VAR` argument is required.")
+  endif ()
+
+  set(_vtk_optional_dep_satisfied 0)
+  if (TARGET "${dependency}")
+    _vtk_module_split_module_name("${dependency}" _vtk_optional_dep_parse)
+    if (_vtk_optional_dep_PACKAGE STREQUAL _vtk_optional_dep_parse_NAMESPACE)
+      set(_vtk_optional_dep_satisfied 1)
+    else ()
+      set(_vtk_optional_dep_found_var
+        "${_vtk_optional_dep_parse_NAMESPACE}_${_vtk_optional_dep_parse_TARGET_NAME}_FOUND")
+      if (DEFINED "${_vtk_optional_dep_found_var}" AND
+          ${_vtk_optional_dep_found_var})
+        set(_vtk_optional_dep_satisfied 1)
+      endif ()
+    endif ()
+  endif ()
+
+  set("${_vtk_optional_dep_SATISFIED_VAR}"
+    "${_vtk_optional_dep_satisfied}"
+    PARENT_SCOPE)
+endfunction ()
+
+#[==[.rst:
 
 .. _module-parse-module:
 
