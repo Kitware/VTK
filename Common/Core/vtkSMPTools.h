@@ -489,6 +489,30 @@ public:
     }
 #endif // DOXYGEN_SHOULD_SKIP_THIS
   };
+  /**
+   * @brief This is an empirically determined threshold used by various cases to switch between
+   * serial and threaded execution. There is a startup cost to threading which is not worth it for
+   * small numbers of elements. This variable should be used only for small/light computations.
+   *
+   * The developer can use this value by choosing one of the following options:
+   * 1. In the first option, the value is used as the grain size for the parallel operation:
+   * \code
+   * vtkSMPTools::For(0, size, vtkSMPTools::THRESHOLD, worker);
+   * \endcode
+   *
+   * 2. In the second option, an explicit branch allows for backend control
+   * \code
+   * if (vtkSMPTools::THRESHOLD > size)
+   * {
+   *   // Do the work in serial
+   * }
+   * else
+   * {
+   *   // Do the work in parallel
+   * }
+   * \endcode
+   */
+  static constexpr vtkIdType THRESHOLD = 100000;
 
   /**
    * /!\ This method is not thread safe.
