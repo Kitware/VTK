@@ -208,12 +208,17 @@ public:
   /**
    * Returns the raw double array holding the matrix.
    */
-  double* GetData() { return *this->Element; }
+  double* GetData() VTK_SIZEHINT(16) { return *this->Element; }
 
   /**
    * Returns the raw double array holding the matrix.
    */
   const double* GetData() const { return *this->Element; }
+
+  /**
+   * Copies data into the matrix.
+   */
+  void SetData(const double data[16]) { vtkMatrix4x4::DeepCopy(data); }
 
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); }

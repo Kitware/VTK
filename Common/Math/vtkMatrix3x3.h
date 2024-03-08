@@ -171,6 +171,11 @@ public:
    */
   const double* GetData() const { return *this->Element; }
 
+  /**
+   * Copies data into the matrix.
+   */
+  void SetData(const double data[9]) { vtkMatrix3x3::DeepCopy(data); }
+
 protected:
   vtkMatrix3x3();
   ~vtkMatrix3x3() override;
