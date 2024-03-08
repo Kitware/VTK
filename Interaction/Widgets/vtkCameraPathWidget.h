@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkCameraPathWidget();
-  ~vtkCameraPathWidget() override = default;
+  ~vtkCameraPathWidget() override;
 
   int WidgetState = vtkCameraPathWidget::Start;
   enum WidgetStateType

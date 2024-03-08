@@ -46,6 +46,9 @@ vtkCameraPathWidget::vtkCameraPathWidget()
 }
 
 //------------------------------------------------------------------------------
+vtkCameraPathWidget::~vtkCameraPathWidget() = default;
+
+//------------------------------------------------------------------------------
 void vtkCameraPathWidget::SetRepresentation(vtkCameraPathRepresentation* r)
 {
   this->Superclass::SetWidgetRepresentation(vtkWidgetRepresentation::SafeDownCast(r));

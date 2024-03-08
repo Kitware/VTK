@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkCameraOrientationWidget();
-  ~vtkCameraOrientationWidget() override = default;
+  ~vtkCameraOrientationWidget() override;
 
   // These methods handle events
   void ComputeWidgetState(int X, int Y, int modify = 0);
