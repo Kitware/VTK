@@ -1,10 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkRenderWindowInteractor.h"
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 
 // Ignore reserved-identifier warnings from
 // 1. SDL2/SDL_stdinc.h: warning: identifier '_SDL_size_mul_overflow_builtin'
@@ -30,19 +26,11 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
-#include "vtkStringArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
-//------------------------------------------------------------------------------
-EM_BOOL OnSizeChanged(int vtkNotUsed(eventType), const EmscriptenUiEvent* e, void* userData)
-{
-  auto interactor = reinterpret_cast<vtkRenderWindowInteractor*>(userData);
-  interactor->UpdateSize(e->windowInnerWidth, e->windowInnerHeight);
-  return 0;
-}
 
 //------------------------------------------------------------------------------
 void spinOnce(void* arg)
@@ -51,16 +39,24 @@ void spinOnce(void* arg)
     static_cast<vtkWebAssemblyRenderWindowInteractor*>(arg);
   iren->ProcessEvents();
 }
-}
+
+} // namespace
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkWebAssemblyRenderWindowInteractor);
 
 //------------------------------------------------------------------------------
-vtkWebAssemblyRenderWindowInteractor::vtkWebAssemblyRenderWindowInteractor() = default;
+vtkWebAssemblyRenderWindowInteractor::vtkWebAssemblyRenderWindowInteractor()
+{
+  // default is #canvas unless explicitly set by application.
+  this->SetCanvasSelector("#canvas");
+}
 
 //------------------------------------------------------------------------------
-vtkWebAssemblyRenderWindowInteractor::~vtkWebAssemblyRenderWindowInteractor() = default;
+vtkWebAssemblyRenderWindowInteractor::~vtkWebAssemblyRenderWindowInteractor()
+{
+  this->SetCanvasSelector(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkWebAssemblyRenderWindowInteractor::ProcessEvents()
@@ -160,8 +156,7 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(void* arg)
 
     case SDL_MOUSEMOTION:
     {
-      const double dpr = emscripten_get_device_pixel_ratio();
-      this->SetEventInformationFlipY(event->motion.x * dpr, event->motion.y * dpr, ctrl, shift);
+      this->SetEventInformationFlipY(event->motion.x, event->motion.y, ctrl, shift);
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
     }
@@ -170,8 +165,7 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(void* arg)
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
     {
-      const double dpr = emscripten_get_device_pixel_ratio();
-      this->SetEventInformationFlipY(event->button.x * dpr, event->button.y * dpr, ctrl, shift);
+      this->SetEventInformationFlipY(event->button.x, event->button.y, ctrl, shift);
       this->SetAltKey(alt);
 
       int ev = -1;
@@ -203,9 +197,9 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(void* arg)
       this->SetControlKey(ctrl);
       this->SetShiftKey(shift);
       this->SetAltKey(alt);
-      // The precise y value is more robust because browsers set a value b/w 0 and 1.
-      // Otherwise, the value is often rounded to an integer =zero which causes a stutter
-      // in dolly motion.
+      // The precise y value is more robust because browsers set a value b/w 0
+      // and 1. Otherwise, the value is often rounded to an integer =zero which
+      // causes a stutter in dolly motion.
       int ev = event->wheel.preciseY > 0 ? vtkCommand::MouseWheelForwardEvent
                                          : vtkCommand::MouseWheelBackwardEvent;
       this->InvokeEvent(ev, nullptr);
@@ -216,15 +210,10 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(void* arg)
     {
       switch (event->window.event)
       {
-        case SDL_WINDOWEVENT_SIZE_CHANGED:
-        {
-          this->UpdateSize(event->window.data1, event->window.data2);
-          this->Render();
-        }
-        break;
         case SDL_WINDOWEVENT_CLOSE:
         {
-          vtkWarningMacro(<< "Terminating application because q or e was pressed. You can restart "
+          vtkWarningMacro(<< "Terminating application because q or e was pressed. "
+                             "You can restart "
                              "the event loop by calling `Start`");
           this->TerminateApp();
         }
@@ -246,9 +235,9 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
   }
 
   this->StartedMessageLoop = 1;
+  // re-initialized because SDL2 may reset the style.
+  this->InitializeCanvasElement();
 
-  emscripten_set_resize_callback(
-    EMSCRIPTEN_EVENT_TARGET_WINDOW, reinterpret_cast<void*>(this), 1, ::OnSizeChanged);
   emscripten_set_main_loop_arg(
     &spinOnce, (void*)this, 0, vtkRenderWindowInteractor::InteractorManagesTheEventLoop);
 }
@@ -280,6 +269,8 @@ void vtkWebAssemblyRenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
+
+  this->InitializeCanvasElement();
 }
 
 //------------------------------------------------------------------------------
@@ -312,7 +303,7 @@ Uint32 timerCallback(Uint32 interval, void* param)
   SDL_PushEvent(&event);
   return (interval);
 }
-}
+} // namespace
 
 //------------------------------------------------------------------------------
 int vtkWebAssemblyRenderWindowInteractor::InternalCreateTimer(
@@ -336,7 +327,10 @@ int vtkWebAssemblyRenderWindowInteractor::InternalDestroyTimer(int platformTimer
 void vtkWebAssemblyRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "CanvasSelector: " << this->CanvasSelector << endl;
+  os << indent << "ExpandCanvasToContainer: " << this->ExpandCanvasToContainer << endl;
   os << indent << "StartedMessageLoop: " << this->StartedMessageLoop << endl;
+  os << indent << "ResizeObserverInstalled: " << this->ResizeObserverInstalled << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -349,4 +343,95 @@ void vtkWebAssemblyRenderWindowInteractor::ExitCallback()
 
   this->TerminateApp();
 }
+
+extern "C"
+{
+  void EMSCRIPTEN_KEEPALIVE setVTKRenderWindowSize(int w, int h, void* self);
+}
+
+void setVTKRenderWindowSize(int w, int h, void* self)
+{
+  if (auto asObjectBase = static_cast<vtkObjectBase*>(self))
+  {
+    if (auto iren = vtkRenderWindowInteractor::SafeDownCast(asObjectBase))
+    {
+      iren->UpdateSize(w, h);
+      if (auto renWin = iren->GetRenderWindow())
+      {
+        renWin->Render();
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebAssemblyRenderWindowInteractor::InitializeCanvasElement()
+{
+  // clang-format off
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
+#endif
+  EM_ASM({
+    const selector = UTF8ToString($0);
+    const applyStyle = $1;
+    const canvasElem = document.querySelector(selector);
+    if (canvasElem) {
+      const containerElem = canvasElem.parentElement;
+      const body = document.querySelector('body');
+      if (applyStyle) {
+        if (body === containerElem) {
+          // fill up entire space of the body.
+          body.style.margin = 0;
+          body.style.width = '100vw';
+          body.style.height = '100vh';
+        } else {
+          containerElem.style.position = 'relative';
+          containerElem.style.width = '100%';
+          containerElem.style.height = '100%';
+        }
+        canvasElem.style.position = 'absolute';
+        canvasElem.style.top = 0;
+        canvasElem.style.left = 0;
+        canvasElem.style.width = '100%';
+        canvasElem.style.height = '100%';
+      }
+    }
+  }, this->CanvasSelector, this->ExpandCanvasToContainer);
+  // clang-format on
+
+  if (!this->ResizeObserverInstalled)
+  {
+    // clang-format off
+    EM_ASM({
+      const selector = UTF8ToString($0);
+      const canvasElem = document.querySelector(selector);
+      if (canvasElem) {
+        const containerElem = canvasElem.parentElement;
+        const body = document.querySelector('body');
+        const resize = () => {
+          const dpr = window.devicePixelRatio;
+          const width = containerElem.getBoundingClientRect().width;
+          const height = containerElem.getBoundingClientRect().height;
+          const w = Math.floor(width * dpr + 0.5);
+          const h = Math.floor(height * dpr + 0.5);
+          Module._setVTKRenderWindowSize(w, h, $1);
+        };
+
+        if (body === containerElem) {
+          window.addEventListener('resize', resize);
+        } else {
+          const resizeObserver = new ResizeObserver(resize);
+          resizeObserver.observe(containerElem);
+        }
+      }
+    }, this->CanvasSelector, this);
+    // clang-format on
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+    this->ResizeObserverInstalled = true;
+  }
+}
+
 VTK_ABI_NAMESPACE_END

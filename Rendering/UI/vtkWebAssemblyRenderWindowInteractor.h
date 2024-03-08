@@ -61,6 +61,23 @@ public:
    */
   void ExitCallback() override;
 
+  /**
+   * Specify the selector of the canvas element in the DOM.
+   * Note that the current implementation of canvas in SDL2
+   * is hardcoded to a DOM element with id="canvas".
+   * Any other values are NOT supported.
+   */
+  vtkGetStringMacro(CanvasSelector);
+  vtkSetStringMacro(CanvasSelector);
+
+  /**
+   * When true (default), the style of the parent element of canvas will be adjusted
+   * allowing the canvas to take up entire space of the parent.
+   */
+  vtkGetMacro(ExpandCanvasToContainer, bool);
+  vtkSetMacro(ExpandCanvasToContainer, bool);
+  vtkBooleanMacro(ExpandCanvasToContainer, bool);
+
 protected:
   vtkWebAssemblyRenderWindowInteractor();
   ~vtkWebAssemblyRenderWindowInteractor() override;
@@ -78,6 +95,15 @@ protected:
   int InternalDestroyTimer(int platformTimerId) override;
   ///@}
 
+  /**
+   * Sets up resize observer on the parent element of canvas.
+   * The resize observer will update the interactor's window size
+   * with the canvas dimensions.
+   * When ExpandCanvasToContainer is true, the canvas style and parent style
+   * are also initialized correctly.
+   */
+  void InitializeCanvasElement();
+
   std::map<int, int> VTKToPlatformTimerMap;
 
   /**
@@ -85,11 +111,15 @@ protected:
    */
   void StartEventLoop() override;
 
+  char* CanvasSelector = nullptr;
+  bool ExpandCanvasToContainer = true;
+
 private:
   vtkWebAssemblyRenderWindowInteractor(const vtkWebAssemblyRenderWindowInteractor&) = delete;
   void operator=(const vtkWebAssemblyRenderWindowInteractor&) = delete;
 
   bool StartedMessageLoop = false;
+  bool ResizeObserverInstalled = false;
 };
 
 VTK_ABI_NAMESPACE_END
