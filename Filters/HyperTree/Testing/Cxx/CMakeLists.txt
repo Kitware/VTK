@@ -52,6 +52,7 @@ set(test_sources
   TestHyperTreeGridBinaryClipPlanes.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
+  TestHyperTreeGridComputeVisibleLeavesVolume.cxx,NO_VALID,NO_OUPUT
   TestHyperTreeGridExtractGhostCells.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridGeometryPassCellIds.cxx
   TestHyperTreeGridTernary2D.cxx

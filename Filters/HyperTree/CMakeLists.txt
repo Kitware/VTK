@@ -3,6 +3,7 @@ set(classes
   vtkHyperTreeGridAxisCut
   vtkHyperTreeGridAxisReflection
   vtkHyperTreeGridCellCenters
+  vtkHyperTreeGridComputeVisibleLeavesVolume
   vtkHyperTreeGridContour
   vtkHyperTreeGridDepthLimiter
   vtkHyperTreeGridEvaluateCoarse
