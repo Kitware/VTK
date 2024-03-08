@@ -993,19 +993,21 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
     bool addScalars = false;
 
     // Check to see if there is a scalar associated with the image
-    if (!input->GetPointData()->GetScalars())
+    auto scalars = input->GetPointData()->GetScalars();
+    if (!scalars || scalars->GetNumberOfComponents() != 1)
     {
       auto tmpImage = vtkSmartPointer<vtkImageData>::New();
       tmpImage->ShallowCopy(inputImage);
       // Add a scalar to the image
-      vtkNew<vtkFloatArray> scalars;
-      scalars->SetName("ConstantScalars");
-      scalars->SetNumberOfComponents(1);
-      scalars->SetNumberOfTuples(tmpImage->GetNumberOfPoints());
+      vtkNew<vtkFloatArray> constantScalars;
+      constantScalars->SetName("ConstantScalars");
+      constantScalars->SetNumberOfComponents(1);
+      constantScalars->SetNumberOfTuples(tmpImage->GetNumberOfPoints());
       vtkSMPTools::For(0, tmpImage->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-        std::fill_n(scalars->GetPointer(begin), (end - begin), 1.0f);
+        std::fill_n(constantScalars->GetPointer(begin), (end - begin), 1.0f);
       });
-      tmpImage->GetPointData()->SetScalars(scalars);
+      tmpImage->GetPointData()->AddArray(constantScalars);
+      tmpImage->GetPointData()->SetActiveScalars(constantScalars->GetName());
       tmpInput = tmpImage;
       tmpInput->Register(this);
       addScalars = true;
@@ -1028,14 +1030,17 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       // Remove scalars data
       slice->GetPointData()->RemoveArray("ConstantScalars");
       tmpInput->Delete();
+      if (scalars && scalars->GetNumberOfComponents() != 1)
+      {
+        slice->GetPointData()->SetActiveScalars(scalars->GetName());
+      }
     }
     else if (!this->InterpolateAttributes)
     {
       // Remove unwanted point data
       // In this case, Flying edges outputs only a single array in point data
       // scalars cannot be null
-      vtkDataArray* scalars = slice->GetPointData()->GetScalars();
-      slice->GetPointData()->RemoveArray(scalars->GetName());
+      slice->GetPointData()->RemoveArray(slice->GetPointData()->GetScalars()->GetName());
     }
     // vtkFlyingEdgesPlaneCutter does not handle ghost cells, if there are any ghost cells
     // in the input, we need to remove them from the output

@@ -7,8 +7,8 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
+#include "vtkCellTypes.h"
 #include "vtkContourHelper.h"
-#include "vtkContourValues.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
@@ -639,9 +639,7 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
     // will change to vtkUnstructuredGrid.  This temporary solution
     // is acceptable.
     //
-    int cellType;
-    unsigned char cellTypeDimensions[VTK_NUMBER_OF_CELL_TYPES];
-    vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
+    unsigned char cellType;
     int dimensionality;
 
     vtkIdType progressInterval = numCells / 20 + 1;
@@ -662,13 +660,8 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
         }
 
         // I assume that "GetCellType" is fast.
-        cellType = input->GetCellType(cellId);
-        if (cellType >= VTK_NUMBER_OF_CELL_TYPES)
-        { // Protect against new cell types added.
-          vtkErrorMacro("Unknown cell type " << cellType);
-          continue;
-        }
-        if (cellTypeDimensions[cellType] != dimensionality)
+        cellType = static_cast<unsigned char>(input->GetCellType(cellId));
+        if (vtkCellTypes::GetDimension(cellType) != dimensionality)
         {
           continue;
         }
@@ -921,9 +914,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
     // will change to vtkUnstructuredGrid.  This temporary solution
     // is acceptable.
     //
-    int cellType;
-    unsigned char cellTypeDimensions[VTK_NUMBER_OF_CELL_TYPES];
-    vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
+    unsigned char cellType;
     int dimensionality;
 
     // Compute some information for progress methods
@@ -948,17 +939,9 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
         }
 
         // Just fetch the cell type -- least expensive.
-        cellType = cellIter->GetCellType();
-
-        // Protect against new cell types added.
-        if (cellType >= VTK_NUMBER_OF_CELL_TYPES)
-        {
-          vtkErrorMacro("Unknown cell type " << cellType);
-          continue;
-        }
-
+        cellType = static_cast<unsigned char>(cellIter->GetCellType());
         // Check if the type is valid for this pass
-        if (cellTypeDimensions[cellType] != dimensionality)
+        if (vtkCellTypes::GetDimension(cellType) != dimensionality)
         {
           continue;
         }
