@@ -375,11 +375,6 @@ namespace
 { // anonymous
 // This code supports the method ComputeBestFittingPlane()
 
-// This empirically determined constant is used to switch between
-// serial and threaded execution. There is a startup cost to
-// threading which is not worth it for small numbers of points.
-constexpr int VTK_SMP_THRESHOLD = 100000;
-
 // Determine the origin of the points.
 struct ComputeOrigin
 {
@@ -521,30 +516,18 @@ bool vtkPlane::ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* n
   // 1. Calculate the centroid of the points; this will become origin. Thread the
   // operation of the number of points is large.
   ComputeOrigin computeOrigin(pts);
-  if (npts > VTK_SMP_THRESHOLD)
-  {
-    vtkSMPTools::For(0, npts, computeOrigin);
-  }
-  else
-  {
-    computeOrigin.Initialize();
-    computeOrigin(0, npts);
-    computeOrigin.Reduce();
-  }
+  // We use THRESHOLD to test if the data size is small enough
+  // to execute the functor serially.
+  vtkSMPTools::For(0, npts, vtkSMPTools::THRESHOLD, computeOrigin);
+
   computeOrigin.GetOrigin(origin);
 
   // 2. Calculate the covariance matrix of the points relative to the centroid.
   ComputeCovariance computeCovariance(pts, origin);
-  if (npts > VTK_SMP_THRESHOLD)
-  {
-    vtkSMPTools::For(0, npts, computeCovariance);
-  }
-  else
-  {
-    computeCovariance.Initialize();
-    computeCovariance(0, npts);
-    computeCovariance.Reduce();
-  }
+  // We use THRESHOLD to test if the data size is small enough
+  // to execute the functor serially.
+  vtkSMPTools::For(0, npts, vtkSMPTools::THRESHOLD, computeCovariance);
+
   double xx, xy, xz, yy, yz, zz;
   computeCovariance.GetCovariance(xx, xy, xz, yy, yz, zz);
 
