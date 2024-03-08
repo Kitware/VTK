@@ -1105,10 +1105,12 @@ bool vtkCellArray::ResizeExact(vtkIdType numCells, vtkIdType connectivitySize)
 // defining the cell.
 int vtkCellArray::GetMaxCellSize()
 {
+  const vtkIdType numCells = this->GetNumberOfCells();
+  // We use THRESHOLD to test if the data size is small enough
+  // to execute the functor serially. This is faster.
+  // and also potentially avoids nested multithreading which creates race conditions.
   FindMaxCell finder{ this };
-
-  // Grain size puts an even number of pages into each instance.
-  vtkSMPTools::For(0, this->GetNumberOfCells(), finder);
+  vtkSMPTools::For(0, numCells, vtkSMPTools::THRESHOLD, finder);
 
   return static_cast<int>(finder.Result);
 }

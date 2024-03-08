@@ -37,6 +37,7 @@ struct PartitionDistributionWorklet
 {
   vtkPartitioningStrategy::PartitionInformation* Res;
   vtkDataSet* DS;
+  const int MaxCellSize;
   const std::vector<vtkBoundingBox>* Cuts;
   const std::vector<std::vector<int>>* Regions;
   struct LocalDataT
@@ -51,6 +52,7 @@ struct PartitionDistributionWorklet
     const std::vector<std::vector<int>>* regions)
     : Res(res)
     , DS(dataset)
+    , MaxCellSize(dataset->GetMaxCellSize())
     , Cuts(cuts)
     , Regions(regions)
   {
@@ -66,7 +68,7 @@ struct PartitionDistributionWorklet
   void operator()(vtkIdType first, vtkIdType last)
   {
     vtkGenericCell* gcell = this->LocalData.Local().GenCell;
-    std::vector<double> weights(this->DS->GetMaxCellSize());
+    std::vector<double> weights(static_cast<size_t>(this->MaxCellSize));
     for (vtkIdType cellId = first; cellId < last; ++cellId)
     {
       auto itC = this->Regions->begin() + cellId;
@@ -159,32 +161,34 @@ vtkPartitioningStrategy::PartitionInformation CutsToPartition(
     kdnodes.emplace_back(std::move(kdnode));
   }
   vtkSMPThreadLocalObject<vtkGenericCell> gcellLO;
-  vtkSMPTools::For(0, numCells,
-    [dataset, ghostCells, &kdnodes, &gcellLO, &cellRegions](vtkIdType first, vtkIdType last) {
-      auto gcell = gcellLO.Local();
-      std::vector<double> weights(dataset->GetMaxCellSize());
-      for (vtkIdType cellId = first; cellId < last; ++cellId)
+  vtkSMPThreadLocal<std::vector<double>> weightsLO;
+  const int maxCellSize = dataset->GetMaxCellSize();
+  vtkSMPTools::For(0, numCells, [&](vtkIdType first, vtkIdType last) {
+    auto gcell = gcellLO.Local();
+    auto weights = weightsLO.Local();
+    weights.resize(static_cast<size_t>(maxCellSize));
+    for (vtkIdType cellId = first; cellId < last; ++cellId)
+    {
+      if (ghostCells != nullptr &&
+        ((ghostCells->GetTypedComponent(cellId, 0) & vtkDataSetAttributes::DUPLICATECELL) != 0))
       {
-        if (ghostCells != nullptr &&
-          ((ghostCells->GetTypedComponent(cellId, 0) & vtkDataSetAttributes::DUPLICATECELL) != 0))
+        // skip ghost cells, they will not be extracted since they will be
+        // extracted on ranks where they are not marked as ghosts.
+        continue;
+      }
+      dataset->GetCell(cellId, gcell);
+      double cellBounds[6];
+      dataset->GetCellBounds(cellId, cellBounds);
+      for (int cutId = 0; cutId < static_cast<int>(kdnodes.size()); ++cutId)
+      {
+        if (kdnodes[cutId]->IntersectsCell(
+              gcell, /*useDataBounds*/ 0, /*cellRegion*/ -1, cellBounds))
         {
-          // skip ghost cells, they will not be extracted since they will be
-          // extracted on ranks where they are not marked as ghosts.
-          continue;
-        }
-        dataset->GetCell(cellId, gcell);
-        double cellBounds[6];
-        dataset->GetCellBounds(cellId, cellBounds);
-        for (int cutId = 0; cutId < static_cast<int>(kdnodes.size()); ++cutId)
-        {
-          if (kdnodes[cutId]->IntersectsCell(
-                gcell, /*useDataBounds*/ 0, /*cellRegion*/ -1, cellBounds))
-          {
-            cellRegions[cellId].emplace_back(cutId);
-          }
+          cellRegions[cellId].emplace_back(cutId);
         }
       }
-    });
+    }
+  });
 
   vtkPartitioningStrategy::PartitionInformation res;
   ::PartitionDistributionWorklet worker(&res, dataset, &cuts, &cellRegions);
