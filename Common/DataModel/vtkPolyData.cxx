@@ -733,13 +733,17 @@ struct BuildCellsImpl
       throw std::runtime_error("Cell map storage capacity exceeded.");
     }
 
-    vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+    auto buildCellsOperator = [&](vtkIdType begin, vtkIdType end) {
       for (vtkIdType cellId = begin, globalCellId = beginCellId + begin; cellId < end;
            ++cellId, ++globalCellId)
       {
         map->InsertCell(globalCellId, cellId, typer(state.GetCellSize(cellId)));
       }
-    });
+    };
+    // We use Threshold to test if the data size is small enough
+    // to execute the functor serially. This is faster.
+    // and also potentially avoids nested multithreading which creates race conditions.
+    vtkSMPTools::For(0, numCells, vtkSMPTools::THRESHOLD, buildCellsOperator);
   }
 };
 
