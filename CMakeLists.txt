@@ -715,6 +715,12 @@ if (VTK_BUILD_SPHINX_DOCUMENTATION)
   add_subdirectory(Utilities/Sphinx)
 endif ()
 
+# Adds a test to verify consistent use of VTK_MARSHAL(AUTO|MANUAL) macros.
+# This is a pure python test, it doesn't need any compiled VTK modules.
+if (VTK_BUILD_TESTING)
+  add_subdirectory(Utilities/Marshalling)
+endif ()
+
 if (NOT TARGET uninstall)
   add_custom_target(uninstall
     COMMAND

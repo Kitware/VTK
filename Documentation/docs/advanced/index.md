@@ -3,6 +3,7 @@
 ```{toctree}
 :titlesonly:
 :caption: Contents
+auto_serialization
 available_python_wheels
 spdx_and_sbom
 build_python_wheels

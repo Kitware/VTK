@@ -1,0 +1,12 @@
+Common/Core/vtkCollection.h
+Common/Core/vtkDataArray.h
+Common/DataModel/vtkCellArray.h
+Common/DataModel/vtkDataSetAttributes.h
+Common/DataModel/vtkPiecewiseFunction.h
+Common/DataModel/vtkUnstructuredGrid.h
+Common/ExecutionModel/vtkAlgorithm.h
+Interaction/Style/vtkInteractorStyleSwitch.h
+Interaction/Widgets/vtkAbstractWidget.h
+Rendering/Core/vtkAbstractMapper.h
+Rendering/Core/vtkColorTransferFunction.h
+Rendering/Core/vtkDataSetMapper.h
