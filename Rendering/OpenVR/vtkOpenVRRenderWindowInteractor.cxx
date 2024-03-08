@@ -46,6 +46,17 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
   this->AddAction("/actions/vtk/in/ComplexGestureAction", false,
     [this](vtkEventData* ed) { this->HandleComplexGestureEvents(ed); });
 
+  // This additional action is needed to support the recognition of complex gestures
+  // in cases where the two complex gesture buttons are pressed consecutively. In such
+  // scenarios, when the user is already pressing one button, the `actionData.bChanged`
+  // condition (used in `DoOneEvent`) is already false and no additional event is synthesized.
+  // By using another action named `ComplexGestureAction_Event2`, we ensure a second event
+  // is synthesized. This leads to a second invocation of `HandleComplexGestureEvents`,
+  // enabling the function `RecognizeComplexGesture()` to effectively recognize the associated
+  // gesture.
+  this->AddAction("/actions/vtk/in/ComplexGestureAction_Event2", false,
+    [this](vtkEventData* ed) { this->HandleComplexGestureEvents(ed); });
+
   // add extra event actions
   for (auto& it : this->ActionMap)
   {
