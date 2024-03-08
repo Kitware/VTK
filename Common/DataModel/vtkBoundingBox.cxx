@@ -831,29 +831,17 @@ struct ThreadedBaseBoundsFunctor : public BaseBoundsFunctor<TPointsArray>
   virtual void Reduce()
   {
     // Composite bounds from all threads
-    double xmin = VTK_DOUBLE_MAX;
-    double ymin = VTK_DOUBLE_MAX;
-    double zmin = VTK_DOUBLE_MAX;
-    double xmax = VTK_DOUBLE_MIN;
-    double ymax = VTK_DOUBLE_MIN;
-    double zmax = VTK_DOUBLE_MIN;
-
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = VTK_DOUBLE_MIN;
     for (const auto& localBds : this->LocalBounds)
     {
-      xmin = std::min(xmin, localBds[0]);
-      ymin = std::min(ymin, localBds[2]);
-      zmin = std::min(zmin, localBds[4]);
-      xmax = std::max(xmax, localBds[1]);
-      ymax = std::max(ymax, localBds[3]);
-      zmax = std::max(zmax, localBds[5]);
+      this->Bounds[0] = std::min(this->Bounds[0], localBds[0]);
+      this->Bounds[1] = std::max(this->Bounds[1], localBds[1]);
+      this->Bounds[2] = std::min(this->Bounds[2], localBds[2]);
+      this->Bounds[3] = std::max(this->Bounds[3], localBds[3]);
+      this->Bounds[4] = std::min(this->Bounds[4], localBds[4]);
+      this->Bounds[5] = std::max(this->Bounds[5], localBds[5]);
     }
-
-    this->Bounds[0] = xmin;
-    this->Bounds[1] = xmax;
-    this->Bounds[2] = ymin;
-    this->Bounds[3] = ymax;
-    this->Bounds[4] = zmin;
-    this->Bounds[5] = zmax;
   }
 };
 
@@ -1112,7 +1100,7 @@ struct ThreadedBoundsPointIdsFunctor : public ThreadedBaseBoundsFunctor<TPointsA
     const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray);
     double point[3];
     // Reduce bounds with the rest of the ids:
-    for (vtkIdType i = beginPtId + 1; i < endPtId; ++i)
+    for (vtkIdType i = beginPtId; i < endPtId; ++i)
     {
       // Explicitly reusing a local will improve performance when virtual
       // calls are involved in the iterator read:
@@ -1137,10 +1125,10 @@ struct BoundsWorker
   void operator()(TPointsArray* pts, double* bds)
   {
     const vtkIdType numPts = pts->GetNumberOfTuples();
-
-    // Use serial bounds if data size is small, it's faster
-    static constexpr int VTK_SMP_THRESHOLD = 750000;
-    if (numPts < VTK_SMP_THRESHOLD)
+    // We use THRESHOLD to test if the data size is small enough
+    // to execute the functor serially. This is faster.
+    // and also potentially avoids nested multithreading which creates race conditions.
+    if (numPts <= vtkSMPTools::THRESHOLD)
     {
       SerialBoundsFunctor<TPointsArray> serialBds(pts, bds);
       serialBds(numPts);
@@ -1160,10 +1148,10 @@ struct BoundsPointUsesWorker
   void operator()(TPointsArray* pts, const TUsed* ptUses, double* bds)
   {
     const vtkIdType numPts = pts->GetNumberOfTuples();
-
-    // Use serial bounds if data size is small, it's faster
-    static constexpr int VTK_SMP_THRESHOLD = 750000;
-    if (numPts < VTK_SMP_THRESHOLD)
+    // We use THRESHOLD to test if the data size is small enough
+    // to execute the functor serially. This is faster.
+    // and also potentially avoids nested multithreading which creates race conditions.
+    if (numPts <= vtkSMPTools::THRESHOLD)
     {
       SerialBoundsPointUsesFunctor<TPointsArray, TUsed> serialBds(pts, ptUses, bds);
       serialBds(numPts);
@@ -1182,9 +1170,10 @@ struct BoundsPointIdsWorker
   template <typename TPointsArray, typename TId>
   void operator()(TPointsArray* pts, const TId* ptIds, TId numberOfPointsIds, double* bds)
   {
-    // Use serial bounds if data size is small, it's faster
-    static constexpr int VTK_SMP_THRESHOLD = 750000;
-    if (numberOfPointsIds < VTK_SMP_THRESHOLD)
+    // We use THRESHOLD to test if the data size is small enough
+    // to execute the functor serially. This is faster.
+    // and also potentially avoids nested multithreading which creates race conditions.
+    if (numberOfPointsIds <= vtkSMPTools::THRESHOLD)
     {
       SerialBoundsPointIdsFunctor<TPointsArray, TId> serialBds(pts, ptIds, bds);
       serialBds(numberOfPointsIds);
