@@ -369,7 +369,8 @@ void WriteCamera(nlohmann::json& cameras, vtkRenderer* ren)
 
 void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann::json& textures,
   nlohmann::json& samplers, nlohmann::json& images, vtkPolyData* pd, vtkActor* aPart,
-  const char* fileName, bool inlineData, std::map<vtkUnsignedCharArray*, size_t>& textureMap)
+  const char* fileName, bool inlineData, std::map<vtkUnsignedCharArray*, size_t>& textureMap,
+  bool saveNaNValues)
 {
   // do we have a texture
   aPart->GetMapper()->MapScalars(pd, 1.0);
@@ -396,9 +397,30 @@ void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann
   if (textureMap.find(da) == textureMap.end())
   {
     textureMap[da] = textures.size();
-
+    vtkSmartPointer<vtkImageData> imageDataToWrite;
+    if (!saveNaNValues)
+    {
+      // Remove the NaN color value from the texture since the interpolation implementation of
+      // some external viewers such as MeshLab or Powerpoint have an issue
+      // that can cause color clipping.
+      // This new feature can be used as a workaround of this issue:
+      // [https://gitlab.kitware.com/paraview/paraview/-/issues/22500]
+      imageDataToWrite = vtkSmartPointer<vtkImageData>::Take(vtkImageData::New());
+      imageDataToWrite->ShallowCopy(id);
+      int* newExtent = id->GetExtent();
+      // y2 is the component for the Image Height. It disables NaN values.
+      // See vtkImageData::SetExtent doc
+      newExtent[3] = 0;
+      imageDataToWrite->SetExtent(newExtent);
+      imageDataToWrite->Squeeze();
+    }
+    else
+    {
+      imageDataToWrite = id;
+    }
     // flip Y
     vtkNew<vtkTrivialProducer> triv;
+    triv->SetOutput(imageDataToWrite);
     triv->SetOutput(id);
     vtkNew<vtkImageFlip> flip;
     flip->SetFilteredAxis(1);
@@ -606,7 +628,7 @@ void vtkGLTFExporter::WriteToStream(ostream& output)
               rendererNode["children"].emplace_back(nodes.size() - 1);
               size_t oldTextureCount = textures.size();
               WriteTexture(buffers, bufferViews, textures, samplers, images, pd, aPart,
-                this->FileName, this->InlineData, textureMap);
+                this->FileName, this->InlineData, textureMap, this->SaveNaNValues);
               meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
               WriteMaterial(materials, oldTextureCount, oldTextureCount != textures.size(), aPart);
             }
