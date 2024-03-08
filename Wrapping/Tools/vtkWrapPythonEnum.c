@@ -16,7 +16,7 @@
 int vtkWrapPython_IsEnumWrapped(const HierarchyInfo* hinfo, const char* enumname)
 {
   int rval = 0;
-  HierarchyEntry* entry;
+  const HierarchyEntry* entry;
 
   if (hinfo && enumname)
   {
@@ -76,7 +76,7 @@ void vtkWrapPython_MarkAllEnums(NamespaceInfo* contents, const HierarchyInfo* hi
 void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar,
   const char* objvar, const char* scope, EnumInfo* cls)
 {
-  ValueInfo* val;
+  const ValueInfo* val;
   int j;
 
   if (cls->IsDeprecated)

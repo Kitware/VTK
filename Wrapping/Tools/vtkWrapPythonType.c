@@ -152,7 +152,7 @@ static void vtkWrapPython_PrintProtocol(
   FILE* fp, const char* classname, const ClassInfo* data, FileInfo* finfo, SpecialTypeInfo* info)
 {
   int i;
-  FunctionInfo* func;
+  const FunctionInfo* func;
 
   /* look in the file for "operator<<" for printing */
   for (i = 0; i < finfo->Contents->NumberOfFunctions; i++)
@@ -201,7 +201,7 @@ static void vtkWrapPython_RichCompareProtocol(
   static const char* compare_tokens[6] = { "<", "<=", "==", "!=", ">", ">=" };
   int compare_ops = 0;
   int i, n;
-  FunctionInfo* func;
+  const FunctionInfo* func;
 
   /* look for comparison operator methods */
   n = data->NumberOfFunctions + finfo->Contents->NumberOfFunctions;
@@ -365,8 +365,8 @@ static void vtkWrapPython_SequenceProtocol(FILE* fp, const char* classname, Clas
 {
   int i;
   FunctionInfo* func;
-  FunctionInfo* getItemFunc = 0;
-  FunctionInfo* setItemFunc = 0;
+  const FunctionInfo* getItemFunc = 0;
+  const FunctionInfo* setItemFunc = 0;
 
   /* look for [] operator */
   for (i = 0; i < data->NumberOfFunctions; i++)

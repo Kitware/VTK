@@ -531,3 +531,6 @@ unreadVariable:*/Wrapping/Tools/vtkWrapHierarchy.c
 unreadVariable:*/Wrapping/Tools/vtkWrapJava.c
 unreadVariable:*/Wrapping/Tools/vtkWrapPythonMethodDef.c
 unreadVariable:*/Wrapping/Tools/vtkWrapText.c
+
+// false positive
+nullPointerRedundantCheck:*/Wrapping/Tools/vtkParseSystem.c

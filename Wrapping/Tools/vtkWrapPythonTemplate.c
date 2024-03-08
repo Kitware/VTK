@@ -182,7 +182,7 @@ int vtkWrapPython_WrapTemplatedClass(
   int ninstantiations = 0;
   int i, j, k, nargs;
   ClassInfo* sdata;
-  ValueInfo* tdef;
+  const ValueInfo* tdef;
   HierarchyEntry* entry;
   const char* name;
   char* cp;

@@ -269,7 +269,7 @@ static void merge_function(FileInfo* finfo, FunctionInfo* merge, const FunctionI
   for (i = -1; i < j; i++)
   {
     ValueInfo* arg = merge->ReturnValue;
-    ValueInfo* arg2 = func->ReturnValue;
+    const ValueInfo* arg2 = func->ReturnValue;
     if (i >= 0)
     {
       arg = merge->Parameters[i];
@@ -507,7 +507,7 @@ int vtkParseMerge_Merge(FileInfo* finfo, MergeInfo* info, ClassInfo* merge, Clas
 {
   int i, j, ii, n, m, depth;
   int match;
-  FunctionInfo* func;
+  const FunctionInfo* func;
   FunctionInfo* f1;
   FunctionInfo* f2;
 

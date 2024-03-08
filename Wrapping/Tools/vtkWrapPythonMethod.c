@@ -51,7 +51,7 @@ static int vtkWrapPython_CountAllOccurrences(
 /* Declare all local variables used by the wrapper method */
 void vtkWrapPython_DeclareVariables(FILE* fp, const ClassInfo* data, const FunctionInfo* theFunc)
 {
-  ValueInfo* arg;
+  const ValueInfo* arg;
   int i, n;
 
   n = vtkWrap_CountWrappedParameters(theFunc);
@@ -336,7 +336,7 @@ void vtkWrapPython_GetSingleArgument(
 /* Write the code to convert the arguments with vtkPythonArgs */
 static void vtkWrapPython_GetAllParameters(FILE* fp, ClassInfo* data, FunctionInfo* currentFunction)
 {
-  ValueInfo* arg;
+  const ValueInfo* arg;
   int requiredArgs, totalArgs;
   int i;
 
@@ -430,7 +430,7 @@ static void vtkWrapPython_SubstituteCode(
 
       if (!matched) /* check for parameters */
       {
-        ValueInfo* arg = NULL;
+        const ValueInfo* arg = NULL;
 
         /* check for positional parameter "#n" */
         if (t.tok == '#' && vtkParse_NextToken(&t) && t.tok == TOK_NUMBER)
@@ -743,7 +743,7 @@ static int vtkWrapPython_CountAllOccurrences(
 void vtkWrapPython_SaveArgs(FILE* fp, FunctionInfo* currentFunction)
 {
   const char* asterisks = "**********";
-  ValueInfo* arg;
+  const ValueInfo* arg;
   int i, j, n, m;
   int noneDone = 1;
 
@@ -802,7 +802,7 @@ static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunc
   ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject)
 {
   char methodname[256];
-  ValueInfo* arg;
+  const ValueInfo* arg;
   int totalArgs;
   int is_constructor;
   int i, k, n;
@@ -984,7 +984,7 @@ static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunc
 static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInfo* currentFunction)
 {
   const char* asterisks = "**********";
-  ValueInfo* arg;
+  const ValueInfo* arg;
   int i, j, n, m;
 
   /* do nothing for SetVector macros */
@@ -1097,7 +1097,7 @@ static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInf
 /* Free any temporaries that were needed for the C++ method call*/
 static void vtkWrapPython_FreeTemporaries(FILE* fp, FunctionInfo* currentFunction)
 {
-  ValueInfo* arg;
+  const ValueInfo* arg;
   int i, j, n;
 
   n = vtkWrap_CountWrappedParameters(currentFunction);
@@ -1146,7 +1146,7 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
   int occCounter;
   int all_static = 0;
   char* cp;
-  int* overloadMap = NULL;
+  const int* overloadMap = NULL;
   int maxArgs = 0;
   int overlap = 0;
 
