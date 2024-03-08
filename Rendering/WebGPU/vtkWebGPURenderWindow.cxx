@@ -19,6 +19,10 @@
 #include <exception>
 #include <sstream>
 
+#if defined(__EMSCRIPTEN__)
+#include "emscripten/version.h"
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace
@@ -1198,8 +1202,14 @@ void vtkWebGPURenderWindow::WaitForCompletion()
 {
   bool done = false;
   this->Device.GetQueue().OnSubmittedWorkDone(
-    0u, [](WGPUQueueWorkDoneStatus, void* userdata) { *static_cast<bool*>(userdata) = true; },
-    &done);
+#if defined(__EMSCRIPTEN__) &&                                                                     \
+  ((__EMSCRIPTEN_major__ < 3) || ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ < 1)) ||    \
+    ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ <= 1) && (__EMSCRIPTEN_tiny__ < 54)))
+    // https://github.com/emscripten-core/emscripten/commit/6daa18bc5ab19730421d2d63b69ddf41f11f1e85
+    // removed unused signalValue argument from 3.1.54 onwards.
+    0u,
+#endif
+    [](WGPUQueueWorkDoneStatus, void* userdata) { *static_cast<bool*>(userdata) = true; }, &done);
   while (!done)
   {
     vtkWGPUContext::WaitABit();
