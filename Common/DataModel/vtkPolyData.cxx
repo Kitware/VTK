@@ -331,11 +331,10 @@ void vtkPolyData::ComputeCellsBounds()
     // Process each cell array separately. Note that threading is only used
     // if the model is big enough (since there is a cost to spinning up the
     // thread pool).
-    static constexpr int VTK_SMP_THRESHOLD = 250000;
 
     // Create uses array initialized to 0
     vtkSMPThreadLocalObject<vtkIdList> tlCellPointIds;
-    if (numPDCells > VTK_SMP_THRESHOLD)
+    if (numPDCells > vtkSMPTools::THRESHOLD)
     {
       // Create uses array initialized to 0 and supporting threaded access
       std::atomic<unsigned char>* ptUses = new std::atomic<unsigned char>[numPts]();
