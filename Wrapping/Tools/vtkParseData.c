@@ -123,6 +123,8 @@ void vtkParse_InitFunction(FunctionInfo* func)
   func->Template = NULL;
   func->NumberOfParameters = 0;
   func->Parameters = NULL;
+  func->MarshalPropertyName = NULL;
+  func->MarshalExcludeReason = NULL;
   func->ReturnValue = NULL;
   func->NumberOfPreconds = 0;
   func->Preconds = NULL;
@@ -142,6 +144,7 @@ void vtkParse_InitFunction(FunctionInfo* func)
   func->IsExplicit = 0;
   func->IsExcluded = 0;
   func->IsDeprecated = 0;
+  func->IsMarshalExcluded = 0;
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
   /* everything below here is legacy information, *
@@ -177,6 +180,9 @@ void vtkParse_CopyFunction(FunctionInfo* func, const FunctionInfo* orig)
   func->Class = orig->Class;
   func->Signature = orig->Signature;
   func->Template = NULL;
+
+  func->MarshalPropertyName = orig->MarshalPropertyName;
+  func->MarshalExcludeReason = orig->MarshalExcludeReason;
 
   if (orig->Template)
   {
@@ -231,6 +237,7 @@ void vtkParse_CopyFunction(FunctionInfo* func, const FunctionInfo* orig)
   func->IsLegacy = orig->IsLegacy;
   func->IsExcluded = orig->IsExcluded;
   func->IsDeprecated = orig->IsDeprecated;
+  func->IsMarshalExcluded = orig->IsMarshalExcluded;
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
   /* everything below here is legacy information, *
@@ -422,6 +429,7 @@ void vtkParse_FreeUsing(UsingInfo* using_info)
 void vtkParse_InitClass(ClassInfo* cls)
 {
   cls->ItemType = VTK_CLASS_INFO;
+  cls->MarshalType = VTK_MARSHAL_NONE;
   cls->Access = VTK_ACCESS_PUBLIC;
   cls->Name = NULL;
   cls->Comment = NULL;
@@ -462,6 +470,7 @@ void vtkParse_CopyClass(ClassInfo* cls, const ClassInfo* orig)
 {
   int i, n;
 
+  cls->MarshalType = orig->MarshalType;
   cls->ItemType = orig->ItemType;
   cls->Access = orig->Access;
   cls->Name = orig->Name;

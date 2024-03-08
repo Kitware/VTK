@@ -3554,6 +3554,19 @@ static void start_class(const char* classname, int is_struct_or_union)
     currentClass->DeprecatedVersion = deprecationVersion;
   }
 
+  if (getAttributes() & VTK_PARSE_MARSHALAUTO)
+  {
+    currentClass->MarshalType = VTK_MARSHAL_AUTO_MODE;
+  }
+  else if (getAttributes() & VTK_PARSE_MARSHALMANUAL)
+  {
+    currentClass->MarshalType = VTK_MARSHAL_MANUAL_MODE;
+  }
+  else
+  {
+    currentClass->MarshalType = VTK_MARSHAL_NONE;
+  }
+
   if (classname && classname[0] != '\0')
   {
     /* if name of class being defined contains "::" or "<..>", then skip it */
@@ -4444,6 +4457,40 @@ static void handle_attribute(const char* att, int pack)
 #endif
         }
       }
+    }
+    else if (l == 16 && strncmp(att, "vtk::marshalauto", l) == 0 && !args &&
+      (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS))
+    {
+      addAttribute(VTK_PARSE_MARSHALAUTO);
+    }
+    else if (l == 18 && strncmp(att, "vtk::marshalmanual", l) == 0 && !args &&
+      (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS))
+    {
+      addAttribute(VTK_PARSE_MARSHALMANUAL);
+    }
+    else if (l == 19 && strncmp(att, "vtk::marshalexclude", l) == 0 && args &&
+      role == VTK_PARSE_ATTRIB_DECL)
+    {
+      currentFunction->IsMarshalExcluded = 1;
+      currentFunction->MarshalExcludeReason = vtkstrndup(args, la);
+    }
+    else if (l == 18 && (strncmp(att, "vtk::marshalgetter", l) == 0 ||
+      strncmp(att, "vtk::marshalsetter", l) == 0) && args &&
+      role == VTK_PARSE_ATTRIB_DECL)
+    {
+      if (args[0] != '"')
+      {
+        print_parser_error("args were not quoted here! Check macro definition in vtkWrappingHints.h", att, l);
+        exit(1);
+      }
+      /* advance args to next attribute arg */
+      while ((args[0] == '"') || (args[0] == ' '))
+      {
+        args += 1;
+        la -= 1;
+      }
+      size_t n = vtkParse_SkipId(args);
+      currentFunction->MarshalPropertyName = vtkstrndup(args, n);
     }
     else
     {

@@ -82,6 +82,16 @@ typedef enum parse_item_t_
 } parse_item_t;
 
 /**
+ * Marshalling code type constants
+ */
+typedef enum parse_marshal_t
+{
+  VTK_MARSHAL_NONE,
+  VTK_MARSHAL_AUTO_MODE,
+  VTK_MARSHAL_MANUAL_MODE
+} parse_marshal_t;
+
+/**
  * ItemInfo just contains an index
  */
 typedef struct ItemInfo_
@@ -163,7 +173,9 @@ struct FunctionInfo_
   TemplateInfo* Template; /* template parameters, or NULL */
   int NumberOfParameters;
   ValueInfo** Parameters;
-  ValueInfo* ReturnValue; /* NULL for constructors and destructors */
+  ValueInfo* ReturnValue;          /* NULL for constructors and destructors */
+  const char* MarshalPropertyName; /* optionally marshalled for the given property name */
+  const char* MarshalExcludeReason;
   int NumberOfPreconds;
   const char** Preconds;         /* preconditions */
   const char* Macro;             /* the macro that defined this function */
@@ -172,16 +184,17 @@ struct FunctionInfo_
   const char* DeprecatedVersion; /* version of deprecation, or NULL */
   int IsOperator;
   int IsVariadic;
-  int IsExcluded;    /* marked as excluded from wrapping */
-  int IsDeprecated;  /* method or function has been deprecated */
-  int IsStatic;      /* methods only */
-  int IsVirtual;     /* methods only */
-  int IsPureVirtual; /* methods only */
-  int IsConst;       /* methods only */
-  int IsDeleted;     /* methods only */
-  int IsFinal;       /* methods only */
-  int IsOverride;    /* methods only */
-  int IsExplicit;    /* constructors only */
+  int IsExcluded;        /* marked as excluded from wrapping */
+  int IsDeprecated;      /* method or function has been deprecated */
+  int IsStatic;          /* methods only */
+  int IsVirtual;         /* methods only */
+  int IsPureVirtual;     /* methods only */
+  int IsConst;           /* methods only */
+  int IsDeleted;         /* methods only */
+  int IsFinal;           /* methods only */
+  int IsOverride;        /* methods only */
+  int IsMarshalExcluded; /* methods only */
+  int IsExplicit;        /* constructors only */
 #ifndef VTK_PARSE_LEGACY_REMOVE
   int NumberOfArguments;            /* legacy */
   unsigned int ArgTypes[MAX_ARGS];  /* legacy */
@@ -233,6 +246,7 @@ typedef struct ClassInfo_
   const char* DeprecatedVersion;
   parse_item_t ItemType;
   parse_access_t Access;
+  parse_marshal_t MarshalType;
   int NumberOfSuperClasses;
   int NumberOfItems;
   int NumberOfClasses;
