@@ -118,65 +118,21 @@ struct ScaleWorker
     auto opts = vtk::DataArrayTupleRange<3>(outPts);
     const auto sRange = vtk::DataArrayTupleRange(scalars);
 
-    // For smaller data sizes, serial processing is faster than spinning up
-    // threads. The cutoff point between serial and threaded is empirical and
-    // is likely to change.
-    static constexpr int VTK_SMP_THRESHOLD = 750000;
-    if (numPts >= VTK_SMP_THRESHOLD)
-    {
-      vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
-        double s, *n = normal, inNormal[3];
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        for (; ptId < endPtId; ++ptId)
-        {
-          if (isFirst)
-          {
-            self->CheckAbort();
-          }
-          if (self->GetAbortOutput())
-          {
-            break;
-          }
-          const auto xi = ipts[ptId];
-          auto xo = opts[ptId];
-
-          if (XYPlane)
-          {
-            s = xi[2];
-          }
-          else
-          {
-            const auto sval = sRange[ptId];
-            s = sval[0]; // 0th component of the tuple
-          }
-
-          if (inNormals)
-          {
-            inNormals->GetTuple(ptId, inNormal);
-            n = inNormal;
-          }
-
-          xo[0] = xi[0] + sf * s * n[0];
-          xo[1] = xi[1] + sf * s * n[1];
-          xo[2] = xi[2] + sf * s * n[2];
-        }
-      }); // lambda
-    }     // threaded
-
-    else // serial
-    {
+    // We use THRESHOLD to test if the data size is small enough
+    // to execute the functor serially.
+    vtkSMPTools::For(0, numPts, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
       double s, *n = normal, inNormal[3];
-      for (vtkIdType ptId = 0; ptId < numPts; ptId++)
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      for (; ptId < endPtId; ++ptId)
       {
-        if (!(ptId % 10000))
+        if (isFirst)
         {
-          self->UpdateProgress((double)ptId / numPts);
-          if (self->CheckAbort())
-          {
-            break;
-          }
+          self->CheckAbort();
         }
-
+        if (self->GetAbortOutput())
+        {
+          break;
+        }
         const auto xi = ipts[ptId];
         auto xo = opts[ptId];
 
@@ -199,8 +155,8 @@ struct ScaleWorker
         xo[0] = xi[0] + sf * s * n[0];
         xo[1] = xi[1] + sf * s * n[1];
         xo[2] = xi[2] + sf * s * n[2];
-      } // over all points
-    }   // serial processing
+      }
+    }); // lambda
   }
 };
 
