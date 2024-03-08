@@ -13,6 +13,7 @@ SPDX_COPYRIGHT_TEXT
 DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::catalyst
 PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersAMR

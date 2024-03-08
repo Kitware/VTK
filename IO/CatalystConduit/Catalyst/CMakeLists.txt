@@ -27,7 +27,7 @@ catalyst_implementation(
     "${catalyst_library_destination}"
   SOURCES
     VTKCatalyst.cxx
-  CATALYST_TARGET catalyst::catalyst)
+  CATALYST_TARGET VTK::catalyst)
 
 add_library(VTK::catalyst-vtk ALIAS catalyst-vtk)
 
