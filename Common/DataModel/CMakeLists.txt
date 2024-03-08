@@ -307,12 +307,23 @@ set(templates
 set(private_templates
   vtkImageIterator.txx)
 
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkCellArraySerDesHelper.cxx
+    vtkDataSetAttributesSerDesHelper.cxx
+    vtkPiecewiseFunctionSerDesHelper.cxx
+    vtkUnstructuredGridSerDesHelper.cxx)
+endif ()    
+
 vtk_module_add_module(VTK::CommonDataModel
   CLASSES           ${classes}
   NOWRAP_CLASSES    ${nowrap_classes}
   TEMPLATES         ${templates}
   TEMPLATE_CLASSES  ${template_classes}
   HEADERS           ${headers}
+  SOURCES           ${serialization_helper_sources}
   NOWRAP_HEADERS    ${nowrap_headers}
   PRIVATE_TEMPLATES ${private_templates})
 vtk_add_test_mangling(VTK::CommonDataModel)

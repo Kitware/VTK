@@ -120,5 +120,65 @@ private:
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 };
+
+/**
+ * Convenient to get value for a property from the state and apply the value on a vtk object.
+ */
+#define VTK_DESERIALIZE_VALUE_FROM_STATE(name, type, state, object)                                \
+  do                                                                                               \
+  {                                                                                                \
+    const auto iter = state.find(#name);                                                           \
+    if ((iter != state.end()) && !iter->is_null())                                                 \
+    {                                                                                              \
+      object->Set##name(iter->get<type>());                                                        \
+    }                                                                                              \
+  } while (0)
+
+/**
+ * Convenient to get a vtkObject property from the state and set it on another vtk
+ * object. `stateKey` is the name used in state. `propertyName` is the name used by
+ * the VTK class Set/Get macros or a `SetSomething()` function. This is a special case.
+ */
+#define VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE_DIFFERENT_NAMES(                                     \
+  stateKey, propertyName, cls, state, object, deserializer)                                        \
+  do                                                                                               \
+  {                                                                                                \
+    const auto iter = state.find(#stateKey);                                                       \
+    if ((iter != state.end()) && !iter->is_null())                                                 \
+    {                                                                                              \
+      const auto* context = deserializer->GetContext();                                            \
+      const auto identifier = iter->at("Id").get<vtkTypeUInt32>();                                 \
+      auto subObject = context->GetObjectAtId(identifier);                                         \
+      deserializer->DeserializeJSON(identifier, subObject);                                        \
+      if (auto* asVtkType = cls::SafeDownCast(subObject))                                          \
+      {                                                                                            \
+        object->Set##propertyName(asVtkType);                                                      \
+      }                                                                                            \
+    }                                                                                              \
+  } while (0)
+
+/**
+ * Similar to above, when the state and VTK class property have the same name. This is common.
+ */
+#define VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(name, cls, state, object, deserializer)              \
+  VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE_DIFFERENT_NAMES(                                           \
+    name, name, cls, state, object, deserializer)
+
+/**
+ * Convenient to get a vector of values for a property from the state and apply the values on a vtk
+ * object.
+ */
+#define VTK_DESERIALIZE_VECTOR_FROM_STATE(name, type, state, object)                               \
+  do                                                                                               \
+  {                                                                                                \
+    const auto iter = state.find(#name);                                                           \
+    if ((iter != state.end()) && !iter->is_null())                                                 \
+    {                                                                                              \
+      using namespace std;                                                                         \
+      const auto elements = iter->get<vector<type>>();                                             \
+      object->Set##name(elements.data());                                                          \
+    }                                                                                              \
+  } while (0)
+
 VTK_ABI_NAMESPACE_END
 #endif

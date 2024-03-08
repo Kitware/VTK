@@ -80,7 +80,15 @@ set(classes
 set (template_classes
   vtkTemporalAlgorithm)
 
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkAlgorithmSerDesHelper.cxx)
+endif ()    
+
 vtk_module_add_module(VTK::CommonExecutionModel
   CLASSES ${classes}
+  SOURCES ${serialization_helper_sources}
   TEMPLATE_CLASSES ${template_classes})
 vtk_add_test_mangling(VTK::CommonExecutionModel)

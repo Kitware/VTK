@@ -33,8 +33,19 @@ vtk_object_factory_configure(
   HEADER_FILE vtk_object_factory_header
   EXPORT_MACRO "VTKINTERACTIONSTYLE_EXPORT")
 
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkInteractorStyleSwitchSerDesHelper.cxx)
+endif ()
+
+set(sources
+  ${vtk_object_factory_source}
+  ${serialization_helper_sources})
+
 vtk_module_add_module(VTK::InteractionStyle
   CLASSES ${classes}
-  SOURCES ${vtk_object_factory_source}
+  SOURCES ${sources}
   PRIVATE_HEADERS ${vtk_object_factory_header})
 vtk_add_test_mangling(VTK::InteractionStyle)
