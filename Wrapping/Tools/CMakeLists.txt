@@ -59,6 +59,14 @@ if (NOT TARGET "${ns}::WrapHierarchy")
   target_link_libraries(WrapHierarchy
     PRIVATE
       "${ns}::WrappingTools")
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # allows vtkWrapHierarchy to access host file system for headers, generated sources, etc.
+    # permit memory growth to generate arbitrary sized hierarchy files.
+    target_link_options(WrapHierarchy
+      PRIVATE
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s NODERAWFS=1")
+  endif ()
   add_executable("${ns}::WrapHierarchy" ALIAS
     WrapHierarchy)
 endif ()
