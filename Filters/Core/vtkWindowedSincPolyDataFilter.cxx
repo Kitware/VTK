@@ -1059,11 +1059,37 @@ struct CoefficientsWorker
     theta_pb = acos(1.0 - 0.5 * k_pb); // theta_pb in [0, M_PI/2]
 
     // Windowed sinc function weights. This is for a Hamming window. Other
-    // windowing function could be implemented here. Probably not worth threading
+    // window function could be implemented here. Probably not worth threading
     // since typically there are so few iterations.
-    for (i = 0; i <= numIters; i++)
+    switch (ptConn->Self->GetWindowFunction())
     {
-      w[i] = 0.54 + 0.46 * cos(((double)i) * vtkMath::Pi() / (double)(numIters + 1));
+      case vtkWindowedSincPolyDataFilter::NUTTALL:
+        for (i = 0; i <= numIters; i++)
+        {
+          w[i] = 0.355768 + 0.487396 * cos(((double)i) * vtkMath::Pi() / (numIters + 1)) +
+            0.144232 * cos(2.0 * ((double)i) * vtkMath::Pi() / (numIters + 1)) +
+            0.012604 * cos(3.0 * ((double)i) * vtkMath::Pi() / (numIters + 1));
+        }
+        break;
+      case vtkWindowedSincPolyDataFilter::BLACKMAN:
+        for (i = 0; i <= numIters; i++)
+        {
+          w[i] = 0.42 + 0.5 * cos(((double)i) * vtkMath::Pi() / (numIters + 1)) +
+            0.08 * cos(2.0 * ((double)i) * vtkMath::Pi() / (numIters + 1));
+        }
+        break;
+      case vtkWindowedSincPolyDataFilter::HANNING:
+        for (i = 0; i <= numIters; i++)
+        {
+          w[i] = 0.5 + 0.5 * cos(((double)i) * vtkMath::Pi() / (double)(numIters + 1));
+        }
+        break;
+      case vtkWindowedSincPolyDataFilter::HAMMING:
+        for (i = 0; i <= numIters; i++)
+        {
+          w[i] = 0.54 + 0.46 * cos(((double)i) * vtkMath::Pi() / (double)(numIters + 1));
+        }
+        break;
     }
 
     // Calculate the optimal sigma (offset or fudge factor for the filter).
@@ -1071,6 +1097,8 @@ struct CoefficientsWorker
     double f_kpb = 0.0, fprime_kpb;
     int done = 0;
     sigma = 0.0;
+
+    const double errorTolerance = 1e-3;
 
     // Although this loop can run up to 500 times, in practice 20-40 iterations
     // is typical.
@@ -1117,7 +1145,7 @@ struct CoefficientsWorker
       // if f_kpb is not close enough to 1.0, then adjust sigma
       if (numIters > 1)
       {
-        if (fabs(f_kpb - 1.0) >= 1e-3)
+        if (fabs(f_kpb - 1.0) >= errorTolerance)
         {
           sigma -= (f_kpb - 1.0) / fprime_kpb; // Newton-Rhapson (want f=1)
         }
@@ -1134,7 +1162,7 @@ struct CoefficientsWorker
         sigma = 0.0;
       }
     }
-    if (fabs(f_kpb - 1.0) >= 1e-3)
+    if (fabs(f_kpb - 1.0) >= errorTolerance)
     {
       cout << "An optimal offset for the smoothing filter could not be found.\n";
     }
@@ -1551,6 +1579,8 @@ vtkWindowedSincPolyDataFilter::vtkWindowedSincPolyDataFilter()
   this->PassBand = 0.1;
 
   this->NormalizeCoordinates = false;
+
+  this->WindowFunction = NUTTALL;
 
   this->FeatureAngle = 45.0;
   this->EdgeAngle = 15.0;

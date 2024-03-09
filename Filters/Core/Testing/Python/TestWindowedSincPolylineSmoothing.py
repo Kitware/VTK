@@ -170,6 +170,8 @@ smoother = vtkWindowedSincPolyDataFilter()
 smoother.SetInputConnection(lineStrip.GetOutputPort())
 smoother.SetNumberOfIterations(50)
 smoother.SetEdgeAngle(90)
+# Test with the Hamming window function, as vtkWindowedSincPolyDataFilter used for many years
+smoother.SetWindowFunctionToHamming()
 
 smoothMapper = vtkPolyDataMapper()
 smoothMapper.SetInputConnection(smoother.GetOutputPort())

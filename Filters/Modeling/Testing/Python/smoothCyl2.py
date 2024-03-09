@@ -67,6 +67,8 @@ smooth.BoundarySmoothingOn()
 smooth.SetFeatureAngle(120)
 smooth.SetEdgeAngle(90)
 smooth.SetPassBand(0.1)
+# Test with the Hamming window function, as vtkWindowedSincPolyDataFilter used for many years
+smooth.SetWindowFunctionToHamming()
 
 normals = vtkPolyDataNormals()
 normals.SetInputConnection(smooth.GetOutputPort())

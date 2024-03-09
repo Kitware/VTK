@@ -200,6 +200,49 @@ public:
   vtkBooleanMacro(NormalizeCoordinates, vtkTypeBool);
   ///@}
 
+  /**
+   * WindowFunction types
+   */
+  enum
+  {
+    NUTTALL = 0,
+    BLACKMAN,
+    HANNING,
+    HAMMING
+  };
+
+  ///@{
+  /**
+   * Window function used for approximating the low-pass filter they determine how many iterations
+   * are needed and how accurate the smoothing is.
+   * - NUTTALL function is recommended (this is the default), as it provides
+   *   accurate scale even when number of iterations is low.
+   * - BLACKMAN function has similar performance to NUTTALL but may shrink the output a bit more.
+   * - HANNING function tends to converge to the correct scale but only above 40-60 iterations.
+   * - HAMMING function was the default in VTK for a long time, but is prone to scaling errors.
+   *   Up to about 1% scaling error may occur (either increase or decrease overall size)
+   *   and the error does not reduce to zero when the number of iterations is increased.
+   */
+  vtkSetClampMacro(WindowFunction, int, NUTTALL, HAMMING);
+  vtkGetMacro(WindowFunction, int);
+  void SetWindowFunctionToNuttall()
+  {
+    this->SetWindowFunction(vtkWindowedSincPolyDataFilter::NUTTALL);
+  }
+  void SetWindowFunctionToBlackman()
+  {
+    this->SetWindowFunction(vtkWindowedSincPolyDataFilter::BLACKMAN);
+  }
+  void SetWindowFunctionoHanning()
+  {
+    this->SetWindowFunction(vtkWindowedSincPolyDataFilter::HANNING);
+  }
+  void SetWindowFunctionToHamming()
+  {
+    this->SetWindowFunction(vtkWindowedSincPolyDataFilter::HAMMING);
+  }
+  ///@}
+
   ///@{
   /**
    * Turn on/off smoothing points along sharp interior edges. Enabling this
@@ -289,6 +332,7 @@ protected:
   double PassBand;
 
   vtkTypeBool NormalizeCoordinates;
+  int WindowFunction;
 
   vtkTypeBool FeatureEdgeSmoothing;
   double FeatureAngle;
