@@ -5210,6 +5210,12 @@ while (_vtk_module_find_package_components_to_check)
   list(APPEND _vtk_module_find_package_components_checked
     \"\${_vtk_module_component}\")
 
+  # Any 'components' with `::` are not from our package and must have been
+  # provided/satisfied elsewhere.
+  if (_vtk_module_find_package_components MATCHES \"::\")
+    continue ()
+  endif ()
+
   list(APPEND _vtk_module_find_package_components
     \"\${_vtk_module_component}\")
   if (\${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED_\${_vtk_module_component})
