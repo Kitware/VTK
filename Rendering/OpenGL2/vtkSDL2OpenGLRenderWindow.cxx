@@ -146,18 +146,9 @@ void vtkSDL2OpenGLRenderWindow::SetSize(int x, int y)
     {
       SDL_SetWindowSize(this->WindowId, x, y);
     }
-    // For high dpi screens, SDL2 recommends querying the GL drawable size.
-    // This is needed for the glViewport call in vtkOpenGLCamera::Render to
-    // work correctly.
-    // See https://wiki.libsdl.org/SDL2/SDL_GL_GetDrawableSize
-    if (this->GetDPI() > 72)
-    {
-      SDL_GL_GetDrawableSize(this->WindowId, &this->Size[0], &this->Size[1]);
-    }
-    else
-    {
-      SDL_GetWindowSize(this->WindowId, &this->Size[0], &this->Size[1]);
-    }
+    this->Size[0] = x;
+    this->Size[1] = y;
+
     if (this->Interactor)
     {
       this->Interactor->SetSize(this->Size[0], this->Size[1]);
@@ -237,8 +228,8 @@ void vtkSDL2OpenGLRenderWindow::CreateAWindow()
   SDL_SetHint(SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
 #endif
 
-  this->WindowId = SDL_CreateWindow(this->WindowName, x, y, width, height,
-    SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+  this->WindowId = SDL_CreateWindow(
+    this->WindowName, x, y, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
   SDL_SetWindowResizable(this->WindowId, SDL_TRUE);
   if (this->WindowId)
   {
@@ -305,24 +296,6 @@ void vtkSDL2OpenGLRenderWindow::DestroyWindow()
 // Get the current size of the window.
 int* vtkSDL2OpenGLRenderWindow::GetSize(void)
 {
-  if (this->WindowId)
-  {
-    int w = 0;
-    int h = 0;
-    if (this->GetDPI() > 72)
-    {
-      SDL_GL_GetDrawableSize(this->WindowId, &w, &h);
-      this->Size[0] = w;
-      this->Size[1] = h;
-    }
-    else
-    {
-      SDL_GetWindowSize(this->WindowId, &w, &h);
-      this->Size[0] = w;
-      this->Size[1] = h;
-    }
-  }
-
   return this->vtkOpenGLRenderWindow::GetSize();
 }
 

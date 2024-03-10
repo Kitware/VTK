@@ -15,6 +15,10 @@
 
 #include <algorithm>
 
+#if defined(__EMSCRIPTEN__)
+#include "emscripten/version.h"
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
@@ -79,8 +83,9 @@ wgpu::RenderBundle vtkWebGPUActor::RenderToBundle(vtkRenderer* ren, vtkMapper* m
     const int sampleCount = wgpuRenWin->GetMultiSamples() ? wgpuRenWin->GetMultiSamples() : 1;
 
     wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
-#if __EMSCRIPTEN__
-    // FIXME: Update this after emscripten webgpu updates to colorFormatCount
+#if defined(__EMSCRIPTEN__) &&                                                                     \
+  ((__EMSCRIPTEN_major__ < 3) || ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ < 1)) ||    \
+    ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ <= 1) && (__EMSCRIPTEN_tiny__ < 54)))
     bundleEncDesc.colorFormatsCount = 1;
 #else
     bundleEncDesc.colorFormatCount = 1;
