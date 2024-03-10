@@ -272,6 +272,15 @@ else ()
 endif ()
 set("_vtk_module_reason_VTK::Java"
   "via `VTK_WRAP_JAVA`")
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND vtk_requested_modules
+    VTK::SerializationManager)
+else ()
+  list(APPEND vtk_rejected_modules
+    VTK::SerializationManager)
+endif ()
+set("_vtk_module_reason_VTK::SerializationManager"
+  "via `VTK_WRAP_SERIALIZATION`")
 # For vtkTkRenderWidget (only useful with Python, since WRAP_TCL is gone)
 if (VTK_USE_TK)
   if (VTK_GROUP_ENABLE_Tk STREQUAL "DEFAULT")
@@ -401,6 +410,7 @@ set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/IO"
   "${CMAKE_CURRENT_SOURCE_DIR}/Parallel"
   "${CMAKE_CURRENT_SOURCE_DIR}/Rendering"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Serialization"
   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
   "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty"
   "${CMAKE_CURRENT_SOURCE_DIR}/Utilities"
@@ -546,7 +556,8 @@ vtk_module_build(
   TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing"
   GENERATE_SPDX           ${VTK_GENERATE_SPDX}
   SPDX_DOCUMENT_NAMESPACE "https://vtk.org/spdx"
-  SPDX_DOWNLOAD_LOCATION  "https://gitlab.kitware.com/vtk/vtk/-/tree/master")
+  SPDX_DOWNLOAD_LOCATION  "https://gitlab.kitware.com/vtk/vtk/-/tree/master"
+  ENABLE_SERIALIZATION    "${VTK_WRAP_SERIALIZATION}")
 
 include(vtkModuleJson)
 vtk_module_json(

@@ -1,0 +1,42 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+// Includes vtkModuleNameSerialization.h.
+@_vtk_serdes_include_mandatory_libraries_registrar_headers@
+
+// Includes vtkModuleNameSerialization.h upon the condition that module is enabled.
+@_vtk_serdes_include_optional_libraries_registrar_headers@
+
+#include <iostream> // for std::cerr
+
+extern "C"
+{
+  /**
+   * Register the (de)serialization handlers of classes in all serialized libraries.
+   * @param serializer   a vtkSerializer instance
+   * @param deserializer a vtkDeserializer instance
+   * @param error        when registration fails, the error message is pointed to by `error`. Use it for logging purpose.
+   * @warning The memory pointed to by `error` is not dynamically allocated. Do not free it.
+   */
+  int RegisterLibraries_@_vtk_serdes_registrar_name@(void* serializer, void* deserializer, const char** error);
+}
+
+int RegisterLibraries_@_vtk_serdes_registrar_name@(void* serializer, void* deserializer, const char** error)
+{
+  const int SUCCESS = 1;
+  const int FAIL = 0;
+  if (error)
+  {
+    *error = "";
+  }
+  else
+  {
+    std::cerr << "\'error\' argument cannot be null!\n";
+    return FAIL;
+  }
+  // call RegisterClasses for each mandatory library.
+@_vtk_serdes_register_mandatory_libraries@
+  // call RegisterClasses for each optional library.
+@_vtk_serdes_register_optional_libraries@
+  return SUCCESS;
+}

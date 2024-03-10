@@ -59,3 +59,5 @@ if(VTK_WRAP_JAVA)
   set(VTK_JAVA_HOME "${VTK_BINARY_DIR}/java/vtk")
   file(MAKE_DIRECTORY "${VTK_JAVA_HOME}")
 endif()
+
+cmake_dependent_option(VTK_WRAP_SERIALIZATION "Should VTK serailizer wrapping be built?" OFF "VTK_ENABLE_WRAPPING" OFF)

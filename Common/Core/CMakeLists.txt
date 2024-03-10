@@ -251,6 +251,7 @@ set(classes
   vtkDataArraySelection
   vtkDebugLeaks
   vtkDebugLeaksManager
+  vtkDeserializer
   vtkDoubleArray
   vtkDynamicLoader
   vtkEventForwarderCommand
@@ -294,6 +295,7 @@ set(classes
   vtkLongLongArray
   vtkLookupTable
   vtkMath
+  vtkMarshalContext
   vtkMersenneTwister
   vtkMinimalStandardRandomSequence
   vtkMultiThreader
@@ -314,6 +316,7 @@ set(classes
   vtkRandomPool
   vtkRandomSequence
   vtkReferenceCount
+  vtkSerializer
   vtkScalarsToColors
   vtkShortArray
   vtkSignedCharArray

@@ -1,0 +1,25 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#ifndef @_vtk_serdes_library@SerDes_h
+#define @_vtk_serdes_library@SerDes_h
+
+#include "@_vtk_serdes_module_export_header@"
+
+VTK_ABI_NAMESPACE_BEGIN
+
+class @_vtk_serdes_module_export_macro@ @_vtk_serdes_library@SerDesRegistrar
+{
+public:
+  /**
+   * Register the (de)serialization handlers of classes in a serialized library.
+   * @param serializer   a vtkSerializer instance
+   * @param deserializer a vtkDeserializer instance
+   * @param error        when registration fails, the error message is pointed to by `error`. Use it
+   * for logging purpose.
+   * @warning The memory pointed to by `error` is not dynamically allocated. Do not free it.
+   */
+  static int RegisterClasses(void* serializer, void* deserializer, const char** error);
+};
+VTK_ABI_NAMESPACE_END
+#endif
+// VTKHeaderTest-Exclude: @_vtk_serdes_library@SerDes.h

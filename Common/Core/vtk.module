@@ -23,6 +23,7 @@ DEPENDS
   VTK::kwiml
   VTK::vtksys
   VTK::token
+  VTK::nlohmannjson
 PRIVATE_DEPENDS
   VTK::fast_float
   VTK::doubleconversion

@@ -27,6 +27,8 @@ The following variables are provided by this module:
     Python parts of the module API are available.
   * `VTK_WRAP_JAVA`: If VTK itself provides Java wrapping. If so, the
     Java parts of the module API are available.
+  * `VTK_WRAP_SERIALIZATION`: If VTK itself provides serialization wrappings
+    for marshallable classes in modules with `INCLUDE_MARSHAL`.
   * `VTK_PYTHONPATH`: Where VTK's Python modules live inside the install
     prefix. Unset if Python is not available.
   * `VTK_LIBRARIES`: The list of modules specified by `COMPONENTS` and
@@ -241,6 +243,9 @@ if (${CMAKE_FIND_PACKAGE_NAME}_WRAP_JAVA)
     endif ()
   endif ()
 endif ()
+
+set("${CMAKE_FIND_PACKAGE_NAME}_WRAP_SERIALIZATION" "@VTK_WRAP_SERIALIZATION@")
+include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleSerialization.cmake")
 
 set(_vtk_search_components
   ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})

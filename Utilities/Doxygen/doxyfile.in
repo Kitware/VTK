@@ -74,6 +74,7 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModule.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleJson.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleGraphviz.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleSerialization.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleTesting.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleWrapJava.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleWrapPython.cmake" \
