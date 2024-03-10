@@ -275,6 +275,15 @@ set("_vtk_module_reason_VTK::Java"
 if (VTK_WRAP_SERIALIZATION)
   list(APPEND vtk_requested_modules
     VTK::SerializationManager)
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    list(APPEND vtk_requested_modules
+      VTK::WebAssembly)
+  else ()
+    list(APPEND vtk_rejected_modules
+      VTK::WebAssembly)
+  endif ()
+  set("_vtk_module_reason_VTK::WebAssembly"
+  "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
 else ()
   list(APPEND vtk_rejected_modules
     VTK::SerializationManager)

@@ -1,0 +1,30 @@
+[metadata]
+name = vtk-wasm
+version = @VTK_VERSION@
+description = VTK WebAssembly binaries with glue javacript libraries
+long_description = file: README.md
+long_description_content_type = text/x-md
+author = Kitware Inc.
+license = BSD License
+classifiers =
+    Environment :: Web Environment
+    License :: OSI Approved :: BSD License
+    Natural Language :: English
+    Operating System :: OS Independent
+    Programming Language :: JavaScript
+    Programming Language :: C++
+    Topic :: Software Development :: Libraries :: Application Frameworks
+    Topic :: Software Development :: Libraries :: Python Modules
+keywords =
+    WebAssembly
+    Web
+    Visualization
+
+[options]
+packages = find:
+include_package_data = True
+install_requires =
+    vtk==@VTK_VERSION@
+
+[semantic_release]
+version_pattern = setup.cfg:version = (\d+\.\d+\.\d+)
