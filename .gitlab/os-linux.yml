@@ -667,3 +667,38 @@
       - python -m pip install --exists-action=w --no-cache-dir -r Documentation/docs/requirements.txt
       - cd Documentation/docs
       - make html |& tee $GIT_CLONE_PATH/sphinx_output.log
+
+
+.before_script_linux_node: &before_script_linux_node
+    - .gitlab/ci/node.sh
+    - export PATH=$PWD/.gitlab/node/bin:$PATH
+    - node --version
+
+.cmake_build_webassembly_linux:
+    stage: build
+    extends: .warning_policy
+
+    script:
+        - *before_script_linux
+        - *before_script_linux_node
+        - .gitlab/ci/clang-tidy-cache.sh
+        - .gitlab/ci/sccache.sh
+        - sccache --start-server
+        - sccache --show-stats
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+        - sccache --show-stats
+        - exec .gitlab/ci/check_warnings.sh .
+
+    interruptible: true
+
+.cmake_test_webassembly_linux:
+    stage: test
+    extends: .warning_policy
+
+    script:
+        - *before_script_linux
+        - *before_script_linux_node
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
+
+    interruptible: true

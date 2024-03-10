@@ -358,10 +358,23 @@ fedora34-mpi-python-vtkmoverride:test:
 webassembly:build:
     extends:
         - .webassembly
-        - .cmake_build_linux
+        - .cmake_build_webassembly_linux
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+
+## Webassembly test
+webassembly:test:
+    extends:
+        - .webassembly
+        - .cmake_test_webassembly_linux
+        - .linux_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - webassembly:build
+    needs:
+        - webassembly:build
 
 ## Python wheel builds
 
