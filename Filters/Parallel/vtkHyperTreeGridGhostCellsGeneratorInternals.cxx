@@ -40,6 +40,21 @@ typename MapType::iterator ProbeFind(
 }
 
 /**
+ * Subroutine to compute the number of values attached to a single cell in the output HTG.
+ */
+int GetNumberOfCellValues(vtkCellData* cellData)
+{
+  int totalCellSize = 0;
+  int nbArray = cellData->GetNumberOfArrays();
+  for (int arrayId = 0; arrayId < nbArray; arrayId++)
+  {
+    vtkDataArray* outArray = cellData->GetArray(arrayId);
+    totalCellSize += outArray->GetNumberOfComponents();
+  }
+  return totalCellSize;
+}
+
+/**
  * Creates a ghost tree in the output. It is built in mirror with
  * vtkHyperTreeGridGhostCellsGenerator::ExtractInterface.
  *
@@ -137,20 +152,6 @@ vtkHyperTreeGridGhostCellsGeneratorInternals::vtkHyperTreeGridGhostCellsGenerato
   this->NumberOfHyperTrees = cellDims[0] * cellDims[1] * cellDims[2];
   this->HyperTreesMapToProcesses.resize(
     this->NumberOfHyperTrees + this->Controller->GetNumberOfProcesses());
-}
-
-//------------------------------------------------------------------------------
-int vtkHyperTreeGridGhostCellsGeneratorInternals::GetNumberOfCellValues()
-{
-  int totalCellSize = 0;
-  vtkCellData* cellData = this->OutputHTG->GetCellData();
-  int nbArray = cellData->GetNumberOfArrays();
-  for (int arrayId = 0; arrayId < nbArray; arrayId++)
-  {
-    vtkDataArray* outArray = cellData->GetArray(arrayId);
-    totalCellSize += outArray->GetNumberOfComponents();
-  }
-  return totalCellSize;
 }
 
 //------------------------------------------------------------------------------
@@ -529,15 +530,9 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeMasks()
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeCellData()
 {
-  // Pre-compute the total number of values associated to each cell
-  int totalCellSize = this->GetNumberOfCellValues();
-  vtkDebugWithObjectMacro(this->Self, "Computed cell data size: " << totalCellSize);
-
   int numberOfProcesses = this->Controller->GetNumberOfProcesses();
   int processId = this->Controller->GetLocalProcessId();
 
-  vtkCellData* cellData = this->OutputHTG->GetCellData();
-  int nbArray = cellData->GetNumberOfArrays();
   for (int id = 0; id < numberOfProcesses; ++id)
   {
     if (id != processId)
@@ -548,6 +543,7 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeCellData()
       {
         SendTreeBufferMap& sendTreeMap = sendIt->second;
         std::vector<double> buf;
+
         vtkIdType totalLength = 0;
         vtkIdType writeOffset = 0;
 
@@ -558,15 +554,17 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeCellData()
           {
             vtkDebugWithObjectMacro(this->Self,
               "Processing buffer with " << sendTreeBuffer.count << " elements for process " << id);
-            totalLength += totalCellSize * sendTreeBuffer.count;
+            vtkCellData* cellData = this->InputHTG->GetCellData();
+            totalLength += sendTreeBuffer.count * ::GetNumberOfCellValues(cellData);
             buf.resize(totalLength);
 
             // Fill send buffer with array data
-            for (int arrayId = 0; arrayId < nbArray; ++arrayId)
+            for (int arrayId = 0; arrayId < cellData->GetNumberOfArrays(); ++arrayId)
             {
               vtkDataArray* inArray = cellData->GetArray(arrayId);
               for (vtkIdType tupleId = 0; tupleId < sendTreeBuffer.count; ++tupleId)
               {
+
                 for (int compId = 0; compId < inArray->GetNumberOfComponents(); compId++)
                 {
                   buf[writeOffset++] =
@@ -603,30 +601,29 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeCellData()
         }
         int process = targetRecvBuffer->first;
         vtkDebugWithObjectMacro(this->Self, "Begin receiving data from process " << process);
-
         auto&& recvTreeMap = targetRecvBuffer->second;
         if (this->Flags[process] == INITIALIZE_TREE)
         {
+          vtkCellData* cellData = OutputHTG->GetCellData();
+
           // Compute total length to be received
           unsigned long totalLength = 0;
           for (auto&& recvTreeBufferPair : recvTreeMap)
           {
-            totalLength += totalCellSize * recvTreeBufferPair.second.count;
+            totalLength += recvTreeBufferPair.second.count * ::GetNumberOfCellValues(cellData);
           }
-
           std::vector<double> buf(totalLength);
-          this->Controller->Receive(buf.data(), totalLength, process, HTGGCG_DATA2_EXCHANGE_TAG);
+
+          Controller->Receive(buf.data(), totalLength, process, HTGGCG_DATA2_EXCHANGE_TAG);
 
           // Fill output arrays using data received
           vtkIdType readOffset = 0;
           for (auto&& recvTreeBufferPair : recvTreeMap)
           {
             auto&& recvTreeBuffer = recvTreeBufferPair.second;
-
-            for (int arrayId = 0; arrayId < nbArray; ++arrayId)
+            for (int arrayId = 0; arrayId < cellData->GetNumberOfArrays(); ++arrayId)
             {
               vtkDataArray* outArray = cellData->GetArray(arrayId);
-
               for (vtkIdType tupleId = 0; tupleId < recvTreeBuffer.count; ++tupleId)
               {
                 for (int compIdx = 0; compIdx < outArray->GetNumberOfComponents(); compIdx++)

@@ -52,11 +52,6 @@ public:
     vtkBitArray* outputMask, vtkIdType totalVertices);
 
   /**
-   * Subroutine to compute the number of values attached to a single cell in the output HTG.
-   */
-  int GetNumberOfCellValues();
-
-  /**
    * Subroutine performing an MPI AllReduce operation,
    * filling the vector HyperTreesMapToProcesses where `HyperTreesMapToProcesses[i]` is the rank of
    * the process where the root tree indexed `i` is located.
