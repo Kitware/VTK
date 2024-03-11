@@ -26,6 +26,18 @@ public:
 
   ///@{
   /**
+   * Turn on/off preserving poly-vertices, polylines, polygons through filter (default: off).
+   * If this is on, then the input polygons will be preserved through
+   * the filter.  If it is off, then the input polygons will be
+   * split into vertices, lines, triangles.
+   */
+  vtkSetMacro(PreservePolys, vtkTypeBool);
+  vtkGetMacro(PreservePolys, vtkTypeBool);
+  vtkBooleanMacro(PreservePolys, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Turn on/off passing vertices through filter (default: on).
    * If this is on, then the input vertex cells will be broken
    * into individual vertex cells (one point per cell).  If it
@@ -66,6 +78,7 @@ protected:
   vtkTriangleFilter()
     : PassVerts(1)
     , PassLines(1)
+    , PreservePolys(0)
     , Tolerance(-1.0) // use default vtkPolygon::Tolerance
   {
   }
@@ -76,6 +89,7 @@ protected:
 
   vtkTypeBool PassVerts;
   vtkTypeBool PassLines;
+  vtkTypeBool PreservePolys;
   double Tolerance;
 
 private:
