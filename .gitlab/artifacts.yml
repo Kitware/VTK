@@ -32,6 +32,8 @@
             - build/lib/
             - build/Utilities/KWIML/vtkkwiml/test/kwiml_test
             - build/Utilities/KWIML/vtkkwiml/test/kwiml_test.exe
+            - build/Utilities/KWIML/vtkkwiml/test/kwiml_test.js
+            - build/Utilities/KWIML/vtkkwiml/test/kwiml_test.wasm
 
             # Python packages go here
             - build/lib64/
