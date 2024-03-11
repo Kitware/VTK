@@ -42,6 +42,7 @@ vtk_add_test_python(
   schwarz.py
   smoothCyl.py
   smoothCyl2.py
+  smoothCylNuttall.py
   subDivideTetra.py
   subdividePointData.py
   TestFillHolesFilter.py
