@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSplitSharpEdgesPolyData.h"
 
+#include "vtkBatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
@@ -13,8 +14,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataNormals.h"
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 
+#include <algorithm>
 #include <cmath>
 #include <numeric>
 #include <vector>
@@ -40,6 +43,35 @@ void vtkSplitSharpEdgesPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FeatureAngle: " << this->FeatureAngle << "\n";
   os << indent << "OutputPointsPrecision: " << this->OutputPointsPrecision << "\n";
 }
+
+namespace
+{
+//----------------------------------------------------------------------------
+// ReplacementInfoBatch
+struct MarkAndSplitBatchData
+{
+  vtkIdType PointsOffset;
+
+  MarkAndSplitBatchData()
+    : PointsOffset(0)
+  {
+  }
+  ~MarkAndSplitBatchData() = default;
+  MarkAndSplitBatchData& operator+=(const MarkAndSplitBatchData& other)
+  {
+    this->PointsOffset += other.PointsOffset;
+    return *this;
+  }
+  MarkAndSplitBatchData operator+(const MarkAndSplitBatchData& other) const
+  {
+    MarkAndSplitBatchData result = *this;
+    result += other;
+    return result;
+  }
+};
+using MarkAndSplitBatch = vtkBatch<MarkAndSplitBatchData>;
+using MarkAndSplitBatches = vtkBatches<MarkAndSplitBatchData>;
+} // namespace
 
 //-----------------------------------------------------------------------------
 // Mark polygons around vertex.  Create new vertex (if necessary) and
@@ -78,6 +110,8 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
   };
   vtkSMPThreadLocal<LocalData> TLData;
 
+  MarkAndSplitBatches PointBatches;
+
   MarkAndSplitFunctor(vtkPolyData* input, vtkPolyData* output, vtkFloatArray* cellNormals,
     vtkIdList* map, vtkSplitSharpEdgesPolyData* filter)
     : Input(input)
@@ -87,6 +121,9 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
     , CosAngle(std::cos(vtkMath::RadiansFromDegrees(filter->GetFeatureAngle())))
     , Filter(filter)
   {
+    // initialize batches
+    this->PointBatches.Initialize(this->Input->GetNumberOfPoints());
+
     this->CellPointsReplacementInfo.resize(this->Input->GetNumberOfPoints());
   }
 
@@ -98,7 +135,7 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
     tlData.Visited.resize(this->Input->GetNumberOfCells(), -1);
   }
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
   {
     auto& tlData = this->TLData.Local();
     auto& tempCellPointIds = tlData.TempCellPointIds;
@@ -109,175 +146,219 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
     vtkIdType ncells, *cells, i, j, numPts;
     const vtkIdType* pts;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
-    for (vtkIdType pointId = begin; pointId < end; pointId++)
+    for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
-      if (pointId % checkAbortInterval == 0)
+      if (isFirst)
       {
-        if (isFirst)
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+
+      MarkAndSplitBatch& batch = this->PointBatches[batchId];
+      auto& batchNumberOfPoints = batch.Data.PointsOffset;
+      for (vtkIdType pointId = batch.BeginId; pointId < batch.EndId; pointId++)
+      {
+        // Get the cells using this point and make sure that we have to do something
+        this->Input->GetPointCells(pointId, ncells, cells);
+        if (ncells <= 1)
         {
-          this->Filter->CheckAbort();
+          continue; // point does not need to be further disconnected
         }
-        if (this->Filter->GetAbortOutput())
+
+        // Start moving around the "cycle" of points using the point. Label
+        // each point as requiring a visit. Then label each subregion of cells
+        // connected to this point that are connected (and not separated by
+        // a feature edge) with a given region number. For each N regions
+        // created, N-1 duplicate (split) points are created. The split point
+        // replaces the current point ptId in the polygons connectivity array.
+        //
+        // Start by initializing the cells as unvisited
+        for (i = 0; i < ncells; i++)
         {
-          break;
+          visited[cells[i]] = -1;
         }
-      }
-      // Get the cells using this point and make sure that we have to do something
-      this->Input->GetPointCells(pointId, ncells, cells);
-      if (ncells <= 1)
-      {
-        continue; // point does not need to be further disconnected
-      }
 
-      // Start moving around the "cycle" of points using the point. Label
-      // each point as requiring a visit. Then label each subregion of cells
-      // connected to this point that are connected (and not separated by
-      // a feature edge) with a given region number. For each N regions
-      // created, N-1 duplicate (split) points are created. The split point
-      // replaces the current point ptId in the polygons connectivity array.
-      //
-      // Start by initializing the cells as unvisited
-      for (i = 0; i < ncells; i++)
-      {
-        visited[cells[i]] = -1;
-      }
-
-      // Loop over all cells and mark the region that each is in.
-      int numRegions = 0;
-      vtkIdType spot, neiPt[2], nei, cellId, neiCellId;
-      float *thisNormal, *neiNormal;
-      for (j = 0; j < ncells; j++) // for all cells connected to point
-      {
-        if (visited[cells[j]] < 0) // for all unvisited cells
+        // Loop over all cells and mark the region that each is in.
+        int numRegions = 0;
+        vtkIdType spot, neiPt[2], nei, cellId, neiCellId;
+        float *thisNormal, *neiNormal;
+        for (j = 0; j < ncells; j++) // for all cells connected to point
         {
-          visited[cells[j]] = numRegions;
-          // okay, mark all the cells connected to this seed cell and using ptId
-          this->Input->GetCellPoints(cells[j], numPts, pts, tempCellPointIds);
-          if (numPts < 3)
+          if (visited[cells[j]] < 0) // for all unvisited cells
           {
-            continue;
-          }
-
-          // find the two edges
-          for (spot = 0; spot < numPts; spot++)
-          {
-            if (pts[spot] == pointId)
+            visited[cells[j]] = numRegions;
+            // okay, mark all the cells connected to this seed cell and using ptId
+            this->Input->GetCellPoints(cells[j], numPts, pts, tempCellPointIds);
+            if (numPts < 3)
             {
-              break;
+              continue;
             }
-          }
 
-          if (spot == 0)
-          {
-            neiPt[0] = pts[spot + 1];
-            neiPt[1] = pts[numPts - 1];
-          }
-          else if (spot == (numPts - 1))
-          {
-            neiPt[0] = pts[spot - 1];
-            neiPt[1] = pts[0];
-          }
-          else
-          {
-            neiPt[0] = pts[spot + 1];
-            neiPt[1] = pts[spot - 1];
-          }
-
-          for (i = 0; i < 2; i++) // for each of the two edges of the seed cell
-          {
-            cellId = cells[j];
-            nei = neiPt[i];
-            while (cellId >= 0) // while we can grow this region
+            // find the two edges
+            for (spot = 0; spot < numPts; spot++)
             {
-              this->Input->GetCellEdgeNeighbors(cellId, pointId, nei, cellIds);
-              if (cellIds->GetNumberOfIds() == 1 && visited[(neiCellId = cellIds->GetId(0))] < 0)
+              if (pts[spot] == pointId)
               {
-                thisNormal = cellNormals + 3 * cellId;
-                neiNormal = cellNormals + 3 * neiCellId;
+                break;
+              }
+            }
 
-                if (vtkMath::Dot(thisNormal, neiNormal) > this->CosAngle)
+            if (spot == 0)
+            {
+              neiPt[0] = pts[spot + 1];
+              neiPt[1] = pts[numPts - 1];
+            }
+            else if (spot == (numPts - 1))
+            {
+              neiPt[0] = pts[spot - 1];
+              neiPt[1] = pts[0];
+            }
+            else
+            {
+              neiPt[0] = pts[spot + 1];
+              neiPt[1] = pts[spot - 1];
+            }
+
+            for (i = 0; i < 2; i++) // for each of the two edges of the seed cell
+            {
+              cellId = cells[j];
+              nei = neiPt[i];
+              while (cellId >= 0) // while we can grow this region
+              {
+                this->Input->GetCellEdgeNeighbors(cellId, pointId, nei, cellIds);
+                if (cellIds->GetNumberOfIds() == 1 && visited[(neiCellId = cellIds->GetId(0))] < 0)
                 {
-                  // visit and arrange to visit next edge neighbor
-                  visited[neiCellId] = numRegions;
-                  cellId = neiCellId;
-                  this->Input->GetCellPoints(cellId, numPts, pts, tempCellPointIds);
+                  thisNormal = cellNormals + 3 * cellId;
+                  neiNormal = cellNormals + 3 * neiCellId;
 
-                  for (spot = 0; spot < numPts; spot++)
+                  if (vtkMath::Dot(thisNormal, neiNormal) > this->CosAngle)
                   {
-                    if (pts[spot] == pointId)
+                    // visit and arrange to visit next edge neighbor
+                    visited[neiCellId] = numRegions;
+                    cellId = neiCellId;
+                    this->Input->GetCellPoints(cellId, numPts, pts, tempCellPointIds);
+
+                    for (spot = 0; spot < numPts; spot++)
                     {
-                      break;
+                      if (pts[spot] == pointId)
+                      {
+                        break;
+                      }
                     }
-                  }
 
-                  if (spot == 0)
-                  {
-                    nei = (pts[spot + 1] != nei ? pts[spot + 1] : pts[numPts - 1]);
-                  }
-                  else if (spot == (numPts - 1))
-                  {
-                    nei = (pts[spot - 1] != nei ? pts[spot - 1] : pts[0]);
-                  }
+                    if (spot == 0)
+                    {
+                      nei = (pts[spot + 1] != nei ? pts[spot + 1] : pts[numPts - 1]);
+                    }
+                    else if (spot == (numPts - 1))
+                    {
+                      nei = (pts[spot - 1] != nei ? pts[spot - 1] : pts[0]);
+                    }
+                    else
+                    {
+                      nei = (pts[spot + 1] != nei ? pts[spot + 1] : pts[spot - 1]);
+                    }
+
+                  } // if not separated by edge angle
                   else
                   {
-                    nei = (pts[spot + 1] != nei ? pts[spot + 1] : pts[spot - 1]);
+                    cellId = -1; // separated by edge angle
                   }
-
-                } // if not separated by edge angle
+                } // if can move to edge neighbor
                 else
                 {
-                  cellId = -1; // separated by edge angle
+                  cellId = -1; // separated by previous visit, boundary, or non-manifold
                 }
-              } // if can move to edge neighbor
-              else
-              {
-                cellId = -1; // separated by previous visit, boundary, or non-manifold
-              }
-            } // while visit wave is propagating
-          }   // for each of the two edges of the starting cell
-          numRegions++;
-        } // if cell is unvisited
-      }   // for all cells connected to point ptId
+              } // while visit wave is propagating
+            }   // for each of the two edges of the starting cell
+            numRegions++;
+          } // if cell is unvisited
+        }   // for all cells connected to point ptId
 
-      if (numRegions <= 1)
-      {
-        continue; // a single region, no splitting ever required
-      }
-
-      // store all cells not in the first region that require splitting
-      auto& cellPointReplacementInfo = this->CellPointsReplacementInfo[pointId];
-      for (j = 0; j < ncells; ++j)
-      {
-        if (visited[cells[j]] > 0)
+        if (numRegions <= 1)
         {
-          cellPointReplacementInfo.emplace_back(cells[j], visited[cells[j]]);
+          continue; // a single region, no splitting ever required
         }
+
+        // store all cells not in the first region that require splitting
+        auto& cellPointReplacementInfo = this->CellPointsReplacementInfo[pointId];
+        int maxNumRegions = 0;
+        for (j = 0; j < ncells; ++j)
+        {
+          const auto& cellNumRegions = visited[cells[j]];
+          if (cellNumRegions > 0)
+          {
+            cellPointReplacementInfo.emplace_back(cells[j], cellNumRegions);
+            maxNumRegions = std::max(maxNumRegions, cellNumRegions);
+          }
+        }
+        batchNumberOfPoints += maxNumRegions;
       }
     }
   }
 
   void Reduce()
   {
-    // This part needs to be done sequentially.
-    vtkNew<vtkIdList> tempCellPointIds;
-    vtkIdType replacementPointId;
-    vtkIdType lastId;
-    for (vtkIdType pointId = 0; pointId < this->Input->GetNumberOfPoints(); ++pointId)
+    // trim batches with 0 points in-place
+    this->PointBatches.TrimBatches(
+      [](const MarkAndSplitBatch& batch) { return batch.Data.PointsOffset == 0; });
+
+    // assign beginPointsOffset for each batch
+    const auto globalSum = this->PointBatches.BuildOffsetsAndGetGlobalSum();
+    const auto numberOfExtraNewPoints = globalSum.PointsOffset;
+
+    if (numberOfExtraNewPoints == 0)
     {
-      // For all cells not in the first region, the info pointId is
-      // replaced with a new pointId, which is a duplicate of the first
-      // point, but disconnected topologically.
-      lastId = this->Map->GetNumberOfIds();
-      for (auto& cellPointReplacementInfo : this->CellPointsReplacementInfo[pointId])
-      {
-        const auto& cellId = cellPointReplacementInfo.CellId;
-        const auto& numberOfRegions = cellPointReplacementInfo.NumberOfRegions;
-        replacementPointId = lastId + numberOfRegions - 1;
-        this->Map->InsertId(replacementPointId, pointId);
-        this->Output->ReplaceCellPoint(cellId, pointId, replacementPointId, tempCellPointIds);
-      } // for all cells connected to pointId and not in first region that require splitting
+      return;
     }
+    const auto numberOfOldPoints = this->Map->GetNumberOfIds();
+    const auto numberOfNewPoints = numberOfOldPoints + numberOfExtraNewPoints;
+    this->Map->Resize(numberOfNewPoints);
+    this->Map->SetNumberOfIds(numberOfNewPoints);
+    //  we will override the old cell array with the new one
+    vtkNew<vtkCellArray> outPolys;
+    outPolys->DeepCopy(this->Input->GetPolys());
+    this->Output->SetPolys(outPolys);
+    this->Output->BuildCells(); // builds connectivity
+
+    vtkSMPThreadLocalObject<vtkIdList> tlTempCellPointIds;
+    vtkSMPTools::For(0, this->PointBatches.GetNumberOfBatches(),
+      [&](vtkIdType beginBatchId, vtkIdType endBatchId) {
+        auto& tempCellPointIds = tlTempCellPointIds.Local();
+        const bool isFirst = vtkSMPTools::GetSingleThread();
+        for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+        {
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
+          MarkAndSplitBatch& batch = this->PointBatches[batchId];
+          auto lastId = batch.Data.PointsOffset + numberOfOldPoints;
+          vtkIdType replacementPointId;
+          int numMaxRegions;
+          for (vtkIdType pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
+          {
+            numMaxRegions = 0;
+            for (auto& cellPointReplacementInfo : this->CellPointsReplacementInfo[pointId])
+            {
+              const auto& cellId = cellPointReplacementInfo.CellId;
+              const auto& numberOfRegions = cellPointReplacementInfo.NumberOfRegions;
+              numMaxRegions = std::max(numMaxRegions, numberOfRegions);
+              replacementPointId = lastId + numberOfRegions - 1;
+              this->Map->SetId(replacementPointId, pointId);
+              this->Output->ReplaceCellPoint(cellId, pointId, replacementPointId, tempCellPointIds);
+            } // for all cells connected to pointId and not in first region that require splitting
+            lastId += numMaxRegions;
+          }
+        }
+      });
   }
 };
 
@@ -324,18 +405,14 @@ int vtkSplitSharpEdgesPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  // create a copy because we're modifying it
+  // create a copy
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* outCD = output->GetCellData();
 
-  output->SetPoints(inPoints);
   output->SetVerts(input->GetVerts());
   output->SetLines(input->GetLines());
-  vtkNew<vtkCellArray> outPolys;
-  outPolys->DeepCopy(input->GetPolys());
-  output->SetPolys(outPolys);
+  output->SetPolys(input->GetPolys());
   outCD->PassData(inCD);
-  output->BuildCells(); // builds connectivity
 
   ///////////////////////////////////////////////////////////////////
   //  Splitting will create new points.  We have to create index
@@ -352,44 +429,59 @@ int vtkSplitSharpEdgesPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   });
 
   MarkAndSplitFunctor functor(input, output, cellNormals, newToOldPointsMap, this);
-  vtkSMPTools::For(0, numInPoints, functor);
+  vtkSMPTools::For(0, functor.PointBatches.GetNumberOfBatches(), functor);
   const vtkIdType numOutPoints = newToOldPointsMap->GetNumberOfIds();
 
   vtkDebugMacro(<< "Created " << numNewPts - numPts << " new points");
 
-  //  Now need to map attributes of old points into new points.
-  outPD->CopyNormalsOff();
-  outPD->CopyAllocate(inPD, numOutPoints);
+  if (numOutPoints == numInPoints)
+  {
+    outPD->CopyNormalsOff();
+    outPD->PassData(inPD);
+    output->SetPoints(inPoints);
 
-  vtkNew<vtkPoints> newPoints;
-  // set precision for the points in the output
-  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-  {
-    newPoints->SetDataType(input->GetPoints()->GetDataType());
+    // Copy the links from the input to the output so that subsequent filters can use them.
+    auto links = vtkSmartPointer<vtkAbstractCellLinks>::Take(input->GetLinks()->NewInstance());
+    links->SetDataSet(output);
+    links->ShallowCopy(input->GetLinks());
+    output->SetLinks(links);
   }
-  else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  else
   {
-    newPoints->SetDataType(VTK_FLOAT);
-  }
-  else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-  {
-    newPoints->SetDataType(VTK_DOUBLE);
-  }
-
-  newPoints->SetNumberOfPoints(numOutPoints);
-  outPD->SetNumberOfTuples(numOutPoints);
-  vtkIdType* mapPtr = newToOldPointsMap->GetPointer(0);
-  vtkSMPTools::For(0, numOutPoints, [&](vtkIdType begin, vtkIdType end) {
-    double p[3];
-    for (vtkIdType newPointId = begin; newPointId < end; newPointId++)
+    vtkNew<vtkPoints> newPoints;
+    // set precision for the points in the output
+    if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
     {
-      const vtkIdType& oldPointId = mapPtr[newPointId];
-      inPoints->GetPoint(oldPointId, p);
-      newPoints->SetPoint(newPointId, p);
-      outPD->CopyData(inPD, oldPointId, newPointId);
+      newPoints->SetDataType(input->GetPoints()->GetDataType());
     }
-  });
-  output->SetPoints(newPoints);
+    else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+      newPoints->SetDataType(VTK_FLOAT);
+    }
+    else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+      newPoints->SetDataType(VTK_DOUBLE);
+    }
+
+    //  Now need to map attributes of old points into new points.
+    outPD->CopyNormalsOff();
+    outPD->CopyAllocate(inPD, numOutPoints);
+
+    newPoints->SetNumberOfPoints(numOutPoints);
+    outPD->SetNumberOfTuples(numOutPoints);
+    vtkIdType* mapPtr = newToOldPointsMap->GetPointer(0);
+    vtkSMPTools::For(0, numOutPoints, [&](vtkIdType begin, vtkIdType end) {
+      double p[3];
+      for (vtkIdType newPointId = begin; newPointId < end; newPointId++)
+      {
+        const vtkIdType& oldPointId = mapPtr[newPointId];
+        inPoints->GetPoint(oldPointId, p);
+        newPoints->SetPoint(newPointId, p);
+        outPD->CopyData(inPD, oldPointId, newPointId);
+      }
+    });
+    output->SetPoints(newPoints);
+  }
 
   // set the normals in the output
   outCD->SetNormals(cellNormals);
