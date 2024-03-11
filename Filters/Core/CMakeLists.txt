@@ -77,6 +77,7 @@ set(classes
   vtkMergeFilter
   vtkMoleculeAppend
   vtkMultiObjectMassProperties
+  vtkOrientPolyData
   vtkPackLabels
   vtkPassThrough
   vtkPlaneCutter
@@ -101,6 +102,7 @@ set(classes
   vtkSimpleElevationFilter
   vtkSmoothPolyDataFilter
   vtkSphereTreeFilter
+  vtkSplitSharpEdgesPolyData
   vtkStructuredDataPlaneCutter
   vtkStaticCleanPolyData
   vtkStaticCleanUnstructuredGrid

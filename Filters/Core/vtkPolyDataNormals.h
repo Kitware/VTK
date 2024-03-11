@@ -45,6 +45,8 @@
  * if you know that you have a triangle mesh which does not require splitting
  * nor consistency check on the cell orientations.
  *
+ * @sa
+ * vtkOrientPolyData, vtkSplitSharpEdgesPolyData, vtkTriangleFilter
  */
 
 #ifndef vtkPolyDataNormals_h
@@ -76,6 +78,8 @@ public:
    * Specify the angle that defines a sharp edge. If the difference in
    * angle across neighboring polygons is greater than this value, the
    * shared edge is considered "sharp".
+   *
+   * The default value is 30 degrees.
    */
   vtkSetClampMacro(FeatureAngle, double, 0.0, 180.0);
   vtkGetMacro(FeatureAngle, double);
@@ -84,6 +88,8 @@ public:
   ///@{
   /**
    * Turn on/off the splitting of sharp edges.
+   *
+   * The default value is true.
    */
   vtkSetMacro(Splitting, vtkTypeBool);
   vtkGetMacro(Splitting, vtkTypeBool);
@@ -93,6 +99,8 @@ public:
   ///@{
   /**
    * Turn on/off the enforcement of consistent polygon ordering.
+   *
+   * The default value is true.
    */
   vtkSetMacro(Consistency, vtkTypeBool);
   vtkGetMacro(Consistency, vtkTypeBool);
@@ -110,6 +118,8 @@ public:
    * FlipNormals flag. However, this flag can work with the FlipNormals
    * flag, and if both are set, all the normals in the output will
    * point "inward".
+   *
+   * The default value is false.
    */
   vtkSetMacro(AutoOrientNormals, vtkTypeBool);
   vtkGetMacro(AutoOrientNormals, vtkTypeBool);
@@ -119,6 +129,8 @@ public:
   ///@{
   /**
    * Turn on/off the computation of point normals.
+   *
+   * The default value is true.
    */
   vtkSetMacro(ComputePointNormals, vtkTypeBool);
   vtkGetMacro(ComputePointNormals, vtkTypeBool);
@@ -128,6 +140,8 @@ public:
   ///@{
   /**
    * Turn on/off the computation of cell normals.
+   *
+   * The default value is false.
    */
   vtkSetMacro(ComputeCellNormals, vtkTypeBool);
   vtkGetMacro(ComputeCellNormals, vtkTypeBool);
@@ -140,6 +154,8 @@ public:
    * reverves the meaning of front and back for Frontface and Backface
    * culling in vtkProperty.  Flipping modifies both the normal
    * direction and the order of a cell's points.
+   *
+   * The default value is false.
    */
   vtkSetMacro(FlipNormals, vtkTypeBool);
   vtkGetMacro(FlipNormals, vtkTypeBool);
@@ -151,6 +167,8 @@ public:
    * Turn on/off traversal across non-manifold edges. This will prevent
    * problems where the consistency of polygonal ordering is corrupted due
    * to topological loops.
+   *
+   * The default value is true.
    */
   vtkSetMacro(NonManifoldTraversal, vtkTypeBool);
   vtkGetMacro(NonManifoldTraversal, vtkTypeBool);
@@ -162,10 +180,16 @@ public:
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
+   *
+   * The default value is vtkAlgorithm::DEFAULT_PRECISION.
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
   ///@}
+
+  static vtkSmartPointer<vtkFloatArray> GetCellNormals(vtkPolyData* data);
+  static vtkSmartPointer<vtkFloatArray> GetPointNormals(
+    vtkPolyData* data, vtkFloatArray* cellNormals, double flipDirection = 1.0);
 
 protected:
   vtkPolyDataNormals();
@@ -182,26 +206,9 @@ protected:
   vtkTypeBool NonManifoldTraversal;
   vtkTypeBool ComputePointNormals;
   vtkTypeBool ComputeCellNormals;
-  vtkIdType NumFlips;
   int OutputPointsPrecision;
 
 private:
-  double CosAngle;
-
-  struct MarkAndSplitFunctor;
-
-  // Uses the list of cell ids (this->Wave) to propagate a wave of
-  // checked and properly ordered polygons.
-  void TraverseAndOrder(vtkPolyData* oldMesh, vtkPolyData* newMesh, vtkIdList* wave,
-    vtkIdList* wave2, vtkIdList* cellPointIds, vtkIdList* cellIds, vtkIdList* neighborPointIds,
-    std::vector<char>& visited, vtkIdType& numFlips);
-
-  // check all the points whether they lie on a feature
-  // edge. If so, split the point (i.e., duplicate it) to topologically
-  // separate the mesh.
-  void ExecuteMarkAndSplit(vtkPolyData* oldMesh, vtkPolyData* newMesh, vtkFloatArray* cellNormals,
-    vtkIdList* map, vtkIdType numPoints, vtkIdType numPolys, double cosAngle);
-
   vtkPolyDataNormals(const vtkPolyDataNormals&) = delete;
   void operator=(const vtkPolyDataNormals&) = delete;
 };
