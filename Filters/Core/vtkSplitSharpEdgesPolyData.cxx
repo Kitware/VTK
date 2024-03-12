@@ -143,7 +143,7 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
     auto& visited = tlData.Visited;
     float* cellNormals = this->CellNormals->GetPointer(0);
 
-    vtkIdType ncells, *cells, i, j, numPts;
+    vtkIdType ncells, *cells, edgeId, ptCellId, numPts;
     const vtkIdType* pts;
     bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
@@ -176,22 +176,22 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
         // replaces the current point ptId in the polygons connectivity array.
         //
         // Start by initializing the cells as unvisited
-        for (i = 0; i < ncells; i++)
+        for (ptCellId = 0; ptCellId < ncells; ptCellId++)
         {
-          visited[cells[i]] = -1;
+          visited[cells[ptCellId]] = -1;
         }
 
         // Loop over all cells and mark the region that each is in.
         int16_t numRegions = 0;
         vtkIdType spot, neiPt[2], nei, cellId, neiCellId;
         float *thisNormal, *neiNormal;
-        for (j = 0; j < ncells; j++) // for all cells connected to point
+        for (ptCellId = 0; ptCellId < ncells; ptCellId++) // for all cells connected to point
         {
-          if (visited[cells[j]] < 0) // for all unvisited cells
+          if (visited[cells[ptCellId]] < 0) // for all unvisited cells
           {
-            visited[cells[j]] = numRegions;
+            visited[cells[ptCellId]] = numRegions;
             // okay, mark all the cells connected to this seed cell and using ptId
-            this->Input->GetCellPoints(cells[j], numPts, pts, tempCellPointIds);
+            this->Input->GetCellPoints(cells[ptCellId], numPts, pts, tempCellPointIds);
             if (numPts < 3)
             {
               continue;
@@ -222,10 +222,10 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
               neiPt[1] = pts[spot - 1];
             }
 
-            for (i = 0; i < 2; i++) // for each of the two edges of the seed cell
+            for (edgeId = 0; edgeId < 2; edgeId++) // for each of the two edges of the seed cell
             {
-              cellId = cells[j];
-              nei = neiPt[i];
+              cellId = cells[ptCellId];
+              nei = neiPt[edgeId];
               while (cellId >= 0) // while we can grow this region
               {
                 this->Input->GetCellEdgeNeighbors(cellId, pointId, nei, cellIds);
@@ -286,12 +286,12 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
         // store all cells not in the first region that require splitting
         auto& cellPointReplacementInfo = this->CellPointsReplacementInfo[pointId];
         int16_t maxNumRegions = 0;
-        for (j = 0; j < ncells; ++j)
+        for (ptCellId = 0; ptCellId < ncells; ++ptCellId)
         {
-          const auto& cellNumRegions = visited[cells[j]];
+          const auto& cellNumRegions = visited[cells[ptCellId]];
           if (cellNumRegions > 0)
           {
-            cellPointReplacementInfo.emplace_back(cells[j], cellNumRegions);
+            cellPointReplacementInfo.emplace_back(cells[ptCellId], cellNumRegions);
             maxNumRegions = std::max(maxNumRegions, cellNumRegions);
           }
         }
