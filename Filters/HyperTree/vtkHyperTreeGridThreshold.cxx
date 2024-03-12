@@ -179,10 +179,6 @@ vtkHyperTreeGridThreshold::vtkHyperTreeGridThreshold()
   this->UpperThreshold = std::numeric_limits<double>::max();
 
   // This filter always creates an output with a material mask
-  // JBL Ce n'est que dans de tres rares cas que le mask produit par le
-  // JBL threshold, que ce soit avec ou sans creation d'un nouveau maillage,
-  // JBL ne contienne que des valeurs a false. Ce n'est que dans ces
-  // JBL tres rares cas que la creation d'un mask n'aurait pas d'utilite.
   this->OutMask = vtkBitArray::New();
 
   // Output indices begin at 0
@@ -195,7 +191,6 @@ vtkHyperTreeGridThreshold::vtkHyperTreeGridThreshold()
   // Input scalars point to null by default
   this->InScalars = nullptr;
 
-  // JB Pour sortir un maillage de meme type que celui en entree, si create
   this->AppropriateOutput = true;
 }
 
@@ -262,13 +257,6 @@ int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObje
     vtkWarningMacro(<< "No scalar data to threshold");
     return 1;
   }
-
-  // JBL Pour les cas extremes ou le filtre est insere dans une chaine
-  // JBL de traitement, on pourrait ajouter ici un controle optionnel
-  // JBL afin de voir entre le datarange de inscalars et
-  // JBL l'interval [LowerThreshold, UpperThreshold] il y a :
-  // JBL - un total recouvrement, alors output est le input
-  // JBL - pasde recouvrement, alors output est un maillage vide.
 
   // Retrieve material mask
   this->InMask = input->HasMask() ? input->GetMask() : nullptr;

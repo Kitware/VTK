@@ -5,7 +5,6 @@
  * @brief   Convert hyper tree grid to
  * unstructured grid.
  *
- JB Primal mesh
  * Make explicit all leaves of a hyper tree grid by converting them to cells
  * of an unstructured grid.
  * Produces segments in 1D, rectangles in 2D, right hexahedra in 3D.
@@ -23,7 +22,7 @@
  * This class was corriged (used orientation) by Jacques-Bernard Lekien, 2018
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridToUnstructuredGrid_h
 #define vtkHyperTreeGridToUnstructuredGrid_h

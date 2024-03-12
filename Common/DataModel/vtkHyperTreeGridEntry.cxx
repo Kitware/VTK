@@ -90,7 +90,6 @@ void vtkHyperTreeGridEntry::SubdivideLeaf(
   const vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level)
 {
   assert("pre: not_tree" && tree);
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
   assert("pre: depth_limiter" && level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
   assert("pre: is_masked" && !this->IsMasked(grid, tree));
   if (this->IsLeaf(grid, tree, level))
@@ -123,7 +122,6 @@ void vtkHyperTreeGridEntry::ToChild(
   assert("pre: not_tree" && tree);
   assert("pre: not_leaf" && !this->IsLeaf(grid, tree, level));
   assert("pre: not_valid_child" && ichild < tree->GetNumberOfChildren());
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
   assert("pre: depth_limiter" && level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
   assert("pre: is_masked" && !IsMasked(grid, tree));
   this->Index = tree->GetElderChildIndex(this->Index) + ichild;

@@ -4,7 +4,6 @@
  * @class   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor
  * @brief   Objects for traversal a HyperTreeGrid.
  *
- * JB A REVOIR
  * Objects that can perform depth traversal of a hyper tree grid,
  * take into account more parameters (related to the grid structure) than
  * the compact hyper tree cursor implemented in vtkHyperTree can.
@@ -45,7 +44,7 @@ public:
 
   /**
    * Initialize cursor at root of given tree index in grid.
-   * JB Le create ne s'applique que sur le HT central.
+   * "create" only applies to the central HT
    */
   void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false) override;
 

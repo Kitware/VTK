@@ -89,7 +89,6 @@ int vtkHyperTreeGridOutlineFilter::FillOutputPortInformation(
 }
 
 //------------------------------------------------------------------------------
-// JBL Pour moi, c'est un defaut de design de vtkHyperTreeGridAlgorithm
 int vtkHyperTreeGridOutlineFilter::ProcessTrees(
   vtkHyperTreeGrid* vtkNotUsed(input), vtkDataObject* vtkNotUsed(outputDO))
 {

@@ -4,7 +4,6 @@
  * @class   vtkHyperTreeGridNonOrientedCursor
  * @brief   Objects for traversal a HyperTreeGrid.
  *
- * JB A REVOIR
  * Objects that can perform depth traversal of a hyper tree grid,
  * take into account more parameters (related to the grid structure) than
  * the compact hyper tree cursor implemented in vtkHyperTree can.
@@ -20,7 +19,7 @@
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.
  * This class was re-written by Philippe Pebay, 2016.
- * JB This class was re-written for more optimisation by Jacques-Bernard Lekien,
+ * This class was re-written for more optimisation by Jacques-Bernard Lekien,
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
@@ -112,14 +111,8 @@ public:
    */
   unsigned char GetNumberOfChildren();
 
-  /**
-   * JB
-   */
   void SetGlobalIndexStart(vtkIdType index);
 
-  /**
-   * JB
-   */
   void SetGlobalIndexFromLocal(vtkIdType index);
 
   /**
@@ -138,9 +131,6 @@ public:
    */
   bool IsLeaf();
 
-  /**
-   * JB
-   */
   void SubdivideLeaf();
 
   /**
@@ -188,27 +178,16 @@ protected:
   ~vtkHyperTreeGridNonOrientedCursor() override;
 
   /**
-   * JB Reference sur l'hyper tree grid parcouru actuellement.
+   * Reference to the HTG currently processed
    */
   vtkHyperTreeGrid* Grid;
 
-  /**
-   * JB
-   */
   vtkHyperTree* Tree;
-
-  /**
-   * JB .
-   */
   unsigned int Level;
-
-  /**
-   * JB Le dernier noeud valid enregistre
-   */
   int LastValidEntry;
 
   /**
-   * JB Hyper tree grid to which the cursor is attached
+   * Hyper tree grid to which the cursor is attached
    */
   std::vector<vtkHyperTreeGridEntry> Entries;
 

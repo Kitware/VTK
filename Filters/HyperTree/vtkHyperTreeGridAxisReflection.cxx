@@ -24,7 +24,6 @@ vtkHyperTreeGridAxisReflection::vtkHyperTreeGridAxisReflection()
   // Default plane position is at origin
   this->Center = 0.;
 
-  // JB Pour sortir un maillage de meme type que celui en entree
   this->AppropriateOutput = true;
 }
 
@@ -274,7 +273,6 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
     double origin[3];
     double scale[3];
     output->GetLevelZeroOriginAndSizeFromIndex(index, origin, scale);
-    // JB Quid du Uniform ?
     tree->SetScales(std::make_shared<vtkHyperTreeGridScales>(output->GetBranchFactor(), scale));
   }
   //

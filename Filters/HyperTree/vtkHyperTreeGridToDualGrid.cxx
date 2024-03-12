@@ -102,12 +102,10 @@ int vtkHyperTreeGridToDualGrid::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObj
   this->Connectivity = vtkIdTypeArray::New();
 
   // Primal cell centers are dual points
-  // JB On ne peut pas se reduire a dimensionner le tableau de points au nombre
-  // de Vertices, en effet, surtout si l'on veut conserver le mapping 1:1
-  // entre les noeuds de l'HTG et ces points du maillage dual.
-  // En effet, si l'on definit un GlobalIndex ou un IndexStart specifique
-  // cette ecriture simpliste ne fonctionnait plus... tableau trop petit
-  // car GetGlobalIndex retourne une valeur > this->GetNumberOfCells().
+  // TODO: We cannot only dimension the point array as the number of vertices,
+  // especially if we want to keep a 1:1 mapping between HTG nodes and the dual mesh.
+  // If we define a specific GlobalIndex or IndexStart, it would be too small,
+  // because GetGlobalIndex returns a value greater than the number of cells.
   this->Points->SetNumberOfPoints(input->GetGlobalNodeIndexMax() + 1);
 
   // TODO: find out why we get some uninitialized point coords instead

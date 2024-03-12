@@ -4,7 +4,6 @@
  * @class   vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor
  * @brief   Objects for traversal a HyperTreeGrid.
  *
- * JB A REVOIR
  * NonOriented ne peut pas remonter plus haut qu'a sa creation.
  * Objects that can perform depth traversal of a hyper tree grid,
  * take into account more parameters (related to the grid structure) than
@@ -21,7 +20,7 @@
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.
  * This class was re-written by Philippe Pebay, 2016.
- * JB This class was re-written for more optimisation by Jacques-Bernard Lekien,
+ * This class was re-written for more optimisation by Jacques-Bernard Lekien,
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
@@ -56,9 +55,6 @@ public:
 
   void Dump(ostream& os);
 
-  // JB TODO 102018 On autorise le ToParent que jusqu'à ce que Level soit celui de la creation...
-  // mais sans toRoot ? Une variante... qui serait utile aussi au niveau des SC
-
   /**
    * Create a copy of `this'.
    * \post results_exists:result!=0
@@ -76,15 +72,9 @@ public:
   void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level,
     vtkHyperTreeGridGeometryUnlimitedLevelEntry& entry);
 
-  /**
-   * JB
-   */
   void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkIdType index,
     double* origin);
 
-  /**
-   * JB
-   */
   void Initialize(vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* cursor);
 
   ///@{
@@ -124,25 +114,12 @@ public:
    */
   unsigned char GetNumberOfChildren();
 
-  /**
-   * JB
-   */
   void SetGlobalIndexStart(vtkIdType index);
-
-  /**
-   * JB
-   */
   void SetGlobalIndexFromLocal(vtkIdType index);
 
-  /**
-   * JB
-   */
   double* GetOrigin();
   double* GetSize();
 
-  /**
-   * JB
-   */
   void GetBounds(double bounds[6]);
   void GetPoint(double point[3]);
 
@@ -241,9 +218,6 @@ protected:
    */
   vtkHyperTreeGrid* Grid;
 
-  /**
-   * JB
-   */
   vtkHyperTree* Tree;
 
   /**
@@ -251,9 +225,6 @@ protected:
    */
   std::shared_ptr<vtkHyperTreeGridScales> Scales;
 
-  /**
-   * JB
-   */
   unsigned int Level;
 
   /**

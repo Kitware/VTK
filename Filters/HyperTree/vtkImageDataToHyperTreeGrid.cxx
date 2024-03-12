@@ -79,7 +79,7 @@ int vtkImageDataToHyperTreeGrid::RequestData(vtkInformation* vtkNotUsed(request)
 
   size[0] += 1;
   size[1] += 1;
-  output->SetDimensions(size); // JB ce n'est pas la GridCell
+  output->SetDimensions(size);
   size[0] -= 1;
   size[1] -= 1;
 

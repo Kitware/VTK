@@ -10,7 +10,7 @@
  *
  * @par Thanks:
  * This class was written by Philippe Pebay, NexGen Analytics 2017
- * JB modify for introduce Scales by Jacques-Bernard Lekien, CEA 2018.
+ * Modified to introduce Scales by Jacques-Bernard Lekien, CEA 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
  */
@@ -87,11 +87,6 @@ public:
    */
   void SetXCoordinates(vtkDataArray* XCoordinates) override;
   vtkDataArray* GetXCoordinates() override;
-  /* JB A faire pour les Get !
-  const vtkDataArray* GetXCoordinates() const override {
-    throw std::domain_error("Cannot use GetZCoordinates on UniformHyperTreeGrid");
-  }
-  */
   ///@}
 
   ///@{
@@ -102,11 +97,6 @@ public:
    */
   void SetYCoordinates(vtkDataArray* YCoordinates) override;
   vtkDataArray* GetYCoordinates() override;
-  /* JB A faire pour les Get !
-  const vtkDataArray* GetYCoordinates() const override {
-    throw std::domain_error("Cannot use GetZCoordinates on UniformHyperTreeGrid");
-  }
-  */
   ///@}
 
   ///@{
@@ -117,17 +107,11 @@ public:
    */
   void SetZCoordinates(vtkDataArray* ZCoordinates) override;
   vtkDataArray* GetZCoordinates() override;
-  /* JB A faire pour les Get !
-  const vtkDataArray* GetZCoordinates() const override {
-    throw std::domain_error("Cannot use GetZCoordinates on UniformHyperTreeGrid");
-  }
-  */
-  // JB A faire pour les autre Get !
   ///@}
 
   ///@{
   /**
-   * JB Augented services on Coordinates.
+   * Augented services on Coordinates.
    */
   void CopyCoordinates(const vtkHyperTreeGrid* output) override;
   void SetFixedCoordinates(unsigned int axis, double value) override;
@@ -221,7 +205,7 @@ protected:
   }
 
   /**
-   * JB Storage of pre-computed per-level cell scales
+   * Storage of pre-computed per-level cell scales
    */
   mutable std::shared_ptr<vtkHyperTreeGridScales> Scales;
 

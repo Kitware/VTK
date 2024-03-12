@@ -57,7 +57,7 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
   // Output indices begin at 0
   this->CurrentId = 0;
 
-  // JB Pour sortir un maillage de meme type que celui en entree
+  // Output should be the same type as the input
   this->AppropriateOutput = true;
 }
 

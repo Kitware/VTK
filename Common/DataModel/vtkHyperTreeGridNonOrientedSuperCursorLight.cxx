@@ -333,21 +333,18 @@ void vtkHyperTreeGridNonOrientedSuperCursorLight::ToChild(unsigned char ichild)
         {
           this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry + i] = reference;
         }
-        //
+
         vtkHyperTreeGridLevelEntry& current = this->Entries[reference];
         current.Initialize(this->CentralCursor->GetTree(), this->CentralCursor->GetLevel(),
           this->CentralCursor->GetVertexId());
-        //
-        // JB1901 ne pas descendre si masque
-        if (!this->IsMasked()) // JB1901 new code
-        {                      // JB1901 new code
-          //
+
+        if (!this->IsMasked())
+        {
           if (current.GetTree() && !current.IsLeaf(this->Grid))
           {
             // Move to child
             current.ToChild(this->Grid, cTab[i]);
           }
-          //
         }
       }
       else
