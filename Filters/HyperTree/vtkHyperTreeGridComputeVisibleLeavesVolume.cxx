@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridGenerateMaskLeavesCells.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHyperTreeGridComputeVisibleLeavesVolume.h"
 
 #include "vtkAOSDataArrayTemplate.h"
@@ -83,197 +71,138 @@ public:
   vtkInternal() = default;
   ~vtkInternal() = default;
 
-  //------------------------------------------------------------------------------------------------
   /**
-   * @brief Initialize.
-   *
-   * Cette methode dimensionne le tableau de boolean en le reinitialisant à 0.
-   * D'autres informations relatives à la source sont mise à jour comme
-   * le nombre de cellules filles lors d'un raffinement, l'existence d'un
-   * masquage sur les cellules ou de la définition de cellules fantômes.
-   *
-   * @param _input: input mesh
+   * Initialize internal structures based on the given input HTG.
    */
   void Initialize(vtkHyperTreeGrid* inputHTG)
   {
-    this->packedValidCellArray.clear();
-    this->packedValidCellArray.resize(inputHTG->GetNumberOfCells(), 0);
+    this->PackedValidCellArray.clear();
+    this->PackedValidCellArray.resize(inputHTG->GetNumberOfCells(), 0);
 
-    this->m_with_discretes_values = true;
-    this->m_discretes_values.clear();
-    this->m_volume_double.clear();
-    this->m_volume_double.resize(inputHTG->GetNumberOfCells(), 0);
+    this->UseDiscreteValues = true;
+    this->DiscreteValues.clear();
+    this->VolumeArray.clear();
+    this->VolumeArray.resize(inputHTG->GetNumberOfCells(), 0);
 
-    this->m_number_of_children = inputHTG->GetNumberOfChildren();
-    this->maskArray = inputHTG->HasMask() ? inputHTG->GetMask() : nullptr;
-    this->ghostArray = inputHTG->GetGhostCells();
+    this->InputMask = inputHTG->HasMask() ? inputHTG->GetMask() : nullptr;
+    this->InputGhost = inputHTG->GetGhostCells();
   }
 
-  //------------------------------------------------------------------------------------------------
   /**
-   * @brief GetAndFinalizeValidMaskArray.
-   *
-   * Cette methode construit le tableau de boolean suivant VTK décrivant si
-   * une cellule est valide ou non.
-   *
-   * @return le tableau VTK décrivant un masque sur les cellules valides (valeur
-   * True) face aux cellules non valides (valeur False, les cellules coarses,
-   * masquées ou fantômes).
+   * Build valid cell field double array using a vtkScalarBooleanImplicitBackend implicit array
+   * unpacking the bit array built before. This cell field has a value of 1.0 for valid (leaf,
+   * non-ghost, non-masked) cells, and 0.0 for the others.
    */
   vtkDataArray* GetAndFinalizeValidMaskArray()
   {
-    this->m_vtkvalidcell->ConstructBackend(this->packedValidCellArray);
-    this->m_vtkvalidcell->SetName("vtkValidCell");
-    this->m_vtkvalidcell->SetNumberOfComponents(1);
-    this->m_vtkvalidcell->SetNumberOfTuples(this->packedValidCellArray.size());
-    for (vtkIdType iCell = 0; iCell < (vtkIdType)(this->packedValidCellArray.size()); ++iCell)
+    this->ValidCellsImplicitArray->ConstructBackend(this->PackedValidCellArray);
+    this->ValidCellsImplicitArray->SetName("vtkValidCell");
+    this->ValidCellsImplicitArray->SetNumberOfComponents(1);
+    this->ValidCellsImplicitArray->SetNumberOfTuples(this->PackedValidCellArray.size());
+    for (vtkIdType iCell = 0; iCell < (vtkIdType)(this->PackedValidCellArray.size()); ++iCell)
     {
-      this->m_vtkvalidcell->SetTuple1(iCell, this->packedValidCellArray[iCell]);
+      this->ValidCellsImplicitArray->SetTuple1(iCell, this->PackedValidCellArray[iCell]);
     }
-    this->packedValidCellArray.clear();
-    return this->m_vtkvalidcell;
+    this->PackedValidCellArray.clear();
+    return this->ValidCellsImplicitArray;
   }
 
-  //------------------------------------------------------------------------------------------------
   /**
-   * @brief GetAndFinalizeVolumArray.
-   *
-   * Cette methode construit le tableau de double suivant VTK décrivant un champ
-   * Volume.
-   *
-   * @return le tableau VTK décrivant un volume.
+   * Build the output volume array from internally stored values
    */
   vtkDataArray* GetAndFinalizeVolumArray()
   {
-    // généralement les valeurs prises par le volume des cellules décrit un
-    // ensemble de valeurs discrétes :
-    // - dans le cas uniforme, une valeur de volume par niveau ;
-    // - dans le cas générale, une valeur de volume par niveau par nombre de
-    // cellules par axe.
-    if (!this->m_with_discretes_values)
+    // Usually the volume values take a discrete number of different values.
+    //  - In the uniform HTG case, 1 value for each level
+    //  - In the general case, 1 value for each level for each number of cell per axis
+    // Thus, we can use an implicit array as an indirection table to store the volume as a char8
+    // (256 possible values) instead of a double for each cell to save memory.
+
+    if (!this->UseDiscreteValues)
     {
       // Implicit array by discrete double values
       // return ... ;
     }
-    // Classic array by double
-    this->m_volume->SetName("vtkVolume");
-    this->m_volume->SetNumberOfComponents(1);
-    this->m_volume->SetNumberOfTuples(this->m_volume_double.size());
-    for (vtkIdType iCell = 0; iCell < (vtkIdType)(this->m_volume_double.size()); ++iCell)
+
+    // Classic double array double
+    this->OutputVolumeArray->SetName("vtkVolume");
+    this->OutputVolumeArray->SetNumberOfComponents(1);
+    this->OutputVolumeArray->SetNumberOfTuples(this->VolumeArray.size());
+    for (vtkIdType iCell = 0; iCell < (vtkIdType)(this->VolumeArray.size()); ++iCell)
     {
-      this->m_volume->SetTuple1(iCell, this->m_volume_double[iCell]);
+      this->OutputVolumeArray->SetTuple1(iCell, this->VolumeArray[iCell]);
     }
-    this->m_with_discretes_values = true;
-    this->m_discretes_values.clear();
-    this->m_volume_double.clear();
-    return this->m_volume;
+    this->UseDiscreteValues = true;
+    this->DiscreteValues.clear();
+    this->VolumeArray.clear();
+    return this->OutputVolumeArray;
   }
 
-  //------------------------------------------------------------------------------------------------
   /**
-   * @brief ComputeVolume.
-   *
-   * Cette methode calcule le volume de la cellule pointé par le cursor.
-   *
-   * @param _idC: index de la cellule
+   * Compute the volume of the cell pointed by the cursor and store it in an internal structure
    */
-  void ComputeVolume(vtkHyperTreeGridNonOrientedGeometryCursor* _cursor)
+  void ComputeVolume(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
   {
-    vtkIdType idC = _cursor->GetGlobalNodeIndex();
-    bool checkVolume = false;
     double cellVolume{ 1 };
-    double* ptr{ _cursor->GetSize() };
-    for (unsigned int iDim = 0; iDim < 3; ++iDim, ++ptr)
-    {
-      if (*ptr != 0)
-      {
-        cellVolume *= *ptr;
-        checkVolume = true;
-      }
-    }
-    if (!checkVolume)
+    if (!cursor->GetSize())
     {
       cellVolume = 0;
     }
-    if (this->m_with_discretes_values)
+    else
     {
-      this->m_discretes_values.insert(cellVolume);
-      if (this->m_discretes_values.size() > 256)
+      std::vector<double> dimensions(cursor->GetSize(), cursor->GetSize() + 3);
+      for (auto& edgeSize : dimensions)
       {
-        this->m_with_discretes_values = false;
-        this->m_discretes_values.clear();
+        cellVolume *= edgeSize;
       }
     }
-    this->m_volume_double[idC] = cellVolume;
+
+    if (this->UseDiscreteValues)
+    {
+      this->DiscreteValues.insert(cellVolume);
+      if (this->DiscreteValues.size() > 256)
+      {
+        this->UseDiscreteValues = false;
+        this->DiscreteValues.clear();
+      }
+    }
+
+    this->VolumeArray[cursor->GetGlobalNodeIndex()] = cellVolume;
   }
 
-  //------------------------------------------------------------------------------------------------
   /**
-   * @brief SetValidMaskArray.
-   *
-   * Cette methode positionne la valeur du masque à true à l'index passé en
-   * paramètre.
-   *
-   * @param _idC: index de la cellule
+   * Set the valid cell array value to true if the HTG leaf cell `index` is a non-ghost and
+   * non-masked cell.
    */
-  void SetValidMaskArray(const vtkIdType _idC) { this->packedValidCellArray[_idC] = true; }
-
-  //------------------------------------------------------------------------------------------------
-  /**
-   * @brief GetNumberOfChildren.
-   *
-   * Cette methode permet de récupère le nombre de cellules filles (more fine)
-   * lors du raffinement d'une cellule (mère, coarse).
-   *
-   * @return the value
-   */
-  unsigned int GetNumberOfChildren() const { return this->m_number_of_children; }
-
-  //------------------------------------------------------------------------------------------------
-  /**
-   * @brief GetInputIsValidCell.
-   *
-   * Cette methode permet de récupère si une cellule est valide (c'est une
-   * cellule feuille, non masquée et non fantome) par rapport aux informations
-   * recuperees au niveau de l'input. ATTENTION La notion de cellule feuille est
-   * relatif à l'application ou non du filtre vtkDepthLimiter.
-   *
-   * @param _idC: index de la cellule
-   * @return the value
-   */
-  bool GetInputIsValidCell(const vtkIdType _idC) const
+  void SetLeafValidity(const vtkIdType& index)
   {
-    // This cell is valid:
-    // - which means not masked;
-    if (this->maskArray != nullptr && this->maskArray->GetTuple1(_idC) != 0)
+    bool validity = true;
+    if (this->InputMask != nullptr && this->InputMask->GetTuple1(index) != 0)
     {
-      return false;
+      validity = false;
     }
-    // - which means not ghosted.
-    if (this->ghostArray != nullptr && this->ghostArray->GetTuple1(_idC) != 0)
+    if (this->InputGhost != nullptr && this->InputGhost->GetTuple1(index) != 0)
     {
-      return false;
+      validity = false;
     }
-    return true;
+    this->PackedValidCellArray[index] = validity;
   }
 
 private:
-  // Data input
-  unsigned int m_number_of_children{ 0 };
-  vtkBitArray* maskArray = nullptr;
-  vtkUnsignedCharArray* ghostArray = nullptr;
+  // Input data
+  vtkBitArray* InputMask = nullptr;
+  vtkUnsignedCharArray* InputGhost = nullptr;
 
-  // Data intermediate
-  std::vector<bool> packedValidCellArray;
+  // Internal
+  std::vector<bool> PackedValidCellArray;
+  bool UseDiscreteValues{ true };
+  std::set<double> DiscreteValues;
+  std::vector<double> VolumeArray;
 
-  bool m_with_discretes_values{ true };
-  std::set<double> m_discretes_values;
-  std::vector<double> m_volume_double;
   // Data output
   using SourceT = vtk::GetAPIType<vtkDoubleArray>;
-  vtkNew<::vtkScalarBooleanArray<SourceT>> m_vtkvalidcell;
-
-  vtkNew<vtkDoubleArray> m_volume;
+  vtkNew<::vtkScalarBooleanArray<SourceT>> ValidCellsImplicitArray;
+  vtkNew<vtkDoubleArray> OutputVolumeArray;
 };
 
 //------------------------------------------------------------------------------
@@ -309,11 +238,10 @@ int vtkHyperTreeGridComputeVisibleLeavesVolume::ProcessTrees(
   }
 
   outputHTG->ShallowCopy(input);
-
   this->Internal->Initialize(input);
 
   // Iterate over all input and output hyper trees
-  vtkIdType index = -1;
+  vtkIdType index = 0;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator iterator;
   outputHTG->InitializeTreeIterator(iterator);
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> outCursor;
@@ -344,16 +272,19 @@ void vtkHyperTreeGridComputeVisibleLeavesVolume::ProcessNode(
   vtkIdType currentId = outCursor->GetGlobalNodeIndex();
   this->Internal->ComputeVolume(outCursor);
 
+  // `IsLeaf` result can depend on whether a depth limiter has been applied on the tree.
   if (outCursor->IsLeaf())
   {
-    if (this->Internal->GetInputIsValidCell(currentId))
-    {
-      this->Internal->SetValidMaskArray(currentId);
-    }
+    this->Internal->SetLeafValidity(currentId);
     return;
   }
 
-  for (unsigned int childId = 0; childId < this->Internal->GetNumberOfChildren(); ++childId)
+  if (outCursor->IsMasked())
+  {
+    return; // Masked cells' children are automatically invalid
+  }
+
+  for (unsigned int childId = 0; childId < outCursor->GetNumberOfChildren(); ++childId)
   {
     outCursor->ToChild(childId);
     this->ProcessNode(outCursor);

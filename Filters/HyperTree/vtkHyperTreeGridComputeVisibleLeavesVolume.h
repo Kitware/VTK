@@ -6,10 +6,10 @@
  * a volume field.
  *
  * vtkHyperTreeGridComputeVisibleLeavesVolume creates 2 distinct cell fields.
- * The first one, named 'vtkValidCell' by default, has a value of 1 for leaf (non-refined) cells
+ * The first one, named 'vtkValidCell', has a value of 1 for leaf (non-refined) cells
  * that are neither masked nor ghost.
  *
- * The second one, named 'vtkVolume' by default,
+ * The second one, named 'vtkVolume',
  * is set to the volume of every invididual cell in the HTG, valid or not.
  *
  * These values can be used for data aggregation or computations over the whole grid.
