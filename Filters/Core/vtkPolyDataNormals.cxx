@@ -24,8 +24,6 @@
 #include "vtkSplitSharpEdgesPolyData.h"
 #include "vtkTriangleFilter.h"
 
-#include <mutex>
-
 //-----------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataNormals);
@@ -137,56 +135,43 @@ vtkSmartPointer<vtkFloatArray> vtkPolyDataNormals::GetPointNormals(
   {
     return existingPointNormals;
   }
-  vtkCellArray* polys = data->GetPolys();
   const vtkIdType numPoints = data->GetNumberOfPoints();
-  const vtkIdType numVertices = data->GetNumberOfVerts();
-  const vtkIdType numLines = data->GetNumberOfLines();
-  const vtkIdType numPolys = data->GetNumberOfPolys();
   // check if the cells are already built
   if (data->NeedToBuildCells())
   {
     data->BuildCells();
+  }
+  if (!data->GetLinks())
+  {
+    data->BuildLinks();
   }
 
   auto pointNormals = vtkSmartPointer<vtkFloatArray>::New();
   pointNormals->SetName("Normals");
   pointNormals->SetNumberOfComponents(3);
   pointNormals->SetNumberOfTuples(numPoints);
-
   float* pointNormalsPtr = pointNormals->GetPointer(0);
-  vtkSMPTools::Fill(pointNormalsPtr, pointNormalsPtr + 3 * numPoints, 0.0);
-  float* cellNormalsPtr = cellNormals->GetPointer(3 * (numVertices + numLines));
+  float* cellNormalsPtr = cellNormals->GetPointer(0);
 
-  // locks are needed because many cells can share the same points
-  std::vector<vtkAtomicMutex> pointLocks(numPoints);
-
-  vtkSMPThreadLocalObject<vtkIdList> tlTempCellPointIds;
-  vtkSMPTools::For(0, numPolys, [&](vtkIdType begin, vtkIdType end) {
-    auto tempCellPointIds = tlTempCellPointIds.Local();
-    vtkIdType npts;
-    const vtkIdType* pts = nullptr;
-    for (vtkIdType polyId = begin; polyId < end; polyId++)
-    {
-      polys->GetCellAtId(polyId, npts, pts, tempCellPointIds);
-      for (vtkIdType i = 0; i < npts; ++i)
-      {
-        const vtkIdType& cellPointId = pts[i];
-        std::lock_guard<vtkAtomicMutex> pointLockGuard(pointLocks[cellPointId]);
-        vtkMath::Add(&pointNormalsPtr[3 * cellPointId], &cellNormalsPtr[3 * polyId],
-          &pointNormalsPtr[3 * cellPointId]);
-      }
-    }
-  });
-
-  // Normalize normals
   vtkSMPTools::For(0, numPoints, [&](vtkIdType begin, vtkIdType end) {
-    double length;
+    vtkIdType nCells;
+    vtkIdType* cells = nullptr;
     for (vtkIdType pointId = begin; pointId < end; pointId++)
     {
-      length = vtkMath::Norm(&pointNormalsPtr[3 * pointId]) * flipDirection;
+      // Initialize point normals
+      float* pointNormal = &pointNormalsPtr[3 * pointId];
+      pointNormal[0] = pointNormal[1] = pointNormal[2] = 0.0;
+      // Compute Point Normals
+      data->GetPointCells(pointId, nCells, cells);
+      for (vtkIdType i = 0; i < nCells; ++i)
+      {
+        vtkMath::Add(pointNormal, &cellNormalsPtr[3 * cells[i]], pointNormal);
+      }
+      // Normalize normals
+      const double length = vtkMath::Norm(pointNormal) * flipDirection;
       if (length != 0.0)
       {
-        vtkMath::MultiplyScalar(&pointNormalsPtr[3 * pointId], 1.0 / length);
+        vtkMath::MultiplyScalar(pointNormal, 1.0 / length);
       }
     }
   });
