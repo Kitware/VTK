@@ -54,10 +54,14 @@ function (vtk_module_test_data)
   ExternalData_Expand_Arguments("${_vtk_build_TEST_DATA_TARGET}" _ ${data_args})
 endfunction ()
 
+# Opt-in option from projects using VTK to activate SSIM baseline comparison
 if (DEFINED DEFAULT_USE_SSIM_IMAGE_COMP AND DEFAULT_USE_SSIM_IMAGE_COMP)
-  set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
-else()
   set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
+# We are compiling VTK standalone if we succed the following condition
+elseif (DEFINED VTK_VERSION)
+  set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
+else()
+  set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
 endif()
 
 #[==[.rst:
