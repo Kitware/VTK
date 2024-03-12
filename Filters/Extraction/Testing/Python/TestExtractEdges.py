@@ -26,7 +26,6 @@ import vtkmodules.vtkRenderingOpenGL2
 #
 # Due to issues rendering lots of lines, this test has been
 # modified to perform procedural comparison of results.
-#res = 200
 res = 10
 error = 0
 
