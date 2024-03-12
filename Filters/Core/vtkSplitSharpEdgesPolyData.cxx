@@ -88,7 +88,7 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
   struct CellPointReplacementInformation
   {
     vtkIdType CellId;
-    int NumberOfRegions;
+    int16_t NumberOfRegions;
     CellPointReplacementInformation()
       : CellId(0)
       , NumberOfRegions(0)
@@ -106,7 +106,7 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
   {
     vtkSmartPointer<vtkIdList> TempCellPointIds;
     vtkSmartPointer<vtkIdList> CellIds;
-    std::vector<int> Visited; // Used to check if cell is visited and the number of regions
+    std::vector<int16_t> Visited; // Used to check if cell is visited and the number of regions
   };
   vtkSMPThreadLocal<LocalData> TLData;
 
@@ -182,7 +182,7 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
         }
 
         // Loop over all cells and mark the region that each is in.
-        int numRegions = 0;
+        int16_t numRegions = 0;
         vtkIdType spot, neiPt[2], nei, cellId, neiCellId;
         float *thisNormal, *neiNormal;
         for (j = 0; j < ncells; j++) // for all cells connected to point
@@ -285,7 +285,7 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
 
         // store all cells not in the first region that require splitting
         auto& cellPointReplacementInfo = this->CellPointsReplacementInfo[pointId];
-        int maxNumRegions = 0;
+        int16_t maxNumRegions = 0;
         for (j = 0; j < ncells; ++j)
         {
           const auto& cellNumRegions = visited[cells[j]];
@@ -342,7 +342,7 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
           MarkAndSplitBatch& batch = this->PointBatches[batchId];
           auto lastId = batch.Data.PointsOffset + numberOfOldPoints;
           vtkIdType replacementPointId;
-          int numMaxRegions;
+          int16_t numMaxRegions;
           for (vtkIdType pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
           {
             numMaxRegions = 0;
