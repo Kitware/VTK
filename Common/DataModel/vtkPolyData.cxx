@@ -4,7 +4,6 @@
 
 #include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
-#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
@@ -1153,97 +1152,108 @@ void vtkPolyData::ReplaceLinkedCell(vtkIdType cellId, int npts, const vtkIdType 
   }
 }
 
+namespace
+{
+// Identify the neighbors to the specified cell, where the neighbors
+// use all the points in the points list (pts).
+inline void GetCellEdgeNeighborsImpl(
+  vtkCellLinks* links, vtkIdType cellId, vtkIdType p1, vtkIdType p2, vtkIdList* cellIds)
+{
+  const vtkIdType nCells1 = links->GetNcells(p1);
+  const vtkIdType* cells1 = links->GetCells(p1);
+  const vtkIdType nCells2 = links->GetNcells(p2);
+  const vtkIdType* cells2 = links->GetCells(p2);
+
+  for (vtkIdType i = 0; i < nCells1; ++i)
+  {
+    if (cells1[i] != cellId)
+    {
+      for (vtkIdType j = 0; j < nCells2; ++j)
+      {
+        if (cells1[i] == cells2[j])
+        {
+          // For degenerate cells, the same cells are linked several times to the degenerate
+          // point. So InsertUniqueId is used to prevent duplicates. This is not impacting
+          // performances compared to InsertNextId, because most of the time, cellIds is empty.
+          cellIds->InsertUniqueId(cells1[i]);
+          break;
+        }
+      }
+    }
+  }
+}
+} // end anonymous namespace
+
 //------------------------------------------------------------------------------
-// Get the neighbors at an edge. More efficient than the general
-// GetCellNeighbors(). Assumes links have been built (with BuildLinks()),
+// Get the neighbors at an edge. More efficient than the general GetCellNeighbors()
 // and looks specifically for edge neighbors.
 void vtkPolyData::GetCellEdgeNeighbors(
   vtkIdType cellId, vtkIdType p1, vtkIdType p2, vtkIdList* cellIds)
 {
   cellIds->Reset();
-
-  const vtkCellLinks::Link& link1(this->Links->GetLink(p1));
-  const vtkCellLinks::Link& link2(this->Links->GetLink(p2));
-
-  const vtkIdType* cells1 = link1.cells;
-  const vtkIdType* cells1End = cells1 + link1.ncells;
-
-  const vtkIdType* cells2 = link2.cells;
-  const vtkIdType* cells2End = cells2 + link2.ncells;
-
-  while (cells1 != cells1End)
-  {
-    if (*cells1 != cellId)
-    {
-      const vtkIdType* cells2Cur(cells2);
-      while (cells2Cur != cells2End)
-      {
-        if (*cells1 == *cells2Cur)
-        {
-          // For degenerate cells, the same cells are linked several times to the degenerate
-          // point. So InsertUniqueId is used to prevent duplicates. This is not impacting
-          // performances compared to InsertNextId, because most of the time, cellIds is empty.
-          cellIds->InsertUniqueId(*cells1);
-          break;
-        }
-        ++cells2Cur;
-      }
-    }
-    ++cells1;
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
-{
-  vtkIdType i, j, numPts, cellNum;
-  int allFound, oneFound;
-
   if (!this->Links)
   {
     this->BuildLinks();
   }
 
-  cellIds->Reset();
+  GetCellEdgeNeighborsImpl(this->Links.Get(), cellId, p1, p2, cellIds);
+}
 
-  // load list with candidate cells, remove current cell
-  vtkIdType ptId = ptIds->GetId(0);
-  int numPrime = this->Links->GetNcells(ptId);
-  vtkIdType* primeCells = this->Links->GetCells(ptId);
-  numPts = ptIds->GetNumberOfIds();
+namespace
+{
+// Identify the neighbors to the specified cell, where the neighbors
+// use all the points in the points list (pts).
+inline void GetCellNeighborsImpl(
+  vtkCellLinks* links, vtkIdType cellId, vtkIdType numPts, const vtkIdType* pts, vtkIdList* cellIds)
+{
+  const vtkIdType nCells0 = links->GetNcells(pts[0]);
+  const vtkIdType* cells0 = links->GetCells(pts[0]);
 
   // for each potential cell
-  for (cellNum = 0; cellNum < numPrime; cellNum++)
+  for (vtkIdType j = 0; j < nCells0; ++j)
   {
     // ignore the original cell
-    if (primeCells[cellNum] != cellId)
+    if (cells0[j] != cellId)
     {
       // are all the remaining points in the cell ?
-      for (allFound = 1, i = 1; i < numPts && allFound; i++)
+      bool match = true;
+      for (vtkIdType i = 1; i < numPts && match; i++)
       {
-        ptId = ptIds->GetId(i);
-        int numCurrent = this->Links->GetNcells(ptId);
-        vtkIdType* currentCells = this->Links->GetCells(ptId);
-        oneFound = 0;
-        for (j = 0; j < numCurrent; j++)
+        const vtkIdType nCellsI = links->GetNcells(pts[i]);
+        const vtkIdType* cellsI = links->GetCells(pts[i]);
+
+        match = false;
+        for (vtkIdType k = 0; k < nCellsI; k++)
         {
-          if (primeCells[cellNum] == currentCells[j])
+          if (cells0[j] == cellsI[k])
           {
-            oneFound = 1;
+            match = true;
             break;
           }
         }
-        if (!oneFound)
-        {
-          allFound = 0;
-        }
       }
-      if (allFound)
+      if (match)
       {
-        cellIds->InsertNextId(primeCells[cellNum]);
+        // For degenerate cells, the same cells are linked several times to the degenerate
+        // point. So InsertUniqueId is used to prevent duplicates. This is not impacting
+        // performances compared to InsertNextId, because most of the time, cellIds is empty.
+        cellIds->InsertUniqueId(cells0[j]);
       }
     }
   }
+}
+} // end anonymous namespace
+
+//------------------------------------------------------------------------------
+void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
+{
+  cellIds->Reset();
+  if (!this->Links)
+  {
+    this->BuildLinks();
+  }
+
+  GetCellNeighborsImpl(this->Links, cellId, ptIds->GetNumberOfIds(), ptIds->GetPointer(0), cellIds);
 }
 
 //------------------------------------------------------------------------------
