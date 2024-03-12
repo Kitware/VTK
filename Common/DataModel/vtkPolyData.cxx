@@ -1396,6 +1396,17 @@ void vtkPolyData::ShallowCopy(vtkDataObject* dataObject)
     // I do not know if this is correct but.
     // Me either! But it's been 20 years so I think it'll be ok.
     this->Cells = polyData->Cells;
+
+    if (polyData->Links)
+    {
+      this->Links = vtkSmartPointer<vtkCellLinks>::Take(polyData->Links->NewInstance());
+      this->Links->SetDataSet(this);
+      this->Links->ShallowCopy(polyData->Links);
+    }
+    else
+    {
+      this->Links = nullptr;
+    }
   }
 }
 
@@ -1460,6 +1471,7 @@ void vtkPolyData::DeepCopy(vtkDataObject* dataObject)
     if (polyData->Links)
     {
       this->Links = vtkSmartPointer<vtkCellLinks>::Take(polyData->Links->NewInstance());
+      this->Links->SetDataSet(this);
       this->Links->DeepCopy(polyData->Links);
     }
     else

@@ -116,10 +116,18 @@ public:
   unsigned long GetActualMemorySize() override { return this->Impl->GetActualMemorySize(); }
 
   /**
-   * Standard DeepCopy method.  Since this object contains no reference
-   * to other objects, there is no ShallowCopy.
+   * Standard DeepCopy method.
+   *
+   * Before you shallow copy, make sure to call SetDataSet()
    */
   void DeepCopy(vtkAbstractCellLinks* src) override;
+
+  /**
+   * Standard ShallowCopy method.
+   *
+   * Before you shallow copy, make sure to call SetDataSet()
+   */
+  void ShallowCopy(vtkAbstractCellLinks* src) override;
 
 protected:
   vtkStaticCellLinks();

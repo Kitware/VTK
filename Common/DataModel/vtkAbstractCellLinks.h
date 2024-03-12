@@ -84,10 +84,18 @@ public:
   virtual unsigned long GetActualMemorySize() = 0;
 
   /**
-   * Standard DeepCopy method.  Since this object contains no reference
-   * to other objects, there is no ShallowCopy.
+   * Standard DeepCopy method.
+   *
+   * Before you deep copy, make sure to call SetDataSet()
    */
   virtual void DeepCopy(vtkAbstractCellLinks* src) = 0;
+
+  /**
+   * Standard ShallowCopy method.
+   *
+   * Before you shallow copy, make sure to call SetDataSet()
+   */
+  virtual void ShallowCopy(vtkAbstractCellLinks* src) = 0;
 
   // Enums for cell links type. Note that the specialized type is
   // set when users do not use ComputeType() and roll their own type.
