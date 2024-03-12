@@ -5,7 +5,7 @@ LIBRARY_NAME
 DESCRIPTION
   Catalyst implementation for VTK, including Conduit to/from VTK conversion.
 KIT
-  VTK::IO
+  VTK::Parallel
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
