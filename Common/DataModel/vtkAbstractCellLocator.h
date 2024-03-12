@@ -296,6 +296,8 @@ public:
 
   /**
    * Shallow copy of a vtkAbstractCellLocator.
+   *
+   * Before you shallow copy, make sure to call SetDataSet()
    */
   virtual void ShallowCopy(vtkAbstractCellLocator*) {}
 

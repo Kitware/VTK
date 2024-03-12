@@ -1032,7 +1032,6 @@ void vtkModifiedBSPTree::ShallowCopy(vtkAbstractCellLocator* locator)
   // we only copy what's actually used by vtkModifiedBSPTree
 
   // vtkLocator parameters
-  this->SetDataSet(cellLocator->GetDataSet());
   this->SetUseExistingSearchStructure(cellLocator->GetUseExistingSearchStructure());
   this->SetMaxLevel(cellLocator->GetMaxLevel());
   this->Level = cellLocator->Level;
@@ -1048,6 +1047,7 @@ void vtkModifiedBSPTree::ShallowCopy(vtkAbstractCellLocator* locator)
   this->npn = cellLocator->npn;
   this->nln = cellLocator->nln;
   this->tot_depth = cellLocator->tot_depth;
+  this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------
