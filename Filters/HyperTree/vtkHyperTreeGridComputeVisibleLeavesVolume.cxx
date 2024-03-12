@@ -10,10 +10,13 @@
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataArray.h"
+#include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkHyperTreeGridScales.h"
 #include "vtkImplicitArray.h"
 #include "vtkIndent.h"
+#include "vtkIndexedArray.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkObject.h"
@@ -74,18 +77,31 @@ public:
   /**
    * Initialize internal structures based on the given input HTG.
    */
-  void Initialize(vtkHyperTreeGrid* inputHTG)
+  bool Initialize(vtkHyperTreeGrid* inputHTG)
   {
     this->PackedValidCellArray.clear();
     this->PackedValidCellArray.resize(inputHTG->GetNumberOfCells(), 0);
 
-    this->UseDiscreteValues = true;
-    this->DiscreteValues.clear();
-    this->VolumeArray.clear();
-    this->VolumeArray.resize(inputHTG->GetNumberOfCells(), 0);
+    this->OutputVolumeArray->SetNumberOfComponents(1);
+    this->OutputVolumeArray->SetNumberOfTuples(inputHTG->GetNumberOfCells());
+
+    this->VolumeDiscreteValues->SetNumberOfComponents(1);
+    this->VolumeDiscreteValues->SetNumberOfTuples(inputHTG->GetNumberOfLevels());
+    if (this->VolumeDiscreteValues->GetNumberOfTuples() > 256)
+    {
+      vtkErrorWithObjectMacro(nullptr, << "Cannot compute volume for more than 256 levels, got"
+                                       << this->VolumeDiscreteValues->GetNumberOfTuples());
+      return false;
+    }
+    this->ComputeLevelVolumes(inputHTG);
+
+    this->VolumeIndirectionTable->SetNumberOfComponents(1);
+    this->VolumeIndirectionTable->SetNumberOfTuples(inputHTG->GetNumberOfCells());
 
     this->InputMask = inputHTG->HasMask() ? inputHTG->GetMask() : nullptr;
     this->InputGhost = inputHTG->GetGhostCells();
+
+    return true;
   }
 
   /**
@@ -112,29 +128,15 @@ public:
    */
   vtkDataArray* GetAndFinalizeVolumArray()
   {
-    // Usually the volume values take a discrete number of different values.
-    //  - In the uniform HTG case, 1 value for each level
-    //  - In the general case, 1 value for each level for each number of cell per axis
-    // Thus, we can use an implicit array as an indirection table to store the volume as a char8
-    // (256 possible values) instead of a double for each cell to save memory.
-
-    if (!this->UseDiscreteValues)
-    {
-      // Implicit array by discrete double values
-      // return ... ;
-    }
-
-    // Classic double array double
+    // The volume values take a discrete number of different values : one value for each level
+    // Thus, we can use an indexed (implicit) array as an indirection table to store the volume as a
+    // uchar (256 possible values/levels) instead of a double for each cell to save memory (1 byte
+    // stored instead of 8)
     this->OutputVolumeArray->SetName("vtkVolume");
     this->OutputVolumeArray->SetNumberOfComponents(1);
-    this->OutputVolumeArray->SetNumberOfTuples(this->VolumeArray.size());
-    for (vtkIdType iCell = 0; iCell < (vtkIdType)(this->VolumeArray.size()); ++iCell)
-    {
-      this->OutputVolumeArray->SetTuple1(iCell, this->VolumeArray[iCell]);
-    }
-    this->UseDiscreteValues = true;
-    this->DiscreteValues.clear();
-    this->VolumeArray.clear();
+    this->OutputVolumeArray->SetNumberOfTuples(this->VolumeIndirectionTable->GetNumberOfValues());
+    this->OutputVolumeArray->SetBackend(std::make_shared<vtkIndexedImplicitBackend<double>>(
+      VolumeIndirectionTable, VolumeDiscreteValues));
     return this->OutputVolumeArray;
   }
 
@@ -143,31 +145,9 @@ public:
    */
   void ComputeVolume(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
   {
-    double cellVolume{ 1 };
-    if (!cursor->GetSize())
-    {
-      cellVolume = 0;
-    }
-    else
-    {
-      std::vector<double> dimensions(cursor->GetSize(), cursor->GetSize() + 3);
-      for (auto& edgeSize : dimensions)
-      {
-        cellVolume *= edgeSize;
-      }
-    }
-
-    if (this->UseDiscreteValues)
-    {
-      this->DiscreteValues.insert(cellVolume);
-      if (this->DiscreteValues.size() > 256)
-      {
-        this->UseDiscreteValues = false;
-        this->DiscreteValues.clear();
-      }
-    }
-
-    this->VolumeArray[cursor->GetGlobalNodeIndex()] = cellVolume;
+    assert("pre: level is less than 256" && cursor->GetLevel() <= 256);
+    this->VolumeIndirectionTable->SetTuple1(
+      cursor->GetGlobalNodeIndex(), static_cast<unsigned char>(cursor->GetLevel()));
   }
 
   /**
@@ -193,16 +173,47 @@ private:
   vtkBitArray* InputMask = nullptr;
   vtkUnsignedCharArray* InputGhost = nullptr;
 
-  // Internal
+  // Compressed data containers
   std::vector<bool> PackedValidCellArray;
-  bool UseDiscreteValues{ true };
-  std::set<double> DiscreteValues;
-  std::vector<double> VolumeArray;
+  vtkNew<vtkUnsignedCharArray> VolumeIndirectionTable;
+  vtkNew<vtkDoubleArray> VolumeDiscreteValues;
 
-  // Data output
+  // Output data
   using SourceT = vtk::GetAPIType<vtkDoubleArray>;
   vtkNew<::vtkScalarBooleanArray<SourceT>> ValidCellsImplicitArray;
-  vtkNew<vtkDoubleArray> OutputVolumeArray;
+  vtkNew<vtkIndexedArray<double>> OutputVolumeArray;
+
+  /**
+   * Fill the VolumeDiscreteValues array with volume values for each level,
+   * based on the HTG's first tree scales.
+   * We make the assumption that the HTG is uniform and invidual tree scales have not been changed.
+   */
+  void ComputeLevelVolumes(vtkHyperTreeGrid* inputHTG)
+  {
+    vtkHyperTree* tree = inputHTG->GetTree(0);
+    std::shared_ptr<vtkHyperTreeGridScales> scale = tree->GetScales();
+
+    for (unsigned char level = 0; level < this->VolumeDiscreteValues->GetNumberOfTuples(); level++)
+    {
+      double cellVolume{ 1 };
+      if (inputHTG->GetDimension() != 3)
+      {
+        // 1D and 2D cells have a null volume
+        cellVolume = 0;
+      }
+      else
+      {
+        double size[3];
+        scale->GetScale(level, size);
+        std::vector<double> dimensions(size, size + 3);
+        for (auto& edgeSize : dimensions)
+        {
+          cellVolume *= edgeSize;
+        }
+      }
+      this->VolumeDiscreteValues->SetTuple1(level, cellVolume);
+    }
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -238,7 +249,10 @@ int vtkHyperTreeGridComputeVisibleLeavesVolume::ProcessTrees(
   }
 
   outputHTG->ShallowCopy(input);
-  this->Internal->Initialize(input);
+  if (!this->Internal->Initialize(input))
+  {
+    return 0;
+  }
 
   // Iterate over all input and output hyper trees
   vtkIdType index = 0;
