@@ -965,9 +965,11 @@ inline void vtkPolyData::GetCellPoints(
     npts = 0;
     pts = nullptr;
   }
-
-  vtkCellArray* cells = this->GetCellArrayInternal(tag);
-  cells->GetCellAtId(tag.GetCellId(), npts, pts, ptIds);
+  else
+  {
+    vtkCellArray* cells = this->GetCellArrayInternal(tag);
+    cells->GetCellAtId(tag.GetCellId(), npts, pts, ptIds);
+  }
 }
 
 VTK_ABI_NAMESPACE_END
