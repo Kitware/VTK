@@ -141,7 +141,7 @@ void vtkAnariCameraNode::Render(bool prepass)
 
     // Set focusDistance parameter
     double myFocalDistance = cam->GetFocalDistance();
-    float focusDistance = myFocalDistance > 0.0 ? static_cast<float>(myFocalDistance) : 0.0f;
+    float focusDistance = myFocalDistance > 0.0 ? static_cast<float>(myFocalDistance) : 1.0f;
     anari::setParameter(anariDevice, anariCamera, "focusDistance", focusDistance);
 
     // Set apertureRadius parameter
