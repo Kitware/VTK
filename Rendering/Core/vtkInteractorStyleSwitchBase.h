@@ -18,9 +18,11 @@
 
 #include "vtkInteractorStyle.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkInteractorStyleSwitchBase : public vtkInteractorStyle
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleSwitchBase
+  : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleSwitchBase* New();

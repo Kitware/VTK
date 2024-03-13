@@ -14,9 +14,10 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONCORE_EXPORT vtkIdList : public vtkObject
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkIdList : public vtkObject
 {
 public:
   ///@{

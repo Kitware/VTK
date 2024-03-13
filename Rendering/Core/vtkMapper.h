@@ -39,6 +39,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // needed for vtkSmartPointer.
 #include "vtkSystemIncludes.h"      // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 #include <vector>                   // for method args
 
 #define VTK_RESOLVE_OFF 0
@@ -67,7 +68,7 @@ class vtkSelection;
 class vtkUnsignedCharArray;
 class vtkWindow;
 
-class VTKRENDERINGCORE_EXPORT vtkMapper : public vtkAbstractMapper3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkMapper : public vtkAbstractMapper3D
 {
 public:
   vtkTypeMacro(vtkMapper, vtkAbstractMapper3D);

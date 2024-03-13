@@ -35,6 +35,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPropPicker;
@@ -45,7 +46,7 @@ class vtkCallbackCommand;
 class vtkObserverMediator;
 class vtkPickingManager;
 
-class VTKRENDERINGCORE_EXPORT vtkInteractorObserver : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkInteractorObserver : public vtkObject
 {
 public:
   vtkTypeMacro(vtkInteractorObserver, vtkObject);

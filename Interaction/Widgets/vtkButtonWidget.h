@@ -46,11 +46,12 @@
 #include "vtkAbstractWidget.h"
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkButtonRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkButtonWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkButtonWidget : public vtkAbstractWidget
 {
 public:
   /**

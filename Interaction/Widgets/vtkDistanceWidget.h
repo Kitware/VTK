@@ -59,13 +59,14 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDistanceRepresentation;
 class vtkHandleWidget;
 class vtkDistanceWidgetCallback;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkDistanceWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkDistanceWidget : public vtkAbstractWidget
 {
 public:
   /**

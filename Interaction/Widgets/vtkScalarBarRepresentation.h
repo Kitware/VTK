@@ -25,11 +25,13 @@
 
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarBarActor;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarRepresentation : public vtkBorderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkScalarBarRepresentation
+  : public vtkBorderRepresentation
 {
 public:
   vtkTypeMacro(vtkScalarBarRepresentation, vtkBorderRepresentation);

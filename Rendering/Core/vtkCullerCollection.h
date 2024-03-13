@@ -18,9 +18,10 @@
 #include "vtkCollection.h"
 #include "vtkCuller.h"              // for inline functions
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCullerCollection : public vtkCollection
 {
 public:
   static vtkCullerCollection* New();

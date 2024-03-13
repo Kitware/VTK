@@ -27,6 +27,7 @@
 #include "vtkNew.h"                       // used for vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // used for vtkSmartPointer
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 #include <list>                           // To process exponent list as reference
 #include <string>                         // used for ivar
 
@@ -38,7 +39,7 @@ class vtkProperty;
 class vtkStringArray;
 class vtkTextProperty;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkPolarAxesActor : public vtkActor
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkPolarAxesActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkPolarAxesActor, vtkActor);

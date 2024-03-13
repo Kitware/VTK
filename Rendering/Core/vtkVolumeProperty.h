@@ -48,6 +48,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // Needed for vtkSmartPointer
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 // STL includes
 #include <set>           // For labelmap labels set
@@ -60,7 +61,7 @@ class vtkImageData;
 class vtkPiecewiseFunction;
 class vtkTimeStamp;
 
-class VTKRENDERINGCORE_EXPORT vtkVolumeProperty : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkVolumeProperty : public vtkObject
 {
 public:
   static vtkVolumeProperty* New();

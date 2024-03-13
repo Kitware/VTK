@@ -24,6 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
 #include "vtkTDxConfigure.h"      // defines VTK_USE_TDX
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 #ifdef VTK_USE_TDX
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTDxMacDevice;
@@ -31,7 +32,8 @@ VTK_ABI_NAMESPACE_END
 #endif
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGUI_EXPORT vtkCocoaRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkCocoaRenderWindowInteractor
+  : public vtkRenderWindowInteractor
 {
 public:
   /**

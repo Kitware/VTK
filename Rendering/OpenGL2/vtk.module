@@ -54,3 +54,4 @@ TEST_DEPENDS
   VTK::RenderingImage
   VTK::TestingCore
   VTK::TestingRendering
+INCLUDE_MARSHAL

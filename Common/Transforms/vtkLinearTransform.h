@@ -23,9 +23,10 @@
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkHomogeneousTransform.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONTRANSFORMS_EXPORT vtkLinearTransform : public vtkHomogeneousTransform
+class VTKCOMMONTRANSFORMS_EXPORT VTK_MARSHALAUTO vtkLinearTransform : public vtkHomogeneousTransform
 {
 public:
   vtkTypeMacro(vtkLinearTransform, vtkHomogeneousTransform);

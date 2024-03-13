@@ -21,11 +21,12 @@
 #include "vtkNew.h" // For iVars
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUniforms;
 
-class VTKRENDERINGCORE_EXPORT vtkShaderProperty : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkShaderProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkShaderProperty, vtkObject);

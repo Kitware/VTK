@@ -27,6 +27,7 @@
 #include "vtkNew.h"                      // For vtkNew
 #include "vtkSmartPointer.h"             // For vtkSmartPointer
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <map>
 
@@ -41,7 +42,8 @@ class vtkProperty;
 class vtkSuperquadricSource;
 class vtkTransform;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkOrientationRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkOrientationRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

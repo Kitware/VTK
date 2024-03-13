@@ -33,6 +33,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkAbstractArray.h" // Needed for inline methods.
 
@@ -45,7 +46,7 @@ class vtkIdList;
 class vtkDoubleArray;
 class vtkUnsignedCharArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkFieldData : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkFieldData : public vtkObject
 {
 public:
   static vtkFieldData* New();

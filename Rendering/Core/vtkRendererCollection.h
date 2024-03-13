@@ -18,9 +18,10 @@
 #include "vtkCollection.h"
 #include "vtkRenderer.h"            // Needed for static cast
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkRendererCollection : public vtkCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRendererCollection : public vtkCollection
 {
 public:
   static vtkRendererCollection* New();

@@ -21,6 +21,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIdTypeArray.h"           // inline GetCellPoints()
 #include "vtkUnstructuredGridBase.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 #include "vtkSmartPointer.h" // for smart pointer
 
@@ -31,7 +32,8 @@ class vtkIdTypeArray;
 class vtkUnsignedCharArray;
 class vtkIdTypeArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGrid : public vtkUnstructuredGridBase
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkUnstructuredGrid
+  : public vtkUnstructuredGridBase
 {
 public:
   /**

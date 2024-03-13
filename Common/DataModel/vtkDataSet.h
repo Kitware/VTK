@@ -30,9 +30,10 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_3_0
-#include "vtkNew.h"          // For vtkNew
-#include "vtkSmartPointer.h" // For vtkSmartPointer
+#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_3_0
+#include "vtkNew.h"           // For vtkNew
+#include "vtkSmartPointer.h"  // For vtkSmartPointer
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
@@ -46,7 +47,7 @@ class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkCallbackCommand;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkDataSet : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkDataSet : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkDataSet, vtkDataObject);

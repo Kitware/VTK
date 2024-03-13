@@ -30,6 +30,7 @@
 #include "vtkCoordinate.h"               //Because of the viewport coordinate macro
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkNew.h" // for ivars
 
@@ -43,7 +44,8 @@ class vtkActor2D;
 class vtkProperty2D;
 class vtkCellArray;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkBorderRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkBorderRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

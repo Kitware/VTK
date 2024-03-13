@@ -26,11 +26,12 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyLineRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkPolyLineWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkPolyLineWidget : public vtkAbstractWidget
 {
 public:
   static vtkPolyLineWidget* New();

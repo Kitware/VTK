@@ -40,13 +40,15 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // needed for ivars
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAppendPolyData;
 class vtkConvexHull2D;
 class vtkRenderer;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkGraphAnnotationLayersFilter : public vtkPolyDataAlgorithm
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkGraphAnnotationLayersFilter
+  : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGraphAnnotationLayersFilter* New();

@@ -82,12 +82,14 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitPlaneRepresentation;
 class vtkImplicitPlaneWidget2InteractionCallback;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitPlaneWidget2 : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkImplicitPlaneWidget2
+  : public vtkAbstractWidget
 {
   friend class vtkImplicitPlaneWidget2InteractionCallback;
 

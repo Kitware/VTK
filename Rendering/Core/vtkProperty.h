@@ -21,6 +21,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 #include <map>                      // used for ivar
 #include <string>                   // used for ivar
 
@@ -47,7 +48,7 @@ class vtkXMLMaterial;
 
 class vtkPropertyInternals;
 
-class VTKRENDERINGCORE_EXPORT vtkProperty : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProperty, vtkObject);

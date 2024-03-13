@@ -29,6 +29,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -51,7 +52,7 @@ class vtkLookupTable;
 
 #define VTK_MAX_CYL_RESOLUTION 2048
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitCylinderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkImplicitCylinderRepresentation
   : public vtkWidgetRepresentation
 {
 public:

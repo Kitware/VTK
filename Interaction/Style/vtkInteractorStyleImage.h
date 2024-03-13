@@ -49,6 +49,7 @@
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 // Motion flags
 
@@ -64,7 +65,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageProperty;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleImage : public vtkInteractorStyleTrackballCamera
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleImage
+  : public vtkInteractorStyleTrackballCamera
 {
 public:
   static vtkInteractorStyleImage* New();

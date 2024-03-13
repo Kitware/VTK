@@ -16,6 +16,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNew.h"                   // for vtkNew
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <initializer_list> // for std::initializer_list
 
@@ -24,7 +25,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkIdList;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkAbstractCellArray : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkAbstractCellArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractCellArray, vtkObject);

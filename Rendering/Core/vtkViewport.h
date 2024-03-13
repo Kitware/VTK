@@ -22,6 +22,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include "vtkSelection.h"    // Needed for selection
 #include "vtkSmartPointer.h" // Needed for assigning default nullptr value
@@ -35,7 +36,7 @@ class vtkProp;
 class vtkPropCollection;
 class vtkWindow;
 
-class VTKRENDERINGCORE_EXPORT vtkViewport : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkViewport : public vtkObject
 {
 public:
   vtkTypeMacro(vtkViewport, vtkObject);

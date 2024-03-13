@@ -26,6 +26,7 @@
 #include "vtkAbstractArray.h"
 #include "vtkCommonCoreModule.h"          // For export macro
 #include "vtkVTK_USE_SCALED_SOA_ARRAYS.h" // For #define of VTK_USE_SCALED_SOA_ARRAYS
+#include "vtkWrappingHints.h"             // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
@@ -35,7 +36,7 @@ class vtkInformationDoubleVectorKey;
 class vtkLookupTable;
 class vtkPoints;
 
-class VTKCOMMONCORE_EXPORT vtkDataArray : public vtkAbstractArray
+class VTKCOMMONCORE_EXPORT VTK_MARSHALMANUAL vtkDataArray : public vtkAbstractArray
 {
 public:
   vtkTypeMacro(vtkDataArray, vtkAbstractArray);

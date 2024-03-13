@@ -16,6 +16,7 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkDemandDrivenPipeline.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_UPDATE_EXTENT_COMBINE 1
 #define VTK_UPDATE_EXTENT_REPLACE 2
@@ -32,7 +33,7 @@ class vtkInformationStringKey;
 class vtkInformationStringKey;
 class vtkInformationUnsignedLongKey;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkStreamingDemandDrivenPipeline
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkStreamingDemandDrivenPipeline
   : public vtkDemandDrivenPipeline
 {
 public:

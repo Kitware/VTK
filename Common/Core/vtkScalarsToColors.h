@@ -36,7 +36,8 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkVariant.h" // Set/get annotation methods require variants.
+#include "vtkVariant.h"       // Set/get annotation methods require variants.
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
@@ -46,7 +47,7 @@ class vtkAbstractArray;
 class vtkStringArray;
 class vtkUnsignedCharArray;
 
-class VTKCOMMONCORE_EXPORT vtkScalarsToColors : public vtkObject
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkScalarsToColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarsToColors, vtkObject);

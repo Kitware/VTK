@@ -34,7 +34,8 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <vtkSmartPointer.h> // smart pointer
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <vtkSmartPointer.h>  // smart pointer
 
 #include <vector> // for vector in return type
 
@@ -48,7 +49,7 @@ class vtkInformationStringKey;
 class vtkInformationDataObjectKey;
 class vtkInformationIntegerKey;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCompositeDataPipeline
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkCompositeDataPipeline
   : public vtkStreamingDemandDrivenPipeline
 {
 public:

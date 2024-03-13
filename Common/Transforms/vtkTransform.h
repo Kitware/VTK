@@ -36,11 +36,12 @@
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkLinearTransform.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkMatrix4x4.h" // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
+class VTKCOMMONTRANSFORMS_EXPORT VTK_MARSHALAUTO vtkTransform : public vtkLinearTransform
 {
 public:
   static vtkTransform* New();

@@ -17,12 +17,13 @@
 
 #include "vtkMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataMapper;
 class vtkDataSetSurfaceFilter;
 
-class VTKRENDERINGCORE_EXPORT vtkDataSetMapper : public vtkMapper
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkDataSetMapper : public vtkMapper
 {
 public:
   static vtkDataSetMapper* New();

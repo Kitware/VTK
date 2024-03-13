@@ -25,6 +25,7 @@
 
 #include "vtkCuller.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #define VTK_CULLER_SORT_NONE 0
 #define VTK_CULLER_SORT_FRONT_TO_BACK 1
@@ -34,7 +35,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkFrustumCoverageCuller : public vtkCuller
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkFrustumCoverageCuller : public vtkCuller
 {
 public:
   static vtkFrustumCoverageCuller* New();

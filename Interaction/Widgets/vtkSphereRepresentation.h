@@ -37,6 +37,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSphereSource.h"             // Needed for fast access to the sphere source
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -61,7 +62,8 @@ class vtkCursor3D;
 #define VTK_SPHERE_WIREFRAME 1
 #define VTK_SPHERE_SURFACE 2
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkSphereRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkSphereRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

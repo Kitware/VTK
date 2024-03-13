@@ -19,12 +19,14 @@
 
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkOSOpenGLRenderWindowInternal;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOSOpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOSOpenGLRenderWindow
+  : public vtkOpenGLRenderWindow
 {
 public:
   static vtkOSOpenGLRenderWindow* New();

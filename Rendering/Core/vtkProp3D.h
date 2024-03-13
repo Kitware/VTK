@@ -25,6 +25,7 @@
 #include "vtkProp.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWeakPointer.h"         // For vtkWeakPointer
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLinearTransform;
@@ -32,7 +33,7 @@ class vtkMatrix4x4;
 class vtkRenderer;
 class vtkTransform;
 
-class VTKRENDERINGCORE_EXPORT vtkProp3D : public vtkProp
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkProp3D : public vtkProp
 {
 public:
   vtkTypeMacro(vtkProp3D, vtkProp);

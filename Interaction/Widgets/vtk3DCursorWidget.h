@@ -18,11 +18,12 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtk3DCursorRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtk3DCursorWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtk3DCursorWidget : public vtkAbstractWidget
 {
 public:
   static vtk3DCursorWidget* New();

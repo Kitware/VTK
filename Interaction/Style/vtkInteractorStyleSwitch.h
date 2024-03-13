@@ -19,6 +19,7 @@
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleSwitchBase.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 #define VTKIS_JOYSTICK 0
 #define VTKIS_TRACKBALL 1
@@ -33,7 +34,8 @@ class vtkInteractorStyleTrackballActor;
 class vtkInteractorStyleTrackballCamera;
 class vtkInteractorStyleMultiTouchCamera;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleSwitch : public vtkInteractorStyleSwitchBase
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALMANUAL vtkInteractorStyleSwitch
+  : public vtkInteractorStyleSwitchBase
 {
 public:
   static vtkInteractorStyleSwitch* New();

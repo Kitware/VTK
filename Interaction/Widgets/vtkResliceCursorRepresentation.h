@@ -17,6 +17,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTextProperty;
@@ -40,7 +41,8 @@ class vtkImageAlgorithm;
 // Private.
 #define VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF 128
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkResliceCursorRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   ///@{

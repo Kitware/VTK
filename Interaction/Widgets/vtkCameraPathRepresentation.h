@@ -18,12 +18,13 @@
 
 #include "vtkAbstractSplineRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraHandleSource;
 class vtkCamera;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCameraPathRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCameraPathRepresentation
   : public vtkAbstractSplineRepresentation
 {
 public:

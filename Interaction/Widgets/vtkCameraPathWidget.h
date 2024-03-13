@@ -17,11 +17,12 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // for vtkNew
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraPathRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCameraPathWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCameraPathWidget : public vtkAbstractWidget
 {
 public:
   static vtkCameraPathWidget* New();

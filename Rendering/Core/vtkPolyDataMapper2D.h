@@ -23,6 +23,7 @@
 
 #include "vtkMapper2D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCoordinate;
@@ -30,7 +31,7 @@ class vtkPolyData;
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;
 
-class VTKRENDERINGCORE_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkPolyDataMapper2D : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkPolyDataMapper2D, vtkMapper2D);

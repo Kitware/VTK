@@ -16,6 +16,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
@@ -23,7 +24,7 @@ class vtkViewport;
 #define VTK_BACKGROUND_LOCATION 0
 #define VTK_FOREGROUND_LOCATION 1
 
-class VTKRENDERINGCORE_EXPORT vtkProperty2D : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkProperty2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProperty2D, vtkObject);

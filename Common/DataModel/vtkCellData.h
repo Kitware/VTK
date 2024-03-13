@@ -19,9 +19,10 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSetAttributes.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONDATAMODEL_EXPORT vtkCellData : public vtkDataSetAttributes
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkCellData : public vtkDataSetAttributes
 {
 public:
   static vtkCellData* New();

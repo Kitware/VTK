@@ -79,12 +79,14 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCoordinateFrameRepresentation;
 class vtkCoordinateFrameWidgetInteractionCallback;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCoordinateFrameWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCoordinateFrameWidget
+  : public vtkAbstractWidget
 {
   friend class vtkCoordinateFrameWidgetInteractionCallback;
 

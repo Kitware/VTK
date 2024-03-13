@@ -14,6 +14,7 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkExecutive.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
@@ -34,7 +35,7 @@ class vtkInformationUnsignedLongKey;
 /// that information objects use and what each key should be used for.
 ///
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkDemandDrivenPipeline : public vtkExecutive
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkDemandDrivenPipeline : public vtkExecutive
 {
 public:
   static vtkDemandDrivenPipeline* New();

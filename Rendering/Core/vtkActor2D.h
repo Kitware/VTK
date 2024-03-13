@@ -20,12 +20,13 @@
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
 #include "vtkProp.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMapper2D;
 class vtkProperty2D;
 
-class VTKRENDERINGCORE_EXPORT vtkActor2D : public vtkProp
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkActor2D : public vtkProp
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;

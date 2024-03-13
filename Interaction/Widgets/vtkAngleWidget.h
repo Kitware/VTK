@@ -61,13 +61,14 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAngleRepresentation;
 class vtkHandleWidget;
 class vtkAngleWidgetCallback;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkAngleWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkAngleWidget : public vtkAbstractWidget
 {
 public:
   /**

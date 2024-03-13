@@ -36,3 +36,4 @@ TEST_DEPENDS
   VTK::TestingCore
   VTK::vtksys
   VTK::fmt
+INCLUDE_MARSHAL

@@ -61,6 +61,7 @@
 
 #include "vtkHoverWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBalloonRepresentation;
@@ -70,7 +71,7 @@ class vtkStdString;
 class vtkPropMap;
 class vtkImageData;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkBalloonWidget : public vtkHoverWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkBalloonWidget : public vtkHoverWidget
 {
 public:
   /**

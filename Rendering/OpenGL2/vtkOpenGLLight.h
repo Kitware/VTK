@@ -13,11 +13,12 @@
 
 #include "vtkLight.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderer;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLight : public vtkLight
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLLight : public vtkLight
 {
 public:
   static vtkOpenGLLight* New();

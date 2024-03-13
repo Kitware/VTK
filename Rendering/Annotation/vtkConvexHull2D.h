@@ -39,6 +39,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // needed for ivars
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCoordinate;
@@ -49,7 +50,7 @@ class vtkRenderer;
 class vtkTransform;
 class vtkTransformPolyDataFilter;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkConvexHull2D : public vtkPolyDataAlgorithm
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkConvexHull2D : public vtkPolyDataAlgorithm
 {
 public:
   static vtkConvexHull2D* New();

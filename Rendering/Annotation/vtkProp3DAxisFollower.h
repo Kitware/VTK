@@ -20,12 +20,13 @@
 #include "vtkProp3DFollower.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkWeakPointer.h"               // For vtkWeakPointer
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor;
 class vtkViewport;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkProp3DAxisFollower : public vtkProp3DFollower
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkProp3DAxisFollower : public vtkProp3DFollower
 {
 public:
   /**

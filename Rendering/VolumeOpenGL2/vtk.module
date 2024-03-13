@@ -42,3 +42,4 @@ TEST_DEPENDS
   VTK::InteractionWidgets
   VTK::TestingCore
   VTK::TestingRendering
+INCLUDE_MARSHAL

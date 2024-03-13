@@ -50,6 +50,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
@@ -64,7 +65,7 @@ class vtkParallelCoordinatesActorConnection;
 #define VTK_IV_COLUMN 0
 #define VTK_IV_ROW 1
 
-class VTKRENDERINGANNOTATION_EXPORT vtkParallelCoordinatesActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkParallelCoordinatesActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkParallelCoordinatesActor, vtkActor2D);

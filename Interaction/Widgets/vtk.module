@@ -71,3 +71,4 @@ TEST_DEPENDS
   VTK::TestingRendering
   VTK::ViewsContext2D
   VTK::RenderingContextOpenGL2
+INCLUDE_MARSHAL

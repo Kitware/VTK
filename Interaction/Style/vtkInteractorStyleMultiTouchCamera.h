@@ -19,9 +19,10 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkRenderWindowInteractor.h" // for max pointers
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleMultiTouchCamera
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleMultiTouchCamera
   : public vtkInteractorStyleTrackballCamera
 {
 public:

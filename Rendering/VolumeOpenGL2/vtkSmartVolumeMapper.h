@@ -64,6 +64,7 @@
 #include "vtkImageReslice.h"                 // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkVolumeMapper.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFixedPointVolumeRayCastMapper;
@@ -77,7 +78,7 @@ class vtkVolume;
 class vtkVolumeProperty;
 class vtkImageMagnitude;
 
-class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkSmartVolumeMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT VTK_MARSHALAUTO vtkSmartVolumeMapper : public vtkVolumeMapper
 {
 public:
   static vtkSmartVolumeMapper* New();

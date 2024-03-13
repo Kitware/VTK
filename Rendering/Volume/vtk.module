@@ -48,3 +48,4 @@ TEST_DEPENDS
   VTK::RenderingVolumeOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+INCLUDE_MARSHAL

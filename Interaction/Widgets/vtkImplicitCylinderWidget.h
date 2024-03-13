@@ -78,11 +78,13 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitCylinderRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitCylinderWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkImplicitCylinderWidget
+  : public vtkAbstractWidget
 {
 public:
   /**

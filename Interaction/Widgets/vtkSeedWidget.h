@@ -60,6 +60,7 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHandleRepresentation;
@@ -67,7 +68,7 @@ class vtkHandleWidget;
 class vtkSeedList;
 class vtkSeedRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkSeedWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkSeedWidget : public vtkAbstractWidget
 {
 public:
   /**

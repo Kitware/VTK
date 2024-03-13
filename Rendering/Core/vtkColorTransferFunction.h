@@ -26,6 +26,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkScalarsToColors.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunctionInternals;
@@ -41,7 +42,7 @@ class vtkDoubleArray;
 #define VTK_CTF_LINEAR 0
 #define VTK_CTF_LOG10 1
 
-class VTKRENDERINGCORE_EXPORT vtkColorTransferFunction : public vtkScalarsToColors
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkColorTransferFunction : public vtkScalarsToColors
 {
 public:
   static vtkColorTransferFunction* New();

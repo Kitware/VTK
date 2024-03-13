@@ -34,12 +34,13 @@
 #include "vtkSetGet.h"
 #include "vtkTimeStamp.h"
 #include "vtkWeakPointerBase.h" // needed for vtkWeakPointer
+#include "vtkWrappingHints.h"   // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSubjectHelper;
 class vtkCommand;
 
-class VTKCOMMONCORE_EXPORT vtkObject : public vtkObjectBase
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkObject : public vtkObjectBase
 {
 public:
   vtkBaseTypeMacro(vtkObject, vtkObjectBase);

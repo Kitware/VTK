@@ -28,6 +28,7 @@
 
 #include "vtkBorderWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCaptionRepresentation;
@@ -36,7 +37,7 @@ class vtkHandleWidget;
 class vtkPointHandleRepresentation3D;
 class vtkCaptionAnchorCallback;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCaptionWidget : public vtkBorderWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCaptionWidget : public vtkBorderWidget
 {
 public:
   /**

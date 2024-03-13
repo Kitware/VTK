@@ -29,13 +29,14 @@
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkMatrix4x4;
 class vtkPoints;
 
-class VTKCOMMONTRANSFORMS_EXPORT vtkAbstractTransform : public vtkObject
+class VTKCOMMONTRANSFORMS_EXPORT VTK_MARSHALAUTO vtkAbstractTransform : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractTransform, vtkObject);

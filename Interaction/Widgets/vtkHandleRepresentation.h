@@ -35,13 +35,15 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCoordinate;
 class vtkRenderer;
 class vtkPointPlacer;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkHandleRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkHandleRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   ///@{

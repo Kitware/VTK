@@ -22,6 +22,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkViewport.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkActorCollection.h"  // Needed for access in inline members
 #include "vtkVolumeCollection.h" // Needed for access in inline members
@@ -49,7 +50,7 @@ class vtkTexture;
 class vtkRecti;
 class vtkVector3d;
 
-class VTKRENDERINGCORE_EXPORT vtkRenderer : public vtkViewport
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderer : public vtkViewport
 {
 public:
   vtkTypeMacro(vtkRenderer, vtkViewport);

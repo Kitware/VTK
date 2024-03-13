@@ -28,6 +28,7 @@
 #include "vtkDeprecation.h" // for deprecation
 #include "vtkProp.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 #include "vtkNew.h" // for vtkNew
 
@@ -43,7 +44,7 @@ class vtkPoints;
 class vtkCoordinate;
 class vtkAxisGridActorPrivate;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkLegendScaleActor : public vtkProp
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkLegendScaleActor : public vtkProp
 {
 public:
   /**

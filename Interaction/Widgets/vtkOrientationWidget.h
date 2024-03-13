@@ -37,11 +37,12 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // For vtkNew
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOrientationRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkOrientationWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkOrientationWidget : public vtkAbstractWidget
 {
 public:
   /**

@@ -15,6 +15,7 @@
 
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
@@ -23,7 +24,8 @@ class vtkPolyData;
 class vtkProperty2D;
 class vtkUnsignedCharArray;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkProgressBarRepresentation : public vtkBorderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkProgressBarRepresentation
+  : public vtkBorderRepresentation
 {
 public:
   /**

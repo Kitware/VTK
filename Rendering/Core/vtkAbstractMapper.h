@@ -18,6 +18,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALMANUAL
 
 #define VTK_SCALAR_MODE_DEFAULT 0
 #define VTK_SCALAR_MODE_USE_POINT_DATA 1
@@ -39,7 +40,7 @@ class vtkTimerLog;
 class vtkUnsignedCharArray;
 class vtkWindow;
 
-class VTKRENDERINGCORE_EXPORT vtkAbstractMapper : public vtkAlgorithm
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkAbstractMapper : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkAbstractMapper, vtkAlgorithm);

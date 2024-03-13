@@ -19,9 +19,10 @@
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONMATH_EXPORT vtkMatrix4x4 : public vtkObject
+class VTKCOMMONMATH_EXPORT VTK_MARSHALAUTO vtkMatrix4x4 : public vtkObject
 {
 public:
   /// The internal data is public for historical reasons. Do not use!

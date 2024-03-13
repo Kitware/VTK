@@ -82,6 +82,7 @@
 
 #include "vtkInteractorObserver.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 // Motion flags
 
@@ -127,7 +128,7 @@ class vtkProp;
 class vtkStringArray;
 class vtkTDxInteractorStyle;
 
-class VTKRENDERINGCORE_EXPORT vtkInteractorStyle : public vtkInteractorObserver
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkInteractorStyle : public vtkInteractorObserver
 {
 public:
   /**

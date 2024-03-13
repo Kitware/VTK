@@ -24,6 +24,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
@@ -38,7 +39,7 @@ class vtkGlyphSource2D;
 class vtkPieChartActorConnection;
 class vtkPieceLabelArray;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkPieChartActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkPieChartActor : public vtkActor2D
 {
 public:
   ///@{

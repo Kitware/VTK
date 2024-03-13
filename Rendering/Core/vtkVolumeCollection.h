@@ -17,11 +17,12 @@
 
 #include "vtkPropCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include "vtkVolume.h" // Needed for static cast
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkVolumeCollection : public vtkPropCollection
 {
 public:
   static vtkVolumeCollection* New();

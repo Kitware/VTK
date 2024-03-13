@@ -15,12 +15,14 @@
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
-#include "vtkRect.h" // for vtkRecti
+#include "vtkRect.h"          // for vtkRecti
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBandZoom : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleRubberBandZoom
+  : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleRubberBandZoom* New();

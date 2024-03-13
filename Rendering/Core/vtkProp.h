@@ -18,6 +18,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 #include <vector>                   // for method args
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -33,7 +34,7 @@ class vtkInformationIntegerKey;
 class vtkInformationDoubleVectorKey;
 class vtkShaderProperty;
 
-class VTKRENDERINGCORE_EXPORT vtkProp : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkProp : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProp, vtkObject);

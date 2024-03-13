@@ -36,12 +36,13 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCheckerboardRepresentation;
 class vtkSliderWidget;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCheckerboardWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCheckerboardWidget : public vtkAbstractWidget
 {
 public:
   /**
