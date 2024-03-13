@@ -6,6 +6,7 @@
 
 #include "vtkArrayCalculator.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisClip.h"
@@ -85,6 +86,12 @@ bool AreHTGSame(vtkHyperTreeGrid* htg1, vtkHyperTreeGrid* htg2, unsigned int max
   htg2->InitializeTreeIterator(it2);
   vtkIdType idx1 = 0, idx2 = 0;
 
+  if (!vtkTestUtilities::CompareFieldData(htg1->GetFieldData(), htg2->GetFieldData()))
+  {
+    vtkLog(ERROR, "Comparison between HTGs field data failed.");
+    return false;
+  }
+
   while (it1.GetNextTree(idx1) && it2.GetNextTree(idx2))
   {
     if (idx1 != idx2)
@@ -115,7 +122,15 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
   vtkNew<vtkRandomHyperTreeGridSource> source;
   source->Update();
 
+  // Add field data to source
   vtkHyperTreeGrid* htgWrite = vtkHyperTreeGrid::SafeDownCast(source->GetOutputDataObject(0));
+  vtkFieldData* htgFieldData = htgWrite->GetFieldData();
+  vtkNew<vtkDoubleArray> dataArray;
+  dataArray->SetNumberOfTuples(10);
+  std::vector<double> dummyArray = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+  dataArray->SetArray(dummyArray.data(), 10, 1);
+  dataArray->SetName("DummyFieldData");
+  htgFieldData->AddArray(dataArray);
 
   vtkLog(INFO, "Writing TestXMLHyperTreeGridIO2_Appendedv0.htg");
   vtkNew<vtkXMLHyperTreeGridWriter> writer;
@@ -277,15 +292,20 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
   // Testing with mask htg
 
   vtkNew<vtkHyperTreeGridAxisClip> clip;
-  clip->SetInputConnection(source->GetOutputPort(0));
   double normal[3] = { 0.809, -0.42, 0.411 };
+  clip->SetInputConnection(source->GetOutputPort(0));
   clip->SetClipTypeToQuadric();
   clip->SetQuadricCoefficients(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, normal[0], normal[1], normal[2], 0.0);
   clip->SetInsideOut(true);
 
   clip->Update();
   writer->SetInputData(clip->GetOutputDataObject(0));
+
   htgWrite = vtkHyperTreeGrid::SafeDownCast(clip->GetOutputDataObject(0));
+  // Add field data to source
+  vtkFieldData* maskedHtgFieldData = htgWrite->GetFieldData();
+  // Reuse dummy data array
+  maskedHtgFieldData->AddArray(dataArray);
 
   vtkLog(INFO, "Writing TestXMLHyperTreeGridIO2_MaskedAppendedv0.htg");
   fname = tdir + std::string("/TestXMLHyperTreeGridIO2_MaskedAppendedv0.htg");
