@@ -1,15 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkHyperTreeGridComputeVisibleLeavesVolume.h"
+#include "vtkHyperTreeGridVisibleLeavesVolume.h"
 
-#include "vtkAOSDataArrayTemplate.h"
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayMeta.h" // for GetAPIType
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
-#include "vtkGenericDataArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
@@ -21,23 +19,21 @@
 #include "vtkNew.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
-#include "vtkType.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <algorithm> // for max
+#include <algorithm>
 #include <memory>
-#include <set>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkHyperTreeGridComputeVisibleLeavesVolume)
+vtkStandardNewMacro(vtkHyperTreeGridVisibleLeavesVolume)
 
   namespace
 {
   /**
-   * Implicit array implementation unpacking a bool array to an unsigned char array,
-   * reducing the memory footprint of the array by a factor of 8,
-   * while still guaranteeing fast element access using implicit arrays static dispatch.
+   * Implicit array implementation unpacking a bool array to an array of type `ValueType`,
+   * reducing the memory footprint of the array by a factor of 8 * 8 if `ValueType` is `double`,
+   * while still guaranteeing fast element access using static dispatch.
    */
   template <typename ValueType>
   struct vtkScalarBooleanImplicitBackend final
@@ -68,7 +64,7 @@ vtkStandardNewMacro(vtkHyperTreeGridComputeVisibleLeavesVolume)
 }
 
 //------------------------------------------------------------------------------
-class vtkHyperTreeGridComputeVisibleLeavesVolume::vtkInternal
+class vtkHyperTreeGridVisibleLeavesVolume::vtkInternal
 {
 public:
   vtkInternal() = default;
@@ -79,12 +75,6 @@ public:
    */
   bool Initialize(vtkHyperTreeGrid* inputHTG)
   {
-    this->PackedValidCellArray.clear();
-    this->PackedValidCellArray.resize(inputHTG->GetNumberOfCells(), 0);
-
-    this->OutputVolumeArray->SetNumberOfComponents(1);
-    this->OutputVolumeArray->SetNumberOfTuples(inputHTG->GetNumberOfCells());
-
     this->VolumeDiscreteValues->SetNumberOfComponents(1);
     this->VolumeDiscreteValues->SetNumberOfTuples(inputHTG->GetNumberOfLevels());
     if (this->VolumeDiscreteValues->GetNumberOfTuples() > 256)
@@ -94,6 +84,12 @@ public:
       return false;
     }
     this->ComputeLevelVolumes(inputHTG);
+
+    this->PackedValidCellArray.clear();
+    this->PackedValidCellArray.resize(inputHTG->GetNumberOfCells(), false);
+
+    this->OutputVolumeArray->SetNumberOfComponents(1);
+    this->OutputVolumeArray->SetNumberOfTuples(inputHTG->GetNumberOfCells());
 
     this->VolumeIndirectionTable->SetNumberOfComponents(1);
     this->VolumeIndirectionTable->SetNumberOfTuples(inputHTG->GetNumberOfCells());
@@ -109,13 +105,14 @@ public:
    * unpacking the bit array built before. This cell field has a value of 1.0 for valid (leaf,
    * non-ghost, non-masked) cells, and 0.0 for the others.
    */
-  vtkDataArray* GetAndFinalizeValidMaskArray()
+  vtkDataArray* GetAndFinalizeValidityArray(const std::string& validityArrayName)
   {
     this->ValidCellsImplicitArray->ConstructBackend(this->PackedValidCellArray);
-    this->ValidCellsImplicitArray->SetName("vtkValidCell");
+    this->ValidCellsImplicitArray->SetName(validityArrayName.c_str());
     this->ValidCellsImplicitArray->SetNumberOfComponents(1);
     this->ValidCellsImplicitArray->SetNumberOfTuples(this->PackedValidCellArray.size());
-    for (vtkIdType iCell = 0; iCell < (vtkIdType)(this->PackedValidCellArray.size()); ++iCell)
+    for (vtkIdType iCell = 0; iCell < static_cast<vtkIdType>(this->PackedValidCellArray.size());
+         ++iCell)
     {
       this->ValidCellsImplicitArray->SetTuple1(iCell, this->PackedValidCellArray[iCell]);
     }
@@ -126,13 +123,13 @@ public:
   /**
    * Build the output volume array from internally stored values
    */
-  vtkDataArray* GetAndFinalizeVolumArray()
+  vtkDataArray* GetAndFinalizeVolumeArray(const std::string& volumeArrayName)
   {
     // The volume values take a discrete number of different values : one value for each level
     // Thus, we can use an indexed (implicit) array as an indirection table to store the volume as a
     // uchar (256 possible values/levels) instead of a double for each cell to save memory (1 byte
     // stored instead of 8)
-    this->OutputVolumeArray->SetName("vtkVolume");
+    this->OutputVolumeArray->SetName(volumeArrayName.c_str());
     this->OutputVolumeArray->SetNumberOfComponents(1);
     this->OutputVolumeArray->SetNumberOfTuples(this->VolumeIndirectionTable->GetNumberOfValues());
     this->OutputVolumeArray->SetBackend(std::make_shared<vtkIndexedImplicitBackend<double>>(
@@ -141,9 +138,9 @@ public:
   }
 
   /**
-   * Compute the volume of the cell pointed by the cursor and store it in an internal structure
+   * Record the depth of the cell pointed by the cursor in an internal structure
    */
-  void ComputeVolume(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
+  void RecordDepth(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
   {
     assert("pre: level is less than 256" && cursor->GetLevel() <= 256);
     this->VolumeIndirectionTable->SetTuple1(
@@ -173,14 +170,15 @@ private:
   vtkBitArray* InputMask = nullptr;
   vtkUnsignedCharArray* InputGhost = nullptr;
 
-  // Compressed data containers
-  std::vector<bool> PackedValidCellArray;
+  // Internal data containers
+  std::vector<bool>
+    PackedValidCellArray; // Operations on bool vector are not atomic. This structure needs to
+                          // change if this filter is parallelized.
   vtkNew<vtkUnsignedCharArray> VolumeIndirectionTable;
   vtkNew<vtkDoubleArray> VolumeDiscreteValues;
 
-  // Output data
-  using SourceT = vtk::GetAPIType<vtkDoubleArray>;
-  vtkNew<::vtkScalarBooleanArray<SourceT>> ValidCellsImplicitArray;
+  // Output data arrays
+  vtkNew<::vtkScalarBooleanArray<double>> ValidCellsImplicitArray;
   vtkNew<vtkIndexedArray<double>> OutputVolumeArray;
 
   /**
@@ -193,7 +191,9 @@ private:
     vtkHyperTree* tree = inputHTG->GetTree(0);
     std::shared_ptr<vtkHyperTreeGridScales> scale = tree->GetScales();
 
-    for (unsigned char level = 0; level < this->VolumeDiscreteValues->GetNumberOfTuples(); level++)
+    for (unsigned char level = 0;
+         level < static_cast<unsigned char>(this->VolumeDiscreteValues->GetNumberOfTuples());
+         level++)
     {
       double cellVolume{ 1 };
       if (inputHTG->GetDimension() != 3)
@@ -217,29 +217,22 @@ private:
 };
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridComputeVisibleLeavesVolume::vtkHyperTreeGridComputeVisibleLeavesVolume()
+vtkHyperTreeGridVisibleLeavesVolume::vtkHyperTreeGridVisibleLeavesVolume()
 {
   this->Internal = std::unique_ptr<vtkInternal>(new vtkInternal());
+  this->AppropriateOutput = true;
 };
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridComputeVisibleLeavesVolume::PrintSelf(ostream& ost, vtkIndent indent)
+void vtkHyperTreeGridVisibleLeavesVolume::PrintSelf(ostream& ost, vtkIndent indent)
 {
   this->Superclass::PrintSelf(ost, indent);
 }
 
 //------------------------------------------------------------------------------
-int vtkHyperTreeGridComputeVisibleLeavesVolume::FillOutputPortInformation(int, vtkInformation* info)
-{
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkHyperTreeGridComputeVisibleLeavesVolume::ProcessTrees(
+int vtkHyperTreeGridVisibleLeavesVolume::ProcessTrees(
   vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
-  // Downcast output data object to hypertree grid
   vtkHyperTreeGrid* outputHTG = vtkHyperTreeGrid::SafeDownCast(outputDO);
   if (outputHTG == nullptr)
   {
@@ -266,25 +259,26 @@ int vtkHyperTreeGridComputeVisibleLeavesVolume::ProcessTrees(
       break;
     }
 
-    // Place cursor at root of current output tree
     outputHTG->InitializeNonOrientedGeometryCursor(outCursor, index);
     this->ProcessNode(outCursor);
   }
 
   // Append both volume and cell validity array to the output
-  outputHTG->GetCellData()->AddArray(this->Internal->GetAndFinalizeValidMaskArray());
-  outputHTG->GetCellData()->AddArray(this->Internal->GetAndFinalizeVolumArray());
+  outputHTG->GetCellData()->AddArray(
+    this->Internal->GetAndFinalizeValidityArray(this->GetValidCellArrayName()));
+  outputHTG->GetCellData()->AddArray(
+    this->Internal->GetAndFinalizeVolumeArray(this->GetCellVolumeArrayName()));
 
   this->UpdateProgress(1.);
   return 1;
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridComputeVisibleLeavesVolume::ProcessNode(
+void vtkHyperTreeGridVisibleLeavesVolume::ProcessNode(
   vtkHyperTreeGridNonOrientedGeometryCursor* outCursor)
 {
   vtkIdType currentId = outCursor->GetGlobalNodeIndex();
-  this->Internal->ComputeVolume(outCursor);
+  this->Internal->RecordDepth(outCursor);
 
   // `IsLeaf` result can depend on whether a depth limiter has been applied on the tree.
   if (outCursor->IsLeaf())

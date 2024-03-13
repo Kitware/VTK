@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
-#include "vtkDoubleArray.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridComputeVisibleLeavesVolume.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkHyperTreeGridVisibleLeavesVolume.h"
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
@@ -18,13 +17,13 @@ namespace
 std::array<double, 4> expectedVolumes{ 1000.0, 125.0, 15.625, 1.953125 };
 
 /**
- * Return true if the expected cell validity value for currentId corresponds to the actual cell
- * value field value.
+ * Return true if the expected validity value for currentId corresponds to the actual cell
+ * value.
  */
 bool CheckCellValidity(double expectedValidity, vtkIdType currentId, vtkHyperTreeGrid* outputHTG)
 {
   vtkDataArray* visibilityField =
-    vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("vtkValidCell"));
+    vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("Valid"));
   if (expectedValidity != visibilityField->GetTuple1(currentId))
   {
     std::cerr << "Cell id " << currentId << " expected validity is " << expectedValidity
@@ -35,13 +34,12 @@ bool CheckCellValidity(double expectedValidity, vtkIdType currentId, vtkHyperTre
 }
 
 /**
- * Return true if the expected cell volume value for currentId corresponds to the actual cell
- * value field value.
+ * Return true if the expected volume value for currentId corresponds to the actual cell
+ * value.
  */
 bool CheckVolume(vtkIdType currentId, vtkHyperTreeGrid* outputHTG)
 {
-  vtkDataArray* volumeField =
-    vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("vtkVolume"));
+  vtkDataArray* volumeField = vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("Vol"));
   vtkDataArray* depthField =
     vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("Depth"));
   if (::expectedVolumes[depthField->GetTuple1(currentId)] != volumeField->GetTuple1(currentId))
@@ -58,7 +56,7 @@ bool CheckVolume(vtkIdType currentId, vtkHyperTreeGrid* outputHTG)
  * Return true if the cell validity and volume fields correspond to expected values for the root
  * tree pointed by the cursor.
  */
-bool CheckNode(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkHyperTreeGrid* outputHTG)
+bool CheckTree(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkHyperTreeGrid* outputHTG)
 {
   vtkIdType currentId = cursor->GetGlobalNodeIndex();
 
@@ -83,7 +81,7 @@ bool CheckNode(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkHyperTreeGr
     for (int child = 0; child < cursor->GetNumberOfChildren(); ++child)
     {
       cursor->ToChild(child);
-      result &= ::CheckNode(cursor, outputHTG);
+      result &= ::CheckTree(cursor, outputHTG);
       cursor->ToParent();
     }
   }
@@ -92,13 +90,12 @@ bool CheckNode(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkHyperTreeGr
 }
 }
 
-int TestHyperTreeGridComputeVisibleLeavesVolume(int argc, char* argv[])
+int TestHyperTreeGridVisibleLeavesVolume(int argc, char* argv[])
 {
   // Read HTG file containing ghost cells
   vtkNew<vtkXMLHyperTreeGridReader> reader;
-  char* ghostFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/HTG/ghost.htg");
-  reader->SetFileName(ghostFile);
-  delete[] ghostFile;
+  std::string ghostFile{ vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/HTG/ghost.htg") };
+  reader->SetFileName(ghostFile.c_str());
 
   // Append a mask
   reader->Update();
@@ -110,10 +107,11 @@ int TestHyperTreeGridComputeVisibleLeavesVolume(int argc, char* argv[])
   inputHTG->SetMask(maskArray);
 
   // Compute visible leaves volume
-  vtkNew<vtkHyperTreeGridComputeVisibleLeavesVolume> leavesFilter;
+  vtkNew<vtkHyperTreeGridVisibleLeavesVolume> leavesFilter;
+  leavesFilter->SetCellVolumeArrayName("Vol");
+  leavesFilter->SetValidCellArrayName("Valid");
   leavesFilter->SetInputConnection(reader->GetOutputPort());
   leavesFilter->Update();
-
   vtkHyperTreeGrid* leavesVolumeHTG = leavesFilter->GetHyperTreeGridOutput();
 
   // Iterate over the input tree, and check the output fields
@@ -124,7 +122,7 @@ int TestHyperTreeGridComputeVisibleLeavesVolume(int argc, char* argv[])
   while (iterator.GetNextTree(index))
   {
     leavesVolumeHTG->InitializeNonOrientedGeometryCursor(outCursor, index);
-    if (!::CheckNode(outCursor, leavesVolumeHTG))
+    if (!::CheckTree(outCursor, leavesVolumeHTG))
     {
       std::cerr << "Node " << index << " failed validation." << std::endl;
       return EXIT_FAILURE;

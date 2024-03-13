@@ -3,7 +3,6 @@ set(classes
   vtkHyperTreeGridAxisCut
   vtkHyperTreeGridAxisReflection
   vtkHyperTreeGridCellCenters
-  vtkHyperTreeGridComputeVisibleLeavesVolume
   vtkHyperTreeGridContour
   vtkHyperTreeGridDepthLimiter
   vtkHyperTreeGridEvaluateCoarse
@@ -15,6 +14,7 @@ set(classes
   vtkHyperTreeGridThreshold
   vtkHyperTreeGridToDualGrid
   vtkHyperTreeGridToUnstructuredGrid
+  vtkHyperTreeGridVisibleLeavesVolume
   vtkImageDataToHyperTreeGrid
 )
 

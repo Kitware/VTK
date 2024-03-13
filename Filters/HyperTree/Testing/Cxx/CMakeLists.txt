@@ -52,7 +52,6 @@ set(test_sources
   TestHyperTreeGridBinaryClipPlanes.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
-  TestHyperTreeGridComputeVisibleLeavesVolume.cxx,NO_VALID,NO_OUPUT
   TestHyperTreeGridExtractGhostCells.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridGeometryPassCellIds.cxx
   TestHyperTreeGridTernary2D.cxx
@@ -97,6 +96,7 @@ set(test_sources
   TestHyperTreeGridTernarySphereMaterial.cxx
   TestHyperTreeGridTernarySphereMaterialReflections.cxx
   TestHyperTreeGridToDualGrid.cxx
+  TestHyperTreeGridVisibleLeavesVolume.cxx,NO_VALID,NO_OUPUT
   )
 
 vtk_add_test_cxx(vtkFiltersHyperTreeCxxTests tests ${test_sources})
