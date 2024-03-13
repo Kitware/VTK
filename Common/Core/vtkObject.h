@@ -70,11 +70,13 @@ public:
   /**
    * Get the value of the debug flag.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   bool GetDebug();
 
   /**
    * Set the value of the debug flag. A true value turns debugging on.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetDebug(bool debugFlag);
 
   /**
@@ -94,6 +96,7 @@ public:
   /**
    * Return this object's modified time.
    */
+  VTK_MARSHALGETTER(MTime)
   virtual vtkMTimeType GetMTime();
 
   /**

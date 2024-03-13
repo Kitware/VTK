@@ -77,6 +77,7 @@ public:
   /**
    * Return the class name as a string.
    */
+  VTK_MARSHALGETTER(ClassName)
   const char* GetClassName() const;
 
   /**
@@ -214,11 +215,13 @@ public:
   /**
    * Return the current reference count of this object.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   int GetReferenceCount() { return this->ReferenceCount; }
 
   /**
    * Sets the reference count. (This is very dangerous, use with care.)
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetReferenceCount(int);
 
   /**

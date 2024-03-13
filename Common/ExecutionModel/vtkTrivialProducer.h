@@ -40,6 +40,7 @@ public:
    * Set the data object that is "produced" by this producer.  It is
    * never really modified.
    */
+  VTK_MARSHALSETTER(OutputDataObject)
   virtual void SetOutput(vtkDataObject* output);
 
   /**

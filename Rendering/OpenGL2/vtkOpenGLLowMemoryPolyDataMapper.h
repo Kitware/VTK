@@ -64,7 +64,9 @@ public:
   /// Release any graphics resources associated with the \a window.
   void ReleaseGraphicsResources(vtkWindow*) override;
 
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetMacro(PopulateSelectionSettings, bool);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetPopulateSelectionSettings(bool v) { this->PopulateSelectionSettings = v; }
   void SetVBOShiftScaleMethod(int method) override;
 

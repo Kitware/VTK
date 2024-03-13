@@ -42,7 +42,7 @@ For such classes, a developer is expected to provide the code to serialize and d
 
 You can exclude certain properties of a class by simply annotating the relevant setter/getter functions
 with `VTK_MARSHALEXCLUDE(reason)`, where reason is one of `VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL` or
-`VTK_MARSHAL_EXCLUDE_REASON_NOT_IMPLEMENTED`. This reason will be printed in the generated
+`VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED`. This reason will be printed in the generated
 C++ source code explaining why the property was not serialized.
 
 ## Custom get/set functions

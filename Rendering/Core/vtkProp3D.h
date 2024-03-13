@@ -130,7 +130,9 @@ public:
    * UserTransform, concatenated with the UserMatrix if the UserMatrix
    * is present.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetUserTransform(vtkLinearTransform* transform);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetObjectMacro(UserTransform, vtkLinearTransform);
   ///@}
 

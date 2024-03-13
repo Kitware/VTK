@@ -60,7 +60,11 @@ public:
    * vtkInteractorObserver you must set the render window interactor (via
    * SetInteractor()). Initial value is 0.
    */
+  VTK_MARSHALEXCLUDE(
+    "is overridden by vtkInteractorStyle::Enabled in the correct order after Interactor")
   virtual void SetEnabled(int) {}
+  VTK_MARSHALEXCLUDE(
+    "is overridden by vtkInteractorStyle::Enabled in the correct order after Interactor")
   int GetEnabled() { return this->Enabled; }
   void EnabledOn() { this->SetEnabled(1); }
   void EnabledOff() { this->SetEnabled(0); }
@@ -76,7 +80,11 @@ public:
    * vtkInteractorObserver.
    * It automatically registers available pickers to the Picking Manager.
    */
+  VTK_MARSHALEXCLUDE(
+    "is overridden by vtkInteractorStyle::Interactor in the correct order before Enabled")
   virtual void SetInteractor(vtkRenderWindowInteractor* iren);
+  VTK_MARSHALEXCLUDE(
+    "is overridden by vtkInteractorStyle::Interactor in the correct order before Enabled")
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
   ///@}
 

@@ -408,7 +408,9 @@ public:
    * 3Dconnexion device interactor style. Initial value is a pointer to an
    * object of class vtkTdxInteractorStyleCamera.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetObjectMacro(TDxStyle, vtkTDxInteractorStyle);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual void SetTDxStyle(vtkTDxInteractorStyle* tdxStyle);
   ///@}
 

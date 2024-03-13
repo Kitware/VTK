@@ -221,6 +221,7 @@ public:
    * GetLinearInverse() instead which will type cast the result from
    * vtkAbstractTransform to vtkLinearTransform.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkAbstractTransform* GetInverse();
 
   /**
@@ -228,6 +229,7 @@ public:
    * This transform will automatically update to agree with the
    * inverse transform that you set.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetInverse(vtkAbstractTransform* transform);
 
   /**

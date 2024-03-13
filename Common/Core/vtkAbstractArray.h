@@ -162,6 +162,7 @@ public:
    * conjunction with SetValue() method for fast insertion. Preserves existing
    * data and returns true if allocation succeeds, or false otherwise.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual bool SetNumberOfValues(vtkIdType numValues);
 
   /**
@@ -175,6 +176,7 @@ public:
    * construction for subclasses that support component insertion, which may
    * result in an incomplete trailing tuple.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   inline vtkIdType GetNumberOfValues() const { return (this->MaxId + 1); }
 
   /**
