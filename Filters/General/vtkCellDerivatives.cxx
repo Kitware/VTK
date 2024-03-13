@@ -13,6 +13,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 
@@ -80,6 +81,15 @@ struct CellDerivatives
     if (this->ComputeScalarDerivs)
     {
       this->NumComp = this->InScalars->GetNumberOfComponents();
+    }
+
+    // build cells for polydata so we don't get a race condition
+    if (vtkPolyData* pd = vtkPolyData::SafeDownCast(input))
+    {
+      if (pd->NeedToBuildCells())
+      {
+        pd->BuildCells();
+      }
     }
   }
 
