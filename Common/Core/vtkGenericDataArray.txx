@@ -376,10 +376,7 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT>::Allocate(
     {
       vtkErrorMacro(
         "Unable to allocate " << size << " elements of size " << sizeof(ValueType) << " bytes. ");
-#if !defined NDEBUG
-      // We're debugging, crash here preserving the stack
-      abort();
-#elif !defined VTK_DONT_THROW_BAD_ALLOC
+#if !defined VTK_DONT_THROW_BAD_ALLOC
       // We can throw something that has universal meaning
       throw std::bad_alloc();
 #else
