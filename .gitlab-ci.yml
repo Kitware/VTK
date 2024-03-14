@@ -201,6 +201,28 @@ vtk:fedora39-cuda-mpi:test-ext:
         CTEST_MAX_PARALLELISM: 8
     timeout: 150 minutes
 
+fedora39-helide-mpi-python-qt-tbb:build:
+    extends:
+        - .fedora39_helide_mpi_python_qt_tbb
+        - .cmake_build_linux
+        - .linux_fast_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    timeout: 90 minutes
+    stage: quick
+
+fedora39-helide-mpi-python-qt-tbb:test:
+    extends:
+        - .fedora39_helide_mpi_python_qt_tbb
+        - .cmake_test_linux
+        - .linux_fast_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - fedora39-helide-mpi-python-qt-tbb:build
+    needs:
+        - fedora39-helide-mpi-python-qt-tbb:build
+
 fedora39-mpi-offscreen-osmesa-python:build:
     extends:
         - .fedora39_mpi_offscreen_osmesa_python

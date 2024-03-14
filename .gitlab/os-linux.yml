@@ -304,6 +304,15 @@
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_ospray_python_qt_tbb
 
+.fedora39_helide_mpi_python_qt_tbb:
+    extends:
+        - .fedora39
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora39_helide_mpi_python_qt_tbb
+        ANARI_LIBRARY: helide
+
 .fedora39_mpi_python_qt_stdthread:
     extends:
         - .fedora39

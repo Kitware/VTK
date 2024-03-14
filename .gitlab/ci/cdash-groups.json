@@ -5,6 +5,7 @@
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_cuda_mpi_offscreen_osmesa]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_cuda_mpi_offscreen_osmesa_ext_vtk]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_doxygen_mpi_python_qt_tbb]" },
+        { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_helide_mpi_python_qt_tbb]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_mpi_offscreen_osmesa_python]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_mpi_offscreen_osmesa_python_ext_vtk]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_mpi_ospray_python_qt_tbb]" },
