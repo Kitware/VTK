@@ -331,11 +331,10 @@ void vtkPolyData::ComputeCellsBounds()
     // Process each cell array separately. Note that threading is only used
     // if the model is big enough (since there is a cost to spinning up the
     // thread pool).
-    static constexpr int VTK_SMP_THRESHOLD = 250000;
 
     // Create uses array initialized to 0
     vtkSMPThreadLocalObject<vtkIdList> tlCellPointIds;
-    if (numPDCells > VTK_SMP_THRESHOLD)
+    if (numPDCells > vtkSMPTools::THRESHOLD)
     {
       // Create uses array initialized to 0 and supporting threaded access
       std::atomic<unsigned char>* ptUses = new std::atomic<unsigned char>[numPts]();
@@ -734,13 +733,17 @@ struct BuildCellsImpl
       throw std::runtime_error("Cell map storage capacity exceeded.");
     }
 
-    vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+    auto buildCellsOperator = [&](vtkIdType begin, vtkIdType end) {
       for (vtkIdType cellId = begin, globalCellId = beginCellId + begin; cellId < end;
            ++cellId, ++globalCellId)
       {
         map->InsertCell(globalCellId, cellId, typer(state.GetCellSize(cellId)));
       }
-    });
+    };
+    // We use Threshold to test if the data size is small enough
+    // to execute the functor serially. This is faster.
+    // and also potentially avoids nested multithreading which creates race conditions.
+    vtkSMPTools::For(0, numCells, vtkSMPTools::THRESHOLD, buildCellsOperator);
   }
 };
 

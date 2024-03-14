@@ -76,102 +76,60 @@ inline void vtkLinearTransformNormal(T1 mat[4][4], T2 in[3], T3 out[3])
   vtkMath::Normalize(out);
 }
 
-// This controls when to switch to threading. It is based on empirical
-// experiments and could readily be changed.
-constexpr int VTK_SMP_THRESHOLD = 350000;
-
 //------------------------------------------------------------------------------
 template <class T1, class T2, class T3>
 inline void vtkLinearTransformPoints(T1 matrix[4][4], T2* in, T3* out, vtkIdType n)
 {
-  // Switch based on the number of points to transform: serial processing is
-  // faster for a smaller number of transformations.
-  if (n >= VTK_SMP_THRESHOLD)
-  {
-    vtkSMPTools::For(0, n, [&](vtkIdType ptId, vtkIdType endPtId) {
-      T2* pin = in + 3 * ptId;
-      T3* pout = out + 3 * ptId;
-      for (; ptId < endPtId; ++ptId)
-      {
-        vtkLinearTransformPoint(matrix, pin, pout);
-        pin += 3;
-        pout += 3;
-      }
-    });
-  }
-  else
-  {
-    for (vtkIdType i = 0; i < n; i++)
+  // We use THRESHOLD to test if the data size is small enough
+  // to execute the functor serially. It's faster for a smaller number of transformation.
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
+    T2* pin = in + 3 * ptId;
+    T3* pout = out + 3 * ptId;
+    for (; ptId < endPtId; ++ptId)
     {
-      vtkLinearTransformPoint(matrix, in, out);
-      in += 3;
-      out += 3;
+      vtkLinearTransformPoint(matrix, pin, pout);
+      pin += 3;
+      pout += 3;
     }
-  }
+  });
 }
 
 //------------------------------------------------------------------------------
 template <class T1, class T2, class T3>
 inline void vtkLinearTransformVectors(T1 matrix[4][4], T2* in, T3* out, vtkIdType n)
 {
-  // Switch based on the number of points to transform: serial processing is
-  // faster for a smaller number of transformations.
-  if (n >= VTK_SMP_THRESHOLD)
-  {
-    vtkSMPTools::For(0, n, [&](vtkIdType ptId, vtkIdType endPtId) {
-      T2* pin = in + 3 * ptId;
-      T3* pout = out + 3 * ptId;
-      for (; ptId < endPtId; ++ptId)
-      {
-        vtkLinearTransformVector(matrix, pin, pout);
-        pin += 3;
-        pout += 3;
-      }
-    });
-  }
-  else
-  {
-    for (vtkIdType i = 0; i < n; i++)
+  // We use THRESHOLD to test if the data size is small enough
+  // to execute the functor serially. It's faster for a smaller number of transformation.
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
+    T2* pin = in + 3 * ptId;
+    T3* pout = out + 3 * ptId;
+    for (; ptId < endPtId; ++ptId)
     {
-      vtkLinearTransformVector(matrix, in, out);
-      in += 3;
-      out += 3;
+      vtkLinearTransformVector(matrix, pin, pout);
+      pin += 3;
+      pout += 3;
     }
-  }
+  });
 }
 
 //------------------------------------------------------------------------------
 template <class T1, class T2, class T3>
 inline void vtkLinearTransformNormals(T1 matrix[4][4], T2* in, T3* out, vtkIdType n)
 {
-  // Switch based on the number of points to transform: serial processing is
-  // faster for a smaller number of transformations.
-  if (n >= VTK_SMP_THRESHOLD)
-  {
-    vtkSMPTools::For(0, n, [&](vtkIdType ptId, vtkIdType endPtId) {
-      T2* pin = in + 3 * ptId;
-      T3* pout = out + 3 * ptId;
-      for (; ptId < endPtId; ++ptId)
-      {
-        // matrix has been transposed & inverted, so use TransformVector
-        vtkLinearTransformVector(matrix, pin, pout);
-        vtkMath::Normalize(pout);
-        pin += 3;
-        pout += 3;
-      }
-    });
-  }
-  else
-  {
-    for (vtkIdType i = 0; i < n; i++)
+  // We use THRESHOLD to test if the data size is small enough
+  // to execute the functor serially. It's faster for a smaller number of transformation.
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
+    T2* pin = in + 3 * ptId;
+    T3* pout = out + 3 * ptId;
+    for (; ptId < endPtId; ++ptId)
     {
       // matrix has been transposed & inverted, so use TransformVector
-      vtkLinearTransformVector(matrix, in, out);
-      vtkMath::Normalize(out);
-      in += 3;
-      out += 3;
+      vtkLinearTransformVector(matrix, pin, pout);
+      vtkMath::Normalize(pout);
+      pin += 3;
+      pout += 3;
     }
-  }
+  });
 }
 
 } // anonymous namespace

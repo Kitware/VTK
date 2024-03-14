@@ -16,9 +16,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-static constexpr const vtkIdType SMP_THRESHOLD = 10000;
-
-//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //------------------------------------------------------------------------------
@@ -991,7 +988,7 @@ void vtkDataSetAttributes::CopyData(
     return;
   }
 
-  if (fromIds->GetNumberOfIds() < SMP_THRESHOLD)
+  if (fromIds->GetNumberOfIds() <= vtkSMPTools::THRESHOLD)
   {
     for (const auto& i : this->RequiredArrays)
     {
@@ -1029,7 +1026,7 @@ void vtkDataSetAttributes::CopyData(
     return;
   }
 
-  if (fromIds->GetNumberOfIds() < SMP_THRESHOLD)
+  if (fromIds->GetNumberOfIds() <= vtkSMPTools::THRESHOLD)
   {
     for (const auto& i : this->RequiredArrays)
     {
@@ -1068,7 +1065,7 @@ void vtkDataSetAttributes::CopyData(
     return;
   }
 
-  if (n < SMP_THRESHOLD)
+  if (n <= vtkSMPTools::THRESHOLD)
   {
     for (const auto& i : this->RequiredArrays)
     {
