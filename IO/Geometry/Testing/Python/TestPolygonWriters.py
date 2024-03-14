@@ -54,6 +54,8 @@ smooth = vtkWindowedSincPolyDataFilter()
 smooth.SetInputConnection(clean.GetOutputPort())
 smooth.GenerateErrorVectorsOn()
 smooth.GenerateErrorScalarsOn()
+# Test with the Hamming window function, as vtkWindowedSincPolyDataFilter used for many years
+smooth.SetWindowFunctionToHamming()
 smooth.Update()
 mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(smooth.GetOutputPort())

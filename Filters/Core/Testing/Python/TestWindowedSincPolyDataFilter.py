@@ -71,6 +71,8 @@ smooth.NonManifoldSmoothingOff()
 smooth.SetPassBand(0.1)
 smooth.GenerateErrorScalarsOn()
 smooth.GenerateErrorVectorsOn()
+# Test with the Hamming window function, as vtkWindowedSincPolyDataFilter used for many years
+smooth.SetWindowFunctionToHamming()
 smooth.Update()
 
 mapper0 = vtkPolyDataMapper()
