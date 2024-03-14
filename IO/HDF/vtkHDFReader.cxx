@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHDFReader.h"
-
+#include "vtkAffineArray.h"
 #include "vtkAppendDataSets.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
+#include "vtkDataObjectMeshCache.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
@@ -40,6 +41,8 @@
 #include <numeric>
 #include <sstream>
 #include <vector>
+
+#include "vtkPointData.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHDFReader);
@@ -77,6 +80,7 @@ std::vector<hsize_t> ReduceDimension(int* updateExtent, int* wholeExtent)
   return v;
 }
 
+//----------------------------------------------------------------------------
 template <typename ImplT, typename CacheT>
 vtkSmartPointer<vtkDataArray> ReadFromFileOrCache(ImplT* impl, std::shared_ptr<CacheT> cache,
   int tag, std::string name, std::string name_modifier, vtkIdType offset, vtkIdType size,
@@ -102,15 +106,16 @@ vtkSmartPointer<vtkDataArray> ReadFromFileOrCache(ImplT* impl, std::shared_ptr<C
       vtkErrorWithObjectMacro(nullptr, "Cannot read the " + cacheName + " array from file");
       return nullptr;
     }
-  }
-  if (cache)
-  {
-    cache->Set(tag, name, offset, size, array);
+    if (cache)
+    {
+      cache->Set(tag, cacheName, offset, size, array);
+    }
   }
   return array;
 }
 
-template <class T, class CacheT>
+//----------------------------------------------------------------------------
+template <typename T, typename CacheT>
 bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOffset,
   vtkIdType numberOfPoints, std::vector<vtkIdType>& cellOffsets,
   std::vector<vtkIdType>& numberOfCells, std::vector<vtkIdType>& connectivityOffsets,
@@ -120,7 +125,6 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
     std::string modifier = "_" + std::to_string(filePiece);
     return ReadFromFileOrCache(impl, cache, tag, name, modifier, offset, size);
   };
-  vtkNew<vtkPoints> points;
   vtkSmartPointer<vtkDataArray> pointArray;
   if ((pointArray = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG, "Points",
          pointOffset, numberOfPoints)) == nullptr)
@@ -128,8 +132,18 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
     vtkErrorWithObjectMacro(nullptr, "Cannot read the Points array");
     return false;
   }
-  points->SetData(pointArray);
+  vtkNew<vtkPoints> points;
   pieceData->SetPoints(points);
+
+  /* If cache is up to date with the geometry, avoid geometry load
+   * which would cause the MTime of the geometry to update.
+   * SetData would prevent us from using the MeshMTime correctly.
+   */
+  if (cache != nullptr && !cache->HasBeenUpdated)
+  {
+    return true;
+  }
+  points->SetData(pointArray);
 
   std::vector<vtkSmartPointer<vtkCellArray>> cArrays;
   for (std::size_t iTopo = 0; iTopo < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; ++iTopo)
@@ -160,6 +174,43 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
   pieceData->SetStrips(cArrays[3]);
   return true;
 }
+
+//----------------------------------------------------------------------------
+/**
+ * Update the MeshCache if the geometry changed from previous last step,
+ * else it loads the geometry data from the cache.
+ */
+template <typename vtkDataObjT>
+void UpdateGeometryIfRequired(vtkDataObjT* data, vtkCompositeDataSet* compositeData, bool useCache,
+  bool meshGeometryChanged, vtkDataObjectMeshCache* meshCache)
+{
+  if (useCache)
+  {
+    if (!meshGeometryChanged)
+    {
+      if (compositeData)
+      {
+        meshCache->CopyCacheToDataObject(compositeData);
+      }
+      else
+      {
+        meshCache->CopyCacheToDataObject(data);
+      }
+    }
+    else
+    {
+      if (compositeData)
+      {
+        meshCache->UpdateCache(compositeData);
+      }
+      else
+      {
+        meshCache->UpdateCache(data);
+      }
+    }
+  }
+}
+
 }
 
 //----------------------------------------------------------------------------
@@ -221,6 +272,7 @@ struct vtkHDFReader::DataCache
     std::copy(offset.begin(), offset.end(), buff.begin());
     this->Map.emplace(KeyT{ attribute, name },
       ValueT{ std::move(buff), static_cast<vtkSmartPointer<vtkAbstractArray>>(array) });
+    this->HasBeenUpdated = true;
   }
 
   template <typename OffT>
@@ -240,6 +292,7 @@ struct vtkHDFReader::DataCache
     std::vector<vtkIdType> buff{ static_cast<vtkIdType>(offset), static_cast<vtkIdType>(size) };
     this->Map.emplace(
       key, ValueT{ std::move(buff), static_cast<vtkSmartPointer<vtkAbstractArray>>(array) });
+    this->HasBeenUpdated = true;
   }
 
   vtkSmartPointer<vtkAbstractArray> Get(int attribute, const std::string& name)
@@ -251,6 +304,19 @@ struct vtkHDFReader::DataCache
     }
     return it->second.second;
   }
+
+  void ResetCacheUpdatedStatus() { this->HasBeenUpdated = false; }
+
+  /*
+   * Returns the cache updated status and resets it afterwards
+   */
+  bool CheckCacheUpdatedStatus()
+  {
+    bool result = this->HasBeenUpdated;
+    ResetCacheUpdatedStatus();
+    return result;
+  }
+  bool HasBeenUpdated = false;
 
 private:
   std::map<KeyT, ValueT> Map;
@@ -279,6 +345,11 @@ vtkHDFReader::vtkHDFReader()
   std::fill(this->Spacing, this->Spacing + 3, 0.0);
   this->Impl = new vtkHDFReader::Implementation(this);
   this->TimeRange[0] = this->TimeRange[1] = 0.0;
+  this->MeshCache->SetConsumer(this);
+  this->MeshCache->AddOriginalIds(
+    vtkDataObject::POINT, this->GetAttributeOriginalIdName(vtkDataObject::POINT));
+  this->MeshCache->AddOriginalIds(
+    vtkDataObject::CELL, this->GetAttributeOriginalIdName(vtkDataObject::CELL));
 }
 
 //----------------------------------------------------------------------------
@@ -791,8 +862,9 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
     return ::ReadFromFileOrCache(
       this->Impl, this->UseCache ? this->Cache : nullptr, tag, name, modifier, offset, size, mData);
   };
+  // Prepare to check if geometry of the piece is updated
+  this->Cache->ResetCacheUpdatedStatus();
   // read the piece and add it to data
-  vtkNew<vtkPoints> points;
   vtkSmartPointer<vtkDataArray> pointArray;
   vtkIdType pointOffset =
     std::accumulate(numberOfPoints.data(), &numberOfPoints[filePiece], startingPointOffset);
@@ -802,7 +874,17 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
     vtkErrorMacro("Cannot read the Points array");
     return 0;
   }
-  points->SetData(pointArray);
+
+  vtkNew<vtkPoints> points;
+  /* If cache is up to date with the geometry, avoid geometry load
+   * which would cause the MTime of the geometry to update.
+   * SetData would prevent us from using the MeshMTime correctly.
+   */
+  if (!this->UseCache || this->Cache->CheckCacheUpdatedStatus())
+  {
+    points->SetData(pointArray);
+    this->MeshGeometryChangedFromPreviousTimeStep = true;
+  }
   pieceData->SetPoints(points);
   vtkNew<vtkCellArray> cellArray;
   vtkSmartPointer<vtkDataArray> offsetsArray;
@@ -846,6 +928,11 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   std::vector<vtkIdType> offsets = { pointOffset, cellOffset };
   std::vector<vtkIdType> startingOffsets = { startingPointOffset, startingCellOffset };
   std::vector<const std::vector<vtkIdType>*> numberOf = { &numberOfPoints, &numberOfCells };
+  // Specify if Geometry changed
+  if (this->Cache->CheckCacheUpdatedStatus())
+  {
+    this->MeshGeometryChangedFromPreviousTimeStep = true;
+  }
   // in the same order as vtkDataObject::AttributeTypes: POINT, CELL, FIELD
   // field arrays are only read on node 0
   for (int attributeType = 0; attributeType < vtkDataObject::FIELD; ++attributeType)
@@ -873,6 +960,11 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
         }
         array->SetName(name.c_str());
         pieceData->GetAttributesAsFieldData(attributeType)->AddArray(array);
+        if (this->MeshGeometryChangedFromPreviousTimeStep && this->UseCache)
+        {
+          this->AddOriginalIds(pieceData->GetAttributes(attributeType), array->GetNumberOfTuples(),
+            this->GetAttributeOriginalIdName(attributeType));
+        }
       }
     }
   }
@@ -883,7 +975,11 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
 int vtkHDFReader::Read(
   vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData)
 {
-  int filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
+  int filePieceCount = this->Impl->GetNumberOfPieces();
+  if (this->HasTransientData)
+  {
+    filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
+  }
   vtkIdType partOffset = 0;
   vtkIdType startingPointOffset = 0;
   vtkIdType startingCellOffset = 0;
@@ -957,6 +1053,7 @@ int vtkHDFReader::Read(
     for (unsigned int iPiece = 0; iPiece < nPieces; ++iPiece)
     {
       vtkNew<vtkAppendDataSets> append;
+      append->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
       append->AddInputData(data);
       append->AddInputData(pieces.back());
       append->Update();
@@ -1091,6 +1188,9 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     // populate the poly data piece
     vtkNew<vtkPolyData> pieceData;
     pieceData->Initialize();
+
+    // Read geometry
+    this->Cache->ResetCacheUpdatedStatus();
     if (!::ReadPolyDataPiece(this->Impl, this->UseCache ? this->Cache : nullptr, pointOffset,
           numberOfPoints[filePiece], cellOffsets, pieceNumberOfCells, connectivityOffsets,
           pieceNumberOfConnectivityIds, filePiece, pieceData))
@@ -1098,6 +1198,11 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
       vtkErrorMacro(
         "There was an error in reading the " << filePiece << " piece of the poly data file.");
       return 0;
+    }
+
+    if (this->Cache->CheckCacheUpdatedStatus())
+    {
+      this->MeshGeometryChangedFromPreviousTimeStep = true;
     }
 
     // sum over topologies to get total offsets for fields
@@ -1139,6 +1244,11 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
           }
           array->SetName(name.c_str());
           pieceData->GetAttributesAsFieldData(attributeType)->AddArray(array);
+          if (this->MeshGeometryChangedFromPreviousTimeStep && this->UseCache)
+          {
+            this->AddOriginalIds(pieceData->GetAttributes(attributeType),
+              array->GetNumberOfTuples(), this->GetAttributeOriginalIdName(attributeType));
+          }
         }
       }
     }
@@ -1429,6 +1539,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
 int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
+  this->MeshGeometryChangedFromPreviousTimeStep = false;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   int ok = 1;
   if (!outInfo)
@@ -1466,12 +1577,26 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkUnstructuredGrid* data = vtkUnstructuredGrid::SafeDownCast(output);
     vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(output);
     ok = this->Read(outInfo, data, pData);
+    ::UpdateGeometryIfRequired(
+      data, pData, this->UseCache, this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
+    // Output cleanup after using mesh cache
+    if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
+    {
+      this->CleanOriginalIds(output);
+    }
   }
   else if (dataSetType == VTK_POLY_DATA)
   {
     vtkPolyData* data = vtkPolyData::SafeDownCast(output);
     vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(output);
     ok = this->Read(outInfo, data, pData);
+    ::UpdateGeometryIfRequired(
+      data, pData, this->UseCache, this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
+    // Output cleanup after using mesh cache
+    if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
+    {
+      this->CleanOriginalIds(output);
+    }
   }
   else if (dataSetType == VTK_OVERLAPPING_AMR)
   {
@@ -1496,4 +1621,46 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   return ok && this->AddFieldArrays(output);
 }
 
+//----------------------------------------------------------------------------
+bool vtkHDFReader::AddOriginalIds(
+  vtkDataSetAttributes* attributes, vtkIdType size, const std::string& name)
+{
+  if (attributes->GetAbstractArray(name.c_str()) != nullptr)
+  {
+    return false; // An array with original ids (or atleast the same name) shouldn't exist already.
+  }
+  vtkNew<vtkAffineArray<vtkIdType>> ids;
+  ids->SetBackend(std::make_shared<vtkAffineImplicitBackend<vtkIdType>>(1, 0));
+  ids->SetNumberOfTuples(size);
+  ids->SetName(name.c_str());
+  attributes->AddArray(ids);
+  return true;
+}
 VTK_ABI_NAMESPACE_END
+
+//----------------------------------------------------------------------------
+std::string vtkHDFReader::GetAttributeOriginalIdName(vtkIdType attribute)
+{
+  return this->AttributesOriginalIdName.at(attribute);
+}
+
+//----------------------------------------------------------------------------
+void vtkHDFReader::SetAttributeOriginalIdName(vtkIdType attribute, const std::string& name)
+{
+  this->AttributesOriginalIdName.emplace(attribute, name);
+}
+
+//----------------------------------------------------------------------------
+void vtkHDFReader::CleanOriginalIds(vtkDataObject* output)
+{
+  int attributesToClean[3] = { vtkDataObject::POINT, vtkDataObject::CELL, vtkDataObject::FIELD };
+  for (int attributeType : attributesToClean)
+  {
+    std::string arrayName = this->GetAttributeOriginalIdName(attributeType);
+    vtkDataSetAttributes* attributes = output->GetAttributes(attributeType);
+    if (attributes && attributes->GetArray(arrayName.c_str()))
+    {
+      attributes->RemoveArray(arrayName.c_str());
+    }
+  }
+}

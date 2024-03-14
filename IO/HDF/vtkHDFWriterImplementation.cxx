@@ -113,10 +113,10 @@ std::string vtkHDFWriter::Implementation::GetGroupName(hid_t group)
   {
     return std::string("");
   }
-  std::vector<char> buffer;
+  std::string buffer;
   buffer.resize(len);
-  H5Iget_name(group, buffer.data(), len + 1);
-  return std::string(buffer.begin(), buffer.end());
+  H5Iget_name(group, &buffer.front(), len + 1);
+  return buffer;
 }
 
 //------------------------------------------------------------------------------
@@ -381,7 +381,8 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateSingleValueDataset(
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::AddSingleValueToDataset(hid_t dataset, int value, bool offset)
+bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
+  hid_t dataset, int value, bool offset, bool trim)
 {
   // Create a new dataspace containing a single value
   const hsize_t addedDims[1] = { 1 };
@@ -413,14 +414,16 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(hid_t dataset, int va
   }
 
   // Resize dataset
-  H5Dset_extent(dataset, newdims);
-  currentDataspace = H5Dget_space(dataset);
-  if (currentDataspace == H5I_INVALID_HID)
+  if (!trim)
   {
-    return false;
+    H5Dset_extent(dataset, newdims);
+    currentDataspace = H5Dget_space(dataset);
+    if (currentDataspace == H5I_INVALID_HID)
+    {
+      return false;
+    }
   }
-  // Select hyperslab
-  hsize_t start[1] = { currentdims[0] };
+  hsize_t start[1] = { currentdims[0] - trim };
   hsize_t count[1] = { addedDims[0] };
   H5Sselect_hyperslab(currentDataspace, H5S_SELECT_SET, start, nullptr, count, nullptr);
 
@@ -435,7 +438,7 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(hid_t dataset, int va
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
-  hid_t group, const char* name, int value, bool offset)
+  hid_t group, const char* name, int value, bool offset, bool trim)
 {
   if (!H5Lexists(group, name, H5P_DEFAULT))
   {
@@ -446,12 +449,13 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
   {
     // Append the value to an existing dataset
     vtkHDF::ScopedH5DHandle dataset = H5Dopen(group, name, H5P_DEFAULT);
-    return this->AddSingleValueToDataset(dataset, value, offset);
+    return this->AddSingleValueToDataset(dataset, value, offset, trim);
   }
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::AddArrayToDataset(hid_t dataset, vtkAbstractArray* dataArray)
+bool vtkHDFWriter::Implementation::AddArrayToDataset(
+  hid_t dataset, vtkAbstractArray* dataArray, int trim)
 {
   // Create dataspace from array
   vtkHDF::ScopedH5SHandle dataspace = this->CreateDataspaceFromArray(dataArray);
@@ -510,17 +514,17 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(hid_t dataset, vtkAbstractA
   {
     return H5I_INVALID_HID;
   }
-
-  // Resize existing dataset to make space for the added array
-  H5Dset_extent(dataset, newdims.data());
+  if (addedDims[0] - trim > 0)
+  {
+    // Resize existing dataset to make space for the added array
+    H5Dset_extent(dataset, newdims.data());
+  }
   currentDataspace = H5Dget_space(dataset);
   if (currentDataspace == H5I_INVALID_HID)
   {
     return false;
   }
-
-  // Select hyperslab
-  std::vector<hsize_t> start{ currentdims[0] };
+  std::vector<hsize_t> start{ currentdims[0] - trim };
   std::vector<hsize_t> count{ addedDims[0] };
   if (numDim == 2)
   {

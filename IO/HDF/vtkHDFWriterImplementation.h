@@ -174,15 +174,21 @@ public:
 
   /**
    * Add a single value of integer type to an existing dataspace.
+   * The trim parameter allows to overwrite the last data instead
+   * of appending it to the dataset.
    * Return true if the write operation was successful.
    */
-  bool AddSingleValueToDataset(hid_t dataset, int value, bool offset);
+  bool AddSingleValueToDataset(hid_t dataset, int value, bool offset, bool trim = false);
 
   /**
    * Append a full data array at the end of an existing infinite dataspace.
+   * It can also overwrite the last elements using the `trim` parameter.
+   * When `trim` is positive, it will overwrite the number of array defined
+   * by the parameter starting from the end of the dataset. When `trim` is non positive
+   * it appends data array at the end of the dataset.
    * Return true if the write operation was successful.
    */
-  bool AddArrayToDataset(hid_t dataset, vtkAbstractArray* dataArray);
+  bool AddArrayToDataset(hid_t dataset, vtkAbstractArray* dataArray, int trim = 0);
 
   /**
    * Append the given array to the dataset with the given `name`, creating it if it does not exist
@@ -198,7 +204,8 @@ public:
    * dataspace.
    * Return true if the operation is successful.
    */
-  bool AddOrCreateSingleValueDataset(hid_t group, const char* name, int value, bool offset = false);
+  bool AddOrCreateSingleValueDataset(
+    hid_t group, const char* name, int value, bool offset = false, bool trim = false);
 
   Implementation(vtkHDFWriter* writer);
   virtual ~Implementation();

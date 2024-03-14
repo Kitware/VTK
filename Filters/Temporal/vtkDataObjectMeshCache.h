@@ -6,6 +6,7 @@
 
 #include "vtkFiltersTemporalModule.h" // Export macro
 
+#include "vtkAlgorithm.h" // for algorithm
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for smart pointer
 #include "vtkWeakPointer.h"  // for weak pointer
@@ -147,7 +148,7 @@ public:
    * The status is invalid if the Consumer is modified after the last CopyCacheToDataObject call.
    * Required before any call to CopyCacheToDataObject.
    */
-  vtkSetSmartPointerMacro(Consumer, vtkObject);
+  vtkSetSmartPointerMacro(Consumer, vtkAlgorithm);
 
   /**
    * Set the original dataobject.
@@ -221,7 +222,6 @@ public:
 protected:
   vtkDataObjectMeshCache() = default;
   ~vtkDataObjectMeshCache() override = default;
-
   /**
    * Forward dataset attributes from OriginalDataObject to output.
    * Uses original ids attribute arrays to copy data.
@@ -231,7 +231,7 @@ protected:
   void ForwardAttributes(vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output, int attribute,
     const std::string& name);
   void ForwardAttributesToDataSet(vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output);
-  void ForwardAttributesToComposite(vtkCompositeDataSet* output);
+  void ForwardAttributesToComposite(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
   ///@}
 
 private:
@@ -269,7 +269,13 @@ private:
    */
   void ClearAttributes(vtkDataObject*);
 
-  vtkWeakPointer<vtkObject> Consumer;
+  /**
+   * A consumer without any input port means it is most of the time a source.
+   * This method is here to help us to determine specific behaviors for sources.
+   */
+  bool HasConsumerNoInputPort() const;
+
+  vtkWeakPointer<vtkAlgorithm> Consumer;
   vtkSmartPointer<vtkDataObject> Cache;
   vtkWeakPointer<vtkDataSet> OriginalDataSet;
   vtkWeakPointer<vtkCompositeDataSet> OriginalCompositeDataSet;

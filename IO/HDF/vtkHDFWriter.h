@@ -236,6 +236,17 @@ private:
    */
   bool AppendTimeValues(hid_t group);
 
+  /**
+   * Check if the mesh geometry changed between this step and the last.
+   */
+  template <typename vtkStaticMeshDataSetT>
+  bool HasGeometryChangedFromPreviousStep(vtkStaticMeshDataSetT* input);
+
+  /**
+   * Update the time value of the MeshMTime which wiil be used in the next time step
+   */
+  void UpdatePreviousStepMeshMTime(vtkDataObject* input);
+
   class Implementation;
   std::unique_ptr<Implementation> Impl;
 
@@ -250,6 +261,7 @@ private:
   bool IsTransient = false;
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 0;
+  vtkMTimeType PreviousStepMeshMTime = 0;
 };
 VTK_ABI_NAMESPACE_END
 #endif
