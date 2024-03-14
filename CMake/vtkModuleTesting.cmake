@@ -79,13 +79,15 @@ function (vtk_module_test_executable name)
     PROPERTY "_vtk_module_${_vtk_build_test}_test_optional_depends")
   set(optional_depends_flags)
   foreach (test_optional_depend IN LISTS test_optional_depends)
-    if (TARGET "${test_optional_depend}")
+    _vtk_module_optional_dependency_exists("${test_optional_depend}"
+      SATISFIED_VAR test_optional_depend_exists)
+    if (test_optional_depend_exists)
       list(APPEND test_depends
         "${test_optional_depend}")
     endif ()
     string(REPLACE "::" "_" safe_test_optional_depend "${test_optional_depend}")
     list(APPEND optional_depends_flags
-      "VTK_MODULE_ENABLE_${safe_test_optional_depend}=$<TARGET_EXISTS:${test_optional_depend}>")
+      "VTK_MODULE_ENABLE_${safe_test_optional_depend}=$<BOOL:${test_optional_depend_exists}>")
   endforeach ()
 
   if (_vtk_build_UTILITY_TARGET)

@@ -53,6 +53,7 @@ vtk_module_scan(
 
 # Input information for test build files.
 option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)
+set(_vtk_build_PACKAGE "VTK")
 set(_vtk_build_TEST_DATA_TARGET "VTKData")
 set(_vtk_build_TEST_INPUT_DATA_DIRECTORY "${VTK_TOP_DIR}/Testing")
 set(_vtk_build_TEST_OUTPUT_DATA_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing")
