@@ -4,7 +4,7 @@
 #include "vtkCellData.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-#include "vtkHyperTreeGridVisibleLeavesVolume.h"
+#include "vtkHyperTreeGridVisibleLeavesSize.h"
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
@@ -90,7 +90,7 @@ bool CheckTree(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkHyperTreeGr
 }
 }
 
-int TestHyperTreeGridVisibleLeavesVolume(int argc, char* argv[])
+int TestHyperTreeGridVisibleLeavesSize(int argc, char* argv[])
 {
   // Read HTG file containing ghost cells
   vtkNew<vtkXMLHyperTreeGridReader> reader;
@@ -107,10 +107,10 @@ int TestHyperTreeGridVisibleLeavesVolume(int argc, char* argv[])
   inputHTG->SetMask(maskArray);
 
   // Compute visible leaves volume
-  vtkNew<vtkHyperTreeGridVisibleLeavesVolume> leavesFilter;
-  leavesFilter->SetCellVolumeArrayName("Vol");
+  vtkNew<vtkHyperTreeGridVisibleLeavesSize> leavesFilter;
+  leavesFilter->SetCellSizeArrayName("Vol");
   leavesFilter->SetValidCellArrayName("Valid");
-  leavesFilter->SetInputConnection(reader->GetOutputPort());
+  leavesFilter->SetInputData(inputHTG);
   leavesFilter->Update();
   vtkHyperTreeGrid* leavesVolumeHTG = leavesFilter->GetHyperTreeGridOutput();
 
