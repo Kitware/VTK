@@ -110,6 +110,8 @@ public:
   virtual void EnableGraphicsBinding(){};
   virtual void SubmitFrame(unsigned int vtkNotUsed(leftText), unsigned int vtkNotUsed(rightText)){};
   virtual void GetPerEyeImageResolution(int* vtkNotUsed(width), int* vtkNotUsed(height)){};
+  virtual void SetStereoDisplayEnabled(bool vtkNotUsed(enabled)){};
+  virtual bool GetStereoDisplayEnabled() { return false; };
   ///@}
 
   enum StereoDisplayMode

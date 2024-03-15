@@ -95,16 +95,13 @@ public:
   void EndFrame() override;
   ///@}
 
-  ///@{
   /**
    * Allow the zSpace Core Compatibility API to create its internal OpenGL resources
    * and prepare to accept eye textures and perform final rendering each frame.
    * Must be called right after the OpenGL context is created and made current.
    */
   virtual void EnableGraphicsBinding() override;
-  ///@}
 
-  ///@{
   /**
    * Submit left / right eyes textures to the zSpace Core Compatibility API in order
    * to let it handle the final rendering into the mono back buffer.
@@ -114,18 +111,14 @@ public:
    * so it should be done manually after calling this method.
    */
   virtual void SubmitFrame(unsigned int leftText, unsigned int rightText) override;
-  ///@}
 
-  ///@{
   /**
    * Request from the zSpace Core Compatibility API the resolution needed to create
    * left / right eye textures. This can be different to the actual display resolution,
    * because of the scaling applied e.g. in case of high DPI screen.
    */
   virtual void GetPerEyeImageResolution(signed int* width, signed int* height) override;
-  ///@}
 
-  ///@{
   /**
    * Return the actual stereo display mode, depending on zSpace hardware.
    * Possible values are:
@@ -135,6 +128,17 @@ public:
    * If the manager fails to retrieve it, the default returned value is QUAD_BUFFER_STEREO.
    */
   virtual StereoDisplayMode GetStereoDisplayMode() override;
+
+  ///@{
+  /**
+   * Set/Get if the "Stereo Display" is enabled.
+   * When enabled, the zSpace Inspire hardware activates the autostereo lens
+   * to display stereo content (i.e. send left/right image to left/right eye).
+   *
+   * If the manager fails to retrieve it, the default returned value is false.
+   */
+  virtual void SetStereoDisplayEnabled(bool enabled) override;
+  virtual bool GetStereoDisplayEnabled() override;
   ///@}
 
   /**
