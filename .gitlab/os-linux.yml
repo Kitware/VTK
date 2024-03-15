@@ -479,6 +479,13 @@
         - x11
         - vtk
 
+.linux_packager_tags:
+    tags:
+        - build
+        - docker
+        - linux-x86_64
+        - vtk
+
 ## Linux-specific scripts
 
 .before_script_linux: &before_script_linux
@@ -689,6 +696,22 @@
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
         - exec .gitlab/ci/check_warnings.sh .
+
+    interruptible: true
+
+.cmake_package_webassembly_wheel_linux:
+    stage: package
+
+    script:
+        - apt update
+        - apt install -y python3.10-venv
+        - find build/bin/ -regex '.*\.\(js\|mjs\|wasm\)$' -exec cp -v {} build/Web/WebAssembly/Wheel/vtk_wasm/ \;
+        - cd build/Web/WebAssembly/Wheel
+        - python -m venv venv
+        - . venv/bin/activate
+        - python -m pip install --upgrade --no-cache-dir pip setuptools
+        - python -m pip install build
+        - python -m build .
 
     interruptible: true
 

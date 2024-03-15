@@ -24,7 +24,7 @@ keywords =
 packages = find:
 include_package_data = True
 install_requires =
-    vtk==@VTK_VERSION@
+    vtk==@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.*
 
 [semantic_release]
 version_pattern = setup.cfg:version = (\d+\.\d+\.\d+)

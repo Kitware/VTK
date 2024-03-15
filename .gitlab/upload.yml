@@ -70,3 +70,33 @@
         - ls dist
         - dnf install -y --setopt=install_weak_deps=False twine
         - twine upload -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*
+
+.pypi_webassembly_upload:
+    image: "fedora:34"
+    stage: upload
+    tags:
+        - docker
+        - linux-x86_64
+        - build
+    environment:
+        name: pypi-upload
+
+    script:
+        - cd build/Web/WebAssembly/Wheel
+        - ls dist
+        - dnf install -y --setopt=install_weak_deps=False twine
+        - twine upload -u __token__ -p $PYPI_UPLOAD_TOKEN dist/* # can the same token be used?
+
+.pypi_webassembly_vtk_upload:
+    image: "fedora:34"
+    stage: upload
+    tags:
+        - docker
+        - linux-x86_64
+        - build
+
+    script:
+        - cd build/Web/WebAssembly/Wheel
+        - ls dist
+        - dnf install -y --setopt=install_weak_deps=False twine
+        - twine upload -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*
