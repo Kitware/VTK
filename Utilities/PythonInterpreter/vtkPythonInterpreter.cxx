@@ -24,6 +24,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -168,8 +169,7 @@ bool vtkPythonInterpreter::ConsoleBuffering = false;
 std::string vtkPythonInterpreter::StdErrBuffer;
 std::string vtkPythonInterpreter::StdOutBuffer;
 int vtkPythonInterpreter::LogVerbosity = vtkLogger::VERBOSITY_TRACE;
-std::string vtkPythonInterpreter::LibraryPath;
-std::string vtkPythonInterpreter::Landmark;
+std::vector<std::pair<std::string, std::string>> vtkPythonInterpreter::UserPythonPaths;
 
 #if PY_VERSION_HEX >= 0x03000000
 struct CharDeleter
@@ -396,10 +396,9 @@ void SetupPythonPaths(bool isolated, std::string vtklib, const char* landmark)
 }
 
 //------------------------------------------------------------------------------
-void vtkPythonInterpreter::SetUserPythonPath(const char* libraryPath, const char* landmark)
+void vtkPythonInterpreter::AddUserPythonPath(const char* libraryPath, const char* landmark)
 {
-  vtkPythonInterpreter::LibraryPath = libraryPath;
-  vtkPythonInterpreter::Landmark = landmark;
+  vtkPythonInterpreter::UserPythonPaths.emplace_back(std::make_pair(libraryPath, landmark));
 }
 
 //------------------------------------------------------------------------------
@@ -527,10 +526,14 @@ bool vtkPythonInterpreter::InitializeWithArgs(
     // specified paths are preferred to the ones `vtkPythonInterpreter` adds.
     std::string vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
     SetupPythonPaths(isolated, vtklib, "vtkmodules/__init__.py");
-    if (!vtkPythonInterpreter::LibraryPath.empty())
+
+    // Used to setup additional user python paths added by `AddUserPythonPath` method.
+    for (const auto& pair : vtkPythonInterpreter::UserPythonPaths)
     {
-      SetupPythonPaths(
-        isolated, vtkPythonInterpreter::LibraryPath, vtkPythonInterpreter::Landmark.c_str());
+      if (!pair.first.empty())
+      {
+        SetupPythonPaths(isolated, pair.first, pair.second.c_str());
+      }
     }
 
     for (size_t cc = 0; cc < PythonPaths.size(); cc++)
