@@ -5,6 +5,8 @@
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 
+#include <cassert>
+
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
