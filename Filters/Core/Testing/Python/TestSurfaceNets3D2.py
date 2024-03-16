@@ -164,6 +164,8 @@ smoother3.SetNumberOfIterations(40)
 smoother3.FeatureEdgeSmoothingOff()
 smoother3.BoundarySmoothingOff()
 smoother3.NonManifoldSmoothingOff()
+# Test with the Hamming window function, as vtkWindowedSincPolyDataFilter used for many years
+smoother3.SetWindowFunctionToHamming()
 
 timer = vtk.vtkTimerLog()
 timer.StartTimer()
