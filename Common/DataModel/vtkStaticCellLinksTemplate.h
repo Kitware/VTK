@@ -37,6 +37,7 @@
 #include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_4_0
 
 #include <memory> // For shared_ptr
+#include <vector> // For vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
@@ -87,11 +88,23 @@ public:
    */
   void BuildLinks(vtkExplicitStructuredGrid* esgrid);
 
+  ///@{
   /**
-   * Specialized methods for building links from cell array.
+   * Specialized methods for building links from cell array(S).
    */
-  void SerialBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray);
-  void ThreadedBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray);
+  void SerialBuildLinksFromMultipleArrays(
+    vtkIdType numPts, vtkIdType numCells, std::vector<vtkCellArray*> cellArrays);
+  void SerialBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
+  {
+    this->SerialBuildLinksFromMultipleArrays(numPts, numCells, { cellArray });
+  }
+  void ThreadedBuildLinksFromMultipleArrays(
+    vtkIdType numPts, vtkIdType numCells, std::vector<vtkCellArray*> cellArrays);
+  void ThreadedBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
+  {
+    this->ThreadedBuildLinksFromMultipleArrays(numPts, numCells, { cellArray });
+  }
+  ///@}
 
   ///@{
   /**
