@@ -168,6 +168,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkDataAssembly;
+class vtkIOSSReaderInternal;
 class vtkMultiProcessController;
 class vtkStringArray;
 
@@ -643,10 +644,17 @@ public:
   static vtkInformationIntegerKey* ENTITY_ID();
 
 protected:
+  friend class vtkIOSSReaderInternal;
+
   vtkIOSSReader();
   ~vtkIOSSReader() override;
 
+  // For use by vtkIOSSReaderInternal.
+  std::map<std::string, vtkTypeInt64>& GetEntityIdMap(int type);
+
   int FillOutputPortInformation(int port, vtkInformation* info) override;
+
+  static vtkInformationIntegerKey* ENTITY_TYPE();
 
 private:
   vtkIOSSReader(const vtkIOSSReader&) = delete;
@@ -673,10 +681,7 @@ private:
   int FileRange[2];
   int FileStride;
 
-  class vtkInternals;
-  vtkInternals* Internals;
-
-  static vtkInformationIntegerKey* ENTITY_TYPE();
+  vtkIOSSReaderInternal* Internals;
 };
 
 VTK_ABI_NAMESPACE_END
