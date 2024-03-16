@@ -509,8 +509,8 @@ private:
   /**
    * Adds 'file_id' array to indicate which file the dataset was read from.
    */
-  bool GenerateFileId(vtkCellData* cd, vtkIdType numberOfCells, Ioss::GroupingEntity* group_entity,
-    const DatabaseHandle& handle);
+  bool GenerateFileId(vtkDataSetAttributes* cellData, vtkIdType numberOfCells,
+    Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle);
 
   /**
    * Fields like "ids" have to be vtkIdTypeArray in VTK. This method does the

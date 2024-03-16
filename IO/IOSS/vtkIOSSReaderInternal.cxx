@@ -1942,7 +1942,7 @@ bool vtkIOSSReaderInternal::GetNodeFields(vtkDataSetAttributes* dsa,
   }
 }
 
-bool vtkIOSSReaderInternal::GenerateFileId(vtkCellData* cd, vtkIdType numberOfCells,
+bool vtkIOSSReaderInternal::GenerateFileId(vtkDataSetAttributes* cd, vtkIdType numberOfCells,
   Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle)
 {
   if (!group_entity)
