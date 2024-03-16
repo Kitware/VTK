@@ -656,6 +656,9 @@ protected:
 
   static vtkInformationIntegerKey* ENTITY_TYPE();
 
+  int AssemblyTag;
+  vtkIOSSReaderInternal* Internals;
+
 private:
   vtkIOSSReader(const vtkIOSSReader&) = delete;
   void operator=(const vtkIOSSReader&) = delete;
@@ -677,11 +680,8 @@ private:
   bool ReadGlobalFields;
   bool ReadQAAndInformationRecords;
   char* DatabaseTypeOverride;
-  int AssemblyTag;
   int FileRange[2];
   int FileStride;
-
-  vtkIOSSReaderInternal* Internals;
 };
 
 VTK_ABI_NAMESPACE_END
