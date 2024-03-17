@@ -669,6 +669,7 @@ void vtkGLTFReader::StoreTextureData()
 void vtkGLTFReader::InitializeLoader()
 {
   this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+  this->Loader->SetGLBStart(this->GLBStart);
 }
 
 //------------------------------------------------------------------------------

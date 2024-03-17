@@ -622,6 +622,16 @@ public:
    */
   virtual void PrepareData() {}
 
+  ///@{
+  /**
+   * Set/Get the Stream start, where the GLB starts. By default it is 0,
+   * but can be different than 0 for file formats have a GLB embeded in it,
+   * for instance 3D Tiles B3DM.
+   */
+  vtkSetMacro(GLBStart, vtkTypeInt64);
+  vtkGetMacro(GLBStart, vtkTypeInt64);
+  ///@}
+
 protected:
   vtkGLTFDocumentLoader() = default;
   ~vtkGLTFDocumentLoader() override = default;
@@ -676,6 +686,7 @@ private:
 
   static const std::vector<std::string> SupportedExtensions;
   std::vector<std::string> UsedExtensions;
+  vtkTypeInt64 GLBStart = 0;
 };
 
 VTK_ABI_NAMESPACE_END

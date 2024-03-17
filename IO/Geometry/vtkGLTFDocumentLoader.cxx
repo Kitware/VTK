@@ -866,8 +866,8 @@ bool vtkGLTFDocumentLoader::LoadImageData()
       }
 
       stream->Seek(0, vtkResourceStream::SeekDirection::End);
-      const auto size = stream->Tell();
-      stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+      const auto size = stream->Tell() - this->GLBStart;
+      stream->Seek(this->GLBStart, vtkResourceStream::SeekDirection::Begin);
       buffer.resize(size);
       if (stream->Read(buffer.data(), buffer.size()) != buffer.size())
       {
@@ -1400,7 +1400,7 @@ bool vtkGLTFDocumentLoader::LoadFileBuffer(
 bool vtkGLTFDocumentLoader::LoadStreamBuffer(
   vtkResourceStream* stream, std::vector<char>& glbBuffer)
 {
-  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  stream->Seek(this->GLBStart, vtkResourceStream::SeekDirection::Begin);
 
   // Get base information
   std::array<char, 4> magic;
@@ -1417,14 +1417,15 @@ bool vtkGLTFDocumentLoader::LoadStreamBuffer(
   std::uint32_t version;
   std::uint32_t fileLength;
   std::vector<vtkGLTFUtils::ChunkInfoType> chunkInfo;
-  if (!vtkGLTFUtils::ExtractGLBFileInformation(stream, version, fileLength, chunkInfo))
+  if (!vtkGLTFUtils::ExtractGLBFileInformation(
+        stream, version, fileLength, this->GLBStart, chunkInfo))
   {
     vtkErrorMacro("Invalid .glb file");
     return false;
   }
 
   // Look for BIN chunk while updating fstream position
-  stream->Seek(vtkGLTFUtils::GLBHeaderSize + vtkGLTFUtils::GLBChunkHeaderSize,
+  stream->Seek(this->GLBStart + vtkGLTFUtils::GLBHeaderSize + vtkGLTFUtils::GLBChunkHeaderSize,
     vtkResourceStream::SeekDirection::Begin);
   for (auto& chunk : chunkInfo)
   {

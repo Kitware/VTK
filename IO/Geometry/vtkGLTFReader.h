@@ -110,6 +110,16 @@ public:
 
   ///@{
   /**
+   * Set/Get the position in the Stream where the GLB starts. By default it is 0,
+   * but can be different than 0 for file formats have a GLB embeded in it,
+   * for instance 3D Tiles B3DM.
+   */
+  vtkSetMacro(GLBStart, vtkTypeInt64);
+  vtkGetMacro(GLBStart, vtkTypeInt64);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the URI loader to use when reading from a Stream.
    * `URILoader` will be used to locate and load other files referenced in the glTF file.
    * If no URI loader is set when reading through a stream, only single file glTF can be read.
@@ -220,6 +230,7 @@ protected:
 
   char* FileName = nullptr;
   vtkSmartPointer<vtkResourceStream> Stream;
+  vtkTypeInt64 GLBStart = 0;
   vtkMTimeType LastStreamTimeStamp = 0;
   vtkSmartPointer<vtkURILoader> URILoader;
 
