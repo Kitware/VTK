@@ -6,6 +6,8 @@ set(classes
   vtkPPixelTransfer
   vtkPSurfaceLICComposite
   vtkPSurfaceLICInterface)
+set(headers
+  vtkMPIPixelView.h)
 
 vtk_object_factory_declare(
   BASE vtkSurfaceLICInterface
@@ -26,20 +28,21 @@ set(shader_files
   vtkPSurfaceLICComposite_CompFS.glsl)
 
 set(sources)
-set(headers)
+set(private_headers)
 foreach(shader_file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${shader_file}"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources ${source})
-  list(APPEND headers ${header})
+  list(APPEND private_headers ${header})
 endforeach()
 
 vtk_module_add_module(VTK::RenderingParallelLIC
   CLASSES ${classes}
   SOURCES ${sources} ${vtk_object_factory_source}
-  PRIVATE_HEADERS ${headers} ${vtk_object_factory_header})
+  HEADERS ${headers}
+  PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
 
 option(VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER "enable parallel timers for the surface lic painter" OFF)
 mark_as_advanced(VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER)
