@@ -18,6 +18,8 @@
 #include "vtkPartitionedDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+#include <memory>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 /**
@@ -56,7 +58,7 @@ public:
    * Possible values are from 0 to NumberOfLevels - 1. Initialized to
    * NumberOfLevels - 1 (reads the most detailed tiles available)
    */
-  vtkSetMacro(Level, int);
+  void SetLevel(int level);
   vtkGetMacro(Level, int);
   ///@}
 
@@ -88,9 +90,9 @@ private:
   int Level;
   int NumberOfLevels;
 
-  class Implementation;
-  friend class Implementation;
-  Implementation* Impl;
+  class Tileset;
+  friend class Tileset;
+  std::vector<std::shared_ptr<Tileset>> Tilesets;
 };
 
 VTK_ABI_NAMESPACE_END
