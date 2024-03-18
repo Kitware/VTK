@@ -61,9 +61,9 @@ if (VTK_ENABLE_OSPRAY)
     VERSION 2.1)
 
   vtk_module_link(VTK::RenderingRayTracing
+    NO_KIT_EXPORT_IF_SHARED
     PRIVATE
-      ospray::ospray
-      )
+      ospray::ospray)
   if (VTKOSPRAY_ENABLE_DENOISER)
     vtk_module_find_package(PRIVATE_IF_SHARED
       PACKAGE OpenImageDenoise
@@ -72,6 +72,7 @@ if (VTK_ENABLE_OSPRAY)
       PRIVATE
         VTKOSPRAY_ENABLE_DENOISER)
     vtk_module_link(VTK::RenderingRayTracing
+      NO_KIT_EXPORT_IF_SHARED
       PRIVATE
         OpenImageDenoise)
   endif ()

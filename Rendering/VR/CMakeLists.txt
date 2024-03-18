@@ -78,6 +78,6 @@ if (VTK_ENABLE_VR_COLLABORATION)
     endif ()
   endif ()
 
-  vtk_module_link(VTK::RenderingVR PRIVATE "${zmq_target}")
+  vtk_module_link(VTK::RenderingVR NO_KIT_EXPORT_IF_SHARED PRIVATE "${zmq_target}")
 endif ()
 vtk_add_test_mangling(VTK::RenderingVR)
