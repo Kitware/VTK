@@ -140,7 +140,7 @@ endfunction ()
 
  .. code-block:: cmake
 
-    _vtk_module_split_module_name(<dependency>
+    _vtk_module_optional_dependency_exists(<dependency>
       SATISFIED_VAR <var>
       [PACKAGE <package>])
 
