@@ -9,6 +9,7 @@ vtk_module_add_module(VTK::IOAlembic
   CLASSES ${classes})
 
 vtk_module_link(VTK::IOAlembic
+  NO_KIT_EXPORT_IF_SHARED
   PRIVATE
     Alembic::Alembic)
 vtk_add_test_mangling(VTK::IOAlembic)

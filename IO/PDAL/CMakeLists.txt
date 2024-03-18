@@ -23,12 +23,13 @@ endif ()
 vtk_module_add_module(VTK::IOPDAL
   CLASSES ${classes})
 vtk_module_link(VTK::IOPDAL
+  NO_KIT_EXPORT_IF_SHARED
   PRIVATE
     ${pdal_libraries})
 
 # PDAL 2.0 didn't include interfaces to its exported targets.
 # Resolved in https://github.com/PDAL/PDAL/issues/2262.
-if (PDAL_VERSION VERSION_LESS "2.1")
+if (PDAL_VERSION VERSION_LESS "2.2")
   vtk_module_include(VTK::IOPDAL
     PRIVATE
       ${PDAL_INCLUDE_DIRS})

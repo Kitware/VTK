@@ -452,7 +452,7 @@ elseif (VTK_USE_WIN32_OPENGL)
   # vtkWin32OpenGLDXRenderWindow requires D3D.
   vtk_module_find_package(PRIVATE_IF_SHARED
     PACKAGE DirectX)
-  vtk_module_link(VTK::RenderingOpenGL2 PRIVATE DirectX::d3d11 DirectX::dxgi)
+  vtk_module_link(VTK::RenderingOpenGL2 NO_KIT_EXPORT_IF_SHARED PRIVATE DirectX::d3d11 DirectX::dxgi)
 endif ()
 
 if (ANDROID)

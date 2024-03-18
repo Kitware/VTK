@@ -37,6 +37,7 @@ endif ()
 vtk_module_add_module(VTK::IOFFMPEG
   CLASSES ${classes})
 vtk_module_link(VTK::IOFFMPEG
+  NO_KIT_EXPORT_IF_SHARED
   PRIVATE
     FFMPEG::avformat
     FFMPEG::avcodec

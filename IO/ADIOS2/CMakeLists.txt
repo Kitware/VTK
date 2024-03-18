@@ -48,7 +48,7 @@ vtk_module_add_module(VTK::IOADIOS2
   PRIVATE_CLASSES   ${private_classes}
   PRIVATE_HEADERS   ${private_headers}
   PRIVATE_TEMPLATES ${private_templates})
-vtk_module_link(VTK::IOADIOS2 PRIVATE adios2::adios2)
+vtk_module_link(VTK::IOADIOS2 NO_KIT_EXPORT_IF_SHARED PRIVATE adios2::adios2)
 
 set(adios_have_bp5_random_access 0)
 if (ADIOS2_VERSION VERSION_GREATER_EQUAL "2.8.0")

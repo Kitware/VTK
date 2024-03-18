@@ -30,6 +30,7 @@ vtk_module_add_module(VTK::IOOCCT
 )
 
 vtk_module_link(VTK::IOOCCT
+  NO_KIT_EXPORT_IF_SHARED
   PRIVATE
     ${opencascade_req_targets})
 
