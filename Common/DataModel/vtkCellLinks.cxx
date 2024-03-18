@@ -153,71 +153,36 @@ void vtkCellLinks::BuildLinks()
     this->Allocate(numPts);
   }
 
-  // fill out lists with number of references to cells
-  std::vector<vtkIdType> linkLoc(numPts, 0);
-
   // Use fast path if polydata
-  if (this->DataSet->GetDataObjectType() == VTK_POLY_DATA)
+  vtkIdType npts;
+  const vtkIdType* pts;
+  vtkNew<vtkIdList> tempIds;
+
+  // traverse data to determine number of uses of each point
+  for (cellId = 0; cellId < numCells; cellId++)
   {
-    vtkIdType npts;
-    const vtkIdType* pts;
-
-    vtkPolyData* pdata = static_cast<vtkPolyData*>(this->DataSet);
-    // traverse data to determine number of uses of each point
-    for (cellId = 0; cellId < numCells; cellId++)
+    this->DataSet->GetCellPoints(cellId, npts, pts, tempIds);
+    for (j = 0; j < npts; j++)
     {
-      pdata->GetCellPoints(cellId, npts, pts);
-      for (j = 0; j < npts; j++)
-      {
-        this->IncrementLinkCount(pts[j]);
-      }
-    }
-
-    // now allocate storage for the links
-    this->AllocateLinks(numPts);
-    this->MaxId = numPts - 1;
-
-    for (cellId = 0; cellId < numCells; cellId++)
-    {
-      pdata->GetCellPoints(cellId, npts, pts);
-      for (j = 0; j < npts; j++)
-      {
-        this->InsertCellReference(pts[j], (linkLoc[pts[j]])++, cellId);
-      }
+      this->IncrementLinkCount(pts[j]);
     }
   }
 
-  else // any other type of dataset
+  // fill out lists with number of references to cells
+  std::vector<vtkIdType> linkLoc(numPts, 0);
+
+  // now allocate storage for the links
+  this->AllocateLinks(numPts);
+  // fill out lists with cell ids
+  for (cellId = 0; cellId < numCells; cellId++)
   {
-    vtkIdType numberOfPoints, ptId;
-    vtkNew<vtkGenericCell> cell;
-
-    // traverse data to determine number of uses of each point
-    for (cellId = 0; cellId < numCells; cellId++)
+    this->DataSet->GetCellPoints(cellId, npts, pts, tempIds);
+    for (j = 0; j < npts; j++)
     {
-      this->DataSet->GetCell(cellId, cell);
-      numberOfPoints = cell->GetNumberOfPoints();
-      for (j = 0; j < numberOfPoints; j++)
-      {
-        this->IncrementLinkCount(cell->PointIds->GetId(j));
-      }
+      this->InsertCellReference(pts[j], (linkLoc[pts[j]])++, cellId);
     }
-
-    // now allocate storage for the links
-    this->AllocateLinks(numPts);
-    this->MaxId = numPts - 1;
-
-    for (cellId = 0; cellId < numCells; cellId++)
-    {
-      this->DataSet->GetCell(cellId, cell);
-      numberOfPoints = cell->GetNumberOfPoints();
-      for (j = 0; j < numberOfPoints; j++)
-      {
-        ptId = cell->PointIds->GetId(j);
-        this->InsertCellReference(ptId, (linkLoc[ptId])++, cellId);
-      }
-    }
-  } // end else
+  }
+  this->MaxId = numPts - 1;
   this->BuildTime.Modified();
 }
 
