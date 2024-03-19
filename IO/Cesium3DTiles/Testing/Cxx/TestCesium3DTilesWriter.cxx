@@ -32,6 +32,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkTexture.h"
+#include "vtkUseDoublePoints.h"
 #include "vtkVersionMacros.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -46,59 +47,6 @@
 #include VTK_NLOHMANN_JSON(json.hpp)
 
 using namespace vtksys;
-
-class vtkDoublePoints : public vtkPoints
-{
-public:
-  // Methods from vtkObject
-  ~vtkDoublePoints() override = default;
-
-  vtkTypeMacro(vtkDoublePoints, vtkPoints);
-  static vtkDoublePoints* New() { VTK_STANDARD_NEW_BODY(vtkDoublePoints); }
-  vtkDoublePoints() { this->SetDataType(VTK_DOUBLE); }
-  void SetDataType(int type) override
-  {
-    if (type != VTK_DOUBLE)
-    {
-      std::cerr << "This is a double points object. We cannot change the type to " << type
-                << std::endl;
-    }
-    else
-    {
-      vtkPoints::SetDataType(VTK_DOUBLE);
-    }
-  }
-
-private:
-  vtkDoublePoints(const vtkDoublePoints&) = delete;
-  vtkDoublePoints& operator=(const vtkDoublePoints&) = delete;
-};
-
-VTK_CREATE_CREATE_FUNCTION(vtkDoublePoints);
-
-class DoublePointsFactory : public vtkObjectFactory
-{
-public:
-  DoublePointsFactory();
-  static DoublePointsFactory* New()
-  {
-    DoublePointsFactory* f = new DoublePointsFactory;
-    f->InitializeObjectBase();
-    return f;
-  }
-  const char* GetVTKSourceVersion() override { return VTK_SOURCE_VERSION; }
-  const char* GetDescription() override { return "A fine Test Factory"; }
-
-protected:
-  DoublePointsFactory(const DoublePointsFactory&) = delete;
-  DoublePointsFactory& operator=(const DoublePointsFactory&) = delete;
-};
-
-DoublePointsFactory::DoublePointsFactory()
-{
-  this->RegisterOverride("vtkPoints", "vtkDoublePoints", "double vertex factory override", 1,
-    vtkObjectFactoryCreatevtkDoublePoints);
-}
 
 //------------------------------------------------------------------------------
 void SetField(vtkDataObject* obj, const char* name, const char* value)
@@ -623,8 +571,8 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
     TestJacksonvilleMesh(dataRoot, tempDirectory);
 
     // we need to use double points for the GLTF reader.
-    vtkNew<DoublePointsFactory> factory;
-    vtkObjectFactory::RegisterFactory(factory);
+    vtkNew<vtkUseDoublePoints> useDoublePoints;
+    useDoublePoints->Start();
     vtkNew<vtkRenderer> renderer;
     renderer->SetBackground(0.5, 0.7, 0.7);
     vtkNew<vtkRenderWindow> renWin;
