@@ -5,6 +5,9 @@
 #define _USE_MATH_DEFINES
 #endif
 
+#define ANARI_EXTENSION_UTILITY_IMPL
+#include <anari/frontend/anari_extension_utility.h>
+
 #include "vtkAnariRendererNode.h"
 
 #include "vtkAbstractVolumeMapper.h"
@@ -610,10 +613,7 @@ bool vtkAnariRendererNodeInternals::SetAnariDeviceFeatures(
   anari::Library library, const char* deviceName, const char* deviceSubtype)
 {
   bool useableDevice = false;
-  const char* const* list = (const char* const*)anariGetObjectInfo(
-    this->AnariDevice, ANARI_DEVICE, deviceSubtype, "extension", ANARI_STRING_LIST);
-  // const char* const* list = (const char* const*)anariGetDeviceFeatures(library, deviceSubtype);
-
+  const char* const* list = (const char* const*)anariGetDeviceExtensions(library, deviceSubtype);
   if (list)
   {
     memset(&this->AnariExtensions, 0, sizeof(anari::Extensions));
@@ -623,194 +623,10 @@ bool vtkAnariRendererNodeInternals::SetAnariDeviceFeatures(
       std::string feature = *i;
       vtkDebugWithObjectMacro(
         this->Owner, << "[" << deviceName << ":" << deviceSubtype << "] Feature => " << feature);
-
-      if (feature == "ANARI_KHR_INSTANCE_TRANSFORM")
-      {
-        this->AnariExtensions.ANARI_KHR_INSTANCE_TRANSFORM = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_OMNIDIRECTIONAL")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_OMNIDIRECTIONAL = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_ORTHOGRAPHIC")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_ORTHOGRAPHIC = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_PERSPECTIVE")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_PERSPECTIVE = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_STEREO")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_STEREO = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_CONE")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_CONE = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_CURVE")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_CURVE = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_CYLINDER")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_CYLINDER = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_QUAD")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_QUAD = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_QUAD_MOTION_DEFORMATION")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_QUAD_MOTION_DEFORMATION = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_SPHERE")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_SPHERE = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_TRIANGLE")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_TRIANGLE = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_TRIANGLE_MOTION_DEFORMATION")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_TRIANGLE_MOTION_DEFORMATION = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_DIRECTIONAL")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_DIRECTIONAL = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_POINT")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_POINT = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_SPOT")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_SPOT = 1;
-      }
-      else if (feature == "ANARI_KHR_MATERIAL_MATTE")
-      {
-        this->AnariExtensions.ANARI_KHR_MATERIAL_MATTE = 1;
-      }
-      else if (feature == "ANARI_KHR_MATERIAL_PHYSICALLY_BASED")
-      {
-        this->AnariExtensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_IMAGE1D")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_IMAGE1D = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_IMAGE2D")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_IMAGE2D = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_IMAGE3D")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_IMAGE3D = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_PRIMITIVE")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_PRIMITIVE = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_TRANSFORM")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_TRANSFORM = 1;
-      }
-      else if (feature == "ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR")
-      {
-        this->AnariExtensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR = 1;
-      }
-      else if (feature == "ANARI_KHR_VOLUME_TRANSFER_FUNCTION1D" ||
-        feature == "ANARI_KHR_VOLUME_SCIVIS")
-      {
-        this->AnariExtensions.ANARI_KHR_VOLUME_TRANSFER_FUNCTION1D = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_RING")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_RING = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_QUAD")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_QUAD = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_HDRI")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_HDRI = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_SHUTTER")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_SHUTTER = 1;
-      }
-      else if (feature == "ANARI_KHR_INSTANCE_MOTION_SCALE_ROTATION_TRANSLATION")
-      {
-        this->AnariExtensions.ANARI_KHR_INSTANCE_MOTION_SCALE_ROTATION_TRANSLATION = 1;
-      }
-      else if (feature == "ANARI_KHR_AREA_LIGHTS")
-      {
-        this->AnariExtensions.ANARI_KHR_AREA_LIGHTS = 1;
-      }
-      else if (feature == "ANARI_KHR_INSTANCE_MOTION_TRANSFORM")
-      {
-        this->AnariExtensions.ANARI_KHR_INSTANCE_MOTION_TRANSFORM = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_DEPTH_OF_FIELD")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_DEPTH_OF_FIELD = 1;
-      }
-      else if (feature == "ANARI_KHR_ARRAY1D_REGION")
-      {
-        this->AnariExtensions.ANARI_KHR_ARRAY1D_REGION = 1;
-      }
-      else if (feature == "ANARI_KHR_RENDERER_AMBIENT_LIGHT")
-      {
-        this->AnariExtensions.ANARI_KHR_RENDERER_AMBIENT_LIGHT = 1;
-      }
-      else if (feature == "ANARI_KHR_RENDERER_BACKGROUND_COLOR")
-      {
-        this->AnariExtensions.ANARI_KHR_RENDERER_BACKGROUND_COLOR = 1;
-      }
-      else if (feature == "ANARI_KHR_RENDERER_BACKGROUND_IMAGE")
-      {
-        this->AnariExtensions.ANARI_KHR_RENDERER_BACKGROUND_IMAGE = 1;
-      }
-      else if (feature == "ANARI_EXP_VOLUME_SAMPLE_RATE")
-      {
-        this->AnariExtensions.ANARI_EXP_VOLUME_SAMPLE_RATE = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_MOTION_TRANSFORMATION")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_MOTION_TRANSFORMATION = 1;
-      }
-      else if (feature == "ANARI_KHR_DEVICE_SYNCHRONIZATION")
-      {
-        this->AnariExtensions.ANARI_KHR_DEVICE_SYNCHRONIZATION = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_ALBEDO")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_ALBEDO = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_INSTANCE_ID")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_INSTANCE_ID = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_NORMAL")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_NORMAL = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_OBJECT_ID")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_OBJECT_ID = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_PRIMITIVE_ID")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_PRIMITIVE_ID = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_COMPLETION_CALLBACK")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_COMPLETION_CALLBACK = 1;
-      }
     }
   }
+
+  anariGetDeviceExtensionStruct(&this->AnariExtensions, library, deviceName);
 
   if (this->IsUSD)
   {
