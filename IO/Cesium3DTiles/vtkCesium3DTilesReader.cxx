@@ -9,6 +9,7 @@
 #include "vtkGLTFReader.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkPartitionedDataSet.h"
@@ -45,6 +46,8 @@ public:
    * the number of tiles per level.
    */
   bool Open(const char* fileName);
+  bool Open(const std::string& fileName) { return Open(fileName.c_str()); }
+
   /**
    * Returns the root of the tileset
    */
@@ -55,15 +58,15 @@ public:
   int GetNumberOfLevels(json& node);
   /**
    * Store partitions (tiles) file names for given
-   * this->Reader->Level. 'parentTransform' is used to accumulate
+   * this->Level. 'parentTransform' is used to accumulate
    * transforms from the tileset.
    */
   bool AddPartitions(json& node, int nodeLevel, const std::array<double, 16>& parentTransform);
-  void AddContentPartition(json& node, std::array<double, 16>& transform);
+  void AddContentPartition(json& node, int nodeLevel, std::array<double, 16>& transform);
   void AddChildrenPartitions(json& node, int nodeLevel, std::array<double, 16>& transform);
 
   /**
-   * Read tiles and add them to 'pd' for given this->Reader->Level and numberOfRanks/rank
+   * Read tiles and add them to 'pd' for given this->Level and numberOfRanks/rank
    * combination. 'parentTransform' is used to accumulate transforms from the tileset.
    */
   void ReadTiles(vtkPartitionedDataSet* pd, size_t numberOfRanks, size_t rank);
@@ -75,14 +78,26 @@ public:
   bool IsOpen();
   void Close();
   void SetLevel(int level) { this->Level = level; }
+  friend inline ostream& operator<<(ostream& out, const Tileset& tileset)
+  {
+    out << "FileName: " << tileset.FileName << std::endl
+        << "Level: " << tileset.Level << std::endl
+        << "Number of tiles: " << tileset.TileFileNames.size() << std::endl
+        << "Tile paths: ";
+    std::copy(tileset.TileFileNames.begin(), tileset.TileFileNames.end(),
+      std::ostream_iterator<std::string>(out, " "));
+    return out;
+  }
 
 private:
   vtkCesium3DTilesReader* Reader;
   std::ifstream TilesetStream;
+  std::string FileName;
   json TilesetJson;
   std::string DirectoryName;
   int Level;
   std::vector<std::string> TileFileNames;
+  std::vector<int> TileLevels;
   std::vector<std::array<double, 16>> Transforms;
 };
 
@@ -110,26 +125,18 @@ bool vtkCesium3DTilesReader::Tileset::Open(const char* fileName)
     }
     if (this->IsOpen())
     {
-      TileFileNames.clear();
-      Transforms.clear();
-      this->Close();
+      vtkErrorWithObjectMacro(this->Reader, "File already opened: " << fileName);
+      return false;
     }
-    this->Reader->SetFileName(fileName);
+    this->FileName = fileName;
     this->TilesetStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     this->TilesetStream.open(fileName);
     this->TilesetJson = json::parse(this->TilesetStream);
     this->Reader->NumberOfLevels = this->GetNumberOfLevels(this->GetRoot());
-    if (this->Level >= this->Reader->NumberOfLevels)
-    {
-      vtkErrorWithObjectMacro(this->Reader,
-        "Level: " << this->Level
-                  << " is bigger than NumberOfLevels: " << this->Reader->NumberOfLevels);
-      return false;
-    }
     std::array<double, 16> transform;
     vtkMatrix4x4::Identity(transform.data());
-    this->AddPartitions(this->GetRoot(), 0, transform);
     this->DirectoryName = vtksys::SystemTools::GetParentDirectory(fileName);
+    this->AddPartitions(this->GetRoot(), 0, transform);
   }
   catch (std::exception& e)
   {
@@ -203,7 +210,10 @@ void vtkCesium3DTilesReader::Tileset::ReadTiles(
       std::string tileFileName = this->TileFileNames[rank];
       transform->SetMatrix(this->Transforms[rank].data());
       vtkSmartPointer<vtkPolyData> tile = ReadTile(tileFileName, transform);
-      pd->SetPartition(0, tile);
+      if (tile != nullptr)
+      {
+        pd->SetPartition(0, tile);
+      }
     }
   }
   else
@@ -218,7 +228,10 @@ void vtkCesium3DTilesReader::Tileset::ReadTiles(
       std::string tileFileName = this->TileFileNames[i];
       transform->SetMatrix(this->Transforms[i].data());
       vtkSmartPointer<vtkPolyData> tile = ReadTile(tileFileName, transform);
-      pd->SetPartition(partitionIndex++, tile);
+      if (tile != nullptr)
+      {
+        pd->SetPartition(partitionIndex++, tile);
+      }
       this->Reader->UpdateProgress(static_cast<double>(i) / numberOfPartitions);
     }
   }
@@ -244,10 +257,6 @@ vtkSmartPointer<vtkPolyData> vtkCesium3DTilesReader::Tileset::ReadTile(
     tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
     tileReader->Update();
     mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
-  }
-  else if (extension == ".json")
-  {
-    throw std::runtime_error("External tilesets not supported: " + tileFileName);
   }
   else
   {
@@ -287,7 +296,6 @@ vtkStandardNewMacro(vtkCesium3DTilesReader);
 vtkCesium3DTilesReader::vtkCesium3DTilesReader()
 {
   this->FileName = nullptr;
-  this->Tilesets.push_back(std::make_shared<vtkCesium3DTilesReader::Tileset>(this));
   this->SetNumberOfInputPorts(0);
   this->Level = 0;
   this->NumberOfLevels = 0;
@@ -315,7 +323,7 @@ void vtkCesium3DTilesReader::SetLevel(int level)
 
 //------------------------------------------------------------------------------
 void vtkCesium3DTilesReader::Tileset::AddContentPartition(
-  json& node, std::array<double, 16>& transform)
+  json& node, int nodeLevel, std::array<double, 16>& transform)
 {
   std::string contentString("content");
   std::string uriString("uri");
@@ -337,8 +345,21 @@ void vtkCesium3DTilesReader::Tileset::AddContentPartition(
   {
     throw std::runtime_error("content/uri or content/url not found");
   }
-  this->TileFileNames.push_back(tileFileName);
-  this->Transforms.push_back(transform);
+  std::string extension = vtksys::SystemTools::GetFilenameExtension(tileFileName);
+  if (extension == ".json")
+  {
+    this->Reader->Tilesets.push_back(
+      std::make_shared<vtkCesium3DTilesReader::Tileset>(this->Reader));
+    size_t i = this->Reader->Tilesets.size() - 1;
+    this->Reader->Tilesets[i]->SetLevel(this->Reader->GetLevel() - nodeLevel);
+    this->Reader->Tilesets[i]->Open(this->DirectoryName + "/" + tileFileName);
+  }
+  else
+  {
+    this->TileFileNames.push_back(tileFileName);
+    this->TileLevels.push_back(nodeLevel);
+    this->Transforms.push_back(transform);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -382,7 +403,7 @@ bool vtkCesium3DTilesReader::Tileset::AddPartitions(
     // don't refine using children if there is a tile at the current node
     if (node.contains(contentString))
     {
-      this->AddContentPartition(node, transform);
+      this->AddContentPartition(node, nodeLevel, transform);
     }
     else
     {
@@ -398,7 +419,7 @@ bool vtkCesium3DTilesReader::Tileset::AddPartitions(
     }
     else
     {
-      this->AddContentPartition(node, transform);
+      this->AddContentPartition(node, nodeLevel, transform);
     }
   }
   return true;
@@ -420,9 +441,16 @@ int vtkCesium3DTilesReader::RequestInformation(vtkInformation* vtkNotUsed(reques
     vtkErrorMacro("Requires valid input file name");
     return 0;
   }
+  this->Tilesets.clear();
+  this->Tilesets.push_back(std::make_shared<vtkCesium3DTilesReader::Tileset>(this));
+  this->Tilesets[0]->SetLevel(this->Level);
   if (!this->Tilesets[0]->Open(this->FileName))
   {
     return 0;
+  }
+  for (int i = 0; i < this->Tilesets.size(); ++i)
+  {
+    vtkLog(INFO, "Tileset: " << i << "\n" << *this->Tilesets[i]);
   }
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
@@ -451,9 +479,10 @@ int vtkCesium3DTilesReader::RequestData(
     size_t rank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     vtkPartitionedDataSet* output = vtkPartitionedDataSet::GetData(outputVector);
     vtkNew<vtkTransform> transform;
-    for (auto& tileset : this->Tilesets)
+    for (size_t i = 0; i < this->Tilesets.size(); ++i)
     {
-      tileset->ReadTiles(output, numberOfRanks, rank);
+      // can add new elements to this->Tilesets (external tilesets)
+      this->Tilesets[i]->ReadTiles(output, numberOfRanks, rank);
     }
   }
   catch (std::exception& e)
