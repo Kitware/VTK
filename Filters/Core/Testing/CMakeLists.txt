@@ -4,6 +4,7 @@ vtk_module_test_data(
   Data/beach.jpg
   Data/can.ex2
   Data/cow.vtp
+  Data/degenerate_triangles.vtp
   Data/delaunay3d.vtu
   Data/disk_out_ref_surface.vtp
   Data/explicitStructuredGrid.vtu

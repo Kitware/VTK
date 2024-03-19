@@ -141,11 +141,6 @@ public:
 
   ~QSGVtkObjectNode() override
   {
-    for (const auto& id : this->vtkWindowObserverIds)
-    {
-      vtkWindow->RemoveObserver(id);
-    }
-    this->vtkWindowObserverIds.clear();
     if (m_item)
       m_item->destroyingVTK(vtkWindow, vtkUserData);
 
@@ -163,15 +158,6 @@ public:
   }
 
   QSGTexture* texture() const override { return QSGSimpleTextureNode::texture(); }
-
-  void renderWindowEventHandler(vtkObject*, unsigned long eventid, void* vtkNotUsed(callData))
-  {
-    if (eventid == vtkCommand::WindowFrameEvent)
-    {
-      // Render on the vtkRenderWindow should trigger an update on the QQuickWindow.
-      this->scheduleRender();
-    }
-  }
 
   void initialize(QQuickVTKItem* item)
   {
@@ -199,13 +185,12 @@ public:
     vtkWindow->SetForceMaximumHardwareLineWidth(1);
     vtkWindow->SetOwnContext(false);
     vtkWindow->OpenGLInitContext();
-    this->vtkWindowObserverIds.push_back(vtkWindow->AddObserver(
-      vtkCommand::WindowFrameEvent, this, &QSGVtkObjectNode::renderWindowEventHandler));
   }
 
   void scheduleRender()
   {
-    if (m_window)
+    // Update only if we have a window and a render is not already queued.
+    if (m_window && !m_renderPending)
     {
       m_renderPending = true;
       m_window->update();
@@ -217,8 +202,6 @@ public Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
   {
     if (m_renderPending)
     {
-      m_renderPending = false;
-
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
       const bool needsWrap = m_window &&
         QSGRendererInterface::isApiRhiBased(m_window->rendererInterface()->graphicsApi());
@@ -243,6 +226,7 @@ public Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
         m_window->endExternalCommands();
 #endif
 
+      m_renderPending = false;
       markDirty(QSGNode::DirtyMaterial);
       Q_EMIT textureChanged();
     }
@@ -264,7 +248,6 @@ private:
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> vtkWindow;
   vtkSmartPointer<vtkObject> vtkUserData;
   bool m_renderPending = false;
-  std::vector<unsigned long> vtkWindowObserverIds;
 
 protected:
   // variables set in QQuickVTKItem::updatePaintNode()
