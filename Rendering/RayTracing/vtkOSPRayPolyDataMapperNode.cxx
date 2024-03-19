@@ -304,8 +304,8 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
     _mdata = ospNewCopyData1D(mdata.data(), OSP_VEC4F, mdata.size());
     ospCommit(_mdata);
     ospSetObject(ospMesh, "vertex.position_radius", _mdata);
-    ospSetInt(ospMesh, "type", OSP_ROUND);
-    ospSetInt(ospMesh, "basis", OSP_BEZIER);
+    ospSetUInt(ospMesh, "type", OSP_ROUND);
+    ospSetUInt(ospMesh, "basis", OSP_BEZIER);
   }
   else
   {
@@ -319,8 +319,8 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
     ospCommit(_mdata);
     ospSetObject(ospMesh, "vertex.position", _mdata);
     ospSetFloat(ospMesh, "radius", lineWidth);
-    ospSetInt(ospMesh, "type", OSP_ROUND);
-    ospSetInt(ospMesh, "basis", OSP_LINEAR);
+    ospSetUInt(ospMesh, "type", OSP_ROUND);
+    ospSetUInt(ospMesh, "basis", OSP_LINEAR);
   }
 
   std::vector<unsigned int> indices;
@@ -530,13 +530,13 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
       if (interpolationType == VTK_PBR)
       {
         ospSetObject(actorMaterial, "map_normal", t2d);
-        ospSetVec4f(actorMaterial, "map_normal.transform", textureTransform.x, textureTransform.y,
-          textureTransform.z, textureTransform.w);
+        ospSetLinear2f(actorMaterial, "map_normal.transform", textureTransform.x,
+          textureTransform.y, textureTransform.z, textureTransform.w);
       }
       else
       {
         ospSetObject(actorMaterial, "map_Bump", t2d);
-        ospSetVec4f(actorMaterial, "map_Bump.transform", textureTransform.x, textureTransform.y,
+        ospSetLinear2f(actorMaterial, "map_Bump.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
       }
       ospCommit(actorMaterial);
@@ -562,13 +562,13 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
 
         OSPTexture t2dR = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vRoughnessTextureMap);
         ospSetObject(actorMaterial, "map_roughness", t2dR);
-        ospSetVec4f(actorMaterial, "map_roughness.transform", textureTransform.x,
+        ospSetLinear2f(actorMaterial, "map_roughness.transform", textureTransform.x,
           textureTransform.y, textureTransform.z, textureTransform.w);
 
         OSPTexture t2dM = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vMetallicTextureMap);
         ospSetObject(actorMaterial, "map_metallic", t2dM);
-        ospSetVec4f(actorMaterial, "map_metallic.transform", textureTransform.x, textureTransform.y,
-          textureTransform.z, textureTransform.w);
+        ospSetLinear2f(actorMaterial, "map_metallic.transform", textureTransform.x,
+          textureTransform.y, textureTransform.z, textureTransform.w);
 
         ospCommit(actorMaterial);
         ospRelease(t2dR);
@@ -593,14 +593,14 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
         OSPTexture t2dA =
           vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vAnisotropyValueTextureMap);
         ospSetObject(actorMaterial, "map_anisotropy", t2dA);
-        ospSetVec4f(actorMaterial, "map_anisotropy.transform", textureTransform.x,
+        ospSetLinear2f(actorMaterial, "map_anisotropy.transform", textureTransform.x,
           textureTransform.y, textureTransform.z, textureTransform.w);
 
         OSPTexture t2dR =
           vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vAnisotropyRotationTextureMap);
         ospSetObject(actorMaterial, "map_rotation", t2dR);
-        ospSetVec4f(actorMaterial, "map_rotation.transform", textureTransform.x, textureTransform.y,
-          textureTransform.z, textureTransform.w);
+        ospSetLinear2f(actorMaterial, "map_rotation.transform", textureTransform.x,
+          textureTransform.y, textureTransform.z, textureTransform.w);
         ospCommit(actorMaterial);
         ospRelease(t2dA);
         ospRelease(t2dR);
@@ -610,7 +610,7 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
       {
         OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vCoatNormalTextureMap);
         ospSetObject(actorMaterial, "map_coatNormal", t2d);
-        ospSetVec4f(actorMaterial, "map_coatNormal.transform", textureTransform.x,
+        ospSetLinear2f(actorMaterial, "map_coatNormal.transform", textureTransform.x,
           textureTransform.y, textureTransform.z, textureTransform.w);
         ospCommit(actorMaterial);
         ospRelease(t2d);
@@ -624,13 +624,13 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
       if (interpolationType == VTK_PBR)
       {
         ospSetObject(actorMaterial, "map_baseColor", ((OSPTexture)(t2d)));
-        ospSetVec4f(actorMaterial, "map_baseColor.transform", textureTransform.x,
+        ospSetLinear2f(actorMaterial, "map_baseColor.transform", textureTransform.x,
           textureTransform.y, textureTransform.z, textureTransform.w);
       }
       else
       {
         ospSetObject(actorMaterial, "map_kd", ((OSPTexture)(t2d)));
-        ospSetVec4f(actorMaterial, "map_kd.transform", textureTransform.x, textureTransform.y,
+        ospSetLinear2f(actorMaterial, "map_kd.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
       }
       ospCommit(actorMaterial);

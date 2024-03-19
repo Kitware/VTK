@@ -36,7 +36,7 @@ VTK_ABI_NAMESPACE_BEGIN
         RTWGroup NewGroup() override;
         RTWTexture NewTexture(const char* type) override;
         RTWLight NewLight(const char *light_type);
-        RTWMaterial NewMaterial(const char *renderer_type, const char *material_type);
+        RTWMaterial NewMaterial(const char *material_type);
         RTWRenderer NewRenderer(const char *type) override;
         RTWCamera NewCamera(const char *type) override;
         RTWWorld NewWorld() override;
@@ -49,12 +49,15 @@ VTK_ABI_NAMESPACE_BEGIN
         void SetObjectAsData(RTWObject target, const char *id, RTWDataType type, RTWObject obj) override;
         void SetBool(RTWObject object, const char *id, bool x) override;
         void SetInt(RTWObject object, const char *id, int32_t x) override;
+        void SetUInt(RTWObject object, const char *id, int32_t x) override;
         void SetVec2i(RTWObject object, const char *id, int32_t x, int32_t y) override;
         void SetFloat(RTWObject object, const char *id, float x) override;
         void SetVec2f(RTWObject object, const char *id, float x, float y) override;
         void SetVec3i(RTWObject object, const char *id, int x, int y, int z) override;
         void SetVec3f(RTWObject object, const char *id, float x, float y, float z) override;
         void SetVec4f(RTWObject object, const char *id, float x, float y, float z, float w) override;
+        void SetBox1f(RTWObject object, const char *id, float x, float y) override;
+        void SetLinear2f(RTWObject object, const char *id, float x, float y, float z, float w) override;
 
         void RemoveParam(RTWObject object, const char *id) override;
 
