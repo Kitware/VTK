@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCesium3DTilesReader.h"
+
+#include "vtkAppendPolyData.h"
 #include "vtkCesiumB3DMReader.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkGLTFReader.h"
@@ -256,17 +258,23 @@ vtkSmartPointer<vtkPolyData> vtkCesium3DTilesReader::Tileset::ReadTile(
   it->SetVisitOnlyLeaves(true);
   it->SetTraverseSubTree(true);
   it->InitTraversal();
-  vtkPolyData* poly = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
-  if (!poly)
+  vtkNew<vtkAppendPolyData> append;
+  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
   {
-    vtkErrorWithObjectMacro(
-      this->Reader, "Error: Cannot read polydata from: " << this->Reader->GetFileName());
-    return tile;
+    vtkPolyData* poly = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+    if (!poly)
+    {
+      vtkErrorWithObjectMacro(
+        this->Reader, "Error: Cannot read polydata from: " << this->Reader->GetFileName());
+      return tile;
+    }
+    append->AddInputDataObject(poly);
   }
+  append->Update();
   vtkNew<vtkTransformFilter> transformFilter;
   transformFilter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   transformFilter->SetTransform(transform);
-  transformFilter->SetInputDataObject(poly);
+  transformFilter->SetInputConnection(append->GetOutputPort());
   transformFilter->Update();
   tile->ShallowCopy(transformFilter->GetOutput());
   return tile;
