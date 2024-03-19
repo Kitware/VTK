@@ -42,7 +42,6 @@ int TestLegendScaleActorCustomLabels(int argc, char* argv[])
   legendActor->SetNotation(1);
   legendActor->SetPrecision(2);
   legendActor->SetCornerOffsetFactor(1);
-  legendActor->SetAdjustLabels(false);
   legendActor->SetNumberOfHorizontalLabels(4);
   legendActor->SetNumberOfVerticalLabels(3);
 

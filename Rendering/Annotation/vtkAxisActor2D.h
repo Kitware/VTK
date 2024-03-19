@@ -10,20 +10,41 @@
  * occluded by 3D geometry. To use this class, you typically specify two
  * points defining the start and end points of the line (x-y definition using
  * vtkCoordinate class), the number of labels, and the data range
- * (min,max). You can also control what parts of the axis are visible
- * including the line, the tick marks, the labels, and the title.  You can
- * also specify the label format (a printf style format).
+ * (min,max).
  *
- * This class decides what font size to use and how to locate the labels. It
- * also decides how to create reasonable tick marks and labels. The number
- * of labels and the range of values may not match the number specified, but
- * should be close.
+ * ## Display
+ * You can also control what parts of the axis are visible
+ * including the line, the tick marks, the labels, and the title.
+ *
+ * You can also specify the label format through the LabelTextProperty.
+ * A legacy printf style format is still available.
+ *
+ * This class decides what font size to use.
+ *
+ * Set the text property/attributes of the title and the labels through the
+ * vtkTextProperty objects associated to this actor.
  *
  * Labels are drawn on the "right" side of the axis. The "right" side is
  * the side of the axis on the right as you move from Position to Position2.
  * The way the labels and title line up with the axis and tick marks depends on
  * whether the line is considered horizontal or vertical.
  *
+ * ## Number of ticks and their position
+ * When `AdjustLabels` is on, vtkAxisActor2D also decides how to create reasonable
+ * tick marks and labels. However, it does not follow `NumberOfLabels` target.
+ *
+ * `SnapLabelsToGrid` is a similar mode and should be prefered. It uses `NumberOfLabels`
+ * as a target to produce the list of labels. The number of labels and the range of values
+ * may not match the number specified, but should be close.
+ *
+ * When the computed `AdjustedRange` is larger than `Range`, some ticks may be
+ * outside of `Range`. They are not displayed.
+ *
+ * When `RulerMode` is on, `RulerDistance` is used to controls the ticks
+ * position and thus their number. Otherwise `NumberOfLabels` is used as a
+ * target for number of ticks.
+ *
+ * ## Details
  * The vtkActor2D instance variables Position and Position2 are instances of
  * vtkCoordinate. Note that the Position2 is an absolute position in that
  * class (it was by default relative to Position in vtkActor2D).
@@ -31,9 +52,6 @@
  * What this means is that you can specify the axis in a variety of coordinate
  * systems. Also, the axis does not have to be either horizontal or vertical.
  * The tick marks are created so that they are perpendicular to the axis.
- *
- * Set the text property/attributes of the title and the labels through the
- * vtkTextProperty objects associated to this actor.
  *
  * @sa
  * vtkCubeAxesActor2D can be used to create axes in world coordinate space.
@@ -174,20 +192,51 @@ public:
 
   ///@{
   /**
+   * Set/Get if the labels and ticks should be snapped to
+   * match rounded values. It updates `AdjustedRange`
+   *
+   * It differs from `AdjustLabels` in that takes NumberOfLabels into account
+   * and try to produce the nearest count of labels.
+   * When SnapLabelsToGrid is on, `AdjustLabels` is ignored.
+   *
+   * When `AdjustedRange` is larger than `Range`, some ticks may be
+   * outside of `Range`. They are not displayed.
+   *
+   * Default is false.
+   *
+   * see GetAdjustedRange, GetAdjustedNumberOfLabels
+   */
+  vtkSetMacro(SnapLabelsToGrid, bool);
+  vtkGetMacro(SnapLabelsToGrid, bool);
+  vtkBooleanMacro(SnapLabelsToGrid, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the flag that controls whether the labels and ticks are
    * adjusted for "nice" numerical values to make it easier to read
-   * the labels. The adjustment is based in the Range instance variable.
-   * Call GetAdjustedRange and GetAdjustedNumberOfLabels to get the adjusted
-   * range and number of labels. Note that if RulerMode is on, then the
-   * number of labels is a function of the range and ruler distance.
+   * the labels.
    *
-   * Note: as it modifies the display text and not any actual position,
-   * you should probably not use this mode when displaying distance
-   * or coordinates, as they will be wrong.
+   * When on (default), the `Range` is sligthly modified (see `AdjustedRange`),
+   * and it creates `AdjustedNumberOfLabels` ticks.
+   * When `AdjustedRange` is larger than `Range`, some ticks may be
+   * outside of `Range`. They are not displayed.
+   *
+   * Default is true.
+   * This is ignored if SnapLabelsToGrid is true. Please prefer SnapLabelsToGrid.
+   *
+   * see GetAdjustedRange, GetAdjustedNumberOfLabels
    */
   vtkSetMacro(AdjustLabels, vtkTypeBool);
   vtkGetMacro(AdjustLabels, vtkTypeBool);
   vtkBooleanMacro(AdjustLabels, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Get the axis range adjusted for nice tick values.
+   * If AdjustLabels is OFF and SnapLabelsToGrid is off, this is equivalent to Range.
+   */
   virtual double* GetAdjustedRange()
   {
     this->UpdateAdjustedRange();
@@ -200,12 +249,16 @@ public:
     _arg2 = this->AdjustedRange[1];
   }
   virtual void GetAdjustedRange(double _arg[2]) { this->GetAdjustedRange(_arg[0], _arg[1]); }
+  ///@}
+
+  /**
+   * Get the number of labels
+   */
   virtual int GetAdjustedNumberOfLabels()
   {
     this->UpdateAdjustedRange();
     return this->AdjustedNumberOfLabels;
   }
-  ///@}
 
   /**
    * Return the positions of ticks along the axis
@@ -368,13 +421,16 @@ public:
 
   /**
    * This method computes the range of the axis given an input range.
-   * It also computes the number of tick marks given a suggested number.
+   * It also computes the number of tick marks.
+   *
    * (The number of tick marks includes end ticks as well.)
    * The number of tick marks computed (in conjunction with the output
    * range) will yield "nice" tick values. For example, if the input range
    * is (0.25,96.7) and the number of ticks requested is 10, the output range
    * will be (0,100) with the number of computed ticks to 11 to yield tick
    * values of (0,10,20,...,100).
+   *
+   * Note that inNumTicks is not used
    */
   static void ComputeRange(
     double inRange[2], double outRange[2], int inNumTicks, int& outNumTicks, double& interval);
@@ -498,6 +554,7 @@ private:
    * Values are major ticks values that will be displayed (see AdjustedRange)
    * Positions are the position of each major and minor tick relative
    * to the axis (so in [0, 1])
+   * Update NumberOfLabelsBuilt.
    */
   void UpdateTicksValueAndPosition(vtkViewport* viewport);
 
@@ -539,6 +596,8 @@ private:
   // tick position in axis, normalized on axis length.
   std::vector<double> NormalizedTickPositions;
   std::vector<double> TickValues;
+
+  bool SnapLabelsToGrid = false;
 };
 
 VTK_ABI_NAMESPACE_END

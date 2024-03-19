@@ -62,7 +62,19 @@ bool TestRangeLabels()
   window->Render();
 
   std::vector<std::string> expectedLabels = { "42.00", "42.25", "42.50", "42.75", "43.00" };
-  return axis->CompareLabelMapperString(expectedLabels);
+  bool status = axis->CompareLabelMapperString(expectedLabels);
+
+  axis->SetRange(42, 42);
+  expectedLabels = { "42.00", "42.00", "42.00", "42.00", "42.00" };
+  window->Render();
+  status = axis->CompareLabelMapperString(expectedLabels);
+
+  axis->SetRange(-42, -43);
+  expectedLabels = { "-42.00", "-42.25", "-42.50", "-42.75", "-43.00" };
+  window->Render();
+  status = axis->CompareLabelMapperString(expectedLabels);
+
+  return status;
 }
 
 //------------------------------------------------------------------------------
@@ -79,7 +91,7 @@ bool TestNumberOfLabels()
 
   vtkNew<vtkPoints> expectedPoints;
   double spacing = 48;
-  for (int i = 1; i < nbOfLabels - 1; i++)
+  for (int i = 0; i < nbOfLabels; i++)
   {
     expectedPoints->InsertNextPoint(START_POINT + i * spacing, START_POINT + i * spacing, 0);
   }
@@ -87,53 +99,62 @@ bool TestNumberOfLabels()
 
   axis->SetNumberOfLabels(2);
   expectedPoints->Initialize();
+  expectedPoints->InsertNextPoint(START_POINT, START_POINT, 0);
+  expectedPoints->InsertNextPoint(END_POINT, END_POINT, 0);
   status = CompareTicksPosition(axis, window, expectedPoints);
 
   return status;
 }
 
 //------------------------------------------------------------------------------
-bool TestAdjustLabels()
+bool TestSnapLabels()
 {
   vtkNew<vtkAxisActor2DMock> axis;
   vtkNew<vtkRenderWindow> window;
   SetupPipeline(axis, window);
+  axis->SnapLabelsToGridOn();
   axis->SetNotation(vtkNumberToString::Fixed);
   axis->SetPrecision(2);
-  axis->SetRange(0, 1.);
   window->Render();
 
   vtkNew<vtkPoints> expectedPoints;
   double spacing = 48;
   int nbOfLabels = 6;
-  for (int i = 1; i < nbOfLabels - 1; i++)
+  for (int i = 0; i < nbOfLabels; i++)
   {
     expectedPoints->InsertNextPoint(START_POINT + i * spacing, START_POINT + i * spacing, 0);
   }
   bool status = CompareTicksPosition(axis, window, expectedPoints);
-
   std::vector<std::string> expectedLabels = { "0.00", "0.20", "0.40", "0.60", "0.80", "1.00" };
   status = axis->CompareLabelMapperString(expectedLabels) && status;
 
   axis->SetRange(0.05, 1.05);
   window->Render();
-  // this does not changes anything !
+  expectedPoints->Initialize();
+  double shiftedStart = 66;
+  nbOfLabels = 5;
+  for (int i = 0; i < nbOfLabels; i++)
+  {
+    expectedPoints->InsertNextPoint(shiftedStart + i * spacing, shiftedStart + i * spacing, 0);
+  }
   status = CompareTicksPosition(axis, window, expectedPoints) && status;
+  // 0 is now out of bounds
+  expectedLabels = { "0.20", "0.40", "0.60", "0.80", "1.00" };
   status = axis->CompareLabelMapperString(expectedLabels) && status;
 
-  axis->SetRange(0.05, 1.1);
-  // this changes the number of ticks !
+  axis->SetRange(-1, -2);
   expectedPoints->Initialize();
-  spacing = 60;
-  nbOfLabels = 5;
-  for (int i = 1; i < nbOfLabels - 1; i++)
+  spacing = 48;
+  nbOfLabels = 6;
+  for (int i = 0; i < nbOfLabels; i++)
   {
     expectedPoints->InsertNextPoint(START_POINT + i * spacing, START_POINT + i * spacing, 0);
   }
   status = CompareTicksPosition(axis, window, expectedPoints) && status;
-  // this changes the bounds of the range !
-  expectedLabels = { "0.00", "0.30", "0.60", "0.90", "1.20" };
+  expectedLabels = { "-1.00", "-1.20", "-1.40", "-1.60", "-1.80", "-2.00" };
   status = axis->CompareLabelMapperString(expectedLabels) && status;
+
+  window->Render();
 
   return status;
 }
@@ -152,10 +173,11 @@ bool TestNumberOfMinorTicks()
   vtkNew<vtkPoints> expectedPoints;
   double spacing = 30;
   int nbOfLabels = 9;
-  for (int i = 1; i < nbOfLabels - 1; i++)
+  for (int i = 0; i < nbOfLabels; i++)
   {
     expectedPoints->InsertNextPoint(START_POINT + i * spacing, START_POINT + i * spacing, 0);
   }
+
   return CompareTicksPosition(axis, window, expectedPoints);
 }
 
@@ -171,27 +193,30 @@ bool TestRulerMode()
   axis->SetPrecision(2);
 
   vtkNew<vtkPoints> expectedPoints;
-  expectedPoints->InsertNextPoint(242.132, 242.132, 0);
+  double spacing = 212.132;
+  int nbOfTicks = 2;
+  for (int i = 0; i < nbOfTicks; i++)
+  {
+    expectedPoints->InsertNextPoint(START_POINT + i * spacing, START_POINT + i * spacing, 0);
+  }
   bool status = CompareTicksPosition(axis, window, expectedPoints);
-  // we have more labels than drawn ticks ...
-  std::vector<std::string> expectedLabels = { "0.00", "0.88", "1.00" };
+  std::vector<std::string> expectedLabels = { "0.00", "0.88" };
   status = axis->CompareLabelMapperString(expectedLabels) && status;
 
   axis->SetRange(42, 43);
-  axis->SetRulerDistance(0.4);
+  axis->SetRulerDistance(0.42);
   axis->SetNumberOfMinorTicks(1);
 
   expectedPoints->Initialize();
-  double spacing = 42.4264;
-  int nbOfLabels = 7;
-  for (int i = 1; i < nbOfLabels - 1; i++)
+  spacing = 44.5477;
+  nbOfTicks = 6;
+  for (int i = 0; i < nbOfTicks; i++)
   {
     expectedPoints->InsertNextPoint(START_POINT + i * spacing, START_POINT + i * spacing, 0);
   }
   status = CompareTicksPosition(axis, window, expectedPoints);
 
-  // we have less labels than drawn ticks ...
-  expectedLabels = { "42.00", "42.35", "42.71", "43.00" };
+  expectedLabels = { "42.00", "42.37", "42.74" };
   status = axis->CompareLabelMapperString(expectedLabels) && status;
 
   return status;
@@ -221,9 +246,9 @@ int TestAxisActor2D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkLog(ERROR, "TestRangeLabels failed");
     status = EXIT_FAILURE;
   }
-  if (!TestAdjustLabels())
+  if (!TestSnapLabels())
   {
-    vtkLog(ERROR, "TestAdjustLabels failed");
+    vtkLog(ERROR, "TestSnapLabels failed");
     status = EXIT_FAILURE;
   }
   if (!TestNumberOfMinorTicks())

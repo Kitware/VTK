@@ -143,6 +143,15 @@ void vtkLegendScaleActor::SetAdjustLabels(bool adjust)
 }
 
 //------------------------------------------------------------------------------
+void vtkLegendScaleActor::SetSnapToGrid(bool adjust)
+{
+  this->RightAxis->SetSnapLabelsToGrid(adjust);
+  this->TopAxis->SetSnapLabelsToGrid(adjust);
+  this->LeftAxis->SetSnapLabelsToGrid(adjust);
+  this->BottomAxis->SetSnapLabelsToGrid(adjust);
+}
+
+//------------------------------------------------------------------------------
 void vtkLegendScaleActor::SetUseFontSizeFromProperty(bool fromProp)
 {
   this->RightAxis->SetUseFontSizeFromProperty(fromProp);
