@@ -211,10 +211,10 @@ public:
     anari::DataType sourceType, anari::StatusSeverity severity, anari::StatusCode code,
     const char* details);
 
-  vtkAnariRendererNode* Owner;
+  vtkAnariRendererNode* Owner{ nullptr };
 
-  int ColorBufferTex;
-  int DepthBufferTex;
+  int ColorBufferTex{ 0 };
+  int DepthBufferTex{ 0 };
 
   std::unique_ptr<u_char[]> ColorBuffer;
   std::unique_ptr<float[]> DepthBuffer;
@@ -224,21 +224,22 @@ public:
 
   std::string LibraryName;
   std::string LibrarySubtype;
-  bool CompositeOnGL;
-  bool IsUSD;
-  bool InitFlag;
+  bool CompositeOnGL{ false };
+  bool IsUSD{ false };
+  bool InitFlag{ false };
 
   anari_vtk::RendererParameters RendererParams;
 
-  anari::Library AnariLibrary;
-  anari::Library DebugAnariLibrary;
-  anari::Device AnariDevice;
-  anari::Extensions AnariExtensions;
-  anari::Renderer AnariRenderer;
-  anari::World AnariWorld;
-  anari::Instance AnariInstance;
-  anari::Group AnariGroup;
-  anari::Frame AnariFrame;
+  anari::Library AnariLibrary{ nullptr };
+  anari::Library DebugAnariLibrary{ nullptr };
+  anari::Device AnariDevice{ nullptr };
+  anari::Renderer AnariRenderer{ nullptr };
+  anari::World AnariWorld{ nullptr };
+  anari::Instance AnariInstance{ nullptr };
+  anari::Group AnariGroup{ nullptr };
+  anari::Frame AnariFrame{ nullptr };
+
+  anari::Extensions AnariExtensions{};
 
   anari_vtk::CameraState AnariCameraState;
   anari_vtk::SurfaceState AnariSurfaceState;
@@ -248,31 +249,6 @@ public:
 
 vtkAnariRendererNodeInternals::vtkAnariRendererNodeInternals(vtkAnariRendererNode* owner)
   : Owner(owner)
-  , ColorBufferTex(0)
-  , DepthBufferTex(0)
-  , ColorBuffer(nullptr)
-  , DepthBuffer(nullptr)
-  , ImageX(0)
-  , ImageY(0)
-  , LibraryName()
-  , LibrarySubtype()
-  , CompositeOnGL(false)
-  , IsUSD(false)
-  , InitFlag(false)
-  , RendererParams()
-  , AnariLibrary(nullptr)
-  , DebugAnariLibrary(nullptr)
-  , AnariDevice(nullptr)
-  , AnariExtensions()
-  , AnariRenderer(nullptr)
-  , AnariWorld(nullptr)
-  , AnariInstance(nullptr)
-  , AnariGroup(nullptr)
-  , AnariFrame(nullptr)
-  , AnariCameraState()
-  , AnariSurfaceState()
-  , AnariVolumeState()
-  , AnariLightState()
 {
 }
 
@@ -295,31 +271,11 @@ vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
       anari::release(this->AnariDevice, light);
     }
 
-    if (this->AnariGroup != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariGroup);
-    }
-
-    if (this->AnariInstance != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariInstance);
-    }
-
-    if (this->AnariWorld != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariWorld);
-    }
-
-    if (this->AnariRenderer != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariRenderer);
-    }
-
-    if (this->AnariFrame != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariFrame);
-    }
-
+    anari::release(this->AnariDevice, this->AnariGroup);
+    anari::release(this->AnariDevice, this->AnariInstance);
+    anari::release(this->AnariDevice, this->AnariWorld);
+    anari::release(this->AnariDevice, this->AnariRenderer);
+    anari::release(this->AnariDevice, this->AnariFrame);
     anari::release(this->AnariDevice, this->AnariDevice);
   }
 
@@ -1918,10 +1874,7 @@ void vtkAnariRendererNode::Render(bool prepass)
       isNewRenderer = true;
       this->Internal->RendererParams.Subtype = rendererSubtype;
 
-      if (this->Internal->AnariRenderer != nullptr)
-      {
-        anari::release(anariDevice, this->Internal->AnariRenderer);
-      }
+      anari::release(anariDevice, this->Internal->AnariRenderer);
 
       this->Internal->AnariRenderer =
         anari::newObject<anari::Renderer>(anariDevice, rendererSubtype);
