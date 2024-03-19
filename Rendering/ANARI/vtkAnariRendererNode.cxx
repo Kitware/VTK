@@ -2099,8 +2099,6 @@ void vtkAnariRendererNode::Render(bool prepass)
   }
   else
   {
-    auto anariFrame = this->Internal->AnariFrame;
-
     this->UpdateAnariFrameSize();
     this->UpdateAnariCamera();
     this->UpdateAnariLights();
@@ -2110,6 +2108,7 @@ void vtkAnariRendererNode::Render(bool prepass)
     this->DebugOutputWorldBounds();
 
     // Render frame
+    auto anariFrame = this->Internal->AnariFrame;
     int accumulationCount = this->GetAccumulationCount(ren);
     for (int i = 0; i < accumulationCount; i++)
     {
