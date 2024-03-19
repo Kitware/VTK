@@ -83,6 +83,18 @@ public:
   vtkBooleanMacro(SaveBatchId, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get weither NaN color is saved in the texture associated
+   * to the mesh. Certain viewers do not support well the texture generated
+   * with NaN colors, so consider disabling this unless NaN data is present.
+   * Default value is true.
+   */
+  vtkGetMacro(SaveNaNValues, bool);
+  vtkSetMacro(SaveNaNValues, bool);
+  vtkBooleanMacro(SaveNaNValues, bool);
+  ///@}
+
   /**
    * Write the result to a string instead of a file
    */
@@ -107,6 +119,8 @@ protected:
 private:
   vtkGLTFExporter(const vtkGLTFExporter&) = delete;
   void operator=(const vtkGLTFExporter&) = delete;
+
+  bool SaveNaNValues = true;
 };
 
 VTK_ABI_NAMESPACE_END

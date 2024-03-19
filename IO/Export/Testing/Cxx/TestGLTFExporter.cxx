@@ -64,6 +64,7 @@ int TestGLTFExporter(int argc, char* argv[])
 
   filename += ".gltf";
 
+  mapper->SetInterpolateScalarsBeforeMapping(true); // To generate texture
   vtkNew<vtkGLTFExporter> exporter;
   exporter->SetRenderWindow(window);
   exporter->SetFileName(filename.c_str());
@@ -78,6 +79,19 @@ int TestGLTFExporter(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
+  exporter->SetSaveNaNValues(false);
+  exporter->Write();
+  size_t noNaNValueSize = fileSize(filename);
+  // GLTF File size and not texture file size.
+  size_t correctNoNaNValueSize = correctSize - 16;
+  if (noNaNValueSize != correctNoNaNValueSize)
+  {
+    std::cerr
+      << "Error: file should not contain NaN value color in texture, when SaveNaNValues is false"
+      << std::endl;
+    return EXIT_FAILURE;
+  }
+  exporter->SetSaveNaNValues(true);
 
   actor->VisibilityOff();
   exporter->Write();
