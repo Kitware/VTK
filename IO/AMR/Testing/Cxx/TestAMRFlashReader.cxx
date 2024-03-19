@@ -3,14 +3,14 @@
 #include <iostream>
 #include <string>
 
-#include "vtkAMREnzoReader.h"
+#include "vtkAMRFlashReader.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkSetGet.h"
 #include "vtkTestUtilities.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMRDataIterator.h"
-namespace EnzoReaderTest
+namespace FlashReaderTest
 {
 
 //------------------------------------------------------------------------------
@@ -47,57 +47,71 @@ static int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
   return maxLevel + 1;
 }
 
-static int ComputeNumberOfVisibleCells(vtkOverlappingAMR* amr)
+static void ComputeNumberOfCells(
+  vtkOverlappingAMR* amr, int level, int& numCells, int& numVisibleCells)
 {
-  int numVisibleCells(0);
-  vtkCompositeDataIterator* iter = amr->NewIterator();
+  numCells = 0;
+  numVisibleCells = 0;
+  vtkUniformGridAMRDataIterator* iter =
+    vtkUniformGridAMRDataIterator::SafeDownCast(amr->NewIterator());
   iter->SkipEmptyNodesOn();
   for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(iter->GetCurrentDataObject());
     vtkIdType num = grid->GetNumberOfCells();
-    for (vtkIdType i = 0; i < num; i++)
+    if (level == (int)iter->GetCurrentLevel())
     {
-      if (grid->IsCellVisible(i))
+      for (vtkIdType i = 0; i < num; i++)
       {
-        numVisibleCells++;
+        if (grid->IsCellVisible(i))
+        {
+          numVisibleCells++;
+        }
       }
+      numCells += (int)num;
     }
   }
   iter->Delete();
-  return numVisibleCells;
 }
 
-int TestEnzoReader(int argc, char* argv[])
+int TestAMRFlashReader(int argc, char* argv[])
 {
   int rc = 0;
-  int NumBlocksPerLevel[] = { 1, 3, 1, 1, 1, 1, 1, 1 };
-  int numVisibleCells[] = { 4096, 6406, 13406, 20406, 23990, 25502, 26377, 27077 };
-  vtkAMREnzoReader* myEnzoReader = vtkAMREnzoReader::New();
+  int NumBlocksPerLevel[] = { 27, 8 };
+  int numCells[] = { 13824, 4096 };
+  int numVisibleCells[] = { 13312, 4096 };
+  vtkAMRFlashReader* myFlashReader = vtkAMRFlashReader::New();
   char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMR/Enzo/DD0010/moving7_0010.hierarchy");
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMR/Flash/SpitzerTest_hdf5_chk_0000");
   std::cout << "Filename: " << fileName << std::endl;
   std::cout.flush();
 
   vtkOverlappingAMR* amr = nullptr;
-  myEnzoReader->SetFileName(fileName);
-  for (int level = 0; level < myEnzoReader->GetNumberOfLevels(); ++level)
+  myFlashReader->SetFileName(fileName);
+  if (!myFlashReader || myFlashReader->GetNumberOfLevels() == 0)
+  { // makeshift test for if the file was really loaded..
+    std::cerr << "ERROR: input AMR dataset is invalid!";
+    return 1;
+  }
+  for (int level = 0; level < myFlashReader->GetNumberOfLevels(); ++level)
   {
-    myEnzoReader->SetMaxLevel(level);
-    myEnzoReader->Update();
-    rc += EnzoReaderTest::CheckValue("LEVEL", myEnzoReader->GetNumberOfLevels(), 8);
-    rc += EnzoReaderTest::CheckValue("BLOCKS", myEnzoReader->GetNumberOfBlocks(), 10);
+    myFlashReader->SetMaxLevel(level);
+    myFlashReader->Update();
+    rc += FlashReaderTest::CheckValue("LEVEL", myFlashReader->GetNumberOfLevels(), 2);
+    rc += FlashReaderTest::CheckValue("BLOCKS", myFlashReader->GetNumberOfBlocks(), 35);
 
-    amr = myEnzoReader->GetOutput();
+    amr = myFlashReader->GetOutput();
     amr->Audit();
     if (amr != nullptr)
     {
-      rc += EnzoReaderTest::CheckValue(
-        "OUTPUT LEVELS", static_cast<int>(ComputeMaxNonEmptyLevel(amr)), level + 1);
-      rc += EnzoReaderTest::CheckValue("NUMBER OF BLOCKS AT LEVEL",
+      rc += FlashReaderTest::CheckValue(
+        "OUTPUT LEVELS", static_cast<int>(ComputeMaxNonEmptyLevel(amr)), 2);
+      rc += FlashReaderTest::CheckValue("NUMBER OF BLOCKS AT LEVEL",
         static_cast<int>(amr->GetNumberOfDataSets(level)), NumBlocksPerLevel[level]);
-      rc += EnzoReaderTest::CheckValue(
-        "Number of Visible cells ", ComputeNumberOfVisibleCells(amr), numVisibleCells[level]);
+      int nc = 0, nvc = 0;
+      ComputeNumberOfCells(amr, level, nc, nvc);
+      rc += FlashReaderTest::CheckValue("Number of cells ", nc, numCells[level]);
+      rc += FlashReaderTest::CheckValue("Number of Visible cells ", nvc, numVisibleCells[level]);
     }
     else
     {
@@ -106,7 +120,7 @@ int TestEnzoReader(int argc, char* argv[])
     }
   } // END for all levels
 
-  myEnzoReader->Delete();
+  myFlashReader->Delete();
   delete[] fileName;
   return (rc);
 }
