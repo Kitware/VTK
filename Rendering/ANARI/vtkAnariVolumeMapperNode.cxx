@@ -405,7 +405,7 @@ void vtkAnariVolumeMapperNode::Render(bool prepass)
         }
 
         anari::commitParameters(anariDevice, anariSpatialField);
-        anari::setAndReleaseParameter(anariDevice, anariVolume, "field", anariSpatialField);
+        anari::setAndReleaseParameter(anariDevice, anariVolume, "value", anariSpatialField);
         anari::commitParameters(anariDevice, anariVolume);
       }
 
