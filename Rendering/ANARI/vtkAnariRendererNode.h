@@ -546,6 +546,18 @@ protected:
   vtkAnariRendererNode();
   ~vtkAnariRendererNode();
 
+  void InitAnariFrame();
+  bool InitAnariRenderer(vtkRenderer* ren);
+  void SetupAnariRendererParameters(vtkRenderer* ren, bool isNewRenderer);
+  void InitAnariWorld();
+  void UpdateAnariFrameSize();
+  void UpdateAnariCamera();
+  void UpdateAnariLights();
+  void UpdateAnariSurfaces();
+  void UpdateAnariVolumes();
+  void CopyAnariFrameBufferData();
+  void DebugOutputWorldBounds();
+
   int SphereCount;
   int CylinderCount;
   int CurveCount;
