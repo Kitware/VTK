@@ -417,8 +417,10 @@ bool vtkShaderProgram::Bind()
   {
     const char* exts[3] = { "VS.glsl", "FS.glsl", "GS.glsl" };
     vtkShader* shaders[3] = { this->VertexShader, this->FragmentShader, this->GeometryShader };
+    std::string sources[3] = {};
     for (int cc = 0; cc < 3; cc++)
     {
+      sources[cc] = shaders[cc]->GetSource();
       std::string fname = this->FileNamePrefixForDebugging;
       fname += exts[cc];
       if (vtksys::SystemTools::FileExists(fname))
@@ -434,7 +436,15 @@ bool vtkShaderProgram::Bind()
         ofp << shaders[cc]->GetSource();
       }
     }
-    this->CompileShader();
+    if (!this->CompileShader())
+    {
+      // fallback to previous source code.
+      vtkWarningMacro(<< "Falling back to last working source code");
+      for (int cc = 0; cc < 3; cc++)
+      {
+        shaders[cc]->SetSource(sources[cc]);
+      }
+    }
   }
   if (!this->Linked && !this->Link())
   {
