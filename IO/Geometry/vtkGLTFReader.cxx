@@ -378,7 +378,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
   vtkSmartPointer<vtkMultiBlockDataSet> meshDataSet, std::string& dataSetName,
   vtkSmartPointer<vtkMatrix4x4> globalTransform,
   const std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats, bool applyDeformations,
-  std::vector<float>* morphingWeights)
+  std::vector<float>* morphingWeights, int outputPointsPrecision)
 {
   if (meshId >= m.Meshes.size())
   {
@@ -418,6 +418,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
       AddMaterialToFieldData(primitive.Material, meshPolyData->GetFieldData(), m);
 
       vtkNew<vtkTransformPolyDataFilter> filter;
+      filter->SetOutputPointsPrecision(outputPointsPrecision);
 
       // Morphing
       if (morphingWeights != nullptr && !morphingWeights->empty())
@@ -484,7 +485,8 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
 //------------------------------------------------------------------------------
 bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned int nodeId,
   vtkSmartPointer<vtkMultiBlockDataSet> parentDataSet,
-  vtkSmartPointer<vtkMultiBlockDataSet> nodeDataset, std::string nodeName, bool applyDeformations)
+  vtkSmartPointer<vtkMultiBlockDataSet> nodeDataset, std::string nodeName, bool applyDeformations,
+  int outputPointsPrecision)
 {
   if (nodeId >= m.Nodes.size())
   {
@@ -532,7 +534,8 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
     }
     std::string meshDatasetName = "Mesh_" + value_to_string(node.Mesh);
     if (!BuildMultiBlockDatasetFromMesh(m, node.Mesh, nodeDataset, meshDataSet, meshDatasetName,
-          node.GlobalTransform, jointMats, applyDeformations, morphingWeights))
+          node.GlobalTransform, jointMats, applyDeformations, morphingWeights,
+          outputPointsPrecision))
     {
       vtkErrorWithObjectMacro(
         nullptr, "Could not build vtkMultiBlockDataSet from mesh " << node.Mesh);
@@ -550,8 +553,8 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
       // find existing child dataset for this node
       childDataset = vtkMultiBlockDataSet::SafeDownCast(nodeDataset->GetBlock(blockId));
     }
-    if (!BuildMultiBlockDataSetFromNode(
-          m, child, nodeDataset, childDataset, childDatasetName, applyDeformations))
+    if (!BuildMultiBlockDataSetFromNode(m, child, nodeDataset, childDataset, childDatasetName,
+          applyDeformations, outputPointsPrecision))
     {
       vtkErrorWithObjectMacro(nullptr, "Could not build vtkMultiBlockDataSet from node " << child);
 
@@ -564,7 +567,7 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
 
 //------------------------------------------------------------------------------
 bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType sceneId,
-  vtkSmartPointer<vtkMultiBlockDataSet> dataSet, bool applyDeformations)
+  vtkSmartPointer<vtkMultiBlockDataSet> dataSet, bool applyDeformations, int outputPointsPrecision)
 {
   if (sceneId < 0 || sceneId >= static_cast<vtkIdType>(m.Scenes.size()))
   {
@@ -587,7 +590,7 @@ bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType 
       nodeDataset = vtkMultiBlockDataSet::SafeDownCast(dataSet->GetBlock(blockId));
     }
     if (!BuildMultiBlockDataSetFromNode(
-          m, node, dataSet, nodeDataset, nodeDatasetName, applyDeformations))
+          m, node, dataSet, nodeDataset, nodeDatasetName, applyDeformations, outputPointsPrecision))
     {
       vtkErrorWithObjectMacro(nullptr, "Could not build vtkMultiBlockDataSet from node " << node);
       return false;
@@ -907,8 +910,8 @@ int vtkGLTFReader::RequestData(
     selectedScene = model->DefaultScene;
   }
 
-  if (!BuildMultiBlockDataSetFromScene(
-        *(model), selectedScene, this->OutputDataSet, this->ApplyDeformationsToGeometry))
+  if (!BuildMultiBlockDataSetFromScene(*(model), selectedScene, this->OutputDataSet,
+        this->ApplyDeformationsToGeometry, this->OutputPointsPrecision))
   {
     vtkErrorMacro("Error building MultiBlockDataSet object");
     return 0;

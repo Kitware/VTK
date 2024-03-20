@@ -195,6 +195,18 @@ public:
   vtkSetMacro(FrameRate, unsigned int);
   ///@}
 
+  ///@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings. The default is vtkAlgorithm::SINGLE_PRECISION but
+   * a 'matrix' or other transforms in the GLTF json could require vtkAlgorithm::DOUBLE_PRECISION.
+   * This feature is useful for the Cesium 3DTiles format.
+   */
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
+
   /**
    * Get a list all scenes names as a vtkStringArray, with duplicate names numbered and empty names
    * replaced by a generic name. All names are guaranteed to be unique, and their index in the array
@@ -243,6 +255,7 @@ protected:
   bool IsMetaDataLoaded = false;
 
   bool ApplyDeformationsToGeometry = true;
+  int OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
 
   vtkSmartPointer<vtkStringArray> SceneNames;
 
