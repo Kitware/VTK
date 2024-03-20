@@ -140,13 +140,10 @@ endfunction ()
 
  .. code-block:: cmake
 
-    _vtk_module_split_module_name(<dependency>
-      SATISFIED_VAR <var>
-      [PACKAGE <package>])
+    _vtk_module_optional_dependency_exists(<dependency>
+      SATISFIED_VAR <var>)
 
- The result will be returned in the variable specified by ``SATISFIED_VAR``. If
- ``PACKAGE`` is not given, ``_vtk_build_PACKAGE`` will be used if defined,
- otherwise an error will be raised.
+ The result will be returned in the variable specified by ``SATISFIED_VAR``.
 #]==]
 function (_vtk_module_optional_dependency_exists dependency)
   cmake_parse_arguments(_vtk_optional_dep
@@ -161,16 +158,6 @@ function (_vtk_module_optional_dependency_exists dependency)
       "${_vtk_optional_dep_UNPARSED_ARGUMENTS}")
   endif ()
 
-  if (NOT _vtk_optional_dep_PACKAGE)
-    if (NOT DEFINED _vtk_build_PACKAGE)
-      message(FATAL_ERROR
-        "The `PACKAGE` argument is required outside of `vtk_module_build` "
-        "usage.")
-    endif ()
-    set(_vtk_optional_dep_PACKAGE
-      "${_vtk_build_PACKAGE}")
-  endif ()
-
   if (NOT _vtk_optional_dep_SATISFIED_VAR)
     message(FATAL_ERROR
       "The `SATISFIED_VAR` argument is required.")
@@ -178,16 +165,22 @@ function (_vtk_module_optional_dependency_exists dependency)
 
   set(_vtk_optional_dep_satisfied 0)
   if (TARGET "${dependency}")
-    _vtk_module_split_module_name("${dependency}" _vtk_optional_dep_parse)
-    if (_vtk_optional_dep_PACKAGE STREQUAL _vtk_optional_dep_parse_NAMESPACE)
-      set(_vtk_optional_dep_satisfied 1)
-    else ()
+    # If the target is imported, we check its `_FOUND` variable. If it is not
+    # imported, we assume it is set up properly as a normal target (or an
+    # `ALIAS`).
+    get_property(_vtk_optional_dep_is_imported
+      TARGET    "${dependency}"
+      PROPERTY  IMPORTED)
+    if (_vtk_optional_dep_is_imported)
+      _vtk_module_split_module_name("${dependency}" _vtk_optional_dep_parse)
       set(_vtk_optional_dep_found_var
         "${_vtk_optional_dep_parse_NAMESPACE}_${_vtk_optional_dep_parse_TARGET_NAME}_FOUND")
       if (DEFINED "${_vtk_optional_dep_found_var}" AND
           ${_vtk_optional_dep_found_var})
         set(_vtk_optional_dep_satisfied 1)
       endif ()
+    else ()
+      set(_vtk_optional_dep_satisfied 1)
     endif ()
   endif ()
 
