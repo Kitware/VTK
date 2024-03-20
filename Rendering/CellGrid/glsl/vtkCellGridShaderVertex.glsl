@@ -113,13 +113,15 @@ void main()
     else
     {{
       // Discontinuous field values
-      float cv;
+      float cvs[{ColorCoeffPerCell}];
       for (int ii = 0; ii < {ColorNumBasisFun}; ++ii)
       {{
         for (int jj = 0; jj < {ColorMultiplicity}; ++jj)
         {{
-          cv = texelFetchBuffer(color_vals, (cellIdVS * {ColorNumBasisFun} + ii) * {ColorMultiplicity} + jj).x;
-          colorValuesVS[ii * {ColorMultiplicity} + jj] = cv;
+          int colorValTBIdx = (cellIdVS * {ColorNumBasisFun} + ii) * {ColorMultiplicity} + jj;
+          int colorValVSIdx = ii * {ColorMultiplicity} + jj;
+          cvs[colorValVSIdx] = texelFetchBuffer(color_vals, colorValTBIdx).x;
+          colorValuesVS[colorValVSIdx] = cvs[colorValVSIdx];
         }}
       }}
     }}
