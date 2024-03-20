@@ -529,6 +529,29 @@ vtkZSpaceSDKManager::StereoDisplayMode vtkZSpaceCoreCompatibilitySDKManager::Get
 }
 
 //------------------------------------------------------------------------------
+void vtkZSpaceCoreCompatibilitySDKManager::SetStereoDisplayEnabled(bool enabled)
+{
+  ZSPACE_RETURN_IF_NOT_INIT();
+
+  ZCCompatError error =
+    this->EntryPts.zccompatSetStereoDisplayEnabled(this->ZSpaceContext, enabled);
+  ZSPACE_CHECK_ERROR(zccompatSetStereoDisplayEnabled, error);
+}
+
+//------------------------------------------------------------------------------
+bool vtkZSpaceCoreCompatibilitySDKManager::GetStereoDisplayEnabled()
+{
+  ZSPACE_RETURN_VAL_IF_NOT_INIT(false);
+
+  ZSBool stereoDisplayEnabled = false;
+  ZCCompatError error =
+    this->EntryPts.zccompatIsStereoDisplayEnabled(this->ZSpaceContext, &stereoDisplayEnabled);
+  ZSPACE_CHECK_ERROR(zccompatSetStereoDisplayEnabled, error);
+
+  return stereoDisplayEnabled;
+}
+
+//------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::SetRenderWindow(vtkRenderWindow* renderWindow)
 {
   ZSPACE_RETURN_IF_NOT_INIT();
