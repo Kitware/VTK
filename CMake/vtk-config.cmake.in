@@ -236,8 +236,18 @@ if (${CMAKE_FIND_PACKAGE_NAME}_WRAP_JAVA)
   endif ()
 endif ()
 
+set(_vtk_search_components
+  ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
+if (NOT _vtk_search_components)
+  set(_vtk_search_components
+    ${${CMAKE_FIND_PACKAGE_NAME}_AVAILABLE_COMPONENTS})
+endif ()
+list(REMOVE_ITEM _vtk_search_components
+  # These components need to always be requested explicitly since they are
+  # not modules.
+  @_vtk_non_module_components@)
 set(_vtk_components_to_check)
-foreach (_vtk_component IN LISTS "${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS")
+foreach (_vtk_component IN LISTS _vtk_search_components)
   if (DEFINED "${CMAKE_FIND_PACKAGE_NAME}_${_vtk_component}_FOUND")
     # It was already not-found (likely due to `find-package` failures).
   elseif (TARGET "${CMAKE_FIND_PACKAGE_NAME}::${_vtk_component}")
@@ -250,6 +260,7 @@ foreach (_vtk_component IN LISTS "${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS")
   endif ()
 endforeach ()
 unset(_vtk_component)
+unset(_vtk_search_components)
 
 while (_vtk_components_to_check)
   list(GET _vtk_components_to_check 0 _vtk_component)

@@ -25,8 +25,6 @@ PRIVATE_DEPENDS
   VTK::jsoncpp
   VTK::vtksys
 TEST_DEPENDS
-  #VTK::ParallelMPI
-  #VTK::RenderingParallel
   VTK::CommonColor
   VTK::CommonSystem
   VTK::FiltersAMR
@@ -56,3 +54,6 @@ TEST_DEPENDS
   VTK::RenderingVolumeOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
+  VTK::RenderingParallel

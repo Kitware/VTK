@@ -8,9 +8,9 @@ vtk_add_test_python(TestIntegrateAttributes.py NO_OUTPUT NO_VALID NO_RT)
 vtk_add_test_python(TestRemoveGhosts.py NO_DATA NO_OUTPUT NO_VALID NO_RT)
 vtk_add_test_python(TestResamplingInterpolator.py)
 
-if(TARGET pvtkpython)
+if(TARGET VTK::pvtkpython)
   add_test(NAME vtkFiltersParallelPython-testTransmit
     COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 ${MPIEXEC_PREFLAGS}
-      $<TARGET_FILE:pvtkpython> ${CMAKE_CURRENT_SOURCE_DIR}/testTransmit.py
+      $<TARGET_FILE:VTK::pvtkpython> ${CMAKE_CURRENT_SOURCE_DIR}/testTransmit.py
       ${VTK_MPI_POSTFLAGS})
 endif()
