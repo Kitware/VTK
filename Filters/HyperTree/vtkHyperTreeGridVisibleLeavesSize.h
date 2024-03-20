@@ -19,7 +19,6 @@
  * implicit arrays, in order to lower the memory footprint of the filter.
  *
  * Note that the filter needs to be run again if cells are refined after its execution.
- * The size computation can support at most 256 levels.
  *
  * @sa
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
