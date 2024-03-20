@@ -26,7 +26,7 @@ rg.vtkRenderingCellGrid.RegisterCellsAndResponders()
 
 class TestCellGridRendering(Testing.vtkTest):
 
-    def runCase(self, dataFile, colorArray, imageFile, cell2D = False, angles = (0, 0, 0)):
+    def runCase(self, dataFile, colorArray, imageFile, cell2D = False, angles = (0, 0, 0), colorArrayComponent=0):
         rh = io.vtkCellGridReader()
         rh.SetFileName(dataFile)
         fh = fc.vtkCellGridComputeSurface()
@@ -54,6 +54,8 @@ class TestCellGridRendering(Testing.vtkTest):
             mi.ScalarVisibilityOn()
             mi.SetScalarMode(rr.VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
             mi.SetArrayName(colorArray)
+            if colorArrayComponent != 0:
+                mi.SetArrayComponent(colorArrayComponent)
         ai.SetMapper(mi)
         rw = rr.vtkRenderWindow()
         rn = rr.vtkRenderer()
@@ -97,10 +99,9 @@ class TestCellGridRendering(Testing.vtkTest):
 
     def testDGHexRendering(self):
         dataFile = os.path.join(VTK_DATA_ROOT, 'Data', 'dgHexahedra.dg')
-        # Disabled until the vertex shader is fixed.
-        # # Run with HCurl coloring turned on:
-        # testFile = 'TestCellGridRendering-Hexahedra-curl1.png'
-        # self.runCase(dataFile, 'curl1', testFile, False, angles=(10, 20, 30))
+        # Run with HCurl coloring turned on:
+        testFile = 'TestCellGridRendering-Hexahedra-curl1.png'
+        self.runCase(dataFile, 'curl1', testFile, False, angles=(0, 180, -20), colorArrayComponent=1)
         # Run once with cell coloring turned on:
         testFile = 'TestCellGridRendering-Hexahedra.png'
         self.runCase(dataFile, 'scalar1', testFile, False, angles=(10, 20, 30))
