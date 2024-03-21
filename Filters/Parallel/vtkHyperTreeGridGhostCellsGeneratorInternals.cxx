@@ -70,7 +70,7 @@ vtkIdType CreateGhostTree(vtkHyperTreeGridNonOrientedCursor* outCursor, vtkBitAr
   vtkIdType* indices, vtkIdType&& pos = 0)
 {
   indices[pos] = outCursor->GetGlobalNodeIndex();
-  if (isParent->GetValue(pos++))
+  if (isParent->GetValue(pos++) && !outCursor->IsMasked())
   {
     outCursor->SubdivideLeaf();
     for (int ichild = 0; ichild < outCursor->GetNumberOfChildren(); ++ichild)
@@ -392,7 +392,7 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeMasks()
               {
                 mask[ii] = 0;
               }
-              vtkBitArray* bmask = this->InputHTG->GetMask();
+              vtkSmartPointer<vtkBitArray> bmask = this->InputHTG->GetMask();
               // Filling the mask with bits at the appropriate location
               for (vtkIdType m = 0; m < sendTreeBuffer.count; ++m)
               {
