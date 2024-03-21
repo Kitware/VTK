@@ -102,6 +102,12 @@ public:
   virtual void EndFrame() = 0;
   ///@}
 
+  /**
+   * Shutdown the zSpace SDK (clean its internal state).
+   * Useful to re-initialize the zSpace SDK from a clean state.
+   */
+  virtual void ShutDown(){};
+
   ///@{
   /**
    * These functions are overriden by vtkZSpaceCoreCompatibility (specific to zSpace Inspire).

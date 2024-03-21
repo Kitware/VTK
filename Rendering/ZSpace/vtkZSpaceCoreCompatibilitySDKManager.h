@@ -142,6 +142,12 @@ public:
   ///@}
 
   /**
+   * Shutdown the zSpace SDK (clean its internal state).
+   * Useful to re-initialize the zSpace SDK from a clean state.
+   */
+  virtual void ShutDown() override;
+
+  /**
    * Set the render window the manager makes viewport computations
    * from. Overridden to pass the related Windows window handle to
    * the SDK.
