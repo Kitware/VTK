@@ -3,6 +3,7 @@
 #include "vtkGenerateProcessIds.h"
 
 #include "vtkCellData.h"
+#include "vtkConstantArray.h"
 #include "vtkDataSet.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -51,14 +52,14 @@ int vtkGenerateProcessIds::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->GeneratePointData)
   {
     vtkIdType numberOfPoints = input->GetNumberOfPoints();
-    vtkSmartPointer<vtkIdTypeArray> processIds = this->GenerateProcessIds(piece, numberOfPoints);
+    auto processIds = this->GenerateProcessIds(piece, numberOfPoints);
     processIds->SetName("PointProcessIds");
     output->GetPointData()->SetProcessIds(processIds);
   }
   if (this->GenerateCellData)
   {
     vtkIdType numberOfCells = input->GetNumberOfCells();
-    vtkSmartPointer<vtkIdTypeArray> processIds = this->GenerateProcessIds(piece, numberOfCells);
+    auto processIds = this->GenerateProcessIds(piece, numberOfCells);
     processIds->SetName("CellProcessIds");
     output->GetCellData()->SetProcessIds(processIds);
   }
@@ -67,13 +68,15 @@ int vtkGenerateProcessIds::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkIdTypeArray> vtkGenerateProcessIds::GenerateProcessIds(
+vtkSmartPointer<vtkConstantArray<vtkIdType>> vtkGenerateProcessIds::GenerateProcessIds(
   vtkIdType piece, vtkIdType numberOfTuples)
 {
-  vtkSmartPointer<vtkIdTypeArray> processIds = vtkSmartPointer<vtkIdTypeArray>::New();
-  processIds->SetNumberOfTuples(numberOfTuples);
-  processIds->Fill(piece);
-  return processIds;
+  vtkNew<vtkConstantArray<vtkIdType>> arr;
+  arr->ConstructBackend(piece);
+  arr->SetNumberOfComponents(1);
+  arr->SetNumberOfTuples(numberOfTuples);
+
+  return arr;
 }
 
 //------------------------------------------------------------------------------
