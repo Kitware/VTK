@@ -507,6 +507,9 @@ protected:
 
   virtual void ConvertGhostLevelsToGhostType(FieldType, vtkAbstractArray*, vtkIdType, vtkIdType) {}
 
+  /*
+   * Populate the output's FieldData with the file's FieldData tags content
+   */
   void ReadFieldData();
 
 private:

@@ -416,6 +416,9 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
       this->ReadTrees_2(ePrimary);
     }
   }
+
+  this->ReadFieldData();
+
   this->IdsSelected.clear();
   this->FixedHTs = false;
 }
