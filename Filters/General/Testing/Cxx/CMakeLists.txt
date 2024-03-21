@@ -12,6 +12,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   BoxClipTriangulateAndInterpolate.cxx
   TestAppendLocationAttributes.cxx,NO_VALID
   TestAppendPoints.cxx,NO_VALID
+  TestBlockIdScalars.cxx,NO_VALID
   TestBooleanOperationPolyDataFilter.cxx
   TestBooleanOperationPolyDataFilter2.cxx
   TestCellValidator.cxx,NO_VALID
