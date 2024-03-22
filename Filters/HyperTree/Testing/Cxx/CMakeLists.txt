@@ -96,6 +96,7 @@ set(test_sources
   TestHyperTreeGridTernarySphereMaterial.cxx
   TestHyperTreeGridTernarySphereMaterialReflections.cxx
   TestHyperTreeGridToDualGrid.cxx
+  TestHyperTreeGridVisibleLeavesSize.cxx,NO_VALID,NO_OUPUT
   )
 
 vtk_add_test_cxx(vtkFiltersHyperTreeCxxTests tests ${test_sources})

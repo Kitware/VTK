@@ -14,6 +14,7 @@ set(classes
   vtkHyperTreeGridThreshold
   vtkHyperTreeGridToDualGrid
   vtkHyperTreeGridToUnstructuredGrid
+  vtkHyperTreeGridVisibleLeavesSize
   vtkImageDataToHyperTreeGrid
 )
 
