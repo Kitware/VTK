@@ -61,6 +61,8 @@ flat in int sideIdVS;
 
 void main()
 {{
+  //VTK::PositionVC::Impl
+
   // Place any calls that require uniform flow (e.g. dFdx) here.
   //VTK::UniformFlow::Impl
 
