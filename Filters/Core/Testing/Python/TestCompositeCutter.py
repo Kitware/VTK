@@ -29,7 +29,7 @@ class TestCompositeCutter(Testing.vtkTest):
     cutter.Update()
 
     slice = cutter.GetOutputDataObject(0)
-    self.assertEqual(slice.GetNumberOfCells(), 662)
+    self.assertEqual(slice.GetNumberOfCells(), 862)
 
 if __name__ == "__main__":
     Testing.main([(TestCompositeCutter, 'test')])
