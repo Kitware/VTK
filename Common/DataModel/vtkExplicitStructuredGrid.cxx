@@ -372,6 +372,17 @@ void vtkExplicitStructuredGrid::ShallowCopy(vtkDataObject* dataObject)
     this->InternalCopy(grid);
 
     this->SetCells(grid->GetCells());
+
+    if (grid->Links)
+    {
+      this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(grid->Links->NewInstance());
+      this->Links->SetDataSet(this);
+      this->Links->ShallowCopy(grid->Links);
+    }
+    else
+    {
+      this->Links = nullptr;
+    }
   }
 }
 
@@ -399,6 +410,7 @@ void vtkExplicitStructuredGrid::DeepCopy(vtkDataObject* dataObject)
     if (grid->Links)
     {
       this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(grid->Links->NewInstance());
+      this->Links->SetDataSet(this);
       this->Links->DeepCopy(grid->Links);
     }
     else

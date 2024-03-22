@@ -367,11 +367,9 @@ public:
 
   ///@{
   /**
-   * Set/Get the links that you created possibly without using BuildLinks.
-   *
-   * Note: Only vtkCellLinks are currently supported.
+   * Set/Get the links that were created possibly without using BuildLinks.
    */
-  virtual void SetLinks(vtkAbstractCellLinks* links);
+  vtkSetSmartPointerMacro(Links, vtkAbstractCellLinks);
   vtkGetSmartPointerMacro(Links, vtkAbstractCellLinks);
   ///@}
 
@@ -713,7 +711,7 @@ protected:
   // supporting structures for more complex topological operations
   // built only when necessary
   vtkSmartPointer<CellMap> Cells;
-  vtkSmartPointer<vtkCellLinks> Links;
+  vtkSmartPointer<vtkAbstractCellLinks> Links;
 
   vtkNew<vtkIdList> LegacyBuffer;
 
@@ -731,13 +729,6 @@ private:
   vtkPolyData(const vtkPolyData&) = delete;
   void operator=(const vtkPolyData&) = delete;
 };
-
-//------------------------------------------------------------------------------
-inline void vtkPolyData::GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType*& cells)
-{
-  ncells = this->Links->GetNcells(ptId);
-  cells = this->Links->GetCells(ptId);
-}
 
 //------------------------------------------------------------------------------
 inline vtkIdType vtkPolyData::GetNumberOfCells()
@@ -790,36 +781,6 @@ inline vtkIdType vtkPolyData::GetCellSize(vtkIdType cellId)
 }
 
 //------------------------------------------------------------------------------
-inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
-{
-  vtkIdType n1;
-  int i, j, tVerts[3];
-  vtkIdType* cells;
-  const vtkIdType* tVerts2;
-  vtkIdType n2;
-
-  tVerts[0] = v1;
-  tVerts[1] = v2;
-  tVerts[2] = v3;
-
-  for (i = 0; i < 3; i++)
-  {
-    this->GetPointCells(tVerts[i], n1, cells);
-    for (j = 0; j < n1; j++)
-    {
-      this->GetCellPoints(cells[j], n2, tVerts2);
-      if ((tVerts[0] == tVerts2[0] || tVerts[0] == tVerts2[1] || tVerts[0] == tVerts2[2]) &&
-        (tVerts[1] == tVerts2[0] || tVerts[1] == tVerts2[1] || tVerts[1] == tVerts2[2]) &&
-        (tVerts[2] == tVerts2[0] || tVerts[2] == tVerts2[1] || tVerts[2] == tVerts2[2]))
-      {
-        return 1;
-      }
-    }
-  }
-  return 0;
-}
-
-//------------------------------------------------------------------------------
 inline int vtkPolyData::IsPointUsedByCell(vtkIdType ptId, vtkIdType cellId)
 {
   vtkIdType npts;
@@ -840,7 +801,7 @@ inline int vtkPolyData::IsPointUsedByCell(vtkIdType ptId, vtkIdType cellId)
 //------------------------------------------------------------------------------
 inline void vtkPolyData::DeletePoint(vtkIdType ptId)
 {
-  this->Links->DeletePoint(ptId);
+  static_cast<vtkCellLinks*>(this->Links.Get())->DeletePoint(ptId);
 }
 
 //------------------------------------------------------------------------------
@@ -856,9 +817,10 @@ inline void vtkPolyData::RemoveCellReference(vtkIdType cellId)
   vtkIdType npts;
 
   this->GetCellPoints(cellId, npts, pts);
+  auto links = static_cast<vtkCellLinks*>(this->Links.Get());
   for (vtkIdType i = 0; i < npts; i++)
   {
-    this->Links->RemoveCellReference(cellId, pts[i]);
+    links->RemoveCellReference(cellId, pts[i]);
   }
 }
 
@@ -869,16 +831,17 @@ inline void vtkPolyData::AddCellReference(vtkIdType cellId)
   vtkIdType npts;
 
   this->GetCellPoints(cellId, npts, pts);
+  auto links = static_cast<vtkCellLinks*>(this->Links.Get());
   for (vtkIdType i = 0; i < npts; i++)
   {
-    this->Links->AddCellReference(cellId, pts[i]);
+    links->AddCellReference(cellId, pts[i]);
   }
 }
 
 //------------------------------------------------------------------------------
 inline void vtkPolyData::ResizeCellList(vtkIdType ptId, int size)
 {
-  this->Links->ResizeCellList(ptId, size);
+  static_cast<vtkCellLinks*>(this->Links.Get())->ResizeCellList(ptId, size);
 }
 
 //------------------------------------------------------------------------------
@@ -965,9 +928,11 @@ inline void vtkPolyData::GetCellPoints(
     npts = 0;
     pts = nullptr;
   }
-
-  vtkCellArray* cells = this->GetCellArrayInternal(tag);
-  cells->GetCellAtId(tag.GetCellId(), npts, pts, ptIds);
+  else
+  {
+    vtkCellArray* cells = this->GetCellArrayInternal(tag);
+    cells->GetCellAtId(tag.GetCellId(), npts, pts, ptIds);
+  }
 }
 
 VTK_ABI_NAMESPACE_END

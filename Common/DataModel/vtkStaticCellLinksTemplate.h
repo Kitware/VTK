@@ -34,6 +34,10 @@
 #define vtkStaticCellLinksTemplate_h
 
 #include "vtkABINamespace.h"
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_4_0
+
+#include <memory> // For shared_ptr
+#include <vector> // For vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
@@ -84,11 +88,23 @@ public:
    */
   void BuildLinks(vtkExplicitStructuredGrid* esgrid);
 
+  ///@{
   /**
-   * Specialized methods for building links from cell array.
+   * Specialized methods for building links from cell array(S).
    */
-  void SerialBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray);
-  void ThreadedBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray);
+  void SerialBuildLinksFromMultipleArrays(
+    vtkIdType numPts, vtkIdType numCells, std::vector<vtkCellArray*> cellArrays);
+  void SerialBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
+  {
+    this->SerialBuildLinksFromMultipleArrays(numPts, numCells, { cellArray });
+  }
+  void ThreadedBuildLinksFromMultipleArrays(
+    vtkIdType numPts, vtkIdType numCells, std::vector<vtkCellArray*> cellArrays);
+  void ThreadedBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
+  {
+    this->ThreadedBuildLinksFromMultipleArrays(numPts, numCells, { cellArray });
+  }
+  ///@}
 
   ///@{
   /**
@@ -133,7 +149,10 @@ public:
    * Support vtkAbstractCellLinks API.
    */
   unsigned long GetActualMemorySize();
-  void DeepCopy(vtkAbstractCellLinks* src);
+  VTK_DEPRECATED_IN_9_4_0("Use DeepCopy(vtkStaticCellLinksTemplate instead.")
+  void DeepCopy(vtkAbstractCellLinks*) {}
+  void DeepCopy(vtkStaticCellLinksTemplate* src);
+  void ShallowCopy(vtkStaticCellLinksTemplate* src);
   void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection);
   ///@}
 
@@ -152,8 +171,11 @@ protected:
   TIds NumCells;
 
   // These point to the core data structures
-  TIds* Links;   // contiguous runs of cell ids
-  TIds* Offsets; // offsets for each point into the links array
+
+  std::shared_ptr<TIds> LinkSharedPtr;    // contiguous runs of cell ids
+  TIds* Links;                            // Pointer to the links array
+  std::shared_ptr<TIds> OffsetsSharedPtr; // offsets for each point into the links array
+  TIds* Offsets;                          // Pointer to the offsets array
 
   // Support for execution
   int Type;

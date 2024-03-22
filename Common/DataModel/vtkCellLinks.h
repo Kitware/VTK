@@ -27,6 +27,8 @@
 #include "vtkAbstractCellLinks.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+#include <memory> // For shared_ptr
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCellArray;
@@ -37,6 +39,12 @@ public:
   class Link
   {
   public:
+    Link()
+      : ncells(0)
+      , cells(nullptr)
+    {
+    }
+    ~Link() = default;
     vtkIdType ncells;
     vtkIdType* cells;
   };
@@ -151,10 +159,18 @@ public:
   unsigned long GetActualMemorySize() override;
 
   /**
-   * Standard DeepCopy method.  Since this object contains no reference
-   * to other objects, there is no ShallowCopy.
+   * Standard DeepCopy method.
+   *
+   * Before you shallow copy, make sure to call SetDataSet()
    */
   void DeepCopy(vtkAbstractCellLinks* src) override;
+
+  /**
+   * Standard ShallowCopy method.
+   *
+   * Before you shallow copy, make sure to call SetDataSet()
+   */
+  void ShallowCopy(vtkAbstractCellLinks* src) override;
 
 protected:
   vtkCellLinks();
@@ -172,11 +188,12 @@ protected:
    */
   void InsertCellReference(vtkIdType ptId, vtkIdType pos, vtkIdType cellId);
 
-  Link* Array;                // pointer to data
-  vtkIdType Size;             // allocated size of data
-  vtkIdType MaxId;            // maximum index inserted thus far
-  vtkIdType Extend;           // grow array by this point
-  Link* Resize(vtkIdType sz); // function to resize data
+  std::shared_ptr<Link> ArraySharedPtr; // Shared Ptr to Array
+  Link* Array;                          // pointer to data
+  vtkIdType Size;                       // allocated size of data
+  vtkIdType MaxId;                      // maximum index inserted thus far
+  vtkIdType Extend;                     // grow array by this point
+  Link* Resize(vtkIdType sz);           // function to resize data
 
   // Some information recorded at build time
   vtkIdType NumberOfPoints;

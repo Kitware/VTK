@@ -272,6 +272,7 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   }
   this->Mesh->GetFieldData()->PassData(input->GetFieldData());
   this->Mesh->BuildCells();
+  this->Mesh->EditableOn();
   this->Mesh->BuildLinks();
 
   this->ErrorQuadrics = new vtkQuadricDecimation::ErrorQuadric[numPts];

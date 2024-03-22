@@ -2,6 +2,7 @@
 from vtkmodules.vtkCommonCore import (
     vtkFloatArray,
     vtkPoints,
+    vtkIdList
 )
 from vtkmodules.vtkCommonDataModel import (
     vtkCylinder,
@@ -293,12 +294,17 @@ class TestClip(Testing.vtkTest):
 
         normals_points = data.GetPointData().GetNormals()
 
-        [x, y, z] = normals_points.GetTuple3(18)
+        idList = vtkIdList()
+        # get the point id from the cell, because the point order is not deterministic
+        data.GetCellPoints(9, idList)
+        [x, y, z] = normals_points.GetTuple3(idList.GetId(0))
         self.assertEqual(x, 0)
         self.assertEqual(y, 0)
         self.assertEqual(z, 1)
 
-        [x, y, z] = normals_points.GetTuple3(103)
+        # get the point id from the cell, because the point order is not deterministic
+        data.GetCellPoints(61, idList)
+        [x, y, z] = normals_points.GetTuple3(idList.GetId(0))
         self.assertEqual(x, 0.8944272994995117)
         self.assertEqual(y, 0.44721364974975586)
         self.assertEqual(z, 0.)

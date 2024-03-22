@@ -48,11 +48,18 @@ bool TestCellLocators(vtkUnstructuredGrid* dataset, vtkPointSet* transformedData
 
   // create a shallowCopiedLocator
   vtkAbstractCellLocator* shallowCopiedLocator = locator->NewInstance();
+  shallowCopiedLocator->SetDataSet(dataset);
   shallowCopiedLocator->ShallowCopy(locator);
   // free locator's structure to ensure correctness of the shallow copy
   locator->Delete();
-  shallowCopiedLocator->SetDataSet(dataset);
+  const auto before = shallowCopiedLocator->GetBuildTime();
   shallowCopiedLocator->BuildLocator();
+  const auto after = shallowCopiedLocator->GetBuildTime();
+  if (before != after)
+  {
+    std::cout << "Build time should not change after Build Locator" << std::endl;
+    return false;
+  }
 
   // create a vtkLinearTransformCellLocator with shallowCopiedLocator
   vtkNew<vtkLinearTransformCellLocator> linearTransformLocator;

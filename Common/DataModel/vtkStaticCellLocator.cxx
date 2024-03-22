@@ -1707,7 +1707,6 @@ void vtkStaticCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
   // we only copy what's actually used by vtkStaticCellLocator
 
   // vtkLocator parameters
-  this->SetDataSet(cellLocator->GetDataSet());
   this->SetUseExistingSearchStructure(cellLocator->GetUseExistingSearchStructure());
   this->SetAutomatic(cellLocator->GetAutomatic());
 
@@ -1796,6 +1795,7 @@ void vtkStaticCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
       processor->OffsetsShardPtr.get() ? processor->OffsetsShardPtr->data() : nullptr;
     this->Processor = processor;
   }
+  this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------

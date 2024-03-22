@@ -229,6 +229,8 @@ public:
 
   /**
    * Shallow copy of a vtkModifiedBSPTree.
+   *
+   * Before you shallow copy, make sure to call SetDataSet()
    */
   void ShallowCopy(vtkAbstractCellLocator* locator) override;
 

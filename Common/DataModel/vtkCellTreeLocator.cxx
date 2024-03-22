@@ -1423,7 +1423,6 @@ void vtkCellTreeLocator::ShallowCopy(vtkAbstractCellLocator* locator)
   // we only copy what's actually used by vtkCellTreeLocator
 
   // vtkLocator parameters
-  this->SetDataSet(cellLocator->GetDataSet());
   this->SetUseExistingSearchStructure(cellLocator->GetUseExistingSearchStructure());
 
   // vtkAbstractCellLocator parameters
@@ -1440,7 +1439,7 @@ void vtkCellTreeLocator::ShallowCopy(vtkAbstractCellLocator* locator)
     auto cellLocatorTree = static_cast<CellTree<vtkIdType>*>(cellLocator->Tree);
     auto tree = new CellTree<vtkIdType>(this);
     tree->Locator = this;
-    tree->DataSet = cellLocatorTree->DataSet;
+    tree->DataSet = this->DataSet;
     tree->Leaves = cellLocatorTree->Leaves;
     tree->Nodes = cellLocatorTree->Nodes;
     std::copy_n(cellLocatorTree->DataBBox, 6, tree->DataBBox);
@@ -1451,12 +1450,13 @@ void vtkCellTreeLocator::ShallowCopy(vtkAbstractCellLocator* locator)
     auto cellLocatorTree = static_cast<CellTree<int>*>(cellLocator->Tree);
     auto tree = new CellTree<int>(this);
     tree->Locator = this;
-    tree->DataSet = cellLocatorTree->DataSet;
+    tree->DataSet = this->DataSet;
     tree->Leaves = cellLocatorTree->Leaves;
     tree->Nodes = cellLocatorTree->Nodes;
     std::copy_n(cellLocatorTree->DataBBox, 6, tree->DataBBox);
     this->Tree = tree;
   }
+  this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------

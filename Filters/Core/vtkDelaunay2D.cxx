@@ -506,6 +506,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->Mesh->SetPoints(points);
   this->Mesh->SetPolys(triangles);
+  this->Mesh->EditableOn();
   this->Mesh->BuildLinks(); // build cell structure
 
   // For each point; find triangle containing point. Then evaluate three

@@ -1421,7 +1421,6 @@ void vtkCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
   // we only copy what's actually used by vtkCellLocator
 
   // vtkLocator parameters
-  this->SetDataSet(cellLocator->GetDataSet());
   this->SetUseExistingSearchStructure(cellLocator->GetUseExistingSearchStructure());
   this->SetAutomatic(cellLocator->GetAutomatic());
   this->SetMaxLevel(cellLocator->GetMaxLevel());
@@ -1440,6 +1439,7 @@ void vtkCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
   this->NumberOfDivisions = cellLocator->NumberOfDivisions;
   this->TreeSharedPtr = cellLocator->TreeSharedPtr; // This is important
   this->Tree = this->TreeSharedPtr.get() ? this->TreeSharedPtr->data() : nullptr;
+  this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------

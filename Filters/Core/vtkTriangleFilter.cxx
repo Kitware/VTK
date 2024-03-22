@@ -3,6 +3,7 @@
 #include "vtkTriangleFilter.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -19,195 +20,296 @@ vtkStandardNewMacro(vtkTriangleFilter);
 int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // get the info objects
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
   // get the input and output
-  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::GetData(inputVector[0]);
+  vtkPolyData* output = vtkPolyData::GetData(outputVector);
 
-  vtkIdType numCells = input->GetNumberOfCells();
-  vtkIdType cellNum = 0;
-  vtkIdType numPts, newId;
-  vtkIdType npts = 0;
-  const vtkIdType* pts = nullptr;
-  int i, j;
-  vtkCellData* inCD = input->GetCellData();
-  vtkCellData* outCD = output->GetCellData();
-  vtkIdType updateInterval;
-  vtkCellArray* cells;
+  const vtkIdType numInVerts = input->GetNumberOfVerts();
+  const vtkIdType numInLines = input->GetNumberOfLines();
+  const vtkIdType numInPolys = input->GetNumberOfPolys();
+  const vtkIdType numInStrips = input->GetNumberOfStrips();
+  const vtkIdType numInCells = numInVerts + numInLines + numInPolys + numInStrips;
+  vtkCellArray* inVerts = input->GetVerts();
+  vtkCellArray* inLines = input->GetLines();
+  vtkCellArray* inPolys = input->GetPolys();
+  vtkCellArray* inStrips = input->GetStrips();
   vtkPoints* inPts = input->GetPoints();
+  vtkCellData* inCD = input->GetCellData();
+
+  vtkCellData* outCD = output->GetCellData();
+
+  const vtkIdType* pts;
+  vtkIdType npts;
+  vtkIdType inCellId = 0;
+  vtkIdType outCellId;
 
   bool abort = false;
-  updateInterval = numCells / 100 + 1;
-  outCD->CopyAllocate(inCD, numCells);
+  const vtkIdType updateInterval = numInCells / 100 + 1;
+  outCD->CopyAllocate(inCD, numInCells);
 
   // Do each of the verts, lines, polys, and strips separately
   // verts
-  if (input->GetVerts()->GetNumberOfCells() > 0)
+  if (numInVerts > 0)
   {
-    cells = input->GetVerts();
     if (this->PassVerts)
     {
-      newId = output->GetNumberOfCells();
-      vtkNew<vtkCellArray> newCells;
-      newCells->AllocateCopy(cells);
-      for (cells->InitTraversal(); cells->GetNextCell(npts, pts) && !abort; cellNum++)
+      if (this->PreservePolys)
       {
-        if (!(cellNum % updateInterval)) // manage progress reports / early abort
+        output->SetVerts(inVerts);
+      }
+      else if (inVerts->GetMaxCellSize() == 1)
+      {
+        output->SetVerts(inVerts);
+        if (numInVerts == numInCells)
         {
-          this->UpdateProgress((float)cellNum / numCells);
-          abort = this->CheckAbort();
-        }
-        if (npts > 1)
-        {
-          for (i = 0; i < npts; i++)
-          {
-            newCells->InsertNextCell(1, pts + i);
-            outCD->CopyData(inCD, cellNum, newId++);
-          }
+          outCD->PassData(inCD);
         }
         else
         {
-          newCells->InsertNextCell(1, pts);
-          outCD->CopyData(inCD, cellNum, newId++);
+          outCD->CopyData(inCD, output->GetNumberOfCells(), numInVerts, inCellId);
         }
+        inCellId += numInVerts;
       }
-      output->SetVerts(newCells);
+      else
+      {
+        outCellId = output->GetNumberOfCells();
+        vtkNew<vtkCellArray> newCells;
+        newCells->AllocateCopy(inVerts);
+
+        auto iter = vtk::TakeSmartPointer(inVerts->NewIterator());
+        for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal() && !abort;
+             iter->GoToNextCell(), ++inCellId)
+        {
+          if (!(inCellId % updateInterval)) // manage progress reports / early abort
+          {
+            this->UpdateProgress((float)inCellId / numInCells);
+            abort = this->CheckAbort();
+          }
+          iter->GetCurrentCell(npts, pts);
+          if (npts > 1)
+          {
+            for (vtkIdType i = 0; i < npts; ++i)
+            {
+              newCells->InsertNextCell(1, pts + i);
+              outCD->CopyData(inCD, inCellId, outCellId++);
+            }
+          }
+          else
+          {
+            newCells->InsertNextCell(1, pts);
+            outCD->CopyData(inCD, inCellId, outCellId++);
+          }
+        }
+        output->SetVerts(newCells);
+      }
     }
     else
     {
-      cellNum += cells->GetNumberOfCells(); // skip over verts
+      inCellId += numInVerts; // skip over verts
     }
   }
 
   // lines
-  if (!abort && input->GetLines()->GetNumberOfCells() > 0)
+  if (!abort && numInLines > 0)
   {
-    cells = input->GetLines();
     if (this->PassLines)
     {
-      newId = output->GetNumberOfCells();
-      vtkNew<vtkCellArray> newCells;
-      newCells->AllocateCopy(cells);
-      for (cells->InitTraversal(); cells->GetNextCell(npts, pts) && !abort; cellNum++)
+      if (this->PreservePolys)
       {
-        if (!(cellNum % updateInterval)) // manage progress reports / early abort
+        output->SetLines(inLines);
+      }
+      else if (inLines->GetMaxCellSize() == 2)
+      {
+        output->SetLines(inLines);
+        if (numInLines == numInCells)
         {
-          this->UpdateProgress((float)cellNum / numCells);
-          abort = this->CheckAbort();
-        }
-        if (npts > 2)
-        {
-          for (i = 0; i < (npts - 1); i++)
-          {
-            newCells->InsertNextCell(2, pts + i);
-            outCD->CopyData(inCD, cellNum, newId++);
-          }
+          outCD->PassData(inCD);
         }
         else
         {
-          newCells->InsertNextCell(2, pts);
-          outCD->CopyData(inCD, cellNum, newId++);
+          outCD->CopyData(inCD, output->GetNumberOfCells(), numInLines, inCellId);
         }
-      } // for all lines
-      output->SetLines(newCells);
+        inCellId += numInLines;
+      }
+      else
+      {
+        outCellId = output->GetNumberOfCells();
+        vtkNew<vtkCellArray> newCells;
+        newCells->AllocateCopy(inLines);
+
+        auto iter = vtk::TakeSmartPointer(inLines->NewIterator());
+        for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal() && !abort;
+             iter->GoToNextCell(), ++inCellId)
+        {
+          if (!(inCellId % updateInterval)) // manage progress reports / early abort
+          {
+            this->UpdateProgress((float)inCellId / numInCells);
+            abort = this->CheckAbort();
+          }
+          iter->GetCurrentCell(npts, pts);
+          if (npts > 2)
+          {
+            for (vtkIdType i = 0; i < (npts - 1); i++)
+            {
+              newCells->InsertNextCell(2, pts + i);
+              outCD->CopyData(inCD, inCellId, outCellId++);
+            }
+          }
+          else
+          {
+            newCells->InsertNextCell(2, pts);
+            outCD->CopyData(inCD, inCellId, outCellId++);
+          }
+        } // for all lines
+        output->SetLines(newCells);
+      }
     }
     else
     {
-      cellNum += cells->GetNumberOfCells(); // skip over lines
+      inCellId += numInLines; // skip over lines
     }
   }
 
   // Output from polygons and triangle strips cell arrays are placed
   // in newPolys.
   vtkSmartPointer<vtkCellArray> newPolys;
-  if (!abort && input->GetPolys()->GetNumberOfCells() > 0)
+  if (!abort && numInPolys > 0)
   {
-    cells = input->GetPolys();
-    newId = output->GetNumberOfCells();
     newPolys = vtkSmartPointer<vtkCellArray>::New();
-    newPolys->AllocateCopy(cells);
-    output->SetPolys(newPolys);
-    vtkNew<vtkIdList> ptIds;
-    ptIds->Allocate(VTK_CELL_SIZE);
-    int numSimplices;
-    vtkIdType triPts[3];
-    // It may be necessary to specify a custom tessellation
-    // tolerance.
-    vtkNew<vtkPolygon> poly;
-    if (this->Tolerance > 0.0)
+    if (this->PreservePolys)
     {
-      poly->SetTolerance(this->Tolerance); // Tighten tessellation tolerance
+      if (numInStrips == 0)
+      {
+        newPolys->ShallowCopy(inPolys);
+      }
+      else
+      {
+        newPolys->DeepCopy(inPolys);
+      }
+      output->SetPolys(newPolys);
     }
-
-    for (cells->InitTraversal(); cells->GetNextCell(npts, pts) && !abort; cellNum++)
+    else if (inPolys->GetMaxCellSize() == 3)
     {
-      if (!(cellNum % updateInterval)) // manage progress reports / early abort
+      if (numInStrips == 0)
       {
-        this->UpdateProgress((float)cellNum / numCells);
-        abort = this->CheckAbort();
+        newPolys->ShallowCopy(inPolys);
       }
-      if (npts == 0)
+      else
       {
-        continue;
+        newPolys->DeepCopy(inPolys);
       }
-      if (npts == 3)
+      output->SetPolys(newPolys);
+      output->SetLines(inLines);
+      if (numInPolys == numInCells)
       {
-        newPolys->InsertNextCell(3, pts);
-        outCD->CopyData(inCD, cellNum, newId++);
+        outCD->PassData(inCD);
       }
-      else // triangulate polygon
+      else
       {
-        // initialize polygon
-        poly->PointIds->SetNumberOfIds(npts);
-        poly->Points->SetNumberOfPoints(npts);
-        for (i = 0; i < npts; i++)
+        outCD->CopyData(inCD, output->GetNumberOfCells(), numInPolys, inCellId);
+      }
+      inCellId += numInPolys;
+    }
+    else
+    {
+      outCellId = output->GetNumberOfCells();
+      newPolys->AllocateCopy(inPolys);
+
+      vtkNew<vtkIdList> ptIds;
+      ptIds->Allocate(VTK_CELL_SIZE);
+      vtkIdType triPts[3];
+      // It may be necessary to specify a custom tessellation
+      // tolerance.
+      vtkNew<vtkPolygon> poly;
+      if (this->Tolerance > 0.0)
+      {
+        poly->SetTolerance(this->Tolerance); // Tighten tessellation tolerance
+      }
+
+      auto iter = vtk::TakeSmartPointer(inPolys->NewIterator());
+      for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal() && !abort;
+           iter->GoToNextCell(), ++inCellId)
+      {
+        if (!(inCellId % updateInterval)) // manage progress reports / early abort
         {
-          poly->PointIds->SetId(i, pts[i]);
-          poly->Points->SetPoint(i, inPts->GetPoint(pts[i]));
+          this->UpdateProgress((float)inCellId / numInCells);
+          abort = this->CheckAbort();
         }
-        poly->TriangulateLocalIds(0, ptIds);
-        numPts = ptIds->GetNumberOfIds();
-        numSimplices = numPts / 3;
-        for (i = 0; i < numSimplices; i++)
+        iter->GetCurrentCell(npts, pts);
+        if (npts == 3)
         {
-          for (j = 0; j < 3; j++)
+          newPolys->InsertNextCell(3, pts);
+          outCD->CopyData(inCD, inCellId, outCellId++);
+        }
+        else // triangulate polygon
+        {
+          // initialize polygon
+          poly->PointIds->SetNumberOfIds(npts);
+          poly->Points->SetNumberOfPoints(npts);
+          for (vtkIdType i = 0; i < npts; i++)
           {
-            triPts[j] = poly->PointIds->GetId(ptIds->GetId(3 * i + j));
+            poly->PointIds->SetId(i, pts[i]);
+            poly->Points->SetPoint(i, inPts->GetPoint(pts[i]));
           }
-          newPolys->InsertNextCell(3, triPts);
-          outCD->CopyData(inCD, cellNum, newId++);
-        } // for each simplex
-      }   // triangulate polygon
+          poly->TriangulateLocalIds(0, ptIds);
+          const int numSimplices = ptIds->GetNumberOfIds() / 3;
+          for (vtkIdType i = 0; i < numSimplices; i++)
+          {
+            for (vtkIdType j = 0; j < 3; j++)
+            {
+              triPts[j] = poly->PointIds->GetId(ptIds->GetId(3 * i + j));
+            }
+            newPolys->InsertNextCell(3, triPts);
+            outCD->CopyData(inCD, inCellId, outCellId++);
+          } // for each simplex
+        }   // triangulate polygon
+      }
+      output->SetPolys(newPolys);
+    }
+  }
+
+  // if PreservePolys is on, then we need to copy all the cell data till now
+  const vtkIdType numInCellsHere = numInVerts + numInLines + numInPolys;
+  if (this->PreservePolys && numInCellsHere > 0)
+  {
+    if (numInStrips == 0)
+    {
+      outCD->PassData(inCD);
+    }
+    else
+    {
+      outCD->CopyData(inCD, 0, numInCellsHere, 0);
+      inCellId += numInCellsHere;
     }
   }
 
   // strips
-  if (!abort && input->GetStrips()->GetNumberOfCells() > 0)
+  if (!abort && numInStrips > 0)
   {
-    cells = input->GetStrips();
-    newId = output->GetNumberOfCells();
+    outCellId = output->GetNumberOfCells();
     if (newPolys == nullptr)
     {
       newPolys = vtkSmartPointer<vtkCellArray>::New();
-      newPolys->AllocateCopy(cells);
-      output->SetPolys(newPolys);
+      newPolys->AllocateCopy(inStrips);
     }
-    for (cells->InitTraversal(); cells->GetNextCell(npts, pts) && !abort; cellNum++)
+
+    auto iter = vtk::TakeSmartPointer(inStrips->NewIterator());
+    for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal() && !abort;
+         iter->GoToNextCell(), ++inCellId)
     {
-      if (!(cellNum % updateInterval)) // manage progress reports / early abort
+      if (!(inCellId % updateInterval)) // manage progress reports / early abort
       {
-        this->UpdateProgress((float)cellNum / numCells);
+        this->UpdateProgress((float)inCellId / numInCells);
         abort = this->CheckAbort();
       }
+      iter->GetCurrentCell(npts, pts);
       vtkTriangleStrip::DecomposeStrip(npts, pts, newPolys);
-      for (i = 0; i < (npts - 2); i++)
+      for (vtkIdType i = 0; i < (npts - 2); i++)
       {
-        outCD->CopyData(inCD, cellNum, newId++);
+        outCD->CopyData(inCD, inCellId, outCellId++);
       }
     } // for all strips
+    output->SetPolys(newPolys);
   }
 
   // Update output

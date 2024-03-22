@@ -341,12 +341,12 @@ void vtkLinearTransformCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
     vtkErrorMacro("Cannot cast " << locator->GetClassName() << " to " << this->GetClassName());
   }
   // we only copy what's actually used by vtkLinearTransformCellLocator
-  this->SetDataSet(cellLocator->GetDataSet());
   this->SetCellLocator(cellLocator->GetCellLocator());
   this->Transform = cellLocator->Transform;
   this->InverseTransform = cellLocator->InverseTransform;
   this->IsLinearTransformation = cellLocator->IsLinearTransformation;
   this->UseAllPoints = cellLocator->UseAllPoints;
+  this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------

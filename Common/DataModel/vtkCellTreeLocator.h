@@ -159,6 +159,8 @@ public:
 
   /**
    * Shallow copy of a vtkCellTreeLocator.
+   *
+   * Before you shallow copy, make sure to call SetDataSet()
    */
   void ShallowCopy(vtkAbstractCellLocator* locator) override;
 

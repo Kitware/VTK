@@ -1529,6 +1529,17 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
     this->DistinctCellTypesUpdateMTime = 0;
     this->Faces = grid->Faces;
     this->FaceLocations = grid->FaceLocations;
+
+    if (grid->Links)
+    {
+      this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(grid->Links->NewInstance());
+      this->Links->SetDataSet(this);
+      this->Links->ShallowCopy(grid->Links);
+    }
+    else
+    {
+      this->Links = nullptr;
+    }
   }
   else if (vtkUnstructuredGridBase* ugb = vtkUnstructuredGridBase::SafeDownCast(dataObject))
   {
@@ -1616,6 +1627,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
     if (grid->Links)
     {
       this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(grid->Links->NewInstance());
+      this->Links->SetDataSet(this);
       this->Links->DeepCopy(grid->Links);
     }
     else

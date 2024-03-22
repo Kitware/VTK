@@ -545,6 +545,7 @@ void vtkCCSMakePolysFromLines(vtkPolyData* data, vtkIdType firstLine, vtkIdType 
   vtkCCSBitArray usedLines;
 
   // Require cell links to get lines from pointIds
+  data->EditableOn();
   data->BuildLinks(data->GetPoints()->GetNumberOfPoints());
 
   size_t numNewPolys = 0;

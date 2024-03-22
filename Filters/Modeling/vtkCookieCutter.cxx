@@ -1283,6 +1283,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
   vtkNew<vtkPolyData> pData;
   pData->SetPoints(pDataPts);
   pData->SetLines(pDataLines);
+  pData->EditableOn();
 
   SortedPointsType* loops[2];
   loops[0] = &polyPoints;

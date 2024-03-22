@@ -4,8 +4,8 @@
 
 #include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
-#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
+#include "vtkCellLinks.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -17,6 +17,7 @@
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
+#include "vtkStaticCellLinks.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <stdexcept>
@@ -829,16 +830,23 @@ void vtkPolyData::BuildLinks(int initialSize)
   }
   if (!this->Links)
   {
-    this->Links = vtkSmartPointer<vtkCellLinks>::New();
-    if (initialSize > 0)
+    if (!this->Editable)
     {
-      this->Links->Allocate(initialSize);
+      this->Links = vtkSmartPointer<vtkStaticCellLinks>::New();
+    }
+    else
+    {
+      this->Links = vtkSmartPointer<vtkCellLinks>::New();
+      if (initialSize > 0)
+      {
+        static_cast<vtkCellLinks*>(this->Links.Get())->Allocate(initialSize);
+      }
     }
     this->Links->SetDataSet(this);
   }
-  else if (initialSize > 0)
+  else if (initialSize > 0 && this->Links->IsA("vtkCellLinks"))
   {
-    this->Links->Allocate(initialSize);
+    static_cast<vtkCellLinks*>(this->Links.Get())->Allocate(initialSize);
     this->Links->SetDataSet(this);
   }
   else if (this->Points->GetMTime() > this->Links->GetMTime())
@@ -846,23 +854,6 @@ void vtkPolyData::BuildLinks(int initialSize)
     this->Links->SetDataSet(this);
   }
   this->Links->BuildLinks();
-}
-
-//------------------------------------------------------------------------------
-void vtkPolyData::SetLinks(vtkAbstractCellLinks* links)
-{
-  if (this->Links != links)
-  {
-    if (auto cellLinks = vtkCellLinks::SafeDownCast(links))
-    {
-      this->Links = cellLinks;
-      this->Modified();
-    }
-    else
-    {
-      vtkErrorMacro("Only vtkCellLinks are currently supported.");
-    }
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -889,22 +880,47 @@ void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 //------------------------------------------------------------------------------
 void vtkPolyData::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
-  vtkIdType* cells;
-  vtkIdType numCells;
-  vtkIdType i;
-
   if (!this->Links)
   {
     this->BuildLinks();
   }
   cellIds->Reset();
 
-  numCells = this->Links->GetNcells(ptId);
-  cells = this->Links->GetCells(ptId);
-
-  for (i = 0; i < numCells; i++)
+  vtkIdType numCells, *cells;
+  if (!this->Editable)
   {
-    cellIds->InsertId(i, cells[i]);
+    vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
+    numCells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
+  }
+  else
+  {
+    vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
+    numCells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
+  }
+
+  cellIds->SetNumberOfIds(numCells);
+  for (auto i = 0; i < numCells; i++)
+  {
+    cellIds->SetId(i, cells[i]);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPolyData::GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType*& cells)
+{
+  if (!this->Editable)
+  {
+    auto links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
+    ncells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
+  }
+  else
+  {
+    auto links = static_cast<vtkCellLinks*>(this->Links.Get());
+    ncells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
   }
 }
 
@@ -1061,7 +1077,7 @@ void vtkPolyData::ReverseCell(vtkIdType cellId)
 // use this method, make sure points are available and BuildLinks() has been invoked.)
 vtkIdType vtkPolyData::InsertNextLinkedPoint(int numLinks)
 {
-  return this->Links->InsertNextPoint(numLinks);
+  return static_cast<vtkCellLinks*>(this->Links.Get())->InsertNextPoint(numLinks);
 }
 
 //------------------------------------------------------------------------------
@@ -1071,7 +1087,7 @@ vtkIdType vtkPolyData::InsertNextLinkedPoint(int numLinks)
 // and BuildLinks() has been invoked.)
 vtkIdType vtkPolyData::InsertNextLinkedPoint(double x[3], int numLinks)
 {
-  this->Links->InsertNextPoint(numLinks);
+  static_cast<vtkCellLinks*>(this->Links.Get())->InsertNextPoint(numLinks);
   return this->Points->InsertNextPoint(x);
 }
 
@@ -1085,10 +1101,11 @@ vtkIdType vtkPolyData::InsertNextLinkedCell(int type, int npts, const vtkIdType 
 
   id = this->InsertNextCell(type, npts, pts);
 
+  vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
   for (i = 0; i < npts; i++)
   {
-    this->Links->ResizeCellList(pts[i], 1);
-    this->Links->AddCellReference(id, pts[i]);
+    links->ResizeCellList(pts[i], 1);
+    links->AddCellReference(id, pts[i]);
   }
 
   return id;
@@ -1101,7 +1118,7 @@ vtkIdType vtkPolyData::InsertNextLinkedCell(int type, int npts, const vtkIdType 
 // operator ResizeCellList() to do this if necessary.
 void vtkPolyData::RemoveReferenceToCell(vtkIdType ptId, vtkIdType cellId)
 {
-  this->Links->RemoveCellReference(cellId, ptId);
+  static_cast<vtkCellLinks*>(this->Links.Get())->RemoveCellReference(cellId, ptId);
 }
 
 //------------------------------------------------------------------------------
@@ -1111,7 +1128,7 @@ void vtkPolyData::RemoveReferenceToCell(vtkIdType ptId, vtkIdType cellId)
 // operator ResizeCellList() to do this if necessary.
 void vtkPolyData::AddReferenceToCell(vtkIdType ptId, vtkIdType cellId)
 {
-  this->Links->AddCellReference(cellId, ptId);
+  static_cast<vtkCellLinks*>(this->Links.Get())->AddCellReference(cellId, ptId);
 }
 
 //------------------------------------------------------------------------------
@@ -1147,102 +1164,137 @@ void vtkPolyData::ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[])
 void vtkPolyData::ReplaceLinkedCell(vtkIdType cellId, int npts, const vtkIdType pts[])
 {
   this->ReplaceCell(cellId, npts, pts);
+  auto links = static_cast<vtkCellLinks*>(this->Links.Get());
   for (int i = 0; i < npts; i++)
   {
-    this->Links->InsertNextCellReference(pts[i], cellId);
+    links->InsertNextCellReference(pts[i], cellId);
   }
 }
 
+namespace
+{
+// Identify the neighbors to the specified cell, where the neighbors
+// use all the points in the points list (pts).
+template <class TLinks>
+inline void GetCellEdgeNeighborsImpl(
+  TLinks* links, vtkIdType cellId, vtkIdType p1, vtkIdType p2, vtkIdList* cellIds)
+{
+  const vtkIdType nCells1 = links->GetNcells(p1);
+  const vtkIdType* cells1 = links->GetCells(p1);
+  const vtkIdType nCells2 = links->GetNcells(p2);
+  const vtkIdType* cells2 = links->GetCells(p2);
+
+  for (vtkIdType i = 0; i < nCells1; ++i)
+  {
+    if (cells1[i] != cellId)
+    {
+      for (vtkIdType j = 0; j < nCells2; ++j)
+      {
+        if (cells1[i] == cells2[j])
+        {
+          // For degenerate cells, the same cells are linked several times to the degenerate
+          // point. So InsertUniqueId is used to prevent duplicates. This is not impacting
+          // performances compared to InsertNextId, because most of the time, cellIds is empty.
+          cellIds->InsertUniqueId(cells1[i]);
+          break;
+        }
+      }
+    }
+  }
+}
+} // end anonymous namespace
+
 //------------------------------------------------------------------------------
-// Get the neighbors at an edge. More efficient than the general
-// GetCellNeighbors(). Assumes links have been built (with BuildLinks()),
+// Get the neighbors at an edge. More efficient than the general GetCellNeighbors()
 // and looks specifically for edge neighbors.
 void vtkPolyData::GetCellEdgeNeighbors(
   vtkIdType cellId, vtkIdType p1, vtkIdType p2, vtkIdList* cellIds)
 {
   cellIds->Reset();
-
-  const vtkCellLinks::Link& link1(this->Links->GetLink(p1));
-  const vtkCellLinks::Link& link2(this->Links->GetLink(p2));
-
-  const vtkIdType* cells1 = link1.cells;
-  const vtkIdType* cells1End = cells1 + link1.ncells;
-
-  const vtkIdType* cells2 = link2.cells;
-  const vtkIdType* cells2End = cells2 + link2.ncells;
-
-  while (cells1 != cells1End)
-  {
-    if (*cells1 != cellId)
-    {
-      const vtkIdType* cells2Cur(cells2);
-      while (cells2Cur != cells2End)
-      {
-        if (*cells1 == *cells2Cur)
-        {
-          // For degenerate cells, the same cells are linked several times to the degenerate
-          // point. So InsertUniqueId is used to prevent duplicates. This is not impacting
-          // performances compared to InsertNextId, because most of the time, cellIds is empty.
-          cellIds->InsertUniqueId(*cells1);
-          break;
-        }
-        ++cells2Cur;
-      }
-    }
-    ++cells1;
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
-{
-  vtkIdType i, j, numPts, cellNum;
-  int allFound, oneFound;
-
   if (!this->Links)
   {
     this->BuildLinks();
   }
 
-  cellIds->Reset();
+  if (!this->Editable)
+  {
+    vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
+    GetCellEdgeNeighborsImpl<vtkStaticCellLinks>(links, cellId, p1, p2, cellIds);
+  }
+  else
+  {
+    vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
+    GetCellEdgeNeighborsImpl<vtkCellLinks>(links, cellId, p1, p2, cellIds);
+  }
+}
 
-  // load list with candidate cells, remove current cell
-  vtkIdType ptId = ptIds->GetId(0);
-  int numPrime = this->Links->GetNcells(ptId);
-  vtkIdType* primeCells = this->Links->GetCells(ptId);
-  numPts = ptIds->GetNumberOfIds();
+namespace
+{
+// Identify the neighbors to the specified cell, where the neighbors
+// use all the points in the points list (pts).
+template <class TLinks>
+inline void GetCellNeighborsImpl(
+  TLinks* links, vtkIdType cellId, vtkIdType numPts, const vtkIdType* pts, vtkIdList* cellIds)
+{
+  const vtkIdType nCells0 = links->GetNcells(pts[0]);
+  const vtkIdType* cells0 = links->GetCells(pts[0]);
 
   // for each potential cell
-  for (cellNum = 0; cellNum < numPrime; cellNum++)
+  for (vtkIdType j = 0; j < nCells0; ++j)
   {
     // ignore the original cell
-    if (primeCells[cellNum] != cellId)
+    if (cells0[j] != cellId)
     {
       // are all the remaining points in the cell ?
-      for (allFound = 1, i = 1; i < numPts && allFound; i++)
+      bool match = true;
+      for (vtkIdType i = 1; i < numPts && match; i++)
       {
-        ptId = ptIds->GetId(i);
-        int numCurrent = this->Links->GetNcells(ptId);
-        vtkIdType* currentCells = this->Links->GetCells(ptId);
-        oneFound = 0;
-        for (j = 0; j < numCurrent; j++)
+        const vtkIdType nCellsI = links->GetNcells(pts[i]);
+        const vtkIdType* cellsI = links->GetCells(pts[i]);
+
+        match = false;
+        for (vtkIdType k = 0; k < nCellsI; k++)
         {
-          if (primeCells[cellNum] == currentCells[j])
+          if (cells0[j] == cellsI[k])
           {
-            oneFound = 1;
+            match = true;
             break;
           }
         }
-        if (!oneFound)
-        {
-          allFound = 0;
-        }
       }
-      if (allFound)
+      if (match)
       {
-        cellIds->InsertNextId(primeCells[cellNum]);
+        // For degenerate cells, the same cells are linked several times to the degenerate
+        // point. So InsertUniqueId is used to prevent duplicates. This is not impacting
+        // performances compared to InsertNextId, because most of the time, cellIds is empty.
+        cellIds->InsertUniqueId(cells0[j]);
       }
     }
+  }
+}
+} // end anonymous namespace
+
+//------------------------------------------------------------------------------
+void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
+{
+  cellIds->Reset();
+  if (!this->Links)
+  {
+    this->BuildLinks();
+  }
+
+  // Get the cell links based on the current state.
+  if (!this->Editable)
+  {
+    vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
+    GetCellNeighborsImpl<vtkStaticCellLinks>(
+      links, cellId, ptIds->GetNumberOfIds(), ptIds->GetPointer(0), cellIds);
+  }
+  else
+  {
+    vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
+    GetCellNeighborsImpl<vtkCellLinks>(
+      links, cellId, ptIds->GetNumberOfIds(), ptIds->GetPointer(0), cellIds);
   }
 }
 
@@ -1328,6 +1380,36 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
 }
 
 //------------------------------------------------------------------------------
+int vtkPolyData::IsTriangle(int v1, int v2, int v3)
+{
+  vtkIdType n1;
+  int i, j, tVerts[3];
+  vtkIdType* cells;
+  const vtkIdType* tVerts2;
+  vtkIdType n2;
+
+  tVerts[0] = v1;
+  tVerts[1] = v2;
+  tVerts[2] = v3;
+
+  for (i = 0; i < 3; i++)
+  {
+    this->GetPointCells(tVerts[i], n1, cells);
+    for (j = 0; j < n1; j++)
+    {
+      this->GetCellPoints(cells[j], n2, tVerts2);
+      if ((tVerts[0] == tVerts2[0] || tVerts[0] == tVerts2[1] || tVerts[0] == tVerts2[2]) &&
+        (tVerts[1] == tVerts2[0] || tVerts[1] == tVerts2[1] || tVerts[1] == tVerts2[2]) &&
+        (tVerts[2] == tVerts2[0] || tVerts[2] == tVerts2[1] || tVerts[2] == tVerts2[2]))
+      {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 void vtkPolyData::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
@@ -1386,6 +1468,17 @@ void vtkPolyData::ShallowCopy(vtkDataObject* dataObject)
     // I do not know if this is correct but.
     // Me either! But it's been 20 years so I think it'll be ok.
     this->Cells = polyData->Cells;
+
+    if (polyData->Links)
+    {
+      this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(polyData->Links->NewInstance());
+      this->Links->SetDataSet(this);
+      this->Links->ShallowCopy(polyData->Links);
+    }
+    else
+    {
+      this->Links = nullptr;
+    }
   }
 }
 
@@ -1449,7 +1542,8 @@ void vtkPolyData::DeepCopy(vtkDataObject* dataObject)
     }
     if (polyData->Links)
     {
-      this->Links = vtkSmartPointer<vtkCellLinks>::Take(polyData->Links->NewInstance());
+      this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(polyData->Links->NewInstance());
+      this->Links->SetDataSet(this);
       this->Links->DeepCopy(polyData->Links);
     }
     else
