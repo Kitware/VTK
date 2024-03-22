@@ -3,13 +3,13 @@
 #include "vtkOverlappingAMRLevelIdScalars.h"
 
 #include "vtkCellData.h"
+#include "vtkConstantArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
-#include "vtkUnsignedCharArray.h"
 
 #include <cassert>
 
@@ -82,15 +82,14 @@ vtkUniformGrid* vtkOverlappingAMRLevelIdScalars::ColorLevel(vtkUniformGrid* inpu
   output->ShallowCopy(input);
   vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
   vtkIdType numCells = dsOutput->GetNumberOfCells();
-  vtkUnsignedCharArray* cArray = vtkUnsignedCharArray::New();
-  cArray->SetNumberOfTuples(numCells);
-  for (vtkIdType cellIdx = 0; cellIdx < numCells; cellIdx++)
-  {
-    cArray->SetValue(cellIdx, group);
-  }
-  cArray->SetName("BlockIdScalars");
-  dsOutput->GetCellData()->AddArray(cArray);
-  cArray->Delete();
+
+  vtkNew<vtkConstantArray<unsigned char>> levelIdArray;
+  levelIdArray->ConstructBackend(group);
+  levelIdArray->SetNumberOfComponents(1);
+  levelIdArray->SetNumberOfTuples(numCells);
+  levelIdArray->SetName("LevelIdScalars");
+  dsOutput->GetCellData()->AddArray(levelIdArray);
+
   return output;
 }
 

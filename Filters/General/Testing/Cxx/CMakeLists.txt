@@ -43,6 +43,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestMergeCells.cxx,NO_VALID
   TestMergeTimeFilter.cxx,NO_VALID
   TestMergeVectorComponents.cxx,NO_VALID
+  TestOverlappingAMRLevelIdScalars.cxx,NO_VALID
   TestPassArrays.cxx,NO_VALID
   TestPassSelectedArrays.cxx,NO_VALID
   TestPassThrough.cxx,NO_VALID
