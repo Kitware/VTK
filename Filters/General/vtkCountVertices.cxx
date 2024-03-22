@@ -7,6 +7,7 @@
 #include "vtkCellIterator.h"
 #include "vtkDataSet.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImplicitArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
@@ -14,6 +15,33 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCountVertices);
+
+namespace
+{
+/**
+ * Implicit array back-end returning dynamically the number of points of a given cell based on the
+ * input dataset. This allows to create a number of points array without taking up any additional
+ * memory.
+ */
+template <typename ValueType>
+struct vtkNumberOfPointsBackend final
+{
+  vtkNumberOfPointsBackend(vtkDataSet* input)
+    : Input(input)
+  {
+  }
+
+  /**
+   * Retrieve the number of points of the cell at `index`
+   */
+  ValueType operator()(const int index) const
+  {
+    return static_cast<ValueType>(this->Input->GetCell(index)->GetNumberOfPoints());
+  }
+
+  vtkDataSet* Input;
+};
+}
 
 //------------------------------------------------------------------------------
 void vtkCountVertices::PrintSelf(std::ostream& os, vtkIndent indent)
@@ -54,21 +82,14 @@ int vtkCountVertices::RequestData(
 
   output->ShallowCopy(input);
 
-  vtkNew<vtkIdTypeArray> vertCount;
-  vertCount->Allocate(input->GetNumberOfCells());
-  vertCount->SetName(this->OutputArrayName);
-  output->GetCellData()->AddArray(vertCount);
-
-  vtkCellIterator* it = input->NewCellIterator();
-  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
-  {
-    if (this->CheckAbort())
-    {
-      break;
-    }
-    vertCount->InsertNextValue(it->GetNumberOfPoints());
-  }
-  it->Delete();
+  // Create an implicit array with the back-end defined above that dynamically retrieves the number
+  // of points in a cell.
+  vtkNew<vtkImplicitArray<vtkNumberOfPointsBackend<vtkIdType>>> implicitPointsArray;
+  implicitPointsArray->ConstructBackend(input);
+  implicitPointsArray->SetNumberOfComponents(1);
+  implicitPointsArray->SetNumberOfTuples(input->GetNumberOfCells());
+  implicitPointsArray->SetName(this->OutputArrayName);
+  output->GetCellData()->AddArray(implicitPointsArray);
 
   return 1;
 }

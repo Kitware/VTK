@@ -79,8 +79,7 @@ int TestCountVertices(int, char*[])
     return EXIT_FAILURE;
   }
 
-  vtkIdTypeArray* verts =
-    vtkIdTypeArray::SafeDownCast(output->GetCellData()->GetArray(filter->GetOutputArrayName()));
+  vtkDataArray* verts = output->GetCellData()->GetArray(filter->GetOutputArrayName());
   if (!verts)
   {
     std::cerr << "No output array!\n";
@@ -104,7 +103,7 @@ int TestCountVertices(int, char*[])
 #define TEST_VERTICES(idx, expected)                                                               \
   do                                                                                               \
   {                                                                                                \
-    vtkIdType numVerts = verts->GetTypedComponent(idx, 0);                                         \
+    vtkIdType numVerts = static_cast<vtkIdType>(verts->GetTuple1(idx));                            \
     if (numVerts != (expected))                                                                    \
     {                                                                                              \
       std::cerr << "Expected cell @idx=" << (idx) << " to have " << (expected)                     \
