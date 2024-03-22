@@ -27,6 +27,68 @@ import os
 
 class TestCellGridSideInfo(Testing.vtkTest):
 
+    def findChildSidesOfSide(self, cell, side, sideConn, sideDim, sideType):
+        """Given a side of a cell, return a list of sides of that side."""
+        nt = cell.GetNumberOfSideTypes()
+        childSides = []
+        ncc = 2 if len(sideConn) > 2 else len(sideConn) - 1
+        augSideConn = sideConn + sideConn
+        for ii in range(len(sideConn)):
+            childConnToFind = set(augSideConn[ii:ii+ncc])
+            # print('Looking for side', childConnToFind)
+            for childSideType in range(sideType + 1, nt):
+                childSideRange = cell.GetSideRangeForSideType(childSideType)
+                childSideShape = cell.GetSideShape(childSideRange[0])
+                childSideDim = fc.vtkDGCell.GetShapeDimension(childSideShape)
+                if childSideDim != sideDim - 1:
+                    continue
+                found = False
+                for childSide in range(childSideRange[0], childSideRange[1]):
+                    childSideConn = cell.GetSideConnectivity(childSide)
+                    if set(childSideConn) == childConnToFind:
+                        childSides += [childSide,]
+                        found = True
+                        break
+                if found:
+                    break
+        return childSides
+
+    def computeAllCellSides(self, cell):
+        """Given an instance of some subclass of vtkDGCell, return an array
+        holding the sides of each of its sides, starting with the sides of
+        the cell itself.
+
+        Note that this method can be used to compute the values for any
+        cell's SidesOfSides array.
+        """
+        nc = cell.GetNumberOfCorners()
+        cellConn = [x for x in range(nc)]
+        cellDim = cell.GetDimension()
+        nt = cell.GetNumberOfSideTypes()
+        # Generate the immediate sides of the cell itself (not sides of the cell).
+        # This is always an integer sequence from 0 to the number of sides of dimension cellDim - 1.
+        immCellSides = []
+        for sideType in range(nt):
+            sideRange = cell.GetSideRangeForSideType(sideType)
+            sideShape = cell.GetSideShape(sideRange[0])
+            sideDim = fc.vtkDGCell.GetShapeDimension(sideShape)
+            if sideDim == cellDim - 1:
+                immCellSides += [ss for ss in range(sideRange[0], sideRange[1])]
+            else:
+                break
+        # Now use permutations of each lower-dimensional-side's connectivity to
+        # identify children of its sides.
+        cellSides = [tuple(immCellSides),]
+        for sideType in range(nt):
+            sideRange = cell.GetSideRangeForSideType(sideType)
+            sideShape = cell.GetSideShape(sideRange[0])
+            sideDim = fc.vtkDGCell.GetShapeDimension(sideShape)
+            for side in range(*sideRange):
+                sideConn = cell.GetSideConnectivity(side)
+                # print('Side ', side, 'conn', sideConn)
+                cellSides += (tuple(self.findChildSidesOfSide(cell, side, sideConn, sideDim, sideType)),)
+        return cellSides
+
     def sideOffsetCheck(self, cellType, expected):
         nst = cellType.GetNumberOfSideTypes()
         print('  Side offsets for ', cellType.GetClassName())
@@ -88,8 +150,18 @@ class TestCellGridSideInfo(Testing.vtkTest):
         self.sideShapeCheck(fc.vtkDGWdg(), ['wedge', 'quadrilateral', 'triangle', 'edge', 'vertex'])
 
         # Check the module to ensure no new vtkDGCell subclasses are added without a test.
+        cellInst = (
+            fc.vtkDGEdge(), fc.vtkDGHex(), fc.vtkDGPyr(), fc.vtkDGQuad(),
+            fc.vtkDGTet(), fc.vtkDGTri(), fc.vtkDGVert(), fc.vtkDGWdg()
+        )
         cellTypes = set(['vtkDGEdge', 'vtkDGHex', 'vtkDGPyr', 'vtkDGQuad', 'vtkDGTet', 'vtkDGTri', 'vtkDGVert', 'vtkDGWdg'])
         self.classListCheck(fc, cellTypes)
+
+        for cell in cellInst:
+            allCellSides = self.computeAllCellSides(cell)
+            print(cell.GetClassName(), '\n'.join([str(x) for x in allCellSides]))
+            for parent in range(-1, len(allCellSides) - 1):
+                self.assertEqual(cell.GetSidesOfSide(parent), tuple(allCellSides[parent + 1]))
 
 if __name__ == "__main__":
     Testing.main([(TestCellGridSideInfo, 'test')])

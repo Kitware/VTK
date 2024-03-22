@@ -47,10 +47,6 @@ public:
     return CalculatorType::SafeDownCast(result);
   }
 
-protected:
-  vtkCellAttributeCalculator() = default;
-  ~vtkCellAttributeCalculator() override = default;
-
   /// Subclasses should override this to create an instance of their class with member
   /// variables set to perform calculations on the given cell type and field.
   virtual vtkSmartPointer<vtkCellAttributeCalculator> PrepareForGrid(
@@ -58,6 +54,10 @@ protected:
   {
     return nullptr;
   }
+
+protected:
+  vtkCellAttributeCalculator() = default;
+  ~vtkCellAttributeCalculator() override = default;
 
 private:
   vtkCellAttributeCalculator(const vtkCellAttributeCalculator&) = delete;

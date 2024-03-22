@@ -4,10 +4,14 @@
 
 #include "vtkCellAttribute.h"
 #include "vtkCellGrid.h"
+#include "vtkDGOperatorEntry.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkStringToken.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeInt32Array.h"
+#include "vtkVectorOperators.h"
+
+#include <token/Singletons.h>
 
 // Switch this to defined to get some debug printouts.
 #undef VTK_DBG_DGCELL
@@ -34,12 +38,37 @@ ostream& PrintSource(ostream& os, const vtkDGCell::Source& src, bool isCellSpec)
       os << " (sides: " << src.Connectivity->GetNumberOfTuples() << ")";
     }
   }
+  if (src.NodalGhostMarks)
+  {
+    os << ", NodalGhostMarks " << src.NodalGhostMarks;
+  }
   os << ", Offset: " << src.Offset << ", Blanked: " << (src.Blanked ? "T" : "F")
      << ", Shape: " << src.SourceShape << ", SideType: " << src.SideType;
   return os;
 }
 
 } // anonymous namespace
+
+vtkDGCell::Source::Source(vtkDataArray* conn, vtkIdType off, bool blank, Shape shape, int sideType)
+  : Connectivity(conn)
+  , Offset(off)
+  , Blanked(blank)
+  , SourceShape(shape)
+  , SideType(sideType)
+{
+}
+
+vtkDGCell::Source::Source(vtkDataArray* conn, vtkIdType off, bool blank, Shape shape, int sideType,
+  int selnType, vtkDataArray* nodalGhostMarks)
+  : Connectivity(conn)
+  , NodalGhostMarks(nodalGhostMarks)
+  , Offset(off)
+  , Blanked(blank)
+  , SourceShape(shape)
+  , SideType(sideType)
+  , SelectionType(selnType)
+{
+}
 
 vtkDGCell::vtkDGCell()
 {
@@ -313,10 +342,67 @@ int vtkDGCell::GetShapeDimension(Shape shape)
   return -1;
 }
 
+vtkVector3d vtkDGCell::GetParametricCenterOfSide(int sideId) const
+{
+  const auto& sideConn = this->GetSideConnectivity(sideId);
+  vtkVector3d pp(0, 0, 0);
+  double scale = 1. / sideConn.size();
+  for (const auto& corner : sideConn)
+  {
+    const auto& param = this->GetCornerParameter(corner);
+    pp = pp + scale * vtkVector3d(param[0], param[1], param[2]);
+  }
+  return pp;
+}
+
 int* vtkDGCell::GetSideRangeForSideType(int sideType)
 {
   static thread_local std::array<int, 2> result;
   auto range = this->GetSideRangeForType(sideType);
+  result[0] = range.first;
+  result[1] = range.second;
+  return result.data();
+}
+
+std::pair<int, int> vtkDGCell::GetSideRangeForDimension(int dimension) const
+{
+  if (dimension < 0 || dimension > 3)
+  {
+    return { -1, -2 };
+  }
+  else if (dimension == this->GetDimension())
+  {
+    return { -1, 0 };
+  }
+  int nn = this->GetNumberOfSideTypes();
+  int lo = std::numeric_limits<int>::max(), hi = -1;
+  for (int sideType = 0; sideType < nn; ++sideType)
+  {
+    auto rr = this->GetSideRangeForType(sideType);
+    auto shape = this->GetSideShape(rr.first);
+    if (vtkDGCell::GetShapeDimension(shape) == dimension)
+    {
+      if (lo > rr.first)
+      {
+        lo = rr.first;
+      }
+      if (hi < rr.second)
+      {
+        hi = rr.second;
+      }
+    }
+  }
+  if (hi >= 0 && lo < hi)
+  {
+    return { lo, hi };
+  }
+  return { -1, -2 };
+}
+
+int* vtkDGCell::GetSideRangeForSideDimension(int sideDimension)
+{
+  static thread_local std::array<int, 2> result;
+  auto range = this->GetSideRangeForDimension(sideDimension);
   result[0] = range.first;
   result[1] = range.second;
   return result.data();
@@ -432,6 +518,76 @@ void vtkDGCell::FillSideOffsetsAndShapes(vtkTypeInt32Array* arr) const
             << vtkDGCell::GetShapeName(static_cast<Shape>(tuple[1])).Data() << ", "
             << vtkDGCell::GetShapeCornerCount(static_cast<Shape>(tuple[1])) << ")\n";
 #endif
+}
+
+vtkCellGridResponders::TagSet vtkDGCell::GetAttributeTags(
+  vtkCellAttribute* attribute, bool inheritedTypes)
+{
+  if (!attribute)
+  {
+    vtkCellGridResponders::TagSet tags;
+    return tags;
+  }
+
+  std::unordered_set<vtkStringToken> typeMatches;
+  if (inheritedTypes)
+  {
+    auto hh = this->InheritanceHierarchy();
+    typeMatches.insert(hh.begin(), hh.end());
+  }
+  else
+  {
+    typeMatches.insert(this->GetClassName());
+  }
+
+  auto attributeInfo = attribute->GetCellTypeInfo(this->GetClassName());
+  return vtkCellGridResponders::TagSet{ { "Type"_token, typeMatches },
+    { "dof-sharing"_token, { attributeInfo.DOFSharing.GetId() } },
+    { "function-space"_token, { attributeInfo.FunctionSpace.GetId() } },
+    { "basis"_token, { attributeInfo.Basis.GetId() } },
+    { "order"_token, { static_cast<vtkStringToken::Hash>(attributeInfo.Order) } } };
+}
+
+vtkDGOperatorEntry vtkDGCell::GetOperatorEntry(
+  vtkStringToken opName, const vtkCellAttribute::CellTypeInfo& attributeInfo)
+{
+  std::vector<vtkStringToken> classNames = this->InheritanceHierarchy();
+  auto& opMap = vtkDGCell::GetOperators();
+  auto opit = opMap.find(opName);
+  if (opit == opMap.end())
+  {
+    return vtkDGOperatorEntry();
+  }
+  auto fsit = opit->second.find(attributeInfo.FunctionSpace);
+  if (fsit == opit->second.end())
+  {
+    return vtkDGOperatorEntry();
+  }
+  auto basisit = fsit->second.find(attributeInfo.Basis);
+  if (basisit == fsit->second.end())
+  {
+    return vtkDGOperatorEntry();
+  }
+  auto orderit = basisit->second.find(attributeInfo.Order);
+  if (orderit == basisit->second.end())
+  {
+    return vtkDGOperatorEntry();
+  }
+  for (const auto& className : classNames)
+  {
+    auto cellit = orderit->second.find(className);
+    if (cellit == orderit->second.end())
+    {
+      continue;
+    }
+    return cellit->second;
+  }
+  return vtkDGOperatorEntry();
+}
+
+vtkDGCell::OperatorMap& vtkDGCell::GetOperators()
+{
+  return token_NAMESPACE::singletons().get<OperatorMap>();
 }
 
 VTK_ABI_NAMESPACE_END

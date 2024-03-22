@@ -26,6 +26,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
+  VTK::pegtl
   VTK::pugixml
   VTK::vtksys
 TEST_DEPENDS

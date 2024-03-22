@@ -9,7 +9,6 @@
  *
  * @sa
  * vtkReaderAlgorithm
- * vtkCellGridImporter
  */
 
 #ifndef vtkCompositeCellGridReader_h

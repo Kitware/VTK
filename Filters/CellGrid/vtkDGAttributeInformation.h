@@ -82,12 +82,12 @@ public:
   /// When \a cellType is null, the returned string will be `None`.
   static std::string BasisShapeName(vtkDGCell* cellType);
 
+  vtkSmartPointer<vtkCellAttributeCalculator> PrepareForGrid(
+    vtkCellMetadata* cell, vtkCellAttribute* attribute) override;
+
 protected:
   vtkDGAttributeInformation() = default;
   ~vtkDGAttributeInformation() override = default;
-
-  vtkSmartPointer<vtkCellAttributeCalculator> PrepareForGrid(
-    vtkCellMetadata* cell, vtkCellAttribute* attribute) override;
 
   int BasisOrder{ 0 };
   int BasisValueSize{ 1 };

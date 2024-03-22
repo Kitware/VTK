@@ -182,26 +182,11 @@ void vtkCellGridWriter::WriteData()
     return;
   }
 
-  auto cellTypes = nlohmann::json::array();
-  for (const auto& cellType : grid->CellTypeArray())
-  {
-    auto entry = nlohmann::json::object({ { "type", cellType.Data() } });
-    cellTypes.push_back(entry);
-  }
-  // Now provide vtkCellMetadata subclasses with a chance to add to \a cellTypes.
-  vtkNew<vtkCellGridIOQuery> query;
-  query->PrepareToSerialize(cellTypes);
-  if (!grid->Query(query))
-  {
-    vtkErrorMacro("Could not prepare cell metadata.");
-    return;
-  }
-
   // Iterate all the vtkDataSetAttributes held by the grid.
   // As we go, store a map from each array in each vtkDataSetAttributes
   // to a "location" for the array so we can refer to the arrays later
   // by a persistent name instead of by pointer.
-  std::map<vtkAbstractArray*, nlohmann::json> arrayLocations;
+  std::unordered_map<vtkAbstractArray*, vtkStringToken> arrayLocations;
   auto arrayGroups = nlohmann::json::object();
   for (const auto& entry : grid->GetArrayGroups())
   {
@@ -237,7 +222,7 @@ void vtkCellGridWriter::WriteData()
       {
         continue;
       }
-      arrayLocations[arr] = nlohmann::json::array({ groupName, arr->GetName() });
+      arrayLocations[arr] = groupName;
       nlohmann::json arrayRecord{ { "name", arr->GetName() },
         { "tuples", arr->GetNumberOfTuples() }, { "components", arr->GetNumberOfComponents() },
         { "type", dataTypeToString(arr->GetDataType()) }, { "data", arr->SerializeValues() } };
@@ -293,32 +278,8 @@ void vtkCellGridWriter::WriteData()
     if (cellAtt)
     {
       nlohmann::json record{ { "name", cellAtt->GetName().Data() },
-        { "type", cellAtt->GetAttributeType().Data() }, { "space", cellAtt->GetSpace().Data() },
+        { "space", cellAtt->GetSpace().Data() },
         { "components", cellAtt->GetNumberOfComponents() } };
-      auto arraysForCellType = nlohmann::json::object();
-      for (const auto& cellTypeObj : cellTypes)
-      {
-        auto cellType = cellTypeObj.at("type").get<std::string>();
-        auto arraysByRole = nlohmann::json::object();
-        for (const auto& entry : cellAtt->GetArraysForCellType(cellType))
-        {
-          auto it = arrayLocations.find(entry.second);
-          if (it == arrayLocations.end() || !entry.second)
-          {
-            vtkErrorMacro("Array " << entry.second << " not held by any attributes object.");
-            continue;
-          }
-          arraysByRole[entry.first.Data()] = it->second;
-        }
-        if (!arraysByRole.empty())
-        {
-          arraysForCellType[cellType] = arraysByRole;
-        }
-      }
-      if (!arraysForCellType.empty())
-      {
-        record["arrays"] = arraysForCellType;
-      }
       if (cellAtt == shapeAtt)
       {
         record["shape"] = true;
@@ -327,21 +288,38 @@ void vtkCellGridWriter::WriteData()
     }
   }
 
+  auto cellTypes = nlohmann::json::array();
+#if 0
+  for (const auto& cellType : grid->CellTypeArray())
+  {
+    auto entry = nlohmann::json::object({ { "type", cellType.Data() } });
+    cellTypes.push_back(entry);
+  }
+#endif
+  // Now provide vtkCellMetadata subclasses with a chance to add to \a cellTypes.
+  vtkNew<vtkCellGridIOQuery> query;
+  query->PrepareToSerialize(cellTypes, attributes, arrayLocations);
+  if (!grid->Query(query))
+  {
+    vtkErrorMacro("Could not prepare cell metadata.");
+    return;
+  }
+
   auto schemaName = grid->GetSchemaName();
   if (!schemaName.IsValid())
   {
     schemaName = "dg leaf";
   }
+  // clang-format off
   nlohmann::json data = {
     { "data-type", "cell-grid" }, { "arrays", arrayGroups }, { "attributes", attributes },
     { "cell-types", cellTypes },
     { "format-version", 1 }, // A version number for the file format (i.e.., JSON)
-    { "schema-name",
-      schemaName.Data() }, // A name for the schema (key/value structure) of this file's content.
+    { "schema-name", schemaName.Data() }, // A name for the schema (key/value structure) of this file's content.
     { "schema-version", grid->GetSchemaVersion() }, // A version number for the file's schema.
-    { "content-version",
-      grid->GetContentVersion() } // A version number for the file's content (key/value data).
+    { "content-version", grid->GetContentVersion() } // A version number for the file's content (key/value data).
   };
+  // clang-format on
 
   output << data;
   output.close();

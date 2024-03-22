@@ -23,7 +23,7 @@ class vtkCellAttribute;
  *
  * Initialize() prepares the \a Elevation ivar.
  * As responders process cell metadata, they should call
- * Elevation->SetArraysForCellType() and update Range to
+ * Elevation->SetCellTypeInfo() and update Range to
  * enclose all the elevation values they add.
  *
  * Finalize() may optionally set a colormap with the proper range.

@@ -37,6 +37,11 @@ void vtkCellGridPointProbe::PrintSelf(ostream& os, vtkIndent indent)
      << (this->AttributeName && this->AttributeName[0] ? this->AttributeName : "(null)") << "\n";
 }
 
+void vtkCellGridPointProbe::SetSourceConnection(vtkAlgorithmOutput* source)
+{
+  this->SetInputConnection(1, source);
+}
+
 int vtkCellGridPointProbe::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port != 1)

@@ -22,7 +22,7 @@ class VTKRENDERINGCELLGRID_EXPORT vtkOpenGLCellGridMapper : public vtkCellGridMa
 public:
   static vtkOpenGLCellGridMapper* New();
   vtkTypeMacro(vtkOpenGLCellGridMapper, vtkCellGridMapper);
-  void PrintSelf(ostream&, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Render(vtkRenderer*, vtkActor*) override;
 

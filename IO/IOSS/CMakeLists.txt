@@ -1,9 +1,12 @@
 set(classes
   vtkIOSSReader
+  vtkIOSSCellGridReader
   vtkIOSSWriter
 )
 
 set(private_classes
+  vtkIOSSCellGridReaderInternal
+  vtkIOSSCellGridUtilities
   vtkIOSSFilesScanner
   vtkIOSSUtilities
   vtkIOSSModel

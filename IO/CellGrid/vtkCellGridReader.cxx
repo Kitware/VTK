@@ -29,6 +29,34 @@ int ArrayTypeToEnum(const std::string& arrayType)
   {
     result = VTK_INT;
   }
+  else if (arrayType == "vtktypeuint8")
+  {
+    result = VTK_TYPE_UINT8;
+  }
+  else if (arrayType == "vtktypeint8")
+  {
+    result = VTK_TYPE_INT8;
+  }
+  else if (arrayType == "vtktypeuint16")
+  {
+    result = VTK_TYPE_UINT16;
+  }
+  else if (arrayType == "vtktypeint16")
+  {
+    result = VTK_TYPE_INT16;
+  }
+  else if (arrayType == "vtktypeuint32")
+  {
+    result = VTK_TYPE_UINT32;
+  }
+  else if (arrayType == "vtktypeint32")
+  {
+    result = VTK_TYPE_INT32;
+  }
+  else if (arrayType == "vtktypeuint64")
+  {
+    result = VTK_TYPE_UINT64;
+  }
   else if (arrayType == "vtktypeint64")
   {
     result = VTK_TYPE_INT64;
@@ -270,49 +298,25 @@ int vtkCellGridReader::RequestData(
     (void)cell;
   }
 
+  std::vector<vtkCellAttribute*> attributeList;
   for (const auto& jAttribute : *jAttributes)
   {
     if (!jAttribute.is_object() || jAttribute.find("name") == jAttribute.end() ||
-      jAttribute.find("type") == jAttribute.end() || jAttribute.find("space") == jAttribute.end() ||
+      jAttribute.find("space") == jAttribute.end() ||
       jAttribute.find("components") == jAttribute.end() ||
-      jAttribute.find("arrays") == jAttribute.end())
+      jAttribute.find("cell-info") == jAttribute.end())
     {
       vtkWarningMacro("Skipping malformed cell-attribute entry. " << jAttribute.dump(2));
       continue;
     }
     auto attributeName = vtkStringToken(jAttribute["name"].get<std::string>());
-    auto attributeType = vtkStringToken(jAttribute["type"].get<std::string>());
     auto attributeSpace = vtkStringToken(jAttribute["space"].get<std::string>());
     auto shapeIt = jAttribute.find("shape");
     bool attributeIsShape = !(shapeIt == jAttribute.end() || !shapeIt->get<bool>());
     auto attributeComps = jAttribute["components"].get<int>();
     vtkNew<vtkCellAttribute> attribute;
-    attribute->Initialize(attributeName, attributeType, attributeSpace, attributeComps);
-    for (const auto& arraySpecs : jAttribute["arrays"].items())
-    {
-      vtkStringToken cellTypeName(arraySpecs.key());
-      vtkCellAttribute::ArraysForCellType arrays;
-      for (const auto& arraySpec : arraySpecs.value().items())
-      {
-        vtkStringToken group(arraySpec.value()[0].get<std::string>());
-        vtkStringToken arrayName(arraySpec.value()[1].get<std::string>());
-        // std::cout << cellTypeName.Data() << " " << arraySpec.key() << " has " << group.Data() <<
-        // ", " << arrayName.Data() << "\n";
-        auto* arrayGroup = output->GetAttributes(group.GetId());
-        if (arrayGroup)
-        {
-          auto* array = arrayGroup->GetArray(arrayName.Data().c_str());
-          if (array)
-          {
-            arrays[arraySpec.key()] = array;
-          }
-        }
-      }
-      if (!arrays.empty())
-      {
-        attribute->SetArraysForCellType(cellTypeName, arrays);
-      }
-    }
+    attribute->Initialize(attributeName, attributeSpace, attributeComps);
+    attributeList.push_back(attribute);
     output->AddCellAttribute(attribute);
     if (attributeIsShape)
     {
@@ -323,9 +327,8 @@ int vtkCellGridReader::RequestData(
   // Finally, although we have created vtkCellMetadata objects per the JSON,
   // we have not configured them. Now that the arrays and attributes are
   // present, use a query/responder to do so.
-  vtkNew<vtkCellGridIOQuery> query;
-  query->PrepareToDeserialize(*jCellTypes);
-  if (!output->Query(query))
+  this->Query->PrepareToDeserialize(*jCellTypes, *jAttributes, attributeList);
+  if (!output->Query(this->Query))
   {
     return 0;
   }

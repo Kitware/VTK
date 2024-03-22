@@ -100,6 +100,7 @@ vtkOpenGLCellGridMapper::~vtkOpenGLCellGridMapper()
 void vtkOpenGLCellGridMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Internal: " << this->Internal << "\n";
 }
 
 void vtkOpenGLCellGridMapper::ReleaseGraphicsResources(vtkWindow* window)
@@ -155,12 +156,23 @@ void vtkOpenGLCellGridMapper::Render(vtkRenderer* ren, vtkActor* act)
     auto* colorAttribute = cellGrid->GetCellAttributeByName(this->GetArrayName());
     if (colorAttribute)
     {
-      auto cmap = colorAttribute->GetColormap();
+      // If the mapper has a colormap, use that. If not, use the cell-attribute's.
+      // If there is still no colormap, create a default.
+      auto cmap = this->LookupTable ? this->LookupTable : colorAttribute->GetColormap();
       if (!cmap)
       {
         // Create a cool-to-warm (blue to red) diverging colormap by default:
         vtkNew<vtkColorTransferFunction> ctf;
-        ctf->SetVectorModeToMagnitude();
+        // Create a cool-to-warm (blue to red) diverging colormap by default:
+        if (this->GetArrayComponent() >= 0)
+        {
+          ctf->SetVectorModeToComponent();
+          ctf->SetVectorComponent(this->GetArrayComponent());
+        }
+        else
+        {
+          ctf->SetVectorModeToMagnitude();
+        }
         ctf->SetColorSpaceToDiverging();
         ctf->AddRGBPoint(0.0, 59. / 255., 76. / 255., 192. / 255.);
         ctf->AddRGBPoint(0.5, 221. / 255., 221. / 255., 221. / 255.);

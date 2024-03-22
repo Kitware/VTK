@@ -555,6 +555,7 @@ set(nowrap_headers
   vtkDataArrayTupleRange_Generic.h
   vtkDataArrayValueRange_AOS.h
   vtkDataArrayValueRange_Generic.h
+  vtkHashCombiner.h
   vtkImplicitArrayTraits.h
   vtkIndexedArray.h
   vtkInherits.h

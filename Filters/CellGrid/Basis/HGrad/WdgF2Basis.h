@@ -1,0 +1,26 @@
+RealT uu = 1.0 - rr - ss;
+RealT rs = rr * ss;
+RealT tp = 1. + tt;
+RealT tm = 1. - tt;
+
+basis[0] = -0.5 * tt * tm * uu * (1.0 - 2.0 * (rr + ss) + 3.0 * rs);
+basis[1] = -0.5 * tt * tm * (rr - 2.0 * (uu * rr + rs) + 3.0 * uu * rs);
+basis[2] = -0.5 * tt * tm * (ss - 2.0 * (uu * ss + rs) + 3.0 * uu * rs);
+basis[3] = 0.5 * tt * tp * uu * (1.0 - 2.0 * (rr + ss) + 3.0 * rs);
+basis[4] = 0.5 * tt * tp * (rr - 2.0 * (uu * rr + rs) + 3.0 * uu * rs);
+basis[5] = 0.5 * tt * tp * (ss - 2.0 * (uu * ss + rs) + 3.0 * uu * rs);
+basis[6] = -0.5 * tt * tm * uu * (4.0 * rr - 12.0 * rs);
+basis[7] = -0.5 * tt * tm * (4.0 * rs - 12.0 * uu * rs);
+basis[8] = -0.5 * tt * tm * uu * (4.0 * ss - 12.0 * rs);
+basis[9] = 0.5 * tt * tp * uu * (4.0 * rr - 12.0 * rs);
+basis[10] = 0.5 * tt * tp * (4.0 * rs - 12.0 * uu * rs);
+basis[11] = 0.5 * tt * tp * uu * (4.0 * ss - 12.0 * rs);
+basis[12] = tp * tm * uu * (1.0 - 2.0 * (rr + ss) + 3.0 * rs);
+basis[13] = tp * tm * (rr - 2.0 * (uu * rr + rs) + 3.0 * uu * rs);
+basis[14] = tp * tm * (ss - 2.0 * (uu * ss + rs) + 3.0 * uu * rs);
+basis[15] = -0.5 * 27.0 * tt * tm * uu * rs;
+basis[16] = 0.5 * 27.0 * tt * tp * uu * rs;
+basis[17] = tp * tm * uu * (4.0 * rr - 12.0 * rs);
+basis[18] = tp * tm * (4.0 * rs - 12.0 * uu * rs);
+basis[19] = tp * tm * uu * (4.0 * ss - 12.0 * rs);
+basis[20] = 27.0 * tp * tm * uu * rs;

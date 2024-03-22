@@ -19,8 +19,11 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::eigen
+  VTK::token
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::IOCellGrid
+  VTK::IOXML
   VTK::TestingCore
   VTK::IOExodus
+  VTK::eigen

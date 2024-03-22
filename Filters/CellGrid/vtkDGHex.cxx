@@ -50,29 +50,53 @@ const std::array<std::vector<vtkIdType>, 27> vtkDGHex::Sides{ {
   { 0, 4, 7, 3 },             // face 0 (-R normal)
   { 0, 3, 2, 1 },             // face 4 (-T normal)
   { 4, 5, 6, 7 },             // face 5 (+T normal)
-  { 0, 1 },                   // edge 0 (-S-T planes, +R dir)
-  { 1, 2 },                   // edge 1 (+R-T planes, +S dir)
-  { 3, 2 },                   // edge 2 (+S-T planes, +R dir)
-  { 0, 3 },                   // edge 3 (-R-T planes, +S dir)
-  { 0, 4 },                   // edge 8 (-R-S planes, +T dir)
-  { 1, 5 },                   // edge 9 (+R-S planes, +T dir)
-  { 3, 7 },                   // edge 10 (+R+S planes, +T dir)
-  { 2, 6 },                   // edge 11 (-R+S planes, +T dir)
-  { 4, 5 },                   // edge 4 (-S+T planes, +R dir)
-  { 5, 6 },                   // edge 5 (+R+T planes, +S dir)
-  { 7, 6 },                   // edge 6 (+S+T planes, +R dir)
-  { 4, 7 },                   // edge 7 (-R+T planes, +S dir)
-  { 0 },                      // vertex 0
-  { 1 },                      // vertex 1
-  { 2 },                      // vertex 2
-  { 3 },                      // vertex 3
-  { 4 },                      // vertex 4
-  { 5 },                      // vertex 5
-  { 6 },                      // vertex 6
-  { 7 }                       // vertex 7
+  { 0, 1 },                   // edge 0 (-S-T planes, +R dir) 7
+  { 1, 2 },                   // edge 1 (+R-T planes, +S dir) 8
+  { 3, 2 },                   // edge 2 (+S-T planes, +R dir) 9
+  { 0, 3 },                   // edge 3 (-R-T planes, +S dir)10
+  { 0, 4 },                   // edge 8 (-R-S planes, +T dir)11
+  { 1, 5 },                   // edge 9 (+R-S planes, +T dir)12
+  { 3, 7 },                   // edge 10 (+R+S planes, +T dir)13
+  { 2, 6 },                   // edge 11 (-R+S planes, +T dir)14
+  { 4, 5 },                   // edge 4 (-S+T planes, +R dir)15
+  { 5, 6 },                   // edge 5 (+R+T planes, +S dir)16
+  { 7, 6 },                   // edge 6 (+S+T planes, +R dir)17
+  { 4, 7 },                   // edge 7 (-R+T planes, +S dir)18
+  { 0 },                      // vertex 0 19
+  { 1 },                      // vertex 1 20
+  { 2 },                      // vertex 2 21
+  { 3 },                      // vertex 3 22
+  { 4 },                      // vertex 4 23
+  { 5 },                      // vertex 5 24
+  { 6 },                      // vertex 6 25
+  { 7 }                       // vertex 7 26
 } };
 
-vtkDGHex::vtkDGHex() = default;
+// This array of arrays takes a side ID (-1 for the element itself, 0
+// for the first side, 1 for the second side, etc.).The resulting array
+// is the list of indices into vtkDGHex::Sides that holds the connectivity
+// of the side's sides.
+// Note that vertices have no sides (i.e., their side arrays are empty).
+//
+// For example, given face 3 (+S normal, side #3 above, whose nodes
+// are (3, 7, 6, 2)), we discover from SidesOfSides[3] that edges 13,
+// 17, 14, and 9 are the sides of face 3.
+// We can then look up edge 13 as vtkDGHex::SidesOfSides[13] to see
+// its sides are side 22 (vertex 3) and 26 (vertex 7) *or* we can
+// directly look up vtkDGHex::Sides[13] to obtain its endpoint nodes
+// (vertices 3 and 7).
+// Similarly, side 17 is bounded by sides 26 (vertex 7) and 25 (vertex 6).
+const std::array<std::vector<vtkIdType>, 27> vtkDGHex::SidesOfSides{ { { 0, 1, 2, 3, 4, 5 },
+  { 6, 11, 14, 10 }, { 7, 13, 15, 11 }, { 12, 16, 13, 8 }, { 10, 17, 12, 9 }, { 9, 8, 7, 6 },
+  { 14, 15, 16, 17 }, { 18, 19 }, { 19, 20 }, { 21, 20 }, { 18, 21 }, { 18, 22 }, { 19, 23 },
+  { 21, 25 }, { 20, 24 }, { 22, 23 }, { 23, 24 }, { 25, 24 }, { 22, 25 }, {}, {}, {}, {}, {}, {},
+  {}, {} } };
+
+vtkDGHex::vtkDGHex()
+{
+  this->CellSpec.SourceShape = this->GetShape();
+}
+
 vtkDGHex::~vtkDGHex() = default;
 
 void vtkDGHex::PrintSelf(ostream& os, vtkIndent indent)
@@ -134,6 +158,16 @@ const std::vector<vtkIdType>& vtkDGHex::GetSideConnectivity(int side) const
     return dummy;
   }
   return this->Sides[side + 1];
+}
+
+const std::vector<vtkIdType>& vtkDGHex::GetSidesOfSide(int side) const
+{
+  if (side < -1 || side >= 26)
+  {
+    static std::vector<vtkIdType> dummy;
+    return dummy;
+  }
+  return this->SidesOfSides[side + 1];
 }
 
 vtkTypeFloat32Array* vtkDGHex::GetReferencePoints() const

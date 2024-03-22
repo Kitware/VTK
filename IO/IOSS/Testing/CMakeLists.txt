@@ -25,6 +25,12 @@ set(datasets
   Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.3
   Data/wedge21.g
 )
+if (VTK_WRAP_PYTHON)
+  list(APPEND datasets
+    Data/can.exdg
+    Data/disk_out_ref.exdg
+  )
+endif ()
 
 if (VTK_USE_LARGE_DATA)
   list(APPEND datasets
@@ -34,3 +40,6 @@ endif()
 vtk_module_test_data(${datasets})
 
 add_subdirectory(Cxx)
+if (VTK_WRAP_PYTHON)
+  add_subdirectory(Python)
+endif ()

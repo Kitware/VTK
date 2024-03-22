@@ -21,7 +21,7 @@ void vtkCellGridElevationQuery::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkCellGridElevationQuery::Initialize()
 {
-  this->Elevation->Initialize(this->Name, "DG HGRAD C0 I1"_token, "ℝ¹"_token, 1);
+  this->Elevation->Initialize(this->Name, "ℝ"_token, 1);
 }
 
 void vtkCellGridElevationQuery::Finalize()

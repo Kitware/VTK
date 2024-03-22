@@ -117,6 +117,7 @@ void vtkCellGridEvaluator::InterpolateCellParameters(vtkTypeUInt32Array* cellTyp
 
 void vtkCellGridEvaluator::Initialize()
 {
+  this->Superclass::Initialize(); // Resets this->Pass.
   // Check our configuration.
   switch (this->PhasesToPerform)
   {

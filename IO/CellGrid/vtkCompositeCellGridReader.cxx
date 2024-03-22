@@ -18,6 +18,7 @@
 #include "vtkDataArraySelection.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFiltersCellGrid.h"
+#include "vtkIOCellGrid.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
@@ -38,6 +39,7 @@ vtkCompositeCellGridReader::vtkCompositeCellGridReader()
 {
   this->SetNumberOfInputPorts(0);
   vtkFiltersCellGrid::RegisterCellsAndResponders();
+  vtkIOCellGrid::RegisterCellsAndResponders();
 }
 
 vtkCompositeCellGridReader::~vtkCompositeCellGridReader()

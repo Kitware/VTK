@@ -8,6 +8,7 @@ from vtkmodules import vtkFiltersCellGrid as fc
 from vtkmodules import vtkIOCellGrid as io
 from vtkmodules import vtkIOXML as ix
 from vtkmodules import vtkIOIOSS as ii
+from vtkmodules import vtkCommonColor as cl
 from vtkmodules.util.vtkAlgorithm import VTKPythonAlgorithmBase
 
 from vtkmodules.vtkRenderingCore import *
@@ -55,12 +56,19 @@ class TestUnstructuredGridToCellGrid(Testing.vtkTest):
         cgrid.GetBounds(bds)
         print('Bounds are ', bds)
         self.assertEqual(bds, expectedBounds)
-        sid = fc.vtkCellGridComputeSurface()
+        sid = fc.vtkCellGridComputeSides()
+        sid.PreserveRenderableInputsOn()
+        sid.OmitSidesForRenderableInputsOff()
         sid.SetInputConnection(converter.GetOutputPort())
         sid.Update()
         dd = sid.GetOutputDataObject(0)
         # print('Data Assembly\n', dd.GetDataAssembly())
         mapper = vtkCompositeCellGridMapper()
+        cser = cl.vtkColorSeries()
+        # lut = cc.vtkLookupTable()
+        cser.SetColorSchemeByName('Brewer Qualitative Accent')
+        lut = cser.CreateLookupTable(cser.ORDINAL)
+        mapper.SetLookupTable(lut)
         cdda = vtkCompositeDataDisplayAttributes()
         mapper.SetCompositeDataDisplayAttributes(cdda)
         #cdda.SetBlockVisibility(dd.GetPartitionedDataSet(0).GetPartitionAsDataObject(0), False)
@@ -110,6 +118,7 @@ class TestUnstructuredGridToCellGrid(Testing.vtkTest):
         cam.SetViewUp(0., 0., -1.)
         ren.ResetCamera()
         rwi.Initialize()
+        rw.Render()
         rw.Render()
         # rwi.Start()
         if '-I' in sys.argv:

@@ -1,0 +1,19 @@
+basis[0] = ((-1. + rr + ss) * (-1. + 2. * rr + 2. * ss) * (-1. + tt) * tt) / 2.;
+basis[1] = (rr * (-1. + 2. * rr) * (-1. + tt) * tt) / 2.;
+basis[2] = (ss * (-1. + 2. * ss) * (-1. + tt) * tt) / 2.;
+basis[3] = ((-1. + rr + ss) * (-1. + 2. * rr + 2. * ss) * tt * (1. + tt)) / 2.;
+basis[4] = (rr * (-1. + 2. * rr) * tt * (1. + tt)) / 2.;
+basis[5] = (ss * (-1. + 2. * ss) * tt * (1. + tt)) / 2.;
+
+basis[6] = -2. * rr * (-1. + rr + ss) * (-1. + tt) * tt;
+basis[7] = 2. * rr * ss * (-1. + tt) * tt;
+basis[8] = -2. * ss * (-1. + rr + ss) * (-1. + tt) * tt;
+basis[9] = -((-1. + rr + ss) * (-1. + 2. * rr + 2. * ss) * (-1. + tt) * (1. + tt));
+basis[10] = -(rr * (-1. + 2. * rr) * (-1. + tt) * (1. + tt));
+basis[11] = -(ss * (-1. + 2. * ss) * (-1. + tt) * (1. + tt));
+basis[12] = -2. * rr * (-1. + rr + ss) * tt * (1. + tt);
+basis[13] = 2. * rr * ss * tt * (1. + tt);
+basis[14] = -2. * ss * (-1. + rr + ss) * tt * (1. + tt);
+basis[15] = 4. * rr * (-1. + rr + ss) * (-1. + tt) * (1. + tt);
+basis[16] = -4. * rr * ss * (-1. + tt) * (1. + tt);
+basis[17] = 4. * ss * (-1. + rr + ss) * (-1. + tt) * (1. + tt);

@@ -101,7 +101,7 @@ void main()
   float fieldValue[{ColorNumValPP}];
   float scalar; // The non-normalized scalar value computed from a fieldValue tuple.
   vec2 texCoord; // Used for color lookup.
-  
+
   if ({HaveColors})
   {{
     float shapeValues[{ShapeCoeffPerCell}];
@@ -150,6 +150,7 @@ void main()
         }}
         scalar = sqrt(mag);
       }}
+      break;
     case -1:
       // L₁ norm (choose the maximum across components):
       {{
@@ -162,6 +163,7 @@ void main()
           }}
         }}
       }}
+      break;
     default:
       // Choose a single component.
       scalar = fieldValue[color_component];

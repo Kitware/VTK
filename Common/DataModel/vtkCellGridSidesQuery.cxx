@@ -10,7 +10,12 @@
 #include <array>
 #include <sstream>
 
+// Uncomment the next line for debug printouts.
+// #define VTK_DBG_SUMMARIZE_SIDES 1
+
 VTK_ABI_NAMESPACE_BEGIN
+
+using namespace vtk::literals;
 
 vtkStandardNewMacro(vtkCellGridSidesQuery);
 
@@ -19,6 +24,19 @@ void vtkCellGridSidesQuery::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Hashes: " << this->Hashes.size() << "\n";
   os << indent << "Sides: " << this->Sides.size() << "\n";
+  os << indent << "PreserveRenderableInputs: " << (this->PreserveRenderableInputs ? "Y" : "N")
+     << "\n";
+  os << indent
+     << "OmitSidesForRenderableInputs: " << (this->OmitSidesForRenderableInputs ? "Y" : "N")
+     << "\n";
+  os << indent << "OutputDimensionControl: " << std::hex << this->OutputDimensionControl << std::dec
+     << "\n";
+  os << indent
+     << "SelectionType: " << vtkCellGridSidesQuery::SelectionModeToLabel(this->SelectionType).Data()
+     << "\n";
+  os << indent
+     << "SummaryStrategy: " << vtkCellGridSidesQuery::SummaryStrategyToLabel(this->Strategy).Data()
+     << "\n";
 }
 
 void vtkCellGridSidesQuery::Initialize()
@@ -34,11 +52,11 @@ void vtkCellGridSidesQuery::StartPass()
   switch (work)
   {
     case PassWork::HashSides:
+    case PassWork::GenerateSideSets:
       // No work to do.
       break;
-    case PassWork::GenerateSideSets:
-      // Create summary data from output of the HashSides pass.
-      this->SummarizeSides();
+    case PassWork::Summarize:
+      this->Sides.clear();
       break;
   }
 }
@@ -54,9 +72,21 @@ void vtkCellGridSidesQuery::Finalize()
   this->Hashes.clear();
 }
 
+#if 0
 void vtkCellGridSidesQuery::SummarizeSides()
 {
   this->Sides.clear();
+#ifdef VTK_DBG_SUMMARIZE_SIDES
+  std::cout << "Hash table\n";
+  for (const auto& entry : this->Hashes)
+  {
+    std::cout << "  " << std::hex << entry.first << std::dec << "\n";
+    for (const auto& side : entry.second.Sides)
+    {
+      std::cout << "    " << side.CellType.Data() << " " << side.SideShape.Data() << ": " << side.DOF << " " << side.SideId << "\n";
+    }
+  }
+#endif
   for (const auto& entry : this->Hashes)
   {
     if (entry.second.Sides.size() % 2 == 0)
@@ -69,6 +99,7 @@ void vtkCellGridSidesQuery::SummarizeSides()
     }
   }
 }
+#endif // 0
 
 std::vector<vtkCellGridSidesQuery::SideSetArray> vtkCellGridSidesQuery::GetSideSetArrays(
   vtkStringToken cellType)
@@ -107,6 +138,60 @@ std::vector<vtkCellGridSidesQuery::SideSetArray> vtkCellGridSidesQuery::GetSideS
   }
 
   return result;
+}
+
+vtkStringToken vtkCellGridSidesQuery::SelectionModeToLabel(SelectionMode mode)
+{
+  switch (mode)
+  {
+    default:
+    case SelectionMode::Input:
+      return "Input";
+    case SelectionMode::Output:
+      return "Output";
+  }
+}
+
+vtkCellGridSidesQuery::SelectionMode vtkCellGridSidesQuery::SelectionModeFromLabel(
+  vtkStringToken token)
+{
+  switch (token.GetId())
+  {
+    default:
+    case "Input"_hash:
+      return SelectionMode::Input;
+    case "Output"_hash:
+      return SelectionMode::Output;
+  }
+}
+
+vtkStringToken vtkCellGridSidesQuery::SummaryStrategyToLabel(SummaryStrategy strategy)
+{
+  switch (strategy)
+  {
+    case SummaryStrategy::Winding:
+      return "Winding";
+    case SummaryStrategy::AnyOccurrence:
+      return "AnyOccurrence";
+    default:
+    case SummaryStrategy::Boundary:
+      return "Boundary";
+  }
+}
+
+vtkCellGridSidesQuery::SummaryStrategy vtkCellGridSidesQuery::SummaryStrategyFromLabel(
+  vtkStringToken token)
+{
+  switch (token.GetId())
+  {
+    case "Winding"_hash:
+      return SummaryStrategy::Winding;
+    case "AnyOccurrence"_hash:
+      return SummaryStrategy::AnyOccurrence;
+    default:
+    case "Boundary"_hash:
+      return SummaryStrategy::Boundary;
+  }
 }
 
 VTK_ABI_NAMESPACE_END

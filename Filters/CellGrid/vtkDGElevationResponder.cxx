@@ -53,7 +53,8 @@ bool vtkDGElevationResponder::Query(
     return false;
   }
   std::string cellTypeName = cellType->GetClassName();
-  auto shapeArrays = shapeAtt->GetArraysForCellType(cellTypeName);
+  auto shapeInfo = shapeAtt->GetCellTypeInfo(cellTypeName);
+  auto& shapeArrays = shapeInfo.ArraysByRole;
 
   // Fetch corner points of cells.
   auto* pts = vtkDataArray::SafeDownCast(shapeArrays["values"_token]);
@@ -73,7 +74,6 @@ bool vtkDGElevationResponder::Query(
   // Allocate a container to hold 1 point's coordinates
   // plus one to accumulate the cell center.
   vtkVector3d pcoord;
-  vtkVector3d center;
   int dim = pts->GetNumberOfComponents();
   if (dim != 3)
   {
@@ -109,13 +109,15 @@ bool vtkDGElevationResponder::Query(
   elevation->SetName(request->Name.c_str());
   elevation->SetNumberOfComponents(nc); // Elevation will be same order as shape.
   elevation->SetNumberOfTuples(conn->GetNumberOfTuples());
+  double scale = 1. / nc;
   for (vtkIdType ii = 0; ii < conn->GetNumberOfTuples(); ++ii)
   {
+    vtkVector3d center(0, 0, 0);
     conn->GetTypedTuple(ii, entry.data());
     for (int jj = 0; jj < nc; ++jj)
     {
       pts->GetTuple(entry[jj], pcoord.GetData());
-      center += pcoord;
+      center += scale * pcoord;
       elevation->SetTypedComponent(ii, jj, evaluateElevation(pcoord));
     }
     // Now add shock if non-zero.
@@ -129,11 +131,16 @@ bool vtkDGElevationResponder::Query(
       }
     }
   }
-  // Add the elevation data to the grid
+  // Add the elevation data to the grid.
+  // Note that we need to match the shape-function's interpolation scheme
+  // because we provide a value for every connectivity entry.
   grid->GetAttributes(cellTypeName)->AddArray(elevation);
-  vtkCellAttribute::ArraysForCellType arrays;
-  arrays["values"] = elevation;
-  request->Elevation->SetArraysForCellType(cellTypeName, arrays);
+  vtkCellAttribute::CellTypeInfo cellTypeInfo;
+  cellTypeInfo.FunctionSpace = "HGRAD"_token;
+  cellTypeInfo.Basis = shapeInfo.Basis;
+  cellTypeInfo.Order = shapeInfo.Order;
+  cellTypeInfo.ArraysByRole["values"_token] = elevation;
+  request->Elevation->SetCellTypeInfo(cellTypeName, cellTypeInfo);
   return true;
 }
 

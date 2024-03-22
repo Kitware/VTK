@@ -42,8 +42,8 @@ class TestCellGridPointProbe(Testing.vtkTest):
         reader.Update()
         img = dm.vtkImageData()
         img.SetOrigin(0, 0, 0)
-        img.SetDimensions(32, 16, 16);
-        img.SetSpacing(0.0625, 0.0625, 0.0625)
+        img.SetDimensions(16,  8,  8);
+        img.SetSpacing(0.125, 0.125, 0.125)
         cellCenters = ff.vtkCellCenters()
         cellCenters.VertexCellsOn()
         cellCenters.SetInputDataObject(0, img)

@@ -117,12 +117,16 @@ class CellGridInteractorStyle(ii.vtkInteractorStyleTrackballCamera):
 
 class TestCellGridRendering(Testing.vtkTest):
 
-    def runCase(self, dataFile, colorArray, imageFile, cell2D = False, angles = (0, 0, 0), colorArrayComponent=0):
+    def runCase(self, dataFile, colorArray, imageFile, cell2D = False, angles = (0, 0, 0), colorArrayComponent=-2):
         rh = io.vtkCellGridReader()
         rh.SetFileName(dataFile)
-        fh = fc.vtkCellGridComputeSurface()
+        fh = fc.vtkCellGridComputeSides()
         fh.SetInputConnection(rh.GetOutputPort())
+        fh.SetOutputDimensionControl(dm.vtkCellGridSidesQuery.NextLowestDimension)
+        fh.PreserveRenderableInputsOff()
+        fh.OmitSidesForRenderableInputsOff()
         fh.Update()
+        surfOut = fh.GetOutputDataObject(0)
         # Note: For 2-d cells, we create 2 actor/mapper pairs:
         # + one (ai, mi) to show the original cells
         # + one (ah, mh) to show the edge-sides of the surface
@@ -142,11 +146,16 @@ class TestCellGridRendering(Testing.vtkTest):
         else:
             mi.SetInputConnection(fh.GetOutputPort())
         if colorArray != None:
+            #if cell2D:
+            #    mh.ScalarVisibilityOn()
+            #    mh.SetScalarMode(rr.VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
+            #    mh.SetArrayName(colorArray)
+            #    if colorArrayComponent != 0:
+            #        mh.SetArrayComponent(colorArrayComponent)
             mi.ScalarVisibilityOn()
             mi.SetScalarMode(rr.VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
             mi.SetArrayName(colorArray)
-            if colorArrayComponent != 0:
-                mi.SetArrayComponent(colorArrayComponent)
+            mi.SetArrayComponent(colorArrayComponent)
         ai.SetMapper(mi)
         rw = rr.vtkRenderWindow()
         rn = rr.vtkRenderer()
@@ -192,6 +201,17 @@ class TestCellGridRendering(Testing.vtkTest):
         else:
             Testing.compareImage(rw, Testing.getAbsImagePath(imageFile), threshold=25)
 
+    def testCurlVectorComponents(self):
+        dataFile = os.path.join(VTK_DATA_ROOT, 'Data', 'dgHexahedra.dg')
+        testFile = 'TestCellGridRendering-CurlX.png'
+        self.runCase(dataFile, 'curl1', testFile, False, angles=(0, 180, -20), colorArrayComponent=0)
+        dataFile = os.path.join(VTK_DATA_ROOT, 'Data', 'dgHexahedra.dg')
+        testFile = 'TestCellGridRendering-CurlY.png'
+        self.runCase(dataFile, 'curl1', testFile, False, angles=(0, 180, -20), colorArrayComponent=1)
+        dataFile = os.path.join(VTK_DATA_ROOT, 'Data', 'dgHexahedra.dg')
+        testFile = 'TestCellGridRendering-CurlZ.png'
+        self.runCase(dataFile, 'curl1', testFile, False, angles=(0, 180, -20), colorArrayComponent=2)
+
     def testDGWdgRendering(self):
         dataFile = os.path.join(VTK_DATA_ROOT, 'Data', 'dgWedges.dg')
         # Run once with cell coloring turned on:
@@ -199,13 +219,13 @@ class TestCellGridRendering(Testing.vtkTest):
         self.runCase(dataFile, 'scalar1', testFile, False, angles=(15, -30, 10))
 
     def testDGPyrRendering(self):
-        dataFile = os.path.join(VTK_DATA_ROOT, 'Data', 'dgPyramids.dg')
+        dataFile = os.path.join(VTK_DATA_ROOT, 'Data', 'dgPyramid19.dg')
         # Run once with cell coloring turned on:
-        testFile = 'TestCellGridRendering-Pyramids.png'
-        self.runCase(dataFile, 'scalar1', testFile, False, angles=(-15, 20, -60))
+        testFile = 'TestCellGridRendering-Pyramid19.png'
+        self.runCase(dataFile, 'scalar3', testFile, False, angles=(-15, 20, -60))
         # Run once coloring by a solid color:
-        testFile = 'TestCellGridRendering-Pyramids-uncolored.png'
-        self.runCase(dataFile, None, testFile, False)
+        testFile = 'TestCellGridRendering-Pyramid19-uncolored.png'
+        self.runCase(dataFile, None, testFile, False, angles=(-10, 10, -30))
 
     def testDGHexRendering(self):
         dataFile = os.path.join(VTK_DATA_ROOT, 'Data', 'dgHexahedra.dg')

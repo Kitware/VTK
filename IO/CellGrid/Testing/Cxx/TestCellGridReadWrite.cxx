@@ -19,8 +19,18 @@
 namespace
 {
 
+struct AttInfo
+{
+  vtkStringToken Name;
+  vtkStringToken CellType;
+  vtkStringToken DOFSharing;
+  vtkStringToken FunctionSpace;
+  vtkStringToken Basis;
+  int Order;
+};
+
 bool RoundTrip(const char* filename, const std::string& tempDir, vtkIdType numCells,
-  const std::vector<std::pair<std::string, std::string>>& expectedAttributes)
+  const std::vector<AttInfo>& expectedAttributes)
 {
   if (!filename)
   {
@@ -70,18 +80,42 @@ bool RoundTrip(const char* filename, const std::string& tempDir, vtkIdType numCe
 
   for (const auto& attData : expectedAttributes)
   {
-    auto* att = cg->GetCellAttributeByName(attData.first);
+    auto* att = cg->GetCellAttributeByName(attData.Name.Data());
     if (!att)
     {
       ok = false;
-      std::cerr << "ERROR: Failed to find cell-attribute \"" << attData.first << "\".\n";
+      std::cerr << "ERROR: Failed to find cell-attribute \"" << attData.Name.Data() << "\".\n";
       continue;
     }
-    if (att->GetAttributeType() != attData.second)
+    auto cellTypeInfo = att->GetCellTypeInfo(attData.CellType);
+    if (attData.DOFSharing != cellTypeInfo.DOFSharing)
     {
       ok = false;
-      std::cerr << "ERROR: Attribute " << attData.first << " had type "
-                << att->GetAttributeType().Data() << ".\n";
+      std::cerr << "ERROR: Attribute " << attData.Name.Data() << " had DOF sharing "
+                << cellTypeInfo.DOFSharing.Data() << " " << std::hex
+                << cellTypeInfo.DOFSharing.GetId() << " vs " << attData.DOFSharing.Data() << " "
+                << attData.DOFSharing.GetId() << ".\n";
+    }
+    if (attData.FunctionSpace != cellTypeInfo.FunctionSpace)
+    {
+      ok = false;
+      std::cerr << "ERROR: Attribute " << attData.Name.Data() << " had function space "
+                << cellTypeInfo.FunctionSpace.Data() << " " << std::hex
+                << cellTypeInfo.FunctionSpace.GetId() << " vs " << attData.FunctionSpace.GetId()
+                << ".\n";
+    }
+    if (attData.Basis != cellTypeInfo.Basis)
+    {
+      ok = false;
+      std::cerr << "ERROR: Attribute " << attData.Name.Data() << " had basis "
+                << cellTypeInfo.Basis.Data() << " " << std::hex << cellTypeInfo.Basis.GetId()
+                << " vs " << attData.Basis.GetId() << ".\n";
+    }
+    if (attData.Order != cellTypeInfo.Order)
+    {
+      ok = false;
+      std::cerr << "ERROR: Attribute " << attData.Name.Data() << " had order " << cellTypeInfo.Order
+                << " vs " << attData.Order << ".\n";
     }
   }
   if (expectedAttributes.size() != cg->GetCellAttributeIds().size())
@@ -113,27 +147,37 @@ bool RoundTrip(const char* filename, const std::string& tempDir, vtkIdType numCe
 
 int TestCellGridReadWrite(int argc, char* argv[])
 {
+  vtkStringToken invalid;
   std::string tempDir =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary/");
 
+  // clang-format off
   if (!RoundTrip(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dgHexahedra.dg", 0),
         tempDir,
-        /* numCells */ 2,
-        { { "shape", "CG HGRAD C1" }, { "scalar0", "DG HGRAD C1" }, { "scalar1", "DG HGRAD C1" },
-          { "scalar2", "DG HGRAD C1" }, { "scalar3", "CG HGRAD C1" }, { "curl1", "DG HCURL I1" },
-          { "quadratic", "DG HGRAD I2" } }))
+        /* numCells */ 2, {
+        { "shape",     "vtkDGHex", "coordinates", "HGRAD", "C", 1 },
+        { "scalar0",   "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
+        { "scalar1",   "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
+        { "scalar2",   "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
+        { "scalar3",   "vtkDGHex", "point-data",  "HGRAD", "C", 1 },
+        { "curl1",     "vtkDGHex",  invalid,      "HCURL", "I", 1 },
+        { "quadratic", "vtkDGHex",  invalid,      "HGRAD", "I", 2 } }))
   {
     return EXIT_FAILURE;
   }
 
   if (!RoundTrip(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dgTetrahedra.dg", 0),
         tempDir,
-        /* numCells */ 2,
-        { { "shape", "CG HGRAD C1" }, { "scalar0", "DG HGRAD C1" }, { "scalar1", "DG HGRAD C1" },
-          { "scalar2", "DG HGRAD C1" }, { "scalar3", "CG HGRAD C1" } }))
+        /* numCells */ 2, {
+        { "shape",   "vtkDGTet", "coordinates", "HGRAD", "C", 1 },
+        { "scalar0", "vtkDGTet",  invalid,      "HGRAD", "C", 1 },
+        { "scalar1", "vtkDGTet",  invalid,      "HGRAD", "C", 1 },
+        { "scalar2", "vtkDGTet",  invalid,      "HGRAD", "C", 1 },
+        { "scalar3", "vtkDGTet", "point-data",  "HGRAD", "C", 1 } }))
   {
     return EXIT_FAILURE;
   }
+  // clang-format on
 
   return EXIT_SUCCESS;
 }

@@ -66,14 +66,14 @@ using DatabaseHandle = std::pair<std::string, int>;
  * @class vtkIOSSReaderInternal
  * @brief Internal methods and state for the IOSS reader.
  *
- * Note that this class is not part of the public API of VTK
- * and thus has no export macros. It has been put in a separate
- * file so that a subclass of the reader local to this module
- * (vtkIOSSCellGridReader) can access it.
+ * Note that this class is not part of the public API of VTK and thus
+ * has no export macros. It has been put in a separate file so that a
+ * subclass of the reader local to this module (vtkIOSSCellGridReader)
+ * can access it and so it can be subclassed.
  */
 class vtkIOSSReaderInternal
 {
-private:
+protected:
   // It's okay to instantiate this multiple times.
   Ioss::Init::Initializer io;
 
@@ -113,6 +113,7 @@ public:
     : IOSSReader(reader)
   {
   }
+  virtual ~vtkIOSSReaderInternal() = default; // Force polymorphism
 
   Ioss::PropertyManager DatabaseProperties;
   std::set<std::string> FileNames;
@@ -334,7 +335,7 @@ public:
 
   void ResetDatabaseNamesMTime() { this->DatabaseNamesMTime = vtkTimeStamp(); }
 
-private:
+protected:
   std::vector<int> GetFileIds(const std::string& dbasename, int myrank, int numRanks) const;
   Ioss::Region* GetRegion(const std::string& dbasename, int fileid);
   Ioss::Region* GetRegion(const DatabaseHandle& handle)

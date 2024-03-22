@@ -373,6 +373,11 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "ospray")
   list(APPEND test_exclusions
+    # Fails with:
+    #     ZINK: vkCreateInstance failed (VK_ERROR_INCOMPATIBLE_DRIVER)
+    #     glx: failed to create drisw screen
+    #     failed to load driver: zink
+    "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     # Cache segfaults on docker
     "^VTK::RenderingRayTracingCxx-TestOSPRayCache$"
     # https://github.com/ospray/ospray/issues/571

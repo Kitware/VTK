@@ -62,6 +62,10 @@
 // Uncomment to print shader/color info to cout
 // #define vtkDGRenderResponder_DEBUG
 
+#ifdef vtkDGRenderResponder_DEBUG
+#include <sstream>
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;
@@ -237,9 +241,11 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
             << vtkDGCell::GetShapeName(this->CellSource->SourceShape).Data() << "\n";
 #endif
   this->RenderHelper->SetElementType(primType);
+  vtkStringToken cellTypeToken = this->CellType->GetClassName();
 
   auto shapeInfo = this->CellType->GetCaches()->AttributeCalculator<vtkCellAttributeInformation>(
-    this->CellType, this->Shape);
+    this->CellType, this->Shape, this->CellType->GetAttributeTags(this->Shape, true));
+  auto shapeTypeInfo = this->Shape->GetCellTypeInfo(cellTypeToken);
 #ifdef GL_ES_VERSION_3_0
   this->UsesTessellationShaders = false;
   this->UsesGeometryShaders = false;
@@ -399,15 +405,20 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
       "ShapeBasisName", "None" + vtkDGAttributeInformation::BasisShapeName(this->CellType) + "I0"));
   }
   vtkSmartPointer<vtkCellAttributeInformation> colorInfo;
+  vtkCellAttribute::CellTypeInfo colorTypeInfo;
+  vtkDGOperatorEntry colorBasisOp;
   if (this->Color)
   {
     colorInfo = this->CellType->GetCaches()->AttributeCalculator<vtkCellAttributeInformation>(
-      this->CellType, this->Color);
+      this->CellType, this->Color, this->CellType->GetAttributeTags(this->Color, true));
+    colorTypeInfo = this->Color->GetCellTypeInfo(cellTypeToken);
+    colorBasisOp = this->CellType->GetOperatorEntry("Basis", colorTypeInfo);
   }
   store.push_back(fmt::arg("ColorBasisName",
     colorInfo ? colorInfo->GetBasisName()
               : "None" + vtkDGAttributeInformation::BasisShapeName(this->CellType) + "I0"));
-  store.push_back(fmt::arg("ColorBasisSize", colorInfo ? colorInfo->GetBasisValueSize() : 9));
+  // store.push_back(fmt::arg("ColorBasisSize", colorInfo ? colorInfo->GetBasisValueSize() : 9));
+  store.push_back(fmt::arg("ColorBasisSize", colorBasisOp.OperatorSize));
   store.push_back(
     fmt::arg("ColorMultiplicity", colorInfo ? colorInfo->GetDegreeOfFreedomSize() : 1));
   store.push_back(
@@ -434,6 +445,20 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   store.push_back(fmt::arg("cellUtil", shaderUtilSource));
 
   std::string shaderBasisSource = fmt::vformat(shaderBasisTemplate, store);
+  auto shapeBasisOp = this->CellType->GetOperatorEntry("Basis", shapeTypeInfo);
+  auto shapeGradientOp = this->CellType->GetOperatorEntry("BasisGradient", shapeTypeInfo);
+  shaderBasisSource += shapeBasisOp.GetShaderString("shapeBasisAt", "basis");
+  shaderBasisSource += shapeGradientOp.GetShaderString("shapeBasisGradientAt", "basisGradient");
+  if (this->Color)
+  {
+    shaderBasisSource += colorBasisOp.GetShaderString("colorBasisAt", "basis");
+  }
+  else
+  {
+    // Even if we are not coloring fragments by a scalar, we need to define
+    // a colorBasisAt() function.
+    shaderBasisSource += "void colorBasisAt(in vec3 param, out float basis[1]) { }\n";
+  }
   store.push_back(fmt::arg("cellEval", shaderBasisSource));
 
   std::string vertShaderSource = fmt::vformat(vertShaderTemplate, store);
@@ -476,8 +501,6 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   std::cout.flush();
 #endif
 
-  vtkStringToken cellTypeToken = this->CellType->GetClassName();
-
   // Now that we've set our shader source strings, we can bind
   // vertex-buffer objects to samplers they reference.
   // 1. Bind arrays defining the shape attribute.
@@ -502,24 +525,53 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
       this->Color->GetArrayForCellTypeAndRole(cellTypeToken, "connectivity"_token));
     auto* colorVals = vtkDataArray::SafeDownCast(
       this->Color->GetArrayForCellTypeAndRole(cellTypeToken, "values"_token));
-    this->RenderHelper->BindArrayToTexture("color_conn"_token, colorConn, true);
-    this->RenderHelper->BindArrayToTexture("color_vals"_token, colorVals, true);
-    cgMapper->PrepareColormap(this->Color->GetColormap()); // TODO: Override with actor/mapper cmap?
-    std::array<double, 3> compRange;
-    this->CellType->GetCellGrid()->GetCellAttributeRange(
-      this->Color, mapper->GetArrayComponent(), compRange.data(), true);
-    if (compRange[0] > compRange[1])
+    if (colorConn)
     {
-      compRange[0] = -1e-11;
-      compRange[1] = +1e-11;
+      this->RenderHelper->BindArrayToTexture("color_conn"_token, colorConn, true);
+    }
+    this->RenderHelper->BindArrayToTexture("color_vals"_token, colorVals, true);
+    auto cmap = mapper->GetLookupTable();
+    if (!cmap)
+    {
+      this->Color->GetColormap();
+    }
+    cgMapper->PrepareColormap(cmap); // TODO: Override with actor/mapper cmap?
+    // Choose a component to color by (or -1/-2 for L1/L2 norm):
+    int colorComp = -2;
+    if (cmap)
+    {
+      colorComp = cmap->GetVectorMode() == vtkScalarsToColors::VectorModes::COMPONENT
+        ? cmap->GetVectorComponent()
+        : -2;
+    }
+    else
+    {
+      colorComp = mapper->GetArrayComponent();
+    }
+    std::array<double, 3> compRange;
+    if (mapper->GetUseLookupTableScalarRange())
+    {
+      double* cmapRange = cmap->GetRange();
+      compRange[0] = cmapRange[0];
+      compRange[1] = cmapRange[1];
+    }
+    else
+    {
+      this->CellType->GetCellGrid()->GetCellAttributeRange(
+        this->Color, colorComp, compRange.data(), true);
+      if (compRange[0] > compRange[1])
+      {
+        compRange[0] = -1e-11;
+        compRange[1] = +1e-11;
+      }
     }
     compRange[2] = compRange[1] - compRange[0];
 #ifdef vtkDGRenderResponder_DEBUG
     std::cout << "  Color range: [" << compRange[0] << ", " << compRange[1] << "] delta "
-              << compRange[2] << " comp " << mapper->GetArrayComponent() << "\n";
+              << compRange[2] << " comp " << colorComp << "\n";
 #endif
     actor->GetShaderProperty()->GetFragmentCustomUniforms()->SetUniformi(
-      "color_component", mapper->GetArrayComponent());
+      "color_component", colorComp);
     actor->GetShaderProperty()->GetFragmentCustomUniforms()->SetUniform3f(
       "color_range", compRange.data());
     this->ColorTime = this->Color->GetMTime();
