@@ -14,6 +14,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMarchingCubesTriangleCases.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
@@ -118,10 +119,11 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
   int Min2;
   int Max2;
   int Inc2;
-  double PlaneCenter[3]; // define plane center in physical space
-  double PlaneNormal[3]; // define plane normal in physical space
-  double Center[3];      // define plane center in image space
-  double Normal[3];      // define plane normal in image space
+  double PlaneCenter[3];  // define plane center in physical space
+  double PlaneNormal[3];  // define plane normal in physical space
+  double Center[3];       // define plane center in image space
+  double Normal[3];       // define plane normal in image space
+  int PlaneMainAxes = -1; // 0, 1, or 2 for X, Y, Z. -1 if not aligned.
 
   // Output data. Threads write to partitioned memory.
   T* NewScalars;
@@ -142,6 +144,49 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
     this->Center[1] = (this->Center[1] - this->Min1);
     this->Center[2] = (this->Center[2] - this->Min2);
     image->TransformPhysicalNormalToContinuousIndex(this->PlaneNormal, this->Normal);
+  }
+
+  /**
+   * if the plane is aligned with a min boundary,
+   * slightly shift the plane inside the image. This ensure that pass1 and pass2
+   * (processXEdges and processYZEdges) will correctly find intersected edges.
+   * This should be reverted before computing actual intersection coordinates
+   * (pass4). See SnapPlaneToBoundary().
+   */
+  void ShiftPlaneFromMinBoundary()
+  {
+    int mainAxes = -1;
+    double norm = vtkMath::Norm(this->Normal);
+    for (int axes = 0; axes < 3; axes++)
+    {
+      if (vtkMathUtilities::FuzzyCompare(this->Normal[axes], norm))
+      {
+        // plane is axis aligned
+        mainAxes = axes;
+        if (vtkMathUtilities::FuzzyCompare(this->Center[axes], 0.))
+        {
+          // plane is at min boundary
+          this->PlaneMainAxes = mainAxes;
+          this->Center[mainAxes] += std::numeric_limits<double>::epsilon();
+          break;
+        }
+      }
+    }
+  }
+
+  /**
+   * Reposition plane on the boundary.
+   * Should be done before pass4 (GenerateOutput) that computes the actual intersections
+   * coordinates.
+   *
+   * See ShiftPlaneFromMinBoundary()
+   */
+  void SnapPlaneToBoundary()
+  {
+    if (this->PlaneMainAxes > -1)
+    {
+      this->Center[this->PlaneMainAxes] -= std::numeric_limits<double>::epsilon();
+    }
   }
 
   // The three main passes of the algorithm.
@@ -1317,6 +1362,10 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
   self->GetPlane()->GetNormal(algo.PlaneNormal);
   algo.TransformPlane(input);
 
+  // in boundary case, artificially shift the plane inside the image
+  // to get correct edge classifications.
+  algo.ShiftPlaneFromMinBoundary();
+
   // Now allocate working arrays. The XCases array tracks x-edge cases.
   algo.Dims[0] = algo.Max0 - algo.Min0 + 1;
   algo.Dims[1] = algo.Max1 - algo.Min1 + 1;
@@ -1417,6 +1466,9 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
         /*nullValue*/ 0.0, /*promote*/ false);
     }
 
+    // In boundary case, shift plane back to its real position in order to compute
+    // correct intersection coordinates
+    algo.SnapPlaneToBoundary();
     // PASS 4: Fourth and final pass: Process voxel rows and generate output.
     // Note that we are simultaneously generating triangles and interpolating
     // points. These could be split into separate, parallel operations for

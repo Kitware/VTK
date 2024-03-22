@@ -36,6 +36,7 @@ vtk_add_test_python(
   TestFlyingEdges3DWithInterpolation.py
   TestFlyingEdgesExtents.py
   TestFlyingEdgesPlaneCutter.py
+  TestFlyingEdgesPlaneCutterBoundary.py,NO_VALID
   TestFlyingEdgesPlaneCutterCellData.py
   TestFlyingEdgesPlaneCutterInterpolation.py
   TestFlyingEdgesPlaneCutterThinSlice.py
