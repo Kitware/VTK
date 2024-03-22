@@ -49,9 +49,8 @@
 #include "vtkPythonInterpreterModule.h" // For export macro
 #include "vtkStdString.h"               // needed for vtkStdString.
 
-#if defined(_WIN32)
-#include <vector> // for vtkWideArgsConverter
-#endif
+#include <utility> // For std::pair
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKPYTHONINTERPRETER_EXPORT vtkPythonInterpreter : public vtkObject
@@ -179,13 +178,13 @@ public:
     int initsigs, int argc, char* argv[], const char* programName = nullptr);
 
   /**
-   * Programs using VTK (such as ParaView) can add a path to additional python modules.
-   * libraryPath and landmark are used for this second location
-   * for python modules, as in the case for ParaView built with external VTK.
+   * Programs using VTK (such as ParaView) can add one or more paths for additional python modules.
+   * libraryPath and landmark are used for each location of additional python modules,
+   * as in the case for ParaView built with external VTK.
    * landmark is the relative path to the libraryPath such as 'vtkmodules/__init__.py'
    * for VTK or 'paraview/__init__.py' for ParaView.
    */
-  static void SetUserPythonPath(const char* libraryPath, const char* landmark);
+  static void AddUserPythonPath(const char* libraryPath, const char* landmark);
 
 protected:
   vtkPythonInterpreter();
@@ -229,12 +228,14 @@ private:
    */
   static int LogVerbosity;
   ///@{
+
   /**
-   * Python path used for applications using VTK
+   * Container of pairs used for setting up user python paths for applications using VTK (such as
+   * ParaView). The first element of pair is LibraryPath and second element of pair is Landmark.
+   * Landmark is relative path to the LibraryPath such as 'vtkmodules/__init__.py' for VTK or
+   * 'paraview/__init__.py' for ParaView.
    */
-  static std::string LibraryPath;
-  static std::string Landmark;
-  ///@}
+  static std::vector<std::pair<std::string, std::string>> UserPythonPaths;
 };
 
 // For tracking global interpreters
