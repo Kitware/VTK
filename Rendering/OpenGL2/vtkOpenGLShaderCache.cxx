@@ -69,6 +69,7 @@ vtkOpenGLShaderCache::vtkOpenGLShaderCache()
   this->LastShaderBound = nullptr;
   this->OpenGLMajorVersion = 0;
   this->OpenGLMinorVersion = 0;
+  this->SyncGLSLShaderVersion = false;
 }
 
 //------------------------------------------------------------------------------
@@ -110,9 +111,24 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   }
 
   std::string version = "#version 150\n";
-  if (this->OpenGLMajorVersion == 3 && this->OpenGLMinorVersion == 1)
+  if (this->OpenGLMajorVersion == 3)
   {
-    version = "#version 140\n";
+    if (this->OpenGLMinorVersion == 1)
+    {
+      version = "#version 140\n";
+    }
+    else if (this->SyncGLSLShaderVersion && this->OpenGLMinorVersion > 2)
+    {
+      std::stringstream ss;
+      ss << "#version " << this->OpenGLMajorVersion << this->OpenGLMinorVersion << "0\n";
+      version = ss.str();
+    }
+  }
+  else if (this->SyncGLSLShaderVersion)
+  {
+    std::stringstream ss;
+    ss << "#version " << this->OpenGLMajorVersion << this->OpenGLMinorVersion << "0\n";
+    version = ss.str();
   }
 #endif
 
@@ -168,7 +184,7 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       "#define highp\n"
       "#define mediump\n"
       "#define lowp\n"
-      "#if __VERSION__ == 150\n"
+      "#if __VERSION__ >= 150\n"
       "#define texelFetchBuffer texelFetch\n"
       "#define texture1D texture\n"
       "#define texture2D texture\n"

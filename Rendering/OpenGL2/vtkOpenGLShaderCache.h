@@ -28,6 +28,19 @@ public:
   vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
+  /**
+   * Set/Get whether the GLSL version macro in the shader must be the same as OpenGL version.
+   * When true, the `#version xyz` macro is defined such that:
+   *  x = OpenGLMajorVersion
+   *  y = OpenGLMinorVersion
+   *  z = 0
+   */
+  vtkSetMacro(SyncGLSLShaderVersion, bool);
+  vtkGetMacro(SyncGLSLShaderVersion, bool);
+  vtkBooleanMacro(SyncGLSLShaderVersion, bool);
+  ///@}
+
   // make sure the specified shaders are compiled, linked, and bound
   virtual vtkShaderProgram* ReadyShaderProgram(const char* vertexCode, const char* fragmentCode,
     const char* geometryCode, vtkTransformFeedback* cap = nullptr);
@@ -84,6 +97,7 @@ protected:
 
   int OpenGLMajorVersion;
   int OpenGLMinorVersion;
+  bool SyncGLSLShaderVersion;
 
   float ElapsedTime;
 

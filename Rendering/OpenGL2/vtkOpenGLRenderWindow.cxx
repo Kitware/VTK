@@ -101,10 +101,10 @@ static const char* ResolveShader =
 
     for (int i = 0; i < samplecount; i++)
     {
-      vec4 sample = texelFetch(tex, itexcoords, i);
+      vec4 sampleValue = texelFetch(tex, itexcoords, i);
       // apply gamma correction and sum
-      accumulate += pow(sample.rgb, vec3(gamma));
-      alpha += sample.a;
+      accumulate += pow(sampleValue.rgb, vec3(gamma));
+      alpha += sampleValue.a;
     }
 
     // divide and reverse gamma correction
