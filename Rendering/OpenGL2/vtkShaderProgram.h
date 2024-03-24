@@ -76,6 +76,22 @@ public:
 
   ///@{
   /**
+   * Get/set the tess control shader for this program
+   */
+  vtkGetObjectMacro(TessControlShader, vtkShader);
+  void SetTessControlShader(vtkShader*);
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the tess evaluation shader for this program
+   */
+  vtkGetObjectMacro(TessEvaluationShader, vtkShader);
+  void SetTessEvaluationShader(vtkShader*);
+  ///@}
+
+  ///@{
+  /**
    * Get/Set a TransformFeedbackCapture object on this shader program.
    */
   vtkGetObjectMacro(TransformFeedback, vtkTransformFeedback);
@@ -360,6 +376,8 @@ protected:
   vtkShader* FragmentShader;
   vtkShader* GeometryShader;
   vtkShader* ComputeShader;
+  vtkShader* TessControlShader;
+  vtkShader* TessEvaluationShader;
   vtkTransformFeedback* TransformFeedback;
 
   // hash of the shader program
@@ -372,6 +390,8 @@ protected:
   int FragmentShaderHandle;
   int GeometryShaderHandle;
   int ComputeShaderHandle;
+  int TessControlShaderHandle;
+  int TessEvaluationShaderHandle;
 
   bool Linked;
   bool Bound;

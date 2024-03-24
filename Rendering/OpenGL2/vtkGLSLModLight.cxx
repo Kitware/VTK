@@ -58,7 +58,8 @@ vtkGLSLModLight::LightStatsBasic vtkGLSLModLight::GetBasicLightStats(
 
 //------------------------------------------------------------------------------
 bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::string& vertexShader,
-  std::string& /*geometryShader*/, std::string& fragmentShader,
+  std::string& vtkNotUsed(tessControlShader), std::string& vtkNotUsed(tessEvalShader),
+  std::string& vtkNotUsed(geometryShader), std::string& fragmentShader,
   vtkAbstractMapper* vtkNotUsed(mapper), vtkActor* actor)
 {
   vtkShaderProgram::Substitute(

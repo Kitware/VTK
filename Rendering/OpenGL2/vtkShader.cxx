@@ -57,6 +57,16 @@ bool vtkShader::Compile()
       type = GL_COMPUTE_SHADER;
       break;
 #endif
+#ifdef GL_TESS_EVALUATION_SHADER
+    case vtkShader::TessEvaluation:
+      type = GL_TESS_EVALUATION_SHADER;
+      break;
+#endif
+#ifdef GL_TESS_CONTROL_SHADER
+    case vtkShader::TessControl:
+      type = GL_TESS_CONTROL_SHADER;
+      break;
+#endif
     case vtkShader::Fragment:
       type = GL_FRAGMENT_SHADER;
       break;
@@ -124,6 +134,16 @@ bool vtkShader::IsComputeShaderSupported()
   return false;
 #else
   return glewIsSupported("GL_ARB_compute_shader") != 0;
+#endif
+}
+
+//------------------------------------------------------------------------------
+bool vtkShader::IsTessellationShaderSupported()
+{
+#if defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0)
+  return false;
+#else
+  return glewIsSupported("GL_ARB_tessellation_shader") != 0;
 #endif
 }
 

@@ -181,8 +181,9 @@ void vtkGLSLModPixelDebugger::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 bool vtkGLSLModPixelDebugger::ReplaceShaderValues(vtkOpenGLRenderer* vtkNotUsed(renderer),
-  std::string& vertexShader, std::string& geometryShader, std::string& fragmentShader,
-  vtkAbstractMapper* vtkNotUsed(mapper), vtkActor* vtkNotUsed(actor))
+  std::string& vertexShader, std::string& tessControlShader, std::string& tessEvalShader,
+  std::string& geometryShader, std::string& fragmentShader, vtkAbstractMapper* vtkNotUsed(mapper),
+  vtkActor* vtkNotUsed(actor))
 {
   auto substs = ::ParseSubstitutions(this, this->SubstitutionJSONFileName);
   int idx = -1;
@@ -215,8 +216,20 @@ bool vtkGLSLModPixelDebugger::ReplaceShaderValues(vtkOpenGLRenderer* vtkNotUsed(
       vtkShaderProgram::Substitute(
         vertexShader, subst.Target, glslContents, subst.ReplaceAllOccurrences);
     }
+    else if (subst.ShaderType == "TessControl")
+    {
+      vtkShaderProgram::Substitute(
+        tessControlShader, subst.Target, glslContents, subst.ReplaceAllOccurrences);
+    }
+    else if (subst.ShaderType == "TessEvaluation")
+    {
+      vtkShaderProgram::Substitute(
+        tessEvalShader, subst.Target, glslContents, subst.ReplaceAllOccurrences);
+    }
   }
   // std::cout << "VS:" << vertexShader << std::endl;
+  // std::cout << "TCS:" << tessControlShader << std::endl;
+  // std::cout << "TES:" << tessEvalShader << std::endl;
   // std::cout << "GS:" << geometryShader << std::endl;
   // std::cout << "FS:" << fragmentShader << std::endl;
   this->LastSubstitutionJSONFileContentsToken = this->HashSubstitutionJSONFileContents();

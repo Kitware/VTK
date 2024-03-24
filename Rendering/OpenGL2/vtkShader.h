@@ -34,11 +34,13 @@ public:
   /** Available shader types. */
   enum Type
   {
-    Vertex,   /**< Vertex shader */
-    Fragment, /**< Fragment shader */
-    Geometry, /**< Geometry shader */
-    Compute,  /**< Compute shader */
-    Unknown   /**< Unknown (default) */
+    Vertex,         /**< Vertex shader */
+    Fragment,       /**< Fragment shader */
+    Geometry,       /**< Geometry shader */
+    Compute,        /**< Compute shader */
+    TessControl,    /**< Tessellation Control*/
+    TessEvaluation, /**< Tessellation Evaluation*/
+    Unknown         /**< Unknown (default) */
   };
 
   /** Set the shader type. */
@@ -72,6 +74,9 @@ public:
 
   /** Check if compute shaders are supported. */
   static bool IsComputeShaderSupported();
+
+  /** Check if tessellation shaders are supported. */
+  static bool IsTessellationShaderSupported();
 
   class ReplacementSpec
   {

@@ -31,8 +31,8 @@ public:
 
   /// Abstract interfaces to replace shader values and apply parameters as uniform values.
   virtual bool ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::string& vertexShader,
-    std::string& geometryShader, std::string& fragmentShader, vtkAbstractMapper* mapper,
-    vtkActor* actor) = 0;
+    std::string& tessControlShader, std::string& tessEvalShader, std::string& geometryShader,
+    std::string& fragmentShader, vtkAbstractMapper* mapper, vtkActor* actor) = 0;
   virtual bool SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShaderProgram* program,
     vtkAbstractMapper* mapper, vtkActor* actor, vtkOpenGLVertexArrayObject* VAO = nullptr) = 0;
 

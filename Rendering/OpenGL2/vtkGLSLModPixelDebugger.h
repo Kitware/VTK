@@ -66,7 +66,6 @@
 #include "vtkOpenGLRenderer.h"         // for ivar
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkStringToken.h"            // for ivar
-#include "vtkWeakPointer.h"            // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -89,8 +88,8 @@ public:
 
   // vtkGLSLModifierBase virtuals:
   bool ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::string& vertexShader,
-    std::string& geometryShader, std::string& fragmentShader, vtkAbstractMapper* mapper,
-    vtkActor* actor) override;
+    std::string& tessControlShader, std::string& tessEvalShader, std::string& geometryShader,
+    std::string& fragmentShader, vtkAbstractMapper* mapper, vtkActor* actor) override;
   bool SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShaderProgram* program,
     vtkAbstractMapper* mapper, vtkActor* actor, vtkOpenGLVertexArrayObject* VAO = nullptr) override;
   bool IsUpToDate(vtkOpenGLRenderer* vtkNotUsed(renderer), vtkAbstractMapper* vtkNotUsed(mapper),

@@ -983,7 +983,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderValues(
   vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource)
 {
   // Pre-pass.
-  std::string emptyGS;
+  std::string emptyGS, emptyTCS, emptyTES;
   ::ReplaceShaderRenderPass(vsSource, emptyGS, fsSource, this, actor, true);
   this->ReplaceShaderPosition(renderer, actor, vsSource, fsSource);
   this->ReplaceShaderNormal(renderer, actor, vsSource, fsSource);
@@ -1016,7 +1016,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderValues(
       lightMod->SetUseAnisotropy(this->HasPointNormals && this->HasTangents && this->HasAnisotropy);
       lightMod->SetUseClearCoat(this->HasClearCoat);
     }
-    mod->ReplaceShaderValues(oglRenderer, vsSource, emptyGS, fsSource, this, actor);
+    mod->ReplaceShaderValues(
+      oglRenderer, vsSource, emptyTCS, emptyTES, emptyGS, fsSource, this, actor);
     this->GetGLSLModCollection()->AddItem(mod);
   }
   this->ReplaceShaderTCoord(renderer, actor, vsSource, fsSource);
