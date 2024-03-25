@@ -18,6 +18,7 @@ set(classes
   vtkParallelCoordinatesActor
   vtkPieChartActor
   vtkPolarAxesActor
+  vtkPolarAxesActor2D
   vtkProp3DAxisFollower
   vtkRadialGridActor2D
   vtkScalarBarActor
