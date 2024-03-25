@@ -44,14 +44,14 @@ typedef struct ClassPropertyMethods_
 
 static int isSetMethod(const char* name)
 {
-  return name && (!strncmp(name, "Set", 3) && (strlen(name) > 3) && isupper(name[3]));
+  return name && (!strncmp(name, "Set", 3) && (strnlen(name, 4) == 4) && isupper(name[3]));
 }
 
 static int isSetNthMethod(const char* name)
 {
   if (isSetMethod(name))
   {
-    return (!strncmp(&name[3], "Nth", 3) && (strlen(name) > 6) && isupper(name[6]));
+    return (!strncmp(&name[3], "Nth", 3) && (strnlen(name, 7) == 7) && isupper(name[6]));
   }
 
   return 0;
@@ -72,14 +72,14 @@ static int isSetNumberOfMethod(const char* name)
 
 static int isGetMethod(const char* name)
 {
-  return (name && !strncmp(name, "Get", 3) && (strlen(name) > 3) && isupper(name[3]));
+  return (name && !strncmp(name, "Get", 3) && (strnlen(name, 4) == 4) && isupper(name[3]));
 }
 
 static int isGetNthMethod(const char* name)
 {
   if (isGetMethod(name))
   {
-    return (!strncmp(&name[3], "Nth", 3) && (strlen(name) > 6) && isupper(name[6]));
+    return (!strncmp(&name[3], "Nth", 3) && (strnlen(name, 7) == 7) && isupper(name[6]));
   }
 
   return 0;
@@ -152,13 +152,13 @@ static int isAsStringMethod(const char* name)
 
 static int isAddMethod(const char* name)
 {
-  return (name && !strncmp(name, "Add", 3) && (strlen(name) > 3) && isupper(name[3]) &&
+  return (name && !strncmp(name, "Add", 3) && (strnlen(name, 4) == 4) && isupper(name[3]) &&
     !isBooleanMethod(name));
 }
 
 static int isRemoveMethod(const char* name)
 {
-  return (name && !strncmp(name, "Remove", 6) && (strlen(name) > 6) && isupper(name[6]) &&
+  return (name && !strncmp(name, "Remove", 6) && (strnlen(name, 7) == 7) && isupper(name[6]) &&
     !isBooleanMethod(name));
 }
 
@@ -392,7 +392,7 @@ static int isValidSuffix(const char* methName, const char* propertyName, const c
 
   /* AsString or MaxValue or MinValue or AsN or */
   else if (isGetMethod(methName) &&
-    ((!strncmp(suffix, "As", 2) && (strlen(suffix) > 2) &&
+    ((!strncmp(suffix, "As", 2) && (strnlen(suffix, 3) == 3) &&
        ((suffix[2] == 'S') || isdigit(suffix[2]))) ||
       ((!strncmp(suffix, "Max", 3) || !strncmp(suffix, "Min", 3)) &&
         !strncmp(&suffix[3], "Value", 5))))
