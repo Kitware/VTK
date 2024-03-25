@@ -432,7 +432,7 @@ int vtkSplitSharpEdgesPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSMPTools::For(0, functor.PointBatches.GetNumberOfBatches(), functor);
   const vtkIdType numOutPoints = newToOldPointsMap->GetNumberOfIds();
 
-  vtkDebugMacro(<< "Created " << numNewPts - numPts << " new points");
+  vtkDebugMacro(<< "Created " << numOutPoints - numInPoints << " new points");
 
   if (numOutPoints == numInPoints)
   {
