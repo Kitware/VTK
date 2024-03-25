@@ -15,7 +15,8 @@ Here is a list of currently implemented features:
 6. Point size adjustments.
 7. Line width adjustments for wireframe and surface with edges.
 8. `vtkSDL2WebGPURenderWindow` is a reference implementation of `vtkWebGPURenderWindow` that works on WebAssembly and desktop.
-9. Depth testing.
+9. `vtkXWebGPURenderWindow` is an implementation of `vtkWebGPURenderWindow` that uses X11 for Linux desktop rendering.
+10. Depth testing.
 
 #### Future work
 Since WebGPU is already an abstraction over graphics APIs, this module doesn't create another level of abstraction. It uses WebGPU's C++ flavor
@@ -53,19 +54,18 @@ Finally, for wgsl, the spec does a good job https://www.w3.org/TR/WGSL/
 Things you'll need:
   1. git
   2. [depot_tools](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up)
-  3. [SDL2](https://github.com/libsdl-org/SDL/releases/tag/release-2.26.5)
 
 This module uses Dawn-C++ WebGPU implementation when VTK is built outside emscripten. First grab [Dawn](https://dawn.googlesource.com/dawn/) and follow their
 build instructions using `gn`, not CMake.
 
+To build VTK with Dawn, you need to build Dawn at commit [3a00a9e5c4179d789cfe89ba09c329b57d39f947](https://dawn.googlesource.com/dawn.git/+show/3a00a9e5c4179d789cfe89ba09c329b57d39f947).
+Subsequent commits have changed the public API of Dawn to a great extent, making it incompatible with VTK.
 Dawn uses the Chromium build system and dependency management so you need to install [depot_tools](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up) and add it to the PATH.
-
-As of now, this module uses the SDL2 render window and interactor for desktop. SDL 2.0.18 or higher is recommended. Ubuntu 20.04
-ships with SDL 2.0.10. If you're on Ubuntu 20.04, please build SDL2 from source [SDL2 build on linux](https://wiki.libsdl.org/SDL2/Installation#linuxunix) or grab a release from [SDL/releases](https://github.com/libsdl-org/SDL/releases/tag/release-2.26.5)
 
 ```sh
 # Clone the repo as "dawn"
 git clone https://dawn.googlesource.com/dawn dawn && cd dawn
+git checkout 3a00a9e5c4
 
 # Bootstrap the gclient configuration
 cp scripts/standalone.gclient .gclient
@@ -92,9 +92,10 @@ $ cmake \
 -B /path/to/vtk/build \
 -GNinja \
 -DVTK_ENABLE_WEBGPU=ON \
--DVTK_USE_SDL2=ON \
 -DDAWN_SOURCE_DIR=/path/to/dawn/src \
--DDAWN_BINARY_DIR=/path/to/dawn/src/out/Debug
+-DDAWN_INCLUDE_DIR=/path/to/dawn/include \
+-DDAWN_BINARY_DIR=/path/to/dawn/out/Debug \
+-DVTK_BUILD_TESTING=ON
 
 $ cmake --build
 ```
@@ -102,7 +103,6 @@ $ cmake --build
 ##### Run the WebGPU tests
 These are not regression tested with image comparisons.
 ```sh
-$ export VTK_WINDOW_BACKEND=SDL2
 $ ./bin/vtkRenderingWebGPUCxxTests
 Available tests:
   0. TestCellScalarMappedColors
@@ -123,7 +123,6 @@ Available tests:
 ##### Run the Rendering Core tests
 The RenderingCore vtk.module can be edited to link the unit tests with `VTK::RenderingWebGPU` module. After uncommenting the module name under `TEST_DEPENDS`, rebuild and run the tests. Very few of these pass.
 ```sh
-$ export VTK_WINDOW_BACKEND=SDL2
 $ export VTK_GRAPHICS_BACKEND=WEBGPU
 $ ./bin/vtkRenderingCoreCxxTests
 ```
