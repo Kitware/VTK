@@ -49,7 +49,7 @@ VTK_ABI_NAMESPACE_BEGIN
         void SetObjectAsData(RTWObject target, const char *id, RTWDataType type, RTWObject obj) override;
         void SetBool(RTWObject object, const char *id, bool x) override;
         void SetInt(RTWObject object, const char *id, int32_t x) override;
-        void SetUInt(RTWObject object, const char *id, int32_t x) override;
+        void SetUInt(RTWObject object, const char *id, uint32_t x) override;
         void SetVec2i(RTWObject object, const char *id, int32_t x, int32_t y) override;
         void SetFloat(RTWObject object, const char *id, float x) override;
         void SetVec2f(RTWObject object, const char *id, float x, float y) override;
