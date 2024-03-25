@@ -36,7 +36,11 @@ set(classes
   vtkDataObjectToDataSetFilter
   vtkDataSetEdgeSubdivisionCriterion
   vtkDataSetToDataObjectFilter
+  vtkDecimatePolylineAngleStrategy
+  vtkDecimatePolylineCustomFieldStrategy
+  vtkDecimatePolylineDistanceStrategy
   vtkDecimatePolylineFilter
+  vtkDecimatePolylineStrategy
   vtkDecimatePro
   vtkDelaunay2D
   vtkDelaunay3D
