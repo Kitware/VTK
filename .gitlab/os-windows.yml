@@ -6,6 +6,8 @@
     variables:
         GIT_SUBMODULE_STRATEGY: none
         GIT_CLONE_PATH: "$CI_BUILDS_DIR\\vtk-ci-ext\\$CI_CONCURRENT_ID"
+        # Turn off direct mode until we test it.
+        BUILDCACHE_DIRECT_MODE: "false"
 
 .wheel_windows_x86_64:
     extends: .windows
