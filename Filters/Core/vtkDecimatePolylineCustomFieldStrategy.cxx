@@ -28,7 +28,7 @@ double vtkDecimatePolylineCustomFieldStrategy::ComputeError(
   dataset->GetPoint(p2Id, p2);
 
   if (dataset->GetPointData() == nullptr ||
-    dataset->GetPointData()->GetArray(this->FieldName.c_str()))
+    dataset->GetPointData()->GetArray(this->FieldName.c_str()) == nullptr)
   {
     return VTK_DOUBLE_MAX;
   }
