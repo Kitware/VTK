@@ -25,6 +25,7 @@ set(classes
   vtkXYPlotActor)
 
 set(private_classes
+vtkArcGridActorPrivate
 vtkAxisGridActorPrivate)
 
 set(nowrap_headers
