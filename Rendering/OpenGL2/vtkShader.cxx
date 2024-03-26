@@ -47,25 +47,37 @@ bool vtkShader::Compile()
   GLenum type = GL_VERTEX_SHADER;
   switch (this->ShaderType)
   {
-#ifdef GL_GEOMETRY_SHADER
     case vtkShader::Geometry:
+#ifdef GL_GEOMETRY_SHADER
       type = GL_GEOMETRY_SHADER;
       break;
+#else
+      this->Error = "Geometry shaders are not supported in this build of VTK";
+      return false;
 #endif
-#ifdef GL_COMPUTE_SHADER
     case vtkShader::Compute:
+#ifdef GL_COMPUTE_SHADER
       type = GL_COMPUTE_SHADER;
       break;
+#else
+      this->Error = "Compute shaders are not supported in this build of VTK";
+      return false;
 #endif
-#ifdef GL_TESS_EVALUATION_SHADER
     case vtkShader::TessEvaluation:
+#ifdef GL_TESS_EVALUATION_SHADER
       type = GL_TESS_EVALUATION_SHADER;
       break;
+#else
+      this->Error = "Tessellation evaluation shaders are not supported in this build of VTK";
+      return false;
 #endif
-#ifdef GL_TESS_CONTROL_SHADER
     case vtkShader::TessControl:
+#ifdef GL_TESS_CONTROL_SHADER
       type = GL_TESS_CONTROL_SHADER;
       break;
+#else
+      this->Error = "Tessellation control shaders are not supported in this build of VTK";
+      return false;
 #endif
     case vtkShader::Fragment:
       type = GL_FRAGMENT_SHADER;

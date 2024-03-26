@@ -234,48 +234,62 @@ bool vtkShaderProgram::AttachShader(const vtkShader* shader)
   }
   else if (shader->GetType() == vtkShader::Geometry)
   {
+// only use GS if supported
+#ifdef GL_GEOMETRY_SHADER
     if (this->GeometryShaderHandle != 0)
     {
       glDetachShader(
         static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->GeometryShaderHandle));
     }
-// only use GS if supported
-#ifdef GL_GEOMETRY_SHADER
     this->GeometryShaderHandle = shader->GetHandle();
+#else
+    this->Error = "Geometry shaders are not supported in this build of VTK";
+    return false;
 #endif
   }
   else if (shader->GetType() == vtkShader::Compute)
   {
+// only use CS if supported
+#ifdef GL_COMPUTE_SHADER
     if (this->ComputeShaderHandle != 0)
     {
       glDetachShader(
         static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->ComputeShaderHandle));
     }
-// only use CS if supported
-#ifdef GL_COMPUTE_SHADER
     this->ComputeShaderHandle = shader->GetHandle();
+#else
+    this->Error = "Compute shaders are not supported in this build of VTK";
+    return false;
 #endif
   }
   else if (shader->GetType() == vtkShader::TessControl)
   {
+// only use TCS if supported
+#ifdef GL_TESS_CONTROL_SHADER
     if (this->TessControlShaderHandle != 0)
     {
       glDetachShader(
         static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->TessControlShaderHandle));
     }
-#ifdef GL_TESS_CONTROL_SHADER
     this->TessControlShaderHandle = shader->GetHandle();
+#else
+    this->Error = "Tessellation shaders are not supported in this build of VTK";
+    return false;
 #endif
   }
   else if (shader->GetType() == vtkShader::TessEvaluation)
   {
+// only use TES if supported
+#ifdef GL_TESS_EVALUATION_SHADER
     if (this->TessEvaluationShaderHandle != 0)
     {
       glDetachShader(
         static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->TessEvaluationShaderHandle));
     }
-#ifdef GL_TESS_EVALUATION_SHADER
     this->TessEvaluationShaderHandle = shader->GetHandle();
+#else
+    this->Error = "Tessellation shaders are not supported in this build of VTK";
+    return false;
 #endif
   }
   else
@@ -334,8 +348,8 @@ bool vtkShaderProgram::DetachShader(const vtkShader* shader)
         this->Linked = false;
         return true;
       }
-#ifdef GL_GEOMETRY_SHADER
     case vtkShader::Geometry:
+#ifdef GL_GEOMETRY_SHADER
       if (this->GeometryShaderHandle != shader->GetHandle())
       {
         this->Error = "The supplied shader was not attached to this program.";
@@ -348,9 +362,12 @@ bool vtkShaderProgram::DetachShader(const vtkShader* shader)
         this->Linked = false;
         return true;
       }
+#else
+      this->Error = "Geometry shaders are not supported in this build of VTK";
+      return false;
 #endif
-#ifdef GL_COMPUTE_SHADER
     case vtkShader::Compute:
+#ifdef GL_COMPUTE_SHADER
       if (this->ComputeShaderHandle != shader->GetHandle())
       {
         this->Error = "The supplied shader was not attached to this program.";
@@ -363,9 +380,12 @@ bool vtkShaderProgram::DetachShader(const vtkShader* shader)
         this->Linked = false;
         return true;
       }
+#else
+      this->Error = "Compute shaders are not supported in this build of VTK";
+      return false;
 #endif
-#ifdef GL_TESS_CONTROL_SHADER
     case vtkShader::TessControl:
+#ifdef GL_TESS_CONTROL_SHADER
       if (this->TessControlShaderHandle != shader->GetHandle())
       {
         this->Error = "The supplied shader was not attached to this program.";
@@ -378,9 +398,12 @@ bool vtkShaderProgram::DetachShader(const vtkShader* shader)
         this->Linked = false;
         return true;
       }
+#else
+      this->Error = "Tessellation control shaders are not supported in this build of VTK";
+      return false;
 #endif
-#ifdef GL_TESS_EVALUATION_SHADER
     case vtkShader::TessEvaluation:
+#ifdef GL_TESS_EVALUATION_SHADER
       if (this->TessEvaluationShaderHandle != shader->GetHandle())
       {
         this->Error = "The supplied shader was not attached to this program.";
@@ -393,6 +416,9 @@ bool vtkShaderProgram::DetachShader(const vtkShader* shader)
         this->Linked = false;
         return true;
       }
+#else
+      this->Error = "Tessellation evaluation shaders are not supported in this build of VTK";
+      return false;
 #endif
     case vtkShader::Unknown:
     default:
@@ -546,7 +572,6 @@ int vtkShaderProgram::CompileShader()
     this->ReportShaderError(this->GetFragmentShader());
     return 0;
   }
-#ifdef GL_GEOMETRY_SHADER
   if (!this->GetGeometryShader()->GetSource().empty() && !this->GetGeometryShader()->Compile())
   {
     this->ReportShaderError(this->GetGeometryShader());
@@ -558,8 +583,6 @@ int vtkShaderProgram::CompileShader()
     vtkErrorMacro(<< this->GetError());
     return 0;
   }
-#endif
-#ifdef GL_COMPUTE_SHADER
   if (!this->GetComputeShader()->GetSource().empty())
   {
     if (!this->GetComputeShader()->Compile())
@@ -582,8 +605,6 @@ int vtkShaderProgram::CompileShader()
     this->Compiled = true;
     return 1;
   }
-#endif
-#ifdef GL_TESS_CONTROL_SHADER
   if (!this->GetTessControlShader()->GetSource().empty())
   {
     if (!this->GetTessControlShader()->Compile())
@@ -597,8 +618,6 @@ int vtkShaderProgram::CompileShader()
       return 0;
     }
   }
-#endif
-#ifdef GL_TESS_EVALUATION_SHADER
   if (!this->GetTessEvaluationShader()->GetSource().empty())
   {
     if (!this->GetTessEvaluationShader()->Compile())
@@ -612,7 +631,6 @@ int vtkShaderProgram::CompileShader()
       return 0;
     }
   }
-#endif
   if (!this->AttachShader(this->GetVertexShader()))
   {
     vtkErrorMacro(<< this->GetError());
