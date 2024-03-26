@@ -113,6 +113,8 @@ if (NOT copy_qmlplugintypes)
       TARGET qmlvtkplugin
       POST_BUILD
       COMMAND
+        ${CMAKE_COMMAND} -E env
+        "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib"
         "${QMLPLUGINDUMP_EXECUTABLE}"
         -output "${qmltypes_file_output}"
         "${_vtk_build_PACKAGE}"
