@@ -17,10 +17,14 @@
 #include "vtkIOCesium3DTilesModule.h" // For export macro
 #include "vtkPartitionedDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
+#include <vtk_nlohmannjson.h>
+#include VTK_NLOHMANN_JSON(json.hpp)
 
 #include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkPolyData;
+class vtkTransform;
 
 /**
  * @class   vtkCesium3DTilesReader
@@ -62,23 +66,35 @@ public:
   vtkGetMacro(Level, int);
   ///@}
 
-  ///@{
-  /**
-   * Get the number of levels in the tileset.
-   */
-  vtkGetMacro(NumberOfLevels, int);
-  ///@}
-
   /**
    * Returns true if it can read the json file (it is a 3D Tiles tileset), false otherwise
    */
   virtual int CanReadFile(VTK_FILEPATH const char* name);
+  /**
+   * Traverse the tree in postorder to compute the depth of the tree
+   */
+  int GetDepth(nlohmann::json& node);
 
 protected:
   vtkCesium3DTilesReader();
   ~vtkCesium3DTilesReader() override;
 
+  /**
+   * Read tiles and add them to 'pd' for given this->Level and numberOfRanks/rank
+   * combination. 'parentTransform' is used to accumulate transforms from the tileset.
+   */
+  void ReadTiles(vtkPartitionedDataSet* pd, size_t numberOfRanks, size_t rank);
+  /**
+   * Reads the tile and transforms it.
+   */
+  vtkSmartPointer<vtkPolyData> ReadTile(std::string tileFileName, vtkTransform* transform);
+  /**
+   * Converts globalIndex to  (tilesetIndex, tileIndex) pair.
+   */
+  std::pair<size_t, size_t> ToLocalIndex(size_t globalIndex);
+
   char* FileName = nullptr;
+  std::string DirectoryName;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -88,12 +104,16 @@ private:
   void operator=(const vtkCesium3DTilesReader&) = delete;
 
   int Level;
-  int NumberOfLevels;
-
   class Tileset;
   friend class Tileset;
+  /**
+   * Tilesets (root and external), each tileset stores tiles on a
+   * certain level.
+   */
   std::vector<std::shared_ptr<Tileset>> Tilesets;
+  std::map<std::string, size_t> FileNameToTilesetIndex;
 };
 
 VTK_ABI_NAMESPACE_END
 #endif
+// VTK-HeaderTest-Exclude: vtkCesium3DTilesReader.h
