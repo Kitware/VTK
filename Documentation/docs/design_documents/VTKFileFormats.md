@@ -15,7 +15,7 @@ More flexible but more complex than the legacy file format, it supports random a
 
  2. VTKHDF
 
-The last one is a file format using the same concepts as the XML formats described above but relying on [HDF5](https://www.hdfgroup.org/solutions/hdf5/) for actual storage. It expects to be simpler than the XML. It provides good I/O performance as well as robust and flexible parallel I/O capabilities and may to replace others file formats once it will be complete.
+This is a file format using the same concepts as the XML formats described above but relying on HDF5 for actual storage. It is simpler than the XML. It provides good I/O performance as well as robust and flexible parallel I/O capabilities and may to replace others file formats once it will be complete. It can be read/written using either hdf5 directly or the vtkhdf implementation in VTK.
 
 ## Simple Legacy Formats
 
@@ -941,15 +941,21 @@ The following is a complete example specifying a vtkPolyData representing a cube
 ## VTKHDF File Format
 
 The `VTKHDF` file format is a file format relying on [HDF5](https://www.hdfgroup.org/solutions/hdf5/).
-It currently support: PolyData, UnstructuredGrid, ImageData, OverlappingAMR, MultiBlockDataSet and the
+It is meant to provide good I/O performance as well as robust and flexible parallel I/O capabilities.
+
+It currently supports: PolyData, UnstructuredGrid, ImageData, OverlappingAMR, MultiBlockDataSet and the
 PartitionedDataSetCollection.
 
-The current file format version is the **2.1**.
+The current file format version is the **2.2**.
 
 Note: This development is iterative and the format is expected to grow in
 its support for more and more use cases.
 
 ### Changelog
+
+#### VTKHDF - 2.2
+
+- add support for transient `OverlappingAMR`
 
 #### VTKHDF - 2.1
 
@@ -981,7 +987,7 @@ VTK HDF files start with a group called `VTKHDF` with two attributes:
 `Version`, an array of two integers and `Type`, a string showing the
 VTK dataset type stored in the file. Additional attributes can follow
 depending on the dataset type. Currently, `Version`
-is the array [2, 1] and `Type` can be `ImageData`, `PolyData`,
+is the array [2, 2] and `Type` can be `ImageData`, `PolyData`,
 `UnstructuredGrid`, `OverlappingAMR`,  `PartitionedDataSetCollection` or
 `MultiBlockDataSet`.
 
@@ -1237,22 +1243,39 @@ place.
 Figure 11. - Transient Data VTKHDF File Format
 ```
 
+Writing incrementally to `VTKHDF` transient datasets is relatively straightforward using the
+appending functionality of `HDF5` chunked data sets
+([Chunking in HDF5](https://davis.lbl.gov/Manuals/HDF5-1.8.7/Advanced/Chunking/index.html)).
+
+#### Particularity regarding ImageData
+
 A particularity of transient `Image Data` in the format is that the reader expects an additional
 prepended dimension considering the time to be the first dimension in the multidimensional arrays.
 As such, arrays described in transient `Image Data` should have dimensions ordered as
 `(time, z, y, x)`.
 
-Writing incrementally to `VTKHDF` transient datasets is relatively straightforward using the
-appending functionality of `HDF5` chunked data sets
-([Chunking in HDF5](https://davis.lbl.gov/Manuals/HDF5-1.8.7/Advanced/Chunking/index.html)).
+#### Particularity regarding OverlappingAMR
+
+Currently only `AMRBox` and `Point/Cell/Field data` can be temporal, not the `Spacing`. Due to the
+structure of the OverlappingAMR format, the format specify an intermediary group between the `Steps`
+group and the `Point/Cell/FieldDataOffset` group named `LevelX` for each level where `X` is the
+number of level. These `Level` groups will also contain 2 other datasets to retrieve the `AMRBox`:
+
+- `AMRBoxOffsets` : each entry indicates by how many AMR box to offset reading into the `AMRBox`.
+- `NumberOfAMRBox` : the number of boxes contained in the `AMRBox` for each timestep.
+
+```{figure} vtkhdf_images/transient_overlapping_amr_hdf_schema.png
+:width: 640px
+:align: center
+
+Figure 12. - Transient OverlappingAMR VTKHDF File Format
+```
 
 ### Limitations
 
 This specification and the reader available in VTK currently only
-supports ImageData, UnstructuredGrid, PolyData and Overlapping AMR. Other dataset
-types may be added later depending on interest and funding.
-
-Also, Overlapping AMR transient data is not currently supported.
+supports ImageData, UnstructuredGrid, PolyData, Overlapping AMR, MultiBlockDataSet and Partitioned
+DataSet Collection. Other dataset types may be added later depending on interest and funding.
 
 ### Examples
 
