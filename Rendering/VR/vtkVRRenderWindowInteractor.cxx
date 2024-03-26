@@ -516,15 +516,4 @@ void vtkVRRenderWindowInteractor::SetDeviceInputDownCount(vtkEventDataDevice dev
   this->DeviceInputDownCount[static_cast<int>(device)] = count;
 }
 
-//------------------------------------------------------------------------------
-vtkCommand::EventIds vtkVRRenderWindowInteractor::GetCurrentGesture() const
-{
-  return this->CurrentGesture;
-}
-
-//------------------------------------------------------------------------------
-void vtkVRRenderWindowInteractor::SetCurrentGesture(vtkCommand::EventIds eid)
-{
-  this->CurrentGesture = eid;
-}
 VTK_ABI_NAMESPACE_END
