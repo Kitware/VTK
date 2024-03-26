@@ -195,6 +195,24 @@ std::pair<size_t, size_t> vtkCesium3DTilesReader::ToLocalIndex(size_t globalInde
 }
 
 //------------------------------------------------------------------------------
+vtkStandardNewMacro(vtkCesium3DTilesReader);
+
+//------------------------------------------------------------------------------
+vtkCesium3DTilesReader::vtkCesium3DTilesReader()
+{
+  this->FileName = nullptr;
+  this->SetNumberOfInputPorts(0);
+  this->Level = 0;
+}
+
+//------------------------------------------------------------------------------
+vtkCesium3DTilesReader::~vtkCesium3DTilesReader()
+{
+  this->SetFileName(nullptr);
+  this->Level = 0;
+}
+
+//------------------------------------------------------------------------------
 void vtkCesium3DTilesReader::ReadTiles(vtkPartitionedDataSet* pd, size_t numberOfRanks, size_t rank)
 {
   size_t numberOfPartitions = std::accumulate(this->Tilesets.begin(), this->Tilesets.end(), 0,
@@ -293,24 +311,6 @@ vtkSmartPointer<vtkPolyData> vtkCesium3DTilesReader::ReadTile(
   transformFilter->Update();
   tile->ShallowCopy(transformFilter->GetOutput());
   return tile;
-}
-
-//------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkCesium3DTilesReader);
-
-//------------------------------------------------------------------------------
-vtkCesium3DTilesReader::vtkCesium3DTilesReader()
-{
-  this->FileName = nullptr;
-  this->SetNumberOfInputPorts(0);
-  this->Level = 0;
-}
-
-//------------------------------------------------------------------------------
-vtkCesium3DTilesReader::~vtkCesium3DTilesReader()
-{
-  this->SetFileName(nullptr);
-  this->Level = 0;
 }
 
 //------------------------------------------------------------------------------
