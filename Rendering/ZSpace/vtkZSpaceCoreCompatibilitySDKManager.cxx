@@ -68,6 +68,19 @@ vtkZSpaceCoreCompatibilitySDKManager::~vtkZSpaceCoreCompatibilitySDKManager()
 }
 
 //------------------------------------------------------------------------------
+void vtkZSpaceCoreCompatibilitySDKManager::ShutDown()
+{
+  ZSPACE_RETURN_IF_NOT_INIT();
+
+  ZCCompatError error;
+
+  error = this->EntryPts.zccompatShutDown(this->ZSpaceContext);
+  ZSPACE_CHECK_ERROR(zccompatShutDown, error);
+
+  this->Initialized = false;
+}
+
+//------------------------------------------------------------------------------
 bool vtkZSpaceCoreCompatibilitySDKManager::loadZspaceCoreCompatibilityEntryPoints(
   const char* zSpaceCoreCompatDllFilePath, HMODULE& dllModuleHandle,
   zSpaceCoreCompatEntryPoints& entryPoints)
@@ -122,6 +135,11 @@ bool vtkZSpaceCoreCompatibilitySDKManager::loadZspaceCoreCompatibilityEntryPoint
 //------------------------------------------------------------------------------
 void vtkZSpaceCoreCompatibilitySDKManager::InitializeZSpace()
 {
+  if (this->Initialized)
+  {
+    return;
+  }
+
   const bool didSucceed = loadZspaceCoreCompatibilityEntryPoints(
     ZSPACE_CORE_COMPATIBILITY_DLL_FILE_PATH, this->zSpaceCoreCompatDllModuleHandle, this->EntryPts);
 
