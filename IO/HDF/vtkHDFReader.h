@@ -43,7 +43,7 @@ class vtkUnstructuredGrid;
  * vtkDataSet types (image data, poly data, unstructured grid, overlapping AMR, partitioned dataset
  * collection and multiblock are currently implemented) and serial as well as parallel processing.
  *
- * Can also read transient data with directions and offsets present
+ * Can also read temporal data with directions and offsets present
  * in a supplemental 'VTKHDF/Steps' group for vtkUnstructuredGrid
  * vtkPolyData, and vtkImageData.
  *
@@ -116,14 +116,16 @@ public:
 
   ///@{
   /**
-   * Getters and setters for transient data
-   * - HasTransientData is a boolean that flags whether the file has temporal data
+   * Getters and setters for temporal data
+   * - HasTemporalData is a boolean that flags whether the file has temporal data
    * - NumberOfSteps is the number of time steps contained in the file
    * - Step is the time step to be read or last read by the reader
    * - TimeValue is the value corresponding to the Step property
    * - TimeRange is an array with the {min, max} values of time for the data
    */
-  vtkGetMacro(HasTransientData, bool);
+  VTK_DEPRECATED_IN_9_4_0("Please use GetTemporalData method instead.")
+  virtual bool GetHasTransientData();
+  bool GetHasTemporalData();
   vtkGetMacro(NumberOfSteps, vtkIdType);
   vtkGetMacro(Step, vtkIdType);
   vtkSetMacro(Step, vtkIdType);
@@ -135,7 +137,7 @@ public:
   /**
    * Boolean property determining whether to use the internal cache or not (default is false).
    *
-   * Internal cache is useful when reading transient data to never re-read something that has
+   * Internal cache is useful when reading temporal data to never re-read something that has
    * already been cached.
    *
    * @note Incompatible with MergeParts as vtkAppendDataSet which is used internally doesn't
@@ -245,17 +247,74 @@ protected:
    */
   int SetupInformation(vtkInformation* outInfo);
 
+  /**
+   * The input file's name.
+   */
+  char* FileName;
+
+  /**
+   * The array selections.
+   * in the same order as vtkDataObject::AttributeTypes: POINT, CELL, FIELD
+   */
+  vtkDataArraySelection* DataArraySelection[3];
+
+  /**
+   * The observer to modify this object when the array selections are
+   * modified.
+   */
+  vtkCallbackCommand* SelectionObserver;
+  ///@{
+  /**
+   * Image data topology and geometry.
+   */
+  int WholeExtent[6];
+  double Origin[3];
+  double Spacing[3];
+  ///@}
+
+  /**
+   * Assembly used for PartitionedDataSetCollection
+   */
+  vtkSmartPointer<vtkDataAssembly> Assembly;
+
+  ///@{
+  /**
+   * Temporal data properties
+   */
+  VTK_DEPRECATED_IN_9_4_0("Use Get/Set TemporalData methods instead.")
+  bool HasTransientData = false;
+  vtkIdType Step = 0;
+  vtkIdType NumberOfSteps = 1;
+  double TimeValue = 0.0;
+  std::array<double, 2> TimeRange;
+  ///@}
+
+  /**
+   * Determine whether to merge the partitions (true) or return a vtkPartitionedDataSet (false)
+   */
+  bool MergeParts = true;
+
+  unsigned int MaximumLevelsToReadByDefaultForAMR = 0;
+
+  class Implementation;
+  Implementation* Impl;
+
+  bool UseCache = false;
+  struct DataCache;
+  std::shared_ptr<DataCache> Cache;
+
 private:
   vtkHDFReader(const vtkHDFReader&) = delete;
   void operator=(const vtkHDFReader&) = delete;
 
-  bool MeshGeometryChangedFromPreviousTimeStep = true;
-
-  vtkNew<vtkDataObjectMeshCache> MeshCache;
-  std::map<vtkIdType, std::string> AttributesOriginalIdName{
-    { vtkDataObject::POINT, "__pointsOriginalIds__" },
-    { vtkDataObject::CELL, "__cellOriginalIds__" }, { vtkDataObject::FIELD, "__fieldOriginalIds__" }
-  };
+  /**
+   * Setter for UseTemporalData.
+   *
+   * Useful to set privatly the deprecate UseTransientData variable to true when it's needed.
+   */
+  VTK_DEPRECATED_IN_9_4_0("Use directly UseTemporalData, the purpose of this setter was to set"
+                          "the deprecate value HasTransientData.")
+  void SetHasTemporalData(bool useTemporalData);
 
   /**
    * Generate the vtkDataAssembly used for vtkPartitionedDataSetCollection and store it in Assembly.
@@ -290,61 +349,16 @@ private:
    */
   void CleanOriginalIds(vtkPartitionedDataSet* output);
 
-protected:
-  /**
-   * The input file's name.
-   */
-  char* FileName;
+  bool MeshGeometryChangedFromPreviousTimeStep = true;
 
-  /**
-   * The array selections.
-   * in the same order as vtkDataObject::AttributeTypes: POINT, CELL, FIELD
-   */
-  vtkDataArraySelection* DataArraySelection[3];
+  vtkNew<vtkDataObjectMeshCache> MeshCache;
 
-  /**
-   * The observer to modify this object when the array selections are
-   * modified.
-   */
-  vtkCallbackCommand* SelectionObserver;
-  ///@{
-  /**
-   * Image data topology and geometry.
-   */
-  int WholeExtent[6];
-  double Origin[3];
-  double Spacing[3];
-  ///@}
+  std::map<vtkIdType, std::string> AttributesOriginalIdName{
+    { vtkDataObject::POINT, "__pointsOriginalIds__" },
+    { vtkDataObject::CELL, "__cellOriginalIds__" }, { vtkDataObject::FIELD, "__fieldOriginalIds__" }
+  };
 
-  /**
-   * Assembly used for PartitionedDataSetCollection
-   */
-  vtkSmartPointer<vtkDataAssembly> Assembly;
-
-  ///@{
-  /**
-   * Transient data properties
-   */
-  bool HasTransientData = false;
-  vtkIdType Step = 0;
-  vtkIdType NumberOfSteps = 1;
-  double TimeValue = 0.0;
-  std::array<double, 2> TimeRange;
-  ///@}
-
-  /**
-   * Determine whether to merge the partitions (true) or return a vtkPartitionedDataSet (false)
-   */
-  bool MergeParts = true;
-
-  unsigned int MaximumLevelsToReadByDefaultForAMR = 0;
-
-  class Implementation;
-  Implementation* Impl;
-
-  bool UseCache = false;
-  struct DataCache;
-  std::shared_ptr<DataCache> Cache;
+  bool HasTemporalData = false;
 };
 
 VTK_ABI_NAMESPACE_END

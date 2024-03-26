@@ -232,7 +232,7 @@ bool vtkHDFReader::Implementation::RetrieveHDFInformation(const std::string& roo
   }
 
   H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
-  // get transient information if there is any
+  // get temporal information if there is any
   vtkIdType nSteps = this->GetNumberOfSteps();
   H5Eset_auto(H5E_DEFAULT, f, client_data);
 

@@ -375,7 +375,7 @@ void vtkHDFReader::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "PointDataArraySelection: " << this->DataArraySelection[vtkDataObject::POINT]
      << "\n";
-  os << indent << "HasTransientData: " << (this->HasTransientData ? "true" : "false") << "\n";
+  os << indent << "HasTemporalData: " << (this->HasTemporalData ? "true" : "false") << "\n";
   os << indent << "NumberOfSteps: " << this->NumberOfSteps << "\n";
   os << indent << "Step: " << this->Step << "\n";
   os << indent << "TimeValue: " << this->TimeValue << "\n";
@@ -392,6 +392,26 @@ vtkDataSet* vtkHDFReader::GetOutputAsDataSet()
 vtkDataSet* vtkHDFReader::GetOutputAsDataSet(int index)
 {
   return vtkDataSet::SafeDownCast(this->GetOutputDataObject(index));
+}
+
+//----------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_4_0()
+bool vtkHDFReader::GetHasTransientData()
+{
+  return this->GetHasTemporalData();
+}
+
+//----------------------------------------------------------------------------
+bool vtkHDFReader::GetHasTemporalData()
+{
+  return this->HasTemporalData || this->HasTransientData;
+}
+
+//----------------------------------------------------------------------------
+void vtkHDFReader::SetHasTemporalData(bool hasTemporalData)
+{
+  this->HasTemporalData = hasTemporalData;
+  this->HasTransientData = hasTemporalData;
 }
 
 //----------------------------------------------------------------------------
@@ -501,7 +521,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
                                      << vtkHDFMajorVersion << "." << vtkHDFMinorVersion);
   }
   this->NumberOfSteps = this->Impl->GetNumberOfSteps();
-  this->HasTransientData = (this->NumberOfSteps > 1);
+  this->SetHasTemporalData(this->NumberOfSteps > 1);
   int dataSetType = this->Impl->GetDataSetType();
   if (!output || !output->IsA(typeNameMap[dataSetType].c_str()) || !this->MergeParts)
   {
@@ -651,9 +671,9 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
     return 0;
   }
 
-  // Recover transient data information
-  this->HasTransientData = (this->NumberOfSteps > 1);
-  if (this->HasTransientData)
+  // Recover temporal data information
+  this->SetHasTemporalData(this->NumberOfSteps > 1);
+  if (this->GetHasTemporalData())
   {
     std::vector<double> values(this->NumberOfSteps, 0.0);
     {
@@ -725,7 +745,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
         std::vector<int> extentBuffer(fileExtent.size(), 0);
         std::copy(
           updateExtent.begin(), updateExtent.begin() + extentBuffer.size(), extentBuffer.begin());
-        if (this->HasTransientData)
+        if (this->GetHasTemporalData())
         {
           vtkIdType offset = this->Impl->GetArrayOffset(this->Step, attributeType, name);
           if (offset >= 0)
@@ -755,7 +775,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
           fileExtent[iDim * 2] = extentBuffer[rIDim * 2];
           fileExtent[iDim * 2 + 1] = extentBuffer[rIDim * 2 + 1] + pointModifier;
         }
-        if (this->HasTransientData && !pointModifier)
+        if (this->GetHasTemporalData() && !pointModifier)
         {
           // Add one to the extent for the time dimension if needed
           fileExtent[1] += 1;
@@ -799,9 +819,9 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
     vtkSmartPointer<vtkAbstractArray> array;
     vtkIdType offset = -1;
     vtkIdType size = -1;
-    if (this->Impl->GetDataSetType() != VTK_OVERLAPPING_AMR && this->HasTransientData)
+    if (this->Impl->GetDataSetType() != VTK_OVERLAPPING_AMR && this->GetHasTemporalData())
     {
-      // If the field data is transient we expect it to have NumberSteps number of tuples
+      // If the field data is temporal we expect it to have NumberSteps number of tuples
       // and as many components as necessary
       size = 1;
       offset = this->Impl->GetArrayOffset(this->Step, vtkDataObject::FIELD, name);
@@ -826,7 +846,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
       }
       array->SetName(name.c_str());
     }
-    if (this->HasTransientData)
+    if (this->GetHasTemporalData())
     {
       vtkIdType len = array->GetNumberOfComponents();
       array->SetNumberOfComponents(1);
@@ -838,7 +858,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
       this->Cache->Set(vtkDataObject::FIELD, name, offset, size, array);
     }
   }
-  if (this->HasTransientData)
+  if (this->GetHasTemporalData())
   {
     vtkNew<vtkDoubleArray> time;
     time->SetName("Time");
@@ -944,7 +964,7 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
       if (this->DataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
       {
         vtkIdType arrayOffset = offsets[attributeType];
-        if (this->HasTransientData)
+        if (this->GetHasTemporalData())
         {
           vtkIdType buff = this->Impl->GetArrayOffset(this->Step, attributeType, name);
           if (buff >= 0)
@@ -977,7 +997,7 @@ int vtkHDFReader::Read(
   vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData)
 {
   int filePieceCount = this->Impl->GetNumberOfPieces();
-  if (this->HasTransientData)
+  if (this->GetHasTemporalData())
   {
     filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
   }
@@ -985,12 +1005,12 @@ int vtkHDFReader::Read(
   vtkIdType startingPointOffset = 0;
   vtkIdType startingCellOffset = 0;
   vtkIdType startingConnectivityIdOffset = 0;
-  if (this->HasTransientData)
+  if (this->GetHasTemporalData())
   {
-    vtkHDFUtilities::TransientGeometryOffsets geoOffs(this->Impl, this->Step);
+    vtkHDFUtilities::TemporalGeometryOffsets geoOffs(this->Impl, this->Step);
     if (!geoOffs.Success)
     {
-      vtkErrorMacro("Error in reading transient geometry offsets");
+      vtkErrorMacro("Error in reading temporal geometry offsets");
       return 0;
     }
     partOffset = geoOffs.PartOffset;
@@ -1075,7 +1095,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
 {
   // The number of pieces in this step
   int filePieceCount = this->Impl->GetNumberOfPieces();
-  if (this->HasTransientData)
+  if (this->GetHasTemporalData())
   {
     filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
   }
@@ -1085,13 +1105,13 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
   vtkIdType startingPointOffset = 0;
   std::vector<vtkIdType> startingCellOffsets(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
   std::vector<vtkIdType> startingConnectivityIdOffsets(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
-  if (this->HasTransientData)
+  if (this->GetHasTemporalData())
   {
     // Read the time offsets for this step
-    vtkHDFUtilities::TransientGeometryOffsets geoOffs(this->Impl, this->Step);
+    vtkHDFUtilities::TemporalGeometryOffsets geoOffs(this->Impl, this->Step);
     if (!geoOffs.Success)
     {
-      vtkErrorMacro("Error in reading transient geometry offsets");
+      vtkErrorMacro("Error in reading temporal geometry offsets");
       return 0;
     }
     // bring these offsets up in scope
@@ -1227,7 +1247,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
         if (this->DataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
         {
           vtkIdType arrayOffset = offsets[attributeType];
-          if (this->HasTransientData)
+          if (this->GetHasTemporalData())
           {
             vtkIdType buff = this->Impl->GetArrayOffset(this->Step, attributeType, name);
             if (buff >= 0)
@@ -1291,8 +1311,8 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
 //------------------------------------------------------------------------------
 int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSetCollection* pdc)
 {
-  // Save transient information, that can be overridden when changing root dataset
-  bool isPDCTransient = this->HasTransientData;
+  // Save temporal information, that can be overridden when changing root dataset
+  bool isPDCTemporal = this->GetHasTemporalData();
   vtkIdType pdcSteps = this->NumberOfSteps;
 
   const std::vector<std::string> datasets =
@@ -1368,9 +1388,9 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
   }
 
   // Implementation can point to a subset due to the previous method instead of the root, reset it
-  // to avoid any conflict for transient dataset.
+  // to avoid any conflict for temporal dataset.
   this->Impl->RetrieveHDFInformation(::VTKHDF_ROOT_PATH);
-  this->HasTransientData = isPDCTransient;
+  this->SetHasTemporalData(isPDCTemporal);
   this->NumberOfSteps = pdcSteps;
 
   return 1;
@@ -1379,14 +1399,14 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
 //------------------------------------------------------------------------------
 int vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)
 {
-  // Save transient information, that can be overridden when changing root dataset
-  bool isPDCTransient = this->HasTransientData;
+  // Save temporal information, that can be overridden when changing root dataset
+  bool isPDCTemporal = this->GetHasTemporalData();
   vtkIdType pdcSteps = this->NumberOfSteps;
 
   int result = this->ReadRecursively(outInfo, mb, ::VTKHDF_ROOT_PATH + "/Assembly");
 
   this->Impl->RetrieveHDFInformation(::VTKHDF_ROOT_PATH);
-  this->HasTransientData = isPDCTransient;
+  this->SetHasTemporalData(isPDCTemporal);
   this->NumberOfSteps = pdcSteps;
 
   return result;
@@ -1424,7 +1444,7 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
         return false;
       }
       this->NumberOfSteps = nStep;
-      this->HasTransientData = true;
+      this->SetHasTemporalData(true);
     }
   }
   return true;
@@ -1548,8 +1568,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
 
   unsigned int level = 0;
 
-  if (!this->Impl->ReadAMRTopology(
-        data, level, maxLevel, this->Origin, this->GetHasTransientData()))
+  if (!this->Impl->ReadAMRTopology(data, level, maxLevel, this->Origin, this->GetHasTemporalData()))
   {
     return 1;
   }
@@ -1561,7 +1580,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
   }
 
   if (!this->Impl->ReadAMRData(
-        data, level, maxLevel, this->DataArraySelection, this->GetHasTransientData()))
+        data, level, maxLevel, this->DataArraySelection, this->GetHasTemporalData()))
   {
     return 1;
   }

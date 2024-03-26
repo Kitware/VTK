@@ -146,8 +146,8 @@ private:
    * Initialize the `Steps` group for transient data, and extendable datasets where needed.
    * This way, the other functions will append to existing datasets every step.
    */
-  bool InitializeTransientData(vtkUnstructuredGrid* input);
-  bool InitializeTransientData(vtkPolyData* input);
+  bool InitializeTemporalData(vtkUnstructuredGrid* input);
+  bool InitializeTemporalData(vtkPolyData* input);
   ///@}
 
   /**
@@ -228,7 +228,7 @@ private:
   /**
    * Append the offset data in the steps group for the current array for transient data
    */
-  bool AppendTransientDataArray(hid_t arrayGroup, vtkAbstractArray* array, const char* arrayName,
+  bool AppendTemporalDataArray(hid_t arrayGroup, vtkAbstractArray* array, const char* arrayName,
     const char* offsetsGroupName, hid_t dataType);
 
   /**
@@ -256,9 +256,9 @@ private:
   bool WriteAllTimeSteps = true;
   int ChunkSize = 100;
 
-  // Transient-related private variables
+  // Temporal-related private variables
   double* timeSteps = nullptr;
-  bool IsTransient = false;
+  bool IsTemporal = false;
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 0;
   vtkMTimeType PreviousStepMeshMTime = 0;
