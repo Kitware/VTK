@@ -104,11 +104,6 @@ public:
   void ConvertPoseToWorldCoordinates(vtkMatrix4x4* poseInTrackingCoordinates, double pos[3],
     double wxyz[4], double ppos[3], double wdir[3]);
 
-  /*
-   * Return starting physical to world matrix.
-   */
-  void GetStartingPhysicalToWorldMatrix(vtkMatrix4x4* startingPhysicalToWorldMatrix);
-
   ///@{
   /**
    * Assign an event or std::function to an event path.
@@ -148,6 +143,66 @@ public:
   vtkSetMacro(ActionSetName, std::string);
   ///@}
 
+  ///@{
+  /**
+   * Handle complex gesture events. Complex gesture events recognition starts when
+   * both buttons mapped to the ComplexGesture action are pressed.
+   *
+   * To differentiate the Rotate, Pinch and Pan gestures, the default implementation
+   * is based on the following heuristic:
+   * - Pinch is a move to/from the center point.
+   * - Rotate is a move along the circumference.
+   * - Pan is a move of the center point.
+   *
+   * After computing the distance along each of these axes in meters, the first
+   * to break the hard-coded threshold wins.
+   *
+   * Overriding both HandleComplexGestureEvents() and RecognizeComplexGesture() allows to define
+   * a different heuristic.
+   *
+   * \sa GetCurrentGesture(), SetCurrentGesture()
+   */
+  virtual void HandleComplexGestureEvents(vtkEventData* ed);
+  virtual void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
+  ///@}
+
+  ///@{
+  /**
+   * When handling complex gestures you can query this value to
+   * determine how many input device are down for the gesture.
+   *
+   * Supported device values are vtkEventDataDevice::LeftController
+   * and vtkEventDataDevice::RightController.
+   *
+   * \sa SetDeviceInputDownCount()
+   * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
+   */
+  int GetDeviceInputDownCount(vtkEventDataDevice device) const;
+  ///@}
+
+  ///@{
+  /**
+   * You can set this value when defining a custom heuristic for recognizing
+   * complex gestures,
+   *
+   * Supported device values are vtkEventDataDevice::LeftController
+   * and vtkEventDataDevice::RightController.
+   *
+   * \sa GetDeviceInputDownCount()
+   * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
+   */
+  void SetDeviceInputDownCount(vtkEventDataDevice device, int count);
+  ///@}
+
+  ///@{
+  /**
+   * Identifier of the complex gesture being handled.
+   * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
+   */
+  vtkCommand::EventIds GetCurrentGesture() const;
+  void SetCurrentGesture(vtkCommand::EventIds eid);
+  ///@}
+
 protected:
   vtkVRRenderWindowInteractor();
   ~vtkVRRenderWindowInteractor() override;
@@ -169,27 +224,6 @@ protected:
 
   ///@{
   /**
-   * Handle complex gesture events. Complex gesture events recognition starts when
-   * both buttons mapped to the ComplexGesture action are pressed.
-   *
-   * To differentiate the Rotate, Pinch and Pan gestures, the default implementation
-   * is based on the following heuristic:
-   * - Pinch is a move to/from the center point.
-   * - Rotate is a move along the circumference.
-   * - Pan is a move of the center point.
-   *
-   * After computing the distance along each of these axes in meters, the first
-   * to break the hard-coded threshold wins.
-   *
-   * Overriding both HandleComplexGestureEvents() and RecognizeComplexGesture() allows to define
-   * a different heuristic.
-   */
-  virtual void HandleComplexGestureEvents(vtkEventData* ed);
-  virtual void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
-  ///@}
-
-  ///@{
-  /**
    * Class variables so an exit method can be defined for this class (used to set
    * different exit methods for various language bindings, i.e. Java, Win32).
    */
@@ -197,11 +231,6 @@ protected:
   static void (*ClassExitMethodArgDelete)(void*);
   static void* ClassExitMethodArg;
   ///@}
-
-  /**
-   * Store physical to world matrix at the start of a complex gesture.
-   */
-  vtkNew<vtkMatrix4x4> StartingPhysicalToWorldMatrix;
 
   int DeviceInputDownCount[vtkEventDataNumberOfDevices];
 

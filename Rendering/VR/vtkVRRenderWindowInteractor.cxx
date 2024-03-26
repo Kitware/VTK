@@ -275,16 +275,6 @@ void vtkVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
 }
 
 //------------------------------------------------------------------------------
-void vtkVRRenderWindowInteractor::GetStartingPhysicalToWorldMatrix(
-  vtkMatrix4x4* startingPhysicalToWorldMatrix)
-{
-  if (startingPhysicalToWorldMatrix)
-  {
-    startingPhysicalToWorldMatrix->DeepCopy(this->StartingPhysicalToWorldMatrix);
-  }
-}
-
-//------------------------------------------------------------------------------
 int vtkVRRenderWindowInteractor::InternalCreateTimer(
   int vtkNotUsed(timerId), int vtkNotUsed(timerType), unsigned long vtkNotUsed(duration))
 {
@@ -327,7 +317,7 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
   this->PointerIndex = static_cast<int>(edata->GetDevice());
   if (edata->GetAction() == vtkEventDataAction::Press)
   {
-    this->DeviceInputDownCount[this->PointerIndex] = 1;
+    this->SetDeviceInputDownCount(edata->GetDevice(), 1);
 
     this->StartingPhysicalEventPositions[this->PointerIndex][0] =
       this->PhysicalEventPositions[this->PointerIndex][0];
@@ -340,32 +330,32 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
     renWin->GetPhysicalToWorldMatrix(this->StartingPhysicalToWorldMatrix);
 
     // Both controllers have a button down, start complex gesture handling
-    if (this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::LeftController)] &&
-      this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::RightController)])
+    if (this->GetDeviceInputDownCount(vtkEventDataDevice::LeftController) &&
+      this->GetDeviceInputDownCount(vtkEventDataDevice::RightController))
     {
       // The gesture is still unknown
-      this->CurrentGesture = vtkCommand::StartEvent;
+      this->SetCurrentGesture(vtkCommand::StartEvent);
     }
   }
 
   // End the gesture if needed
   if (edata->GetAction() == vtkEventDataAction::Release)
   {
-    this->DeviceInputDownCount[this->PointerIndex] = 0;
+    this->SetDeviceInputDownCount(edata->GetDevice(), 0);
 
-    if (this->CurrentGesture == vtkCommand::PinchEvent)
+    if (this->GetCurrentGesture() == vtkCommand::PinchEvent)
     {
       this->EndPinchEvent();
     }
-    if (this->CurrentGesture == vtkCommand::PanEvent)
+    if (this->GetCurrentGesture() == vtkCommand::PanEvent)
     {
       this->EndPanEvent();
     }
-    if (this->CurrentGesture == vtkCommand::RotateEvent)
+    if (this->GetCurrentGesture() == vtkCommand::RotateEvent)
     {
       this->EndRotateEvent();
     }
-    this->CurrentGesture = vtkCommand::NoEvent;
+    this->SetCurrentGesture(vtkCommand::NoEvent);
 
     return;
   }
@@ -375,28 +365,28 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
 void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
 {
   // Recognize gesture only if one button is pressed per controller
-  int lhand = static_cast<int>(vtkEventDataDevice::LeftController);
-  int rhand = static_cast<int>(vtkEventDataDevice::RightController);
+  vtkEventDataDevice lhand = vtkEventDataDevice::LeftController;
+  vtkEventDataDevice rhand = vtkEventDataDevice::RightController;
 
-  if (this->DeviceInputDownCount[lhand] > 1 || this->DeviceInputDownCount[lhand] == 0 ||
-    this->DeviceInputDownCount[rhand] > 1 || this->DeviceInputDownCount[rhand] == 0)
+  if (this->GetDeviceInputDownCount(lhand) > 1 || this->GetDeviceInputDownCount(lhand) == 0 ||
+    this->GetDeviceInputDownCount(rhand) > 1 || this->GetDeviceInputDownCount(rhand) == 0)
   {
-    this->CurrentGesture = vtkCommand::NoEvent;
+    this->SetCurrentGesture(vtkCommand::NoEvent);
     return;
   }
 
   double* posVals[2];
   double* startVals[2];
-  posVals[0] = this->PhysicalEventPositions[lhand];
-  posVals[1] = this->PhysicalEventPositions[rhand];
+  posVals[0] = this->PhysicalEventPositions[static_cast<int>(lhand)];
+  posVals[1] = this->PhysicalEventPositions[static_cast<int>(rhand)];
 
-  startVals[0] = this->StartingPhysicalEventPositions[lhand];
-  startVals[1] = this->StartingPhysicalEventPositions[rhand];
+  startVals[0] = this->StartingPhysicalEventPositions[static_cast<int>(lhand)];
+  startVals[1] = this->StartingPhysicalEventPositions[static_cast<int>(rhand)];
 
   // The meat of the algorithm.
   // On move events we analyze them to determine what type
   // of movement it is and then deal with it.
-  if (this->CurrentGesture != vtkCommand::NoEvent)
+  if (this->GetCurrentGesture() != vtkCommand::NoEvent)
   {
     // Calculate the distances
     double originalDistance = sqrt(vtkMath::Distance2BetweenPoints(startVals[0], startVals[1]));
@@ -436,7 +426,7 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
     double angleDeviation = newAngle - originalAngle;
 
     // Do we know what gesture we are doing yet? If not, see if we can figure it out
-    if (this->CurrentGesture == vtkCommand::StartEvent)
+    if (this->GetCurrentGesture() == vtkCommand::StartEvent)
     {
       // Pinch is a move to/from the center point.
       // Rotate is a move along the circumference.
@@ -451,19 +441,19 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
 
       if (pinchDistance > thresh && pinchDistance > panDistance && pinchDistance > rotateDistance)
       {
-        this->CurrentGesture = vtkCommand::PinchEvent;
+        this->SetCurrentGesture(vtkCommand::PinchEvent);
         this->Scale = 1.0;
         this->StartPinchEvent();
       }
       else if (rotateDistance > thresh && rotateDistance > panDistance)
       {
-        this->CurrentGesture = vtkCommand::RotateEvent;
+        this->SetCurrentGesture(vtkCommand::RotateEvent);
         this->Rotation = 0.0;
         this->StartRotateEvent();
       }
       else if (panDistance > thresh)
       {
-        this->CurrentGesture = vtkCommand::PanEvent;
+        this->SetCurrentGesture(vtkCommand::PanEvent);
         this->Translation3D[0] = 0.0;
         this->Translation3D[1] = 0.0;
         this->Translation3D[2] = 0.0;
@@ -472,17 +462,17 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
     }
 
     // If we have found a specific type of movement then handle it
-    if (this->CurrentGesture == vtkCommand::RotateEvent)
+    if (this->GetCurrentGesture() == vtkCommand::RotateEvent)
     {
       this->SetRotation(angleDeviation);
       this->RotateEvent();
     }
-    if (this->CurrentGesture == vtkCommand::PinchEvent)
+    if (this->GetCurrentGesture() == vtkCommand::PinchEvent)
     {
       this->SetScale(newDistance / originalDistance);
       this->PinchEvent();
     }
-    if (this->CurrentGesture == vtkCommand::PanEvent)
+    if (this->GetCurrentGesture() == vtkCommand::PanEvent)
     {
       // HMD to world axes
       vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
@@ -504,5 +494,37 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
       this->PanEvent();
     }
   }
+}
+
+//------------------------------------------------------------------------------
+int vtkVRRenderWindowInteractor::GetDeviceInputDownCount(vtkEventDataDevice device) const
+{
+  if (device != vtkEventDataDevice::LeftController && device != vtkEventDataDevice::RightController)
+  {
+    return 0;
+  }
+  return this->DeviceInputDownCount[static_cast<int>(device)];
+}
+
+//------------------------------------------------------------------------------
+void vtkVRRenderWindowInteractor::SetDeviceInputDownCount(vtkEventDataDevice device, int count)
+{
+  if (device != vtkEventDataDevice::LeftController && device != vtkEventDataDevice::RightController)
+  {
+    return;
+  }
+  this->DeviceInputDownCount[static_cast<int>(device)] = count;
+}
+
+//------------------------------------------------------------------------------
+vtkCommand::EventIds vtkVRRenderWindowInteractor::GetCurrentGesture() const
+{
+  return this->CurrentGesture;
+}
+
+//------------------------------------------------------------------------------
+void vtkVRRenderWindowInteractor::SetCurrentGesture(vtkCommand::EventIds eid)
+{
+  this->CurrentGesture = eid;
 }
 VTK_ABI_NAMESPACE_END
