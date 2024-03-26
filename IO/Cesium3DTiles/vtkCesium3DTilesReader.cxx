@@ -68,8 +68,11 @@ public:
    * Open and parse the tileset and compute the number of levels and
    * the number of tiles per level.
    */
-  bool Open(const char* fileName);
-  bool Open(const std::string& fileName) { return Open(fileName.c_str()); }
+  bool Open(const char* fileName, std::array<double, 16>& transform);
+  bool Open(const std::string& fileName, std::array<double, 16>& transform)
+  {
+    return Open(fileName.c_str(), transform);
+  }
 
   /**
    * Returns the root of the tileset
@@ -124,7 +127,7 @@ vtkCesium3DTilesReader::Tileset::~Tileset()
 }
 
 //------------------------------------------------------------------------------
-bool vtkCesium3DTilesReader::Tileset::Open(const char* fileName)
+bool vtkCesium3DTilesReader::Tileset::Open(const char* fileName, std::array<double, 16>& transform)
 {
   try
   {
@@ -142,8 +145,6 @@ bool vtkCesium3DTilesReader::Tileset::Open(const char* fileName)
     this->TilesetStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     this->TilesetStream.open(fileName);
     this->TilesetJson = json::parse(this->TilesetStream);
-    std::array<double, 16> transform;
-    vtkMatrix4x4::Identity(transform.data());
     this->AddPartitions(this->GetRoot(), 0, transform);
   }
   catch (std::exception& e)
@@ -361,9 +362,6 @@ void vtkCesium3DTilesReader::SetLevel(int level)
 void vtkCesium3DTilesReader::Tileset::AddContentPartition(
   json& node, int nodeLevel, std::array<double, 16>& transform)
 {
-  std::array<double, 16> transformYUpToZUp{ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 1.0 };
-  vtkMatrix4x4::Multiply4x4(transform.data(), transformYUpToZUp.data(), transform.data());
   // there is a tile at the current node
   std::string tileFileName = GetContentURI(node);
   std::string extension = vtksys::SystemTools::GetFilenameExtension(tileFileName);
@@ -375,10 +373,13 @@ void vtkCesium3DTilesReader::Tileset::AddContentPartition(
     this->Reader->Tilesets[i]->SetLevel(this->Reader->GetLevel() - nodeLevel);
     std::string externalTilesetPath{ this->Reader->DirectoryName + "/" + tileFileName };
     this->Reader->FileNameToTilesetIndex[externalTilesetPath] = i;
-    this->Reader->Tilesets[i]->Open(externalTilesetPath);
+    this->Reader->Tilesets[i]->Open(externalTilesetPath, transform);
   }
   else
   {
+    std::array<double, 16> transformYUpToZUp{ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
+    vtkMatrix4x4::Multiply4x4(transform.data(), transformYUpToZUp.data(), transform.data());
     this->TileFileNames.push_back(tileFileName);
     this->TileLevels.push_back(nodeLevel);
     this->Transforms.push_back(transform);
@@ -469,7 +470,9 @@ int vtkCesium3DTilesReader::RequestInformation(vtkInformation* vtkNotUsed(reques
   this->Tilesets[0]->SetLevel(this->Level);
   this->FileNameToTilesetIndex[this->FileName] = 0;
   this->DirectoryName = vtksys::SystemTools::GetParentDirectory(this->FileName);
-  if (!this->Tilesets[0]->Open(this->FileName))
+  std::array<double, 16> transform;
+  vtkMatrix4x4::Identity(transform.data());
+  if (!this->Tilesets[0]->Open(this->FileName, transform))
   {
     return 0;
   }
