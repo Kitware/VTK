@@ -80,12 +80,20 @@ vtkUseDoublePoints::~vtkUseDoublePoints()
   delete this->Impl;
 }
 
-void vtkUseDoublePoints::Start()
+void vtkUseDoublePoints::Register()
 {
   vtkObjectFactory::RegisterFactory(this->Impl->Factory);
+  this->Registered = true;
 }
 
-void vtkUseDoublePoints::Stop()
+void vtkUseDoublePoints::UnRegister()
 {
   vtkObjectFactory::UnRegisterFactory(this->Impl->Factory);
+  this->Registered = false;
+}
+
+void vtkUseDoublePoints::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << "vtkUseDoublePoints " << (this->Registered ? "Registered" : "UnRegistered");
 }

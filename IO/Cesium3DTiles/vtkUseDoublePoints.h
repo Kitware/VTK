@@ -12,9 +12,9 @@ public:
   vtkTypeMacro(vtkUseDoublePoints, vtkObject);
 
   static vtkUseDoublePoints* New();
-
-  void Start();
-  void Stop();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  void Register();
+  void UnRegister();
 
 protected:
   vtkUseDoublePoints();
@@ -23,6 +23,7 @@ protected:
 private:
   class Implementation;
   Implementation* Impl;
+  bool Registered;
 
   vtkUseDoublePoints(const vtkUseDoublePoints&) = delete;
   void operator=(const vtkUseDoublePoints&) = delete;
