@@ -214,8 +214,8 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   const bool hasPointNormals = this->ComputePointNormals ? inputPointNormals != nullptr : true;
   auto inputCellNormals = vtkFloatArray::FastDownCast(input->GetCellData()->GetNormals());
   const bool hasCellNormals = this->ComputeCellNormals ? inputCellNormals != nullptr : true;
-  if (hasPointNormals && hasCellNormals && !this->Splitting && !this->Consistency &&
-    !this->AutoOrientNormals)
+  if (hasPointNormals && hasCellNormals && (!this->Splitting || !this->ComputePointNormals) &&
+    !this->Consistency && !this->AutoOrientNormals)
   {
     // don't do anything! pass data through
     output->CopyStructure(input);
@@ -249,7 +249,8 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     fixPolyDataPipeline = orientPolyData->GetOutputPort();
   }
   vtkNew<vtkSplitSharpEdgesPolyData> splitSharpEdgesPolyData;
-  if (this->Splitting)
+  // splitting is only required if we are computing point normals
+  if (this->Splitting && this->ComputePointNormals)
   {
     splitSharpEdgesPolyData->SetContainerAlgorithm(this);
     splitSharpEdgesPolyData->AddObserver(vtkCommand::ProgressEvent, progressForwarder);

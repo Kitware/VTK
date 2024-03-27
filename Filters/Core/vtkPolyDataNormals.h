@@ -89,6 +89,8 @@ public:
   /**
    * Turn on/off the splitting of sharp edges.
    *
+   * Splitting is performed only if ComputePointNormals is on.
+   *
    * The default value is true.
    */
   vtkSetMacro(Splitting, vtkTypeBool);
