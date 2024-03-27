@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
+#include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkHyperTreeGridOrientedCursor.h"
 #include "vtkHyperTreeGridVisibleLeavesSize.h"
 #include "vtkNew.h"
+#include "vtkRandomHyperTreeGridSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLHyperTreeGridReader.h"
@@ -88,9 +91,12 @@ bool CheckTree(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkHyperTreeGr
 
   return result;
 }
-}
 
-int TestHyperTreeGridVisibleLeavesSize(int argc, char* argv[])
+/**
+ * Test the filter with ghost and masked cells.
+ * Verify cell validity and expected volumes on a uniform HTG
+ */
+bool TestMaskGhostSizes(int argc, char* argv[])
 {
   // Read HTG file containing ghost cells
   vtkNew<vtkXMLHyperTreeGridReader> reader;
@@ -125,9 +131,77 @@ int TestHyperTreeGridVisibleLeavesSize(int argc, char* argv[])
     if (!::CheckTree(outCursor, leavesVolumeHTG))
     {
       std::cerr << "Node " << index << " failed validation." << std::endl;
-      return EXIT_FAILURE;
+      return false;
     }
   }
 
-  return EXIT_SUCCESS;
+  return true;
+}
+
+/**
+ * Create a HTG with more than 256 levels. When the HTG has more than 256 different cell volumes
+ * (which is the case for >256 levels or when manually editing HT scales) the internal cell size
+ * structure changes, not using an implicit indexed array anymore. This test covers this case.
+ */
+bool TestDifferentVolumes()
+{
+  constexpr int MAX_DEPTH = 280;
+
+  // Create a pseudo-random HTG
+  vtkNew<vtkRandomHyperTreeGridSource> source;
+  source->SetDimensions(3, 3, 3);
+  source->SetOutputBounds(-10, 10, -10, 10, -10, 10);
+  source->SetSplitFraction(0.1);
+  source->SetSeed(0);
+  source->Update();
+
+  // Refine the first cell until we have at least 256 levels
+  vtkHyperTreeGrid* inputHTG = source->GetHyperTreeGridOutput();
+  inputHTG->SetMask(nullptr);
+  vtkNew<vtkHyperTreeGridOrientedCursor> cursor;
+  inputHTG->SetDepthLimiter(MAX_DEPTH);
+  inputHTG->InitializeOrientedCursor(cursor, 0);
+  cursor->SetGlobalIndexStart(inputHTG->GetNumberOfCells());
+  std::vector<int> levelIds(MAX_DEPTH, 0);
+  for (int i = 0; i < MAX_DEPTH; i++)
+  {
+    cursor->SubdivideLeaf();
+    cursor->ToChild(0);
+    levelIds[i] = cursor->GetGlobalNodeIndex();
+  }
+
+  // Apply our filter
+  vtkNew<vtkHyperTreeGridVisibleLeavesSize> leavesFilter;
+  leavesFilter->SetInputData(inputHTG);
+  leavesFilter->Update();
+  vtkHyperTreeGrid* outputHTG = leavesFilter->GetHyperTreeGridOutput();
+
+  // Check volume values
+  vtkDataArray* volumeField =
+    vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("CellSize"));
+  double expectedVolumeValue = 1000.0;
+  for (int i = 0; i < MAX_DEPTH; i++)
+  {
+    expectedVolumeValue /= 8.0;
+    if (volumeField->GetTuple1(levelIds[i]) != expectedVolumeValue)
+    {
+      std::cerr << "Cell id " << levelIds[i] << " expected volume is " << std::setprecision(15)
+                << expectedVolumeValue << " but got " << volumeField->GetTuple1(levelIds[i])
+                << std::endl;
+      return false;
+    }
+  }
+
+  return true;
+}
+
+}
+
+int TestHyperTreeGridVisibleLeavesSize(int argc, char* argv[])
+{
+  bool result = true;
+  result &= ::TestMaskGhostSizes(argc, argv);
+  result &= ::TestDifferentVolumes();
+
+  return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }

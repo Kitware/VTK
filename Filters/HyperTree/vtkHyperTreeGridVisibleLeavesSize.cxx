@@ -59,6 +59,32 @@ vtkStandardNewMacro(vtkHyperTreeGridVisibleLeavesSize)
     const std::vector<bool> Values;
   };
 
+  /**
+   * Return the size of the cell pointed by the cursor.
+   * In practice, we multiply every non-null size value for the current cell.
+   */
+  double GetCellSize(vtkHyperTreeGridNonOrientedGeometryCursor * cursor)
+  {
+    double cellSize = 1.0;
+    bool nullSize = true;
+    double* size = cursor->GetSize();
+    std::vector<double> dimensions(size, size + 3);
+    for (auto& edgeSize : dimensions)
+    {
+      if (edgeSize != 0.0)
+      {
+        nullSize = false;
+        cellSize *= edgeSize;
+      }
+    }
+    if (nullSize)
+    {
+      // Every size coordinate is null, so the cell size is also null
+      cellSize = 0.0;
+    }
+    return cellSize;
+  }
+
   template <typename T>
   using vtkScalarBooleanArray = vtkImplicitArray<vtkScalarBooleanImplicitBackend<T>>;
 
@@ -77,15 +103,9 @@ public:
    */
   bool Initialize(vtkHyperTreeGrid* inputHTG)
   {
-    this->SizeDiscreteValues->SetNumberOfComponents(1);
-    this->SizeDiscreteValues->SetNumberOfTuples(inputHTG->GetNumberOfLevels());
-    if (this->SizeDiscreteValues->GetNumberOfTuples() > 256)
-    {
-      vtkErrorWithObjectMacro(nullptr, << "Cannot compute size for more than 256 levels, got"
-                                       << this->SizeDiscreteValues->GetNumberOfTuples());
-      return false;
-    }
-    this->ComputeLevelSizes(inputHTG);
+    this->UseIndexedVolume = true;
+    this->SizeDiscreteValues->SetNumberOfComponents(
+      1); // We don't know yet how many different values we can have
 
     this->PackedValidCellArray.clear();
     this->PackedValidCellArray.resize(inputHTG->GetNumberOfCells(), false);
@@ -127,26 +147,101 @@ public:
    */
   vtkDataArray* GetAndFinalizeSizeArray(const std::string& sizeArrayName)
   {
-    // The size values take a discrete number of different values : one value for each level
-    // Thus, we can use an indexed (implicit) array as an indirection table to store the size as a
-    // uchar (256 possible values/levels) instead of a double for each cell to save memory (1 byte
-    // stored instead of 8)
-    this->OutputSizeArray->SetName(sizeArrayName.c_str());
-    this->OutputSizeArray->SetNumberOfComponents(1);
-    this->OutputSizeArray->SetNumberOfTuples(this->SizeIndirectionTable->GetNumberOfValues());
-    this->OutputSizeArray->SetBackend(std::make_shared<vtkIndexedImplicitBackend<double>>(
-      SizeIndirectionTable, SizeDiscreteValues));
-    return this->OutputSizeArray;
+    if (this->UseIndexedVolume)
+    {
+      // The size values take a discrete number of different values : one value for each level
+      // Thus, we can use an indexed (implicit) array as an indirection table to store the size as a
+      // uchar (256 possible values/levels) instead of a double for each cell to save memory (1 byte
+      // stored instead of 8)
+      this->OutputSizeArray->SetName(sizeArrayName.c_str());
+      this->OutputSizeArray->SetNumberOfComponents(1);
+      this->OutputSizeArray->SetNumberOfTuples(this->SizeIndirectionTable->GetNumberOfValues());
+      this->OutputSizeArray->SetBackend(std::make_shared<vtkIndexedImplicitBackend<double>>(
+        SizeIndirectionTable, SizeDiscreteValues));
+      return this->OutputSizeArray;
+    }
+    else
+    {
+      this->SizeFullValues->SetName(sizeArrayName.c_str());
+      return this->SizeFullValues;
+    }
   }
 
   /**
-   * Record the depth of the cell pointed by the cursor in an internal structure
+   * Record the depth of the cell pointed by the cursor in an internal structure.
+   * While we have less different size values than an unsigned char can hold, use an index implicit
+   * array to save memory. In extreme cases where we cannot (eg. too many levels or custom scales),
+   * use a traditional VTK double array.
+   * This method does not guarantee thread-safety.
    */
-  void RecordDepth(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
+  void ComputeSize(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
   {
-    assert("pre: level is less than 256" && cursor->GetLevel() <= 256);
-    this->SizeIndirectionTable->SetTuple1(
-      cursor->GetGlobalNodeIndex(), static_cast<::LevelType>(cursor->GetLevel()));
+    double cellSize = ::GetCellSize(cursor);
+    vtkIdType currentIndex = cursor->GetGlobalNodeIndex();
+    if (!this->UseIndexedVolume)
+    {
+      // We don't use the implicit array anymore but a full Size array
+      this->SizeFullValues->SetTuple1(currentIndex, cellSize);
+      return;
+    }
+
+    // Try to insert size in the indexed array
+    if (this->InsertSize(cellSize, currentIndex))
+    {
+      return;
+    }
+
+    // We have too many different size values to store them in an unsigned char,
+    // so at this point, we give up on implicit indexed array and use a classic VTK double array to
+    // store values. This requires that values are copied from the indirect storage array to the
+    // final double array.
+    this->UseIndexedVolume = false;
+    this->ConvertSizes();
+  }
+
+  /**
+   * Insert size double value into internal storage structures when using indexed arrays.
+   * Return true if insertion was successful, and false if the internal structure has one too many
+   * values and we should switch to traditional size storage.
+   */
+  bool InsertSize(double cellSize, vtkIdType currentIndex)
+  {
+    // Use a hash table for O(1) insertion and seach time instead of searching the VTK array
+    const auto& inserted = this->VolumeLookup.insert(
+      std::make_pair(cellSize, static_cast<LevelType>(this->VolumeLookup.size())));
+    if (inserted.second)
+    {
+      // Insertion succeeded : new element in the lookup table
+      this->SizeDiscreteValues->InsertTuple1(
+        this->SizeDiscreteValues->GetNumberOfTuples(), cellSize);
+    }
+    // New element or not, fill the indirection table
+    this->SizeIndirectionTable->SetTuple1(currentIndex, inserted.first->second);
+    return inserted.first->second < std::numeric_limits<LevelType>::max();
+  }
+
+  /**
+   * Convert indexed cell values to direct values using a double array.
+   * Should be used When switching from indexed implicit array to full-size cell size array.
+   */
+  void ConvertSizes()
+  {
+    // Dump the volume values from the map keys
+    std::vector<double> temp_volume;
+    temp_volume.resize(this->VolumeLookup.size(), 0.0);
+    for (const auto& vol_id : this->VolumeLookup)
+    {
+      temp_volume[vol_id.second] = vol_id.first;
+    }
+    VolumeLookup.clear();
+
+    // Construct the volume array
+    this->SizeFullValues->SetNumberOfComponents(1);
+    this->SizeFullValues->SetNumberOfTuples(SizeIndirectionTable->GetNumberOfTuples());
+    for (int i = 0; i < SizeIndirectionTable->GetNumberOfTuples(); i++)
+    {
+      this->SizeFullValues->SetTuple1(i, temp_volume[SizeIndirectionTable->GetTuple1(i)]);
+    }
   }
 
   /**
@@ -176,47 +271,16 @@ private:
   std::vector<bool>
     PackedValidCellArray; // Operations on bool vector are not atomic. This structure needs to
                           // change if this filter is parallelized.
+
+  bool UseIndexedVolume = true;
+  std::unordered_map<double, LevelType> VolumeLookup;
   vtkNew<vtkUnsignedCharArray> SizeIndirectionTable;
   vtkNew<vtkDoubleArray> SizeDiscreteValues;
+  vtkNew<vtkDoubleArray> SizeFullValues;
 
   // Output data arrays
   vtkNew<::vtkScalarBooleanArray<double>> ValidCellsImplicitArray;
   vtkNew<vtkIndexedArray<double>> OutputSizeArray;
-
-  /**
-   * Fill the SizeDiscreteValues array with size values for each level,
-   * based on the HTG's first tree scales.
-   * We make the assumption that the HTG is uniform and invidual tree scales have not been changed.
-   */
-  void ComputeLevelSizes(vtkHyperTreeGrid* inputHTG)
-  {
-    vtkHyperTree* tree = inputHTG->GetTree(0);
-    std::shared_ptr<vtkHyperTreeGridScales> scale = tree->GetScales();
-
-    for (LevelType level = 0;
-         level < static_cast<LevelType>(this->SizeDiscreteValues->GetNumberOfTuples()); level++)
-    {
-      bool nullSize = true;
-      double cellSize{ 1.0 };
-      double size[3];
-      scale->GetScale(level, size);
-      std::vector<double> dimensions(size, size + 3);
-      for (auto& edgeSize : dimensions)
-      {
-        if (edgeSize != 0.0)
-        {
-          nullSize = false;
-          cellSize *= edgeSize;
-        }
-      }
-      if (nullSize)
-      {
-        // Every size coordinate is null, so the cell size is also null
-        cellSize = 0.0;
-      }
-      this->SizeDiscreteValues->SetTuple1(level, cellSize);
-    }
-  }
 };
 
 //------------------------------------------------------------------------------
@@ -263,7 +327,6 @@ int vtkHyperTreeGridVisibleLeavesSize::ProcessTrees(
     {
       break;
     }
-
     outputHTG->InitializeNonOrientedGeometryCursor(outCursor, index);
     this->ProcessNode(outCursor);
   }
@@ -283,7 +346,7 @@ void vtkHyperTreeGridVisibleLeavesSize::ProcessNode(
   vtkHyperTreeGridNonOrientedGeometryCursor* outCursor)
 {
   vtkIdType currentId = outCursor->GetGlobalNodeIndex();
-  this->Internal->RecordDepth(outCursor);
+  this->Internal->ComputeSize(outCursor);
 
   // `IsLeaf` result can depend on whether a depth limiter has been applied on the tree.
   if (outCursor->IsLeaf())
