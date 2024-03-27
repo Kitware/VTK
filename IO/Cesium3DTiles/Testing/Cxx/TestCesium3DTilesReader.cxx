@@ -11,6 +11,7 @@
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
@@ -32,11 +33,17 @@ int TestCesium3DTilesReader(int argc, char* argv[])
   // Read the output
   reader->Update();
 
-  vtkSmartPointer<vtkPartitionedDataSet> outputData = reader->GetOutput();
+  vtkSmartPointer<vtkPartitionedDataSetCollection> outputData = reader->GetOutput();
 
   vtkNew<vtkAppendPolyData> append;
-  for (unsigned int i = 0; i < outputData->GetNumberOfPartitions(); ++i)
-    append->AddInputDataObject(0, outputData->GetPartition(i));
+  for (unsigned int i = 0; i < outputData->GetNumberOfPartitionedDataSets(); ++i)
+  {
+    vtkPartitionedDataSet* pd = outputData->GetPartitionedDataSet(i);
+    for (unsigned int j = 0; j < pd->GetNumberOfPartitions(); ++j)
+    {
+      append->AddInputDataObject(0, pd->GetPartition(j));
+    }
+  }
   append->Update();
 
   // Visualise in a render window

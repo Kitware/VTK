@@ -15,7 +15,7 @@
 #define vtkCesium3DTilesReader_h
 
 #include "vtkIOCesium3DTilesModule.h" // For export macro
-#include "vtkPartitionedDataSetAlgorithm.h"
+#include "vtkPartitionedDataSetCollectionAlgorithm.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 #include <vtk_nlohmannjson.h>
 #include VTK_NLOHMANN_JSON(json.hpp)
@@ -23,7 +23,7 @@
 #include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkPolyData;
+class vtkPartitionedDataSet;
 class vtkTransform;
 
 /**
@@ -40,11 +40,12 @@ class vtkTransform;
  *
  * @see vtkGeoTransform, vtkCesium3DTilesWriter
  */
-class VTKIOCESIUM3DTILES_EXPORT vtkCesium3DTilesReader : public vtkPartitionedDataSetAlgorithm
+class VTKIOCESIUM3DTILES_EXPORT vtkCesium3DTilesReader
+  : public vtkPartitionedDataSetCollectionAlgorithm
 {
 public:
   static vtkCesium3DTilesReader* New();
-  vtkTypeMacro(vtkCesium3DTilesReader, vtkPartitionedDataSetAlgorithm);
+  vtkTypeMacro(vtkCesium3DTilesReader, vtkPartitionedDataSetCollectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -83,11 +84,12 @@ protected:
    * Read tiles and add them to 'pd' for given this->Level and numberOfRanks/rank
    * combination. 'parentTransform' is used to accumulate transforms from the tileset.
    */
-  void ReadTiles(vtkPartitionedDataSet* pd, size_t numberOfRanks, size_t rank);
+  void ReadTiles(vtkPartitionedDataSetCollection* pd, size_t numberOfRanks, size_t rank);
   /**
    * Reads the tile and transforms it.
    */
-  vtkSmartPointer<vtkPolyData> ReadTile(std::string tileFileName, vtkTransform* transform);
+  vtkSmartPointer<vtkPartitionedDataSet> ReadTile(
+    std::string tileFileName, vtkTransform* transform);
   /**
    * Converts globalIndex to  (tilesetIndex, tileIndex) pair.
    */
