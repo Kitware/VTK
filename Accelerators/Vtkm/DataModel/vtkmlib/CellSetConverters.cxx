@@ -55,12 +55,10 @@ struct BuildSingleTypeCellSetVisitor
     CellStateT& state, vtkm::UInt8 cellType, vtkm::IdComponent cellSize, vtkIdType numPoints)
   {
     using VTKIdT = typename CellStateT::ValueType; // might not be vtkIdType...
-    using VTKArrayT = vtkAOSDataArrayTemplate<VTKIdT>;
     static constexpr bool IsVtkmIdType = std::is_same<VTKIdT, vtkm::Id>::value;
 
     // Construct an arrayhandle that holds the connectivity array
-    using DirectConverter = tovtkm::DataArrayToArrayHandle<VTKArrayT, 1>;
-    auto connHandleDirect = DirectConverter::Wrap(state.GetConnectivity());
+    auto connHandleDirect = tovtkm::vtkAOSDataArrayToFlatArrayHandle(state.GetConnectivity());
 
     // Cast if necessary:
     auto connHandle = IsVtkmIdType ? connHandleDirect
@@ -164,13 +162,11 @@ struct BuildExplicitCellSetVisitor
     const vtkm::cont::ArrayHandle<vtkm::UInt8, S>& shapes, vtkm::Id numPoints) const
   {
     using VTKIdT = typename CellStateT::ValueType; // might not be vtkIdType...
-    using VTKArrayT = vtkAOSDataArrayTemplate<VTKIdT>;
     static constexpr bool IsVtkmIdType = std::is_same<VTKIdT, vtkm::Id>::value;
 
     // Construct arrayhandles to hold the arrays
-    using DirectConverter = tovtkm::DataArrayToArrayHandle<VTKArrayT, 1>;
-    auto offsetsHandleDirect = DirectConverter::Wrap(state.GetOffsets());
-    auto connHandleDirect = DirectConverter::Wrap(state.GetConnectivity());
+    auto offsetsHandleDirect = tovtkm::vtkAOSDataArrayToFlatArrayHandle(state.GetOffsets());
+    auto connHandleDirect = tovtkm::vtkAOSDataArrayToFlatArrayHandle(state.GetConnectivity());
 
     // Cast if necessary:
     auto connHandle = IsVtkmIdType ? connHandleDirect
@@ -207,10 +203,7 @@ struct SupportedCellShape
 vtkm::cont::UnknownCellSet Convert(
   vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints)
 {
-  using ShapeArrayType = vtkAOSDataArrayTemplate<vtkm::UInt8>;
-  using ShapeConverter = tovtkm::DataArrayToArrayHandle<ShapeArrayType, 1>;
-
-  auto shapes = ShapeConverter::Wrap(types);
+  auto shapes = tovtkm::vtkAOSDataArrayToFlatArrayHandle(types);
   if (!vtkm::cont::Algorithm::Reduce(
         vtkm::cont::make_ArrayHandleTransform(shapes, SupportedCellShape{}), true,
         vtkm::LogicalAnd()))
