@@ -380,7 +380,6 @@ int vtkDataSet::GetCellNumberOfFaces(
     case VTK_QUADRATIC_LINEAR_QUAD:
     case VTK_BIQUADRATIC_TRIANGLE:
     case VTK_CUBIC_LINE:
-    case VTK_CONVEX_POINT_SET:
     case VTK_PARAMETRIC_CURVE:
     case VTK_PARAMETRIC_SURFACE:
     case VTK_PARAMETRIC_TRI_SURFACE:
@@ -435,6 +434,7 @@ int vtkDataSet::GetCellNumberOfFaces(
     case VTK_HEXAGONAL_PRISM:
       return 8;
 
+    case VTK_CONVEX_POINT_SET:
     case VTK_POLYHEDRON:
     default:
       this->GetCell(cellId, cell);
