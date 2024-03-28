@@ -79,11 +79,12 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTensorRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkTensorWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkTensorWidget : public vtkAbstractWidget
 {
 public:
   ///@{

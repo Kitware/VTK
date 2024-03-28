@@ -168,6 +168,14 @@ set(classes
   vtkXYPlotWidget
   )
 
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkAbstractWidgetSerDesHelper.cxx)
+endif ()
+
 vtk_module_add_module(VTK::InteractionWidgets
-  CLASSES ${classes})
+  CLASSES ${classes}
+  SOURCES ${serialization_helper_sources})
 vtk_add_test_mangling(VTK::InteractionWidgets)

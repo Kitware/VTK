@@ -18,6 +18,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 #include <vector>                   // for method args
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -33,7 +34,7 @@ class vtkInformationIntegerKey;
 class vtkInformationDoubleVectorKey;
 class vtkShaderProperty;
 
-class VTKRENDERINGCORE_EXPORT vtkProp : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkProp : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProp, vtkObject);
@@ -153,7 +154,9 @@ public:
    * shadow mapping render pass. Keys are documented in render pass classes.
    * Initial value is NULL.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(PropertyKeys, vtkInformation);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetPropertyKeys(vtkInformation* keys);
   ///@}
 

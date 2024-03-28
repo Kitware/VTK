@@ -30,6 +30,7 @@
 #include "vtkNew.h"                      // For vtkNew
 #include "vtkSmartPointer.h"             // For vtkSmartPointer
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <memory> // for unique_ptr
 
@@ -37,7 +38,8 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkViewport;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtk3DCursorRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtk3DCursorRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   static vtk3DCursorRepresentation* New();

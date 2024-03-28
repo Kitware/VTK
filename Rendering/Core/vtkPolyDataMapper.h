@@ -15,6 +15,7 @@
 
 #include "vtkMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include <cstdint> // For uintptr_t
 
@@ -23,7 +24,7 @@ class vtkPolyData;
 class vtkRenderer;
 class vtkRenderWindow;
 
-class VTKRENDERINGCORE_EXPORT vtkPolyDataMapper : public vtkMapper
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkPolyDataMapper : public vtkMapper
 {
 public:
   static vtkPolyDataMapper* New();

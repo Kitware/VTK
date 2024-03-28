@@ -16,11 +16,12 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTrivialProducer : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkTrivialProducer : public vtkAlgorithm
 {
 public:
   static vtkTrivialProducer* New();
@@ -39,6 +40,7 @@ public:
    * Set the data object that is "produced" by this producer.  It is
    * never really modified.
    */
+  VTK_MARSHALSETTER(OutputDataObject)
   virtual void SetOutput(vtkDataObject* output);
 
   /**

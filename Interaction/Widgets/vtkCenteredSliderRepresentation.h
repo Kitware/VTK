@@ -22,6 +22,7 @@
 #include "vtkCoordinate.h"               // For vtkViewportCoordinateMacro
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
@@ -40,7 +41,8 @@ class vtkTextProperty;
 class vtkTextMapper;
 class vtkTextActor;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCenteredSliderRepresentation : public vtkSliderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCenteredSliderRepresentation
+  : public vtkSliderRepresentation
 {
 public:
   /**

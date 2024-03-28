@@ -23,12 +23,13 @@
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 // new motion flag
 #define VTKIS_USERINTERACTION 8
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUser : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleUser : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleUser* New();

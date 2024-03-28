@@ -48,6 +48,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // Needed for vtkSmartPointer
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 // STL includes
 #include <set>           // For labelmap labels set
@@ -60,7 +61,7 @@ class vtkImageData;
 class vtkPiecewiseFunction;
 class vtkTimeStamp;
 
-class VTKRENDERINGCORE_EXPORT vtkVolumeProperty : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkVolumeProperty : public vtkObject
 {
 public:
   static vtkVolumeProperty* New();
@@ -128,6 +129,7 @@ public:
    * color channels for this component to 1.
    */
   void SetColor(int index, vtkPiecewiseFunction* function);
+  VTK_MARSHALSETTER(GrayTransferFunction)
   void SetColor(vtkPiecewiseFunction* function) { this->SetColor(0, function); }
 
   /**
@@ -137,6 +139,7 @@ public:
    * This will also recompute the color channels
    */
   void SetColor(int index, vtkColorTransferFunction* function);
+  VTK_MARSHALSETTER(RGBTransferFunction)
   void SetColor(vtkColorTransferFunction* function) { this->SetColor(0, function); }
 
   /**
@@ -152,6 +155,7 @@ public:
    * is created and returned.
    */
   vtkPiecewiseFunction* GetGrayTransferFunction(int index);
+  VTK_MARSHALGETTER(GrayTransferFunction)
   vtkPiecewiseFunction* GetGrayTransferFunction() { return this->GetGrayTransferFunction(0); }
 
   /**
@@ -160,6 +164,7 @@ public:
    * is created and returned.
    */
   vtkColorTransferFunction* GetRGBTransferFunction(int index);
+  VTK_MARSHALGETTER(RGBTransferFunction)
   vtkColorTransferFunction* GetRGBTransferFunction() { return this->GetRGBTransferFunction(0); }
 
   /**

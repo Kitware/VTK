@@ -32,11 +32,12 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMagnifierRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkMagnifierWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkMagnifierWidget : public vtkAbstractWidget
 {
 public:
   /**

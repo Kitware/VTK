@@ -25,6 +25,7 @@
 #include "vtkNew.h"                      // For vtkNew
 #include "vtkSmartPointer.h"             // For vtkSmartPointer
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <array>
 
@@ -40,7 +41,8 @@ class vtkProperty;
 class vtkSphereSource;
 class vtkTransform;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCamera3DRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCamera3DRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

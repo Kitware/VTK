@@ -23,10 +23,12 @@
 #include "vtkDeprecation.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 #include <map>                    // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGUI_EXPORT vtkWebAssemblyRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkWebAssemblyRenderWindowInteractor
+  : public vtkRenderWindowInteractor
 {
 public:
   /**

@@ -23,6 +23,7 @@
 #include "vtkCoordinate.h"               // For vtkViewportCoordinateMacro
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSmartPointer.h"             // used for SmartPointers
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
@@ -40,7 +41,7 @@ class vtkTransformPolyDataFilter;
 class vtkTextProperty;
 class vtkTextActor;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCompassRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCompassRepresentation
   : public vtkContinuousValueWidgetRepresentation
 {
 public:

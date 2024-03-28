@@ -31,6 +31,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 /* need for virtual function */
 VTK_ABI_NAMESPACE_BEGIN
@@ -42,7 +43,7 @@ class vtkMatrix4x4;
 #define VTK_LIGHT_TYPE_CAMERA_LIGHT 2
 #define VTK_LIGHT_TYPE_SCENE_LIGHT 3
 
-class VTKRENDERINGCORE_EXPORT vtkLight : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkLight : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLight, vtkObject);
@@ -279,7 +280,9 @@ public:
   /**
    * Set/Get the information object associated with the light.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(Information, vtkInformation);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetInformation(vtkInformation*);
   ///@}
 

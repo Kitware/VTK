@@ -36,6 +36,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
@@ -45,7 +46,7 @@ class vtkCubeAxesActor2DConnection;
 class vtkDataSet;
 class vtkTextProperty;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkCubeAxesActor2D : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkCubeAxesActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkCubeAxesActor2D, vtkActor2D);

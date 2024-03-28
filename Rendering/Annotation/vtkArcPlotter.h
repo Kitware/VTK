@@ -31,6 +31,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 #define VTK_PLOT_SCALARS 1
 #define VTK_PLOT_VECTORS 2
@@ -45,7 +46,7 @@ class vtkDataArray;
 class vtkPointData;
 class vtkPoints;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkArcPlotter : public vtkPolyDataAlgorithm
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkArcPlotter : public vtkPolyDataAlgorithm
 {
 public:
   /**

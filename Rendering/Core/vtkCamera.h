@@ -20,6 +20,7 @@
 #include "vtkObject.h"
 #include "vtkRect.h"                // for ivar
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHomogeneousTransform;
@@ -31,7 +32,7 @@ class vtkTransform;
 class vtkCallbackCommand;
 class vtkCameraCallbackCommand;
 
-class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCamera : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCamera, vtkObject);
@@ -738,7 +739,9 @@ public:
   /**
    * Set/Get the information object associated with this camera.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(Information, vtkInformation);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetInformation(vtkInformation*);
   ///@}
 

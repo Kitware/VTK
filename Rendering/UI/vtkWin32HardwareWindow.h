@@ -11,9 +11,10 @@
 #include "vtkHardwareWindow.h"
 #include "vtkRenderingUIModule.h" // For export macro
 #include "vtkWindows.h"           // For windows API
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGUI_EXPORT vtkWin32HardwareWindow : public vtkHardwareWindow
+class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkWin32HardwareWindow : public vtkHardwareWindow
 {
 public:
   static vtkWin32HardwareWindow* New();

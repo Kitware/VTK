@@ -24,11 +24,12 @@
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBand3D
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleRubberBand3D
   : public vtkInteractorStyleTrackballCamera
 {
 public:

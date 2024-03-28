@@ -83,12 +83,13 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBoxRepresentation;
 class vtkHandleWidget;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkBoxWidget2 : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkBoxWidget2 : public vtkAbstractWidget
 {
 public:
   /**

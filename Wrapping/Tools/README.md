@@ -163,6 +163,12 @@ module's contents.  The Python and Java wrapper executables rely on these
 "hierarchy.txt" files in order to look up types by name.
 
 
+### vtkWrapSerDes
+
+This generates C++ code to serialize a VTK object into json and deserialize
+the object back from json. This relies upon the property parser from
+`vtkParseProperties`
+
 ## Rebuilding the Parser
 
 The code for the C++ parser is generated from the files vtkParse.l and

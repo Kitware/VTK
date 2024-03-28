@@ -18,11 +18,12 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridBase : public vtkPointSet
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkUnstructuredGridBase : public vtkPointSet
 {
 public:
   vtkAbstractTypeMacro(vtkUnstructuredGridBase, vtkPointSet);

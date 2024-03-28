@@ -28,6 +28,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -44,7 +45,7 @@ class vtkTransform;
 class vtkTransformPolyDataFilter;
 class vtkProperty2D;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkLegendBoxActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkLegendBoxActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkLegendBoxActor, vtkActor2D);

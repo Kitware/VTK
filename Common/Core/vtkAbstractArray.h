@@ -55,7 +55,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkIdList.h"           // For InsertTuples
 #include "vtkObject.h"
-#include "vtkVariant.h" // for variant arguments
+#include "vtkVariant.h"       // for variant arguments
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayIterator;
@@ -69,7 +70,7 @@ class vtkInformationInformationVectorKey;
 class vtkInformationVariantVectorKey;
 class vtkVariantArray;
 
-class VTKCOMMONCORE_EXPORT vtkAbstractArray : public vtkObject
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkAbstractArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractArray, vtkObject);
@@ -161,6 +162,7 @@ public:
    * conjunction with SetValue() method for fast insertion. Preserves existing
    * data and returns true if allocation succeeds, or false otherwise.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual bool SetNumberOfValues(vtkIdType numValues);
 
   /**
@@ -174,6 +176,7 @@ public:
    * construction for subclasses that support component insertion, which may
    * result in an incomplete trailing tuple.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   inline vtkIdType GetNumberOfValues() const { return (this->MaxId + 1); }
 
   /**

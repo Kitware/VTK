@@ -479,6 +479,13 @@
         - x11
         - vtk
 
+.linux_packager_tags:
+    tags:
+        - build
+        - docker
+        - linux-x86_64
+        - vtk
+
 ## Linux-specific scripts
 
 .before_script_linux: &before_script_linux
@@ -667,3 +674,54 @@
       - python -m pip install --exists-action=w --no-cache-dir -r Documentation/docs/requirements.txt
       - cd Documentation/docs
       - make html |& tee $GIT_CLONE_PATH/sphinx_output.log
+
+
+.before_script_linux_node: &before_script_linux_node
+    - .gitlab/ci/node.sh
+    - export PATH=$PWD/.gitlab/node/bin:$PATH
+    - node --version
+
+.cmake_build_webassembly_linux:
+    stage: build
+    extends: .warning_policy
+
+    script:
+        - *before_script_linux
+        - *before_script_linux_node
+        - .gitlab/ci/clang-tidy-cache.sh
+        - .gitlab/ci/sccache.sh
+        - sccache --start-server
+        - sccache --show-stats
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+        - sccache --show-stats
+        - exec .gitlab/ci/check_warnings.sh .
+
+    interruptible: true
+
+.cmake_package_webassembly_wheel_linux:
+    stage: package
+
+    script:
+        - apt update
+        - apt install -y python3.10-venv
+        - find build/bin/ -regex '.*\.\(js\|mjs\|wasm\)$' -exec cp -v {} build/Web/WebAssembly/Wheel/vtk_wasm/ \;
+        - cd build/Web/WebAssembly/Wheel
+        - python -m venv venv
+        - . venv/bin/activate
+        - python -m pip install --upgrade --no-cache-dir pip setuptools
+        - python -m pip install build
+        - python -m build .
+
+    interruptible: true
+
+.cmake_test_webassembly_linux:
+    stage: test
+    extends: .warning_policy
+
+    script:
+        - *before_script_linux
+        - *before_script_linux_node
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
+
+    interruptible: true

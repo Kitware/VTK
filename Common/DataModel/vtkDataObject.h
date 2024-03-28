@@ -24,6 +24,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
@@ -45,7 +46,7 @@ class vtkUnsignedCharArray;
 #define VTK_3D_EXTENT 1
 #define VTK_TIME_EXTENT 2
 
-class VTKCOMMONDATAMODEL_EXPORT vtkDataObject : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkDataObject : public vtkObject
 {
 public:
   static vtkDataObject* New();
@@ -57,7 +58,9 @@ public:
   /**
    * Set/Get the information object associated with this data object.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(Information, vtkInformation);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetInformation(vtkInformation*);
   ///@}
 

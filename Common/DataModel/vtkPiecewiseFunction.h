@@ -27,11 +27,12 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunctionInternals;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkPiecewiseFunction : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkPiecewiseFunction : public vtkDataObject
 {
 public:
   static vtkPiecewiseFunction* New();

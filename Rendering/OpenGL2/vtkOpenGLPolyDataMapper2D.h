@@ -19,6 +19,7 @@
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkPolyDataMapper2D.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 #include <map>                         //for used data arrays & vbos
 #include <string>                      // For API.
 #include <vector>                      //for ivars
@@ -36,7 +37,8 @@ class vtkRenderer;
 class vtkTextureObject;
 class vtkTransform;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLPolyDataMapper2D
+  : public vtkPolyDataMapper2D
 {
 public:
   vtkTypeMacro(vtkOpenGLPolyDataMapper2D, vtkPolyDataMapper2D);

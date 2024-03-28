@@ -17,11 +17,12 @@
 
 #include "vtkCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLight;
 
-class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkLightCollection : public vtkCollection
 {
 public:
   static vtkLightCollection* New();

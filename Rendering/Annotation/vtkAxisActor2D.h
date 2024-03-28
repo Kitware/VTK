@@ -66,6 +66,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 #include "vtkNew.h" // for vtkNew
 
@@ -76,7 +77,7 @@ class vtkPolyDataMapper2D;
 class vtkTextMapper;
 class vtkTextProperty;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor2D : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkAxisActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkAxisActor2D, vtkActor2D);

@@ -117,6 +117,18 @@ function (vtk_module_test_executable name)
     PRIVATE
       ${optional_depends_flags})
 
+  # (vtk/vtk#19097) Although vtk_add_test_cxx skips C++ tests for wasm,
+  # some modules bypass `vtk_add_test_cxx` by directly invoking `ExternalData_add_test`
+  # for special tests, ex: ImagingCore module does it.
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # allows the test executable to access host file system for test data.
+    # permit memory growth so that test doesn't run out of memory.
+    target_link_options("${name}"
+      PRIVATE
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s MAXIMUM_MEMORY=4GB"
+        "SHELL:-s NODERAWFS=1")
+  endif ()
   vtk_module_autoinit(
     TARGETS "${name}"
     MODULES "${_vtk_build_test}"
@@ -394,14 +406,24 @@ function (vtk_add_test_cxx exename _tests)
         ${MPIEXEC_PREFLAGS})
     endif()
 
-    ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
-      NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
-      COMMAND "${_vtk_test_cxx_pre_args}" "$<TARGET_FILE:${exename}>"
-              "${test_arg}"
-              "${args}"
-              ${${_vtk_build_test}_ARGS}
-              ${${test_name}_ARGS}
-              ${_D} ${_T} ${_V})
+    # (vtk/vtk#19097) Disable C++ testing for wasm architecture until
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19097 is resolved.
+    if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+      ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
+        NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+        COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
+                "--eval"
+                "process.exit(125);") # all tests are skipped.
+    else ()
+      ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
+        NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+        COMMAND "${_vtk_test_cxx_pre_args}" "$<TARGET_FILE:${exename}>"
+                "${test_arg}"
+                "${args}"
+                ${${_vtk_build_test}_ARGS}
+                ${${test_name}_ARGS}
+                ${_D} ${_T} ${_V})
+    endif ()
     set_tests_properties("${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"
@@ -418,6 +440,11 @@ function (vtk_add_test_cxx exename _tests)
           ENVIRONMENT "LD_PRELOAD=${_vtk_testing_ld_preload}")
     endif ()
 
+    # (vtk/vtk#19097) Disable C++ testing for wasm architecture until
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19097 is resolved.
+    if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+      continue ()
+    endif ()
     list(APPEND ${_tests} "${test_file}")
   endforeach ()
 
@@ -813,6 +840,92 @@ function (vtk_add_test_python)
         PROPERTIES
           PROCESSORS "${numprocs}")
     endif ()
+  endforeach ()
+endfunction ()
+
+#[==[.rst:
+JavaScript tests
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. cmake:command:: vtk_add_test_module_javascript_node
+
+  This function declares JavaScript tests run with NodeJS.
+  Test files are required to use the `mjs` extension.
+  Additional arguments to `node` can be passed via `_vtk_node_args` variable.
+
+  .. code-block:: cmake
+
+    vtk_add_test_module_javascript_node(<VARNAME> <ARG>...)
+#]==]
+
+#[==[.rst:
+The ``_vtk_testing_nodejs_exe`` variable must point to the path of a `node` interpreter.
+#]==]
+
+#[==[.rst
+Options:
+
+- ``NO_DATA``
+- ``NO_OUTPUT``
+
+Each argument should be either an option, a test specification, or it is passed
+as flags to all tests declared in the group. The list of tests is set in the
+``<VARNAME>`` variable in the calling scope.
+
+Options:
+
+- ``NO_DATA``: The test does not need to know the test input data directory. If
+  it does, it is passed on the command line via the ``-D`` flag.
+- ``NO_OUTPUT``: The test does not need to write out any data to the
+  filesystem. If it does, a directory which may be written to is passed via
+  the ``-T`` flag.
+
+Additional flags may be passed to tests using the ``${_vtk_build_test}_ARGS``
+variable or the ``<NAME>_ARGS`` variable.
+#]==]
+function (vtk_add_test_module_javascript_node)
+  if (NOT _vtk_testing_nodejs_exe)
+    message(FATAL_ERROR "The \"_vtk_testing_nodejs_exe\" variable must point to a nodejs executable!")
+  endif ()
+  set(mjs_options
+    NO_DATA
+    NO_OUTPUT)
+  _vtk_test_parse_args("${mjs_options}" "mjs" ${ARGN})
+  _vtk_test_set_options("${mjs_options}" "" ${options})
+
+  set(_vtk_fail_regex
+    # vtkLogger
+    "(\n|^)ERROR: "
+    "ERR\\|"
+    # vtkDebugLeaks
+    "instance(s)? still around")
+
+  foreach (name IN LISTS names)
+    _vtk_test_set_options("${mjs_options}" "local_" ${_${name}_options})
+    _vtk_test_parse_name("${name}" "mjs")
+    set(_D "")
+    if (NOT local_NO_DATA)
+      set(_D -D "${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}")
+    endif ()
+
+    set(_T "")
+    if (NOT local_NO_OUTPUT)
+      set(_T -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}")
+    endif ()
+    ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
+      NAME    "${_vtk_build_test}JavaScript-${test_name}"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      COMMAND ${_vtk_testing_nodejs_exe}
+              "${_vtk_node_args}"
+              "${test_file}"
+              ${${_vtk_build_test}_ARGS}
+              ${${test_name}_ARGS}
+              ${_D} ${_T})
+    set_tests_properties("${_vtk_build_test}JavaScript-${test_name}"
+      PROPERTIES
+        LABELS "${_vtk_build_test_labels}"
+        FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
+        SKIP_RETURN_CODE 125)
   endforeach ()
 endfunction ()
 

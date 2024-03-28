@@ -21,6 +21,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -36,7 +37,8 @@ class vtkClosedSurfacePointPlacer;
 class vtkPlaneCollection;
 class vtkParallelopipedTopology;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkParallelopipedRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkParallelopipedRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

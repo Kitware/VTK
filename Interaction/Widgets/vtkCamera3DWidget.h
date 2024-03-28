@@ -53,12 +53,13 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // For vtkNew
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkCamera3DRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCamera3DWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCamera3DWidget : public vtkAbstractWidget
 {
 public:
   /**

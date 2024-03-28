@@ -54,11 +54,12 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHandleRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkHandleWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkHandleWidget : public vtkAbstractWidget
 {
 public:
   /**

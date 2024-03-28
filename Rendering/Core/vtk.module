@@ -53,3 +53,4 @@ TEST_DEPENDS
   # VTK::RenderingWebGPU
   VTK::TestingCore
   VTK::TestingRendering
+INCLUDE_MARSHAL

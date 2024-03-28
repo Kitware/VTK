@@ -22,13 +22,14 @@
 
 #include "vtkAbstractMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 class vtkDataSet;
 class vtkMatrix4x4;
 
-class VTKRENDERINGCORE_EXPORT vtkAbstractMapper3D : public vtkAbstractMapper
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkAbstractMapper3D : public vtkAbstractMapper
 {
 public:
   vtkTypeMacro(vtkAbstractMapper3D, vtkAbstractMapper);

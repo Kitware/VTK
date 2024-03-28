@@ -17,6 +17,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkType.h"                   // for ivar
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 #include <map>                         // for ivar
 #include <set>                         // for ivar
 #include <string>                      // for ivar
@@ -37,7 +38,7 @@ class vtkTextureUnitManager;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkOpenGLState;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLRenderWindow : public vtkRenderWindow
 {
 public:
   vtkTypeMacro(vtkOpenGLRenderWindow, vtkRenderWindow);

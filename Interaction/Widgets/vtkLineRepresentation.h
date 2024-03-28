@@ -28,6 +28,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -44,7 +45,8 @@ class vtkVectorText;
 class vtkPolyDataMapper;
 class vtkCellPicker;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkLineRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkLineRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

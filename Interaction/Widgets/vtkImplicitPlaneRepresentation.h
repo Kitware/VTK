@@ -28,6 +28,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -50,7 +51,8 @@ class vtkSphereSource;
 class vtkTransform;
 class vtkTubeFilter;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitPlaneRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkImplicitPlaneRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

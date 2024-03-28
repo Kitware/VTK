@@ -44,6 +44,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkScalarsToColors.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkUnsignedCharArray.h" // Needed for inline method
 
@@ -54,7 +55,7 @@
 #define VTK_SCALE_LOG10 1
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONCORE_EXPORT vtkLookupTable : public vtkScalarsToColors
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkLookupTable : public vtkScalarsToColors
 {
 public:
   ///@{

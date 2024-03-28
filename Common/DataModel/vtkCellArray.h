@@ -125,6 +125,7 @@
 
 #include "vtkAbstractCellArray.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALMANUAL
 
 #include "vtkAOSDataArrayTemplate.h" // Needed for inline methods
 #include "vtkCell.h"                 // Needed for inline methods
@@ -166,7 +167,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArrayIterator;
 class vtkIdTypeArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkCellArray : public vtkAbstractCellArray
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkCellArray : public vtkAbstractCellArray
 {
 public:
   using ArrayType32 = vtkTypeInt32Array;

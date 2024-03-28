@@ -16,6 +16,7 @@ set(sources
   vtkParseMangle.c
   vtkParseMerge.c
   vtkParsePreprocess.c
+  vtkParseProperties.c
   vtkParseString.c
   vtkParseSystem.c
   vtkWrap.c
@@ -32,6 +33,7 @@ set(headers
   vtkParseMangle.h
   vtkParseMerge.h
   vtkParsePreprocess.h
+  vtkParseProperties.h
   vtkParseString.h
   vtkParseSystem.h
   vtkParseType.h
@@ -57,6 +59,14 @@ if (NOT TARGET "${ns}::WrapHierarchy")
   target_link_libraries(WrapHierarchy
     PRIVATE
       "${ns}::WrappingTools")
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # allows vtkWrapHierarchy to access host file system for headers, generated sources, etc.
+    # permit memory growth to generate arbitrary sized hierarchy files.
+    target_link_options(WrapHierarchy
+      PRIVATE
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s NODERAWFS=1")
+  endif ()
   add_executable("${ns}::WrapHierarchy" ALIAS
     WrapHierarchy)
 endif ()
@@ -112,4 +122,27 @@ if (NOT TARGET WrapJava)
       "${ns}::WrappingTools")
   add_executable("${ns}::WrapJava" ALIAS
     WrapJava)
+endif ()
+
+if (NOT TARGET WrapSerDes)
+  vtk_module_add_executable(WrapSerDes
+    DEVELOPMENT
+    BASENAME vtkWrapSerDes
+    vtkWrapSerDes.c
+    vtkWrapSerDesClass.c
+    vtkWrapSerDesProperty.c)
+  target_link_libraries(WrapSerDes
+    PRIVATE
+      "${ns}::WrappingTools")
+  
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # allows WrapSerDes to access host file system for headers, generated sources, etc.
+    # permit memory growth to generate arbitrary sized vtkClassNameSerDes.cxx files
+    target_link_options(WrapSerDes
+      PRIVATE
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s NODERAWFS=1")
+  endif ()
+  add_executable("${ns}::WrapSerDes" ALIAS
+    WrapSerDes)
 endif ()

@@ -1,0 +1,12 @@
+NAME
+  VTK::WebAssembly
+LIBRARY_NAME
+  vtkWebAssembly
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::SerializationManager
+PRIVATE_DEPENDS
+  VTK::RenderingCore

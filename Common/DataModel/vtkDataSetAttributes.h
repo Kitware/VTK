@@ -42,11 +42,12 @@
 #include "vtkCommonDataModelModule.h"      // For export macro
 #include "vtkDataSetAttributesFieldList.h" // for vtkDataSetAttributesFieldList
 #include "vtkFieldData.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkDataSetAttributes : public vtkFieldData
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkDataSetAttributes : public vtkFieldData
 {
 public:
   /**

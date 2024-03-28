@@ -74,6 +74,7 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModule.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleJson.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleGraphviz.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleSerialization.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleTesting.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleWrapJava.cmake" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleWrapPython.cmake" \
@@ -200,6 +201,9 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_ZEROCOPY=" \
                "VTK_EXPECTS(x)=" \
                "VTK_SIZEHINT(...)=" \
+               "VTK_MARSHALEXCLUDE(reason)=" \
+               "VTK_MARSHALGETTER(pname)=" \
+               "VTK_MARSHALSETTER(pname)=" \
                "VTK_DEPRECATED_IN_8_2_0(msg)=" \
                "VTK_DEPRECATED_IN_9_0_0(msg)=" \
                "VTK_DEPRECATED_IN_9_1_0(msg)=" \

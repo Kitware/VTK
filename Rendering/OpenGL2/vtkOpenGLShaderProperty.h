@@ -21,12 +21,13 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkShader.h"                 // For methods (shader types)
 #include "vtkShaderProperty.h"
-#include <map> // used for ivar
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <map>                // used for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLUniforms;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderProperty : public vtkShaderProperty
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLShaderProperty : public vtkShaderProperty
 {
 public:
   vtkTypeMacro(vtkOpenGLShaderProperty, vtkShaderProperty);

@@ -29,3 +29,4 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersExtraction
   VTK::FiltersSources
+INCLUDE_MARSHAL

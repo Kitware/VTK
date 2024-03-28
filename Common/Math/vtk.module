@@ -27,3 +27,4 @@ TEST_DEPENDS
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::TestingCore
+INCLUDE_MARSHAL

@@ -37,6 +37,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For InteractorStyle
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTimerIdMap;
@@ -60,7 +61,7 @@ class vtkObserverMediator;
 class vtkInteractorEventRecorder;
 class vtkPickingManager;
 
-class VTKRENDERINGCORE_EXPORT vtkRenderWindowInteractor : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderWindowInteractor : public vtkObject
 {
 
   friend class vtkInteractorEventRecorder;
@@ -141,7 +142,9 @@ public:
    * this->RenderWindow->Render().
    */
   vtkBooleanMacro(EnableRender, bool);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkSetMacro(EnableRender, bool);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetMacro(EnableRender, bool);
   ///@}
 
@@ -339,7 +342,9 @@ public:
    * vtkAbstractPropPicker, meaning that it can identify a particular
    * instance of vtkProp.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetPicker(vtkAbstractPicker*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(Picker, vtkAbstractPicker);
   ///@}
 
@@ -355,7 +360,9 @@ public:
    * Set/Get the object used to perform operations through the interactor
    * By default, a valid but disabled picking manager is instantiated.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetPickingManager(vtkPickingManager*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(PickingManager, vtkPickingManager);
   ///@}
 

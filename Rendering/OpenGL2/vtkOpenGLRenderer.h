@@ -16,6 +16,7 @@
 #include "vtkOpenGLQuadHelper.h"       // for ivar
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 #include <memory>                      // for unique_ptr
 #include <string>                      // Ivars
 #include <vector>                      // STL Header
@@ -36,7 +37,7 @@ class vtkShaderProgram;
 class vtkShadowMapPass;
 class vtkSSAOPass;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderer : public vtkRenderer
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLRenderer : public vtkRenderer
 {
 public:
   static vtkOpenGLRenderer* New();

@@ -272,6 +272,24 @@ else ()
 endif ()
 set("_vtk_module_reason_VTK::Java"
   "via `VTK_WRAP_JAVA`")
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND vtk_requested_modules
+    VTK::SerializationManager)
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    list(APPEND vtk_requested_modules
+      VTK::WebAssembly)
+  else ()
+    list(APPEND vtk_rejected_modules
+      VTK::WebAssembly)
+  endif ()
+  set("_vtk_module_reason_VTK::WebAssembly"
+  "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
+else ()
+  list(APPEND vtk_rejected_modules
+    VTK::SerializationManager)
+endif ()
+set("_vtk_module_reason_VTK::SerializationManager"
+  "via `VTK_WRAP_SERIALIZATION`")
 # For vtkTkRenderWidget (only useful with Python, since WRAP_TCL is gone)
 if (VTK_USE_TK)
   if (VTK_GROUP_ENABLE_Tk STREQUAL "DEFAULT")
@@ -401,6 +419,7 @@ set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/IO"
   "${CMAKE_CURRENT_SOURCE_DIR}/Parallel"
   "${CMAKE_CURRENT_SOURCE_DIR}/Rendering"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Serialization"
   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
   "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty"
   "${CMAKE_CURRENT_SOURCE_DIR}/Utilities"
@@ -546,7 +565,8 @@ vtk_module_build(
   TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing"
   GENERATE_SPDX           ${VTK_GENERATE_SPDX}
   SPDX_DOCUMENT_NAMESPACE "https://vtk.org/spdx"
-  SPDX_DOWNLOAD_LOCATION  "https://gitlab.kitware.com/vtk/vtk/-/tree/master")
+  SPDX_DOWNLOAD_LOCATION  "https://gitlab.kitware.com/vtk/vtk/-/tree/master"
+  ENABLE_SERIALIZATION    "${VTK_WRAP_SERIALIZATION}")
 
 include(vtkModuleJson)
 vtk_module_json(
@@ -713,6 +733,12 @@ endif ()
 option(VTK_BUILD_SPHINX_DOCUMENTATION "Build the Sphinx documentation for VTK" OFF)
 if (VTK_BUILD_SPHINX_DOCUMENTATION)
   add_subdirectory(Utilities/Sphinx)
+endif ()
+
+# Adds a test to verify consistent use of VTK_MARSHAL(AUTO|MANUAL) macros.
+# This is a pure python test, it doesn't need any compiled VTK modules.
+if (VTK_BUILD_TESTING)
+  add_subdirectory(Utilities/Marshalling)
 endif ()
 
 if (NOT TARGET uninstall)

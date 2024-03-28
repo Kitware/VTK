@@ -20,6 +20,7 @@
 #include "vtkCoordinate.h"               //Because of the viewport coordinate macro
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPropCollection;
@@ -29,7 +30,8 @@ class vtkPolyDataMapper2D;
 class vtkActor2D;
 class vtkProperty2D;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkMagnifierRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkMagnifierRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

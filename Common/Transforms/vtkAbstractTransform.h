@@ -29,13 +29,14 @@
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkMatrix4x4;
 class vtkPoints;
 
-class VTKCOMMONTRANSFORMS_EXPORT vtkAbstractTransform : public vtkObject
+class VTKCOMMONTRANSFORMS_EXPORT VTK_MARSHALAUTO vtkAbstractTransform : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractTransform, vtkObject);
@@ -220,6 +221,7 @@ public:
    * GetLinearInverse() instead which will type cast the result from
    * vtkAbstractTransform to vtkLinearTransform.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkAbstractTransform* GetInverse();
 
   /**
@@ -227,6 +229,7 @@ public:
    * This transform will automatically update to agree with the
    * inverse transform that you set.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetInverse(vtkAbstractTransform* transform);
 
   /**

@@ -26,13 +26,15 @@
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkPerspectiveTransform;
 
 class CPIDControl;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleFlight
+  : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleFlight* New();

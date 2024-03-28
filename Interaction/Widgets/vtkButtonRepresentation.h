@@ -28,9 +28,11 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONWIDGETS_EXPORT vtkButtonRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkButtonRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   ///@{

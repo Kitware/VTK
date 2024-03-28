@@ -19,6 +19,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // Needed for vtkNew
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -31,7 +32,8 @@ class vtkPolyDataMapper;
 class vtkProperty;
 class vtkSphereSource;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkLightRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkLightRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   static vtkLightRepresentation* New();

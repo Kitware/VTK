@@ -18,12 +18,13 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkCuller : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCuller : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCuller, vtkObject);

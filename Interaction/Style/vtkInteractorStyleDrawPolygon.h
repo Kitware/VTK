@@ -14,6 +14,7 @@
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkVector.h" // For Polygon Points
 #include <vector>      // For returning Polygon Points
@@ -21,7 +22,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleDrawPolygon : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleDrawPolygon
+  : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleDrawPolygon* New();

@@ -22,3 +22,4 @@ TEST_DEPENDS
   VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+INCLUDE_MARSHAL

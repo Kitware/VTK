@@ -18,11 +18,13 @@
 
 #include "vtkAbstractSplineRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPointHandleSource;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkSplineRepresentation : public vtkAbstractSplineRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkSplineRepresentation
+  : public vtkAbstractSplineRepresentation
 {
 public:
   static vtkSplineRepresentation* New();

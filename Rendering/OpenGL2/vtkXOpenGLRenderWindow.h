@@ -16,6 +16,7 @@
 #include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 #include <X11/Xlib.h>                  // Needed for X types used in the public interface
 #include <stack>                       // for ivar
 
@@ -24,7 +25,8 @@ class vtkIdList;
 class vtkXOpenGLRenderWindowInternal;
 struct vtkXVisualInfo;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkXOpenGLRenderWindow
+  : public vtkOpenGLRenderWindow
 {
 public:
   static vtkXOpenGLRenderWindow* New();

@@ -13,6 +13,7 @@
 
 #include "vtkActor.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;
@@ -20,7 +21,7 @@ class vtkOpenGLRenderer;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLActor : public vtkActor
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLActor : public vtkActor
 {
 public:
   static vtkOpenGLActor* New();

@@ -49,6 +49,7 @@
 #include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // For vtkSmartPointer
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor;
@@ -56,7 +57,7 @@ class vtkCamera;
 class vtkTextProperty;
 class vtkStringArray;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkCubeAxesActor : public vtkActor
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkCubeAxesActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkCubeAxesActor, vtkActor);

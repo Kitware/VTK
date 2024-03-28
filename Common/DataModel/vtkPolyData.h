@@ -52,6 +52,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkCellArray.h"         // Needed for inline methods
 #include "vtkCellLinks.h"         // Needed for inline methods
@@ -61,7 +62,7 @@ VTK_ABI_NAMESPACE_BEGIN
 struct vtkPolyDataDummyContainter;
 class vtkIncrementalPointLocator;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkPolyData : public vtkPointSet
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkPolyData : public vtkPointSet
 {
 public:
   static vtkPolyData* New();

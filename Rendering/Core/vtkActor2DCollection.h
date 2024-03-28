@@ -18,13 +18,14 @@
 
 #include "vtkPropCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include "vtkActor2D.h" // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 
-class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkActor2DCollection : public vtkPropCollection
 {
 public:
   /**

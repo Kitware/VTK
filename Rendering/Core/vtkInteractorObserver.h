@@ -35,6 +35,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPropPicker;
@@ -45,7 +46,7 @@ class vtkCallbackCommand;
 class vtkObserverMediator;
 class vtkPickingManager;
 
-class VTKRENDERINGCORE_EXPORT vtkInteractorObserver : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkInteractorObserver : public vtkObject
 {
 public:
   vtkTypeMacro(vtkInteractorObserver, vtkObject);
@@ -59,7 +60,11 @@ public:
    * vtkInteractorObserver you must set the render window interactor (via
    * SetInteractor()). Initial value is 0.
    */
+  VTK_MARSHALEXCLUDE(
+    "is overridden by vtkInteractorStyle::Enabled in the correct order after Interactor")
   virtual void SetEnabled(int) {}
+  VTK_MARSHALEXCLUDE(
+    "is overridden by vtkInteractorStyle::Enabled in the correct order after Interactor")
   int GetEnabled() { return this->Enabled; }
   void EnabledOn() { this->SetEnabled(1); }
   void EnabledOff() { this->SetEnabled(0); }
@@ -75,7 +80,11 @@ public:
    * vtkInteractorObserver.
    * It automatically registers available pickers to the Picking Manager.
    */
+  VTK_MARSHALEXCLUDE(
+    "is overridden by vtkInteractorStyle::Interactor in the correct order before Enabled")
   virtual void SetInteractor(vtkRenderWindowInteractor* iren);
+  VTK_MARSHALEXCLUDE(
+    "is overridden by vtkInteractorStyle::Interactor in the correct order before Enabled")
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
   ///@}
 

@@ -19,9 +19,10 @@
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONMATH_EXPORT vtkMatrix4x4 : public vtkObject
+class VTKCOMMONMATH_EXPORT VTK_MARSHALAUTO vtkMatrix4x4 : public vtkObject
 {
 public:
   /// The internal data is public for historical reasons. Do not use!
@@ -207,12 +208,17 @@ public:
   /**
    * Returns the raw double array holding the matrix.
    */
-  double* GetData() { return *this->Element; }
+  double* GetData() VTK_SIZEHINT(16) { return *this->Element; }
 
   /**
    * Returns the raw double array holding the matrix.
    */
   const double* GetData() const { return *this->Element; }
+
+  /**
+   * Copies data into the matrix.
+   */
+  void SetData(const double data[16]) { vtkMatrix4x4::DeepCopy(data); }
 
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); }

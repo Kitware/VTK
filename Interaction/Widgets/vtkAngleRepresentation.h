@@ -20,11 +20,13 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHandleRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkAngleRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkAngleRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   ///@{

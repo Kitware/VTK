@@ -14,6 +14,7 @@
 
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 // Ignore reserved-identifier warnings from
 // 1. SDL2/SDL_stdinc.h: warning: identifier '_SDL_size_mul_overflow_builtin'
 // 2. SDL2/SDL_stdinc.h: warning: identifier '_SDL_size_add_overflow_builtin'
@@ -33,7 +34,8 @@
 #include <stack> // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGOPENGL2_EXPORT vtkSDL2OpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkSDL2OpenGLRenderWindow
+  : public vtkOpenGLRenderWindow
 {
 public:
   static vtkSDL2OpenGLRenderWindow* New();

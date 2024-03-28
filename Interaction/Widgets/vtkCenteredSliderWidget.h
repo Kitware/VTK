@@ -61,11 +61,13 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSliderRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCenteredSliderWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCenteredSliderWidget
+  : public vtkAbstractWidget
 {
 public:
   /**

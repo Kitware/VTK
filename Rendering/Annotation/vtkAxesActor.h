@@ -38,6 +38,7 @@
 
 #include "vtkProp3D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -51,7 +52,7 @@ class vtkProperty;
 class vtkRenderer;
 class vtkSphereSource;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkAxesActor : public vtkProp3D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkAxesActor : public vtkProp3D
 {
 public:
   static vtkAxesActor* New();

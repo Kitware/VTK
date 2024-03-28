@@ -25,12 +25,13 @@
 
 #include "vtkBorderWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarBarActor;
 class vtkScalarBarRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarWidget : public vtkBorderWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkScalarBarWidget : public vtkBorderWidget
 {
 public:
   static vtkScalarBarWidget* New();

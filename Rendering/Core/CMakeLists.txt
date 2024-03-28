@@ -186,10 +186,21 @@ set(headers
 set(nowrap_headers
   vtkNoise200x200.h)
 
+
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkAbstractMapperSerDesHelper.cxx
+    vtkColorTransferFunctionSerDesHelper.cxx
+    vtkDataSetMapperSerDesHelper.cxx)
+endif ()    
+
 vtk_module_add_module(VTK::RenderingCore
   CLASSES ${classes}
   NOWRAP_CLASSES ${nowrap_classes}
   HEADERS ${headers}
+  SOURCES ${serialization_helper_sources}
   NOWRAP_HEADERS ${nowrap_headers}
   )
 

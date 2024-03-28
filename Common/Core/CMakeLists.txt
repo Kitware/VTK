@@ -251,6 +251,7 @@ set(classes
   vtkDataArraySelection
   vtkDebugLeaks
   vtkDebugLeaksManager
+  vtkDeserializer
   vtkDoubleArray
   vtkDynamicLoader
   vtkEventForwarderCommand
@@ -294,6 +295,7 @@ set(classes
   vtkLongLongArray
   vtkLookupTable
   vtkMath
+  vtkMarshalContext
   vtkMersenneTwister
   vtkMinimalStandardRandomSequence
   vtkMultiThreader
@@ -314,6 +316,7 @@ set(classes
   vtkRandomPool
   vtkRandomSequence
   vtkReferenceCount
+  vtkSerializer
   vtkScalarsToColors
   vtkShortArray
   vtkSignedCharArray
@@ -360,6 +363,14 @@ set(nowrap_template_classes
   vtkStructuredPointBackend
   vtkTypeList)
 
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkCollectionSerDesHelper.cxx
+    vtkDataArraySerDesHelper.cxx)
+endif ()
+
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
@@ -380,6 +391,7 @@ set(sources
   vtkDataArray_SetTuple_array.cxx
   vtkDataArray_VectorRange.cxx
 
+  ${serialization_helper_sources}
   ${instantiation_sources}
   ${vtk_smp_sources})
 

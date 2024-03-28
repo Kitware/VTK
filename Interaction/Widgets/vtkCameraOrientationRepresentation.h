@@ -21,6 +21,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // needed for export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -37,7 +38,7 @@ class vtkTextProperty;
 class vtkTexture;
 class vtkTubeFilter;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCameraOrientationRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCameraOrientationRepresentation
   : public vtkWidgetRepresentation
 {
 public:

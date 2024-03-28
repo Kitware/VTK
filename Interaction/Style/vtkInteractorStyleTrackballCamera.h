@@ -25,9 +25,11 @@
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackballCamera : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleTrackballCamera
+  : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleTrackballCamera* New();

@@ -21,7 +21,8 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer ivars
+#include "vtkSmartPointer.h"  // For vtkSmartPointer ivars
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkStructuredData.h" // Needed for inline methods
 
@@ -36,7 +37,7 @@ class vtkPoints;
 class vtkVertex;
 class vtkVoxel;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkImageData : public vtkDataSet
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkImageData : public vtkDataSet
 {
 public:
   static vtkImageData* New();

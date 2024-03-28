@@ -14,9 +14,10 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkFXAAOptions : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkFXAAOptions : public vtkObject
 {
 public:
   /**

@@ -20,9 +20,10 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWindow.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkHardwareWindow : public vtkWindow
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkHardwareWindow : public vtkWindow
 {
 public:
   static vtkHardwareWindow* New();

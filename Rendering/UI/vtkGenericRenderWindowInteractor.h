@@ -16,9 +16,11 @@
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGUI_EXPORT vtkGenericRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkGenericRenderWindowInteractor
+  : public vtkRenderWindowInteractor
 {
 public:
   static vtkGenericRenderWindowInteractor* New();

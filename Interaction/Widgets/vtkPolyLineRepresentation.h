@@ -19,12 +19,14 @@
 
 #include "vtkCurveRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyLineSource;
 class vtkPointHandleSource;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkPolyLineRepresentation : public vtkCurveRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkPolyLineRepresentation
+  : public vtkCurveRepresentation
 {
 public:
   static vtkPolyLineRepresentation* New();

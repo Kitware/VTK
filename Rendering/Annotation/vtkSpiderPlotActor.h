@@ -39,6 +39,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
@@ -57,7 +58,7 @@ class vtkSpiderPlotActorConnection;
 #define VTK_IV_COLUMN 0
 #define VTK_IV_ROW 1
 
-class VTKRENDERINGANNOTATION_EXPORT vtkSpiderPlotActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkSpiderPlotActor : public vtkActor2D
 {
 public:
   ///@{

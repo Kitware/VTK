@@ -32,6 +32,8 @@
             - build/lib/
             - build/Utilities/KWIML/vtkkwiml/test/kwiml_test
             - build/Utilities/KWIML/vtkkwiml/test/kwiml_test.exe
+            - build/Utilities/KWIML/vtkkwiml/test/kwiml_test.js
+            - build/Utilities/KWIML/vtkkwiml/test/kwiml_test.wasm
 
             # Python packages go here
             - build/lib64/
@@ -71,6 +73,9 @@
 
             # SPDX files
             - build/**/*.spdx
+
+            # WebAssembly
+            - build/Web/WebAssembly/
 
 .cmake_junit_artifacts:
     extends: .cmake_annotations_artifacts
@@ -133,6 +138,14 @@
 
             - build/dist/*.whl
             - build/*-wheel-sdk-*.tar.xz
+
+.cmake_webassembly_wheel_artifacts:
+    artifacts:
+        expire_in: 1d
+        when: always
+        paths:
+            - build/Web/WebAssembly/Wheel/dist/*.whl
+            - build/Web/WebAssembly/Wheel/dist/*.tar.gz
 
 .cmake_release_artifacts:
     extends: .cmake_annotations_artifacts

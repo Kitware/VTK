@@ -42,6 +42,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkCellTypes.h"   // For GetCellType
 #include "vtkGenericCell.h" // For GetCell
@@ -51,7 +52,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkAbstractCellLocator;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkPointSet : public vtkDataSet
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkPointSet : public vtkDataSet
 {
 public:
   /**

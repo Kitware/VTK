@@ -13,13 +13,14 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkDataArray.h" // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
-class VTKCOMMONCORE_EXPORT vtkPoints : public vtkObject
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkPoints : public vtkObject
 {
 public:
   static vtkPoints* New(int dataType);

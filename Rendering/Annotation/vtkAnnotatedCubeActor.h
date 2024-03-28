@@ -29,6 +29,7 @@
 
 #include "vtkProp3D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -43,7 +44,7 @@ class vtkTransform;
 class vtkTransformFilter;
 class vtkVectorText;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkAnnotatedCubeActor : public vtkProp3D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkAnnotatedCubeActor : public vtkProp3D
 {
 public:
   static vtkAnnotatedCubeActor* New();

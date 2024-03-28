@@ -34,12 +34,13 @@
 #include "vtkSetGet.h"
 #include "vtkTimeStamp.h"
 #include "vtkWeakPointerBase.h" // needed for vtkWeakPointer
+#include "vtkWrappingHints.h"   // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSubjectHelper;
 class vtkCommand;
 
-class VTKCOMMONCORE_EXPORT vtkObject : public vtkObjectBase
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkObject : public vtkObjectBase
 {
 public:
   vtkBaseTypeMacro(vtkObject, vtkObjectBase);
@@ -69,11 +70,13 @@ public:
   /**
    * Get the value of the debug flag.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   bool GetDebug();
 
   /**
    * Set the value of the debug flag. A true value turns debugging on.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetDebug(bool debugFlag);
 
   /**
@@ -93,6 +96,7 @@ public:
   /**
    * Return this object's modified time.
    */
+  VTK_MARSHALGETTER(MTime)
   virtual vtkMTimeType GetMTime();
 
   /**

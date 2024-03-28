@@ -22,6 +22,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkViewport.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkActorCollection.h"  // Needed for access in inline members
 #include "vtkVolumeCollection.h" // Needed for access in inline members
@@ -49,7 +50,7 @@ class vtkTexture;
 class vtkRecti;
 class vtkVector3d;
 
-class VTKRENDERINGCORE_EXPORT vtkRenderer : public vtkViewport
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderer : public vtkViewport
 {
 public:
   vtkTypeMacro(vtkRenderer, vtkViewport);
@@ -169,11 +170,13 @@ public:
   /**
    * Return the collection of volumes.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkVolumeCollection* GetVolumes();
 
   /**
    * Return any actors in this renderer.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkActorCollection* GetActors();
 
   /**
@@ -839,7 +842,9 @@ public:
   /**
    * Set/Get the information object associated with this algorithm.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(Information, vtkInformation);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetInformation(vtkInformation*);
   ///@}
 

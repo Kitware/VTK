@@ -47,6 +47,7 @@
 #include "vtkActor2D.h"
 #include "vtkDoubleArray.h"               // for ivars
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkColor3ub;
@@ -64,7 +65,7 @@ class vtkTexturedActor2D;
 #define VTK_ORIENT_HORIZONTAL 0
 #define VTK_ORIENT_VERTICAL 1
 
-class VTKRENDERINGANNOTATION_EXPORT vtkScalarBarActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkScalarBarActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkScalarBarActor, vtkActor2D);

@@ -42,13 +42,15 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWidgetEventTranslator;
 class vtkWidgetCallbackMapper;
 class vtkWidgetRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkAbstractWidget : public vtkInteractorObserver
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALMANUAL vtkAbstractWidget
+  : public vtkInteractorObserver
 {
 public:
   ///@{

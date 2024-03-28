@@ -17,9 +17,10 @@
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONMATH_EXPORT vtkMatrix3x3 : public vtkObject
+class VTKCOMMONMATH_EXPORT VTK_MARSHALAUTO vtkMatrix3x3 : public vtkObject
 {
   // Some of the methods in here have a corresponding static (class)
   // method taking a pointer to 9 doubles that constitutes a user
@@ -169,6 +170,11 @@ public:
    * Return a pointer to the first element of the matrix (double[9]).
    */
   const double* GetData() const { return *this->Element; }
+
+  /**
+   * Copies data into the matrix.
+   */
+  void SetData(const double data[9]) { vtkMatrix3x3::DeepCopy(data); }
 
 protected:
   vtkMatrix3x3();

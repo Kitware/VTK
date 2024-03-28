@@ -46,13 +46,15 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // needed for export macro
 #include "vtkWeakPointer.h"              // for weak pointer ivar
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraInterpolator;
 class vtkCameraOrientationRepresentation;
 class vtkRenderer;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCameraOrientationWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCameraOrientationWidget
+  : public vtkAbstractWidget
 {
 public:
   static vtkCameraOrientationWidget* New();
@@ -101,7 +103,7 @@ public:
 
 protected:
   vtkCameraOrientationWidget();
-  ~vtkCameraOrientationWidget() override = default;
+  ~vtkCameraOrientationWidget() override;
 
   // These methods handle events
   void ComputeWidgetState(int X, int Y, int modify = 0);

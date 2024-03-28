@@ -59,14 +59,15 @@
 #include "vtkColor.h"             // Needed for vtkColor[34]ub
 #include "vtkCommonColorModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkStdString.h"   // Needed for arguments
-#include "vtkStringArray.h" // For returning color names
+#include "vtkStdString.h"     // Needed for arguments
+#include "vtkStringArray.h"   // For returning color names
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkNamedColorsDataStore;
 class vtkColorStringParser;
 
-class VTKCOMMONCOLOR_EXPORT vtkNamedColors : public vtkObject
+class VTKCOMMONCOLOR_EXPORT VTK_MARSHALAUTO vtkNamedColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkNamedColors, vtkObject);

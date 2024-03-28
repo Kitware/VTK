@@ -49,7 +49,8 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // for ivars
 #include "vtkProp.h"
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
+#include "vtkWeakPointer.h"   // needed for vtkWeakPointer iVar.
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPropPicker;
@@ -61,7 +62,7 @@ class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkTransform;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetRepresentation : public vtkProp
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkWidgetRepresentation : public vtkProp
 {
 public:
   ///@{

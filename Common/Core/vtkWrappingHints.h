@@ -25,6 +25,16 @@
 #define VTK_EXPECTS(x) [[vtk::expects(x)]]
 // Set size hint for parameter or return value
 #define VTK_SIZEHINT(...) [[vtk::sizehint(__VA_ARGS__)]]
+// Opt-in a class for automatic code generation of (de)serializers.
+#define VTK_MARSHALAUTO [[vtk::marshalauto]]
+// Specifies that a class has hand written (de)serializers.
+#define VTK_MARSHALMANUAL [[vtk::marshalmanual]]
+// Excludes a function from the auto-generated (de)serialization process.
+#define VTK_MARSHALEXCLUDE(reason) [[vtk::marshalexclude(reason)]]
+// Enforces a function as the getter for `property`
+#define VTK_MARSHALGETTER(property) [[vtk::marshalgetter(#property)]]
+// Enforces a function as the setter for `property`
+#define VTK_MARSHALSETTER(property) [[vtk::marshalsetter(#property)]]
 #endif
 
 #ifndef VTK_WRAP_HINTS_DEFINED
@@ -34,7 +44,16 @@
 #define VTK_FILEPATH
 #define VTK_EXPECTS(x)
 #define VTK_SIZEHINT(...)
+#define VTK_MARSHALAUTO
+#define VTK_MARSHALMANUAL
+#define VTK_MARSHALEXCLUDE(reason)
+#define VTK_MARSHALGETTER(property)
+#define VTK_MARSHALSETTER(property)
 #endif
+
+#define VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL "is internal"
+#define VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED                                                   \
+  "(de)serialization is not supported for this type of property"
 
 #endif
 // VTK-HeaderTest-Exclude: vtkWrappingHints.h

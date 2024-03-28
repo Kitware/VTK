@@ -29,6 +29,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageRectilinearWipe;
@@ -40,7 +41,8 @@ class vtkProperty2D;
 class vtkPolyDataMapper2D;
 class vtkActor2D;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkRectilinearWipeRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkRectilinearWipeRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

@@ -17,6 +17,7 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
@@ -32,7 +33,7 @@ class vtkInformationRequestKey;
 class vtkInformationKeyVectorKey;
 class vtkInformationVector;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExecutive : public vtkObject
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkExecutive : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExecutive, vtkObject);

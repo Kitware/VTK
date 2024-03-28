@@ -46,6 +46,7 @@
 #include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // For vtkSmartPointer
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisFollower;
@@ -63,7 +64,7 @@ class vtkTextActor3D;
 class vtkTextProperty;
 class vtkVectorText;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkAxisActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkAxisActor, vtkActor);

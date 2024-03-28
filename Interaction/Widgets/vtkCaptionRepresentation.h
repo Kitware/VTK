@@ -26,6 +26,7 @@
 
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
@@ -33,7 +34,8 @@ class vtkCaptionActor2D;
 class vtkConeSource;
 class vtkPointHandleRepresentation3D;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCaptionRepresentation : public vtkBorderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCaptionRepresentation
+  : public vtkBorderRepresentation
 {
 public:
   /**

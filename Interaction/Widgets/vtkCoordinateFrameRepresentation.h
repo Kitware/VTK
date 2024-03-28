@@ -23,6 +23,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // For vtkNew command
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -40,7 +41,8 @@ class vtkProperty;
 class vtkSphereSource;
 class vtkTransform;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkCoordinateFrameRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCoordinateFrameRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**

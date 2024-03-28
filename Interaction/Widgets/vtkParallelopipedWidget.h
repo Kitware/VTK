@@ -31,13 +31,15 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkParallelopipedRepresentation;
 class vtkHandleWidget;
 class vtkWidgetSet;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkParallelopipedWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkParallelopipedWidget
+  : public vtkAbstractWidget
 {
 
   friend class vtkWidgetSet;

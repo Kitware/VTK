@@ -132,12 +132,16 @@ set(vtk_cmake_module_files
   vtkModule.cmake
   vtkModuleGraphviz.cmake
   vtkModuleJson.cmake
+  vtkModuleSerialization.cmake
   vtkModuleTesting.cmake
   vtkModuleWrapJava.cmake
   vtkModuleWrapPython.cmake
   vtkObjectFactory.cmake
   vtkObjectFactory.cxx.in
   vtkObjectFactory.h.in
+  vtkSerializationLibrariesRegistrar.cxx.in
+  vtkSerializationLibraryRegistrar.cxx.in
+  vtkSerializationLibraryRegistrar.h.in
   vtkTestingDriver.cmake
   vtkTestingRenderingDriver.cmake
   vtkTopologicalSort.cmake

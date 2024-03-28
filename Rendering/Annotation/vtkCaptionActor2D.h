@@ -45,6 +45,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -60,7 +61,7 @@ class vtkTextActor;
 class vtkTextMapper;
 class vtkTextProperty;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkCaptionActor2D : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkCaptionActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkCaptionActor2D, vtkActor2D);

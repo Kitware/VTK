@@ -49,7 +49,8 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
-#include <vector> // STL Header; Required for vector
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <vector>             // STL Header; Required for vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContourLineInterpolator;
@@ -103,7 +104,8 @@ public:
   }
 };
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkContourRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkContourRepresentation
+  : public vtkWidgetRepresentation
 {
   friend class vtkContourWidget;
 

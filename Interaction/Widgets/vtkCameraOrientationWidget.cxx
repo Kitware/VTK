@@ -45,6 +45,9 @@ vtkCameraOrientationWidget::vtkCameraOrientationWidget()
     vtkCommand::StartEvent, this, &vtkCameraOrientationWidget::OrientWidgetRepresentation);
 }
 
+//----------------------------------------------------------------------------
+vtkCameraOrientationWidget::~vtkCameraOrientationWidget() = default;
+
 //------------------------------------------------------------------------------
 vtkRenderer* vtkCameraOrientationWidget::GetParentRenderer()
 {

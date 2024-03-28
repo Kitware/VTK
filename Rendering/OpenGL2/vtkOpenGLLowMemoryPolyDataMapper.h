@@ -18,6 +18,7 @@
 #include "vtkHardwareSelector.h"         // For ivar
 #include "vtkOpenGLShaderDeclaration.h"  // For ivar
 #include "vtkRenderingOpenGL2Module.h"   // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 #include <array>   // for array
 #include <set>     // for set
@@ -31,7 +32,7 @@ class vtkOpenGLLowMemoryVerticesAgent;
 class vtkOpenGLLowMemoryLinesAgent;
 class vtkOpenGLLowMemoryPolygonsAgent;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLowMemoryPolyDataMapper
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLLowMemoryPolyDataMapper
   : public vtkPolyDataMapper
 #ifndef __VTK_WRAP__
   , public vtkDrawTexturedElements
@@ -63,7 +64,9 @@ public:
   /// Release any graphics resources associated with the \a window.
   void ReleaseGraphicsResources(vtkWindow*) override;
 
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetMacro(PopulateSelectionSettings, bool);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetPopulateSelectionSettings(bool v) { this->PopulateSelectionSettings = v; }
   void SetVBOShiftScaleMethod(int method) override;
 
