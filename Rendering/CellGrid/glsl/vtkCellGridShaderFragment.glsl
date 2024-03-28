@@ -5,9 +5,6 @@
 
 //VTK::Output::Dec
 
-/// View coordinate normal for this vertex.
-smooth in vec3 vertexNormalVCVS;
-
 // Position of vertex in view coordinates.
 //VTK::PositionVC::Dec
 
@@ -30,7 +27,7 @@ smooth in vec3 vertexNormalVCVS;
 {cellEval}
 {cellUtil}
 
-smooth in vec3 pcoordVS;
+smooth in vec3 pcoordVSOutput;
 
 uniform sampler2D color_map;
 uniform vec3 color_range;
@@ -54,10 +51,8 @@ uniform float power_specular;
 uniform float power_specular_bf; // backface
 uniform int enable_specular;
 
-flat in float shapeValuesVS[{ShapeCoeffPerCell}];
-flat in float colorValuesVS[{ColorCoeffPerCell}];
-flat in int cellIdVS;
-flat in int sideIdVS;
+flat in float shapeValuesVSOutput[{ShapeCoeffPerCell}];
+flat in float colorValuesVSOutput[{ColorCoeffPerCell}];
 
 void main()
 {{
@@ -76,9 +71,9 @@ void main()
 
   if ({HaveColors})
   {{
-    // Evaluate the basis function at this fragment's parametric coords (pcoordVS),
+    // Evaluate the basis function at this fragment's parametric coords (pcoordVSOutput),
     // yielding the \a fieldValue tuple.
-    colorEvaluateAt(pcoordVS, shapeValuesVS, colorValuesVS, fieldValue);
+    colorEvaluateAt(pcoordVSOutput, shapeValuesVSOutput, colorValuesVSOutput, fieldValue);
 
     // Choose how we map the \a fieldValue tuple into a texture-map coordinate.
     switch (color_component)
@@ -110,7 +105,7 @@ void main()
       scalar = fieldValue[color_component];
     }}
     texCoord = vec2((scalar - color_range[0]) / color_range[2], 0.0);
-    // texCoord = vec2(colorValuesVS[3], 0.);
+    // texCoord = vec2(colorValuesVSOutput[3], 0.);
   }}
 
   vec4 color;
@@ -122,7 +117,7 @@ void main()
   if ({HaveColors})
   {{
     color = texture(color_map, texCoord);
-    // color = vec4((colorValuesVS[0] - color_range[0])/color_range[2], (colorValuesVS[1] - color_range[0])/color_range[2], (colorValuesVS[2] - color_range[0])/color_range[2], 1.0);
+    // color = vec4((colorValuesVSOutput[0] - color_range[0])/color_range[2], (colorValuesVSOutput[1] - color_range[0])/color_range[2], (colorValuesVSOutput[2] - color_range[0])/color_range[2], 1.0);
     // color = vec4(texCoord.s, texCoord.s, texCoord.s, 1.0);
     ambientColor = intensity_ambient * color.rgb;
     diffuseColor = intensity_diffuse * color.rgb;

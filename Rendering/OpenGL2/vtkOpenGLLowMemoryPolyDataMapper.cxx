@@ -1084,7 +1084,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
   vtkShaderProgram::Substitute(vsSource, "//VTK::CustomBegin::Impl", oss.str());
   // Assign position vector outputs.
   vtkShaderProgram::Substitute(vsSource, "//VTK::PositionVC::Impl",
-    "vertexPositionVCVS = MCVCMatrix * vertexMC;\n"
+    "vertexVCVSOutput = MCVCMatrix * vertexMC;\n"
     "  gl_Position = MCDCMatrix * vertexMC;\n");
 }
 
