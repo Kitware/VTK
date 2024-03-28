@@ -167,9 +167,6 @@ smooth out vec3 EyeNormal;
 flat out int sideIdVS;
 flat out int fieldComponentVS;
 
-/// View coordinate normal for this vertex.
-smooth out vec3 vertexNormalVCVS;
-
 {{commonDefs}}
 {{cellEval}}
 {{cellUtil}}
@@ -223,8 +220,8 @@ void main()
   EyeNormal = mat3(MCDCMatrix) * vec3(0., 0., +1.);
   pcoordVS = texelFetch(cell_parametrics, sideVertexIndex).xyz;
   vertexNormalMC = normalToSideAt(cellAndSide.t, shapeValuesVS, pcoordVS);
-  vertexPositionVCVS = MCVCMatrix * vertexMC;
-  vertexNormalVCVS = normalMatrix * vertexNormalMC;
+  vertexVCVSOutput = MCVCMatrix * vertexMC;
+  normalVCVSOutput = normalMatrix * vertexNormalMC;
   fieldComponentVS = 0;
   sideIdVS = cellAndSide.t;
 }
@@ -245,13 +242,12 @@ fragShaderSource = """//VTK::System::Dec
 //VTK::Color::Dec
 
 // cell Normal used to light up and shade the pixels.
+/// View coordinate normal for this vertex.
 //VTK::Normal::Dec
 
 // Lights
 //VTK::Light::Dec
 
-/// View coordinate normal for this vertex.
-smooth in vec3 vertexNormalVCVS;
 /// View coordinate position for this vertex.
 //VTK::PositionVC::Dec
 smooth in vec3 vertexNormalMC;
