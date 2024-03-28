@@ -12,6 +12,7 @@ include:
     - local: .gitlab/os-windows.yml
 
 stages:
+    - quick
     - build
     - test
     - test-ext
@@ -68,8 +69,8 @@ readthedocs:build:
       - .make_sphinx_docs
       - .sphinx_artifacts
       - .run_automatically
-    needs: []
     dependencies: []
+    needs: []
     timeout: 15 minutes
 
 ## Basic builds
@@ -81,6 +82,7 @@ el7-mindeps-python-qt5:build:
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    stage: quick
 
 # Disable testing for now. Even with a modern Mesa and the llvmpipe backend,
 # modern enough OpenGL is just not working in CI. Rather than disabling just
@@ -104,6 +106,8 @@ el8-python:build:
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 el8-python:test:
     extends:
@@ -124,6 +128,8 @@ fedora34-mpi-renderless:build:
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 fedora34-mpi-renderless:test:
     extends:
@@ -159,6 +165,8 @@ fedora34-cuda-mpi:build:
     variables:
         CTEST_MAX_PARALLELISM: 4
     timeout: 8 hours
+    dependencies: []
+    needs: []
 
 fedora34-cuda-mpi:test:
     extends:
@@ -197,6 +205,8 @@ fedora34-mpi-offscreen-osmesa-python:build:
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 fedora34-mpi-offscreen-osmesa-python:test:
     extends:
@@ -231,6 +241,7 @@ fedora34-mpi-ospray-python-qt-tbb:build:
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
+    stage: quick
 
 fedora34-mpi-ospray-python-qt-tbb:test:
     extends:
@@ -253,6 +264,8 @@ fedora34-mpi-ospray-python-qt-tbb:test:
 #         - .run_manually
 #     # The Java build extends the build time considerably.
 #     timeout: 2 hours
+#     dependencies: []
+    needs: []
 
 # fedora34-java-mpi-qt-tbb:test:
 #     extends:
@@ -274,6 +287,8 @@ fedora34-mpi-python-qt-tbb:build:
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
+    dependencies: []
+    needs: []
 
 fedora34-mpi-python-qt-tbb:test:
     extends:
@@ -321,6 +336,7 @@ fedora34-mangling:build:
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
+    stage: quick
 
 fedora34-mangling:test:
     extends:
@@ -342,6 +358,8 @@ fedora34-mpi-python-vtkmoverride:build:
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
+    dependencies: []
+    needs: []
 
 fedora34-mpi-python-vtkmoverride:test:
     extends:
@@ -363,6 +381,8 @@ webassembly:build:
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 ## Webassembly test
 webassembly:test:
@@ -417,6 +437,8 @@ wheel-linux-python36-x86_64:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 # XXX(rust): This build ends up needing a Rust compiler to compile the
 # `cryptography` package.
@@ -451,6 +473,8 @@ wheel-linux-python36-x86_64-osmesa:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 # XXX(rust): This build ends up needing a Rust compiler to compile the
 # `cryptography` package.
@@ -485,6 +509,8 @@ wheel-linux-python36-x86_64-egl:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 # XXX(rust): This build ends up needing a Rust compiler to compile the
 # `cryptography` package.
@@ -519,6 +545,8 @@ wheel-linux-python37-x86_64:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 # XXX(urllib3): The manylinux container for 3.7 has OpenSSL 1.1 which is no
 # longer supported by `urllib3`.
@@ -551,6 +579,8 @@ wheel-linux-python37-x86_64-osmesa:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 # XXX(urllib3): The manylinux container for 3.7 has OpenSSL 1.1 which is no
 # longer supported by `urllib3`.
@@ -583,6 +613,8 @@ wheel-linux-python37-x86_64-egl:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 # XXX(urllib3): The manylinux container for 3.7 has OpenSSL 1.1 which is no
 # longer supported by `urllib3`.
@@ -615,6 +647,8 @@ wheel-linux-python38-x86_64:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-linux-python38-x86_64:test:
     extends:
@@ -645,6 +679,8 @@ wheel-linux-python38-x86_64-osmesa:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-linux-python38-x86_64-osmesa:test:
     extends:
@@ -675,6 +711,8 @@ wheel-linux-python38-x86_64-egl:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-linux-python38-x86_64-egl:test:
     extends:
@@ -705,6 +743,8 @@ wheel-linux-python39-x86_64:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-linux-python39-x86_64:test:
     extends:
@@ -735,6 +775,8 @@ wheel-linux-python39-x86_64-osmesa:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-linux-python39-x86_64-osmesa:test:
     extends:
@@ -765,6 +807,8 @@ wheel-linux-python39-x86_64-egl:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-linux-python39-x86_64-egl:test:
     extends:
@@ -795,6 +839,8 @@ wheel-linux-python310-x86_64:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-linux-python310-x86_64:test:
     extends:
@@ -825,6 +871,8 @@ wheel-linux-python310-x86_64-osmesa:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-linux-python310-x86_64-osmesa:test:
     extends:
@@ -855,6 +903,8 @@ wheel-linux-python310-x86_64-egl:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-linux-python310-x86_64-egl:test:
     extends:
@@ -885,6 +935,8 @@ wheel-linux-python311-x86_64:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-linux-python311-x86_64:test:
     extends:
@@ -915,6 +967,8 @@ wheel-linux-python311-x86_64-osmesa:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-linux-python311-x86_64-osmesa:test:
     extends:
@@ -945,6 +999,8 @@ wheel-linux-python311-x86_64-egl:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-linux-python311-x86_64-egl:test:
     extends:
@@ -975,6 +1031,8 @@ wheel-linux-python312-x86_64:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-linux-python312-x86_64:test:
     extends:
@@ -1005,6 +1063,8 @@ wheel-linux-python312-x86_64-osmesa:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-linux-python312-x86_64-osmesa:test:
     extends:
@@ -1035,6 +1095,8 @@ wheel-linux-python312-x86_64-egl:build:
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-linux-python312-x86_64-egl:test:
     extends:
@@ -1489,8 +1551,8 @@ fedora34-tidy:build:
     # merging. See https://github.com/ejfitzgerald/clang-tidy-cache/issues/5
     # which should help performance immensely.
     stage: test
-    needs: []
     dependencies: []
+    needs: []
     # clang-tidy really hampers compilation cache improvements, so it takes
     # longer.
     timeout: 330 minutes
@@ -1504,6 +1566,8 @@ fedora34-tidy:build:
 #         - .linux_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
+#     dependencies: []
+#     needs: []
 #
 # fedora34-asan:test:
 #     extends:
@@ -1524,6 +1588,8 @@ fedora34-tidy:build:
 #         - .linux_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
+#     dependencies: []
+#     needs: []
 #
 # fedora34-tsan:test:
 #     extends:
@@ -1544,6 +1610,8 @@ fedora34-tidy:build:
 #         - .linux_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
+#     dependencies: []
+#     needs: []
 #
 # fedora34-ubsan:test:
 #     extends:
@@ -1566,6 +1634,8 @@ documentation:build:
         - .linux_builder_tags
         - .cmake_doxygen_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 documentation:upload:
     extends:
@@ -1770,6 +1840,7 @@ macos-arm64-kits-python-qt:build:
         - .macos_arm64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    stage: quick
 
 macos-arm64-kits-python-qt:test:
     extends:
@@ -1792,6 +1863,8 @@ macos-x86_64-kits-python-qt:build:
         - .run_manually
     # Some of the macOS runners are not very powerful.
     timeout: 150 minutes
+    dependencies: []
+    needs: []
 
 macos-x86_64-kits-python-qt:test:
     extends:
@@ -1851,6 +1924,8 @@ wheel-macos-python36-x86_64:build:
         - .cmake_wheel_artifacts
         - .merged_only
     timeout: 90 minutes
+    dependencies: []
+    needs: []
 
 wheel-macos-python36-x86_64:test:
     extends:
@@ -1871,6 +1946,8 @@ wheel-macos-python37-x86_64:build:
         - .cmake_wheel_artifacts
         - .merged_only
     timeout: 90 minutes
+    dependencies: []
+    needs: []
 
 wheel-macos-python37-x86_64:test:
     extends:
@@ -1891,6 +1968,8 @@ wheel-macos-python38-x86_64:build:
         - .cmake_wheel_artifacts
         - .merged_only
     timeout: 90 minutes
+    dependencies: []
+    needs: []
 
 wheel-macos-python38-x86_64:test:
     extends:
@@ -1910,6 +1989,8 @@ wheel-macos-python39-arm64:build:
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-macos-python39-arm64:test:
     extends:
@@ -1930,6 +2011,8 @@ wheel-macos-python39-x86_64:build:
         - .cmake_wheel_artifacts
         - .merged_only
     timeout: 90 minutes
+    dependencies: []
+    needs: []
 
 wheel-macos-python39-x86_64:test:
     extends:
@@ -1949,6 +2032,8 @@ wheel-macos-python310-arm64:build:
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-macos-python310-arm64:test:
     extends:
@@ -1969,6 +2054,8 @@ wheel-macos-python310-x86_64:build:
         - .cmake_wheel_artifacts
         - .run_manually
     timeout: 90 minutes
+    dependencies: []
+    needs: []
 
 wheel-macos-python310-x86_64:test:
     extends:
@@ -1988,6 +2075,8 @@ wheel-macos-python311-arm64:build:
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-macos-python311-arm64:test:
     extends:
@@ -2008,6 +2097,8 @@ wheel-macos-python311-x86_64:build:
         - .cmake_wheel_artifacts
         - .run_manually
     timeout: 90 minutes
+    dependencies: []
+    needs: []
 
 wheel-macos-python311-x86_64:test:
     extends:
@@ -2027,6 +2118,8 @@ wheel-macos-python312-arm64:build:
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-macos-python312-arm64:test:
     extends:
@@ -2047,6 +2140,8 @@ wheel-macos-python312-x86_64:build:
         - .cmake_wheel_artifacts
         - .run_manually
     timeout: 90 minutes
+    dependencies: []
+    needs: []
 
 wheel-macos-python312-x86_64:test:
     extends:
@@ -2069,6 +2164,7 @@ windows-vs2022-kits-mpi-python-qt:build:
         - .cmake_build_artifacts
         - .run_manually
     timeout: 180 minutes
+    stage: quick
 
 windows-vs2022-kits-mpi-python-qt:test:
     extends:
@@ -2125,6 +2221,8 @@ windows-vs2022-mpi-python-qt:build:
         - .cmake_build_artifacts
         - .run_manually
     timeout: 180 minutes
+    dependencies: []
+    needs: []
 
 windows-vs2022-mpi-python-qt:test:
     extends:
@@ -2146,6 +2244,8 @@ windows-vs2022-mpi-python-qt-static:build:
         - .cmake_build_artifacts
         - .run_manually
     timeout: 180 minutes
+    dependencies: []
+    needs: []
 
 windows-vs2022-mpi-python-qt-static:test:
     extends:
@@ -2169,6 +2269,8 @@ wheel-windows-python36-x86_64:build:
         - .cmake_wheel_artifacts
         - .merged_only
     timeout: 180 minutes
+    dependencies: []
+    needs: []
 
 # XXX(rust): This build ends up needing a Rust compiler to compile the
 # `cryptography` package.
@@ -2191,6 +2293,8 @@ wheel-windows-python36-x86_64-osmesa:build:
         - .cmake_wheel_artifacts
         - .merged_only
     timeout: 180 minutes
+    dependencies: []
+    needs: []
 
 # XXX(rust): This build ends up needing a Rust compiler to compile the
 # `cryptography` package.
@@ -2212,6 +2316,8 @@ wheel-windows-python37-x86_64:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-windows-python37-x86_64:test:
     extends:
@@ -2231,6 +2337,8 @@ wheel-windows-python37-x86_64-osmesa:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-windows-python37-x86_64-osmesa:test:
     extends:
@@ -2250,6 +2358,8 @@ wheel-windows-python38-x86_64:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-windows-python38-x86_64:test:
     extends:
@@ -2269,6 +2379,8 @@ wheel-windows-python38-x86_64-osmesa:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-windows-python38-x86_64-osmesa:test:
     extends:
@@ -2288,6 +2400,8 @@ wheel-windows-python39-x86_64:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-windows-python39-x86_64:test:
     extends:
@@ -2307,6 +2421,8 @@ wheel-windows-python39-x86_64-osmesa:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    dependencies: []
+    needs: []
 
 wheel-windows-python39-x86_64-osmesa:test:
     extends:
@@ -2326,6 +2442,8 @@ wheel-windows-python310-x86_64:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-windows-python310-x86_64:test:
     extends:
@@ -2345,6 +2463,8 @@ wheel-windows-python310-x86_64-osmesa:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-windows-python310-x86_64-osmesa:test:
     extends:
@@ -2364,6 +2484,8 @@ wheel-windows-python311-x86_64:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-windows-python311-x86_64:test:
     extends:
@@ -2383,6 +2505,8 @@ wheel-windows-python311-x86_64-osmesa:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-windows-python311-x86_64-osmesa:test:
     extends:
@@ -2402,6 +2526,8 @@ wheel-windows-python312-x86_64:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-windows-python312-x86_64:test:
     extends:
@@ -2421,6 +2547,8 @@ wheel-windows-python312-x86_64-osmesa:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    dependencies: []
+    needs: []
 
 wheel-windows-python312-x86_64-osmesa:test:
     extends:
