@@ -15,3 +15,6 @@ specified at runtime. This change improves three specific things.
   original VTK array is "deleted." This makes the code safer.
 * Unifies the implementation of the array conversion among number of
   components to avoid issues with surprise tuple sizes.
+* Revamped vtkmDataArray to support general array types. This makes
+  it more efficient to pass data from VTK-m to VTK when unified
+  memory is not available.
