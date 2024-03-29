@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //VTK::Camera::Dec
 /// View coordinate normal for this vertex.
-smooth out vec3 vertexNormalVCVS;
+//VTK::Normal::Dec
 
 uniform samplerBuffer vertices;
 
@@ -29,17 +29,15 @@ uniform samplerBuffer color_vals;
 // If -1 or -2, the L1-norm or L2-norm are used.
 uniform int field_component;
 
-flat out int cellIdVS;
-flat out int sideIdVS;
+flat out int cellIdVSOutput;
+flat out int sideIdVSOutput;
 
 {commonDefs}
 {cellEval}
 {cellUtil}
 
 /// Parametric coordinates of this vertex.
-smooth out vec3 pcoordVS;
-/// View coordinate normal for this vertex.
-smooth out vec3 normalVCVS;
+smooth out vec3 pcoordVSOutput;
 /// View coordinate position for this vertex.
 //VTK::PositionVC::Dec
 
@@ -49,8 +47,8 @@ smooth out vec3 normalVCVS;
 /// intermediate vertices (i.e., tessellation control shader) and fragments
 /// for pixel-accurate renderings. Fetching these in the vertex shader
 /// saves the work of fetching them for each fragment.
-flat out float shapeValuesVS[{ShapeCoeffPerCell}];
-flat out float colorValuesVS[{ColorCoeffPerCell}];
+flat out float shapeValuesVSOutput[{ShapeCoeffPerCell}];
+flat out float colorValuesVSOutput[{ColorCoeffPerCell}];
 
 void main()
 {{
@@ -60,18 +58,18 @@ void main()
   {{
      cellAndSide = ivec2(gl_InstanceID, 0);
      // These two VS outputs are to be used for picking:
-     cellIdVS = cellAndSide.s;
-     sideIdVS = -1;
-     // Note sideIdVS != cellAndSide.t; this is so that we can properly
+     cellIdVSOutput = cellAndSide.s;
+     sideIdVSOutput = -1;
+     // Note sideIdVSOutput != cellAndSide.t; this is so that we can properly
      // compute the cell connectivity (using the zero offset in cellAndSide.t)
-     // while also computing the normal (using sideIdVS).
+     // while also computing the normal (using sideIdVSOutput).
   }}
   else
   {{
      cellAndSide = texelFetchBuffer(sides, gl_InstanceID).st;
      // These two VS outputs are to be used for picking:
-     cellIdVS = cellAndSide.s;
-     sideIdVS = cellAndSide.t;
+     cellIdVSOutput = cellAndSide.s;
+     sideIdVSOutput = cellAndSide.t;
   }}
 
   // Fetch the offset into the (ragged) side_local table:
@@ -86,13 +84,13 @@ void main()
   //
   // NB: Currently, a cell-grid's shape attribute *must* be continuous
   // (i.e., share degrees of freedom at cell boundaries). This makes
-  // fetching shapeValuesVS much simpler than fetching colorValuesVS.
+  // fetching shapeValuesVSOutput much simpler than fetching colorValuesVSOutput.
   for (int ii = 0; ii < {ShapeNumBasisFun}; ++ii)
   {{
-    int vertexId = texelFetchBuffer(shape_conn, cellIdVS * {ShapeNumBasisFun} + ii).s;
+    int vertexId = texelFetchBuffer(shape_conn, cellIdVSOutput * {ShapeNumBasisFun} + ii).s;
     for (int jj = 0; jj < {ShapeMultiplicity}; ++jj)
     {{
-      shapeValuesVS[ii * {ShapeMultiplicity} + jj] = texelFetchBuffer(shape_vals, vertexId * {ShapeMultiplicity} + jj).x;
+      shapeValuesVSOutput[ii * {ShapeMultiplicity} + jj] = texelFetchBuffer(shape_vals, vertexId * {ShapeMultiplicity} + jj).x;
     }}
   }}
 
@@ -103,10 +101,10 @@ void main()
       // Continuous (shared) field values
       for (int ii = 0; ii < {ColorNumBasisFun}; ++ii)
       {{
-        int dofId = texelFetchBuffer(color_conn, cellIdVS * {ColorNumBasisFun} + ii).s;
+        int dofId = texelFetchBuffer(color_conn, cellIdVSOutput * {ColorNumBasisFun} + ii).s;
         for (int jj = 0; jj < {ColorMultiplicity}; ++jj)
         {{
-          colorValuesVS[ii * {ColorMultiplicity} + jj] = texelFetchBuffer(color_vals, dofId * {ColorMultiplicity} + jj).x;
+          colorValuesVSOutput[ii * {ColorMultiplicity} + jj] = texelFetchBuffer(color_vals, dofId * {ColorMultiplicity} + jj).x;
         }}
       }}
     }}
@@ -118,10 +116,10 @@ void main()
       {{
         for (int jj = 0; jj < {ColorMultiplicity}; ++jj)
         {{
-          int colorValTBIdx = (cellIdVS * {ColorNumBasisFun} + ii) * {ColorMultiplicity} + jj;
+          int colorValTBIdx = (cellIdVSOutput * {ColorNumBasisFun} + ii) * {ColorMultiplicity} + jj;
           int colorValVSIdx = ii * {ColorMultiplicity} + jj;
           cvs[colorValVSIdx] = texelFetchBuffer(color_vals, colorValTBIdx).x;
-          colorValuesVS[colorValVSIdx] = cvs[colorValVSIdx];
+          colorValuesVSOutput[colorValVSIdx] = cvs[colorValVSIdx];
         }}
       }}
     }}
@@ -134,9 +132,9 @@ void main()
   int sideVertexIndex =
     texelFetchBuffer(side_local,
       sideRaggedOffset + (cellAndSide.t - {SideOffset}) * NumPtsPerSide + gl_VertexID).s;
-  int vertexId = texelFetchBuffer(shape_conn, cellIdVS * NumPtsPerCell + sideVertexIndex).s;
+  int vertexId = texelFetchBuffer(shape_conn, cellIdVSOutput * NumPtsPerCell + sideVertexIndex).s;
   // Parametric coordinate for this vertex.
-  pcoordVS = texelFetchBuffer(cell_parametrics, sideVertexIndex).xyz;
+  pcoordVSOutput = texelFetchBuffer(cell_parametrics, sideVertexIndex).xyz;
   // position for this vertex as defined in vtk data model.
   vec4 vertexMC = vec4(
       texelFetchBuffer(shape_vals, vertexId * 3).x,
@@ -145,7 +143,7 @@ void main()
       1.0f);
   // default eye direction in model coordinates.
   vec3 eyeNormalMC = vec3(0.0f, 0.0f, 1.0f);
-  vec3 vertexNormalMC = normalToSideAt(sideIdVS, shapeValuesVS, pcoordVS, -eyeNormalMC);
+  vec3 vertexNormalMC = normalToSideAt(sideIdVSOutput, shapeValuesVSOutput, pcoordVSOutput, -eyeNormalMC);
 
   // Transform the vertex by the model-to-device coordinate matrix.
   // This matrix must be the result of the following multiplication:
@@ -154,7 +152,7 @@ void main()
 
   // Transform vertex posittion to view coordinate.
   // Some operations in fragment shader want it that way.
-  vertexPositionVCVS = MCVCMatrix * vertexMC;
+  vertexVCVSOutput = MCVCMatrix * vertexMC;
 
   // Normal vectors are transformed in a different way than vertices.
   // Instead of pre-multiplying with MCDCMatrix, a different matrix is used.
@@ -164,10 +162,10 @@ void main()
   if ((DrawingCellsNotSides && NumPtsPerCell <= 2) || (!DrawingCellsNotSides && NumPtsPerSide <= 2))
   {{
     // for lines or vertices, the normal will always face the camera.
-    vertexNormalVCVS = vec3(vertexNormalMC.xy, 1.0f);
+    normalVCVSOutput = vec3(vertexNormalMC.xy, 1.0f);
   }}
   else
   {{
-    vertexNormalVCVS = normalMatrix * vertexNormalMC;
+    normalVCVSOutput = normalMatrix * vertexNormalMC;
   }}
 }}
