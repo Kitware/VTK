@@ -265,7 +265,7 @@ fedora34-mpi-ospray-python-qt-tbb:test:
 #     # The Java build extends the build time considerably.
 #     timeout: 2 hours
 #     dependencies: []
-    needs: []
+#     needs: []
 
 # fedora34-java-mpi-qt-tbb:test:
 #     extends:
