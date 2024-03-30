@@ -74,7 +74,9 @@ vtkInformationKeyMacro(vtkIOSSReader, ENTITY_TYPE, Integer);
 vtkInformationKeyMacro(vtkIOSSReader, ENTITY_ID, Integer);
 //----------------------------------------------------------------------------
 vtkIOSSReader::vtkIOSSReader()
-  : Controller(nullptr)
+  : AssemblyTag(0)
+  , Internals(new vtkIOSSReaderInternal(this))
+  , Controller(nullptr)
   , Caching(false)
   , MergeExodusEntityBlocks(false)
   , ElementAndSideIds(true)
@@ -87,10 +89,8 @@ vtkIOSSReader::vtkIOSSReader()
   , ReadGlobalFields(true)
   , ReadQAAndInformationRecords(true)
   , DatabaseTypeOverride(nullptr)
-  , AssemblyTag(0)
   , FileRange{ 0, -1 }
   , FileStride{ 1 }
-  , Internals(new vtkIOSSReaderInternal(this))
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
   // default - treat numeric suffixes as separate vtk data arrays.

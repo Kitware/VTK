@@ -7,6 +7,19 @@
 
 #include <cassert>
 
+// Silence warnings that these functions are unused.
+// Because the functions are in an anonymous namespace, unused-function
+// function warnings are generated. But not every file that includes
+// this header needs to use every function.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#elif defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wunused-template"
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
@@ -98,3 +111,9 @@ vtkSmartPointer<vtkAbstractArray> JoinArrays(
 
 } // end of namespace {}
 VTK_ABI_NAMESPACE_END
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#endif
