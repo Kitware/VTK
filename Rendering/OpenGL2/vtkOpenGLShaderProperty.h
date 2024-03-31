@@ -52,6 +52,12 @@ public:
   void AddGeometryShaderReplacement(const std::string& originalValue,
     bool replaceFirst, // do this replacement before the default
     const std::string& replacementValue, bool replaceAll) override;
+  void AddTessControlShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) override;
+  void AddTessEvaluationShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) override;
 
   int GetNumberOfShaderReplacements() override;
   std::string GetNthShaderReplacementTypeAsString(vtkIdType index) override;
@@ -61,9 +67,15 @@ public:
   void ClearVertexShaderReplacement(const std::string& originalValue, bool replaceFirst) override;
   void ClearFragmentShaderReplacement(const std::string& originalValue, bool replaceFirst) override;
   void ClearGeometryShaderReplacement(const std::string& originalValue, bool replaceFirst) override;
+  void ClearTessControlShaderReplacement(
+    const std::string& originalValue, bool replaceFirst) override;
+  void ClearTessEvaluationShaderReplacement(
+    const std::string& originalValue, bool replaceFirst) override;
   void ClearAllVertexShaderReplacements() override;
   void ClearAllFragmentShaderReplacements() override;
   void ClearAllGeometryShaderReplacements() override;
+  void ClearAllTessControlShaderReplacements() override;
+  void ClearAllTessEvalShaderReplacements() override;
   void ClearAllShaderReplacements() override;
 
   ///@{
