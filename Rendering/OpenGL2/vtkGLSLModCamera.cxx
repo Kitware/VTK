@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGLSLModCamera.h"
 #include "vtkActor.h"
-#include "vtkInformationObjectBaseKey.h"
-#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkShaderProgram.h"
+
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -54,7 +53,8 @@ void vtkGLSLModCamera::DisableShiftScale()
 
 //------------------------------------------------------------------------------
 bool vtkGLSLModCamera::ReplaceShaderValues(vtkOpenGLRenderer*, std::string& vertexShader,
-  std::string&, std::string& fragmentShader, vtkAbstractMapper*, vtkActor*)
+  std::string& tessControlShader, std::string& tessEvalShader, std::string& geometryShader,
+  std::string& fragmentShader, vtkAbstractMapper* vtkNotUsed(mapper), vtkActor* vtkNotUsed(actor))
 {
   std::ostringstream oss;
   oss << "uniform mat4 MCDCMatrix;\n";
@@ -62,7 +62,10 @@ bool vtkGLSLModCamera::ReplaceShaderValues(vtkOpenGLRenderer*, std::string& vert
   oss << "uniform mat3 normalMatrix;\n";
   oss << "uniform highp int cameraParallel;\n";
   vtkShaderProgram::Substitute(vertexShader, "//VTK::Camera::Dec", oss.str());
+  vtkShaderProgram::Substitute(geometryShader, "//VTK::Camera::Dec", oss.str());
   vtkShaderProgram::Substitute(fragmentShader, "//VTK::Camera::Dec", oss.str());
+  vtkShaderProgram::Substitute(tessControlShader, "//VTK::Camera::Dec", oss.str());
+  vtkShaderProgram::Substitute(tessEvalShader, "//VTK::Camera::Dec", oss.str());
   return true;
 }
 

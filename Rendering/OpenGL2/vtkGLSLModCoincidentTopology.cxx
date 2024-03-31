@@ -36,7 +36,8 @@ void vtkGLSLModCoincidentTopology::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 bool vtkGLSLModCoincidentTopology::ReplaceShaderValues(vtkOpenGLRenderer* renderer,
-  std::string& vtkNotUsed(vertexShader), std::string& vtkNotUsed(geometryShader),
+  std::string& vtkNotUsed(vertexShader), std::string& vtkNotUsed(tessControlShader),
+  std::string& vtkNotUsed(tessEvalShader), std::string& vtkNotUsed(geometryShader),
   std::string& fragmentShader, vtkAbstractMapper* mapper, vtkActor* actor)
 {
   if (this->ReplacementsDone)

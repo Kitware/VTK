@@ -340,7 +340,7 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   std::string fragShaderSource = fmt::vformat(fragShaderTemplate, store);
 
   auto oglRenderer = static_cast<vtkOpenGLRenderer*>(renderer);
-  std::string emptyGS;
+  std::string emptyGS, emptyTCS, emptyTES;
   // Pre-pass.
   ::ReplaceShaderRenderPass(vertShaderSource, emptyGS, fragShaderSource, mapper, actor, true);
   // Apply shader mods.
@@ -348,7 +348,7 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   {
     auto mod = vtk::TakeSmartPointer(vtkGLSLModifierFactory::CreateAMod(modName));
     mod->ReplaceShaderValues(
-      oglRenderer, vertShaderSource, emptyGS, fragShaderSource, mapper, actor);
+      oglRenderer, vertShaderSource, emptyTCS, emptyTES, emptyGS, fragShaderSource, mapper, actor);
     this->RenderHelper->GetGLSLModCollection()->AddItem(mod);
   }
   // Post-pass.

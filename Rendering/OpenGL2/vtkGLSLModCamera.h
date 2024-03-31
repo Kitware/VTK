@@ -33,15 +33,16 @@ public:
 
   // vtkGLSLModifierBase virtuals:
   bool ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::string& vertexShader,
-    std::string& geometryShader, std::string& fragmentShader, vtkAbstractMapper* mapper,
-    vtkActor* actor) override;
+    std::string& tessControlShader, std::string& tessEvalShader, std::string& geometryShader,
+    std::string& fragmentShader, vtkAbstractMapper* mapper, vtkActor* actor) override;
   bool SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShaderProgram* program,
     vtkAbstractMapper* mapper, vtkActor* actor, vtkOpenGLVertexArrayObject* VAO = nullptr) override;
 
   bool IsUpToDate(vtkOpenGLRenderer* vtkNotUsed(renderer), vtkAbstractMapper* vtkNotUsed(mapper),
     vtkActor* vtkNotUsed(actor)) override
   {
-    // no replacements were done. shader is always up-to-date, as far as this mod is concerned.
+    // no replacements which depend upon any of renderer/mapper/actor were performed.
+    // shader is always up-to-date, as far as this mod is concerned.
     return true;
   }
 

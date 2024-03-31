@@ -234,7 +234,7 @@ void vtkArrayRenderer::PrepareToRender(vtkRenderer* renderer, vtkActor* actor)
   auto* fragShader = this->GetShader(vtkShader::Fragment);
 
   std::string vertShaderSource = this->VertexShaderSource;
-  std::string emptyGS;
+  std::string emptyGS, emptyTCS, emptyTES;
   std::string fragShaderSource = this->FragmentShaderSource;
 
   auto* oglRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
@@ -244,7 +244,8 @@ void vtkArrayRenderer::PrepareToRender(vtkRenderer* renderer, vtkActor* actor)
   for (const auto& modName : this->ModNames)
   {
     auto mod = vtk::TakeSmartPointer(vtkGLSLModifierFactory::CreateAMod(modName));
-    mod->ReplaceShaderValues(oglRenderer, vertShaderSource, emptyGS, fragShaderSource, this, actor);
+    mod->ReplaceShaderValues(
+      oglRenderer, vertShaderSource, emptyTCS, emptyTES, emptyGS, fragShaderSource, this, actor);
     this->GetGLSLModCollection()->AddItem(mod);
   }
   // Post-pass.

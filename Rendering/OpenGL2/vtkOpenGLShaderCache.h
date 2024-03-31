@@ -28,9 +28,25 @@ public:
   vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
+  /**
+   * Set/Get whether the GLSL version macro in the shader must be the same as OpenGL version.
+   * When true, the `#version xyz` macro is defined such that:
+   *  x = OpenGLMajorVersion
+   *  y = OpenGLMinorVersion
+   *  z = 0
+   */
+  vtkSetMacro(SyncGLSLShaderVersion, bool);
+  vtkGetMacro(SyncGLSLShaderVersion, bool);
+  vtkBooleanMacro(SyncGLSLShaderVersion, bool);
+  ///@}
+
   // make sure the specified shaders are compiled, linked, and bound
   virtual vtkShaderProgram* ReadyShaderProgram(const char* vertexCode, const char* fragmentCode,
     const char* geometryCode, vtkTransformFeedback* cap = nullptr);
+  virtual vtkShaderProgram* ReadyShaderProgram(const char* vertexCode, const char* fragmentCode,
+    const char* geometryCode, const char* tessControlCode, const char* tessEvalCode,
+    vtkTransformFeedback* cap = nullptr);
 
   // make sure the specified shaders are compiled, linked, and bound
   // will increment the reference count on the shaders if it
@@ -70,11 +86,11 @@ protected:
 
   // perform System and Output replacements in place. Returns
   // the number of outputs
-  virtual unsigned int ReplaceShaderValues(
-    std::string& VSSource, std::string& FSSource, std::string& GSSource);
+  virtual unsigned int ReplaceShaderValues(std::string& VSSource, std::string& FSSource,
+    std::string& GSSource, std::string& TCSSource, std::string& TESSource);
 
-  virtual vtkShaderProgram* GetShaderProgram(
-    const char* vertexCode, const char* fragmentCode, const char* geometryCode);
+  virtual vtkShaderProgram* GetShaderProgram(const char* vertexCode, const char* fragmentCode,
+    const char* geometryCode, const char* tessControlCode, const char* tessEvalCode);
   virtual vtkShaderProgram* GetShaderProgram(std::map<vtkShader::Type, vtkShader*> shaders);
   virtual int BindShader(vtkShaderProgram* shader);
 
@@ -84,6 +100,7 @@ protected:
 
   int OpenGLMajorVersion;
   int OpenGLMinorVersion;
+  bool SyncGLSLShaderVersion;
 
   float ElapsedTime;
 

@@ -49,6 +49,7 @@ TEST_DEPENDS
   VTK::ImagingGeneral
   VTK::ImagingSources
   VTK::InteractionStyle
+  VTK::opengl
   VTK::RenderingAnnotation
   VTK::RenderingFreeType
   VTK::RenderingImage

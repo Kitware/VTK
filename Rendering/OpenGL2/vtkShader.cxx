@@ -47,15 +47,37 @@ bool vtkShader::Compile()
   GLenum type = GL_VERTEX_SHADER;
   switch (this->ShaderType)
   {
-#ifdef GL_GEOMETRY_SHADER
     case vtkShader::Geometry:
+#ifdef GL_GEOMETRY_SHADER
       type = GL_GEOMETRY_SHADER;
       break;
+#else
+      this->Error = "Geometry shaders are not supported in this build of VTK";
+      return false;
 #endif
-#ifdef GL_COMPUTE_SHADER
     case vtkShader::Compute:
+#ifdef GL_COMPUTE_SHADER
       type = GL_COMPUTE_SHADER;
       break;
+#else
+      this->Error = "Compute shaders are not supported in this build of VTK";
+      return false;
+#endif
+    case vtkShader::TessEvaluation:
+#ifdef GL_TESS_EVALUATION_SHADER
+      type = GL_TESS_EVALUATION_SHADER;
+      break;
+#else
+      this->Error = "Tessellation evaluation shaders are not supported in this build of VTK";
+      return false;
+#endif
+    case vtkShader::TessControl:
+#ifdef GL_TESS_CONTROL_SHADER
+      type = GL_TESS_CONTROL_SHADER;
+      break;
+#else
+      this->Error = "Tessellation control shaders are not supported in this build of VTK";
+      return false;
 #endif
     case vtkShader::Fragment:
       type = GL_FRAGMENT_SHADER;
@@ -124,6 +146,16 @@ bool vtkShader::IsComputeShaderSupported()
   return false;
 #else
   return glewIsSupported("GL_ARB_compute_shader") != 0;
+#endif
+}
+
+//------------------------------------------------------------------------------
+bool vtkShader::IsTessellationShaderSupported()
+{
+#if defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0)
+  return false;
+#else
+  return glewIsSupported("GL_ARB_tessellation_shader") != 0;
 #endif
 }
 
