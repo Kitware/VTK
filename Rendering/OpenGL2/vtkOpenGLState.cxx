@@ -1872,6 +1872,9 @@ vtkCxxSetObjectMacro(vtkOpenGLState, VBOCache, vtkOpenGLVertexBufferObjectCache)
 // not required.
 //
 vtkOpenGLState::vtkOpenGLState()
+  : MajorVersion(-1)
+  , MinorVersion(-1)
+  , MaxTextureSize(-1)
 {
   this->ShaderCache = vtkOpenGLShaderCache::New();
   this->VBOCache = vtkOpenGLVertexBufferObjectCache::New();
