@@ -119,6 +119,7 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
   {
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::Normal::Impl",
       "vec3 vertexNormalVCVS = normalVCVSOutput;\n"
+      "if (gl_FrontFacing == false) vertexNormalVCVS.z = -vertexNormalVCVS.z;\n"
       "//VTK::Normal::Impl");
   }
 
