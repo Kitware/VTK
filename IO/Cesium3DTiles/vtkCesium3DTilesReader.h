@@ -63,7 +63,7 @@ public:
    * Possible values are from 0 to NumberOfLevels - 1. Initialized to
    * NumberOfLevels - 1 (reads the most detailed tiles available)
    */
-  void SetLevel(int level);
+  vtkSetMacro(Level, int);
   vtkGetMacro(Level, int);
   ///@}
 

@@ -354,18 +354,6 @@ int vtkCesium3DTilesReader::GetDepth(json& node)
 }
 
 //------------------------------------------------------------------------------
-void vtkCesium3DTilesReader::SetLevel(int level)
-{
-  vtkDebugMacro(<< " setting Level to " << level);
-  if (this->Level != level)
-  {
-    this->Level = level;
-    this->Tilesets[0]->SetLevel(level);
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkCesium3DTilesReader::Tileset::AddContentPartition(
   json& node, int nodeLevel, std::array<double, 16>& transform)
 {
