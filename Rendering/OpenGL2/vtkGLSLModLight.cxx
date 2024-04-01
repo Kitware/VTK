@@ -62,11 +62,26 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
   vtkAbstractMapper* vtkNotUsed(mapper), vtkActor* actor)
 {
   vtkShaderProgram::Substitute(
-    vertexShader, "//VTK::PositionVC::Dec", "smooth out vec4 vertexPositionVCVS;");
+    vertexShader, "//VTK::PositionVC::Dec", "smooth out vec4 vertexVCVSOutput;");
   vtkShaderProgram::Substitute(
-    fragmentShader, "//VTK::PositionVC::Dec", "smooth in vec4 vertexPositionVCVS;");
+    fragmentShader, "//VTK::PositionVC::Dec", "smooth in vec4 vertexVCVSOutput;");
   vtkShaderProgram::Substitute(
-    fragmentShader, "//VTK::PositionVC::Impl", "vec4 vertexVC = vertexPositionVCVS;");
+    fragmentShader, "//VTK::PositionVC::Impl", "vec4 vertexVC = vertexVCVSOutput;");
+
+  // Only if normal was not already declared as an output in vertex shader
+  if (!vtkShaderProgram::Substitute(
+        vertexShader, "out vec3 normalVCVSOutput;", "out vec3 normalVCVSOutput;"))
+  {
+    vtkShaderProgram::Substitute(
+      vertexShader, "//VTK::Normal::Dec", "smooth out vec3 normalVCVSOutput;");
+  }
+  // Only if normal was not already declared as an input in fragment shader
+  if (!vtkShaderProgram::Substitute(
+        fragmentShader, "in vec3 normalVCVSOutput;", "in vec3 normalVCVSOutput;"))
+  {
+    vtkShaderProgram::Substitute(
+      fragmentShader, "//VTK::Normal::Dec", "smooth in vec3 normalVCVSOutput;");
+  }
 
   // Generate code to handle different types of lights.
   auto info = actor->GetPropertyKeys();
@@ -96,6 +111,14 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
   if (actor->GetProperty()->GetInterpolation() != VTK_PBR && lastLightCount == 0)
   {
     lastLightComplexity = 0;
+  }
+  // Only if vertexNormalVCVS was not already declared in fragment shader
+  if (!vtkShaderProgram::Substitute(
+        fragmentShader, "vec3 vertexNormalVCVS", "vec3 vertexNormalVCVS"))
+  {
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::Normal::Impl",
+      "vec3 vertexNormalVCVS = normalVCVSOutput;\n"
+      "//VTK::Normal::Impl");
   }
 
   vtkShaderProgram::Substitute(fragmentShader, "//VTK::Normal::Impl",
