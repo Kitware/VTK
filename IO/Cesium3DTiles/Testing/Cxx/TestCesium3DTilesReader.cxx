@@ -8,6 +8,8 @@
 #include "vtkCamera.h"
 #include "vtkCesium3DTilesReader.h"
 #include "vtkDataArray.h"
+#include "vtkGLTFReader.h"
+#include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
@@ -20,6 +22,39 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
+#include "vtkTexture.h"
+
+void AddActors(
+  vtkRenderer* renderer, vtkPartitionedDataSetCollection* pdc, vtkCesium3DTilesReader* reader)
+{
+  for (size_t i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+  {
+    vtkPartitionedDataSet* pd = pdc->GetPartitionedDataSet(i);
+    auto gltfReader = reader->GetTileReader(i);
+    for (size_t j = 0; j < pd->GetNumberOfPartitions(); ++j)
+    {
+      vtkPolyData* poly = vtkPolyData::SafeDownCast(pd->GetPartition(j));
+      vtkNew<vtkPolyDataMapper> mapper;
+      mapper->SetInputDataObject(poly);
+
+      vtkNew<vtkActor> actor;
+      actor->SetMapper(mapper);
+      renderer->AddActor(actor);
+      vtkGLTFReader::GLTFTexture t = gltfReader->GetGLTFTexture(j);
+      auto texture = t.GetVTKTexture();
+      // flip texture coordinates
+      if (actor->GetPropertyKeys() == nullptr)
+      {
+        vtkNew<vtkInformation> info;
+        actor->SetPropertyKeys(info);
+      }
+      double mat[] = { 1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1 };
+      actor->GetPropertyKeys()->Set(vtkProp::GeneralTextureTransform(), mat, 16);
+
+      actor->SetTexture(texture);
+    }
+  }
+}
 
 int TestCesium3DTilesReader(int argc, char* argv[])
 {
@@ -35,35 +70,19 @@ int TestCesium3DTilesReader(int argc, char* argv[])
 
   vtkSmartPointer<vtkPartitionedDataSetCollection> outputData = reader->GetOutput();
 
-  vtkNew<vtkAppendPolyData> append;
-  for (unsigned int i = 0; i < outputData->GetNumberOfPartitionedDataSets(); ++i)
-  {
-    vtkPartitionedDataSet* pd = outputData->GetPartitionedDataSet(i);
-    for (unsigned int j = 0; j < pd->GetNumberOfPartitions(); ++j)
-    {
-      append->AddInputDataObject(0, pd->GetPartition(j));
-    }
-  }
-  append->Update();
-
-  // Visualise in a render window
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputData(vtkPolyData::SafeDownCast(append->GetOutputDataObject(0)));
-
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-
   vtkNew<vtkRenderer> renderer;
+  renderer->SetBackground(0.5, 0.7, 0.7);
+  AddActors(renderer, outputData, reader);
+
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow);
-  renderer->AddActor(actor);
   renderer->ResetCamera();
-
-  vtkCamera* camera = renderer->GetActiveCamera();
-  camera->Elevation(-90);
+  renderer->GetActiveCamera()->Elevation(-45);
+  renderer->GetActiveCamera()->Azimuth(-45);
+  renderer->GetActiveCamera()->Zoom(1.2);
 
   int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

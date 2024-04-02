@@ -19,6 +19,7 @@
 #include "vtkPolyData.h"
 #include "vtkRange.h"
 #include "vtkResourceStream.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
@@ -229,17 +230,20 @@ void vtkCesium3DTilesReader::ReadTiles(
     if (rank >= numberOfPartitionedDataSets)
     {
       pdc->SetNumberOfPartitionedDataSets(0);
+      this->TileReaders.resize(0);
     }
     else
     {
       pdc->SetNumberOfPartitionedDataSets(1);
+      this->TileReaders.resize(1);
       auto [tilesetIndex, tileIndex] = this->ToLocalIndex(rank);
       std::string tileFileName = this->Tilesets[tilesetIndex]->TileFileNames[tileIndex];
       transform->SetMatrix(this->Tilesets[tilesetIndex]->Transforms[tileIndex].data());
-      vtkSmartPointer<vtkPartitionedDataSet> tile = this->ReadTile(tileFileName, transform);
+      auto [tile, gltfReader] = this->ReadTile(tileFileName, transform);
       if (tile != nullptr)
       {
         pdc->SetPartitionedDataSet(0, tile);
+        this->TileReaders[0] = gltfReader;
       }
     }
   }
@@ -248,8 +252,10 @@ void vtkCesium3DTilesReader::ReadTiles(
     // we read several partitions per rank
     size_t k = numberOfPartitionedDataSets / numberOfRanks;
     size_t remainingPartitions = numberOfPartitionedDataSets - k * numberOfRanks;
-    pdc->SetNumberOfPartitionedDataSets(
-      static_cast<unsigned int>(k + (rank < remainingPartitions ? 1 : 0)));
+    size_t rankNumberOfPartitionedDataSets =
+      static_cast<unsigned int>(k + (rank < remainingPartitions ? 1 : 0));
+    pdc->SetNumberOfPartitionedDataSets(rankNumberOfPartitionedDataSets);
+    this->TileReaders.resize(rankNumberOfPartitionedDataSets);
     int partitionedDataSetIndex = 0;
     for (size_t i = rank; i < numberOfPartitionedDataSets; i += numberOfRanks)
     {
@@ -257,29 +263,38 @@ void vtkCesium3DTilesReader::ReadTiles(
       std::string tileFileName = this->Tilesets[tilesetIndex]->TileFileNames[tileIndex];
       transform->SetMatrix(this->Tilesets[tilesetIndex]->Transforms[tileIndex].data());
       vtkLog(INFO, "Read: " << tileFileName);
-      vtkSmartPointer<vtkPartitionedDataSet> tile = this->ReadTile(tileFileName, transform);
+      auto [tile, gltfReader] = this->ReadTile(tileFileName, transform);
       if (tile != nullptr)
       {
-        pdc->SetPartitionedDataSet(partitionedDataSetIndex++, tile);
+        pdc->SetPartitionedDataSet(partitionedDataSetIndex, tile);
+        this->TileReaders[partitionedDataSetIndex] = gltfReader;
+        ++partitionedDataSetIndex;
       }
       this->UpdateProgress(static_cast<double>(i) / numberOfPartitionedDataSets);
     }
   }
 }
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkGLTFReader> vtkCesium3DTilesReader::GetTileReader(size_t index)
+{
+  return this->TileReaders[index];
+}
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkPartitionedDataSet> vtkCesium3DTilesReader::ReadTile(
-  std::string tileFileName, vtkTransform* transform)
+std::pair<vtkSmartPointer<vtkPartitionedDataSet>, vtkSmartPointer<vtkGLTFReader>>
+vtkCesium3DTilesReader::ReadTile(std::string tileFileName, vtkTransform* transform)
 {
   auto tile = vtkSmartPointer<vtkPartitionedDataSet>::New();
   std::string extension = vtksys::SystemTools::GetFilenameExtension(tileFileName);
   vtkSmartPointer<vtkMultiBlockDataSet> mb;
+  vtkSmartPointer<vtkGLTFReader> gltfReader;
   if (extension == ".glb" || extension == ".gltf")
   {
     vtkNew<vtkGLTFReader> tileReader;
     tileReader->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
     tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
     tileReader->Update();
+    gltfReader = tileReader;
     mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
   }
   else if (extension == ".b3dm")
@@ -287,6 +302,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkCesium3DTilesReader::ReadTile(
     vtkNew<vtkCesiumB3DMReader> tileReader;
     tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
     tileReader->Update();
+    gltfReader = tileReader->GetGLTFReader();
     mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
   }
   else
@@ -314,11 +330,11 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkCesium3DTilesReader::ReadTile(
     if (!poly)
     {
       vtkErrorMacro("Error: Cannot read polydata from: " << this->GetFileName());
-      return tile;
+      return { tile, gltfReader };
     }
     tile->SetPartition(partitionIndex++, poly);
   }
-  return tile;
+  return { tile, gltfReader };
 }
 
 //------------------------------------------------------------------------------

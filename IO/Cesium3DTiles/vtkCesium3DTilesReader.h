@@ -25,6 +25,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSet;
 class vtkTransform;
+class vtkGLTFReader;
 
 /**
  * @class   vtkCesium3DTilesReader
@@ -76,6 +77,12 @@ public:
    */
   int GetDepth(nlohmann::json& node);
 
+  /**
+   * Return the vtkGLTFReader used to read the tile. Both GLTF and B3DM tiles
+   * have an underlying GLTF reader.
+   */
+  vtkSmartPointer<vtkGLTFReader> GetTileReader(size_t index);
+
 protected:
   vtkCesium3DTilesReader();
   ~vtkCesium3DTilesReader() override;
@@ -88,7 +95,7 @@ protected:
   /**
    * Reads the tile and transforms it.
    */
-  vtkSmartPointer<vtkPartitionedDataSet> ReadTile(
+  std::pair<vtkSmartPointer<vtkPartitionedDataSet>, vtkSmartPointer<vtkGLTFReader>> ReadTile(
     std::string tileFileName, vtkTransform* transform);
   /**
    * Converts globalIndex to  (tilesetIndex, tileIndex) pair.
@@ -114,6 +121,10 @@ private:
    */
   std::vector<std::shared_ptr<Tileset>> Tilesets;
   std::map<std::string, size_t> FileNameToTilesetIndex;
+  /**
+   * GLTF readers can be used to apply textures for tiles
+   */
+  std::vector<vtkSmartPointer<vtkGLTFReader>> TileReaders;
 };
 
 VTK_ABI_NAMESPACE_END
