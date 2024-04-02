@@ -18,6 +18,7 @@
 #include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkWeightedTransformFilter.h"
@@ -599,6 +600,55 @@ bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType 
   }
   return true;
 }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkTexture> vtkGLTFReader::GLTFTexture::GetVTKTexture()
+{
+  vtkNew<vtkTexture> texture;
+  texture->SetColorModeToDirectScalars();
+  texture->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_MODULATE);
+  // Approximate filtering settings
+  if (this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST ||
+    this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR)
+  {
+    texture->MipmapOff();
+  }
+  else
+  {
+    texture->MipmapOn();
+  }
+
+  if (this->WrapSValue == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE ||
+    this->WrapTValue == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE)
+  {
+    texture->RepeatOff();
+    texture->EdgeClampOn();
+  }
+  else if (this->WrapSValue == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT ||
+    this->WrapTValue == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT)
+  {
+    texture->RepeatOn();
+    texture->EdgeClampOff();
+  }
+  else
+  {
+    vtkWarningWithObjectMacro(nullptr, "Mirrored texture wrapping is not supported!");
+  }
+
+  if (this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR ||
+    this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_NEAREST ||
+    this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST_MIPMAP_LINEAR ||
+    this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_LINEAR ||
+    this->MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR ||
+    this->MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_NEAREST ||
+    this->MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST_MIPMAP_LINEAR ||
+    this->MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_LINEAR)
+  {
+    texture->InterpolateOn();
+  }
+  texture->SetInputData(this->Image);
+  return texture;
 }
 
 //------------------------------------------------------------------------------

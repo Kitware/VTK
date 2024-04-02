@@ -64,6 +64,7 @@ class vtkFieldData;
 class vtkGLTFDocumentLoader;
 class vtkImageData;
 class vtkStringArray;
+class vtkTexture;
 
 class VTKIOGEOMETRY_EXPORT vtkGLTFReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -77,6 +78,7 @@ public:
    * Materials are not directly applied to this reader's output.
    * Use GetGLTFTexture to access a specific texture's image data, and the indices present in the
    * output dataset's field data to create vtkTextures and apply them to the geometry.
+   * Note that texture coordinates need to be fliped using a texture transform.
    */
   struct GLTFTexture
   {
@@ -85,6 +87,7 @@ public:
     unsigned short MaxFilterValue;
     unsigned short WrapSValue;
     unsigned short WrapTValue;
+    vtkSmartPointer<vtkTexture> GetVTKTexture();
   };
 
   vtkIdType GetNumberOfTextures();
