@@ -1,10 +1,8 @@
-set(CMAKE_INSTALL_JNILIBDIR ""
+set(VTK_INSTALL_JAVA_DIR "${CMAKE_INSTALL_LIBDIR}/java" CACHE PATH "")
+mark_as_advanced(VTK_INSTALL_JAVA_DIR)
+set(CMAKE_INSTALL_JNILIBDIR "${VTK_INSTALL_JAVA_DIR}/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}"
   CACHE PATH "JNI libraries (LIBDIR/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 mark_as_advanced(CMAKE_INSTALL_JNILIBDIR)
-if (NOT CMAKE_INSTALL_JNILIBDIR)
-  set(CMAKE_INSTALL_JNILIBDIR
-    "${CMAKE_INSTALL_LIBDIR}/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
-endif ()
 if (IS_ABSOLUTE "${CMAKE_INSTALL_JNILIBDIR}")
   message(FATAL_ERROR
     "The `CMAKE_INSTALL_JNILIBDIR` must not be an absolute path.")
@@ -309,9 +307,10 @@ if (VTK_JAVA_INSTALL)
     set(MAVEN_LOCAL_REPOSITORY "\${user.home}/vtk-maven-repos" CACHE STRING "")
   endif ()
   if (NOT MAVEN_VTK_GROUP_ID)
-    set(MAVEN_VTK_GROUP_ID "kitware.community" CACHE STRING "")
+    set(MAVEN_VTK_GROUP_ID "org.vtk" CACHE STRING "")
   endif ()
   mark_as_advanced(
+    VTK_JAVA_INSTALL
     MAVEN_LOCAL_REPOSITORY
     MAVEN_NATIVE_ARTIFACTS
     MAVEN_LOCAL_NATIVE_NAME
@@ -381,7 +380,7 @@ endif()
 if(VTK_JAVA_INSTALL)
   set(MAVEN_NATIVE_ARTIFACT_XML)
   foreach(native_name ${MAVEN_NATIVE_ARTIFACTS})
-     set(MAVEN_NATIVE_ARTIFACT_XML "${MAVEN_NATIVE_ARTIFACT_XML}\n                                <artifact><file>vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}-natives-${native_name}.jar</file><classifier>natives-${native_name}</classifier><type>jar</type></artifact>")
+    set(MAVEN_NATIVE_ARTIFACT_XML "${MAVEN_NATIVE_ARTIFACT_XML}\n                                <artifact><file>vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}-java${VTK_JAVA_TARGET_VERSION}-natives-${native_name}.jar</file><classifier>java${VTK_JAVA_TARGET_VERSION}-natives-${native_name}</classifier><type>jar</type></artifact>")
   endforeach()
   if(VTK_JAVA_JOGL_COMPONENT)
     set(MAVEN_DEPENDENCY_XML "${MAVEN_DEPENDENCY_XML}\n      <dependency><groupId>org.jogamp.jogl</groupId><artifactId>jogl-all-main</artifactId><version>${JOGL_VERSION}</version></dependency>\n      <dependency><groupId>org.jogamp.gluegen</groupId><artifactId>gluegen-rt-main</artifactId><version>${JOGL_VERSION}</version></dependency>")
