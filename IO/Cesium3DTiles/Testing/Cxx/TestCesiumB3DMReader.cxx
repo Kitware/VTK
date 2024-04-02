@@ -14,7 +14,9 @@
 #include "vtkGLTFDocumentLoader.h"
 #include "vtkGLTFReader.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkPNGWriter.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
@@ -23,60 +25,6 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
-
-vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(vtkGLTFReader::GLTFTexture& gltfTexture)
-{
-  vtkNew<vtkTexture> texture;
-  texture->SetColorModeToDirectScalars();
-  texture->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_MODULATE);
-  // Approximate filtering settings
-  if (gltfTexture.MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST ||
-    gltfTexture.MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR)
-  {
-    texture->MipmapOff();
-  }
-  else
-  {
-    texture->MipmapOn();
-  }
-
-  if (gltfTexture.WrapSValue == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE ||
-    gltfTexture.WrapTValue == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE)
-  {
-    texture->RepeatOff();
-    texture->EdgeClampOn();
-  }
-  else if (gltfTexture.WrapSValue == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT ||
-    gltfTexture.WrapTValue == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT)
-  {
-    texture->RepeatOn();
-    texture->EdgeClampOff();
-  }
-  else
-  {
-    vtkWarningWithObjectMacro(nullptr, "Mirrored texture wrapping is not supported!");
-  }
-
-  if (gltfTexture.MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR ||
-    gltfTexture.MinFilterValue ==
-      vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_NEAREST ||
-    gltfTexture.MinFilterValue ==
-      vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST_MIPMAP_LINEAR ||
-    gltfTexture.MinFilterValue ==
-      vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_LINEAR ||
-    gltfTexture.MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR ||
-    gltfTexture.MaxFilterValue ==
-      vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_NEAREST ||
-    gltfTexture.MaxFilterValue ==
-      vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST_MIPMAP_LINEAR ||
-    gltfTexture.MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_LINEAR)
-  {
-    texture->InterpolateOn();
-  }
-
-  texture->SetInputData(gltfTexture.Image);
-  return texture;
-}
 
 void AddActors(vtkRenderer* renderer, vtkMultiBlockDataSet* mb, vtkGLTFReader* reader)
 {
@@ -93,7 +41,16 @@ void AddActors(vtkRenderer* renderer, vtkMultiBlockDataSet* mb, vtkGLTFReader* r
     actor->SetMapper(mapper);
     renderer->AddActor(actor);
     vtkGLTFReader::GLTFTexture t = reader->GetGLTFTexture(partitionIndex);
-    auto texture = CreateVTKTextureFromGLTFTexture(t);
+    auto texture = t.GetVTKTexture();
+    // flip texture coordinates
+    if (actor->GetPropertyKeys() == nullptr)
+    {
+      vtkNew<vtkInformation> info;
+      actor->SetPropertyKeys(info);
+    }
+    double mat[] = { 1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1 };
+    actor->GetPropertyKeys()->Set(vtkProp::GeneralTextureTransform(), mat, 16);
+
     actor->SetTexture(texture);
     ++partitionIndex;
   }
@@ -122,9 +79,7 @@ int TestCesiumB3DMReader(int argc, char* argv[])
   AddActors(renderer, mb, reader);
 
   renderer->ResetCamera();
-  renderer->GetActiveCamera()->Azimuth(90);
-  renderer->GetActiveCamera()->Roll(-90);
-  renderer->GetActiveCamera()->Zoom(1.5);
+  renderer->GetActiveCamera()->Zoom(1.1);
 
   renWin->SetSize(400, 400);
   renWin->Render();
