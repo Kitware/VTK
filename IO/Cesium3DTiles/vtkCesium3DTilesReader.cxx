@@ -247,6 +247,7 @@ vtkSmartPointer<vtkPolyData> vtkCesium3DTilesReader::Tileset::ReadTile(
   if (extension == ".glb" || extension == ".gltf")
   {
     vtkNew<vtkGLTFReader> tileReader;
+    tileReader->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
     tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
     tileReader->Update();
     mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
