@@ -270,6 +270,8 @@ function (_vtk_module_wrap_java_library name)
     list(APPEND _vtk_java_library_java_sources
       ${_vtk_java_java_sources})
 
+    set_source_files_properties(${_vtk_java_java_sources} PROPERTIES GENERATED TRUE)
+
     _vtk_module_get_module_property("${_vtk_java_module}"
       PROPERTY  "depends"
       VARIABLE  _vtk_java_module_depends)

@@ -234,6 +234,7 @@ string(REPLACE ";" "${classpath_separator}" java_classpath "${java_classpath}")
 
 add_library(vtkjava STATIC
   ${java_input_files})
+set_source_files_properties(${java_input_files} PROPERTIES GENERATED TRUE)
 add_library(VTK::vtkjava ALIAS vtkjava)
 set_property(TARGET vtkjava
   PROPERTY
@@ -271,6 +272,11 @@ install(
   FILE      "VTKJava-targets.cmake"
   DESTINATION "${vtk_cmake_destination}"
   COMPONENT "development")
+
+# We need this for targets that depends in vtkjava to
+# delay its source code compilation until the vtkjava JAR file is
+# generated.
+add_custom_target(vtkjava_jar DEPENDS "$<TARGET_FILE:vtkjava>")
 
 if (VTK_BUILD_TESTING AND TARGET VTK::TestingRendering)
   add_subdirectory(Testing)
