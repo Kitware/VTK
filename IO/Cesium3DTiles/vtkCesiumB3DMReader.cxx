@@ -57,15 +57,6 @@ void vtkCesiumB3DMReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkCesiumB3DMReader::StoreTextureData()
-{
-  if (!this->Textures.empty())
-  {
-    this->Textures.clear();
-  }
-}
-
-//------------------------------------------------------------------------------
 int vtkCesiumB3DMReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -113,12 +104,11 @@ int vtkCesiumB3DMReader::RequestData(
       header.featureTableBinaryByteLength + header.batchTableJSONByteLength +
       header.batchTableBinaryByteLength;
     fileStream->Seek(glbStart, vtkResourceStream::SeekDirection::Begin);
-    vtkNew<vtkGLTFReader> reader;
-    reader->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-    reader->SetGLBStart(glbStart);
-    reader->SetStream(fileStream);
-    reader->Update();
-    vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
+    this->GLTFReader->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+    this->GLTFReader->SetGLBStart(glbStart);
+    this->GLTFReader->SetStream(fileStream);
+    this->GLTFReader->Update();
+    vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->GLTFReader->GetOutput());
     output->CompositeShallowCopy(mb);
     return 1;
   }
@@ -127,23 +117,6 @@ int vtkCesiumB3DMReader::RequestData(
     vtkErrorMacro("Error: " << e.what());
     return 0;
   }
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkCesiumB3DMReader::GetNumberOfTextures()
-{
-  return static_cast<vtkIdType>(this->Textures.size());
-}
-
-//------------------------------------------------------------------------------
-vtkCesiumB3DMReader::Texture vtkCesiumB3DMReader::GetTexture(vtkIdType textureIndex)
-{
-  if (textureIndex < 0 || textureIndex >= static_cast<vtkIdType>(this->Textures.size()))
-  {
-    vtkErrorMacro("Out of range texture index");
-    return Texture{ nullptr, 0, 0, 0, 0 };
-  }
-  return this->Textures[textureIndex];
 }
 
 VTK_ABI_NAMESPACE_END

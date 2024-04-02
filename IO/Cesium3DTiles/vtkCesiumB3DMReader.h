@@ -19,6 +19,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
+class vtkGLTFReader;
 
 /**
  * @class vtkCesiumB3DMReader
@@ -35,36 +36,22 @@ public:
 
   ///@{
   /**
-   * Materials are not directly applied to this reader's output.
-   * Use GetTexture to access a specific texture's image data, and the indices present in the
-   * output dataset's field data to create vtkTextures and apply them to the geometry.
-   */
-  struct Texture
-  {
-    vtkSmartPointer<vtkImageData> Image;
-    unsigned short MinFilterValue;
-    unsigned short MaxFilterValue;
-    unsigned short WrapSValue;
-    unsigned short WrapTValue;
-  };
-
-  vtkIdType GetNumberOfTextures();
-  Texture GetTexture(vtkIdType textureIndex);
-  ///@}
-
-  ///@{
-  /**
    * Set/Get the name of the file from which to read points.
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
   ///@}
 
+  ///@{
+  /**
+   *
+   */
+  vtkGetObjectMacro(GLTFReader, vtkGLTFReader);
+  ///@}
+
 protected:
   vtkCesiumB3DMReader();
   ~vtkCesiumB3DMReader() override;
-
-  std::vector<Texture> Textures;
 
   /**
    * Create and store Texture struct for each image present in the model.
@@ -72,6 +59,7 @@ protected:
   void StoreTextureData();
 
   char* FileName = nullptr;
+  vtkNew<vtkGLTFReader> GLTFReader;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
