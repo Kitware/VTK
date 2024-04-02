@@ -88,6 +88,12 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(std::string& VSSource, st
   {
     vtkShaderProgram::Substitute(FSSource, "VSOut", "GSOut");
   }
+  // otherwise, if there is a tessellation evaluation shader, rename the inputs
+  // to come from TES.
+  else if (!TESSource.empty())
+  {
+    vtkShaderProgram::Substitute(FSSource, "VSOut", "TESOut");
+  }
 
 #ifdef GL_ES_VERSION_3_0
   std::string version = "#version 300 es\n";
@@ -216,10 +222,8 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(std::string& VSSource, st
     }
     vtkShaderProgram::Substitute(*tessSource, "//VTK::System::Dec",
       version + extensionEnable +
-        "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-        "precision highp float;\n"
-        "#else\n"
-        "precision mediump float;\n"
+        "#if __VERSION__ >= 150\n"
+        "#define texelFetchBuffer texelFetch\n"
         "#endif\n");
   }
 

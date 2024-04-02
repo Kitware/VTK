@@ -1,5 +1,6 @@
 vtk_module_test_data(
   Data/dgHexahedra.dg
+  Data/dgQuadraticQuadrilaterals.dg
   Data/dgQuadrilateral.dg
   Data/dgTetrahedra.dg
   Data/dgTriangle.dg

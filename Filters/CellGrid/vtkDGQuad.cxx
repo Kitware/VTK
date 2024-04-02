@@ -20,10 +20,10 @@ vtkStandardNewMacro(vtkDGQuad);
 static bool registerType = vtkCellMetadata::RegisterType<vtkDGQuad>();
 
 const std::array<std::array<double, 3>, 4> vtkDGQuad::Parameters{ {
-  { 0., 0., 0. }, // node 0
-  { 1., 0., 0. }, // node 1
-  { 1., 1., 0. }, // node 2
-  { 0., 1., 0. }  // node 3
+  { -1., -1., 0. }, // node 0
+  { +1., -1., 0. }, // node 1
+  { +1., +1., 0. }, // node 2
+  { -1., +1., 0. }  // node 3
 } };
 
 const std::array<std::vector<vtkIdType>, 9> vtkDGQuad::Sides{ {

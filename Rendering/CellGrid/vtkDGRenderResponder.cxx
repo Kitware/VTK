@@ -3,6 +3,8 @@
 #include "vtkDGRenderResponder.h"
 
 #include "vtkActor.h"
+#include "vtkBoundingBox.h"
+#include "vtkCamera.h"
 #include "vtkCellAttributeInformation.h"
 #include "vtkCellGrid.h"
 #include "vtkCellGridMapper.h"
@@ -10,18 +12,19 @@
 #include "vtkCollectionIterator.h"
 #include "vtkDGAttributeInformation.h"
 #include "vtkDGCell.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkGLSLModCamera.h"
 #include "vtkGLSLModCoincidentTopology.h"
 #include "vtkGLSLModLight.h"
 #include "vtkGLSLModPixelDebugger.h"
 #include "vtkGLSLModifierFactory.h"
 #include "vtkInformation.h"
-#include "vtkLightingMapPass.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderPass.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkPBRFunctions.h"
+#include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkPBRPrefilterTexture.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
@@ -42,14 +45,17 @@
 #include VTK_FMT(fmt/ostream.h)
 // clang-format on
 
-#include <sstream>
+#include "vtk_glew.h"
+
 #include <string>
-#include <unordered_set>
 
 // Generated files (from glsl source)
 #include "vtkCellGridShaderBases.h"
 #include "vtkCellGridShaderCommonDefs.h"
 #include "vtkCellGridShaderFragment.h"
+#include "vtkCellGridShaderTessellationControl.h"
+#include "vtkCellGridShaderTessellationEvaluation.h"
+#include "vtkCellGridShaderTessellationDebugGeometry.h"
 #include "vtkCellGridShaderUtil.h"
 #include "vtkCellGridShaderVertex.h"
 
@@ -59,6 +65,12 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;
+
+vtkDGRenderResponder::ScalarVisualizationOverrideType
+  vtkDGRenderResponder::ScalarVisualizationOverride =
+    vtkDGRenderResponder::ScalarVisualizationOverrideType::NONE;
+
+bool vtkDGRenderResponder::VisualizeTessellation = false;
 
 namespace
 {
@@ -162,37 +174,41 @@ vtkMTimeType GetRenderPassStageMTime(vtkActor* actor, vtkInformation* lastRpInfo
 }
 
 bool vtkDGRenderResponder::CacheEntry::IsUpToDate(vtkRenderer* renderer, vtkActor* actor,
-  vtkMapper* mapper, vtkObject* debugAttachment /*=nullptr*/) const
+  vtkMapper* mapper, vtkDGRenderResponder* responder /*=nullptr*/) const
 {
-  (void)debugAttachment; // Only referenced in debug builds.
   if (this->ShapeTime < this->Shape->GetMTime())
   {
-    vtkDebugWithObjectMacro(debugAttachment, << "Shape is outdated");
+    vtkDebugWithObjectMacro(responder, << "Shape is outdated");
     return false;
   }
   if (this->Color && this->ColorTime < this->Color->GetMTime())
   {
-    vtkDebugWithObjectMacro(debugAttachment, << "Color is outdated");
+    vtkDebugWithObjectMacro(responder, << "Color is outdated");
     return false;
   }
   if (this->GridTime < this->CellType->GetCellGrid()->GetMTime())
   {
-    vtkDebugWithObjectMacro(debugAttachment, << "CellGrid is outdated");
+    vtkDebugWithObjectMacro(responder, << "CellGrid is outdated");
     return false;
   }
   if (this->PropertyTime < actor->GetProperty()->GetMTime())
   {
-    vtkDebugWithObjectMacro(debugAttachment, << "Actor is outdated");
+    vtkDebugWithObjectMacro(responder, << "Actor is outdated");
     return false;
   }
   if (this->MapperTime < mapper->GetMTime())
   {
-    vtkDebugWithObjectMacro(debugAttachment, << "Mapper is outdated");
+    vtkDebugWithObjectMacro(responder, << "Mapper is outdated");
     return false;
   }
   if (this->RenderPassStageTime < ::GetRenderPassStageMTime(actor, this->LastRenderPassInfo))
   {
-    vtkDebugWithObjectMacro(debugAttachment, << "RenderPassStage is outdated");
+    vtkDebugWithObjectMacro(responder, << "RenderPassStage is outdated");
+    return false;
+  }
+  if (this->UsesGeometryShaders != responder->VisualizeTessellation)
+  {
+    vtkDebugWithObjectMacro(responder, << "Shader pipeline is outdated");
     return false;
   }
   auto modsIter = vtk::TakeSmartPointer(this->RenderHelper->GetGLSLModCollection()->NewIterator());
@@ -214,7 +230,6 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   vtkRenderer* renderer, vtkActor* actor, vtkMapper* mapper) const
 {
   auto* cgMapper = vtkCellGridMapper::SafeDownCast(mapper);
-
   this->RenderHelper = std::unique_ptr<vtkDrawTexturedElements>(new vtkDrawTexturedElements);
   auto primType = vtkDGRenderResponder::PrimitiveFromShape(this->CellSource->SourceShape);
 #ifdef vtkDGRenderResponder_DEBUG
@@ -222,6 +237,13 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
             << vtkDGCell::GetShapeName(this->CellSource->SourceShape).Data() << "\n";
 #endif
   this->RenderHelper->SetElementType(primType);
+
+  auto shapeInfo = this->CellType->GetCaches()->AttributeCalculator<vtkCellAttributeInformation>(
+    this->CellType, this->Shape);
+  this->UsesTessellationShaders = shapeInfo->GetBasisOrder() > 1 ||
+    this->CellSource->SourceShape == vtkDGCell::Shape::Quadrilateral;
+  this->UsesGeometryShaders =
+    this->UsesTessellationShaders && vtkDGRenderResponder::VisualizeTessellation;
   switch (this->CellSource->SourceShape)
   {
       // Volume cells should never be rendered directly:
@@ -234,9 +256,9 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
       vtkErrorWithObjectMacro(cgMapper, "Volume/invalid cells should never be rendered directly.");
     }
     break;
-      // Prismatic 2-/3-d shapes require two triangles per side/cell (respectively).
+      // Prismatic 2-/3-d shapes require 1 quad per side/cell (respectively).
     case vtkDGCell::Shape::Quadrilateral:
-      this->RenderHelper->SetNumberOfElements(2);
+      this->RenderHelper->SetNumberOfElements(1);
       break;
       // Simplicial shapes require just 1 primitive per side/cell (of any dimension).
     case vtkDGCell::Shape::Triangle:
@@ -246,16 +268,91 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
       break;
   }
   auto* vertShader = this->RenderHelper->GetShader(vtkShader::Vertex);
+  auto* tessControlShader = this->RenderHelper->GetShader(vtkShader::TessControl);
+  auto* tessEvalShader = this->RenderHelper->GetShader(vtkShader::TessEvaluation);
+  auto* geomShader = this->RenderHelper->GetShader(vtkShader::Geometry);
   auto* fragShader = this->RenderHelper->GetShader(vtkShader::Fragment);
 
   std::string shaderCommonTemplate = vtkCellGridShaderCommonDefs;
   std::string shaderBasisTemplate = vtkCellGridShaderBases;
   std::string shaderUtilTemplate = vtkCellGridShaderUtil;
   std::string vertShaderTemplate = vtkCellGridShaderVertex;
+  std::string tessControlShaderTemplate = vtkCellGridShaderTessellationControl;
+  std::string tessEvalShaderTemplate = vtkCellGridShaderTessellationEvaluation;
+  std::string geomShaderTemplate = vtkCellGridShaderTessellationDebugGeometry;
   std::string fragShaderTemplate = vtkCellGridShaderFragment;
 
   // Set up substitutions for shaders.
   fmt::dynamic_format_arg_store<fmt::format_context> store;
+  store.push_back(
+    fmt::arg("ScalarVisualizationOverride_NONE", int(ScalarVisualizationOverrideType::NONE)));
+  store.push_back(
+    fmt::arg("ScalarVisualizationOverride_R", int(ScalarVisualizationOverrideType::R)));
+  store.push_back(
+    fmt::arg("ScalarVisualizationOverride_S", int(ScalarVisualizationOverrideType::S)));
+  store.push_back(
+    fmt::arg("ScalarVisualizationOverride_T", int(ScalarVisualizationOverrideType::T)));
+  store.push_back(fmt::arg(
+    "ScalarVisualizationOverride_L2_NORM_R_S", int(ScalarVisualizationOverrideType::L2_NORM_R_S)));
+  store.push_back(fmt::arg(
+    "ScalarVisualizationOverride_L2_NORM_S_T", int(ScalarVisualizationOverrideType::L2_NORM_S_T)));
+  store.push_back(fmt::arg(
+    "ScalarVisualizationOverride_L2_NORM_T_R", int(ScalarVisualizationOverrideType::L2_NORM_T_R)));
+  store.push_back(fmt::arg("UsesTessellationShaders", this->UsesTessellationShaders ? 1 : 0));
+  store.push_back(fmt::arg("UsesGeometryShaders", this->UsesGeometryShaders ? 1 : 0));
+  if (this->UsesTessellationShaders)
+  {
+    // Draw patches instead of concrete shapes.
+    this->RenderHelper->SetElementType(vtkDrawTexturedElements::AbstractPatches);
+    // A patch gets tessellated into lines/tris/quads.
+    const auto patchPrimtive =
+      vtkDGRenderResponder::PatchPrimitiveFromShape(this->CellSource->SourceShape);
+    const auto patchSize = vtkDrawTexturedElements::PatchVertexCountFromPrimitive(patchPrimtive);
+    this->RenderHelper->SetPatchPrimitiveType(patchPrimtive);
+    // build the tessellation options.
+    std::string tessellationOpts;
+    if (patchPrimtive == vtkDrawTexturedElements::PatchLine)
+    {
+      tessellationOpts += "isolines";
+    }
+    else if (patchPrimtive == vtkDrawTexturedElements::PatchQuadrilateral)
+    {
+      tessellationOpts += "quads";
+    }
+    else if (patchPrimtive == vtkDrawTexturedElements::PatchTriangle)
+    {
+      tessellationOpts += "triangles";
+    }
+    store.push_back(fmt::arg("PatchSize", patchSize));
+    store.push_back(fmt::arg("TessellationOptions", tessellationOpts));
+    if (this->UsesGeometryShaders)
+    {
+      if (patchPrimtive == vtkDrawTexturedElements::PatchLine)
+      {
+        store.push_back(fmt::arg("GSInputPrimitive", "lines"));
+        store.push_back(fmt::arg("GSOutputPrimitive", "line_strip"));
+        store.push_back(fmt::arg("GSOutputMaxVertices", 2));
+      }
+      else
+      {
+        // everything else is input as triangles.
+        store.push_back(fmt::arg("GSInputPrimitive", "triangles"));
+        store.push_back(fmt::arg("GSOutputPrimitive", "triangle_strip"));
+        store.push_back(fmt::arg("GSOutputMaxVertices", 3));
+      }
+    }
+    else
+    {
+      // needed because frag shader uses this argument.
+      store.push_back(fmt::arg("GSOutputMaxVertices", 0));
+    }
+  }
+  else
+  {
+    // needed because frag shader uses this argument.
+    store.push_back(fmt::arg("GSOutputMaxVertices", 0));
+    store.push_back(fmt::arg("PatchSize", 0));
+  }
   store.push_back(fmt::arg("NumPtsPerSide",
     this->CellSource->SideType < 0
       ? this->CellType->GetNumberOfCorners()
@@ -271,8 +368,6 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   store.push_back(fmt::arg("HaveColors", !!this->Color));
   store.push_back(
     fmt::arg("ShapeName", vtkDGCell::GetShapeName(this->CellType->GetShape()).Data()));
-  auto shapeInfo = this->CellType->GetCaches()->AttributeCalculator<vtkCellAttributeInformation>(
-    this->CellType, this->Shape);
   if (shapeInfo)
   {
     store.push_back(fmt::arg("ShapeNumBasisFun", shapeInfo->GetNumberOfBasisFunctions()));
@@ -337,30 +432,42 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   store.push_back(fmt::arg("cellEval", shaderBasisSource));
 
   std::string vertShaderSource = fmt::vformat(vertShaderTemplate, store);
+  std::string tessControlShaderSource =
+    this->UsesTessellationShaders ? fmt::vformat(tessControlShaderTemplate, store) : "";
+  std::string tessEvalShaderSource =
+    this->UsesTessellationShaders ? fmt::vformat(tessEvalShaderTemplate, store) : "";
+  std::string geomShaderSource =
+    this->UsesGeometryShaders ? fmt::vformat(geomShaderTemplate, store) : "";
   std::string fragShaderSource = fmt::vformat(fragShaderTemplate, store);
 
   auto oglRenderer = static_cast<vtkOpenGLRenderer*>(renderer);
-  std::string emptyGS, emptyTCS, emptyTES;
   // Pre-pass.
-  ::ReplaceShaderRenderPass(vertShaderSource, emptyGS, fragShaderSource, mapper, actor, true);
+  ::ReplaceShaderRenderPass(
+    vertShaderSource, geomShaderSource, fragShaderSource, mapper, actor, true);
   // Apply shader mods.
   for (const auto& modName : this->ModNames)
   {
     auto mod = vtk::TakeSmartPointer(vtkGLSLModifierFactory::CreateAMod(modName));
-    mod->ReplaceShaderValues(
-      oglRenderer, vertShaderSource, emptyTCS, emptyTES, emptyGS, fragShaderSource, mapper, actor);
+    mod->ReplaceShaderValues(oglRenderer, vertShaderSource, tessControlShaderSource,
+      tessEvalShaderSource, geomShaderSource, fragShaderSource, mapper, actor);
     this->RenderHelper->GetGLSLModCollection()->AddItem(mod);
   }
   // Post-pass.
-  ::ReplaceShaderRenderPass(vertShaderSource, emptyGS, fragShaderSource, mapper, actor, false);
+  ::ReplaceShaderRenderPass(
+    vertShaderSource, geomShaderSource, fragShaderSource, mapper, actor, false);
 
   vertShader->SetSource(vertShaderSource);
+  tessControlShader->SetSource(tessControlShaderSource);
+  tessEvalShader->SetSource(tessEvalShaderSource);
+  geomShader->SetSource(geomShaderSource);
   fragShader->SetSource(fragShaderSource);
 #if 0
   std::cout
     << "VertexShaderSource\n" << vertShaderSource << "\n"
-    << "FragmentShaderSource\n" << fragShaderSource << "\n"
-    ;
+    << "TessControlShaderSource\n" << tessControlShaderSource << "\n"
+    << "TessEvalShaderSource\n" << tessEvalShaderSource << "\n"
+    << "GeometryShaderSource\n" << geomShaderSource << "\n"
+    << "FragmentShaderSource\n" << fragShaderSource << "\n";
   std::cout.flush();
 #endif
 
@@ -649,6 +756,39 @@ bool vtkDGRenderResponder::DrawShapes(
     // We couldn't prepare a helper.
     return false;
   }
+
+  if (cacheEntryIt->UsesTessellationShaders)
+  {
+    // specify the range of tessellation levels
+    auto* tessControlUniforms = actor->GetShaderProperty()->GetTessControlCustomUniforms();
+    int maxTessGenLevel = 64; // this is the minimum required of a GPU acc. to OpenGL spec.
+    // In case the GPU supports more number of levels, let's use it.
+    if (auto oglRenWin = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow()))
+    {
+      oglRenWin->GetState()->vtkglGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessGenLevel);
+    }
+    const std::array<int, 2> tessLevelRange = { 1, maxTessGenLevel };
+    tessControlUniforms->SetUniform2i("tessellation_levels_range", tessLevelRange.data());
+
+    // specify farthest distance of a vertex to the camera for distance-based tessellation
+    double bounds[6];
+    vtkVector4d cornersWC[8], cornersVC[8]; // WC: Wolrd Coordinate, VC: View coord
+    auto* wcvc = renderer->GetActiveCamera()->GetModelViewTransformMatrix();
+    double maxDistance = VTK_DOUBLE_MIN;
+    renderer->ComputeVisiblePropBounds(bounds);
+
+    const vtkBoundingBox bbox(bounds);
+    for (int i = 0; i < 8; ++i)
+    {
+      bbox.GetCorner(i, cornersWC[i].GetData());
+      cornersWC[i][3] = 1.0;
+      vtkMatrix4x4::MultiplyPoint(wcvc->GetData(), cornersWC[i].GetData(), cornersVC[i].GetData());
+      maxDistance = std::max(maxDistance, std::abs(cornersVC[i].GetZ()));
+    }
+    tessControlUniforms->SetUniformf("max_distance", maxDistance);
+  }
+  auto fragmentUniforms = actor->GetShaderProperty()->GetFragmentCustomUniforms();
+  fragmentUniforms->SetUniformi("color_override_type", int(this->ScalarVisualizationOverride));
   // Now we can render.
   // TODO: Do not render if translucent during opaque pass or vice-versa.
   cacheEntryIt->RenderHelper->DrawInstancedElements(renderer, actor, mapper);
@@ -686,6 +826,26 @@ vtkDrawTexturedElements::ElementShape vtkDGRenderResponder::PrimitiveFromShape(
     case vtkDGCell::Shape::Vertex:
     default:
       return vtkDrawTexturedElements::ElementShape::Point;
+  }
+}
+
+vtkDrawTexturedElements::PatchShape vtkDGRenderResponder::PatchPrimitiveFromShape(
+  vtkDGCell::Shape shape)
+{
+  switch (shape)
+  {
+    case vtkDGCell::Shape::Hexahedron:
+    case vtkDGCell::Shape::Quadrilateral:
+      return vtkDrawTexturedElements::PatchQuadrilateral;
+    case vtkDGCell::Shape::Tetrahedron:
+    case vtkDGCell::Shape::Triangle:
+      return vtkDrawTexturedElements::PatchTriangle;
+    case vtkDGCell::Shape::Edge:
+      return vtkDrawTexturedElements::PatchLine;
+    case vtkDGCell::Shape::Vertex:
+    default:
+      vtkGenericWarningMacro(<< "A vertex cannot be tessellated!");
+      return vtkDrawTexturedElements::PatchLine;
   }
 }
 

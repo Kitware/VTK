@@ -4,22 +4,14 @@
 
 #include "vtkCollectionIterator.h"
 #include "vtkColorSeries.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkGLSLModifierBase.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkMapper.h"
-#include "vtkMatrix3x3.h"
-#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLActor.h"
-#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
-#include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderPass.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
@@ -28,7 +20,6 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLUniforms.h"
 #include "vtkOpenGLVertexArrayObject.h"
-#include "vtkPointData.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
@@ -37,9 +28,6 @@
 #include "vtkShaderProperty.h"
 #include "vtkTexture.h"
 #include "vtkTextureObject.h"
-#include "vtkTypeInt32Array.h"
-#include "vtkTypeUInt32Array.h"
-#include "vtkUnsignedCharArray.h"
 
 #include "vtk_glew.h"
 
@@ -172,11 +160,22 @@ bool vtkDrawTexturedElements::SetNumberOfInstances(vtkIdType numberOfInstances)
 bool vtkDrawTexturedElements::SetElementType(int elementType)
 {
   if (elementType == this->ElementType || elementType < ElementShape::Point ||
-    elementType > ElementShape::TriangleFan)
+    elementType > ElementShape::AbstractPatches)
   {
     return false;
   }
   this->ElementType = elementType;
+  return true;
+}
+
+bool vtkDrawTexturedElements::SetPatchPrimitiveType(int patchPrimitiveType)
+{
+  if (patchPrimitiveType == this->PatchPrimitiveType || patchPrimitiveType < PatchLine ||
+    patchPrimitiveType > PatchQuadrilateral)
+  {
+    return false;
+  }
+  this->PatchPrimitiveType = patchPrimitiveType;
   return true;
 }
 
@@ -198,8 +197,26 @@ void vtkDrawTexturedElements::ReadyShaderProgram(vtkRenderer* ren)
     vtkWarningWithObjectMacro(ren, "Renderer has no OpenGL render-window.");
     return;
   }
+  bool lastSyncGLSLVersionDisabled = !renderWindow->GetShaderCache()->GetSyncGLSLShaderVersion();
+  if (this->ElementType == AbstractPatches && lastSyncGLSLVersionDisabled)
+  {
+    renderWindow->GetShaderCache()->SyncGLSLShaderVersionOn();
+  }
   this->ShaderProgram = renderWindow->GetShaderCache()->ReadyShaderProgram(this->Shaders);
+  if (lastSyncGLSLVersionDisabled)
+  {
+    renderWindow->GetShaderCache()->SyncGLSLShaderVersionOff();
+  }
   vtkOpenGLStaticCheckErrorMacro("Failed readying shader program");
+}
+
+void vtkDrawTexturedElements::ReportUnsupportedLineWidth(
+  float width, float maxWidth, vtkMapper* mapper)
+{
+  const char* glVersion = (const char*)glGetString(GL_VERSION);
+  vtkWarningWithObjectMacro(mapper, << "Line width (" << width
+                                    << ") is less than maximum line width (" << maxWidth
+                                    << ") supported by your OpenGL driver " << glVersion);
 }
 
 void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapper* mapper)
@@ -229,9 +246,34 @@ void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapp
       break;
     case ElementShape::Line:
     case ElementShape::LineStrip:
-      ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
-      break;
+    {
+      const float width = actor->GetProperty()->GetLineWidth();
+      const float maxSupportedWidth = renderWindow->GetMaximumHardwareLineWidth();
+      if (width <= maxSupportedWidth)
+      {
+        ostate->vtkglLineWidth(width);
+      }
+      else
+      {
+        this->ReportUnsupportedLineWidth(width, maxSupportedWidth, mapper);
+      }
+    }
+    break;
     default:
+    case ElementShape::AbstractPatches:
+      if (this->PatchPrimitiveType == PatchShape::PatchLine)
+      {
+        const float width = actor->GetProperty()->GetLineWidth();
+        const float maxSupportedWidth = renderWindow->GetMaximumHardwareLineWidth();
+        if (width <= maxSupportedWidth)
+        {
+          ostate->vtkglLineWidth(width);
+        }
+        else
+        {
+          this->ReportUnsupportedLineWidth(width, maxSupportedWidth, mapper);
+        }
+      }
       break;
   }
 #endif
@@ -257,9 +299,17 @@ void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapp
     case vtkDrawTexturedElements::ElementShape::TriangleFan:
       this->P->Primitive = GL_TRIANGLE_FAN;
       break;
+    case vtkDrawTexturedElements::ElementShape::AbstractPatches:
+#ifdef GL_ARB_tessellation_shader
+      this->P->Primitive = GL_PATCHES;
+      break;
+#else
+      vtkErrorWithObjectMacro(mapper, << "ElementType cannot be \'AbstractPatches\' because "
+                                         "GL_PATCHES is not supported in this build of VTK.");
+      break;
+#endif
     default:
     {
-      // vtkErrorMacro("Invalid element type " << this->ElementType << ".");
       vtkGenericWarningMacro("Invalid element type " << this->ElementType << ".");
       break;
     }
@@ -410,9 +460,21 @@ void vtkDrawTexturedElements::DrawInstancedElementsImpl(vtkRenderer* ren, vtkAct
     case vtkDrawTexturedElements::ElementShape::TriangleFan:
       this->P->Count += 2;
       break;
+    case vtkDrawTexturedElements::ElementShape::AbstractPatches:
+#ifdef GL_ARB_tessellation_shader
+    {
+      const int patchVertexCount = this->PatchVertexCountFromPrimitive(this->PatchPrimitiveType);
+      this->P->Count *= patchVertexCount;
+      glPatchParameteri(GL_PATCH_VERTICES, patchVertexCount);
+      break;
+    }
+#else
+      vtkErrorWithObjectMacro(mapper, << "ElementType cannot be \'AbstractPatches\' because "
+                                         "GL_PATCHES is not supported in this build of VTK.");
+      break;
+#endif
     default:
     {
-      // vtkErrorMacro("Invalid element type " << this->ElementType << ".");
       vtkGenericWarningMacro("Invalid element type " << this->ElementType << ".");
       break;
     }
@@ -479,6 +541,24 @@ void vtkDrawTexturedElements::SetCustomUniforms(vtkRenderer* vtkNotUsed(ren), vt
   fu->SetUniforms(this->ShaderProgram);
   auto gu = static_cast<vtkOpenGLUniforms*>(sp->GetGeometryCustomUniforms());
   gu->SetUniforms(this->ShaderProgram);
+  auto tcu = static_cast<vtkOpenGLUniforms*>(sp->GetTessControlCustomUniforms());
+  tcu->SetUniforms(this->ShaderProgram);
+  auto teu = static_cast<vtkOpenGLUniforms*>(sp->GetTessEvaluationCustomUniforms());
+  teu->SetUniforms(this->ShaderProgram);
+}
+
+vtkIdType vtkDrawTexturedElements::PatchVertexCountFromPrimitive(int shape)
+{
+  switch (shape)
+  {
+    case PatchShape::PatchLine:
+      return 2;
+    case PatchShape::PatchQuadrilateral:
+      return 4;
+    case PatchShape::PatchTriangle:
+    default:
+      return 3;
+  }
 }
 
 VTK_ABI_NAMESPACE_END

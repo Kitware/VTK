@@ -33,3 +33,12 @@
 #define shapeBasisGradientAt {ShapeBasisName}_basisGradientAt
 #define shapeBasisAt {ShapeBasisName}_basisAt
 #define colorBasisAt {ColorBasisName}_basisAt
+
+// Define different kinds of color override types
+#define ScalarVisualizationOverride_NONE {ScalarVisualizationOverride_NONE}
+#define ScalarVisualizationOverride_R {ScalarVisualizationOverride_R}
+#define ScalarVisualizationOverride_S {ScalarVisualizationOverride_S}
+#define ScalarVisualizationOverride_T {ScalarVisualizationOverride_T}
+#define ScalarVisualizationOverride_L2_NORM_R_S {ScalarVisualizationOverride_L2_NORM_R_S}
+#define ScalarVisualizationOverride_L2_NORM_S_T {ScalarVisualizationOverride_L2_NORM_S_T}
+#define ScalarVisualizationOverride_L2_NORM_T_R {ScalarVisualizationOverride_L2_NORM_T_R}
