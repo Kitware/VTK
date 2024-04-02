@@ -6,6 +6,7 @@
 #include "vtkBase64OutputStream.h"
 #include "vtkByteSwap.h"
 #include "vtkCamera.h"
+#include "vtkCesium3DTilesHeader.h"
 #include "vtkCollectionRange.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
@@ -49,16 +50,6 @@
 
 namespace
 {
-struct Header
-{
-  char magic[4]; // magic is written directly instead of being copied here first.
-  uint32_t version;
-  uint32_t byteLength;
-  uint32_t featureTableJSONByteLength;
-  uint32_t featureTableBinaryByteLength;
-  uint32_t batchTableJSONByteLength;
-  uint32_t batchTableBinaryByteLength;
-};
 
 struct NoOpRgbArrayTypes
 {
@@ -110,6 +101,15 @@ struct SaveRgbArray
   }
 };
 
+void write4le(ostream& out, uint32_t* p)
+{
+  vtkByteSwap::Swap4LE(p);
+  out.write(reinterpret_cast<const char*>(p), 4);
+  if (!out)
+  {
+    throw std::runtime_error("out.write failed.");
+  }
+}
 }
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -191,7 +191,7 @@ void vtkCesiumPointCloudWriter::WriteData()
 
   std::ostringstream ostr;
   ostr << featureTable;
-  Header header;
+  PNTSHeader header;
 
   // FeatureTableJSON must end on a 8-byte boundary, so we pad with space.
   int featureTableJSONPadding = (8 - ((sizeof(header) + ostr.str().length()) % 8)) % 8;
@@ -222,10 +222,15 @@ void vtkCesiumPointCloudWriter::WriteData()
     header.featureTableBinaryByteLength + header.batchTableJSONByteLength +
     header.batchTableBinaryByteLength;
 
-  // write the magic
+  // write the header
   out.write("pnts", 4);
-  // write header's next 6 uint32_t
-  vtkByteSwap::SwapWrite4LERange(&header.version, 6, &out);
+  write4le(out, &header.version);
+  write4le(out, &header.byteLength);
+  write4le(out, &header.featureTableJSONByteLength);
+  write4le(out, &header.featureTableBinaryByteLength);
+  write4le(out, &header.batchTableJSONByteLength);
+  write4le(out, &header.batchTableBinaryByteLength);
+
   // write FeatureTableJSON
   out.write(ostr.str().c_str(), ostr.str().length());
   // write POSITION
