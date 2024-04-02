@@ -236,14 +236,17 @@ void vtkCesium3DTilesReader::ReadTiles(
     {
       pdc->SetNumberOfPartitionedDataSets(1);
       this->TileReaders.resize(1);
-      auto [tilesetIndex, tileIndex] = this->ToLocalIndex(rank);
-      std::string tileFileName = this->Tilesets[tilesetIndex]->TileFileNames[tileIndex];
-      transform->SetMatrix(this->Tilesets[tilesetIndex]->Transforms[tileIndex].data());
-      auto [tile, gltfReader] = this->ReadTile(tileFileName, transform);
-      if (tile != nullptr)
+      auto tilesetIndex_tileIndex = this->ToLocalIndex(rank);
+      std::string tileFileName =
+        this->Tilesets[tilesetIndex_tileIndex.first]->TileFileNames[tilesetIndex_tileIndex.second];
+      transform->SetMatrix(this->Tilesets[tilesetIndex_tileIndex.first]
+                             ->Transforms[tilesetIndex_tileIndex.second]
+                             .data());
+      auto tile_reader = this->ReadTile(tileFileName, transform);
+      if (tile_reader.first != nullptr)
       {
-        pdc->SetPartitionedDataSet(0, tile);
-        this->TileReaders[0] = gltfReader;
+        pdc->SetPartitionedDataSet(0, tile_reader.first);
+        this->TileReaders[0] = tile_reader.second;
       }
     }
   }
@@ -259,15 +262,18 @@ void vtkCesium3DTilesReader::ReadTiles(
     int partitionedDataSetIndex = 0;
     for (size_t i = rank; i < numberOfPartitionedDataSets; i += numberOfRanks)
     {
-      auto [tilesetIndex, tileIndex] = this->ToLocalIndex(i);
-      std::string tileFileName = this->Tilesets[tilesetIndex]->TileFileNames[tileIndex];
-      transform->SetMatrix(this->Tilesets[tilesetIndex]->Transforms[tileIndex].data());
+      auto tilesetIndex_tileIndex = this->ToLocalIndex(i);
+      std::string tileFileName =
+        this->Tilesets[tilesetIndex_tileIndex.first]->TileFileNames[tilesetIndex_tileIndex.second];
+      transform->SetMatrix(this->Tilesets[tilesetIndex_tileIndex.first]
+                             ->Transforms[tilesetIndex_tileIndex.second]
+                             .data());
       vtkLog(INFO, "Read: " << tileFileName);
-      auto [tile, gltfReader] = this->ReadTile(tileFileName, transform);
-      if (tile != nullptr)
+      auto tile_gltfReader = this->ReadTile(tileFileName, transform);
+      if (tile_gltfReader.first != nullptr)
       {
-        pdc->SetPartitionedDataSet(partitionedDataSetIndex, tile);
-        this->TileReaders[partitionedDataSetIndex] = gltfReader;
+        pdc->SetPartitionedDataSet(partitionedDataSetIndex, tile_gltfReader.first);
+        this->TileReaders[partitionedDataSetIndex] = tile_gltfReader.second;
         ++partitionedDataSetIndex;
       }
       this->UpdateProgress(static_cast<double>(i) / numberOfPartitionedDataSets);
