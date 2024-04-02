@@ -48,7 +48,7 @@ execute_process(
 )
 
 # Copy maven files
-file(INSTALL pom.xml MAVEN-README.txt DESTINATION "${install_prefix_dir}")
+file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/pom.xml" "@CMAKE_CURRENT_BINARY_DIR@/MAVEN-README.txt" DESTINATION "${install_prefix_dir}")
 file(RENAME
   "${install_prefix_dir}/MAVEN-README.txt"
   "${install_prefix_dir}/README.txt"

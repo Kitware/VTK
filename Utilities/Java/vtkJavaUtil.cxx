@@ -1,13 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#if defined(_MSC_VER)
-#ifdef _INTEGRAL_MAX_BITS
-#undef _INTEGRAL_MAX_BITS
-#endif
-#define _INTEGRAL_MAX_BITS 64
-#endif
-
 #include "vtkDebugLeaks.h"
 #include "vtkObject.h"
 #include "vtkWindows.h"

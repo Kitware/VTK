@@ -2340,3 +2340,69 @@ wheel-windows-python312-x86_64-osmesa:test:
         - wheel-windows-python312-x86_64-osmesa:build
     needs:
         - wheel-windows-python312-x86_64-osmesa:build
+
+macos-x86_64-java8:build:
+    extends:
+        - .macos_x86_64_java
+        - .cmake_build_java_macos
+        - .macos_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 1.8
+    timeout: 4 hours
+
+macos-x86_64-java11:build:
+    extends:
+        - .macos_x86_64_java
+        - .cmake_build_java_macos
+        - .macos_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 11
+    timeout: 4 hours
+
+macos-arm64-java8:build:
+    extends:
+        - .macos_arm64_java
+        - .cmake_build_java_macos
+        - .macos_arm64_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 1.8
+    timeout: 4 hours
+
+macos-arm64-java11:build:
+    extends:
+        - .macos_arm64_java
+        - .cmake_build_java_macos
+        - .macos_arm64_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 11
+    timeout: 4 hours
+
+windows-x86_64-java8:build:
+    extends:
+        - .windows_vs2022_java
+        - .cmake_build_java_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 1.8
+    timeout: 4 hours
+
+windows-x86_64-java11:build:
+    extends:
+        - .windows_vs2022_java
+        - .cmake_build_java_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 11
+    timeout: 4 hours
