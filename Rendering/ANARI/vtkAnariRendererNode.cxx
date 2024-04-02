@@ -33,7 +33,6 @@
 #include "vtkTexture.h"
 
 #include <cmath>
-#include <memory>
 
 #include <anari/anari_cpp/ext/std.h>
 
@@ -219,8 +218,8 @@ public:
   int ColorBufferTex{ 0 };
   int DepthBufferTex{ 0 };
 
-  std::unique_ptr<u_char[]> ColorBuffer;
-  std::unique_ptr<float[]> DepthBuffer;
+  std::vector<u_char> ColorBuffer;
+  std::vector<float> DepthBuffer;
 
   int ImageX;
   int ImageY;
@@ -882,8 +881,8 @@ void vtkAnariRendererNode::UpdateAnariFrameSize()
     this->Internal->ImageX = frameSize[0];
     this->Internal->ImageY = frameSize[1];
 
-    this->Internal->ColorBuffer.reset(new u_char[totalSize * 4]);
-    this->Internal->DepthBuffer.reset(new float[totalSize]);
+    this->Internal->ColorBuffer.resize(totalSize * sizeof(float));
+    this->Internal->DepthBuffer.resize(totalSize);
 
     anari::setParameter(anariDevice, anariFrame, "size", frameSize);
     anari::commitParameters(anariDevice, anariFrame);
@@ -1044,8 +1043,8 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
   int totalSize = this->Size[0] * this->Size[1];
   if (this->Internal->IsUSD)
   {
-    memset(this->Internal->ColorBuffer.get(), 255, totalSize * 4);
-    memset(this->Internal->DepthBuffer.get(), 1, totalSize * sizeof(float));
+    memset(this->Internal->ColorBuffer.data(), 255, totalSize * 4);
+    memset(this->Internal->DepthBuffer.data(), 1, totalSize * sizeof(float));
     return;
   }
 
@@ -1067,12 +1066,12 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
     int retTotalSize = renderedFrame.width * renderedFrame.height;
     int totalSize = this->Size[0] * this->Size[1];
     totalSize = std::min(retTotalSize, totalSize);
-    memcpy(this->Internal->ColorBuffer.get(), renderedFrame.data, totalSize * 4);
+    memcpy(this->Internal->ColorBuffer.data(), renderedFrame.data, totalSize * 4);
   }
   else
   {
     vtkWarningMacro(<< "Color buffer is null");
-    memset(this->Internal->ColorBuffer.get(), 255, totalSize * 4);
+    memset(this->Internal->ColorBuffer.data(), 255, totalSize * 4);
   }
 
   anari::unmap(anariDevice, anariFrame, "channel.color");
@@ -1088,8 +1087,8 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
     double clipMax = clipValues[1];
     double clipDiv = 1.0 / (clipMax - clipMin);
 
-    const float* depthBuffer = mappedDepthBuffer.data;  // s
-    float* zBuffer = this->Internal->DepthBuffer.get(); // d
+    const float* depthBuffer = mappedDepthBuffer.data;   // s
+    float* zBuffer = this->Internal->DepthBuffer.data(); // d
 
     for (int i = 0; i < totalSize; i++)
     {
@@ -1100,7 +1099,7 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
   else
   {
     vtkWarningMacro(<< "Depth buffer is null");
-    memset(this->Internal->DepthBuffer.get(), 0, totalSize * sizeof(float));
+    memset(this->Internal->DepthBuffer.data(), 0, totalSize * sizeof(float));
   }
 
   anari::unmap(anariDevice, anariFrame, "channel.depth");
@@ -1997,44 +1996,21 @@ void vtkAnariRendererNode::Traverse(int operation)
   {
     this->Apply(operation, true);
 
-    auto const& nodes = this->GetChildren();
-
-    // ANARI camera
-    for (auto node : nodes)
+    for (auto node : this->GetChildren())
     {
-      vtkAnariCameraNode* child = vtkAnariCameraNode::SafeDownCast(node);
-      if (child)
-      {
-        child->Traverse(operation);
-        break;
-      }
-    }
-
-    // Lights
-    for (auto node : nodes)
-    {
-      vtkAnariLightNode* child = vtkAnariLightNode::SafeDownCast(node);
-      if (child)
+      if (auto* child = vtkAnariCameraNode::SafeDownCast(node))
       {
         child->Traverse(operation);
       }
-    }
-
-    // Surfaces
-    for (auto node : nodes)
-    {
-      vtkAnariActorNode* child = vtkAnariActorNode::SafeDownCast(node);
-      if (child)
+      else if (auto* child = vtkAnariLightNode::SafeDownCast(node))
       {
         child->Traverse(operation);
       }
-    }
-
-    // Volumes
-    for (auto node : nodes)
-    {
-      vtkAnariVolumeNode* child = vtkAnariVolumeNode::SafeDownCast(node);
-      if (child)
+      else if (auto* child = vtkAnariActorNode::SafeDownCast(node))
+      {
+        child->Traverse(operation);
+      }
+      else if (auto* child = vtkAnariVolumeNode::SafeDownCast(node))
       {
         child->Traverse(operation);
       }
@@ -2113,8 +2089,9 @@ void vtkAnariRendererNode::Render(bool prepass)
     for (int i = 0; i < accumulationCount; i++)
     {
       anari::render(anariDevice, anariFrame);
-      anari::wait(anariDevice, anariFrame);
     }
+
+    anari::wait(anariDevice, anariFrame);
 
     CopyAnariFrameBufferData();
   }
@@ -2125,8 +2102,8 @@ void vtkAnariRendererNode::WriteLayer(
   unsigned char* buffer, float* Z, int buffx, int buffy, int layer)
 {
   vtkAnariProfiling startProfiling("vtkAnariRendererNode::WriteLayer", vtkAnariProfiling::BLUE);
-  unsigned char* colorBuffer = this->Internal->ColorBuffer.get();
-  float* zBuffer = this->Internal->DepthBuffer.get();
+  unsigned char* colorBuffer = this->Internal->ColorBuffer.data();
+  float* zBuffer = this->Internal->DepthBuffer.data();
 
   if (layer == 0)
   {
@@ -2244,13 +2221,13 @@ anari::Extensions vtkAnariRendererNode::GetAnariDeviceExtensions()
 //------------------------------------------------------------------------------
 const unsigned char* vtkAnariRendererNode::GetBuffer()
 {
-  return this->Internal->ColorBuffer.get();
+  return this->Internal->ColorBuffer.data();
 }
 
 //------------------------------------------------------------------------------
 const float* vtkAnariRendererNode::GetZBuffer()
 {
-  return this->Internal->DepthBuffer.get();
+  return this->Internal->DepthBuffer.data();
 }
 
 //------------------------------------------------------------------------------
