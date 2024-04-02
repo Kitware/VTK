@@ -58,7 +58,7 @@ python3 -m pip install 'wslink>=1.0.4'
 
 # Java dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    java-latest-openjdk-devel
+    java-11-openjdk-devel xmlstarlet
 
 # RPMFusion (for ffmpeg)
 dnf install -y --setopt=install_weak_deps=False \
