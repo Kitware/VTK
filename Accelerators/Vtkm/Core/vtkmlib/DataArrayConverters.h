@@ -215,7 +215,7 @@ VTKACCELERATORSVTKMCORE_EXPORT
 vtkDataArray* Convert(const vtkm::cont::Field& input);
 
 VTKACCELERATORSVTKMCORE_EXPORT
-vtkDataArray* Convert(const vtkm::cont::UnknownArrayHandle& input, const char* name);
+vtkDataArray* Convert(const vtkm::cont::UnknownArrayHandle& input, const std::string& name);
 
 VTKACCELERATORSVTKMCORE_EXPORT
 vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input);
