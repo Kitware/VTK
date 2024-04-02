@@ -9,6 +9,7 @@
 #include "vtkCesium3DTilesReader.h"
 #include "vtkDataArray.h"
 #include "vtkGLTFReader.h"
+#include "vtkGLTFTexture.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
@@ -40,8 +41,8 @@ void AddActors(
       vtkNew<vtkActor> actor;
       actor->SetMapper(mapper);
       renderer->AddActor(actor);
-      vtkGLTFReader::GLTFTexture t = gltfReader->GetGLTFTexture(j);
-      auto texture = t.GetVTKTexture();
+      auto t = gltfReader->GetTexture(j);
+      auto texture = t->GetVTKTexture();
       // flip texture coordinates
       if (actor->GetPropertyKeys() == nullptr)
       {

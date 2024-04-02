@@ -13,6 +13,7 @@
 #include "vtkFieldData.h"
 #include "vtkGLTFDocumentLoader.h"
 #include "vtkGLTFReader.h"
+#include "vtkGLTFTexture.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
@@ -40,8 +41,8 @@ void AddActors(vtkRenderer* renderer, vtkMultiBlockDataSet* mb, vtkGLTFReader* r
     vtkNew<vtkActor> actor;
     actor->SetMapper(mapper);
     renderer->AddActor(actor);
-    vtkGLTFReader::GLTFTexture t = reader->GetGLTFTexture(partitionIndex);
-    auto texture = t.GetVTKTexture();
+    auto t = reader->GetTexture(partitionIndex);
+    auto texture = t->GetVTKTexture();
     // flip texture coordinates
     if (actor->GetPropertyKeys() == nullptr)
     {
