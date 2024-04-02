@@ -23,7 +23,9 @@ class vtkGLTFReader;
 
 /**
  * @class vtkCesiumB3DMReader
- * @class Reads a Cesium B3DM dataset (tile)
+ * @class Reads a Cesium B3DM dataset (tile). Currently it only forwards
+ * the internal GLTF dataset, so it does not read the information in the
+ * Feature Table or the Batch Table.
  *
  *
  */
@@ -44,7 +46,7 @@ public:
 
   ///@{
   /**
-   *
+   * This field is used to access the textures stored in the GLTF file.
    */
   vtkGetObjectMacro(GLTFReader, vtkGLTFReader);
   ///@}
@@ -52,11 +54,6 @@ public:
 protected:
   vtkCesiumB3DMReader();
   ~vtkCesiumB3DMReader() override;
-
-  /**
-   * Create and store Texture struct for each image present in the model.
-   */
-  void StoreTextureData();
 
   char* FileName = nullptr;
   vtkNew<vtkGLTFReader> GLTFReader;
