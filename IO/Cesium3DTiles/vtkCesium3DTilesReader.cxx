@@ -220,13 +220,13 @@ vtkCesium3DTilesReader::~vtkCesium3DTilesReader()
 void vtkCesium3DTilesReader::ReadTiles(
   vtkPartitionedDataSetCollection* pdc, size_t numberOfRanks, size_t rank)
 {
-  size_t numberOfPartitions = std::accumulate(this->Tilesets.begin(), this->Tilesets.end(), 0,
-    [](size_t sum, std::shared_ptr<Tileset> t) { return sum + t->TileFileNames.size(); });
+  size_t numberOfPartitionedDataSets = std::accumulate(this->Tilesets.begin(), this->Tilesets.end(),
+    0, [](size_t sum, std::shared_ptr<Tileset> t) { return sum + t->TileFileNames.size(); });
   vtkNew<vtkTransform> transform;
-  if (numberOfPartitions < numberOfRanks)
+  if (numberOfPartitionedDataSets < numberOfRanks)
   {
     // not enough partitions for how many ranks we have
-    if (rank >= numberOfPartitions)
+    if (rank >= numberOfPartitionedDataSets)
     {
       pdc->SetNumberOfPartitionedDataSets(0);
     }
@@ -246,12 +246,12 @@ void vtkCesium3DTilesReader::ReadTiles(
   else
   {
     // we read several partitions per rank
-    size_t k = numberOfPartitions / numberOfRanks;
-    size_t remainingPartitions = numberOfPartitions - k * numberOfRanks;
+    size_t k = numberOfPartitionedDataSets / numberOfRanks;
+    size_t remainingPartitions = numberOfPartitionedDataSets - k * numberOfRanks;
     pdc->SetNumberOfPartitionedDataSets(
       static_cast<unsigned int>(k + (rank < remainingPartitions ? 1 : 0)));
-    int partitionIndex = 0;
-    for (size_t i = rank; i < numberOfPartitions; i += numberOfRanks)
+    int partitionedDataSetIndex = 0;
+    for (size_t i = rank; i < numberOfPartitionedDataSets; i += numberOfRanks)
     {
       auto [tilesetIndex, tileIndex] = this->ToLocalIndex(i);
       std::string tileFileName = this->Tilesets[tilesetIndex]->TileFileNames[tileIndex];
@@ -260,9 +260,9 @@ void vtkCesium3DTilesReader::ReadTiles(
       vtkSmartPointer<vtkPartitionedDataSet> tile = this->ReadTile(tileFileName, transform);
       if (tile != nullptr)
       {
-        pdc->SetPartitionedDataSet(partitionIndex++, tile);
+        pdc->SetPartitionedDataSet(partitionedDataSetIndex++, tile);
       }
-      this->UpdateProgress(static_cast<double>(i) / numberOfPartitions);
+      this->UpdateProgress(static_cast<double>(i) / numberOfPartitionedDataSets);
     }
   }
 }
