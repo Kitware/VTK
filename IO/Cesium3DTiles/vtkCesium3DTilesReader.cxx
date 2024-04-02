@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCesium3DTilesReader.h"
-
+#include "vtkCesiumB3DMReader.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkGLTFReader.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -28,10 +29,14 @@
 VTK_ABI_NAMESPACE_BEGIN
 using json = nlohmann::json;
 
+/**
+ * Reads a tileset and creates a list of tiles on a certain level.
+ */
 class vtkCesium3DTilesReader::Implementation
 {
 public:
   Implementation(vtkCesium3DTilesReader* reader);
+  ~Implementation();
 
   /**
    * Open and parse the tileset and compute the number of levels and
@@ -84,6 +89,12 @@ vtkCesium3DTilesReader::Implementation::Implementation(vtkCesium3DTilesReader* r
 }
 
 //------------------------------------------------------------------------------
+vtkCesium3DTilesReader::Implementation::~Implementation()
+{
+  this->TilesetStream.close();
+}
+
+//------------------------------------------------------------------------------
 bool vtkCesium3DTilesReader::Implementation::Open(const char* fileName)
 {
   try
@@ -95,10 +106,6 @@ bool vtkCesium3DTilesReader::Implementation::Open(const char* fileName)
     }
     if (this->IsOpen())
     {
-      if (this->Reader->GetFileName() == fileName)
-      {
-        return true;
-      }
       TileFileNames.clear();
       Transforms.clear();
       this->Close();
@@ -108,6 +115,13 @@ bool vtkCesium3DTilesReader::Implementation::Open(const char* fileName)
     this->TilesetStream.open(fileName);
     this->Tileset = json::parse(this->TilesetStream);
     this->Reader->NumberOfLevels = this->GetNumberOfLevels(this->GetRoot());
+    if (this->Reader->Level >= this->Reader->NumberOfLevels)
+    {
+      vtkErrorWithObjectMacro(this->Reader,
+        "Level: " << this->Reader->Level
+                  << " is bigger than NumberOfLevels: " << this->Reader->NumberOfLevels);
+      return false;
+    }
     std::array<double, 16> transform;
     vtkMatrix4x4::Identity(transform.data());
     this->AddPartitions(this->GetRoot(), 0, transform);
@@ -115,10 +129,28 @@ bool vtkCesium3DTilesReader::Implementation::Open(const char* fileName)
   }
   catch (std::exception& e)
   {
+    this->TilesetStream.close();
+    this->Tileset.clear();
+    this->DirectoryName.clear();
+    this->TileFileNames.clear();
+    this->Transforms.clear();
     vtkErrorWithObjectMacro(this->Reader, "Error on " << fileName << ": " << e.what());
     return false;
   }
   return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkCesium3DTilesReader::Implementation::IsOpen()
+{
+  return this->TilesetStream.is_open();
+}
+
+//------------------------------------------------------------------------------
+void vtkCesium3DTilesReader::Implementation::Close()
+{
+  this->TilesetStream.close();
+  this->Tileset.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -193,10 +225,26 @@ vtkSmartPointer<vtkPolyData> vtkCesium3DTilesReader::Implementation::ReadTile(
   std::string tileFileName, vtkTransform* transform)
 {
   auto tile = vtkSmartPointer<vtkPolyData>::New();
-  vtkNew<vtkGLTFReader> tileReader;
-  tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
-  tileReader->Update();
-  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
+  std::string extension = vtksys::SystemTools::GetFilenameExtension(tileFileName);
+  vtkSmartPointer<vtkMultiBlockDataSet> mb;
+  if (extension == ".glb" || extension == ".gltf")
+  {
+    vtkNew<vtkGLTFReader> tileReader;
+    tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
+    tileReader->Update();
+    mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
+  }
+  else if (extension == ".b3dm")
+  {
+    vtkNew<vtkCesiumB3DMReader> tileReader;
+    tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
+    tileReader->Update();
+    mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
+  }
+  else
+  {
+    throw std::runtime_error("Invalid extension for tile: " + extension);
+  }
   auto it = vtkSmartPointer<vtkDataObjectTreeIterator>::Take(mb->NewTreeIterator());
   it->SetSkipEmptyNodes(true);
   it->SetVisitOnlyLeaves(true);
@@ -219,19 +267,6 @@ vtkSmartPointer<vtkPolyData> vtkCesium3DTilesReader::Implementation::ReadTile(
 }
 
 //------------------------------------------------------------------------------
-bool vtkCesium3DTilesReader::Implementation::IsOpen()
-{
-  return this->TilesetStream.is_open();
-}
-
-//------------------------------------------------------------------------------
-void vtkCesium3DTilesReader::Implementation::Close()
-{
-  this->TilesetStream.close();
-  this->Tileset.clear();
-}
-
-//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCesium3DTilesReader);
 
 //------------------------------------------------------------------------------
@@ -245,15 +280,38 @@ vtkCesium3DTilesReader::vtkCesium3DTilesReader()
 }
 
 //------------------------------------------------------------------------------
+vtkCesium3DTilesReader::~vtkCesium3DTilesReader()
+{
+  delete this->Impl;
+  this->SetFileName(nullptr);
+  this->Level = 0;
+  this->NumberOfLevels = 0; // no initialized
+}
+
+//------------------------------------------------------------------------------
 void vtkCesium3DTilesReader::Implementation::AddContentPartition(
   json& node, std::array<double, 16>& transform)
 {
   std::string contentString("content");
+  std::string uriString("uri");
+  std::string urlString("url");
   std::array<double, 16> transformYUpToZUp{ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 1.0 };
   vtkMatrix4x4::Multiply4x4(transform.data(), transformYUpToZUp.data(), transform.data());
   // there is a tile at the current node
-  std::string tileFileName = node[contentString]["uri"];
+  std::string tileFileName;
+  if (node[contentString].contains(uriString))
+  {
+    tileFileName = node[contentString][uriString];
+  }
+  else if (node[contentString].contains(urlString))
+  {
+    tileFileName = node[contentString][urlString];
+  }
+  else
+  {
+    throw std::runtime_error("content/uri or content/url not found");
+  }
   this->TileFileNames.push_back(tileFileName);
   this->Transforms.push_back(transform);
 }
@@ -323,15 +381,6 @@ bool vtkCesium3DTilesReader::Implementation::AddPartitions(
 }
 
 //------------------------------------------------------------------------------
-vtkCesium3DTilesReader::~vtkCesium3DTilesReader()
-{
-  delete this->Impl;
-  this->SetFileName(nullptr);
-  this->Level = 0;
-  this->NumberOfLevels = 0; // no initialized
-}
-
-//------------------------------------------------------------------------------
 void vtkCesium3DTilesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -365,17 +414,26 @@ int vtkCesium3DTilesReader::RequestInformation(vtkInformation* vtkNotUsed(reques
 int vtkCesium3DTilesReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if (!outInfo)
+  try
   {
-    vtkErrorMacro("Invalid output information object");
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    if (!outInfo)
+    {
+      vtkErrorMacro("Invalid output information object");
+      return 0;
+    }
+    size_t numberOfRanks =
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    size_t rank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    vtkPartitionedDataSet* output = vtkPartitionedDataSet::GetData(outputVector);
+    vtkNew<vtkTransform> transform;
+    this->Impl->ReadTiles(output, numberOfRanks, rank);
+  }
+  catch (std::exception& e)
+  {
+    vtkErrorMacro(<< e.what());
     return 0;
   }
-  size_t numberOfRanks = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  size_t rank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  vtkPartitionedDataSet* output = vtkPartitionedDataSet::GetData(outputVector);
-  vtkNew<vtkTransform> transform;
-  this->Impl->ReadTiles(output, numberOfRanks, rank);
   return 1;
 }
 

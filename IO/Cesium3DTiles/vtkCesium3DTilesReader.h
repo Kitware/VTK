@@ -27,10 +27,10 @@ VTK_ABI_NAMESPACE_BEGIN
  * Reads a Cesium 3D Tiles dataset as a vtkPartitionedDataSet. If the
  * reader is used in a parallel environment it will try to balance the
  * number of tiles read on each rank.  Currently, the reader only
- * works with tiles saved using GLTF or GLB formats.  Point
+ * works with tiles saved using GLTF, GLB or B3DM formats.  Point
  * coordinates in the produced VTK dataset are stored in Cartesian
- * coordinates (cart proj string), as they are in the tileset. Textures are not used
- * in the current version of the reader.
+ * coordinates (cart proj string), as they are in the tileset.Textures
+ * are not used in the current version of the reader.
  *
  * @see vtkGeoTransform, vtkCesium3DTilesWriter
  */
