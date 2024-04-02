@@ -428,6 +428,7 @@ protected:
   // static opengl properties
   int MajorVersion;
   int MinorVersion;
+  int MaxTessellationLevel;
   int MaxTextureSize;
   std::string Vendor;
   std::string Renderer;
