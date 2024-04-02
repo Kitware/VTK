@@ -10,9 +10,11 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoader.h"
+#include "vtkGLTFTexture.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLegacy.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkResourceStream.h"
@@ -603,55 +605,6 @@ bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType 
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkTexture> vtkGLTFReader::GLTFTexture::GetVTKTexture()
-{
-  vtkNew<vtkTexture> texture;
-  texture->SetColorModeToDirectScalars();
-  texture->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_MODULATE);
-  // Approximate filtering settings
-  if (this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST ||
-    this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR)
-  {
-    texture->MipmapOff();
-  }
-  else
-  {
-    texture->MipmapOn();
-  }
-
-  if (this->WrapSValue == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE ||
-    this->WrapTValue == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE)
-  {
-    texture->RepeatOff();
-    texture->EdgeClampOn();
-  }
-  else if (this->WrapSValue == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT ||
-    this->WrapTValue == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT)
-  {
-    texture->RepeatOn();
-    texture->EdgeClampOff();
-  }
-  else
-  {
-    vtkWarningWithObjectMacro(nullptr, "Mirrored texture wrapping is not supported!");
-  }
-
-  if (this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR ||
-    this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_NEAREST ||
-    this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST_MIPMAP_LINEAR ||
-    this->MinFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_LINEAR ||
-    this->MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR ||
-    this->MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_NEAREST ||
-    this->MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST_MIPMAP_LINEAR ||
-    this->MaxFilterValue == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_LINEAR)
-  {
-    texture->InterpolateOn();
-  }
-  texture->SetInputData(this->Image);
-  return texture;
-}
-
-//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLTFReader);
 
 //------------------------------------------------------------------------------
@@ -696,10 +649,10 @@ void vtkGLTFReader::StoreTextureData()
   this->Textures.reserve(this->Loader->GetInternalModel()->Textures.size());
   for (const auto& loaderTexture : this->Loader->GetInternalModel()->Textures)
   {
-    vtkGLTFReader::GLTFTexture readerTexture;
+    vtkNew<vtkGLTFTexture> readerTexture;
     if (loaderTexture.Source >= 0 && loaderTexture.Source < nbTextures)
     {
-      readerTexture.Image = model->Images[loaderTexture.Source].ImageData;
+      readerTexture->Image = model->Images[loaderTexture.Source].ImageData;
     }
     else
     {
@@ -709,12 +662,9 @@ void vtkGLTFReader::StoreTextureData()
     if (loaderTexture.Sampler >= 0 && loaderTexture.Sampler < nbSamplers)
     {
       auto sampler = model->Samplers[loaderTexture.Sampler];
-      readerTexture.MinFilterValue = sampler.MinFilter;
-      readerTexture.MaxFilterValue = sampler.MagFilter;
-      readerTexture.WrapSValue = sampler.WrapS;
-      readerTexture.WrapTValue = sampler.WrapT;
+      readerTexture->Sampler = sampler;
     }
-    this->Textures.emplace_back(std::move(readerTexture));
+    this->Textures.emplace_back(readerTexture);
   }
 }
 
@@ -1085,14 +1035,30 @@ vtkIdType vtkGLTFReader::GetNumberOfTextures()
 }
 
 //------------------------------------------------------------------------------
+vtkSmartPointer<vtkGLTFTexture> vtkGLTFReader::GetTexture(vtkIdType textureIndex)
+{
+  if (textureIndex < 0 || textureIndex >= static_cast<vtkIdType>(this->Textures.size()))
+  {
+    vtkErrorMacro("Out of range texture index");
+    vtkNew<vtkGLTFTexture> t;
+    return t;
+  }
+  return this->Textures[textureIndex];
+}
+
+//------------------------------------------------------------------------------
 vtkGLTFReader::GLTFTexture vtkGLTFReader::GetGLTFTexture(vtkIdType textureIndex)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkGLTFReader::GetGLTFTexture, "VTK 9.4", vtkGLTFReader::GetTexture);
   if (textureIndex < 0 || textureIndex >= static_cast<vtkIdType>(this->Textures.size()))
   {
     vtkErrorMacro("Out of range texture index");
     return vtkGLTFReader::GLTFTexture{ nullptr, 0, 0, 0, 0 };
   }
-  return this->Textures[textureIndex];
+  auto t = this->Textures[textureIndex];
+  GLTFTexture gltfTexture{ t->Image, t->Sampler.MinFilter, t->Sampler.MagFilter, t->Sampler.WrapS,
+    t->Sampler.WrapT };
+  return gltfTexture;
 }
 
 //------------------------------------------------------------------------------

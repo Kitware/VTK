@@ -29,7 +29,7 @@
  *
  * Materials are currently not supported in this reader. If you would like to display materials,
  * please try using vtkGLTFImporter.
- * You could also use vtkGLTFReader::GetGLTFTexture, to access the image data that was loaded from
+ * You could also use vtkGLTFReader::GetTexture, to access the image data that was loaded from
  * the glTF 2.0 document.
  *
  * This reader only supports assets that use the 2.x version of the glTF specification.
@@ -65,6 +65,7 @@ class vtkGLTFDocumentLoader;
 class vtkImageData;
 class vtkStringArray;
 class vtkTexture;
+class vtkGLTFTexture;
 
 class VTKIOGEOMETRY_EXPORT vtkGLTFReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -80,6 +81,7 @@ public:
    * output dataset's field data to create vtkTextures and apply them to the geometry.
    * Note that texture coordinates need to be fliped using a texture transform.
    */
+  VTK_DEPRECATED_IN_9_4_0("Use vtkGLTFTexture instead.")
   struct GLTFTexture
   {
     vtkSmartPointer<vtkImageData> Image;
@@ -87,11 +89,12 @@ public:
     unsigned short MaxFilterValue;
     unsigned short WrapSValue;
     unsigned short WrapTValue;
-    vtkSmartPointer<vtkTexture> GetVTKTexture();
   };
 
   vtkIdType GetNumberOfTextures();
+  VTK_DEPRECATED_IN_9_4_0("Use GetTexture() instead.")
   GLTFTexture GetGLTFTexture(vtkIdType textureIndex);
+  vtkSmartPointer<vtkGLTFTexture> GetTexture(vtkIdType textureIndex);
   ///@}
 
   ///@{
@@ -230,7 +233,7 @@ protected:
 
   vtkSmartPointer<vtkMultiBlockDataSet> OutputDataSet;
 
-  std::vector<GLTFTexture> Textures;
+  std::vector<vtkSmartPointer<vtkGLTFTexture>> Textures;
 
   /**
    * Create and store GLTFTexture struct for each image present in the model.

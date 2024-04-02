@@ -9,6 +9,7 @@ set(classes
   vtkGAMBITReader
   vtkGLTFDocumentLoader
   vtkGLTFReader
+  vtkGLTFTexture
   vtkGLTFWriter
   vtkHoudiniPolyDataWriter
   vtkIVWriter
