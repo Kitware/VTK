@@ -3,6 +3,7 @@
 
 #include "vtkCesiumB3DMReader.h"
 
+#include "vtkAlgorithm.h"
 #include "vtkByteSwap.h"
 #include "vtkCesium3DTilesHeader.h"
 #include "vtkFileResourceStream.h"
@@ -113,6 +114,7 @@ int vtkCesiumB3DMReader::RequestData(
       header.batchTableBinaryByteLength;
     fileStream->Seek(glbStart, vtkResourceStream::SeekDirection::Begin);
     vtkNew<vtkGLTFReader> reader;
+    reader->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
     reader->SetGLBStart(glbStart);
     reader->SetStream(fileStream);
     reader->Update();
