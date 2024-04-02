@@ -55,8 +55,6 @@ vtkRandomHyperTreeGridSource::vtkRandomHyperTreeGridSource()
     this->OutputBounds[2 * i] = -10.;
     this->OutputBounds[2 * i + 1] = 10.;
   }
-
-  this->InitializeMaskingNodeCostPerLevel();
 }
 
 //------------------------------------------------------------------------------
@@ -98,6 +96,12 @@ int vtkRandomHyperTreeGridSource::RequestData(
   vtkInformation* outInfo = outInfos->GetInformationObject(0);
 
   int* updateExtent = outInfo->Get(SDDP::UPDATE_EXTENT());
+
+  // Refresh masking cost per level if maxDepth did change
+  if (this->MaxDepth + 1 != static_cast<vtkIdType>(this->MaskingCostPerLevel.size()))
+  {
+    this->InitializeMaskingNodeCostPerLevel();
+  }
 
   // Create dataset:
   auto fillArray = [](
@@ -164,7 +168,11 @@ int vtkRandomHyperTreeGridSource::RequestData(
             htg->NewNonOrientedCursor(treeId, true));
         cursor->GetTree()->SetGlobalIndexStart(treeOffset);
         SubdivideLeaves(cursor, treeId);
-        double unmaskedFraction = this->GenerateMask(cursor, treeId, 1.0, false, 0);
+        double unmaskedFraction = 1.0;
+        if (this->MaskedFraction > 0)
+        {
+          unmaskedFraction = this->GenerateMask(cursor, treeId, 1.0, false, 0);
+        }
         treeOffset += cursor->GetTree()->GetNumberOfVertices();
         this->ActualMaskedCellFraction += 1.0 - unmaskedFraction;
       }

@@ -7,6 +7,11 @@
  *
  * This filter compute the gradient of a given cell scalars array on a
  * Hyper Tree Grid. This result in a new array attached to the original input.
+ * This filter does not support masks.
+ * In practice the mask is ignored during the processing of this filters and re-attached to the
+ * output, leading to masked cell being taken into account for the gradient computation of visible
+ * cells. This leads to the gradient being influenced by masked cells. This should only impact cells
+ * on the boundary, where gradient is already ill-defined.
  *
  * @sa
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm vtkGradientFilter
