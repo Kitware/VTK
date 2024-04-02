@@ -589,6 +589,8 @@ endforeach ()
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTypeArrays.cmake")
 
+include("${CMAKE_CURRENT_SOURCE_DIR}/vtkImplicitArrays.cmake")
+
 include(CheckCXXSourceCompiles)
 
 macro(CHECK_CXX_EXPRESSION_COMPILES EXPRESSION FILES VARIABLE)
