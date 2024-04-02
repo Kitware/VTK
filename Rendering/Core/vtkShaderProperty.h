@@ -64,12 +64,18 @@ public:
   bool HasVertexShaderCode();
   bool HasFragmentShaderCode();
   bool HasGeometryShaderCode();
+  bool HasTessControlShaderCode();
+  bool HasTessEvalShaderCode();
   vtkSetStringMacro(VertexShaderCode);
   vtkGetStringMacro(VertexShaderCode);
   vtkSetStringMacro(FragmentShaderCode);
   vtkGetStringMacro(FragmentShaderCode);
   vtkSetStringMacro(GeometryShaderCode);
   vtkGetStringMacro(GeometryShaderCode);
+  vtkSetStringMacro(TessControlShaderCode);
+  vtkGetStringMacro(TessControlShaderCode);
+  vtkSetStringMacro(TessEvaluationShaderCode);
+  vtkGetStringMacro(TessEvaluationShaderCode);
   ///@}
 
   ///@{
@@ -80,6 +86,8 @@ public:
   vtkGetObjectMacro(FragmentCustomUniforms, vtkUniforms);
   vtkGetObjectMacro(VertexCustomUniforms, vtkUniforms);
   vtkGetObjectMacro(GeometryCustomUniforms, vtkUniforms);
+  vtkGetObjectMacro(TessControlCustomUniforms, vtkUniforms);
+  vtkGetObjectMacro(TessEvaluationCustomUniforms, vtkUniforms);
   ///@}
 
   ///@{
@@ -99,6 +107,12 @@ public:
   virtual void AddGeometryShaderReplacement(const std::string& originalValue,
     bool replaceFirst, // do this replacement before the default
     const std::string& replacementValue, bool replaceAll) = 0;
+  virtual void AddTessControlShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) = 0;
+  virtual void AddTessEvaluationShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) = 0;
   virtual int GetNumberOfShaderReplacements() = 0;
   virtual std::string GetNthShaderReplacementTypeAsString(vtkIdType index) = 0;
   virtual void GetNthShaderReplacement(vtkIdType index, std::string& name, bool& replaceFirst,
@@ -109,9 +123,15 @@ public:
     const std::string& originalValue, bool replaceFirst) = 0;
   virtual void ClearGeometryShaderReplacement(
     const std::string& originalValue, bool replaceFirst) = 0;
+  virtual void ClearTessControlShaderReplacement(
+    const std::string& originalValue, bool replaceFirst) = 0;
+  virtual void ClearTessEvaluationShaderReplacement(
+    const std::string& originalValue, bool replaceFirst) = 0;
   virtual void ClearAllVertexShaderReplacements() = 0;
   virtual void ClearAllFragmentShaderReplacements() = 0;
   virtual void ClearAllGeometryShaderReplacements() = 0;
+  virtual void ClearAllTessControlShaderReplacements() = 0;
+  virtual void ClearAllTessEvalShaderReplacements() = 0;
   virtual void ClearAllShaderReplacements() = 0;
   ///@}
 
@@ -122,10 +142,14 @@ protected:
   char* VertexShaderCode;
   char* FragmentShaderCode;
   char* GeometryShaderCode;
+  char* TessControlShaderCode;
+  char* TessEvaluationShaderCode;
 
   vtkNew<vtkUniforms> FragmentCustomUniforms;
   vtkNew<vtkUniforms> VertexCustomUniforms;
   vtkNew<vtkUniforms> GeometryCustomUniforms;
+  vtkNew<vtkUniforms> TessControlCustomUniforms;
+  vtkNew<vtkUniforms> TessEvaluationCustomUniforms;
 
 private:
   vtkShaderProperty(const vtkShaderProperty&) = delete;
