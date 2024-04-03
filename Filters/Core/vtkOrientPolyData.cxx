@@ -175,9 +175,9 @@ int vtkOrientPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   output->BuildCells(); // builds connectivity
   // Copy the links from the input to the output so that subsequent filters can use them.
   auto links = vtkSmartPointer<vtkAbstractCellLinks>::Take(input->GetLinks()->NewInstance());
+  output->SetLinks(links);
   links->SetDataSet(output);
   links->ShallowCopy(input->GetLinks());
-  output->SetLinks(links);
 
   ///////////////////////////////////////////////////////////////////
   //  Traverse all polygons insuring proper direction of ordering.  This
