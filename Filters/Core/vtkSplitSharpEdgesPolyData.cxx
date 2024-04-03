@@ -395,10 +395,7 @@ int vtkSplitSharpEdgesPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     input->BuildCells();
   }
-  if (!input->GetLinks())
-  {
-    input->BuildLinks();
-  }
+  input->BuildLinks();
   this->UpdateProgress(0.30);
   if (this->CheckAbort())
   {

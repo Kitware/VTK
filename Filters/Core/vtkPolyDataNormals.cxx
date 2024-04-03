@@ -141,10 +141,7 @@ vtkSmartPointer<vtkFloatArray> vtkPolyDataNormals::GetPointNormals(
   {
     data->BuildCells();
   }
-  if (!data->GetLinks())
-  {
-    data->BuildLinks();
-  }
+  data->BuildLinks();
 
   auto pointNormals = vtkSmartPointer<vtkFloatArray>::New();
   pointNormals->SetName("Normals");
