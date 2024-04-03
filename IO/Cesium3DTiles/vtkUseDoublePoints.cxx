@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkUseDoublePoints.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -97,3 +100,5 @@ void vtkUseDoublePoints::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << "vtkUseDoublePoints " << (this->Registered ? "Registered" : "UnRegistered");
 }
+
+VTK_ABI_NAMESPACE_END
