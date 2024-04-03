@@ -44,7 +44,6 @@ public:
     {
       if (this->RenderWindow)
       {
-        vtkRenderer* renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
         this->RenderWindow->Render();
       }
     }

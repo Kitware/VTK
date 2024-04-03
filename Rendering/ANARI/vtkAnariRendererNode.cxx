@@ -39,6 +39,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 using uvec2 = anari::std_types::uvec2;
+using ivec2 = anari::std_types::ivec2;
 using vec4 = anari::std_types::vec4;
 
 vtkInformationKeyMacro(vtkAnariRendererNode, SAMPLES_PER_PIXEL, Integer);
@@ -571,6 +572,11 @@ void vtkAnariRendererNodeInternals::StatusCallback(const void* userData, anari::
   {
     vtkLogF(INFO, "[ANARI::STATUS] %s\n", message);
   }
+
+  (void)userData;
+  (void)device;
+  (void)source;
+  (void)code;
 }
 
 //----------------------------------------------------------------------------
@@ -715,11 +721,11 @@ bool vtkAnariRendererNode::InitAnariRenderer(vtkRenderer* ren)
 void vtkAnariRendererNode::SetupAnariRendererParameters(vtkRenderer* ren, bool isNewRenderer)
 {
   auto anariDevice = this->GetAnariDevice();
-  auto anariDeviceExtensions = this->GetAnariDeviceExtensions();
   auto anariRenderer = this->Internal->AnariRenderer;
 
   // TODO: have this as a renderer parameter
   // bool useAccumulation = this->GetUseAccumulation(ren) > 0 ? true : false;
+  // auto anariDeviceExtensions = this->GetAnariDeviceExtensions();
   // if(anariDeviceExtensions.ANARI_KHR_FRAME_ACCUMULATION &&
   //    this->Internal->RendererParams.Accumulation != useAccumulation)
   // {
@@ -873,7 +879,7 @@ void vtkAnariRendererNode::UpdateAnariFrameSize()
 {
   auto anariDevice = this->GetAnariDevice();
   auto anariFrame = this->Internal->AnariFrame;
-  uvec2 frameSize = { static_cast<uint>(this->Size[0]), static_cast<uint>(this->Size[1]) };
+  ivec2 frameSize = { this->Size[0], this->Size[1] };
   int totalSize = this->Size[0] * this->Size[1];
 
   if (this->Internal->ImageX != frameSize[0] || this->Internal->ImageY != frameSize[1])
@@ -884,7 +890,10 @@ void vtkAnariRendererNode::UpdateAnariFrameSize()
     this->Internal->ColorBuffer.resize(totalSize * sizeof(float));
     this->Internal->DepthBuffer.resize(totalSize);
 
-    anari::setParameter(anariDevice, anariFrame, "size", frameSize);
+    // Anari expects "size" to be uvec2:
+    uvec2 frameSizeUI = { static_cast<unsigned>(frameSize[0]),
+      static_cast<unsigned>(frameSize[1]) };
+    anari::setParameter(anariDevice, anariFrame, "size", frameSizeUI);
     anari::commitParameters(anariDevice, anariFrame);
   }
 }
@@ -1050,13 +1059,11 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
 
   auto anariDevice = this->GetAnariDevice();
   auto anariFrame = this->Internal->AnariFrame;
-  auto anariWorld = this->Internal->AnariWorld;
 
   float duration = 0.0f;
   anari::getProperty(anariDevice, anariFrame, "duration", duration, ANARI_NO_WAIT);
 
-  float durationInMS = duration * 1000.0f;
-  vtkDebugMacro(<< "Rendered frame in " << durationInMS << " ms");
+  vtkDebugMacro(<< "Rendered frame in " << duration * 1000.0f << " ms");
 
   // Color buffer
   auto renderedFrame = anari::map<uint32_t>(anariDevice, anariFrame, "channel.color");

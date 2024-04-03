@@ -284,6 +284,11 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::ExtractORMFromVTK(std::strin
     return nullptr;
   }
 
+  if (sRGB)
+  {
+    return nullptr;
+  }
+
   auto anariSampler = anari::newObject<anari::Sampler>(this->AnariDevice, "image2D");
 
   anari::setParameter(this->AnariDevice, anariSampler, "name", ANARI_STRING, name.c_str());
@@ -897,7 +902,6 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderAsTriangles", vtkAnariProfiling::LIME);
   // Geometries in ANARI are objects that describe the spatial representation of a surface
   anari::Geometry triangleGeometry = nullptr;
-  size_t numPositions = indexArray.size();
   size_t numVertices = vertices.size();
   size_t numTriangles = indexArray.size() / 3;
 
@@ -1060,7 +1064,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
         {
           for (int j = 0; j < colorRepeatCount; j++)
           {
-            int idx = (colorRepeatCount * i) + j;
+            size_t idx = (colorRepeatCount * i) + j;
 
             if (idx < numTriangles)
             {
@@ -1122,7 +1126,6 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
 
   // Geometries in ANARI are objects that describe the spatial representation of a surface
   anari::Geometry cylinderGeometry = nullptr;
-  size_t numPositions = indexArray.size();
   size_t numVertices = vertices.size();
   size_t numCylinders = indexArray.size() / 2;
 
@@ -1331,7 +1334,6 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
   anari::Geometry curveGeometry = nullptr;
 
   size_t numVertices = vertices.size();
-  size_t numCurves = indexArray.size() / 2;
   size_t numIndices = indexArray.size();
 
   if (numVertices > 0)
@@ -1532,6 +1534,9 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderAsSpheres", vtkAnariProfiling::LIME);
 
+  // Ignore cellFlag, as spheres have only one point
+  (void)cellFlag;
+
   // Geometries in ANARI are objects that describe the spatial representation of a surface
   anari::Geometry sphereGeometry = nullptr;
   size_t numPositions = indexArray.size();
@@ -1667,8 +1672,6 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
 
   if (numPointColors > 0)
   {
-    // if(cellFlag == 0)
-    // {
     anari::Array1D colorArray =
       anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC4, numPointColors);
     {

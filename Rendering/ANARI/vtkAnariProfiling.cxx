@@ -42,6 +42,9 @@ void vtkAnariProfiling::StartProfiling(const char* label, const uint32_t color)
   eventAttrib.messageType = NVTX_MESSAGE_TYPE_ASCII;
   eventAttrib.message.ascii = (label) ? label : "unknown";
   nvtxRangePushEx(&eventAttrib);
+#else
+  (void)label;
+  (void)color;
 #endif
 }
 

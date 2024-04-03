@@ -31,7 +31,7 @@ class VTKRENDERINGANARI_EXPORT vtkAnariCompositePolyDataMapperNode
 public:
   static vtkAnariCompositePolyDataMapperNode* New();
   vtkTypeMacro(vtkAnariCompositePolyDataMapperNode, vtkAnariPolyDataMapperNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make ANARI calls for rendering.

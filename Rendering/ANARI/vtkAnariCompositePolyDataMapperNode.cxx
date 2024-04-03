@@ -175,8 +175,6 @@ void vtkAnariCompositePolyDataMapperNode::RenderBlock(
 
     if (ds)
     {
-      auto anariRendererNode =
-        static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
       vtkAnariActorNode* aNode = vtkAnariActorNode::SafeDownCast(this->Parent);
       vtkColor3d& aColor = this->BlockState.AmbientColor.top();
       vtkColor3d& dColor = this->BlockState.DiffuseColor.top();
