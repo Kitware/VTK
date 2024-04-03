@@ -55,7 +55,6 @@ std::string GetContentURI(const json& node)
   {
     throw std::runtime_error("content/uri or content/url not found");
   }
-  return std::string();
 }
 }
 
@@ -185,8 +184,8 @@ json& vtkCesium3DTilesReader::Tileset::GetRoot()
 //------------------------------------------------------------------------------
 std::pair<size_t, size_t> vtkCesium3DTilesReader::ToLocalIndex(size_t globalIndex)
 {
-  int tileIndex = globalIndex;
-  int tilesetIndex = 0;
+  size_t tileIndex = globalIndex;
+  size_t tilesetIndex = 0;
   while (tilesetIndex < this->Tilesets.size())
   {
     if (tileIndex < this->Tilesets[tilesetIndex]->TileFileNames.size())
@@ -493,7 +492,7 @@ int vtkCesium3DTilesReader::RequestInformation(vtkInformation* vtkNotUsed(reques
   {
     return 0;
   }
-  for (int i = 0; i < this->Tilesets.size(); ++i)
+  for (size_t i = 0; i < this->Tilesets.size(); ++i)
   {
     vtkLog(INFO, "Tileset: " << i << ", " << *this->Tilesets[i]);
   }
