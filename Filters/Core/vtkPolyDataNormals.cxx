@@ -265,10 +265,6 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   {
     output->GetCellData()->SetNormals(cellNormals);
   }
-  else if (!input->GetCellData()->GetNormals())
-  {
-    output->GetCellData()->SetNormals(nullptr);
-  }
   this->UpdateProgress(0.5);
   if (this->CheckAbort())
   {
@@ -281,7 +277,13 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
       vtkPolyDataNormals::GetPointNormals(output, cellNormals, flipDirection);
     output->GetPointData()->SetNormals(pointNormals);
   }
-  else if (!input->GetPointData()->GetNormals())
+  // if normals were not requested, they were not part of the input, but are part of the output.
+  // remove them
+  if (!this->ComputeCellNormals && !input->GetCellData()->GetNormals())
+  {
+    output->GetCellData()->SetNormals(nullptr);
+  }
+  if (!this->ComputePointNormals && !input->GetPointData()->GetNormals())
   {
     output->GetPointData()->SetNormals(nullptr);
   }
