@@ -34,7 +34,7 @@ ctest_submit(PARTS Configure
   BUILD_ID build_id)
 
 if (DEFINED build_id)
-  list(APPEND annoataion_report
+  list(APPEND annotation_report
     "Build Summary" "https://open.cdash.org/build/${build_id}"
     "Update" "https://open.cdash.org/build/${build_id}/update"
     "Configure" "https://open.cdash.org/build/${build_id}/configure"
@@ -68,6 +68,7 @@ if (CTEST_CMAKE_GENERATOR MATCHES "Make")
 endif ()
 
 ctest_build(
+  NUMBER_ERRORS num_errors
   NUMBER_WARNINGS num_warnings
   RETURN_VALUE    build_result
   ${build_args})
@@ -75,7 +76,7 @@ ctest_build(
 ctest_submit(PARTS Build)
 
 if (DEFINED build_id)
-  list(APPEND annoataion_report
+  list(APPEND annotation_report
       "Build Errors (${num_errors})" "https://open.cdash.org/viewBuildError.php?buildid=${build_id}"
       "Build Warnings (${num_warnings})" "https://open.cdash.org/viewBuildError.php?type=1&buildid=${build_id}"
   )
@@ -88,13 +89,6 @@ if (build_result)
     list(APPEND CTEST_NOTES_FILES ${logs})
     ctest_submit(PARTS Notes)
   endif ()
-endif ()
-
-if (DEFINED build_id)
-  list(APPEND annoataion_report
-      "Build Errors (${num_errors})" "https://open.cdash.org/viewBuildError.php?buildid=${build_id}"
-      "Build Warnings (${num_warnings})" "https://open.cdash.org/viewBuildError.php?type=1&buildid=${build_id}"
-  )
 endif ()
 
 if (build_result)
@@ -120,7 +114,7 @@ ctest_test(APPEND
 ctest_submit(PARTS Test)
 
 if (DEFINED build_id)
-  list(APPEND annoataion_report
+  list(APPEND annotation_report
     "All Tests"     "https://open.cdash.org/viewTest.php?buildid=${build_id}"
     "Test Failures" "https://open.cdash.org/viewTest.php?onlyfailed&buildid=${build_id}"
     "Tests Not Run" "https://open.cdash.org/viewTest.php?onlynotrun&buildid=${build_id}"
