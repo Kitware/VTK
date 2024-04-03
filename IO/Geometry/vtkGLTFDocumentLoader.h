@@ -25,7 +25,7 @@
 #ifndef vtkGLTFDocumentLoader_h
 #define vtkGLTFDocumentLoader_h
 
-#include "GLTFSampler.h"
+#include "GLTFSampler.h"         // For "Sampler"
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkResourceStream.h" // For "vtkResourceStream"

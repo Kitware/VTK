@@ -16,11 +16,9 @@
 
 #include "vtkIOCesium3DTilesModule.h" // For export macro
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
-#include <vtk_nlohmannjson.h>
+#include "vtkSmartPointer.h"  // For vtkSmartPointer
+#include <vtk_nlohmannjson.h> // For nlohmann::json
 #include VTK_NLOHMANN_JSON(json.hpp)
-
-#include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSet;
@@ -129,4 +127,3 @@ private:
 
 VTK_ABI_NAMESPACE_END
 #endif
-// VTK-HeaderTest-Exclude: vtkCesium3DTilesReader.h
