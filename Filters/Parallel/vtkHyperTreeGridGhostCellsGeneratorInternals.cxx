@@ -74,15 +74,15 @@ vtkIdType CreateGhostTree(vtkHyperTreeGridNonOrientedCursor* outCursor, vtkBitAr
   outputMask->InsertValue(indices[pos], isMasked->GetValue(pos));
   if (isMasked->GetValue(pos))
   {
-    vtkDebugWithObjectMacro(
-      nullptr, "Creating masked cell #" << pos << " with id " << indices[pos]);
+    // vtkDebugWithObjectMacro(
+    //   nullptr, "Creating masked cell #" << pos << " with id " << indices[pos]);
     pos++;
     return pos;
   }
-  else
-  {
-    vtkDebugWithObjectMacro(nullptr, "Creating cell #" << pos << " with id " << indices[pos]);
-  }
+  // else
+  // {
+  //   vtkDebugWithObjectMacro(nullptr, "Creating cell #" << pos << " with id " << indices[pos]);
+  // }
   if (isParent->GetValue(pos++))
   {
     outCursor->SubdivideLeaf();
@@ -123,16 +123,17 @@ void ExtractInterface(vtkHyperTreeGridNonOrientedCursor* inCursor, vtkBitArray* 
 {
   isParent->InsertTuple1(pos, !inCursor->IsLeaf());
   isMasked->InsertTuple1(pos, inCursor->IsMasked());
-  if (inCursor->IsMasked())
-  {
-    vtkDebugWithObjectMacro(
-      nullptr, "Extracting masked cell #" << pos << " with id " << inCursor->GetGlobalNodeIndex());
-  }
-  else
-  {
-    vtkDebugWithObjectMacro(
-      nullptr, "Extracting cell #" << pos << " with id " << inCursor->GetGlobalNodeIndex());
-  }
+  // if (inCursor->IsMasked())
+  // {
+  //   vtkDebugWithObjectMacro(
+  //     nullptr, "Extracting masked cell #" << pos << " with id " <<
+  //     inCursor->GetGlobalNodeIndex());
+  // }
+  // else
+  // {
+  //   vtkDebugWithObjectMacro(
+  //     nullptr, "Extracting cell #" << pos << " with id " << inCursor->GetGlobalNodeIndex());
+  // }
   indices[pos++] = inCursor->GetGlobalNodeIndex();
 
   if (!inCursor->IsLeaf() && !inCursor->IsMasked())
@@ -147,16 +148,17 @@ void ExtractInterface(vtkHyperTreeGridNonOrientedCursor* inCursor, vtkBitArray* 
       }
       else
       {
-        if (inCursor->IsMasked())
-        {
-          vtkDebugWithObjectMacro(nullptr,
-            "Extracting masked cell #" << pos << " with id " << inCursor->GetGlobalNodeIndex());
-        }
-        else
-        {
-          vtkDebugWithObjectMacro(
-            nullptr, "Extracting cell #" << pos << " with id " << inCursor->GetGlobalNodeIndex());
-        }
+        // if (inCursor->IsMasked())
+        // {
+        //   vtkDebugWithObjectMacro(nullptr,
+        //     "Extracting masked cell #" << pos << " with id " << inCursor->GetGlobalNodeIndex());
+        // }
+        // else
+        // {
+        //   vtkDebugWithObjectMacro(
+        //     nullptr, "Extracting cell #" << pos << " with id " <<
+        //     inCursor->GetGlobalNodeIndex());
+        // }
         isParent->InsertTuple1(pos, 0);
         isMasked->InsertTuple1(pos, inCursor->IsMasked());
         indices[pos++] = inCursor->GetGlobalNodeIndex();
