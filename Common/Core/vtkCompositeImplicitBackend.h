@@ -47,6 +47,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
+class vtkDataArrayCollection;
 template <typename ValueType>
 class VTKCOMMONCORE_EXPORT vtkCompositeImplicitBackend final
 {
@@ -57,6 +58,7 @@ public:
    * leftArr->GetNumberOfTuples()
    */
   vtkCompositeImplicitBackend(const std::vector<vtkDataArray*>& arrays);
+  vtkCompositeImplicitBackend(vtkDataArrayCollection* arrays);
   ~vtkCompositeImplicitBackend();
 
   /**
