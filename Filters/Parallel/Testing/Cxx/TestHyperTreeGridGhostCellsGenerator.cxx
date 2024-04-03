@@ -30,20 +30,20 @@ int CheckArray(
   if (array->GetNumberOfComponents() != numberComponents)
   {
     vtkErrorWithObjectMacro(
-      nullptr, << "Wrong number of components in the scalar cell field for process" << rank
+      nullptr, << "Wrong number of components in the scalar cell field for process " << rank
                << ". Has " << array->GetNumberOfComponents() << " but expect " << numberComponents);
     ret = EXIT_FAILURE;
   }
   if (array->GetNumberOfTuples() != numberTuples)
   {
     vtkErrorWithObjectMacro(
-      nullptr, << "Wrong number of tuples in the scalar cell field for process" << rank << ". Has "
+      nullptr, << "Wrong number of tuples in the scalar cell field for process " << rank << ". Has "
                << array->GetNumberOfTuples() << " but expect " << numberTuples);
     ret = EXIT_FAILURE;
   }
   if (array->GetRange()[0] != range[0] || array->GetRange()[1] != range[1])
   {
-    vtkErrorWithObjectMacro(nullptr, << "Wrong range for the the scalar cell field for process"
+    vtkErrorWithObjectMacro(nullptr, << "Wrong range for the the scalar cell field for process "
                                      << rank << ". Got [" << array->GetRange()[0] << ","
                                      << array->GetRange()[1] << "] but expected [" << range[0]
                                      << "," << range[1] << "]");
@@ -76,6 +76,7 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   htgSource->SetSeed(3);
   htgSource->SetMaxDepth(3);
   htgSource->SetDimensions(3, 3, 3);
+  htgSource->SetMaskedFraction(0.0);
   htgSource->UpdatePiece(myRank, nbRanks, 0);
   int nbCells = htgSource->GetHyperTreeGridOutput()->GetNumberOfCells();
   vtkLog(TRACE, << "number of cells (before Generator): " << nbCells);
@@ -101,6 +102,7 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   htgSource->GetHyperTreeGridOutput()->GetCellData()->SetVectors(vectorData);
 
   vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
+  generator->SetDebug(true);
   generator->SetInputConnection(htgSource->GetOutputPort());
   vtkHyperTreeGrid* htg = generator->GetHyperTreeGridOutput();
   if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)

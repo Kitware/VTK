@@ -86,9 +86,9 @@ public:
    * ProcessTrees subroutine creating the output ghost array and adding it to the output HTG.
    *
    * @param input Input HTG
-   * @param totalVertices The number of vertices in the HTG including ghost cells.
+   * @param nonGhostVertices The number of vertices in the HTG excluding ghost cells.
    */
-  void AppendGhostArray();
+  void AppendGhostArray(vtkIdType nonGhostVertices);
 
 private:
   // Internal structures used for MPI message exchanges
@@ -97,14 +97,13 @@ private:
     SendBuffer()
       : count(0)
       , mask(0)
-      , isParent(vtkBitArray::New())
     {
     }
-    ~SendBuffer() { isParent->Delete(); }
     vtkIdType count;                // len buffer
     unsigned int mask;              // ghost mask
     std::vector<vtkIdType> indices; // indices for selected cells
-    vtkBitArray* isParent;          // decomposition amr tree
+    vtkNew<vtkBitArray> isParent;   // decomposition amr tree
+    vtkNew<vtkBitArray> isMasked;   // decomposition amr tree
   };
 
   struct RecvBuffer
@@ -147,9 +146,9 @@ private:
 
   vtkHyperTreeGridGhostCellsGenerator* Self = nullptr;
   vtkMultiProcessController* Controller = nullptr;
+  vtkBitArray* OutputMask = nullptr;
   vtkHyperTreeGrid* InputHTG = nullptr;
   vtkHyperTreeGrid* OutputHTG = nullptr;
-  vtkBitArray* OutputMask = nullptr;
 
   vtkIdType NumberOfVertices = 0;
   int NumberOfHyperTrees = 0;
