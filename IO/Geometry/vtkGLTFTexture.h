@@ -14,8 +14,9 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkTexture;
 
-struct VTKIOGEOMETRY_EXPORT vtkGLTFTexture : public vtkObjectBase
+class VTKIOGEOMETRY_EXPORT vtkGLTFTexture : public vtkObjectBase
 {
+public:
   vtkBaseTypeMacro(vtkGLTFTexture, vtkObjectBase);
   static vtkGLTFTexture* New();
   vtkSmartPointer<vtkImageData> Image;
