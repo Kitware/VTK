@@ -287,6 +287,8 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   {
     output->GetPointData()->SetNormals(nullptr);
   }
+  // No longer need the links, so free them
+  output->SetLinks(nullptr);
   this->UpdateProgress(1.0);
 
   return 1;
