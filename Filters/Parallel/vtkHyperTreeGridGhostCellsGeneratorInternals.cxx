@@ -61,6 +61,8 @@ int GetNumberOfCellValues(vtkCellData* cellData)
  * @param outCursor Cursor on the output tree that will create the hyper tree.
  * @param isParent Input vtkBitArray produced by a neighbor process to tell if the current node is
  * a leaf or not.
+ * @param isMasked Optional input vtkBitArray produced by a neighbor process to tell if the current
+ * node is a masked or not.
  * @param indices Output array mapping the created nodes to their position in the output data
  * arrays.
  * @param pos Parameter which should be left untouched, it is used to keep track of the number of
@@ -71,18 +73,15 @@ vtkIdType CreateGhostTree(vtkHyperTreeGridNonOrientedCursor* outCursor, vtkBitAr
 {
   indices[pos] = outCursor->GetGlobalNodeIndex();
 
-  outputMask->InsertValue(indices[pos], isMasked->GetValue(pos));
-  if (isMasked->GetValue(pos))
+  if (outputMask)
   {
-    // vtkDebugWithObjectMacro(
-    //   nullptr, "Creating masked cell #" << pos << " with id " << indices[pos]);
-    pos++;
-    return pos;
+    outputMask->InsertValue(indices[pos], isMasked->GetValue(pos));
+    if (isMasked->GetValue(pos))
+    {
+      pos++;
+      return pos;
+    }
   }
-  // else
-  // {
-  //   vtkDebugWithObjectMacro(nullptr, "Creating cell #" << pos << " with id " << indices[pos]);
-  // }
   if (isParent->GetValue(pos++))
   {
     outCursor->SubdivideLeaf();
@@ -107,6 +106,8 @@ vtkIdType CreateGhostTree(vtkHyperTreeGridNonOrientedCursor* outCursor, vtkBitAr
  * a parent if it is not a leaf. The map of the tracking is stored in indices.
  * For example, if the data array of the input is called inArray,
  * isParent->GetValue(m) equals one if inArray->GetTuple1(indices[m]) is not a leaf.
+ * @param isMasked A bit array filed by this filter. isMasked->GetValue(m) is set to 1 if the
+ * corresponding cell is masked, and 0 otherwise.
  * @param indices An array produced by this filter mapping the nodes of the interface with their
  * location in the input data array.
  * @param grid Input vtkHyperTreeGrid used to have the neighborhood profile. This neighborhood
@@ -123,17 +124,6 @@ void ExtractInterface(vtkHyperTreeGridNonOrientedCursor* inCursor, vtkBitArray* 
 {
   isParent->InsertTuple1(pos, !inCursor->IsLeaf());
   isMasked->InsertTuple1(pos, inCursor->IsMasked());
-  // if (inCursor->IsMasked())
-  // {
-  //   vtkDebugWithObjectMacro(
-  //     nullptr, "Extracting masked cell #" << pos << " with id " <<
-  //     inCursor->GetGlobalNodeIndex());
-  // }
-  // else
-  // {
-  //   vtkDebugWithObjectMacro(
-  //     nullptr, "Extracting cell #" << pos << " with id " << inCursor->GetGlobalNodeIndex());
-  // }
   indices[pos++] = inCursor->GetGlobalNodeIndex();
 
   if (!inCursor->IsLeaf() && !inCursor->IsMasked())
@@ -148,17 +138,6 @@ void ExtractInterface(vtkHyperTreeGridNonOrientedCursor* inCursor, vtkBitArray* 
       }
       else
       {
-        // if (inCursor->IsMasked())
-        // {
-        //   vtkDebugWithObjectMacro(nullptr,
-        //     "Extracting masked cell #" << pos << " with id " << inCursor->GetGlobalNodeIndex());
-        // }
-        // else
-        // {
-        //   vtkDebugWithObjectMacro(
-        //     nullptr, "Extracting cell #" << pos << " with id " <<
-        //     inCursor->GetGlobalNodeIndex());
-        // }
         isParent->InsertTuple1(pos, 0);
         isMasked->InsertTuple1(pos, inCursor->IsMasked());
         indices[pos++] = inCursor->GetGlobalNodeIndex();
@@ -217,7 +196,7 @@ void vtkHyperTreeGridGhostCellsGeneratorInternals::BroadcastTreeLocations()
       broadcastHyperTreesMapToProcesses[inTreeIndex] = processId;
     }
   }
-  broadcastHyperTreesMapToProcesses[nbHTs + processId] = 0;
+  broadcastHyperTreesMapToProcesses[nbHTs + processId] = this->InputHTG->HasMask();
   this->Controller->AllReduce(broadcastHyperTreesMapToProcesses.data(),
     this->HyperTreesMapToProcesses.data(), nbHTs + numberOfProcesses, vtkCommunicator::MAX_OP);
 
@@ -241,10 +220,6 @@ void vtkHyperTreeGridGhostCellsGeneratorInternals::DetermineNeighbors()
       while (inputIterator.GetNextTree(inTreeIndex))
       {
         this->InputHTG->InitializeOrientedCursor(inOrientedCursor, inTreeIndex);
-        if (inOrientedCursor->IsMasked())
-        {
-          continue;
-        }
         this->InputHTG->GetLevelZeroCoordinatesFromIndex(inTreeIndex, i, j, k);
         // Avoiding over / under flowing the grid
         for (int rj = ((j > 0) ? -1 : 0); rj < (((j + 1) < cellDims[1]) ? 2 : 1); ++rj)
@@ -276,10 +251,6 @@ void vtkHyperTreeGridGhostCellsGeneratorInternals::DetermineNeighbors()
       while (inputIterator.GetNextTree(inTreeIndex))
       {
         this->InputHTG->InitializeOrientedCursor(inOrientedCursor, inTreeIndex);
-        if (inOrientedCursor->IsMasked())
-        {
-          continue;
-        }
         this->InputHTG->GetLevelZeroCoordinatesFromIndex(inTreeIndex, i, j, k);
         // Avoiding over / under flowing the grid
         for (int rk = ((k > 0) ? -1 : 0); rk < (((k + 1) < cellDims[2]) ? 2 : 1); ++rk)
@@ -367,6 +338,7 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeSizes()
         auto targetRecvBuffer = itRecvBuffer;
         if (this->Controller->CanProbe())
         {
+
           targetRecvBuffer =
             ::ProbeFind(this->Controller, HTGGCG_SIZE_EXCHANGE_TAG, this->RecvBuffer);
           if (targetRecvBuffer == this->RecvBuffer.end())
@@ -396,10 +368,16 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeSizes()
 }
 
 //------------------------------------------------------------------------------
-int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeMasks()
+int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeTreeDecomposition()
 {
   int numberOfProcesses = this->Controller->GetNumberOfProcesses();
   int processId = this->Controller->GetLocalProcessId();
+
+  // Data size is doubled when we need to transfer isMasked bit array.
+  // We store isParent and isMasked bit arrays in the sent buffer contiguously.
+  vtkIdType maskFactor = this->InputHTG->HasMask() ? 2 : 1;
+  vtkDebugWithObjectMacro(this->Self, "Mask factor: " << maskFactor);
+
   for (int id = 0; id < numberOfProcesses; ++id)
   {
     if (id != processId)
@@ -419,12 +397,15 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeMasks()
             // We send the bits packed in unsigned char
             vtkIdType currentLen = sendTreeBuffer.count / sizeof(unsigned char) + 1;
 
-            buf.resize(totalLen + 2 * currentLen);
+            buf.resize(totalLen + maskFactor * currentLen);
             memcpy(buf.data() + totalLen, sendTreeBuffer.isParent->GetPointer(0), currentLen);
-            memcpy(buf.data() + totalLen + currentLen, sendTreeBuffer.isMasked->GetPointer(0),
-              currentLen);
+            if (this->InputHTG->HasMask())
+            {
+              memcpy(buf.data() + totalLen + currentLen, sendTreeBuffer.isMasked->GetPointer(0),
+                currentLen);
+            }
 
-            totalLen += currentLen * 2;
+            totalLen += currentLen * maskFactor;
           }
         }
         vtkDebugWithObjectMacro(this->Self, "Send mask data from " << processId << " to " << id);
@@ -458,26 +439,26 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeMasks()
         // we prepare for receiving with appropriate length
         if (this->Flags[process] == NOT_TREATED)
         {
-          vtkIdType len = 0;
+          vtkIdType bufferLength = 0;
           for (auto&& recvTreeBufferPair : recvTreeMap)
           {
             auto&& recvTreeBuffer = recvTreeBufferPair.second;
             if (recvTreeBuffer.count != 0)
             {
               // bit message is packed in unsigned char, getting the correct length of the message
-              len += recvTreeBuffer.count / sizeof(unsigned char) + 1;
+              bufferLength += recvTreeBuffer.count / sizeof(unsigned char) + 1;
             }
           }
-          len *= 2; // isParent + isMasked data
-          std::vector<unsigned char> buf(len);
+          bufferLength *= maskFactor; // isParent + potentially isMasked data
+          std::vector<unsigned char> buf(bufferLength);
 
           vtkDebugWithObjectMacro(this->Self, "Receive mask data from " << process);
-          this->Controller->Receive(buf.data(), len, process, HTGGCG_DATA_EXCHANGE_TAG);
+          this->Controller->Receive(buf.data(), bufferLength, process, HTGGCG_DATA_EXCHANGE_TAG);
 
-          vtkIdType offset = 0;
-          vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
           // Distributing receive data among my trees, i.e. creating my ghost trees with this data
           // Remember: we only have the nodes / leaves at the inverface with our neighbor
+          vtkIdType offset = 0;
+          vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
           for (auto&& recvTreeBufferPair : recvTreeMap)
           {
             vtkIdType treeId = recvTreeBufferPair.first;
@@ -486,12 +467,16 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeMasks()
             {
               this->OutputHTG->InitializeNonOrientedCursor(outCursor, treeId, true);
 
-              // Stealing ownership of buf in isParent to have vtkBitArray interface
+              // Stealing ownership of buf in isParent/isMasked to have vtkBitArray interface
               vtkNew<vtkBitArray> isParent;
               isParent->SetArray(buf.data() + offset, recvTreeBuffer.count, 1);
-              vtkNew<vtkBitArray> isMasked;
-              isMasked->SetArray(
-                buf.data() + offset + recvTreeBuffer.count + 1, recvTreeBuffer.count, 1);
+              vtkSmartPointer<vtkBitArray> isMasked = nullptr;
+              if (this->InputHTG->HasMask())
+              {
+                isMasked = vtkSmartPointer<vtkBitArray>::New();
+                isMasked->SetArray(
+                  buf.data() + offset + recvTreeBuffer.count + 1, recvTreeBuffer.count, 1);
+              }
 
               recvTreeBuffer.offset = this->NumberOfVertices;
               recvTreeBuffer.indices.resize(recvTreeBuffer.count);
@@ -501,7 +486,7 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeMasks()
               this->NumberOfVertices += ::CreateGhostTree(
                 outCursor, isParent, isMasked, this->OutputMask, recvTreeBuffer.indices.data());
 
-              offset += (recvTreeBuffer.count / sizeof(unsigned char) + 1) * 2;
+              offset += (recvTreeBuffer.count / sizeof(unsigned char) + 1) * maskFactor;
             }
           }
           this->Flags[process] = INITIALIZE_TREE;
@@ -633,12 +618,14 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeCellData()
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGhostCellsGeneratorInternals::AppendGhostArray(vtkIdType nonGhostVertices)
 {
+  vtkDebugWithObjectMacro(this->Self,
+    "Adding ghost array: ghost from " << nonGhostVertices << " to " << this->NumberOfVertices);
+
   vtkNew<vtkUnsignedCharArray> scalars;
   scalars->SetNumberOfComponents(1);
   scalars->SetName(vtkDataSetAttributes::GhostArrayName());
   scalars->SetNumberOfTuples(this->NumberOfVertices);
-  vtkDebugWithObjectMacro(this->Self,
-    "Adding ghost array: ghost from " << nonGhostVertices << " to " << this->NumberOfVertices);
+
   for (vtkIdType ii = 0; ii < nonGhostVertices; ++ii)
   {
     scalars->InsertValue(ii, 0);

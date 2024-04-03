@@ -52,6 +52,9 @@ int CheckArray(
   return ret;
 }
 
+/**
+ * Test the transfer of scalar and vector arrays in ghost trees
+ */
 int TestGhostCellFields(vtkMPIController* controller)
 {
   int myRank = controller->GetLocalProcessId();
@@ -88,9 +91,9 @@ int TestGhostCellFields(vtkMPIController* controller)
   }
   htgSource->GetHyperTreeGridOutput()->GetCellData()->SetScalars(scalarData);
   htgSource->GetHyperTreeGridOutput()->GetCellData()->SetVectors(vectorData);
+  htgSource->GetHyperTreeGridOutput()->SetMask(nullptr);
 
   vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
-  generator->SetDebug(true);
   generator->SetInputConnection(htgSource->GetOutputPort());
   vtkHyperTreeGrid* htg = generator->GetHyperTreeGridOutput();
   if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)
@@ -136,6 +139,9 @@ int TestGhostCellFields(vtkMPIController* controller)
   return ret;
 }
 
+/**
+ * Test the transfer of masked cells in ghost trees.
+ */
 int TestGhostMasking(vtkMPIController* controller)
 {
   int ret = EXIT_SUCCESS;
@@ -143,7 +149,7 @@ int TestGhostMasking(vtkMPIController* controller)
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
-  const int expectedNbOfCells[4] = { 119, 119, 151, 80 };
+  const int expectedNbOfCells[4] = { 120, 120, 152, 80 };
   const int expectedGhostTypeCutoff[4] = { 65, 81, 113, 1 };
 
   // Setup pipeline
@@ -158,7 +164,6 @@ int TestGhostMasking(vtkMPIController* controller)
 
   // Create GCG
   vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
-  generator->SetDebug(true);
   generator->SetInputConnection(htgSource->GetOutputPort());
   vtkHyperTreeGrid* htg = generator->GetHyperTreeGridOutput();
   if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)
@@ -201,7 +206,9 @@ int TestGhostMasking(vtkMPIController* controller)
 }
 }
 
-// Program main
+/**
+ * Subtest launcher, initializing MPI controller.
+ */
 int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
 {
   int ret = EXIT_SUCCESS;

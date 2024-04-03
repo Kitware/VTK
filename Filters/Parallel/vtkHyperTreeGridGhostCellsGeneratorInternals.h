@@ -44,7 +44,7 @@ public:
    * @param controller reference to the MPI controller used for parallel operations
    * @param inputHTG reference to the input HyperTreeGrid
    * @param outputHTG reference to the output HyperTreeGrid
-   * @param outputMask reference to the output mask array
+   * @param outputMask reference to the output mask array. Can be null if inputHTG has no mask.
    * @param totalVertices Number of vertices in the input HTG
    */
   vtkHyperTreeGridGhostCellsGeneratorInternals(vtkHyperTreeGridGhostCellsGenerator* self,
@@ -65,16 +65,17 @@ public:
   void DetermineNeighbors();
 
   /**
-   * Exchange the number of ghost cells to be sent between ranks
+   * Exchange the number of ghost cells to be sent between ranks.
+   * Send an array to every other processes containing the number of cells in each tree to be sent.
    * Return 1 if the operation was successful, 0 otherwise.
    */
   int ExchangeSizes();
 
   /**
-   * Routine to send and receive mask values and parent state information for each tree.
+   * Routine to send and receive tree decomposition, and mask values if present for each tree.
    * Return 1 if the operation was successful, 0 otherwise
    */
-  int ExchangeMasks();
+  int ExchangeTreeDecomposition();
 
   /**
    * Exchange cell data information with the other process to fill in values for ghost cells.
@@ -85,7 +86,6 @@ public:
   /**
    * ProcessTrees subroutine creating the output ghost array and adding it to the output HTG.
    *
-   * @param input Input HTG
    * @param nonGhostVertices The number of vertices in the HTG excluding ghost cells.
    */
   void AppendGhostArray(vtkIdType nonGhostVertices);

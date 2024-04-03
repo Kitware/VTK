@@ -154,8 +154,8 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   controller->Barrier();
   this->UpdateProgress(0.4);
 
-  vtkDebugMacro("Exchange masks with neighbors");
-  if (subroutines.ExchangeMasks() == 0)
+  vtkDebugMacro("Exchange tree decomposition and masks with neighbors");
+  if (subroutines.ExchangeTreeDecomposition() == 0)
   {
     vtkErrorMacro("Failure during mask exchange, aborting.");
     return 0;
