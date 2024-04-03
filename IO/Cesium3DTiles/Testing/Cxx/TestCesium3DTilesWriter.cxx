@@ -572,7 +572,7 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
 
     // we need to use double points for the GLTF reader.
     vtkNew<vtkUseDoublePoints> useDoublePoints;
-    useDoublePoints->Register();
+    useDoublePoints->RegisterFactory();
     vtkNew<vtkRenderer> renderer;
     renderer->SetBackground(0.5, 0.7, 0.7);
     vtkNew<vtkRenderWindow> renWin;

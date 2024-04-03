@@ -16,8 +16,8 @@ public:
 
   static vtkUseDoublePoints* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  void Register();
-  void UnRegister();
+  void RegisterFactory();
+  void UnRegisterFactory();
 
 protected:
   vtkUseDoublePoints();

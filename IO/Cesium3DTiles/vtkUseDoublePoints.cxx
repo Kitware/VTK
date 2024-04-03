@@ -83,13 +83,13 @@ vtkUseDoublePoints::~vtkUseDoublePoints()
   delete this->Impl;
 }
 
-void vtkUseDoublePoints::Register()
+void vtkUseDoublePoints::RegisterFactory()
 {
   vtkObjectFactory::RegisterFactory(this->Impl->Factory);
   this->Registered = true;
 }
 
-void vtkUseDoublePoints::UnRegister()
+void vtkUseDoublePoints::UnRegisterFactory()
 {
   vtkObjectFactory::UnRegisterFactory(this->Impl->Factory);
   this->Registered = false;
