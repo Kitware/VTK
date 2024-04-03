@@ -36,7 +36,6 @@ struct VTKIOGEOMETRY_EXPORT GLTFSampler
   FilterType MinFilter;
   WrapType WrapS;
   WrapType WrapT;
-  std::string Name;
 };
 
 VTK_ABI_NAMESPACE_END
