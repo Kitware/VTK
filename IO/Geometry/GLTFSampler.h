@@ -5,9 +5,6 @@
 #define GLTFSampler_h
 
 #include "vtkIOGeometryModule.h" // For export macro
-#include "vtkObjectBase.h"
-#include "vtkSetGet.h"
-#include "vtkSmartPointer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

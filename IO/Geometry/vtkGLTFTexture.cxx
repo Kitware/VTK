@@ -61,4 +61,15 @@ vtkSmartPointer<vtkTexture> vtkGLTFTexture::GetVTKTexture()
   return texture;
 }
 
+//------------------------------------------------------------------------------
+void vtkGLTFTexture::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "MagFilter: " << this->Sampler.MagFilter << "\n"
+     << indent << "MinFilter: " << this->Sampler.MinFilter << "\n"
+     << indent << "WrapS: " << this->Sampler.WrapS << "\n"
+     << indent << "WrapT: " << this->Sampler.WrapT << "\n"
+     << indent << "Image: " << this->Image << "\n";
+}
+
 VTK_ABI_NAMESPACE_END
