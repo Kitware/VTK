@@ -168,14 +168,13 @@ bool vtkDrawTexturedElements::SetElementType(int elementType)
   return true;
 }
 
-bool vtkDrawTexturedElements::SetPatchPrimitiveType(int patchPrimitiveType)
+bool vtkDrawTexturedElements::SetPatchType(int patchType)
 {
-  if (patchPrimitiveType == this->PatchPrimitiveType || patchPrimitiveType < PatchLine ||
-    patchPrimitiveType > PatchQuadrilateral)
+  if (patchType == this->PatchType || patchType < PatchLine || patchType > PatchQuadrilateral)
   {
     return false;
   }
-  this->PatchPrimitiveType = patchPrimitiveType;
+  this->PatchType = patchType;
   return true;
 }
 
@@ -261,7 +260,7 @@ void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapp
     break;
     default:
     case ElementShape::AbstractPatches:
-      if (this->PatchPrimitiveType == PatchShape::PatchLine)
+      if (this->PatchType == PatchShape::PatchLine)
       {
         const float width = actor->GetProperty()->GetLineWidth();
         const float maxSupportedWidth = renderWindow->GetMaximumHardwareLineWidth();
@@ -463,7 +462,7 @@ void vtkDrawTexturedElements::DrawInstancedElementsImpl(vtkRenderer* ren, vtkAct
     case vtkDrawTexturedElements::ElementShape::AbstractPatches:
 #ifdef GL_ARB_tessellation_shader
     {
-      const int patchVertexCount = this->PatchVertexCountFromPrimitive(this->PatchPrimitiveType);
+      const int patchVertexCount = this->PatchVertexCountFromPrimitive(this->PatchType);
       this->P->Count *= patchVertexCount;
       glPatchParameteri(GL_PATCH_VERTICES, patchVertexCount);
       break;

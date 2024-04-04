@@ -30,7 +30,7 @@ smooth out vec3 pcoordVSOutput;
 #if !{UsesTessellationShaders}
 /// View coordinate normal for this vertex.
 //VTK::Normal::Dec
-smooth out vec3 normalVCVS;
+
 /// View coordinate position for this vertex.
 //VTK::PositionVC::Dec
 #endif

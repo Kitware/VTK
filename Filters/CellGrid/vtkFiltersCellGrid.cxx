@@ -74,9 +74,12 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     // Register calculators
     responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG constant C0", dgInterp.GetPointer());
     responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG HGRAD C0", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("CG HGRAD C1", dgInterp.GetPointer());
     responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG HGRAD C1", dgInterp.GetPointer());
     responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG HGRAD I2", dgInterp.GetPointer());
+    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG HGRAD C2", dgInterp.GetPointer());
+    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("CG HGRAD C1", dgInterp.GetPointer());
+    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("CG HGRAD I2", dgInterp.GetPointer());
+    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("CG HGRAD C2", dgInterp.GetPointer());
     responders->RegisterCalculator<vtkDeRhamCell, vtkInterpolateCalculator>("CG HCURL I1", dgInterp.GetPointer());
     responders->RegisterCalculator<vtkDeRhamCell, vtkInterpolateCalculator>("DG HCURL I1", dgInterp.GetPointer());
     responders->RegisterCalculator<vtkDeRhamCell, vtkInterpolateCalculator>("CG HDIV I1", dgInterp.GetPointer());
@@ -84,10 +87,12 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
 
     responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG constant C0", dgAttInfo.GetPointer());
     responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG HGRAD C0", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("CG HGRAD C1", dgAttInfo.GetPointer());
     responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG HGRAD C1", dgAttInfo.GetPointer());
     responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG HGRAD I2", dgAttInfo.GetPointer());
     responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG HGRAD C2", dgAttInfo.GetPointer());
+    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("CG HGRAD C1", dgAttInfo.GetPointer());
+    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("CG HGRAD I2", dgAttInfo.GetPointer());
+    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("CG HGRAD C2", dgAttInfo.GetPointer());
     responders->RegisterCalculator<vtkDeRhamCell, vtkCellAttributeInformation>("CG HCURL I1", dgAttInfo.GetPointer());
     responders->RegisterCalculator<vtkDeRhamCell, vtkCellAttributeInformation>("DG HCURL I1", dgAttInfo.GetPointer());
     responders->RegisterCalculator<vtkDeRhamCell, vtkCellAttributeInformation>("CG HDIV I1", dgAttInfo.GetPointer());

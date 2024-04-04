@@ -308,7 +308,7 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
     const auto patchPrimtive =
       vtkDGRenderResponder::PatchPrimitiveFromShape(this->CellSource->SourceShape);
     const auto patchSize = vtkDrawTexturedElements::PatchVertexCountFromPrimitive(patchPrimtive);
-    this->RenderHelper->SetPatchPrimitiveType(patchPrimtive);
+    this->RenderHelper->SetPatchType(patchPrimtive);
     // build the tessellation options.
     std::string tessellationOpts;
     if (patchPrimtive == vtkDrawTexturedElements::PatchLine)

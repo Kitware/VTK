@@ -106,10 +106,10 @@ public:
   /// Set/get the type of primitive an abstract patch gets tessellated into.
   ///
   /// This determines the number of input patch vertices to the tessellation shaders.
-  /// Values must come from the PatchPrimitiveShape enum;
-  /// the default is PatchPrimitiveShape::Triangle.
-  int GetPatchPrimitiveType() { return this->PatchPrimitiveType; }
-  virtual bool SetPatchPrimitiveType(int patchPrimitiveType);
+  /// Values must come from the PatchShape enum;
+  /// the default is PatchShape::Triangle.
+  int GetPatchType() { return this->PatchType; }
+  virtual bool SetPatchType(int patchType);
   ///@}
 
   ///@{
@@ -156,7 +156,7 @@ protected:
   vtkIdType NumberOfInstances{ 1 };
   vtkIdType NumberOfElements{ 1 };
   int ElementType{ ElementShape::TriangleStrip };
-  int PatchPrimitiveType{ PatchShape::PatchTriangle };
+  int PatchType{ PatchShape::PatchTriangle };
   bool IncludeColormap{ true };
   std::unordered_map<vtkStringToken, vtkOpenGLArrayTextureBufferAdapter> Arrays;
   ShaderMap Shaders;

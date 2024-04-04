@@ -83,7 +83,6 @@ void main()
   {{
     pcoord = interpolate_4(pcoordTCSOutput[0], pcoordTCSOutput[1], pcoordTCSOutput[2], pcoordTCSOutput[3]);
   }}
-  // scale pcoord to bi-unit domain
   shapeValuesForCell(cellIdTCSOutput, shapeValues);
   shapeEvaluateAt(pcoord, shapeValues, coordinateArray);
   if ({ShapeNumValPP} == 3)
