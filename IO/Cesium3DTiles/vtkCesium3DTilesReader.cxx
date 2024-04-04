@@ -256,7 +256,7 @@ void vtkCesium3DTilesReader::ReadTiles(
     size_t remainingPartitions = numberOfPartitionedDataSets - k * numberOfRanks;
     size_t rankNumberOfPartitionedDataSets =
       static_cast<unsigned int>(k + (rank < remainingPartitions ? 1 : 0));
-    pdc->SetNumberOfPartitionedDataSets(rankNumberOfPartitionedDataSets);
+    pdc->SetNumberOfPartitionedDataSets(static_cast<unsigned int>(rankNumberOfPartitionedDataSets));
     this->TileReaders.resize(rankNumberOfPartitionedDataSets);
     int partitionedDataSetIndex = 0;
     for (size_t i = rank; i < numberOfPartitionedDataSets; i += numberOfRanks)
@@ -327,7 +327,7 @@ vtkCesium3DTilesReader::ReadTile(std::string tileFileName, vtkTransform* transfo
   {
     ++numberOfPartitions;
   }
-  tile->SetNumberOfPartitions(numberOfPartitions);
+  tile->SetNumberOfPartitions(static_cast<unsigned int>(numberOfPartitions));
   size_t partitionIndex = 0;
   for (auto o : range)
   {
@@ -337,7 +337,8 @@ vtkCesium3DTilesReader::ReadTile(std::string tileFileName, vtkTransform* transfo
       vtkErrorMacro("Error: Cannot read polydata from: " << this->GetFileName());
       return { tile, gltfReader };
     }
-    tile->SetPartition(partitionIndex++, poly);
+    tile->SetPartition(static_cast<unsigned int>(partitionIndex), poly);
+    ++partitionIndex;
   }
   return { tile, gltfReader };
 }
@@ -355,7 +356,7 @@ int vtkCesium3DTilesReader::GetDepth(json& node)
     if (extension == ".json")
     {
       std::string externalTilesetPath{ this->DirectoryName + "/" + tileFileName };
-      int i = this->FileNameToTilesetIndex[externalTilesetPath];
+      size_t i = this->FileNameToTilesetIndex[externalTilesetPath];
       return this->GetDepth(Tilesets[i]->GetRoot());
     }
   }
