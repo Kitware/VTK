@@ -5,6 +5,8 @@
 #include "vtkOpenGLHelper.h"
 
 #include "vtkCellArray.h"
+#include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDepthPeelingPass.h"
 #include "vtkDualDepthPeelingPass.h"
 #include "vtkFloatArray.h"
@@ -37,6 +39,7 @@
 #include "vtkRenderTimerLog.h"
 #include "vtkSSAOPass.h"
 #include "vtkShaderProgram.h"
+#include "vtkShaderProperty.h"
 #include "vtkShadowMapBakerPass.h"
 #include "vtkShadowMapPass.h"
 #include "vtkSphericalHarmonics.h"
@@ -48,9 +51,11 @@
 #include "vtkTransform.h"
 #include "vtkTranslucentPass.h"
 #include "vtkTrivialProducer.h"
+#include "vtkUniforms.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVolumetricPass.h"
 
+#include <iterator>
 #include <vtksys/RegularExpression.hxx>
 
 #include <cassert>
@@ -80,6 +85,90 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->LightingComplexity = -1;
 
   this->UseSphericalHarmonics = true;
+
+  // Prepare a quadrilateral for the textured/gradient background actor.
+  this->BackgroundGradientActor = vtk::TakeSmartPointer(vtkTexturedActor2D::New());
+  this->BackgroundTextureActor = vtk::TakeSmartPointer(vtkTexturedActor2D::New());
+  this->BackgroundMapper = vtk::TakeSmartPointer(vtkPolyDataMapper2D::New());
+  this->BackgroundQuad = vtk::TakeSmartPointer(vtkPolyData::New());
+
+  vtkNew<vtkPoints> points;
+  // rest of the points depend on the size of viewport. they are initialized in Clear() method.
+  this->BackgroundQuad->SetPoints(points);
+
+  vtkNew<vtkCellArray> tris;
+  tris->InsertNextCell({ 0, 1, 2 });
+  tris->InsertNextCell({ 0, 2, 3 });
+  this->BackgroundQuad->SetPolys(tris);
+
+  vtkNew<vtkFloatArray> tcoords;
+  float tmp[2];
+  tmp[0] = 0;
+  tmp[1] = 0;
+  tcoords->SetNumberOfComponents(2);
+  tcoords->SetNumberOfTuples(4);
+  tcoords->SetTuple(0, tmp);
+  tmp[0] = 1.0;
+  tcoords->SetTuple(1, tmp);
+  tmp[1] = 1.0;
+  tcoords->SetTuple(2, tmp);
+  tmp[0] = 0.0;
+  tcoords->SetTuple(3, tmp);
+  this->BackgroundQuad->GetPointData()->SetTCoords(tcoords);
+
+  this->BackgroundGradientActor->SetMapper(this->BackgroundMapper);
+  auto shaderProperty = this->BackgroundGradientActor->GetShaderProperty();
+  // get rid of conflicting replacements from vtkOpenGLPolyDataMapper2D.
+  shaderProperty->AddFragmentShaderReplacement("//VTK::Color::Dec", true, "", false);
+  shaderProperty->AddFragmentShaderReplacement("//VTK::Color::Impl", true, "", false);
+
+  // add gradient parameters as unforms.
+  shaderProperty->AddFragmentShaderReplacement("//VTK::CustomUniforms::Dec",
+    /*replaceFirst=*/true,
+    R"(
+uniform bool dither;
+uniform int gradientMode;
+uniform vec3 stopColors[2];
+// Granularity of dither noise set to very small number 0.5 / 255.0 to ensure any shift in color due to dither noise is minimal
+const highp float DITHERING_GRANULARITY = 0.001960784313725;
+float generateRandom (vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); }
+#define GRADIENT_VERTICAL 0
+#define GRADIENT_HORIZONTAL 1
+#define GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE 2
+#define GRADIENT_RADIAL_VIEWPORT_FARTHEST_CORNER 3
+  )",
+    /*replaceAll=*/false);
+
+  // map texture coordinate value into the gradient color function.
+  shaderProperty->AddFragmentShaderReplacement("//VTK::TCoord::Impl",
+    /*replaceFirst=*/true,
+    R"(
+float value = 0.0;
+if(gradientMode == GRADIENT_VERTICAL)
+{
+  value = tcoordVCVSOutput.t;
+}
+else if(gradientMode == GRADIENT_HORIZONTAL)
+{
+  value = tcoordVCVSOutput.s;
+}
+else if(gradientMode == GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE)
+{
+  value = clamp(length(tcoordVCVSOutput - vec2(0.5f, 0.5f)) * 2.0f, 0.0f, 1.0f);              
+}
+else if(gradientMode == GRADIENT_RADIAL_VIEWPORT_FARTHEST_CORNER)
+{
+  value = length(tcoordVCVSOutput - vec2(0.5f, 0.5f)) * sqrt(2.0f);
+}
+gl_FragData[0] = vec4(mix(stopColors[0].xyz, stopColors[1].xyz, value), 1.0);
+if (dither) {
+float noise = mix(-DITHERING_GRANULARITY, DITHERING_GRANULARITY, generateRandom(tcoordVCVSOutput));
+gl_FragData[0].xyz += vec3(noise);
+}
+)",
+    /*replaceAll=*/false);
+
+  this->BackgroundTextureActor->SetMapper(this->BackgroundMapper);
 }
 
 // Ask lights to load themselves into graphics pipeline.
@@ -632,6 +721,28 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+namespace
+{
+vtkSmartPointer<vtkDataArray> MakeQuadPointsFromViewportSize(int size[2])
+{
+  std::vector<float> corners = {
+    // clang-format off
+    0, 0, 0,
+    static_cast<float>(size[0]), 0, 0,
+    static_cast<float>(size[0]), static_cast<float>(size[1]), 0,
+    0, static_cast<float>(size[1]), 0
+    // clang-format on
+  };
+  auto data = vtk::TakeSmartPointer(vtkFloatArray::New());
+  data->SetNumberOfComponents(3);
+  data->SetNumberOfTuples(4);
+  auto range = vtk::DataArrayValueRange(data);
+  std::copy(corners.begin(), corners.end(), range.begin());
+  return data;
+}
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderer::Clear()
 {
   vtkOpenGLClearErrorMacro();
@@ -658,105 +769,45 @@ void vtkOpenGLRenderer::Clear()
   ostate->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   ostate->vtkglClear(clear_mask);
 
-  if (!this->Transparent() && (this->GradientBackground || this->TexturedBackground))
+  if (!this->Transparent() &&
+    (this->GradientBackground ||
+      (this->TexturedBackground && this->GetCurrentTexturedBackground())))
   {
-    auto oglRenWin = vtkOpenGLRenderWindow::SafeDownCast(this->GetRenderWindow());
-    auto texture = this->GetCurrentTexturedBackground();
-    std::string fs = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
-    ostate->vtkglDisable(GL_DEPTH_TEST);
-    // Generate VS, FS code.
-    if (this->TexturedBackground && texture)
-    {
-      vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl",
-        "uniform sampler2D backgroundImage;\n"
-        "//VTK::FSQ::Decl");
-      vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Impl",
-        "  gl_FragData[0] = vec4(texture(backgroundImage, texCoord).rgb, 1.0);\n"
-        "//VTK::FSQ::Impl");
-    }
-    else // GradientBackground
-    {
-      vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl", R"(
-uniform bool dither;
-uniform vec3 stopColors[2];
-// Granularity of dither noise set to very small number 0.5 / 255.0 to ensure any shift in color due to dither noise is minimal
-const highp float DITHERING_GRANULARITY = 0.001960784313725;
-float generateRandom (vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); }
-//VTK::FSQ::Decl)");
-      switch (this->GradientMode)
-      {
-        case GradientModes::VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE:
-        {
-          vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Impl",
-            "  // computes distance of texel from the center of an ellipse.\n"
-            "  // i.e, all texels on the perimeter of the ellipse give value=1.0\n"
-            "  float value = clamp(length(texCoord - vec2(0.5f, 0.5f)) * 2.0f, 0.0f, 1.0f);\n"
-            "//VTK::FSQ::Impl");
-          break;
-        }
-        case GradientModes::VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_CORNER:
-        {
-          vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Impl",
-            "  // computes distance of texel from the center of an ellipse.\n"
-            "  // i.e, all texels on the perimeter of the ellipse give value=1.0\n"
-            "  float value = length(texCoord - vec2(0.5f, 0.5f)) * sqrt(2.0f);\n"
-            "//VTK::FSQ::Impl");
-          break;
-        }
-        case GradientModes::VTK_GRADIENT_HORIZONTAL:
-        {
-          vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Impl",
-            "  float value = texCoord.s;\n"
-            "//VTK::FSQ::Impl");
-          break;
-        }
-        case GradientModes::VTK_GRADIENT_VERTICAL:
-        default:
-        {
-          vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Impl",
-            "  float value = texCoord.t;\n"
-            "//VTK::FSQ::Impl");
-          break;
-        }
-      }
-      vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Impl",
-        R"(gl_FragData[0] = vec4(mix(stopColors[0].xyz, stopColors[1].xyz, value), 1.0);
-if (dither) {
-  float noise = mix(-DITHERING_GRANULARITY, DITHERING_GRANULARITY, generateRandom(texCoord));
-  gl_FragData[0].xyz += vec3(noise);
-})");
-    }
+    int size[2];
+    size[0] = this->GetSize()[0];
+    size[1] = this->GetSize()[1];
 
-    // re-create vtkOpenGLQuadHelper, because fragment shader code might have changed from the last
-    // frame. Such change occurs when the render switches from GradientBackground to
-    // TexturedBackground.
-    this->BackgroundRenderer.reset(
-      new vtkOpenGLQuadHelper(oglRenWin, nullptr, fs.c_str(), nullptr, false));
-    // prep shader program.
-    oglRenWin->GetShaderCache()->ReadyShaderProgram(this->BackgroundRenderer->Program);
-    // apply uniforms.
-    if (this->TexturedBackground && texture)
+    // readjust the corner coordinates to span entire tile viewport.
+    this->BackgroundQuad->GetPoints()->SetData(::MakeQuadPointsFromViewportSize(size));
+
+    vtkNew<vtkTrivialProducer> prod;
+    prod->SetOutput(this->BackgroundQuad);
+
+    vtkSmartPointer<vtkTexturedActor2D> actor = nullptr;
+    this->BackgroundMapper->SetInputConnection(prod->GetOutputPort());
+
+    if (this->TexturedBackground && this->GetCurrentTexturedBackground())
     {
-      // load the texture if needed.
-      texture->InterpolateOn();
-      texture->Render(this);
-      this->BackgroundRenderer->Program->SetUniformi("backgroundImage", texture->GetTextureUnit());
+      actor = this->BackgroundTextureActor;
+      this->GetCurrentTexturedBackground()->InterpolateOn();
+      actor->SetTexture(this->GetCurrentTexturedBackground());
     }
-    else // GradientBackground
+    else if (this->GradientBackground)
     {
+      actor = this->BackgroundGradientActor;
+      auto* shaderProperty = actor->GetShaderProperty();
       float stopColors[2][3] = {};
-
       std::copy(this->Background, this->Background + 3, &stopColors[0][0]);
       std::copy(this->Background2, this->Background2 + 3, &stopColors[1][0]);
-      this->BackgroundRenderer->Program->SetUniform3fv("stopColors", 2, stopColors);
-      this->BackgroundRenderer->Program->SetUniformi("dither", this->DitherGradient);
+      auto* fragmentUniforms = shaderProperty->GetFragmentCustomUniforms();
+      fragmentUniforms->SetUniformi("dither", this->DitherGradient);
+      fragmentUniforms->SetUniformi("gradientMode", static_cast<int>(this->GradientMode));
+      fragmentUniforms->SetUniform3fv("stopColors", 2, stopColors);
     }
-    // draw the background.
-    this->BackgroundRenderer->Render();
-    // unload texture.
-    if (this->TexturedBackground && texture)
+    if (actor != nullptr)
     {
-      texture->PostRender(this);
+      ostate->vtkglDisable(GL_DEPTH_TEST);
+      actor->RenderOverlay(this);
     }
   }
 
