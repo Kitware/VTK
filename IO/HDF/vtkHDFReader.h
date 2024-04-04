@@ -283,11 +283,12 @@ private:
   bool AddOriginalIds(vtkDataSetAttributes* attributes, vtkIdType size, const std::string& name);
 
   /**
-   * Removes the arrays from the object given in parameter containing
-   * the original ids use in the static mesh cache. It allows to avoid
-   * passing those arrays to subsequent pipeline elements.
+   * Removes the arrays for each partition from the object given in
+   * parameter containing the original ids use in the static mesh cache.
+   * It allows to avoid passing those arrays to subsequent pipeline
+   * elements.
    */
-  void CleanOriginalIds(vtkDataObject* output);
+  void CleanOriginalIds(vtkPartitionedDataSet* output);
 
 protected:
   /**
