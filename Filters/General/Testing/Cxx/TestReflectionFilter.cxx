@@ -19,7 +19,7 @@
   {                                                                                                \
     if (!(b))                                                                                      \
     {                                                                                              \
-      std::cerr << "Failed to reflect " << cell << std::endl;                                      \
+      std::cerr << "Failed to reflect " << cell << " on line " << __LINE__ << std::endl;           \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)
