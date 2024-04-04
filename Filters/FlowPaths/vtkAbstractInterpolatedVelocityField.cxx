@@ -401,7 +401,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
     else
     {
       this->CacheMiss++;
-      if (this->SurfaceDataset)
+      if (this->SurfaceDataset && strategy)
       {
         // if we are on a surface dataset, we can use the strategy to find the closest point
         closestPointFound = strategy->FindClosestPointWithinRadius(x, tol, this->LastClosestPoint,
