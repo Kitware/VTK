@@ -639,6 +639,7 @@ int TestImageDataTransientWithCache(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
   opener.GetReader()->UseCacheOn();
+  opener.GetReader()->SetMergeParts(false);
   return TestImageDataTransientBase(opener);
 }
 

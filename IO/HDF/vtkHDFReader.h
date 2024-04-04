@@ -137,6 +137,9 @@ public:
    *
    * Internal cache is useful when reading transient data to never re-read something that has
    * already been cached.
+   *
+   * @note Incompatible with MergeParts as vtkAppendDataSet which is used internally doesn't
+   * support static mesh.
    */
   vtkGetMacro(UseCache, bool);
   vtkSetMacro(UseCache, bool);
@@ -154,6 +157,9 @@ public:
    * effectively double the memory constraints.
    *
    * Default is true
+   *
+   * @note Incompatible with UseCache as vtkAppendDataSet which is used internally doesn't
+   * support static mesh.
    */
   vtkGetMacro(MergeParts, bool);
   vtkSetMacro(MergeParts, bool);

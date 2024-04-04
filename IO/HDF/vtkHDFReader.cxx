@@ -1551,6 +1551,13 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     return 0;
   }
+
+  if (this->MergeParts && this->UseCache)
+  {
+    vtkErrorMacro(<< "Merge Parts and Use Cache are both enabled which is not supported for now.");
+    return 0;
+  }
+
   if (this->HasTransientData)
   {
     double* values = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
