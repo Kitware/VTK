@@ -1643,7 +1643,6 @@ bool vtkHDFReader::AddOriginalIds(
   attributes->AddArray(ids);
   return true;
 }
-VTK_ABI_NAMESPACE_END
 
 //----------------------------------------------------------------------------
 std::string vtkHDFReader::GetAttributeOriginalIdName(vtkIdType attribute)
@@ -1677,3 +1676,5 @@ void vtkHDFReader::CleanOriginalIds(vtkPartitionedDataSet* output)
     }
   }
 }
+
+VTK_ABI_NAMESPACE_END
