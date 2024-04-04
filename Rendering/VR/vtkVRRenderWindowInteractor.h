@@ -194,15 +194,6 @@ public:
   void SetDeviceInputDownCount(vtkEventDataDevice device, int count);
   ///@}
 
-  ///@{
-  /**
-   * Identifier of the complex gesture being handled.
-   * \sa HandleComplexGestureEvents(), RecognizeComplexGesture()
-   */
-  vtkCommand::EventIds GetCurrentGesture() const;
-  void SetCurrentGesture(vtkCommand::EventIds eid);
-  ///@}
-
 protected:
   vtkVRRenderWindowInteractor();
   ~vtkVRRenderWindowInteractor() override;

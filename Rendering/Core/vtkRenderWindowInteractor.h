@@ -861,6 +861,17 @@ public:
    */
   static bool InteractorManagesTheEventLoop;
 
+  ///@{
+  /**
+   * Get the current gesture that was recognized when handling multitouch and VR events.
+   *
+   * \sa RecognizeGestures()
+   * \sa vtkVRRenderWindowInteractor::RecognizeComplexGesture()
+   */
+  virtual vtkCommand::EventIds GetCurrentGesture() const;
+  virtual void SetCurrentGesture(vtkCommand::EventIds eid);
+  ///@}
+
 protected:
   vtkRenderWindowInteractor();
   ~vtkRenderWindowInteractor() override;
