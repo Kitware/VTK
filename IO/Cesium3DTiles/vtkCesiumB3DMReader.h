@@ -23,7 +23,9 @@ class vtkGLTFReader;
 
 /**
  * @class vtkCesiumB3DMReader
- * @class Reads a Cesium B3DM dataset (tile). Currently it only forwards
+ * @brief Reads a Cesium B3DM file
+ *
+ * Reads a Cesium B3DM dataset (tile). Currently it only forwards
  * the internal GLTF dataset, so it does not read the information in the
  * Feature Table or the Batch Table.
  *
