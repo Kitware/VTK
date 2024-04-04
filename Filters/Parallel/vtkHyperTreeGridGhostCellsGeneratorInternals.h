@@ -146,12 +146,10 @@ private:
 
   vtkHyperTreeGridGhostCellsGenerator* Self = nullptr;
   vtkMultiProcessController* Controller = nullptr;
-  vtkBitArray* OutputMask = nullptr;
   vtkHyperTreeGrid* InputHTG = nullptr;
   vtkHyperTreeGrid* OutputHTG = nullptr;
-
+  vtkBitArray* OutputMask = nullptr;
   vtkIdType NumberOfVertices = 0;
-  int NumberOfHyperTrees = 0;
 };
 
 VTK_ABI_NAMESPACE_END

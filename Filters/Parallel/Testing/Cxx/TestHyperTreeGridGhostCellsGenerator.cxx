@@ -57,6 +57,8 @@ int CheckArray(
  */
 int TestGhostCellFields(vtkMPIController* controller)
 {
+  int ret = EXIT_SUCCESS;
+
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
