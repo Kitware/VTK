@@ -62,6 +62,55 @@ constexpr vtkIdType POLY_POINTS_NB = 8;
 
 constexpr int MAX_NB_OF_CONTOURS = std::numeric_limits<unsigned char>::max() + 1; // 256
 
+// Return true if all faces of the cell are planar.
+// The cell is expected to be a vtkVoxel instance.
+bool AreAllFacesPlanar(vtkCell* cell)
+{
+  bool allFacesArePlanar = true;
+
+  std::array<std::array<double, 3>, POLY_FACES_POINTS_NB> facePoints{};
+
+  // For each face
+  for (int faceId = 0, canonicalId = 0; faceId < ::POLY_FACES_NB; faceId++)
+  {
+    // Retrieve face points
+    for (int i = 0; i < ::POLY_FACES_POINTS_NB; i++, canonicalId++)
+    {
+      auto point = cell->GetPoints()->GetPoint(::CANONICAL_FACES[canonicalId]);
+      facePoints[i][0] = point[0];
+      facePoints[i][1] = point[1];
+      facePoints[i][2] = point[2];
+    }
+
+    // Test if 3 vectors of the face are coplanar
+    std::array<double, 3> v1{};
+    v1[0] = facePoints[1][0] - facePoints[0][0];
+    v1[1] = facePoints[1][1] - facePoints[0][1];
+    v1[2] = facePoints[1][2] - facePoints[0][2];
+
+    std::array<double, 3> v2{};
+    v2[0] = facePoints[2][0] - facePoints[0][0];
+    v2[1] = facePoints[2][1] - facePoints[0][1];
+    v2[2] = facePoints[2][2] - facePoints[0][2];
+
+    std::array<double, 3> v3{};
+    v3[0] = facePoints[3][0] - facePoints[0][0];
+    v3[1] = facePoints[3][1] - facePoints[0][1];
+    v3[2] = facePoints[3][2] - facePoints[0][2];
+
+    double cross[3] = { 0. };
+    vtkMath::Cross(v1, v2, cross);
+
+    if (!vtkMathUtilities::FuzzyCompare(vtkMath::Dot(cross, v3), 0.))
+    {
+      allFacesArePlanar = false;
+      break;
+    }
+  }
+
+  return allFacesArePlanar;
+}
+
 // Given contour values, find a "valid" epsilon value, allowing to discriminate values
 // by fuzzy comparison. Returned espilon correspond to the min difference between contour
 // values divided by 10.
@@ -879,7 +928,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
          * be insensitive to this issue for now (edge cases are still possible and should be
          * reported if encountered).
          */
-        if (this->Strategy3D == USE_DECOMPOSED_POLYHEDRA && dim == 3)
+        if (this->Strategy3D == USE_DECOMPOSED_POLYHEDRA && dim == 3 && !::AreAllFacesPlanar(cell))
         {
           // Insert points and global point IDs
           for (int i = 0; i < ::POLY_POINTS_NB; ++i)
