@@ -73,13 +73,13 @@ int TestReflectionFilter(int, char*[])
   verts->InsertNextId(3);
   verts->InsertNextId(4);
 
-  pyramid->InsertNextCell(VTK_PYRAMID, verts.GetPointer());
+  pyramid->InsertNextCell(VTK_PYRAMID, verts);
 
   for (int i = 0; i < 2; i++)
   {
     vtkSmartPointer<vtkReflectionFilter> reflectionFilter =
       vtkSmartPointer<vtkReflectionFilter>::New();
-    reflectionFilter->SetInputData(pyramid.GetPointer());
+    reflectionFilter->SetInputData(pyramid);
     if (i == 0)
     {
       reflectionFilter->CopyInputOff();
@@ -107,7 +107,7 @@ int TestReflectionFilter(int, char*[])
       AssertMacro(pyramid1->GetCellData()->GetArray(0)->GetComponent(1, 4) == -17, "pyramid");
       AssertMacro(pyramid1->GetPointData()->GetTensors()->GetComponent(5, 2) == -7, "pyramid");
     }
-    pyramid1->GetCellPoints(i, cellIds.GetPointer());
+    pyramid1->GetCellPoints(i, cellIds);
     int apex = cellIds->GetId(4);
     int offset = i == 0 ? 0 : 5;
     AssertMacro(apex == 4 + offset, "pyramid");
@@ -134,10 +134,10 @@ int TestReflectionFilter(int, char*[])
   quadVerts->InsertNextId(2);
   quadVerts->InsertNextId(3);
 
-  quad->InsertNextCell(VTK_QUAD, quadVerts.GetPointer());
+  quad->InsertNextCell(VTK_QUAD, quadVerts);
 
   vtkNew<vtkReflectionFilter> quadReflectionFilter;
-  quadReflectionFilter->SetInputData(quad.GetPointer());
+  quadReflectionFilter->SetInputData(quad);
   quadReflectionFilter->CopyInputOff();
   quadReflectionFilter->FlipAllInputArraysOn();
   quadReflectionFilter->SetPlaneToXMin();
@@ -187,7 +187,7 @@ int TestReflectionFilter(int, char*[])
   strip->InsertNextCell(VTK_TRIANGLE_STRIP, stripVerts);
 
   vtkNew<vtkReflectionFilter> stripReflectionFilter;
-  stripReflectionFilter->SetInputData(strip.GetPointer());
+  stripReflectionFilter->SetInputData(strip);
   stripReflectionFilter->CopyInputOn();
   stripReflectionFilter->FlipAllInputArraysOn();
   stripReflectionFilter->SetPlaneToXMin();
