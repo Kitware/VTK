@@ -106,7 +106,14 @@ void main()
       // Choose a single component.
       scalar = fieldValue[color_component];
     }}
-    texCoord = vec2((scalar - color_range[0]) / color_range[2], 0.0);
+    if (color_range[2] > 0.0)
+    {{
+      texCoord = vec2((scalar - color_range[0]) / color_range[2], 0.0);
+    }}
+    else
+    {{
+      texCoord = vec2((scalar - color_range[0]), 0.0);
+    }}
     // texCoord = vec2(colorValuesVSOutput[3], 0.);
   }}
 
