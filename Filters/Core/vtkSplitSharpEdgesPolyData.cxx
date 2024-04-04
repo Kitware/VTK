@@ -395,10 +395,7 @@ int vtkSplitSharpEdgesPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     input->BuildCells();
   }
-  if (!input->GetLinks())
-  {
-    input->BuildLinks();
-  }
+  input->BuildLinks();
   this->UpdateProgress(0.30);
   if (this->CheckAbort())
   {
@@ -442,9 +439,9 @@ int vtkSplitSharpEdgesPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
     // Copy the links from the input to the output so that subsequent filters can use them.
     auto links = vtkSmartPointer<vtkAbstractCellLinks>::Take(input->GetLinks()->NewInstance());
+    output->SetLinks(links);
     links->SetDataSet(output);
     links->ShallowCopy(input->GetLinks());
-    output->SetLinks(links);
   }
   else
   {

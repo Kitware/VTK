@@ -141,10 +141,7 @@ vtkSmartPointer<vtkFloatArray> vtkPolyDataNormals::GetPointNormals(
   {
     data->BuildCells();
   }
-  if (!data->GetLinks())
-  {
-    data->BuildLinks();
-  }
+  data->BuildLinks();
 
   auto pointNormals = vtkSmartPointer<vtkFloatArray>::New();
   pointNormals->SetName("Normals");
@@ -268,10 +265,6 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   {
     output->GetCellData()->SetNormals(cellNormals);
   }
-  else if (!input->GetCellData()->GetNormals())
-  {
-    output->GetCellData()->SetNormals(nullptr);
-  }
   this->UpdateProgress(0.5);
   if (this->CheckAbort())
   {
@@ -284,10 +277,18 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
       vtkPolyDataNormals::GetPointNormals(output, cellNormals, flipDirection);
     output->GetPointData()->SetNormals(pointNormals);
   }
-  else if (!input->GetPointData()->GetNormals())
+  // if normals were not requested, they were not part of the input, but are part of the output.
+  // remove them
+  if (!this->ComputeCellNormals && !input->GetCellData()->GetNormals())
+  {
+    output->GetCellData()->SetNormals(nullptr);
+  }
+  if (!this->ComputePointNormals && !input->GetPointData()->GetNormals())
   {
     output->GetPointData()->SetNormals(nullptr);
   }
+  // No longer need the links, so free them
+  output->SetLinks(nullptr);
   this->UpdateProgress(1.0);
 
   return 1;
