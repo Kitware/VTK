@@ -601,21 +601,22 @@ int vtkReflectionFilter::RequestDataInternal(
         {
           // Triangle strips with even number of triangles have
           // to be handled specially. A degenerate triangle is
-          // introduce to flip all the triangles properly.
+          // introduced to flip all the triangles properly.
           input->GetCellPoints(i, cellPts);
           numCellPts++;
           std::vector<vtkIdType> newCellPts(numCellPts);
-          newCellPts[0] = cellPts->GetId(0);
-          newCellPts[1] = cellPts->GetId(2);
-          newCellPts[2] = cellPts->GetId(1);
-          newCellPts[3] = cellPts->GetId(2);
+          vtkIdType pointIdOffset = 0;
+          if (this->CopyInput)
+          {
+            pointIdOffset = numPts;
+          }
+          newCellPts[0] = cellPts->GetId(0) + pointIdOffset;
+          newCellPts[1] = cellPts->GetId(2) + pointIdOffset;
+          newCellPts[2] = cellPts->GetId(1) + pointIdOffset;
+          newCellPts[3] = cellPts->GetId(2) + pointIdOffset;
           for (int j = 4; j < numCellPts; j++)
           {
-            newCellPts[j] = cellPts->GetId(j - 1);
-            if (this->CopyInput)
-            {
-              newCellPts[j] += numPts;
-            }
+            newCellPts[j] = cellPts->GetId(j - 1) + pointIdOffset;
           }
           outputCellId = output->InsertNextCell(cellType, numCellPts, newCellPts.data());
         }
