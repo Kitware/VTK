@@ -2,8 +2,7 @@ set(classes
   vtkCesium3DTilesWriter
   vtkCesium3DTilesReader
   vtkCesiumPointCloudWriter
-  vtkCesiumB3DMReader
-  vtkUseDoublePoints)
+  vtkCesiumB3DMReader)
 
 set(private_classes
   TreeInformation)

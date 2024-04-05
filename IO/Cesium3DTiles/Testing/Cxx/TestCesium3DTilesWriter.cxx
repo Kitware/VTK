@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkAlgorithm.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
@@ -32,7 +33,6 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkTexture.h"
-#include "vtkUseDoublePoints.h"
 #include "vtkVersionMacros.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -299,6 +299,7 @@ vtkSmartPointer<vtkMultiBlockDataSet> tiler(const std::vector<std::string>& inpu
 bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfFileName)
 {
   vtkNew<vtkGLTFReader> reader;
+  reader->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   reader->SetFileName(gltfFileName.c_str());
   reader->Update();
   vtkMultiBlockDataSet* mbOutput = reader->GetOutput();
@@ -570,9 +571,6 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
     TestJacksonvilleColorPoints(dataRoot, tempDirectory, true /*contentGLTF*/);
     TestJacksonvilleMesh(dataRoot, tempDirectory);
 
-    // we need to use double points for the GLTF reader.
-    vtkNew<vtkUseDoublePoints> useDoublePoints;
-    useDoublePoints->RegisterFactory();
     vtkNew<vtkRenderer> renderer;
     renderer->SetBackground(0.5, 0.7, 0.7);
     vtkNew<vtkRenderWindow> renWin;
