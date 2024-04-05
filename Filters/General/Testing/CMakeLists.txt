@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/HTG/random_attributes.htg
   Data/Quadratic/CylinderQuadratic.vtk
   Data/Tango/TangoIcons.png
   Data/TriangulatorBadData.vtk

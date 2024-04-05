@@ -38,12 +38,17 @@
 #ifndef vtkRandomAttributeGenerator_h
 #define vtkRandomAttributeGenerator_h
 
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDataSet;
+class vtkCellData;
 class vtkCompositeDataSet;
+class vtkDataSet;
+class vtkFieldData;
+class vtkHyperTreeGrid;
+class vtkPointData;
 
 class VTKFILTERSGENERAL_EXPORT vtkRandomAttributeGenerator : public vtkPassInputTypeAlgorithm
 {
@@ -333,47 +338,74 @@ public:
   ///@}
 
 protected:
-  vtkRandomAttributeGenerator();
+  vtkRandomAttributeGenerator() = default;
   ~vtkRandomAttributeGenerator() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int DataType;
-  int NumberOfComponents;
-  vtkIdType NumberOfTuples;
-  double MinimumComponentValue;
-  double MaximumComponentValue;
+  int DataType = VTK_FLOAT;
+  int NumberOfComponents = 1;
+  vtkIdType NumberOfTuples = 0;
+  double MinimumComponentValue = 0.0;
+  double MaximumComponentValue = 1.0;
 
-  vtkTypeBool GeneratePointScalars;
-  vtkTypeBool GeneratePointVectors;
-  vtkTypeBool GeneratePointNormals;
-  vtkTypeBool GeneratePointTCoords;
-  vtkTypeBool GeneratePointTensors;
-  vtkTypeBool GeneratePointArray;
+  vtkTypeBool GeneratePointScalars = 0;
+  vtkTypeBool GeneratePointVectors = 0;
+  vtkTypeBool GeneratePointNormals = 0;
+  vtkTypeBool GeneratePointTCoords = 0;
+  vtkTypeBool GeneratePointTensors = 0;
+  vtkTypeBool GeneratePointArray = 0;
 
-  vtkTypeBool GenerateCellScalars;
-  vtkTypeBool GenerateCellVectors;
-  vtkTypeBool GenerateCellNormals;
-  vtkTypeBool GenerateCellTCoords;
-  vtkTypeBool GenerateCellTensors;
-  vtkTypeBool GenerateCellArray;
+  vtkTypeBool GenerateCellScalars = 0;
+  vtkTypeBool GenerateCellVectors = 0;
+  vtkTypeBool GenerateCellNormals = 0;
+  vtkTypeBool GenerateCellTCoords = 0;
+  vtkTypeBool GenerateCellTensors = 0;
+  vtkTypeBool GenerateCellArray = 0;
 
-  vtkTypeBool GenerateFieldArray;
-  bool AttributesConstantPerBlock;
+  vtkTypeBool GenerateFieldArray = 0;
+  bool AttributesConstantPerBlock = false;
 
-  // Helper functions
+  /**
+   * Returns new array with numTuples tuples and numComp components, with values
+   * in the range [min, max]. Only fills components between minComp and maxComp.
+   */
   vtkDataArray* GenerateData(int dataType, vtkIdType numTuples, int numComp, int minComp,
     int maxComp, double min, double max);
-  int RequestData(vtkDataSet* input, vtkDataSet* output);
-  int RequestData(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
+
+  /**
+   * Fills data with numTuples tuples and numComp components, with values
+   * in the range [min, max]. Only fills components between minComp and maxComp.
+   */
   template <class T>
   void GenerateRandomTuples(
     T* data, vtkIdType numTuples, int numComp, int minComp, int maxComp, double min, double max);
 
+  VTK_DEPRECATED_IN_9_4_0("This function has confusing naming and contains implementation details, "
+                          "it as been made private.")
+  int RequestData(vtkDataSet* input, vtkDataSet* output);
+  VTK_DEPRECATED_IN_9_4_0("This function has confusing naming and contains implementation details, "
+                          "it as been made private.")
+  int RequestData(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
+
 private:
   vtkRandomAttributeGenerator(const vtkRandomAttributeGenerator&) = delete;
   void operator=(const vtkRandomAttributeGenerator&) = delete;
+
+  /**
+   * Helper functions used to generate random attributes for each input type
+   */
+  int ProcessDataSet(vtkDataSet* input, vtkDataSet* output);
+  int ProcessComposite(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
+  int ProcessHTG(vtkHyperTreeGrid* input, vtkHyperTreeGrid* output);
+
+  /**
+   * Helper functions used to generate random attributes for each attribute type
+   */
+  void GeneratePointData(vtkPointData* outputPD, vtkIdType numPts);
+  void GenerateCellData(vtkCellData* outputCD, vtkIdType numCells);
+  void GenerateFieldData(vtkFieldData* outputFD);
 };
 
 VTK_ABI_NAMESPACE_END
