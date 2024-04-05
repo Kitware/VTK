@@ -34,10 +34,21 @@ class vtkGLTFReader;
  * number of tiles read on each rank.  Currently, the reader only
  * works with tiles saved using GLTF, GLB or B3DM formats.  Point
  * coordinates in the produced VTK dataset are stored in Cartesian
- * coordinates (cart proj string), as they are in the tileset.Textures
- * are not used in the current version of the reader.
+ * coordinates (cart proj string), as they are in the tileset. Textures
+ * can be applied using GetTileReader to get access to the reader for
+ * each tile which provides access to the texture present in that tile.
+ * For a B3DM tile, we provide access to the GLTF reader for the GLTF binary
+ * embedded inside the tile. See the test for this reader for an example on how to
+ * do that.
  *
- * @see vtkGeoTransform, vtkCesium3DTilesWriter
+ * In VTK 9.3.0, a version of this reader (that did not support
+ * textures) produced a vtkPartitionedDataSet output, where each tile
+ * was a partition in that dataset. Now, each tile is a
+ * vtkPartitionedDataSet in a vtkPartitionedDataSetCollection. Each
+ * tile can be split into different partitions each with its own
+ * texture.
+ *
+ * @see vtkGeoTransform, vtkCesium3DTilesWriter, vtkGLTFReader
  */
 class VTKIOCESIUM3DTILES_EXPORT vtkCesium3DTilesReader
   : public vtkPartitionedDataSetCollectionAlgorithm
