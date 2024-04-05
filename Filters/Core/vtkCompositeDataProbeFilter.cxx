@@ -104,7 +104,6 @@ int vtkCompositeDataProbeFilter::RequestData(
     htgProbe->SetComputeTolerance(this->ComputeTolerance);
     htgProbe->SetUseImplicitArrays(this->UseImplicitArrays);
     htgProbe->Update();
-    output->ShallowCopy(htgProbe->GetOutput());
     vtkDataSet* htgOutput = htgProbe->GetOutput();
     output->ShallowCopy(htgOutput);
 
