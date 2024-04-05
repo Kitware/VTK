@@ -28,11 +28,11 @@
 void AddActors(
   vtkRenderer* renderer, vtkPartitionedDataSetCollection* pdc, vtkCesium3DTilesReader* reader)
 {
-  for (size_t i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
+  for (unsigned int i = 0; i < pdc->GetNumberOfPartitionedDataSets(); ++i)
   {
     vtkPartitionedDataSet* pd = pdc->GetPartitionedDataSet(i);
     auto gltfReader = reader->GetTileReader(i);
-    for (size_t j = 0; j < pd->GetNumberOfPartitions(); ++j)
+    for (unsigned int j = 0; j < pd->GetNumberOfPartitions(); ++j)
     {
       vtkPolyData* poly = vtkPolyData::SafeDownCast(pd->GetPartition(j));
       vtkNew<vtkPolyDataMapper> mapper;

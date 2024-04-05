@@ -220,8 +220,9 @@ vtkCesium3DTilesReader::~vtkCesium3DTilesReader()
 void vtkCesium3DTilesReader::ReadTiles(
   vtkPartitionedDataSetCollection* pdc, size_t numberOfRanks, size_t rank)
 {
-  size_t numberOfPartitionedDataSets = std::accumulate(this->Tilesets.begin(), this->Tilesets.end(),
-    0, [](size_t sum, std::shared_ptr<Tileset> t) { return sum + t->TileFileNames.size(); });
+  size_t numberOfPartitionedDataSets =
+    std::accumulate(this->Tilesets.begin(), this->Tilesets.end(), static_cast<size_t>(0),
+      [](size_t sum, std::shared_ptr<Tileset> t) { return sum + t->TileFileNames.size(); });
   vtkNew<vtkTransform> transform;
   if (numberOfPartitionedDataSets < numberOfRanks)
   {
