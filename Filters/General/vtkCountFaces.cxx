@@ -82,14 +82,35 @@ int vtkCountFaces::RequestData(
 
   output->ShallowCopy(input);
 
-  // Create an implicit array with the back-end defined above that dynamically retrieves the number
-  // of faces in a cell.
-  vtkNew<vtkImplicitArray<vtkNumberOfFacesBackend<vtkIdType>>> implicitFacesArray;
-  implicitFacesArray->ConstructBackend(input);
-  implicitFacesArray->SetNumberOfComponents(1);
-  implicitFacesArray->SetNumberOfTuples(input->GetNumberOfCells());
-  implicitFacesArray->SetName(this->OutputArrayName);
-  output->GetCellData()->AddArray(implicitFacesArray);
+  if (this->UseImplicitArray)
+  {
+    // Create an implicit array with the back-end defined above that dynamically retrieves the
+    // number of faces in a cell.
+    vtkNew<vtkImplicitArray<vtkNumberOfFacesBackend<vtkIdType>>> implicitFacesArray;
+    implicitFacesArray->ConstructBackend(input);
+    implicitFacesArray->SetNumberOfComponents(1);
+    implicitFacesArray->SetNumberOfTuples(input->GetNumberOfCells());
+    implicitFacesArray->SetName(this->OutputArrayName);
+    output->GetCellData()->AddArray(implicitFacesArray);
+  }
+  else
+  {
+    vtkNew<vtkIdTypeArray> faceCount;
+    faceCount->Allocate(input->GetNumberOfCells());
+    faceCount->SetName(this->OutputArrayName);
+    output->GetCellData()->AddArray(faceCount);
+
+    vtkCellIterator* it = input->NewCellIterator();
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+    {
+      if (this->CheckAbort())
+      {
+        break;
+      }
+      faceCount->InsertNextValue(it->GetNumberOfFaces());
+    }
+    it->Delete();
+  }
 
   return 1;
 }

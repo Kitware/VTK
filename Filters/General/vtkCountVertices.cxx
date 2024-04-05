@@ -82,14 +82,35 @@ int vtkCountVertices::RequestData(
 
   output->ShallowCopy(input);
 
-  // Create an implicit array with the back-end defined above that dynamically retrieves the number
-  // of points in a cell.
-  vtkNew<vtkImplicitArray<vtkNumberOfPointsBackend<vtkIdType>>> implicitPointsArray;
-  implicitPointsArray->ConstructBackend(input);
-  implicitPointsArray->SetNumberOfComponents(1);
-  implicitPointsArray->SetNumberOfTuples(input->GetNumberOfCells());
-  implicitPointsArray->SetName(this->OutputArrayName);
-  output->GetCellData()->AddArray(implicitPointsArray);
+  if (this->UseImplicitArray)
+  {
+    // Create an implicit array with the back-end defined above that dynamically retrieves the
+    // number of points in a cell.
+    vtkNew<vtkImplicitArray<vtkNumberOfPointsBackend<vtkIdType>>> implicitPointsArray;
+    implicitPointsArray->ConstructBackend(input);
+    implicitPointsArray->SetNumberOfComponents(1);
+    implicitPointsArray->SetNumberOfTuples(input->GetNumberOfCells());
+    implicitPointsArray->SetName(this->OutputArrayName);
+    output->GetCellData()->AddArray(implicitPointsArray);
+  }
+  else
+  {
+    vtkNew<vtkIdTypeArray> vertCount;
+    vertCount->Allocate(input->GetNumberOfCells());
+    vertCount->SetName(this->OutputArrayName);
+    output->GetCellData()->AddArray(vertCount);
+
+    vtkCellIterator* it = input->NewCellIterator();
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+    {
+      if (this->CheckAbort())
+      {
+        break;
+      }
+      vertCount->InsertNextValue(it->GetNumberOfPoints());
+    }
+    it->Delete();
+  }
 
   return 1;
 }

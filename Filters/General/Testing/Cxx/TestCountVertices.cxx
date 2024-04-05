@@ -11,12 +11,13 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-int TestCountVertices(int, char*[])
+int TestCountVerticesMode(bool useImplicitArray)
 {
   vtkNew<vtkUnstructuredGrid> data;
   vtkNew<vtkPoints> points;
   vtkNew<vtkIdList> cell;
   vtkNew<vtkCountVertices> filter;
+  filter->SetUseImplicitArray(useImplicitArray);
 
   // Need 12 points to test all cell types:
   for (int i = 0; i < 12; ++i)
@@ -137,4 +138,12 @@ int TestCountVertices(int, char*[])
 #undef TEST_VERTICES
 
   return EXIT_SUCCESS;
+}
+
+int TestCountVertices(int, char*[])
+{
+  int ret = EXIT_SUCCESS;
+  ret |= ::TestCountVerticesMode(false);
+  ret |= ::TestCountVerticesMode(true);
+  return ret;
 }

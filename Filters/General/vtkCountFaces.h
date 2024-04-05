@@ -32,6 +32,19 @@ public:
   vtkGetStringMacro(OutputArrayName);
   ///@}
 
+  ///@{
+  /**
+   * When set, use an alternative implementation of the filter that uses an implicit array looking
+   * up the number of faces of the requested cell on-demand. This option reduces the memory
+   * footprint of the filter, because we don't need to store the whole number of faces array
+   * anymore. However, using an implicit array be slower when accessing many elements
+   * from the output array, especially for structured datasets.
+   * This option is disabled by default.
+   */
+  vtkSetMacro(UseImplicitArray, bool);
+  vtkGetMacro(UseImplicitArray, bool);
+  ///@}
+
 protected:
   vtkCountFaces();
   ~vtkCountFaces() override;
@@ -45,6 +58,8 @@ protected:
   char* OutputArrayName;
 
 private:
+  bool UseImplicitArray = false;
+
   vtkCountFaces(const vtkCountFaces&) = delete;
   void operator=(const vtkCountFaces&) = delete;
 };

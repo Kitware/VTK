@@ -11,13 +11,14 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-int TestCountFaces(int, char*[])
+int TestCountFacesMode(bool useImplicitArray)
 {
   vtkNew<vtkUnstructuredGrid> data;
   vtkNew<vtkPoints> points;
   vtkNew<vtkIdList> cell;
   vtkNew<vtkCountFaces> filter;
   filter->SetOutputArrayName("faces");
+  filter->SetUseImplicitArray(useImplicitArray);
 
   // Need 12 points to test all cell types:
   for (int i = 0; i < 12; ++i)
@@ -138,4 +139,12 @@ int TestCountFaces(int, char*[])
 #undef TEST_FACES
 
   return EXIT_SUCCESS;
+}
+
+int TestCountFaces(int, char*[])
+{
+  int ret = EXIT_SUCCESS;
+  ret |= ::TestCountFacesMode(false);
+  ret |= ::TestCountFacesMode(true);
+  return ret;
 }
