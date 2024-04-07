@@ -90,6 +90,12 @@ public:
   void AddContentPartition(json& node, int nodeLevel, std::array<double, 16>& transform);
   void AddChildrenPartitions(json& node, int nodeLevel, std::array<double, 16>& transform);
 
+  /**
+   * Reads the tile and transforms it.
+   */
+  std::pair<vtkSmartPointer<vtkPartitionedDataSet>, vtkSmartPointer<vtkGLTFReader>> ReadTile(
+    std::string tileFileName, vtkTransform* transform);
+
   bool IsOpen();
   void Close();
   void SetLevel(int level) { this->Level = level; }
@@ -110,7 +116,7 @@ private:
   std::ifstream TilesetStream;
   std::string FileName;
   json TilesetJson;
-  std::string DirectoryName;
+  std::string ParentDirectory;
   int Level;
   std::vector<std::string> TileFileNames;
   std::vector<int> TileLevels;
@@ -148,6 +154,7 @@ bool vtkCesium3DTilesReader::Tileset::Open(const char* fileName, std::array<doub
     this->TilesetStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     this->TilesetStream.open(fileName);
     this->TilesetJson = json::parse(this->TilesetStream);
+    this->ParentDirectory = vtksys::SystemTools::GetParentDirectory(this->FileName);
     this->AddPartitions(this->GetRoot(), 0, transform);
   }
   catch (std::exception& e)
@@ -179,6 +186,64 @@ void vtkCesium3DTilesReader::Tileset::Close()
 json& vtkCesium3DTilesReader::Tileset::GetRoot()
 {
   return this->TilesetJson["root"];
+}
+
+//------------------------------------------------------------------------------
+std::pair<vtkSmartPointer<vtkPartitionedDataSet>, vtkSmartPointer<vtkGLTFReader>>
+vtkCesium3DTilesReader::Tileset::ReadTile(std::string tileFileName, vtkTransform* transform)
+{
+  auto tile = vtkSmartPointer<vtkPartitionedDataSet>::New();
+  std::string extension = vtksys::SystemTools::GetFilenameExtension(tileFileName);
+  vtkSmartPointer<vtkMultiBlockDataSet> mb;
+  vtkSmartPointer<vtkGLTFReader> gltfReader;
+  if (extension == ".glb" || extension == ".gltf")
+  {
+    vtkNew<vtkGLTFReader> tileReader;
+    tileReader->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+    tileReader->SetFileName((this->ParentDirectory + "/" + tileFileName).c_str());
+    tileReader->Update();
+    gltfReader = tileReader;
+    mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
+  }
+  else if (extension == ".b3dm")
+  {
+    vtkNew<vtkCesiumB3DMReader> tileReader;
+    tileReader->SetFileName((this->ParentDirectory + "/" + tileFileName).c_str());
+    tileReader->Update();
+    gltfReader = tileReader->GetGLTFReader();
+    mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
+  }
+  else
+  {
+    throw std::runtime_error("Invalid extension for tile: " + extension);
+  }
+  vtkNew<vtkTransformPolyDataFilter> transformFilter;
+  transformFilter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+  transformFilter->SetTransform(transform);
+  transformFilter->SetInputDataObject(mb);
+  transformFilter->Update();
+  mb->ShallowCopy(transformFilter->GetOutputDataObject(0));
+  using Opts = vtk::DataObjectTreeOptions;
+  auto range = vtk::Range(mb, Opts::SkipEmptyNodes | Opts::TraverseSubTree | Opts::VisitOnlyLeaves);
+  size_t numberOfPartitions = 0;
+  for (auto o : range)
+  {
+    ++numberOfPartitions;
+  }
+  tile->SetNumberOfPartitions(static_cast<unsigned int>(numberOfPartitions));
+  size_t partitionIndex = 0;
+  for (auto o : range)
+  {
+    vtkPolyData* poly = vtkPolyData::SafeDownCast(o);
+    if (!poly)
+    {
+      vtkErrorWithObjectMacro(this->Reader, "Error: Cannot read polydata from: " << tileFileName);
+      return { tile, gltfReader };
+    }
+    tile->SetPartition(static_cast<unsigned int>(partitionIndex), poly);
+    ++partitionIndex;
+  }
+  return { tile, gltfReader };
 }
 
 //------------------------------------------------------------------------------
@@ -242,7 +307,8 @@ void vtkCesium3DTilesReader::ReadTiles(
       transform->SetMatrix(this->Tilesets[tilesetIndex_tileIndex.first]
                              ->Transforms[tilesetIndex_tileIndex.second]
                              .data());
-      auto tile_reader = this->ReadTile(tileFileName, transform);
+      auto tile_reader =
+        this->Tilesets[tilesetIndex_tileIndex.first]->ReadTile(tileFileName, transform);
       if (tile_reader.first != nullptr)
       {
         pdc->SetPartitionedDataSet(0, tile_reader.first);
@@ -269,7 +335,8 @@ void vtkCesium3DTilesReader::ReadTiles(
                              ->Transforms[tilesetIndex_tileIndex.second]
                              .data());
       vtkLog(INFO, "Read: " << tileFileName);
-      auto tile_gltfReader = this->ReadTile(tileFileName, transform);
+      auto tile_gltfReader =
+        this->Tilesets[tilesetIndex_tileIndex.first]->ReadTile(tileFileName, transform);
       if (tile_gltfReader.first != nullptr)
       {
         pdc->SetPartitionedDataSet(partitionedDataSetIndex, tile_gltfReader.first);
@@ -287,96 +354,6 @@ vtkSmartPointer<vtkGLTFReader> vtkCesium3DTilesReader::GetTileReader(size_t inde
 }
 
 //------------------------------------------------------------------------------
-std::pair<vtkSmartPointer<vtkPartitionedDataSet>, vtkSmartPointer<vtkGLTFReader>>
-vtkCesium3DTilesReader::ReadTile(std::string tileFileName, vtkTransform* transform)
-{
-  auto tile = vtkSmartPointer<vtkPartitionedDataSet>::New();
-  std::string extension = vtksys::SystemTools::GetFilenameExtension(tileFileName);
-  vtkSmartPointer<vtkMultiBlockDataSet> mb;
-  vtkSmartPointer<vtkGLTFReader> gltfReader;
-  if (extension == ".glb" || extension == ".gltf")
-  {
-    vtkNew<vtkGLTFReader> tileReader;
-    tileReader->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-    tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
-    tileReader->Update();
-    gltfReader = tileReader;
-    mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
-  }
-  else if (extension == ".b3dm")
-  {
-    vtkNew<vtkCesiumB3DMReader> tileReader;
-    tileReader->SetFileName((this->DirectoryName + "/" + tileFileName).c_str());
-    tileReader->Update();
-    gltfReader = tileReader->GetGLTFReader();
-    mb = vtkMultiBlockDataSet::SafeDownCast(tileReader->GetOutput());
-  }
-  else
-  {
-    throw std::runtime_error("Invalid extension for tile: " + extension);
-  }
-  vtkNew<vtkTransformPolyDataFilter> transformFilter;
-  transformFilter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-  transformFilter->SetTransform(transform);
-  transformFilter->SetInputDataObject(mb);
-  transformFilter->Update();
-  mb->ShallowCopy(transformFilter->GetOutputDataObject(0));
-  using Opts = vtk::DataObjectTreeOptions;
-  auto range = vtk::Range(mb, Opts::SkipEmptyNodes | Opts::TraverseSubTree | Opts::VisitOnlyLeaves);
-  size_t numberOfPartitions = 0;
-  for (auto o : range)
-  {
-    ++numberOfPartitions;
-  }
-  tile->SetNumberOfPartitions(static_cast<unsigned int>(numberOfPartitions));
-  size_t partitionIndex = 0;
-  for (auto o : range)
-  {
-    vtkPolyData* poly = vtkPolyData::SafeDownCast(o);
-    if (!poly)
-    {
-      vtkErrorMacro("Error: Cannot read polydata from: " << this->GetFileName());
-      return { tile, gltfReader };
-    }
-    tile->SetPartition(static_cast<unsigned int>(partitionIndex), poly);
-    ++partitionIndex;
-  }
-  return { tile, gltfReader };
-}
-
-//------------------------------------------------------------------------------
-int vtkCesium3DTilesReader::GetDepth(json& node)
-{
-  std::string contentString("content");
-  std::string childrenString = "children";
-  int max = -1;
-  if (node.contains(contentString))
-  {
-    std::string tileFileName = GetContentURI(node);
-    std::string extension = vtksys::SystemTools::GetFilenameExtension(tileFileName);
-    if (extension == ".json")
-    {
-      std::string externalTilesetPath{ this->DirectoryName + "/" + tileFileName };
-      size_t i = this->FileNameToTilesetIndex[externalTilesetPath];
-      return this->GetDepth(Tilesets[i]->GetRoot());
-    }
-  }
-  if (node.contains(childrenString))
-  {
-    json children = node[childrenString];
-    for (json::iterator it = children.begin(); it != children.end(); ++it)
-    {
-      int childDepth = GetDepth(*it);
-      if (childDepth > max)
-      {
-        max = childDepth;
-      }
-    }
-  }
-  return 1 + max;
-}
-
-//------------------------------------------------------------------------------
 void vtkCesium3DTilesReader::Tileset::AddContentPartition(
   json& node, int nodeLevel, std::array<double, 16>& transform)
 {
@@ -389,7 +366,7 @@ void vtkCesium3DTilesReader::Tileset::AddContentPartition(
       std::make_shared<vtkCesium3DTilesReader::Tileset>(this->Reader));
     size_t i = this->Reader->Tilesets.size() - 1;
     this->Reader->Tilesets[i]->SetLevel(this->Reader->GetLevel() - nodeLevel);
-    std::string externalTilesetPath{ this->Reader->DirectoryName + "/" + tileFileName };
+    std::string externalTilesetPath{ this->ParentDirectory + "/" + tileFileName };
     this->Reader->FileNameToTilesetIndex[externalTilesetPath] = i;
     this->Reader->Tilesets[i]->Open(externalTilesetPath, transform);
   }
@@ -487,7 +464,6 @@ int vtkCesium3DTilesReader::RequestInformation(vtkInformation* vtkNotUsed(reques
   this->Tilesets.push_back(std::make_shared<vtkCesium3DTilesReader::Tileset>(this));
   this->Tilesets[0]->SetLevel(this->Level);
   this->FileNameToTilesetIndex[this->FileName] = 0;
-  this->DirectoryName = vtksys::SystemTools::GetParentDirectory(this->FileName);
   std::array<double, 16> transform;
   vtkMatrix4x4::Identity(transform.data());
   if (!this->Tilesets[0]->Open(this->FileName, transform))

@@ -81,10 +81,6 @@ public:
    * Returns true if it can read the json file (it is a 3D Tiles tileset), false otherwise
    */
   virtual int CanReadFile(VTK_FILEPATH const char* name);
-  /**
-   * Traverse the tree in postorder to compute the depth of the tree
-   */
-  int GetDepth(nlohmann::json& node);
 
   /**
    * Return the vtkGLTFReader used to read the tile. Both GLTF and B3DM tiles
@@ -102,17 +98,11 @@ protected:
    */
   void ReadTiles(vtkPartitionedDataSetCollection* pd, size_t numberOfRanks, size_t rank);
   /**
-   * Reads the tile and transforms it.
-   */
-  std::pair<vtkSmartPointer<vtkPartitionedDataSet>, vtkSmartPointer<vtkGLTFReader>> ReadTile(
-    std::string tileFileName, vtkTransform* transform);
-  /**
    * Converts globalIndex to  (tilesetIndex, tileIndex) pair.
    */
   std::pair<size_t, size_t> ToLocalIndex(size_t globalIndex);
 
   char* FileName = nullptr;
-  std::string DirectoryName;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
