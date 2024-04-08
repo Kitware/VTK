@@ -7,7 +7,7 @@
 
 #include "vtkAMRBox.h"
 #include "vtkDataObject.h"
-#include "vtkIdFilter.h"
+#include "vtkGenerateIds.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkImageToAMR.h"
@@ -56,7 +56,7 @@ int TestImageToAMR(int, char*[])
   vtkNew<vtkRTAnalyticSource> imageSource;
   imageSource->SetWholeExtent(0, 0, -128, 128, -128, 128);
 
-  vtkNew<vtkIdFilter> idFilter;
+  vtkNew<vtkGenerateIds> idFilter;
   idFilter->SetInputConnection(imageSource->GetOutputPort());
 
   vtkNew<vtkImageToAMR> amrConverter;
@@ -95,7 +95,7 @@ int TestImageToAMR(int, char*[])
       }
 
       vtkIdTypeArray* cd =
-        vtkArrayDownCast<vtkIdTypeArray>(image->GetCellData()->GetArray("vtkIdFilter_Ids"));
+        vtkArrayDownCast<vtkIdTypeArray>(image->GetCellData()->GetArray("vtkCellIds"));
       assert(cd);
       for (std::vector<vtkVector3d>::iterator itr = samples.begin(); itr != samples.end(); ++itr)
       {
@@ -109,7 +109,7 @@ int TestImageToAMR(int, char*[])
         {
           vtkUniformGrid* grid = amr->GetDataSet(level, id);
           vtkIdTypeArray* cd1 =
-            vtkArrayDownCast<vtkIdTypeArray>(grid->GetCellData()->GetArray("vtkIdFilter_Ids"));
+            vtkArrayDownCast<vtkIdTypeArray>(grid->GetCellData()->GetArray("vtkCellIds"));
           vtkIdType cellId1 = FindCell(grid, x);
           vtkIdType value1 = cd1->GetValue(cellId1);
           if (value1 != value)

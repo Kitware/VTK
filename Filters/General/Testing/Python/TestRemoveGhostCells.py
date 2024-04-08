@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from vtkmodules.vtkFiltersCore import vtkIdFilter
+from vtkmodules.vtkFiltersCore import vtkGenerateIds
 from vtkmodules.vtkFiltersGeneral import vtkDataSetTriangleFilter
 from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
 from vtkmodules.vtkIOImage import vtkImageReader
@@ -9,7 +9,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 
 def addGlobalIds(dataset):
-    ids = vtkIdFilter()
+    ids = vtkGenerateIds()
     ids.PointIdsOn()
     ids.CellIdsOn()
     ids.SetPointIdsArrayName("vtkGlobalIds")

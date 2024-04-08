@@ -4,8 +4,8 @@
 #include "vtkBoundingBox.h"
 #include "vtkDistributedPointCloudFilter.h"
 #include "vtkDoubleArray.h"
+#include "vtkGenerateIds.h"
 #include "vtkGenerateProcessIds.h"
-#include "vtkIdFilter.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
 #include "vtkMinimalStandardRandomSequence.h"
@@ -76,15 +76,16 @@ int TestDistributedPointCloudFilter(int argc, char* argv[])
   }
 
   // attach initial ids and process ids
-  vtkNew<vtkIdFilter> idFilter;
+  vtkNew<vtkGenerateIds> idFilter;
   idFilter->SetInputData(inputPoly);
   idFilter->SetPointIdsArrayName("OriginalId");
   idFilter->SetCellIdsArrayName("OriginalId");
   vtkNew<vtkGenerateProcessIds> procIdScalars;
   procIdScalars->SetInputConnection(idFilter->GetOutputPort());
   procIdScalars->Update();
-  procIdScalars->GetOutput()->GetPointData()->GetProcessIds()->SetName("OriginalProcessIds");
-  procIdScalars->GetOutput()->GetPointData()->SetActiveAttribute(
+  procIdScalars->GetPolyDataOutput()->GetPointData()->GetProcessIds()->SetName(
+    "OriginalProcessIds");
+  procIdScalars->GetPolyDataOutput()->GetPointData()->SetActiveAttribute(
     -1, vtkDataSetAttributes::PROCESSIDS);
 
   // distribute the points over the processors

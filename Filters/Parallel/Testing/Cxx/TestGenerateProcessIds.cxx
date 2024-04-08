@@ -29,7 +29,7 @@ int TestGenerateProcessIds(int argc, char* argv[])
   pidGenerator->GenerateCellDataOn();
   pidGenerator->Update();
 
-  vtkDataSet* pidOutput = pidGenerator->GetOutput();
+  vtkDataSet* pidOutput = vtkDataSet::SafeDownCast(pidGenerator->GetOutput());
   int myRank = controller->GetLocalProcessId();
 
   int retVal = TestGenerator(pidOutput->GetPointData(), myRank);

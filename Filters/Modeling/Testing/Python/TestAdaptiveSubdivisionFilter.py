@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from vtkmodules.vtkFiltersCore import vtkIdFilter
+from vtkmodules.vtkFiltersCore import vtkGenerateIds
 from vtkmodules.vtkFiltersModeling import vtkAdaptiveSubdivisionFilter
 from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkRenderingCore import (
@@ -21,7 +21,7 @@ sphere = vtkSphereSource()
 sphere.SetThetaResolution(6)
 sphere.SetPhiResolution(24)
 
-ids = vtkIdFilter()
+ids = vtkGenerateIds()
 ids.SetInputConnection(sphere.GetOutputPort())
 
 adapt = vtkAdaptiveSubdivisionFilter()
@@ -34,7 +34,7 @@ adapt.Update()
 mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(adapt.GetOutputPort())
 mapper.SetScalarModeToUseCellFieldData()
-mapper.SelectColorArray("vtkIdFilter_Ids")
+mapper.SelectColorArray("vtkCellIds")
 mapper.SetScalarRange(adapt.GetOutput().GetCellData().GetScalars().GetRange())
 
 edgeProp = vtkProperty()

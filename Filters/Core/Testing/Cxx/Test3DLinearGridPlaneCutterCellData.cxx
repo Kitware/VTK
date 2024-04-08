@@ -4,7 +4,7 @@
 #include <vtk3DLinearGridPlaneCutter.h>
 #include <vtkActor.h>
 #include <vtkCellData.h>
-#include <vtkIdFilter.h>
+#include <vtkGenerateIds.h>
 #include <vtkNew.h>
 #include <vtkPassArrays.h>
 #include <vtkPlane.h>
@@ -31,7 +31,7 @@ int Test3DLinearGridPlaneCutterCellData(int argc, char* argv[])
   plane->SetNormal(0, 1.0, 0.5);
 
   // add simple cell data
-  vtkNew<vtkIdFilter> computeIds;
+  vtkNew<vtkGenerateIds> computeIds;
   computeIds->SetInputConnection(reader->GetOutputPort());
   computeIds->SetPointIds(false);
   computeIds->SetCellIds(true);

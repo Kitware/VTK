@@ -8,7 +8,7 @@
 #include "vtkActor.h"
 #include "vtkActor2D.h"
 #include "vtkCellCenters.h"
-#include "vtkIdFilter.h"
+#include "vtkGenerateIds.h"
 #include "vtkLabeledDataMapper.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
@@ -40,7 +40,7 @@ int TestClipLabels(int argc, char* argv[])
   sphereActor->SetMapper(sphereMapper);
 
   // Generate data arrays containing point and cell ids
-  vtkSmartPointer<vtkIdFilter> ids = vtkSmartPointer<vtkIdFilter>::New();
+  vtkSmartPointer<vtkGenerateIds> ids = vtkSmartPointer<vtkGenerateIds>::New();
   ids->SetInputConnection(sphere->GetOutputPort());
   ids->PointIdsOn();
   ids->CellIdsOn();
@@ -61,6 +61,7 @@ int TestClipLabels(int argc, char* argv[])
   vtkSmartPointer<vtkLabeledDataMapper> pointMapper = vtkSmartPointer<vtkLabeledDataMapper>::New();
   pointMapper->SetInputConnection(visPts->GetOutputPort());
   pointMapper->SetLabelModeToLabelFieldData();
+  pointMapper->SetFieldDataName("vtkPointIds");
 
   vtkSmartPointer<vtkActor2D> pointLabels = vtkSmartPointer<vtkActor2D>::New();
   pointLabels->SetMapper(pointMapper);
@@ -80,6 +81,7 @@ int TestClipLabels(int argc, char* argv[])
   vtkSmartPointer<vtkLabeledDataMapper> cellMapper = vtkSmartPointer<vtkLabeledDataMapper>::New();
   cellMapper->SetInputConnection(visCells->GetOutputPort());
   cellMapper->SetLabelModeToLabelFieldData();
+  cellMapper->SetFieldDataName("vtkCellIds");
   cellMapper->GetLabelTextProperty()->SetColor(0, 1, 0);
 
   vtkSmartPointer<vtkActor2D> cellLabels = vtkSmartPointer<vtkActor2D>::New();

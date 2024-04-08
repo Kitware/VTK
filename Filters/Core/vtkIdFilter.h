@@ -19,10 +19,13 @@
 #define vtkIdFilter_h
 
 #include "vtkDataSetAlgorithm.h"
+#include "vtkDeprecation.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkIdFilter : public vtkDataSetAlgorithm
+class VTK_DEPRECATED_IN_9_4_0(
+  "Please use `vtkGenerateIds` instead.") VTKFILTERSCORE_EXPORT vtkIdFilter
+  : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkIdFilter, vtkDataSetAlgorithm);
