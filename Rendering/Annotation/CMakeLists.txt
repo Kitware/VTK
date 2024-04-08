@@ -18,12 +18,15 @@ set(classes
   vtkParallelCoordinatesActor
   vtkPieChartActor
   vtkPolarAxesActor
+  vtkPolarAxesActor2D
   vtkProp3DAxisFollower
+  vtkRadialGridActor2D
   vtkScalarBarActor
   vtkSpiderPlotActor
   vtkXYPlotActor)
 
 set(private_classes
+vtkArcGridActorPrivate
 vtkAxisGridActorPrivate)
 
 set(nowrap_headers

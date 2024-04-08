@@ -416,6 +416,8 @@ int vtkAxisActor2D::RenderOverlay(vtkViewport* viewport)
 {
   int i, renderedSomething = 0;
 
+  this->BuildAxis(viewport);
+
   // Everything is built, just have to render
   if (this->Title != nullptr && this->Title[0] != 0 && this->TitleVisibility)
   {

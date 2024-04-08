@@ -35,6 +35,9 @@ vtk_add_test_cxx(vtkRenderingAnnotationCxxTests tests
   TestLegendScaleActorDefault.cxx
   TestPieChartActor.cxx
   TestPolarAxes.cxx
+  TestPolarAxes2D.cxx
+  TestPolarAxes2DDefault.cxx
+  TestRadialGrid2D.cxx
   TestScalarBar.cxx
   TestScalarBarAboveBelow.cxx
   TestSpiderPlotActor.cxx
