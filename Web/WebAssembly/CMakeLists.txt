@@ -11,17 +11,6 @@ vtk_module_add_module(VTK::WebAssembly
 
 vtk_add_test_mangling(VTK::WebAssembly)
 
-configure_file("Packaging/Wheel/__init__.py.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/Wheel/vtk_wasm/__init__.py")
-configure_file("Packaging/Wheel/MANIFEST.in.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/Wheel/MANIFEST.in")
-configure_file("Packaging/Wheel/README.md.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/Wheel/README.md")
-configure_file("Packaging/Wheel/setup.cfg.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/Wheel/setup.cfg")
-configure_file("Packaging/Wheel/setup.py.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/Wheel/setup.py")
-
 # -----------------------------------------------------------------------------
 # Emscripten compile+link options
 # -----------------------------------------------------------------------------
@@ -107,10 +96,10 @@ target_link_options(WasmSceneManager
     ${emscripten_debug_options})
 set_target_properties(WasmSceneManager
   PROPERTIES
+  OUTPUT_NAME "vtkWasmSceneManager"
   SUFFIX ".mjs")
 # [cmake/cmake#20745](https://gitlab.kitware.com/cmake/cmake/-/issues/20745)
 # CMake doesn't install multiple files associated with an executable target.
-get_target_property(_vtk_scene_manager_version_suffix WebAssembly VERSION)
 install(FILES
-  "$<TARGET_FILE_DIR:WasmSceneManager>/vtkWasmSceneManager-${_vtk_scene_manager_version_suffix}.wasm"
+  "$<TARGET_FILE_DIR:WasmSceneManager>/vtkWasmSceneManager.wasm"
   DESTINATION ${CMAKE_INSTALL_BINDIR})

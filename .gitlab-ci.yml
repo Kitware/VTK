@@ -398,35 +398,26 @@ webassembly:test:
         - webassembly:build
 
 ## Webassembly package
-webassembly-wheel:package:
+webassembly:package:
     extends:
         - .webassembly
-        - .cmake_package_webassembly_wheel_linux
+        - .cmake_package_webassembly_linux
         - .linux_packager_tags
-        - .cmake_webassembly_wheel_artifacts
+        - .cmake_webassembly_artifacts
         - .run_automatically
     dependencies:
         - webassembly:build
     needs:
         - webassembly:build
 
-webassembly-wheel:pypi:upload:
+webassembly:vtk:upload:
     extends:
-        - .pypi_webassembly_upload
-        - .tag_only
-    dependencies:
-        - webassembly-wheel:package
-    needs:
-        - webassembly-wheel:package
-
-webassembly-wheel:vtk:upload:
-    extends:
-        - .pypi_webassembly_vtk_upload
+        - .generic_webassembly_vtk_upload
         - .weekly_upload_only
     dependencies:
-        - webassembly-wheel:package
+        - webassembly:package
     needs:
-        - webassembly-wheel:package
+        - webassembly:package
 
 ## Python wheel builds
 
