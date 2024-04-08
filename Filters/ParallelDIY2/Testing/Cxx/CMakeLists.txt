@@ -24,8 +24,7 @@ if (TARGET VTK::mpi)
       TestPResampleToImage.cxx)
   endif ()
 
-# We want 4 processes to test the vtkAggregateDataSetFilter
-# properly.
+  # We want 4 processes to test the vtkAggregateDataSetFilter properly.
   set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 4)
   vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI no_data_tests_4_procs
     DIYAggregateDataSet.cxx
@@ -33,9 +32,17 @@ if (TARGET VTK::mpi)
     TestGenerateGlobalIds.cxx
     )
 
+  # We want at least 5 processes to test the TestDIYGenerateCuts properly.
+  # See https://gitlab.kitware.com/paraview/paraview/-/issues/21396
+  set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 5)
+  vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI no_data_tests_5_procs
+    TestDIYGenerateCuts.cxx
+    )
+
   set(all_tests
     ${tests}
     ${no_data_tests_4_procs}
+    ${no_data_tests_5_procs}
     )
 
   vtk_test_cxx_executable(vtkFiltersParallelDIY2CxxTests-MPI all_tests)

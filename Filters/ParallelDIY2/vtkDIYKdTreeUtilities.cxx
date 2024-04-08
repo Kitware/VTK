@@ -12,6 +12,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkLogger.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
@@ -21,6 +22,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <array>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -178,14 +180,30 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
   // determine global domain bounds.
   vtkDIYUtilities::AllReduce(comm, bbox);
 
-  if (!bbox.IsValid())
+  if (!bbox.IsValid() || bbox.GetMaxLength() == 0.)
   {
     // nothing to split since global bounds are empty.
     return std::vector<vtkBoundingBox>();
   }
 
-  // I am removing this. it doesn't not make sense to inflate here.
-  // bbox.Inflate(0.1 * bbox.GetDiagonalLength());
+  // Need to inflate the bounding box to ensure each dimension is not zero,
+  // (or too much close to zero) since we build a 3D kd-tree in any case.
+  // Building a kd-tree with same dimension as the bounding box seems to
+  // cause issues in some cases, for example in 1D, depending of the number
+  // of ranks used.
+  const double* minPoint = bbox.GetMinPoint();
+  const double* maxPoint = bbox.GetMaxPoint();
+
+  std::array<double, 3> delta = { 0., 0., 0. };
+  for (unsigned int dim = 0; dim < 3; dim++)
+  {
+    if (vtkMathUtilities::FuzzyCompare(minPoint[dim] - maxPoint[dim], 0.))
+    {
+      delta[dim] = std::numeric_limits<double>::epsilon();
+    }
+  }
+
+  bbox.Inflate(delta[0], delta[1], delta[2]);
 
   if (number_of_partitions == 1)
   {
