@@ -24,6 +24,7 @@ if (TARGET VTK::ParallelMPI)
     ParallelResampling.cxx
     UnitTestPMaskPoints.cxx
     TestGenerateProcessIds.cxx,NO_VALID
+    TestGenerateProcessIdsHTG.cxx,NO_VALID
     TestPOutlineFilter.cxx,NO_VALID
     )
 
