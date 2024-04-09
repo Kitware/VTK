@@ -1551,6 +1551,13 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     return 0;
   }
+
+  if (this->MergeParts && this->UseCache)
+  {
+    vtkErrorMacro(<< "Merge Parts and Use Cache are both enabled which is not supported for now.");
+    return 0;
+  }
+
   if (this->HasTransientData)
   {
     double* values = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
@@ -1582,7 +1589,7 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     // Output cleanup after using mesh cache
     if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
     {
-      this->CleanOriginalIds(output);
+      this->CleanOriginalIds(pData);
     }
   }
   else if (dataSetType == VTK_POLY_DATA)
@@ -1595,7 +1602,7 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     // Output cleanup after using mesh cache
     if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
     {
-      this->CleanOriginalIds(output);
+      this->CleanOriginalIds(pData);
     }
   }
   else if (dataSetType == VTK_OVERLAPPING_AMR)
@@ -1636,7 +1643,6 @@ bool vtkHDFReader::AddOriginalIds(
   attributes->AddArray(ids);
   return true;
 }
-VTK_ABI_NAMESPACE_END
 
 //----------------------------------------------------------------------------
 std::string vtkHDFReader::GetAttributeOriginalIdName(vtkIdType attribute)
@@ -1651,16 +1657,24 @@ void vtkHDFReader::SetAttributeOriginalIdName(vtkIdType attribute, const std::st
 }
 
 //----------------------------------------------------------------------------
-void vtkHDFReader::CleanOriginalIds(vtkDataObject* output)
+void vtkHDFReader::CleanOriginalIds(vtkPartitionedDataSet* output)
 {
   int attributesToClean[3] = { vtkDataObject::POINT, vtkDataObject::CELL, vtkDataObject::FIELD };
-  for (int attributeType : attributesToClean)
+
+  for (unsigned int i = 0; i < output->GetNumberOfPartitions(); ++i)
   {
-    std::string arrayName = this->GetAttributeOriginalIdName(attributeType);
-    vtkDataSetAttributes* attributes = output->GetAttributes(attributeType);
-    if (attributes && attributes->GetArray(arrayName.c_str()))
+    vtkDataObject* partition = output->GetPartitionAsDataObject(i);
+
+    for (int attributeType : attributesToClean)
     {
-      attributes->RemoveArray(arrayName.c_str());
+      std::string arrayName = this->GetAttributeOriginalIdName(attributeType);
+      vtkDataSetAttributes* attributes = partition->GetAttributes(attributeType);
+      if (attributes && attributes->GetArray(arrayName.c_str()))
+      {
+        attributes->RemoveArray(arrayName.c_str());
+      }
     }
   }
 }
+
+VTK_ABI_NAMESPACE_END

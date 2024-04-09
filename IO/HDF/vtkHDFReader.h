@@ -137,6 +137,9 @@ public:
    *
    * Internal cache is useful when reading transient data to never re-read something that has
    * already been cached.
+   *
+   * @note Incompatible with MergeParts as vtkAppendDataSet which is used internally doesn't
+   * support static mesh.
    */
   vtkGetMacro(UseCache, bool);
   vtkSetMacro(UseCache, bool);
@@ -154,6 +157,9 @@ public:
    * effectively double the memory constraints.
    *
    * Default is true
+   *
+   * @note Incompatible with UseCache as vtkAppendDataSet which is used internally doesn't
+   * support static mesh.
    */
   vtkGetMacro(MergeParts, bool);
   vtkSetMacro(MergeParts, bool);
@@ -277,11 +283,12 @@ private:
   bool AddOriginalIds(vtkDataSetAttributes* attributes, vtkIdType size, const std::string& name);
 
   /**
-   * Removes the arrays from the object given in parameter containing
-   * the original ids use in the static mesh cache. It allows to avoid
-   * passing those arrays to subsequent pipeline elements.
+   * Removes the arrays for each partition from the object given in
+   * parameter containing the original ids use in the static mesh cache.
+   * It allows to avoid passing those arrays to subsequent pipeline
+   * elements.
    */
-  void CleanOriginalIds(vtkDataObject* output);
+  void CleanOriginalIds(vtkPartitionedDataSet* output);
 
 protected:
   /**
