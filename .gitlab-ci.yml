@@ -60,6 +60,8 @@ dummy:build:
         - echo "dummy"
     variables:
         GIT_STRATEGY: none
+    dependencies: []
+    needs: []
 
 ## readthedocs documentation build
 readthedocs:build:
