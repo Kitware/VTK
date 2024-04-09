@@ -44,7 +44,7 @@ public:
    * @param controller reference to the MPI controller used for parallel operations
    * @param inputHTG reference to the input HyperTreeGrid
    * @param outputHTG reference to the output HyperTreeGrid
-   * @param outputMask reference to the output mask array
+   * @param outputMask reference to the output mask array. Can be null if inputHTG has no mask.
    * @param totalVertices Number of vertices in the input HTG
    */
   vtkHyperTreeGridGhostCellsGeneratorInternals(vtkHyperTreeGridGhostCellsGenerator* self,
@@ -65,16 +65,17 @@ public:
   void DetermineNeighbors();
 
   /**
-   * Exchange the number of ghost cells to be sent between ranks
+   * Exchange the number of ghost cells to be sent between ranks.
+   * Send an array to every other processes containing the number of cells in each tree to be sent.
    * Return 1 if the operation was successful, 0 otherwise.
    */
   int ExchangeSizes();
 
   /**
-   * Routine to send and receive mask values and parent state information for each tree.
+   * Routine to send and receive tree decomposition, and mask values if present for each tree.
    * Return 1 if the operation was successful, 0 otherwise
    */
-  int ExchangeMasks();
+  int ExchangeTreeDecomposition();
 
   /**
    * Exchange cell data information with the other process to fill in values for ghost cells.
@@ -85,10 +86,9 @@ public:
   /**
    * ProcessTrees subroutine creating the output ghost array and adding it to the output HTG.
    *
-   * @param input Input HTG
-   * @param totalVertices The number of vertices in the HTG including ghost cells.
+   * @param nonGhostVertices The number of vertices in the HTG excluding ghost cells.
    */
-  void AppendGhostArray();
+  void AppendGhostArray(vtkIdType nonGhostVertices);
 
 private:
   // Internal structures used for MPI message exchanges
@@ -97,14 +97,13 @@ private:
     SendBuffer()
       : count(0)
       , mask(0)
-      , isParent(vtkBitArray::New())
     {
     }
-    ~SendBuffer() { isParent->Delete(); }
     vtkIdType count;                // len buffer
     unsigned int mask;              // ghost mask
     std::vector<vtkIdType> indices; // indices for selected cells
-    vtkBitArray* isParent;          // decomposition amr tree
+    vtkNew<vtkBitArray> isParent;   // decomposition amr tree
+    vtkNew<vtkBitArray> isMasked;   // decomposition amr tree
   };
 
   struct RecvBuffer
@@ -150,9 +149,7 @@ private:
   vtkHyperTreeGrid* InputHTG = nullptr;
   vtkHyperTreeGrid* OutputHTG = nullptr;
   vtkBitArray* OutputMask = nullptr;
-
   vtkIdType NumberOfVertices = 0;
-  int NumberOfHyperTrees = 0;
 };
 
 VTK_ABI_NAMESPACE_END
