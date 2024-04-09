@@ -5,6 +5,9 @@
 
 uniform int PrimitiveIDOffset;
 
+// Custom uniforms
+//VTK::CustomUniforms::Dec
+
 // Texture coordinates
 //VTK::TCoord::Dec
 
