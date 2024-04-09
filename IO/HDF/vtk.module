@@ -28,6 +28,7 @@ TEST_DEPENDS
   VTK::FiltersPoints
   VTK::FiltersSources
   VTK::FiltersTemporal
+  VTK::hdf5
   VTK::ImagingCore
   VTK::IOGeometry
   VTK::IOXML

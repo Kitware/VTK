@@ -956,6 +956,7 @@ its support for more and more use cases.
 #### VTKHDF - 2.2
 
 - add support for temporal `OverlappingAMR`
+- add official support for ignored data outside of `VTKHDF`
 
 #### VTKHDF - 2.1
 
@@ -990,6 +991,11 @@ depending on the dataset type. Currently, `Version`
 is the array [2, 2] and `Type` can be `ImageData`, `PolyData`,
 `UnstructuredGrid`, `OverlappingAMR`,  `PartitionedDataSetCollection` or
 `MultiBlockDataSet`.
+
+Top-level groups outside of /VTKHDF do not contain any information related
+to VTK data model and are outside of the scope of this specification.
+They can be useful to store meta-information that could be read and written
+by custom VTKHDF implementations.
 
 The data type for each HDF dataset is part of the dataset and it is
 determined at write time. The reader matches the type of the dataset

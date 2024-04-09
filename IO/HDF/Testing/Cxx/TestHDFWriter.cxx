@@ -18,7 +18,44 @@
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include "vtkHDF5ScopedHandle.h"
+#include "vtk_hdf5.h"
+
 #include <string>
+
+//----------------------------------------------------------------------------
+bool WriteMiscData(const std::string& filename)
+{
+  // Appending groups alongside "VTKHDF" in the file should not alter how the reader behaves
+  vtkHDF::ScopedH5FHandle file{ H5Fopen(filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT) };
+  if (file == H5I_INVALID_HID)
+  {
+    std::cerr << "Could not re-open " << filename << file << " for writing";
+    return false;
+  }
+
+  // Create groups
+  vtkHDF::ScopedH5GHandle misc{ H5Gcreate(file, "Misc", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+  vtkHDF::ScopedH5GHandle misc2{ H5Gcreate(file, "VTKHD", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+
+  // Create more groups inside
+  vtkHDF::ScopedH5GHandle data1{ H5Gcreate(misc, "Data1", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+  vtkHDF::ScopedH5GHandle data2{ H5Gcreate(misc, "Data2", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+  vtkHDF::ScopedH5GHandle data3{ H5Gcreate(data1, "Data3", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+
+  // Create dataspace
+  vtkHDF::ScopedH5SHandle dataspace{ H5Screate(H5S_SIMPLE) };
+  std::array<hsize_t, 1> dimensions{ 3 };
+  H5Sset_extent_simple(dataspace, 1, dimensions.data(), dimensions.data());
+
+  // Create and fill dataset
+  vtkHDF::ScopedH5DHandle dataset = H5Dcreate(
+    data3, "MiscDataset", H5T_STD_I64LE, dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  std::array<int, 3> values{ 4, 5, 3 };
+  H5Dwrite(dataset, H5T_STD_I64LE, H5S_ALL, dataspace, H5P_DEFAULT, values.data());
+
+  return true;
+}
 
 //----------------------------------------------------------------------------
 bool TestEmptyPolyData(const std::string& tempDir)
@@ -33,20 +70,24 @@ bool TestEmptyPolyData(const std::string& tempDir)
 }
 
 //----------------------------------------------------------------------------
-bool TestWriteAndRead(vtkDataObject* data, const char* tempPath)
+bool TestWriteAndRead(vtkDataObject* data, const std::string& tempPath)
 {
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputData(data);
-  writer->SetFileName(tempPath);
+  writer->SetFileName(tempPath.c_str());
   writer->Write();
+  if (!WriteMiscData(tempPath))
+  {
+    return false;
+  }
 
   vtkNew<vtkHDFReader> reader;
-  if (!reader->CanReadFile(tempPath))
+  if (!reader->CanReadFile(tempPath.c_str()))
   {
     std::cerr << "vtkHDFReader can not read file: " << tempPath << std::endl;
     return false;
   }
-  reader->SetFileName(tempPath);
+  reader->SetFileName(tempPath.c_str());
   reader->Update();
   vtkDataObject* output = vtkDataObject::SafeDownCast(reader->GetOutput());
   if (output == nullptr)
@@ -76,7 +117,7 @@ bool TestSpherePolyData(const std::string& tempDir)
   vtkPolyData* spherePd = sphere->GetOutput();
 
   std::string filePath = tempDir + "/spherePolyData.vtkhdf";
-  return TestWriteAndRead(spherePd, filePath.c_str());
+  return TestWriteAndRead(spherePd, filePath);
 }
 
 //----------------------------------------------------------------------------
@@ -99,7 +140,7 @@ bool TestComplexPolyData(const std::string& tempDir, const std::string& dataRoot
 
     // Write and read the polydata in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndRead(baseData, tempPath.c_str()))
+    if (!TestWriteAndRead(baseData, tempPath))
     {
       return false;
     }
@@ -128,7 +169,7 @@ bool TestUnstructuredGrid(const std::string& tempDir, const std::string& dataRoo
 
     // Write and read the unstructuredGrid in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndRead(baseData, tempPath.c_str()))
+    if (!TestWriteAndRead(baseData, tempPath))
     {
       return false;
     }
@@ -156,7 +197,7 @@ bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
 
     // Write and read the vtkMultiBlockDataSet in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndRead(baseData, tempPath.c_str()))
+    if (!TestWriteAndRead(baseData, tempPath))
     {
       return false;
     }
@@ -186,7 +227,7 @@ bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::str
 
     // Write and read the vtkPartitionedDataSetCollection in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndRead(baseData, tempPath.c_str()))
+    if (!TestWriteAndRead(baseData, tempPath))
     {
       return false;
     }
