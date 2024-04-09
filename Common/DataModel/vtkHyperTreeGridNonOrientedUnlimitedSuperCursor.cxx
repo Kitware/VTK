@@ -42,8 +42,8 @@ vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::Clone()
   }
   {
     clone->Entries.resize(this->Entries.size());
-    auto in = this->Entries.begin();
-    auto out = clone->Entries.begin();
+    std::vector<vtkHyperTreeGridGeometryUnlimitedLevelEntry>::iterator in = this->Entries.begin();
+    std::vector<vtkHyperTreeGridGeometryUnlimitedLevelEntry>::iterator out = clone->Entries.begin();
     for (; in != this->Entries.end(); ++in, ++out)
     {
       (*out).Copy(&(*in));
@@ -147,7 +147,7 @@ vtkHyperTree* vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetInformation(
     id = this->CentralCursor->GetGlobalNodeIndex();
     return this->CentralCursor->GetTree();
   }
-  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry& entry = this->Entries[this->GetIndiceEntry(icursor)];
   vtkHyperTree* tree = entry.GetTree();
   if (tree)
   {
@@ -248,7 +248,8 @@ void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::SetMask(unsigned int icurs
   }
   else
   {
-    auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+    vtkHyperTreeGridGeometryUnlimitedLevelEntry& entry =
+      this->Entries[this->GetIndiceEntry(icursor)];
     assert("pre: not_tree" && entry.GetTree());
     entry.SetMask(this->Grid, state);
   }
@@ -267,7 +268,7 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsMasked(unsigned int icur
   {
     return this->IsMasked();
   }
-  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry& entry = this->Entries[this->GetIndiceEntry(icursor)];
   return entry.IsMasked(this->Grid);
 }
 
@@ -284,7 +285,7 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsLeaf(unsigned int icurso
   {
     return this->IsLeaf();
   }
-  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry& entry = this->Entries[this->GetIndiceEntry(icursor)];
   return entry.IsLeaf(this->Grid);
 }
 
@@ -301,7 +302,7 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsRealLeaf(unsigned int ic
   {
     return this->IsRealLeaf();
   }
-  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry& entry = this->Entries[this->GetIndiceEntry(icursor)];
   return entry.IsRealLeaf(this->Grid);
 }
 
@@ -318,7 +319,7 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf(unsigned int
   {
     return this->IsVirtualLeaf();
   }
-  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry& entry = this->Entries[this->GetIndiceEntry(icursor)];
   return entry.IsVirtualLeaf(this->Grid);
 }
 
@@ -331,8 +332,9 @@ double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRati
 //------------------------------------------------------------------------------
 double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio(vtkIdType index)
 {
-  const auto nbVirtual = this->GetLevel(index) - this->GetLastRealLevel(index);
-  const auto nbDiv = std::pow(this->GetTree()->GetBranchFactor(), nbVirtual * this->GetDimension());
+  const unsigned int nbVirtual = this->GetLevel(index) - this->GetLastRealLevel(index);
+  const double nbDiv =
+    std::pow(this->GetTree()->GetBranchFactor(), nbVirtual * this->GetDimension());
   return 1.0 / nbDiv;
 }
 
@@ -425,7 +427,7 @@ void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::ToChild(unsigned char ichi
           this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry + i] = reference;
         }
         //
-        auto& current = this->Entries[reference];
+        vtkHyperTreeGridGeometryUnlimitedLevelEntry& current = this->Entries[reference];
         current.Initialize(this->CentralCursor->GetTree(), this->CentralCursor->GetLevel(),
           this->CentralCursor->GetVertexId(), this->CentralCursor->GetOrigin());
 
@@ -462,7 +464,7 @@ void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::ToChild(unsigned char ichi
             this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry + i] = reference;
           }
           //
-          auto& current = this->Entries[reference];
+          vtkHyperTreeGridGeometryUnlimitedLevelEntry& current = this->Entries[reference];
           current.Copy(&(this->Entries[previous]));
           current.ToChild(this->Grid, cTab[i]);
         }

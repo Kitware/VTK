@@ -261,7 +261,7 @@ public:
   /**
    * Return the maximum number of trees in the level 0 grid.
    */
-  vtkIdType GetMaxNumberOfTrees();
+  vtkIdType GetMaxNumberOfTrees() const;
 
   /**
    * Get the number of non empty trees in this grid.
@@ -614,10 +614,15 @@ public:
 
   /**
    * Return the root index of a root cell with given index displaced.
-   * by a Cartesian vector in the grid.
+   * by a cartesian vector in the grid (di,dj,dk).
+   *
+   * However, in HTG 2D, this method used Orientation information.
+   * According to the orientation values (0/1/2), the association of
+   * the topological axes changes with the real axes (YZ/XZ/XY).
+   *
    * NB: No boundary checks are performed.
    */
-  vtkIdType GetShiftedLevelZeroIndex(vtkIdType, unsigned int, unsigned int, unsigned int) const;
+  vtkIdType GetShiftedLevelZeroIndex(vtkIdType, int, int, int) const;
 
   /**
    * Convert the global index of a root to its Cartesian coordinates in the grid.

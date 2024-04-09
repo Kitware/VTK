@@ -71,6 +71,8 @@ int vtkRandomHyperTreeGridSource::RequestInformation(
     return 0;
   }
 
+  // this->Dimensions describes the dimension in terms of number of points
+  // wholeExtent describes the dimension in terms of number of cells
   int wholeExtent[6] = {
     0,
     static_cast<int>(this->Dimensions[0] - 1),
@@ -79,6 +81,16 @@ int vtkRandomHyperTreeGridSource::RequestInformation(
     0,
     static_cast<int>(this->Dimensions[2] - 1),
   };
+  // wholeExtent in context of HTG not be equal to 0
+  for (unsigned int idim = 0; idim < 3; ++idim)
+  {
+    if (wholeExtent[2 * idim + 1] == 0)
+    {
+      wholeExtent[2 * idim + 1] = 1;
+    }
+  }
+  // WARNING As it stands, the disadvantage of this logic is that it is not
+  // possible to describe a 3D mesh with a thickness of a single cell.
 
   vtkInformation* info = outInfo->GetInformationObject(0);
   info->Set(SDDP::WHOLE_EXTENT(), wholeExtent, 6);
@@ -108,10 +120,19 @@ int vtkRandomHyperTreeGridSource::RequestData(
                      vtkDoubleArray* array, vtkIdType numPoints, double minBound, double maxBound) {
     array->SetNumberOfComponents(1);
     array->SetNumberOfTuples(numPoints);
-    double step = (maxBound - minBound) / static_cast<double>(numPoints - 1);
-    for (int i = 0; i < numPoints; ++i)
+    // We differentiate the pathological case at one point from the other cases
+    if (numPoints == 1)
     {
-      array->SetTypedComponent(i, 0, minBound + step * i);
+      array->SetTypedComponent(0, 0, 0.);
+    }
+    else
+    {
+      // Compute step for more than one point
+      double step = (maxBound - minBound) / static_cast<double>(numPoints - 1);
+      for (int i = 0; i < numPoints; ++i)
+      {
+        array->SetTypedComponent(i, 0, minBound + step * i);
+      }
     }
   };
 
@@ -197,7 +218,6 @@ void vtkRandomHyperTreeGridSource::SubdivideLeaves(
 {
   vtkIdType vertexId = cursor->GetVertexId();
   vtkHyperTree* tree = cursor->GetTree();
-  int numChildren = cursor->GetNumberOfChildren();
   vtkIdType idx = tree->GetGlobalIndexFromLocal(vertexId);
   vtkIdType level = cursor->GetLevel();
   this->Levels->InsertValue(idx, level);
@@ -207,12 +227,12 @@ void vtkRandomHyperTreeGridSource::SubdivideLeaves(
     if (this->ShouldRefine(level))
     {
       cursor->SubdivideLeaf();
-      // Refresh number of children after subdivision
       this->SubdivideLeaves(cursor, treeId);
     }
   }
   else
   {
+    int numChildren = cursor->GetNumberOfChildren();
     for (int childIdx = 0; childIdx < numChildren; ++childIdx)
     {
       cursor->ToChild(childIdx);
@@ -228,7 +248,6 @@ bool vtkRandomHyperTreeGridSource::ShouldRefine(vtkIdType level)
   this->NodeRNG->Next();
   return level < this->MaxDepth && this->NodeRNG->GetValue() < this->SplitFraction;
 }
-VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 double vtkRandomHyperTreeGridSource::GenerateMask(vtkHyperTreeGridNonOrientedCursor* cursor,
@@ -341,3 +360,4 @@ void vtkRandomHyperTreeGridSource::ShuffleArray(
     std::swap(array.begin()[index], array.begin()[swapIndex]);
   }
 }
+VTK_ABI_NAMESPACE_END
