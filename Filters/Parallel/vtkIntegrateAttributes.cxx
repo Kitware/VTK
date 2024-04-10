@@ -422,13 +422,15 @@ int vtkIntegrateAttributes::RequestData(
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
       vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-      if (ds && ds->GetNumberOfPoints() > 0)
+      if (ds)
       {
-        totalIntegrationDimension =
-          std::max(ds->GetMaxSpatialDimension(), totalIntegrationDimension);
-
-        pdList.IntersectFieldList(ds->GetPointData());
-        cdList.IntersectFieldList(ds->GetCellData());
+        if (ds->GetNumberOfPoints() > 0)
+        {
+          totalIntegrationDimension =
+            std::max(ds->GetMaxSpatialDimension(), totalIntegrationDimension);
+          pdList.IntersectFieldList(ds->GetPointData());
+          cdList.IntersectFieldList(ds->GetCellData());
+        }
       }
       else if (auto dobj = iter->GetCurrentDataObject())
       {
