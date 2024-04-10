@@ -77,6 +77,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
     "^VTK::RenderingMatplotlibPython-TestMathTextActor3D$"
     "^VTK::RenderingMatplotlibPython-TestRenderString$"
     "^VTK::RenderingMatplotlibPython-TestStringToPath$"
+
+    # Consistent timeout. Needs investigation.
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19303
+    "^VTK::RenderingOpenGL2Cxx-TestFloor$"
     )
 endif ()
 
