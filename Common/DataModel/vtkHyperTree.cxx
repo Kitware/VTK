@@ -161,7 +161,7 @@ public:
     {
       numberOfVerticesPerDepth->InsertNextValue(
         static_cast<vtkTypeInt64>(breadthFirstOrderIdMapPerDepth[idepth].size()));
-      for (auto idg : breadthFirstOrderIdMapPerDepth[idepth])
+      for (const vtkIdType& idg : breadthFirstOrderIdMapPerDepth[idepth])
       {
         breadthFirstIdMap->InsertNextId(idg);
       }
@@ -173,7 +173,7 @@ public:
     // is no need to describe such trivial trees.
     for (int idepth = 0; idepth < maxDepth - 1; ++idepth)
     {
-      for (auto state : descriptorPerDepth[idepth])
+      for (const bool state : descriptorPerDepth[idepth])
       {
         descriptor->InsertNextValue(state);
       }
@@ -371,8 +371,9 @@ public:
     if (static_cast<vtkIdType>(!this->CompactDatas->GlobalIndexTable_stl.empty()))
     {
       // Case explicit global node index
-      const auto it_end = this->CompactDatas->GlobalIndexTable_stl.end();
-      const auto elt_found =
+      const std::vector<vtkIdType>::iterator it_end =
+        this->CompactDatas->GlobalIndexTable_stl.end();
+      const std::vector<vtkIdType>::iterator elt_found =
         std::max_element(this->CompactDatas->GlobalIndexTable_stl.begin(), it_end);
       assert("pre: not_positive_global_index" &&
         (*std::max_element(this->CompactDatas->GlobalIndexTable_stl.begin(), it_end)) >= 0);

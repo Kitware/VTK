@@ -9,6 +9,7 @@
 
 #include "vtkObjectFactory.h"
 
+#include <array>
 #include <cassert>
 
 #include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData.inl"
@@ -30,6 +31,7 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
   }
   assert("pre: Non_same_grid" && this->Grid == grid);
 
+  // Initialize features
   switch (grid->GetDimension())
   {
     case 1:
@@ -145,26 +147,30 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
   unsigned int n[3];
   grid->GetCellDims(n);
 
+  // Cursor initialization
   switch (grid->GetDimension())
   {
     case 1:
     {
+      const std::array<unsigned int, 3> ijk{ i, j, k };
       // dimension == 1
-      if (i > 0)
+      const bool toW = (ijk[grid->GetAxes()[0]] > 0);
+      const bool toE = (ijk[grid->GetAxes()[0]] + 1 < n[grid->GetAxes()[0]]);
+      if (toW)
       {
         // Cell has a neighbor to the left
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, (unsigned int)-1, 0, 0);
-        this->Entries[0].Initialize(grid, r);
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, -1, 0, 0);
+        this->Entries[0].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
         this->Entries[0].Reset();
       }
-      if (i + 1 < n[0])
+      if (toE)
       {
         // Cell has a neighbor to the right
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, 1, 0, 0);
-        this->Entries[1].Initialize(grid, r); // au lieu de 2
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, 1, 0, 0);
+        this->Entries[1].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
@@ -174,42 +180,51 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
     }
     case 2:
     {
-      // dimension == 2
-      if (i > 0)
+      const std::array<unsigned int, 3> ijk{ i, j, k };
+      // dimension == 2 with context axes
+      const bool toW = (ijk[grid->GetAxes()[0]] > 0);
+      const bool toS = (ijk[grid->GetAxes()[1]] > 0);
+      const bool toE = (ijk[grid->GetAxes()[0]] + 1 < n[grid->GetAxes()[0]]);
+      const bool toN = (ijk[grid->GetAxes()[1]] + 1 < n[grid->GetAxes()[1]]);
+
+      if (toW)
       {
         // Cell has a neighbor to the left
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, (unsigned int)-1, 0, 0);
-        this->Entries[1].Initialize(grid, r);
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, -1, 0, 0);
+        this->Entries[1].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
         this->Entries[1].Reset();
       }
-      if (i + 1 < n[0])
+
+      if (toE)
       {
         // Cell has a neighbor to the right
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, 1, 0, 0);
-        this->Entries[2].Initialize(grid, r); // au lieu de 2
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, 1, 0, 0);
+        this->Entries[2].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
         this->Entries[2].Reset();
       }
-      if (j > 0)
+
+      if (toS)
       {
         // Cell has a neighbor before
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, 0, (unsigned int)-1, 0);
-        this->Entries[0].Initialize(grid, r);
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, 0, -1, 0);
+        this->Entries[0].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
         this->Entries[0].Reset();
       }
-      if (j + 1 < n[1])
+
+      if (toN)
       {
         // Cell has a neighbor after
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, 0, 1, 0);
-        this->Entries[3].Initialize(grid, r); // au lieu de 4
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, 0, 1, 0);
+        this->Entries[3].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
@@ -223,8 +238,8 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
       if (i > 0)
       {
         // Cell has a neighbor to the left
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, (unsigned int)-1, 0, 0);
-        this->Entries[2].Initialize(grid, r);
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, -1, 0, 0);
+        this->Entries[2].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
@@ -233,8 +248,8 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
       if (i + 1 < n[0])
       {
         // Cell has a neighbor to the right
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, 1, 0, 0);
-        this->Entries[3].Initialize(grid, r); // au lieu de 4
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, 1, 0, 0);
+        this->Entries[3].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
@@ -243,8 +258,8 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
       if (j > 0)
       {
         // Cell has a neighbor before
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, 0, (unsigned int)-1, 0);
-        this->Entries[1].Initialize(grid, r);
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, 0, -1, 0);
+        this->Entries[1].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
@@ -253,8 +268,8 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
       if (j + 1 < n[1])
       {
         // Cell has a neighbor after
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, 0, 1, 0);
-        this->Entries[4].Initialize(grid, r); // au lieu de 5
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, 0, 1, 0);
+        this->Entries[4].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
@@ -263,8 +278,8 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
       if (k > 0)
       {
         // Cell has a neighbor below
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, 0, 0, (unsigned int)-1);
-        this->Entries[0].Initialize(grid, r);
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, 0, 0, -1);
+        this->Entries[0].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {
@@ -273,8 +288,8 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
       if (k + 1 < n[2])
       {
         // Cell has a neighbor above
-        unsigned int r = grid->GetShiftedLevelZeroIndex(treeIndex, 0, 0, 1);
-        this->Entries[5].Initialize(grid, r); // au lieu de 6
+        const vtkIdType shifted_lvl_zero_id = grid->GetShiftedLevelZeroIndex(treeIndex, 0, 0, 1);
+        this->Entries[5].Initialize(grid, shifted_lvl_zero_id);
       }
       else if (isOld)
       {

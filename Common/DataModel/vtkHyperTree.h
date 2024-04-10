@@ -286,8 +286,16 @@ public:
    * Set/Get tree index in hypertree grid.
    * Services for internal use between hypertree grid and hypertree.
    */
-  void SetTreeIndex(vtkIdType treeIndex) { this->Datas->TreeIndex = treeIndex; }
-  vtkIdType GetTreeIndex() const { return this->Datas->TreeIndex; }
+  void SetTreeIndex(vtkIdType treeIndex)
+  {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
+    this->Datas->TreeIndex = treeIndex;
+  }
+  vtkIdType GetTreeIndex() const
+  {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
+    return this->Datas->TreeIndex;
+  }
   ///@}
 
   /**
@@ -295,6 +303,7 @@ public:
    */
   unsigned int GetNumberOfLevels() const
   {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
     assert("post: result_greater_or_equal_to_one" && this->Datas->NumberOfLevels >= 1);
     return this->Datas->NumberOfLevels;
   }
@@ -302,18 +311,27 @@ public:
   /**
    * Return the number of all vertices (coarse and fine) in the tree.
    */
-  vtkIdType GetNumberOfVertices() const { return this->Datas->NumberOfVertices; }
+  vtkIdType GetNumberOfVertices() const
+  {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
+    return this->Datas->NumberOfVertices;
+  }
 
   /**
    * Return the number of nodes (coarse) in the tree.
    */
-  vtkIdType GetNumberOfNodes() const { return this->Datas->NumberOfNodes; }
+  vtkIdType GetNumberOfNodes() const
+  {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
+    return this->Datas->NumberOfNodes;
+  }
 
   /**
    * Return the number of leaf (fine) in the tree.
    */
   vtkIdType GetNumberOfLeaves() const
   {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
     return this->Datas->NumberOfVertices - this->Datas->NumberOfNodes;
   }
 
@@ -384,7 +402,7 @@ public:
    * by hypertree).
    * If false, the initialize has been done by SetGlobalIndexFromLocal (one
    * call by cell of hypertree).
-   * GetGlobalIndexFromLocel get the good value of global index mapping for
+   * GetGlobalIndexFromLocal get the good value of global index mapping for
    * one cell what ever the initialize metho used.
    */
   virtual bool IsGlobalIndexImplicit() = 0;
@@ -414,7 +432,11 @@ public:
    * Get the start global index for the current tree for implicit global
    * index mapping.
    */
-  vtkIdType GetGlobalIndexStart() const { return this->Datas->GlobalIndexStart; }
+  vtkIdType GetGlobalIndexStart() const
+  {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
+    return this->Datas->GlobalIndexStart;
+  }
 
   /**
    * Set the mapping between a node index in tree and a explicit global

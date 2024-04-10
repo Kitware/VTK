@@ -190,6 +190,16 @@ double* vtkHyperTreeGridNonOrientedSuperCursor::GetOrigin()
 }
 
 //------------------------------------------------------------------------------
+double* vtkHyperTreeGridNonOrientedSuperCursor::GetOrigin(unsigned int icursor)
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->CentralCursor->GetOrigin();
+  }
+  return this->Entries[this->GetIndiceEntry(icursor)].GetOrigin();
+}
+
+//------------------------------------------------------------------------------
 double* vtkHyperTreeGridNonOrientedSuperCursor::GetSize()
 {
   return this->CentralCursor->GetSize();
