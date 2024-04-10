@@ -29,7 +29,6 @@ vec4 g_fragColor = vec4(0.0);
 vec3 g_dataPos;
 vec3 g_dirStep;
 vec4 g_srcColor;
-vec4 g_eyePosObj;
 bool g_exit;
 bool g_skip;
 float g_currentT;
@@ -66,6 +65,7 @@ uniform mat4 in_inverseTextureDatasetMatrix[1];
 in mat4 ip_inverseTextureDataAdjusted;
 uniform vec3 in_texMin;
 uniform vec3 in_texMax;
+uniform vec3 in_eyePosObjs[1];
 uniform mat4 in_textureToEye[1];
 
 // Ray step size
@@ -154,7 +154,7 @@ vec4 computeGradient(int c)
 uniform sampler2D in_colorTransferFunc_0[1];
 vec3 computeRayDirection()
 {
-  return normalize(ip_vertexPos.xyz - g_eyePosObj.xyz);
+  return normalize(ip_vertexPos.xyz - in_eyePosObjs[0].xyz);
 }
 
 //VTK::Picking::Dec
@@ -235,16 +235,6 @@ void initializeRayCast()
   // Get the 3D texture coordinates for lookup into the in_volume dataset
   g_dataPos = ip_textureCoords.xyz;
 
-  // Eye position in dataset space
-  g_eyePosObj = (in_inverseVolumeMatrix[0] * vec4(in_cameraPos, 1.0));
-  if (g_eyePosObj.w != 0.0)
-  {
-    g_eyePosObj.x /= g_eyePosObj.w;
-    g_eyePosObj.y /= g_eyePosObj.w;
-    g_eyePosObj.z /= g_eyePosObj.w;
-    g_eyePosObj.w = 1.0;
-  }
-
   // Getting the ray marching direction (in dataset space);
   vec3 rayDir = computeRayDirection();
 
@@ -286,7 +276,7 @@ void initializeRayCast()
     g_lightPosObj.w = 1.0;
   }
   g_ldir = normalize(g_lightPosObj.xyz - ip_vertexPos);
-  g_vdir = normalize(g_eyePosObj.xyz - ip_vertexPos);
+  g_vdir = normalize(in_eyePosObjs[0].xyz - ip_vertexPos);
   g_h = normalize(g_ldir + g_vdir);
   g_xvec = vec3(in_cellStep[0].x, 0.0, 0.0);
   g_yvec = vec3(0.0, in_cellStep[0].y, 0.0);

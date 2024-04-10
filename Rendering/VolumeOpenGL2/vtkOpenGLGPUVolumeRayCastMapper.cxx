@@ -510,7 +510,7 @@ public:
   vtkMultiVolume* MultiVolume = nullptr;
 
   std::vector<float> VolMatVec, InvMatVec, TexMatVec, InvTexMatVec, TexEyeMatVec, CellToPointVec,
-    TexMinVec, TexMaxVec, ScaleVec, BiasVec, StepVec, SpacingVec, RangeVec;
+    TexMinVec, TexMaxVec, EyePosVec, ScaleVec, BiasVec, StepVec, SpacingVec, RangeVec;
 };
 
 //------------------------------------------------------------------------------
@@ -3433,10 +3433,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
   this->CellToPointVec.resize(numVolumes * 16, 0);
   this->TexMinVec.resize(numVolumes * 3, 0);
   this->TexMaxVec.resize(numVolumes * 3, 0);
+  this->EyePosVec.resize(numVolumes * 3, 0);
 
-  vtkNew<vtkMatrix4x4> dataToWorld, texToDataMat, texToViewMat, cellToPointMat;
+  vtkNew<vtkMatrix4x4> dataToWorld, dataToView, texToDataMat, texToViewMat, cellToPointMat;
   float defaultTexMin[3] = { 0.f, 0.f, 0.f };
   float defaultTexMax[3] = { 1.f, 1.f, 1.f };
+  float eyePos[3] = { 0.f, 0.f, 0.f };
 
   auto it = this->Parent->AssembledInputs.begin();
   for (int i = 0; i < numVolumes; i++)
@@ -3500,6 +3502,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
 
     // Volume matrices (dataset to world)
     dataToWorld->Transpose();
+
+    // Get the effective position of the eye in world coordinates for this
+    // volume (or the bbox).
+    // This multiply may look backwards, but dataToWorld and modelViewMat are
+    // both already transposed to send to OpenGL.
+    vtkMatrix4x4::Multiply4x4(dataToWorld.GetPointer(), modelViewMat, dataToView.GetPointer());
+    dataToView->Invert();
+    eyePos[0] = dataToView->GetElement(3, 0);
+    eyePos[1] = dataToView->GetElement(3, 1);
+    eyePos[2] = dataToView->GetElement(3, 2);
+    vtkInternal::CopyVector<float, 3>(eyePos, this->EyePosVec.data(), i * 3);
+
     vtkInternal::CopyMatrixToVector<vtkMatrix4x4, 4, 4>(
       dataToWorld.GetPointer(), this->VolMatVec.data(), vecOffset);
 
@@ -3544,6 +3558,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
     "in_texMin", numVolumes, reinterpret_cast<const float(*)[3]>(this->TexMinVec.data()));
   prog->SetUniform3fv(
     "in_texMax", numVolumes, reinterpret_cast<const float(*)[3]>(this->TexMaxVec.data()));
+  prog->SetUniform3fv(
+    "in_eyePosObjs", numVolumes, reinterpret_cast<const float(*)[3]>(this->EyePosVec.data()));
 }
 
 //------------------------------------------------------------------------------
@@ -3690,26 +3706,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetCameraShaderParameters(
   prog->SetUniformMatrix("in_modelViewMatrix", modelViewMatrix);
   prog->SetUniformMatrix("in_inverseModelViewMatrix", this->InverseModelViewMat.GetPointer());
 
-  float fvalue3[3];
   if (cam->GetParallelProjection())
   {
+    float fvalue3[3];
     double dir[4];
     cam->GetDirectionOfProjection(dir);
     vtkInternal::ToFloat(dir[0], dir[1], dir[2], fvalue3);
     prog->SetUniform3fv("in_projectionDirection", 1, &fvalue3);
   }
-
-  if (!cam->GetUseOffAxisProjection())
-  {
-    vtkInternal::ToFloat(cam->GetPosition(), fvalue3, 3);
-  }
-  else
-  {
-    double eyePos[3];
-    cam->GetEyePosition(eyePos);
-    vtkInternal::ToFloat(eyePos, fvalue3, 3);
-  }
-  prog->SetUniform3fv("in_cameraPos", 1, &fvalue3);
 
   // TODO Take consideration of reduction factor
   float fvalue2[2];
