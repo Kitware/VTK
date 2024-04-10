@@ -3618,8 +3618,8 @@ inline std::string ClippingInit(
 
   shaderStr += std::string("\
       \n  clip_numPlanes = int(in_clippingPlanes[0]);\
-      \n  clip_texToObjMat = in_volumeMatrix[0] * in_textureDatasetMatrix[0];\
-      \n  clip_objToTexMat = in_inverseTextureDatasetMatrix[0] * in_inverseVolumeMatrix[0];\
+      \n  clip_texToObjMat = in_volumeMatrix[0] * inverse(ip_inverseTextureDataAdjusted);\
+      \n  clip_objToTexMat = ip_inverseTextureDataAdjusted * in_inverseVolumeMatrix[0];\
       \n\
       \n  // Adjust for clipping.\
       \n  if (!AdjustSampleRangeForClipping(g_rayOrigin, g_rayTermination))\

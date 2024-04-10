@@ -3,6 +3,7 @@
 #include "vtkActor.h"
 #include "vtkArrayCalculator.h"
 #include "vtkDataSetMapper.h"
+#include "vtkDataSetTriangleFilter.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPointSource.h"
@@ -54,7 +55,11 @@ int TestStreamTracerSurface(int argc, char* argv[])
   warp->SetScaleFactor(0.1);
   warp->SetInputConnection(wavelet->GetOutputPort());
 
-  calc->SetInputConnection(warp->GetOutputPort());
+  // Triangulate geometry to ensure cells are planar
+  vtkNew<vtkDataSetTriangleFilter> triangle;
+  triangle->SetInputConnection(warp->GetOutputPort());
+
+  calc->SetInputConnection(triangle->GetOutputPort());
   calc->Update();
 
   points->Reset();
@@ -73,7 +78,7 @@ int TestStreamTracerSurface(int argc, char* argv[])
   streamMapper->ScalarVisibilityOff();
 
   vtkNew<vtkDataSetMapper> surfaceMapper;
-  surfaceMapper->SetInputConnection(calc->GetOutputPort());
+  surfaceMapper->SetInputConnection(triangle->GetOutputPort());
 
   vtkNew<vtkActor> streamActor;
   streamActor->SetMapper(streamMapper);

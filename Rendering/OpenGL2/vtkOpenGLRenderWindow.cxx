@@ -2285,6 +2285,7 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     }
     else
     {
+      const auto maxDepthValueAsInteger = float(1 << depthSize) - 1.0f;
       this->GetState()->PushReadFramebufferBinding();
       this->DepthFramebuffer->Bind(GL_READ_FRAMEBUFFER);
       this->DepthFramebuffer->ActivateReadBuffer(0);
@@ -2298,11 +2299,15 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
         z_int += (z_data_quarters[j++] << 8);
 #if defined(GL_DEPTH_COMPONENT24) || defined(GL_DEPTH_COMPONENT32)
         z_int += (z_data_quarters[j++] << 16);
+#else
+        ++j;
 #endif
 #ifdef GL_DEPTH_COMPONENT32
         z_int += (z_data_quarters[j++] << 24);
+#else
+        ++j;
 #endif
-        z_data[i] = z_int / float(0xffffff);
+        z_data[i] = z_int / maxDepthValueAsInteger;
       }
     }
   }
