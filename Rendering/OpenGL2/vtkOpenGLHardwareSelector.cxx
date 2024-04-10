@@ -19,6 +19,9 @@
 #include "vtkImageImport.h"
 #include "vtkNew.h"
 #include "vtkPNMWriter.h"
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h> // for EM_ASM
+#endif
 #include "vtkWindows.h" // OK on UNix etc
 #include <sstream>
 #endif
@@ -41,13 +44,13 @@ vtkStandardNewMacro(vtkOpenGLHardwareSelector);
 #ifdef vtkOpenGLHardwareSelectorDEBUG
 vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector()
 {
-  cerr << "=====vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector" << endl;
+  std::cout << "=====vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector" << endl;
 }
 
 //------------------------------------------------------------------------------
 vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector()
 {
-  cerr << "=====vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector" << endl;
+  std::cout << "=====vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector" << endl;
 }
 #else
 vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector() = default;
@@ -140,7 +143,58 @@ void vtkOpenGLHardwareSelector::SavePixelBuffer(int passNo)
   // find these images sometimes.
   std::string fname = "C:/Users/ken.martin/Documents/pickbuffer_";
 
-#if defined(_WIN32)
+#if defined(__EMSCRIPTEN__)
+  // clang-format off
+  // Displays a table with pixel coordinates and the r,g,b values.
+  // This table is rendered inside a div with id='pick_buffer_debug'.
+  //
+  // | PASS_NAME           | ANOTHER_PASS_NAME   |..|
+  // | [x0, y0] = (r, g, b)| [x0, y0] = (r, g, b)|..|
+  // | ....                | ....                |..|
+  EM_ASM({
+    const passNo = $0;
+    const divId = 'pick_buffer_debug';
+    let div = document.getElementById(divId);
+    const passTypes = new Array('ACTOR_PASS', 'COMPOSITE_INDEX_PASS', 'POINT_ID_LOW24', 'POINT_ID_HIGH24', 'PROCESS_PASS', 'CELL_ID_LOW24', 'CELL_ID_HIGH24');
+    if (div === null) {
+      // create the layout of caption and canvas for the first time.
+      div = document.createElement('div');
+      div.setAttribute('id', divId);
+      div.style.display = 'flex';
+      for (const passType of passTypes) {
+        const bufferTableDiv = document.createElement('div');
+        bufferTableDiv.style.border = '2px solid #000000';
+        const passTitle = document.createElement('text');
+        passTitle.innerHTML = passType;
+        bufferTableDiv.appendChild(passTitle);
+        const passPixelDiv = document.createElement('text');
+        passPixelDiv.setAttribute('id', passType.toLowerCase());
+        bufferTableDiv.appendChild(passPixelDiv);
+        div.appendChild(bufferTableDiv);
+      }
+      document.body.appendChild(div);
+    }
+    const xmin = $2;
+    const xmax = $3;
+    const ymin = $4;
+    const ymax = $5;
+    const width = xmax - xmin + 1;
+    const height = ymax - ymin + 1;
+    const pixels = new Uint8ClampedArray(Module.HEAPU8.subarray($1, $1 + width * height * 3));
+    const passPixelDiv = document.getElementById(passTypes[passNo].toLowerCase());
+    passPixelDiv.innerHTML = '<p></p>';
+    let i = 0;
+    for (let y = ymin; y <= ymax; ++y) {
+      for (let x = xmin; x <= xmax; ++x) {
+        passPixelDiv.innerHTML += '<p>[' + x + ',' + y + '] = (' + pixels[i++] + ',' + pixels[i++] + ',' + pixels[i++] + ')</p>';
+      }
+    }
+  }, passNo, this->PixBuffer[passNo], this->Area[0], this->Area[2], this->Area[1], this->Area[3]);
+  // clang-format on
+  std::cout
+    << "=====vtkOpenGLHardwareSelector wrote to table in <div id=pick_buffer_debug></div>\n";
+  return;
+#elif defined(_WIN32)
   std::ostringstream toString;
   toString.str("");
   toString.clear();
@@ -148,13 +202,13 @@ void vtkOpenGLHardwareSelector::SavePixelBuffer(int passNo)
   fname += toString.str();
   fname += "_";
 #endif
-  fname += ('0' + passNo);
+  fname += ("0" + std::to_string(passNo));
   fname += ".pnm";
   vtkNew<vtkPNMWriter> pw;
   pw->SetInputConnection(ii->GetOutputPort());
   pw->SetFileName(fname.c_str());
   pw->Write();
-  cerr << "=====vtkOpenGLHardwareSelector wrote " << fname << "\n";
+  std::cout << "=====vtkOpenGLHardwareSelector wrote " << fname << "\n";
 #endif
 }
 
@@ -162,7 +216,7 @@ void vtkOpenGLHardwareSelector::SavePixelBuffer(int passNo)
 void vtkOpenGLHardwareSelector::BeginRenderProp(vtkRenderWindow*)
 {
 #ifdef vtkOpenGLHardwareSelectorDEBUG
-  cerr << "=====vtkOpenGLHardwareSelector::BeginRenderProp" << endl;
+  std::cout << "=====vtkOpenGLHardwareSelector::BeginRenderProp" << endl;
 #endif
 }
 
@@ -201,7 +255,7 @@ void vtkOpenGLHardwareSelector::BeginRenderProp()
 void vtkOpenGLHardwareSelector::EndRenderProp(vtkRenderWindow*)
 {
 #ifdef vtkOpenGLHardwareSelectorDEBUG
-  cerr << "=====vtkOpenGLHardwareSelector::EndRenderProp" << endl;
+  std::cout << "=====vtkOpenGLHardwareSelector::EndRenderProp" << endl;
 #endif
 }
 
