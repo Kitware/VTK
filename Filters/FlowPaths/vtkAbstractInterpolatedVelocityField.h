@@ -203,6 +203,8 @@ public:
    * If set to true, the first three point of the cell will be used to compute a normal to the cell,
    * this normal will then be removed from the vorticity so the resulting vector in tangent to the
    * cell.
+   *
+   * This means that the input dataset should only contains 2D planar cells.
    */
   vtkSetMacro(ForceSurfaceTangentVector, bool);
   vtkGetMacro(ForceSurfaceTangentVector, bool);
@@ -211,6 +213,7 @@ public:
   ///@{
   /**
    * If set to true, cell within tolerance factor will always be found, except for edges.
+   * Please note 2D planar cells are expected.
    */
   vtkSetMacro(SurfaceDataset, bool);
   vtkGetMacro(SurfaceDataset, bool);

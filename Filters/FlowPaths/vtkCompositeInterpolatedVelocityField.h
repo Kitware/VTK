@@ -71,6 +71,11 @@ public:
 
   /**
    * Project the provided point on current cell, current dataset.
+   * The found cell is expected to be planar and contains at least
+   * three non-aligned points. If not, the point will not be snapped.
+   *
+   * Return 1 and fill pProj if snap has been performed,
+   * return 0 otherwise.
    */
   virtual int SnapPointOnCell(double* pOrigin, double* pProj);
 
