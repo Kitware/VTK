@@ -96,7 +96,7 @@ int vtkHDFWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
     this->NumberOfTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     if (this->WriteAllTimeSteps)
     {
-      this->IsTransient = true;
+      this->IsTemporal = true;
     }
   }
   else
@@ -133,7 +133,7 @@ int vtkHDFWriter::RequestData(vtkInformation* request,
 
   this->WriteData();
 
-  if (this->IsTransient)
+  if (this->IsTemporal)
   {
     if (this->CurrentTimeIndex == 0)
     {
@@ -260,9 +260,9 @@ void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input)
 {
-  if (CurrentTimeIndex == 0 && !this->InitializeTransientData(input))
+  if (CurrentTimeIndex == 0 && !this->InitializeTemporalData(input))
   {
-    vtkErrorMacro(<< "Transient polydata initialization failed for PolyData " << this->FileName);
+    vtkErrorMacro(<< "Temporal polydata initialization failed for PolyData " << this->FileName);
     return false;
   }
   if (!this->UpdateStepsGroup(input))
@@ -289,9 +289,9 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input)
 {
-  if (CurrentTimeIndex == 0 && !this->InitializeTransientData(input))
+  if (CurrentTimeIndex == 0 && !this->InitializeTemporalData(input))
   {
-    vtkErrorMacro(<< "Transient unstructured grid initialization failed for PolyData "
+    vtkErrorMacro(<< "Temporal unstructured grid initialization failed for PolyData "
                   << this->FileName);
     return false;
   }
@@ -376,7 +376,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::UpdateStepsGroup(vtkUnstructuredGrid* input)
 {
-  if (!this->IsTransient)
+  if (!this->IsTemporal)
   {
     return true;
   }
@@ -412,7 +412,7 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkUnstructuredGrid* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
 {
-  if (!this->IsTransient)
+  if (!this->IsTemporal)
   {
     return true;
   }
@@ -511,9 +511,9 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::InitializeTransientData(vtkUnstructuredGrid* input)
+bool vtkHDFWriter::InitializeTemporalData(vtkUnstructuredGrid* input)
 {
-  if (!this->IsTransient)
+  if (!this->IsTemporal)
   {
     return true;
   }
@@ -589,9 +589,9 @@ bool vtkHDFWriter::InitializeTransientData(vtkUnstructuredGrid* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::InitializeTransientData(vtkPolyData* input)
+bool vtkHDFWriter::InitializeTemporalData(vtkPolyData* input)
 {
-  if (!this->IsTransient)
+  if (!this->IsTemporal)
   {
     return true;
   }
@@ -791,7 +791,7 @@ bool vtkHDFWriter::AppendPrimitiveCells(hid_t baseGroup, vtkPolyData* input)
     // Create group
     vtkHDF::ScopedH5GHandle group;
 
-    if (this->IsTransient)
+    if (this->IsTemporal)
     {
       group = H5Gopen(baseGroup, groupName, H5P_DEFAULT);
     }
@@ -875,7 +875,7 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input)
       }
 
       // Create the offsets group in the steps group for transient data
-      if (this->IsTransient)
+      if (this->IsTemporal)
       {
         vtkHDF::ScopedH5GHandle offsetsGroup = H5Gcreate(
           this->Impl->GetStepsGroup(), offsetsGroupName, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -904,8 +904,8 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input)
       }
 
       // For transient data, also add the offset in the steps group
-      if (this->IsTransient &&
-        !this->AppendTransientDataArray(group, array, arrayName, offsetsGroupName, dataType))
+      if (this->IsTemporal &&
+        !this->AppendTemporalDataArray(group, array, arrayName, offsetsGroupName, dataType))
       {
         return false;
       }
@@ -1033,7 +1033,7 @@ bool vtkHDFWriter::AppendTimeValues(hid_t group)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendTransientDataArray(hid_t arrayGroup, vtkAbstractArray* array,
+bool vtkHDFWriter::AppendTemporalDataArray(hid_t arrayGroup, vtkAbstractArray* array,
   const char* arrayName, const char* offsetsGroupName, hid_t dataType)
 {
   vtkHDF::ScopedH5GHandle offsetsGroup =

@@ -4,13 +4,18 @@ A lot of this material is taken from [The VTK User’s Guide](https://www.kitwar
 
 The *Visualization Toolkit* provides a number of source and writer objects to read and write popular data file formats. The *Visualization Toolkit* also provides some of its own file formats. The main reason for creating yet another data file format is to offer a consistent data representation scheme for a variety of dataset types, and to provide a simple method to communicate data between software. Whenever possible, we recommend that you use formats that are more widely used. But if this is not possible, the *Visualization Toolkit* formats described here can be used instead. Note that these formats may not be supported by many other tools.
 
-There are two different styles of file formats available in VTK. The simplest are the legacy, serial formats that are easy to read and write either by hand or programmatically. However, these formats are less flexible than the XML based file formats described later in this section. The XML formats support random access, parallel I/O, and portable data compression and are preferred to the serial VTK file formats whenever possible.
+There are three different styles of file formats available in VTK:
+ 1. Legacy
 
-The goal of this work is to provide simulations with a way to save data in the HDF format that
-could be easily loaded in VTK without the need for an external data
-description (such as XDMF). Currently we provide readers for Image
-Data, Poly Data, Unstructured Grid and Overlapping AMRs.
+It's a serial formats that are easy to read and write either by hand or programmatically.
 
+ 1. XML
+
+More flexible but more complex than the legacy file format, it supports random access, parallel I/O, and portable data compression and are preferred to the serial VTK file formats whenever possible.
+
+ 2. VTKHDF
+
+This is a file format using the same concepts as the XML formats described above but relying on HDF5 for actual storage. It is simpler than the XML. It provides good I/O performance as well as robust and flexible parallel I/O capabilities and may to replace others file formats once it will be complete. It can be read/written using either hdf5 directly or the vtkhdf implementation in VTK.
 
 ## Simple Legacy Formats
 
@@ -935,18 +940,22 @@ The following is a complete example specifying a vtkPolyData representing a cube
 
 ## VTKHDF File Format
 
-The `VTKHDF` file format is a file format using the same concepts as the
-XML formats described above but relying on
-[HDF5](https://www.hdfgroup.org/solutions/hdf5/) for actual storage. It
-is meant to provide good I/O performance as well as robust and flexible
-parallel I/O capabilities.
+The `VTKHDF` file format is a file format relying on [HDF5](https://www.hdfgroup.org/solutions/hdf5/).
+It is meant to provide good I/O performance as well as robust and flexible parallel I/O capabilities.
 
-The current file format version is the **2.1**.
+It currently supports: PolyData, UnstructuredGrid, ImageData, OverlappingAMR, MultiBlockDataSet and the
+PartitionedDataSetCollection.
+
+The current file format version is the **2.2**.
 
 Note: This development is iterative and the format is expected to grow in
 its support for more and more use cases.
 
 ### Changelog
+
+#### VTKHDF - 2.2
+
+- add support for temporal `OverlappingAMR`
 
 #### VTKHDF - 2.1
 
@@ -956,7 +965,7 @@ its support for more and more use cases.
 
 - extends the specification for `PolyData`.
 
-- add support for `Transient` dataset for `PolyData`, `ImageData` and `UnstructuredGrid`.
+- add support for `Temporal` dataset for `PolyData`, `ImageData` and `UnstructuredGrid`.
 
 #### VTKHDF - 1.0
 
@@ -970,7 +979,7 @@ its support for more and more use cases.
 The ` VTKHDF` format generally uses the `.vtkhdf` extension. The `.hdf`
 extension is also supported but is not preferred. There are no specific
 extensions to differentiate between different types of dataset, serial
-vs. distributed data or static vs. transient data.
+vs. distributed data or static vs. temporal data.
 
 ### General Specification
 
@@ -978,7 +987,7 @@ VTK HDF files start with a group called `VTKHDF` with two attributes:
 `Version`, an array of two integers and `Type`, a string showing the
 VTK dataset type stored in the file. Additional attributes can follow
 depending on the dataset type. Currently, `Version`
-is the array [2, 1] and `Type` can be `ImageData`, `PolyData`,
+is the array [2, 2] and `Type` can be `ImageData`, `PolyData`,
 `UnstructuredGrid`, `OverlappingAMR`,  `PartitionedDataSetCollection` or
 `MultiBlockDataSet`.
 
@@ -1172,7 +1181,7 @@ process in a distributed context) to optimize file meta-data reading.
 * The block wise reading implementation and composite level implementation can be
 managed independently from each other.
 * It would be doable for each block to have its own time range and time steps in
-a transient context with the full composite data set able to collect and expose a
+a temporal context with the full composite data set able to collect and expose a
 combined range and set of time values, but for now we only allow
 reading datasets that have all the same number of timesteps.
 * Reading performance can scale linearly with the number of blocks even in a
@@ -1185,9 +1194,9 @@ distributed context.
 Figure 10. - PartitionedDataSetCollection/MultiBlockDataset VTKHDF File Format
 ```
 
-### Transient Data
+### Temporal Data
 
-The generic format for all `VTKHDF` transient data is shown in Figure 11.
+The generic format for all `VTKHDF` temporal data is shown in Figure 11.
 The general idea is to take the static formats described above and use them
 as a base to append all the time dependent data. As such, a file holding static
 data has a very similar structure to a file holding dynamic data. An additional
@@ -1195,7 +1204,7 @@ data has a very similar structure to a file holding dynamic data. An additional
 for each of the time steps as well as the time values. The choice to include offset
 information as HDF5 datasets was made to reduce the quantity of meta-data in the
 file to improve performance. This `Steps` group has one integer like attribute
-`NSteps` indicating the number of steps in the transient dataset.
+`NSteps` indicating the number of steps in the temporal dataset.
 
 The `Steps` group is structured as follows:
 * `Values` [dim = (NSteps)]: each entry indicates the time value for the associated
@@ -1231,25 +1240,42 @@ place.
 :width: 640px
 :align: center
 
-Figure 11. - Transient Data VTKHDF File Format
+Figure 11. - Temporal Data VTKHDF File Format
 ```
 
-A particularity of transient `Image Data` in the format is that the reader expects an additional
-prepended dimension considering the time to be the first dimension in the multidimensional arrays.
-As such, arrays described in transient `Image Data` should have dimensions ordered as
-`(time, z, y, x)`.
-
-Writing incrementally to `VTKHDF` transient datasets is relatively straightforward using the
+Writing incrementally to `VTKHDF` temporal datasets is relatively straightforward using the
 appending functionality of `HDF5` chunked data sets
 ([Chunking in HDF5](https://davis.lbl.gov/Manuals/HDF5-1.8.7/Advanced/Chunking/index.html)).
+
+#### Particularity regarding ImageData
+
+A particularity of temporal `Image Data` in the format is that the reader expects an additional
+prepended dimension considering the time to be the first dimension in the multidimensional arrays.
+As such, arrays described in temporal `Image Data` should have dimensions ordered as
+`(time, z, y, x)`.
+
+#### Particularity regarding OverlappingAMR
+
+Currently only `AMRBox` and `Point/Cell/Field data` can be temporal, not the `Spacing`. Due to the
+structure of the OverlappingAMR format, the format specify an intermediary group between the `Steps`
+group and the `Point/Cell/FieldDataOffset` group named `LevelX` for each level where `X` is the
+number of level. These `Level` groups will also contain 2 other datasets to retrieve the `AMRBox`:
+
+- `AMRBoxOffsets` : each entry indicates by how many AMR box to offset reading into the `AMRBox`.
+- `NumberOfAMRBox` : the number of boxes contained in the `AMRBox` for each timestep.
+
+```{figure} vtkhdf_images/transient_overlapping_amr_hdf_schema.png
+:width: 640px
+:align: center
+
+Figure 12. - Temporal OverlappingAMR VTKHDF File Format
+```
 
 ### Limitations
 
 This specification and the reader available in VTK currently only
-supports ImageData, UnstructuredGrid, PolyData and Overlapping AMR. Other dataset
-types may be added later depending on interest and funding.
-
-Also, Overlapping AMR transient data is not currently supported.
+supports ImageData, UnstructuredGrid, PolyData, Overlapping AMR, MultiBlockDataSet and Partitioned
+DataSet Collection. Other dataset types may be added later depending on interest and funding.
 
 ### Examples
 
@@ -1976,7 +2002,7 @@ GROUP "/" {
 }
 ```
 
-#### Transient Poly Data
+#### Temporal Poly Data
 
 The poly data is the `test_transient_poly_data.hdf` from the `VTK` testing data:
 

@@ -106,13 +106,7 @@ inline hid_t getH5TypeFromVtkType(const int dataType)
   }
 }
 
-/*
- * @struct TransientGeometryOffsets
- * @brief Use to get the offsets for transient vtkHDF.
- *
- * To use it, create an object using the templated constructor of this struct.
- * It will fill the object with data that can be then retrieved.
- */
+VTK_DEPRECATED_IN_9_4_0("Please use TemporalGeometryOffsets struct instead.")
 struct TransientGeometryOffsets
 {
 public:
@@ -130,7 +124,68 @@ public:
       if (val.empty())
       {
         vtkErrorWithObjectMacro(
-          nullptr, << path.c_str() << " array cannot be empty when there is transient data");
+          nullptr, << path.c_str() << " array cannot be empty when there is temporal data");
+        return false;
+      }
+      return true;
+    };
+    auto recupSingleOffset = [&](std::string path, vtkIdType& val) {
+      std::vector<vtkIdType> buffer;
+      if (!recupMultiOffset(path, buffer))
+      {
+        return false;
+      }
+      val = buffer[0];
+      return true;
+    };
+    if (!recupSingleOffset("Steps/PartOffsets", this->PartOffset))
+    {
+      this->Success = false;
+      return;
+    }
+    if (!recupSingleOffset("Steps/PointOffsets", this->PointOffset))
+    {
+      this->Success = false;
+      return;
+    }
+    if (!recupMultiOffset("Steps/CellOffsets", this->CellOffsets))
+    {
+      this->Success = false;
+      return;
+    }
+    if (!recupMultiOffset("Steps/ConnectivityIdOffsets", this->ConnectivityOffsets))
+    {
+      this->Success = false;
+      return;
+    }
+  }
+};
+
+/*
+ * @struct TemporalGeometryOffsets
+ * @brief Use to get the offsets for temporal vtkHDF.
+ *
+ * To use it, create an object using the templated constructor of this struct.
+ * It will fill the object with data that can be then retrieved.
+ */
+struct TemporalGeometryOffsets
+{
+public:
+  bool Success = true;
+  vtkIdType PartOffset = 0;
+  vtkIdType PointOffset = 0;
+  std::vector<vtkIdType> CellOffsets;
+  std::vector<vtkIdType> ConnectivityOffsets;
+
+  template <class T>
+  TemporalGeometryOffsets(T* impl, vtkIdType step)
+  {
+    auto recupMultiOffset = [&](std::string path, std::vector<vtkIdType>& val) {
+      val = impl->GetMetadata(path.c_str(), 1, step);
+      if (val.empty())
+      {
+        vtkErrorWithObjectMacro(
+          nullptr, << path.c_str() << " array cannot be empty when there is temporal data");
         return false;
       }
       return true;
