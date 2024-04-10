@@ -41,12 +41,14 @@ class vtkGLTFReader;
  * embedded inside the tile. See the test for this reader for an example on how to
  * do that.
  *
- * In VTK 9.3.0, a version of this reader (that did not support
+ * BREAKING_CHANGE: In VTK 9.3.0, a version of this reader (that did not support
  * textures) produced a vtkPartitionedDataSet output, where each tile
  * was a partition in that dataset. Now, each tile is a
  * vtkPartitionedDataSet in a vtkPartitionedDataSetCollection. Each
  * tile can be split into different partitions each with its own
- * texture.
+ * texture. This should not affect usage if you simply use the reader
+ * in a pipeline but you'll need to change how you iterate over the output
+ * if you needed to do a more advanced processing.
  *
  * @see vtkGeoTransform, vtkCesium3DTilesWriter, vtkGLTFReader
  */

@@ -3,8 +3,8 @@ Extend 3D Tiles reader to:
 - support external tilesets
 - enable applying textures
 - fix a bug where only the first partition in a tile was loaded
-- the reader produces a vtkPartitionedDataSetCollection instead of a
-  vtkPartitionedDataSet
+- BREAKING_CHANGE: the reader produces a
+  vtkPartitionedDataSetCollection instead of a vtkPartitionedDataSet.
 
 These changes require the following  vtkGLTFReader improvements:
 - using the GLTF reader to read an embedded GLB inside another file (the B3DM in this case)
