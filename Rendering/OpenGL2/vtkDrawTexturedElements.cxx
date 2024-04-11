@@ -22,7 +22,6 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
-#include "vtkScalarsToColors.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
 #include "vtkShaderProperty.h"
@@ -30,8 +29,6 @@
 #include "vtkTextureObject.h"
 
 #include "vtk_glew.h"
-
-#include <numeric> // for std::iota()
 
 // Uncomment to print shader/color info to cout
 // #define vtkDrawTexturedElements_DEBUG
@@ -323,7 +320,7 @@ void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapp
       vtkNew<vtkColorSeries> palette;
       vtkSmartPointer<vtkImageData> paletteImage;
       palette->SetColorScheme(vtkColorSeries::BREWER_DIVERGING_BROWN_BLUE_GREEN_11);
-      auto* lkup = palette->CreateLookupTable(vtkColorSeries::ORDINAL);
+      vtkLookupTable* lkup = palette->CreateLookupTable(vtkColorSeries::ORDINAL);
       paletteImage = vtkMapper::BuildColorTextureImage(lkup, mapper->GetColorMode());
       this->ColorTextureGL->SetInputData(paletteImage);
     }
@@ -430,7 +427,8 @@ void vtkDrawTexturedElements::PostDraw(vtkRenderer* ren, vtkActor*, vtkMapper*)
   this->P->CullFaceSaver.reset(nullptr);
 }
 
-void vtkDrawTexturedElements::DrawInstancedElementsImpl(vtkRenderer* ren, vtkActor*, vtkMapper*)
+void vtkDrawTexturedElements::DrawInstancedElementsImpl(
+  vtkRenderer* ren, vtkActor*, vtkMapper* mapper)
 {
   if (this->ShaderProgram == nullptr)
   {
@@ -462,6 +460,7 @@ void vtkDrawTexturedElements::DrawInstancedElementsImpl(vtkRenderer* ren, vtkAct
     case vtkDrawTexturedElements::ElementShape::AbstractPatches:
 #ifdef GL_ARB_tessellation_shader
     {
+      (void)mapper;
       const int patchVertexCount = this->PatchVertexCountFromPrimitive(this->PatchType);
       this->P->Count *= patchVertexCount;
       glPatchParameteri(GL_PATCH_VERTICES, patchVertexCount);
