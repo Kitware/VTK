@@ -6,6 +6,7 @@
 #include "vtkDataArrayRange.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkTypeUInt8Array.h"
+#include "vtkVersion.h"
 #include "vtkWasmSceneManager.h"
 
 namespace
@@ -206,6 +207,18 @@ bool removeObserver(vtkTypeUInt32 identifier, unsigned long tag)
   return Manager->RemoveObserver(identifier, tag);
 }
 
+//-------------------------------------------------------------------------------
+std::string getVTKVersion()
+{
+  return vtkVersion::GetVTKVersion();
+}
+
+//-------------------------------------------------------------------------------
+std::string getVTKVersionFull()
+{
+  return vtkVersion::GetVTKVersionFull();
+}
+
 } // namespace
 
 EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
@@ -242,6 +255,9 @@ EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
 
   function("addObserver", ::addObserver);
   function("removeObserver", ::removeObserver);
+
+  function("getVTKVersion", ::getVTKVersion);
+  function("getVTKVersionFull", ::getVTKVersionFull);
 }
 
 int main()

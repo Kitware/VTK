@@ -699,19 +699,11 @@
 
     interruptible: true
 
-.cmake_package_webassembly_wheel_linux:
+.cmake_package_webassembly_linux:
     stage: package
 
     script:
-        - apt update
-        - apt install -y python3.10-venv
-        - find build/bin/ -regex '.*\.\(js\|mjs\|wasm\)$' -exec cp -v {} build/Web/WebAssembly/Wheel/vtk_wasm/ \;
-        - cd build/Web/WebAssembly/Wheel
-        - python -m venv venv
-        - . venv/bin/activate
-        - python -m pip install --upgrade --no-cache-dir pip setuptools
-        - python -m pip install build
-        - python -m build .
+        - .gitlab/ci/create_webassembly_archive.sh
 
     interruptible: true
 

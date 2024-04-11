@@ -73,9 +73,6 @@
             # SPDX files
             - build/**/*.spdx
 
-            # WebAssembly
-            - build/Web/WebAssembly/
-
 .cmake_junit_artifacts:
     artifacts:
         expire_in: 1d
@@ -151,13 +148,12 @@
             - build/*-wheel-sdk-*.tar.xz
             - build/cdash-build-id
 
-.cmake_webassembly_wheel_artifacts:
+.cmake_webassembly_artifacts:
     artifacts:
         expire_in: 1d
         when: always
         paths:
-            - build/Web/WebAssembly/Wheel/dist/*.whl
-            - build/Web/WebAssembly/Wheel/dist/*.tar.gz
+            - build/bin/vtk-wasm*.tar.gz
 
 .cmake_release_artifacts:
     artifacts:
