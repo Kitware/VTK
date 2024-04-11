@@ -67,8 +67,9 @@ int TestOpenXRInteractiveDragon(int argc, char* argv[])
   mapper->SetInputConnection(tf->GetOutputPort());
   mapper->SetVBOShiftScaleMethod(vtkPolyDataMapper::ShiftScaleMethodType::AUTO_SHIFT_SCALE);
   actor->SetMapper(mapper);
-  actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
-  actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
+  // Red dragon is in world coordinate system (the default)
+  actor->GetProperty()->SetAmbientColor(1.0, 0.0, 0.0);
+  actor->GetProperty()->SetDiffuseColor(1.0, 0.0, 0.0);
   actor->GetProperty()->SetSpecular(0.5);
   actor->GetProperty()->SetDiffuse(0.7);
   actor->GetProperty()->SetAmbient(0.5);
@@ -87,8 +88,9 @@ int TestOpenXRInteractiveDragon(int argc, char* argv[])
   pactor->SetMapper(pmapper);
 
   pactor->SetUserMatrix(trans2->GetMatrix());
-  pactor->GetProperty()->SetAmbientColor(0.2, 1.0, 0.2);
-  pactor->GetProperty()->SetDiffuseColor(0.6, 1.0, 1.0);
+  // Green dragon is in physical coords
+  pactor->GetProperty()->SetAmbientColor(0.0, 1.0, 0.0);
+  pactor->GetProperty()->SetDiffuseColor(0.0, 1.0, 0.0);
   pactor->GetProperty()->SetSpecular(0.5);
   pactor->GetProperty()->SetDiffuse(0.7);
   pactor->GetProperty()->SetAmbient(0.5);
@@ -107,8 +109,9 @@ int TestOpenXRInteractiveDragon(int argc, char* argv[])
   dactor->SetMapper(dmapper);
   dactor->SetScale(2.0, 2.0, 2.0);
   dactor->SetPosition(0.0, 0.0, -0.2);
-  dactor->GetProperty()->SetAmbientColor(1.0, 0.6, 0.2);
-  dactor->GetProperty()->SetDiffuseColor(1.0, 1.0, 0.7);
+  // Blue dragon is in device coords (of left controller)
+  dactor->GetProperty()->SetAmbientColor(0.0, 0.0, 1.0);
+  dactor->GetProperty()->SetDiffuseColor(0.0, 0.0, 1.0);
   dactor->GetProperty()->SetSpecular(0.5);
   dactor->GetProperty()->SetDiffuse(0.7);
   dactor->GetProperty()->SetAmbient(0.5);

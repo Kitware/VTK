@@ -59,11 +59,6 @@ class VTKRENDERINGVR_EXPORT vtkVRRenderWindow : public vtkOpenGLRenderWindow
 public:
   enum
   {
-    PhysicalToWorldMatrixModified = vtkCommand::UserEvent + 200
-  };
-
-  enum
-  {
     LeftEye = 0,
     RightEye
   };
@@ -166,75 +161,6 @@ public:
    * and set when this is called.
    */
   virtual void InitializeViewFromCamera(vtkCamera* cam);
-
-  ///@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * View direction is the -Z axis of the physical coordinate system
-   * in world coordinate system.
-   * \sa SetPhysicalViewUp, \sa SetPhysicalTranslation,
-   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
-   */
-  virtual void SetPhysicalViewDirection(double, double, double);
-  virtual void SetPhysicalViewDirection(double[3]);
-  vtkGetVector3Macro(PhysicalViewDirection, double);
-  ///@}
-
-  ///@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * View up is the +Y axis of the physical coordinate system
-   * in world coordinate system.
-   * \sa SetPhysicalViewDirection, \sa SetPhysicalTranslation,
-   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
-   */
-  virtual void SetPhysicalViewUp(double, double, double);
-  virtual void SetPhysicalViewUp(double[3]);
-  vtkGetVector3Macro(PhysicalViewUp, double);
-  ///@}
-
-  ///@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * Position of the physical coordinate system origin
-   * in world coordinates.
-   * \sa SetPhysicalViewDirection, \sa SetPhysicalViewUp,
-   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
-   */
-  virtual void SetPhysicalTranslation(double, double, double);
-  virtual void SetPhysicalTranslation(double[3]);
-  vtkGetVector3Macro(PhysicalTranslation, double);
-  ///@}
-
-  ///@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * Ratio of distance in world coordinate and physical and system
-   * (PhysicalScale = distance_World / distance_Physical).
-   * Example: if world coordinate system is in mm then
-   * PhysicalScale = 1000.0 makes objects appear in real size.
-   * PhysicalScale = 100.0 makes objects appear 10x larger than real size.
-   */
-  virtual void SetPhysicalScale(double);
-  vtkGetMacro(PhysicalScale, double);
-  ///@}
-
-  /**
-   * Set physical to world transform matrix. Members calculated and set from the matrix:
-   * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
-   * The x axis scale is used for \sa PhysicalScale
-   */
-  void SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
-
-  /**
-   * Get physical to world transform matrix. Members used to calculate the matrix:
-   * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
-   */
-  void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix) override;
 
   /**
    * Add a renderer to the list of renderers.
@@ -412,15 +338,6 @@ protected:
 
   std::map<uint32_t, DeviceData> DeviceHandleToDeviceDataMap;
   uint32_t InvalidDeviceIndex = UINT32_MAX;
-
-  // -Z axis of the Physical to World matrix
-  double PhysicalViewDirection[3] = { 0.0, 0.0, -1.0 };
-  // Y axis of the Physical to World matrix
-  double PhysicalViewUp[3] = { 0.0, 1.0, 0.0 };
-  // Inverse of the translation component of the Physical to World matrix, in mm
-  double PhysicalTranslation[3] = { 0.0, 0.0, 0.0 };
-  // Scale of the Physical to World matrix
-  double PhysicalScale = 1.0;
 
   bool BaseStationVisibility = false;
 
