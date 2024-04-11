@@ -240,10 +240,15 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
 
   auto shapeInfo = this->CellType->GetCaches()->AttributeCalculator<vtkCellAttributeInformation>(
     this->CellType, this->Shape);
+#ifdef GL_ES_VERSION_3_0
+  this->UsesTessellationShaders = false;
+  this->UsesGeometryShaders = false;
+#else
   this->UsesTessellationShaders = shapeInfo->GetBasisOrder() > 1 ||
     this->CellSource->SourceShape == vtkDGCell::Shape::Quadrilateral;
   this->UsesGeometryShaders =
     this->UsesTessellationShaders && vtkDGRenderResponder::VisualizeTessellation;
+#endif
   switch (this->CellSource->SourceShape)
   {
       // Volume cells should never be rendered directly:
@@ -765,7 +770,9 @@ bool vtkDGRenderResponder::DrawShapes(
     // In case the GPU supports more number of levels, let's use it.
     if (auto oglRenWin = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow()))
     {
+#ifdef GL_ARB_tessellation_shader
       oglRenWin->GetState()->vtkglGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessGenLevel);
+#endif
     }
     const std::array<int, 2> tessLevelRange = { 1, maxTessGenLevel };
     tessControlUniforms->SetUniform2i("tessellation_levels_range", tessLevelRange.data());
