@@ -672,7 +672,6 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
       inputItem->DiffuseColor = internals.BlockState.DiffuseColor.top();
       inputItem->SelectionColor = internals.BlockState.SelectionColor.top();
       inputItem->SelectionOpacity = internals.BlockState.SelectionOpacity.top();
-      inputItem->OverridesColor = (internals.BlockState.AmbientColor.size() > 1);
       inputItem->IsOpaque = (inputItem->Opacity >= 1.0) ? textureOpaque : false;
       inputItem->ScalarMode = internals.BlockState.ScalarMode.top();
       inputItem->ArrayAccessMode = internals.BlockState.ArrayAccessMode.top();
@@ -689,6 +688,46 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
         internals.BlockState.ScalarRange.top()[0], internals.BlockState.ScalarRange.top()[1]);
       inputItem->LookupTable = internals.BlockState.LookupTable.top();
 
+      int cellFlag;
+      vtkDataArray* scalars =
+        vtkCompositePolyDataMapper::GetScalars(polydata, inputItem->ScalarMode,
+          inputItem->ArrayAccessMode, inputItem->ArrayId, inputItem->ArrayName.c_str(), cellFlag);
+      // When a color (r,g,b) is explicitly set for this block:
+      //  it is applied only when:
+      //    - (cond: 0) scalars are null
+      //        or
+      //    - (cond: 1) the ScalarVisibility is explicitly turned off for this block
+      //        or
+      //    - (cond: 2) the global ScalarVisibility is turned off
+      // Please do NOT condense these series of conditions.
+      // Preferably keep the logic understandable for new developers.
+      const bool hasAmbientColor = internals.BlockState.AmbientColor.size() > 1;
+      if (hasAmbientColor)
+      {
+        if (scalars != nullptr) // has a colorArray
+        {
+          if (overrides_scalar_visibility)
+          {
+            // the ScalarVisibility is explicitly turned off for this block (1)
+            inputItem->OverridesColor = !cda->GetBlockScalarVisibility(polydata);
+          }
+          else
+          {
+            // the ScalarVisibility is explicitly turned off for this block (2)
+            inputItem->OverridesColor = !this->ScalarVisibility;
+          }
+        }
+        else
+        {
+          // scalars are null (0)
+          inputItem->OverridesColor = true;
+        }
+      }
+      else
+      {
+        inputItem->OverridesColor = false;
+      }
+
       // Apply these on the delegate. These attributes are batch invariants.
       auto delegate = delegator->GetDelegate();
       delegate->SetInterpolateScalarsBeforeMapping(inputItem->InterpolateScalarsBeforeMapping);
@@ -700,10 +739,6 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
         vtkScalarsToColors* lut = inputItem->LookupTable; // inputItem->LookupTable
         // ensure table is built
         lut->Build();
-        int cellFlag;
-        vtkDataArray* scalars =
-          vtkCompositePolyDataMapper::GetScalars(polydata, inputItem->ScalarMode,
-            inputItem->ArrayAccessMode, inputItem->ArrayId, inputItem->ArrayName.c_str(), cellFlag);
 
         unsigned char ghostsToSkip;
         vtkUnsignedCharArray* ghosts =
