@@ -1573,12 +1573,6 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
     return 1;
   }
 
-  if (!this->DataArraySelection)
-  {
-    vtkErrorMacro("NULL dataArraySelection ");
-    return false;
-  }
-
   if (!this->Impl->ReadAMRData(
         data, level, maxLevel, this->DataArraySelection, this->GetHasTemporalData()))
   {
