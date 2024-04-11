@@ -21,7 +21,7 @@ following should be fixed first:
 set(Python3_ARTIFACTS_INTERACTIVE ON)
 
 set(vtk_python_min_version "3.4")
-set(vtk_python_version_support "3.6")
+set(vtk_python_version_support "3.8")
 if (VTK_REMOVE_LEGACY)
   set(vtk_python_min_version "${vtk_python_version_support}")
 endif ()
