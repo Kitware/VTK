@@ -115,6 +115,46 @@ public:
   }
   ///@}
 
+  void GetIntegerTuple(vtkIdType tupleIdx, vtkTypeInt64* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) override
+  {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    for (vtkIdType ii = 0; ii < this->NumberOfComponents; ++ii)
+    {
+      tuple[ii] = static_cast<vtkTypeInt64>((this->Buffer->GetBuffer())[valueIdx + ii]);
+    }
+  }
+
+  void SetIntegerTuple(vtkIdType tupleIdx, vtkTypeInt64* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) override
+  {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    for (vtkIdType ii = 0; ii < this->NumberOfComponents; ++ii)
+    {
+      this->Buffer->GetBuffer()[valueIdx + ii] = static_cast<ValueType>(tuple[ii]);
+    }
+  }
+
+  void GetUnsignedTuple(vtkIdType tupleIdx, vtkTypeUInt64* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) override
+  {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    for (vtkIdType ii = 0; ii < this->NumberOfComponents; ++ii)
+    {
+      tuple[ii] = static_cast<vtkTypeUInt64>((this->Buffer->GetBuffer())[valueIdx + ii]);
+    }
+  }
+
+  void SetUnsignedTuple(vtkIdType tupleIdx, vtkTypeUInt64* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) override
+  {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    for (vtkIdType ii = 0; ii < this->NumberOfComponents; ++ii)
+    {
+      this->Buffer->GetBuffer()[valueIdx + ii] = static_cast<ValueType>(tuple[ii]);
+    }
+  }
+
   /**
    * Get component @a comp of the tuple at @a tupleIdx.
    */
