@@ -7,6 +7,7 @@
 #include "vtkCellIterator.h"
 #include "vtkDataSet.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImplicitArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
@@ -14,6 +15,33 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCountFaces);
+
+namespace
+{
+/**
+ * Implicit array back-end returning dynamically the number of faces of a given cell based on the
+ * input dataset. This allows to create a number of faces array without taking up any additional
+ * memory.
+ */
+template <typename ValueType>
+struct vtkNumberOfFacesBackend final
+{
+  vtkNumberOfFacesBackend(vtkDataSet* input)
+    : Input(input)
+  {
+  }
+
+  /**
+   * Retrieve the number of faces of the cell at `index`
+   */
+  ValueType operator()(const int index) const
+  {
+    return static_cast<ValueType>(this->Input->GetCell(index)->GetNumberOfFaces());
+  }
+
+  vtkDataSet* Input;
+};
+}
 
 //------------------------------------------------------------------------------
 void vtkCountFaces::PrintSelf(std::ostream& os, vtkIndent indent)
@@ -54,21 +82,35 @@ int vtkCountFaces::RequestData(
 
   output->ShallowCopy(input);
 
-  vtkNew<vtkIdTypeArray> faceCount;
-  faceCount->Allocate(input->GetNumberOfCells());
-  faceCount->SetName(this->OutputArrayName);
-  output->GetCellData()->AddArray(faceCount);
-
-  vtkCellIterator* it = input->NewCellIterator();
-  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+  if (this->UseImplicitArray)
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
-    faceCount->InsertNextValue(it->GetNumberOfFaces());
+    // Create an implicit array with the back-end defined above that dynamically retrieves the
+    // number of faces in a cell.
+    vtkNew<vtkImplicitArray<vtkNumberOfFacesBackend<vtkIdType>>> implicitFacesArray;
+    implicitFacesArray->ConstructBackend(input);
+    implicitFacesArray->SetNumberOfComponents(1);
+    implicitFacesArray->SetNumberOfTuples(input->GetNumberOfCells());
+    implicitFacesArray->SetName(this->OutputArrayName);
+    output->GetCellData()->AddArray(implicitFacesArray);
   }
-  it->Delete();
+  else
+  {
+    vtkNew<vtkIdTypeArray> faceCount;
+    faceCount->Allocate(input->GetNumberOfCells());
+    faceCount->SetName(this->OutputArrayName);
+    output->GetCellData()->AddArray(faceCount);
+
+    vtkCellIterator* it = input->NewCellIterator();
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+    {
+      if (this->CheckAbort())
+      {
+        break;
+      }
+      faceCount->InsertNextValue(it->GetNumberOfFaces());
+    }
+    it->Delete();
+  }
 
   return 1;
 }

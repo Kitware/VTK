@@ -11,12 +11,14 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-int TestCountFaces(int, char*[])
+int TestCountFacesMode(bool useImplicitArray)
 {
   vtkNew<vtkUnstructuredGrid> data;
   vtkNew<vtkPoints> points;
   vtkNew<vtkIdList> cell;
   vtkNew<vtkCountFaces> filter;
+  filter->SetOutputArrayName("faces");
+  filter->SetUseImplicitArray(useImplicitArray);
 
   // Need 12 points to test all cell types:
   for (int i = 0; i < 12; ++i)
@@ -79,8 +81,7 @@ int TestCountFaces(int, char*[])
     return EXIT_FAILURE;
   }
 
-  vtkIdTypeArray* faces =
-    vtkIdTypeArray::SafeDownCast(output->GetCellData()->GetArray(filter->GetOutputArrayName()));
+  vtkDataArray* faces = output->GetCellData()->GetArray(filter->GetOutputArrayName());
   if (!faces)
   {
     std::cerr << "No output array!\n";
@@ -104,7 +105,7 @@ int TestCountFaces(int, char*[])
 #define TEST_FACES(idx, expected)                                                                  \
   do                                                                                               \
   {                                                                                                \
-    vtkIdType numFaces = faces->GetTypedComponent(idx, 0);                                         \
+    vtkIdType numFaces = static_cast<vtkIdType>(faces->GetTuple1(idx));                            \
     if (numFaces != (expected))                                                                    \
     {                                                                                              \
       std::cerr << "Expected cell @idx=" << (idx) << " to have " << (expected)                     \
@@ -138,4 +139,12 @@ int TestCountFaces(int, char*[])
 #undef TEST_FACES
 
   return EXIT_SUCCESS;
+}
+
+int TestCountFaces(int, char*[])
+{
+  int ret = EXIT_SUCCESS;
+  ret |= ::TestCountFacesMode(false);
+  ret |= ::TestCountFacesMode(true);
+  return ret;
 }

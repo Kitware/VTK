@@ -20,8 +20,13 @@
 #include "vtkWeakPointer.h"           // For vtkWeakPointer
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkIdTypeArray;
 class vtkMultiProcessController;
+template <typename T>
+class vtkImplicitArray;
+template <typename T>
+struct vtkConstantImplicitBackend;
+template <typename Type>
+using vtkConstantArray = vtkImplicitArray<vtkConstantImplicitBackend<Type>>;
 
 class VTKFILTERSPARALLEL_EXPORT vtkGenerateProcessIds : public vtkDataSetAlgorithm
 {
@@ -74,7 +79,8 @@ private:
   /**
    * Generate a vtkIdTypeArray filled with piece id.
    */
-  vtkSmartPointer<vtkIdTypeArray> GenerateProcessIds(vtkIdType piece, vtkIdType numberOfTuples);
+  vtkSmartPointer<vtkConstantArray<vtkIdType>> GenerateProcessIds(
+    vtkIdType piece, vtkIdType numberOfTuples);
 
   bool GeneratePointData = true;
   bool GenerateCellData = false;

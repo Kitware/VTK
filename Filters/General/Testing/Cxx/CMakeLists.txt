@@ -12,6 +12,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   BoxClipTriangulateAndInterpolate.cxx
   TestAppendLocationAttributes.cxx,NO_VALID
   TestAppendPoints.cxx,NO_VALID
+  TestBlockIdScalars.cxx,NO_VALID
   TestBooleanOperationPolyDataFilter.cxx
   TestBooleanOperationPolyDataFilter2.cxx
   TestCellValidator.cxx,NO_VALID
@@ -42,6 +43,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestMergeCells.cxx,NO_VALID
   TestMergeTimeFilter.cxx,NO_VALID
   TestMergeVectorComponents.cxx,NO_VALID
+  TestOverlappingAMRLevelIdScalars.cxx,NO_VALID
   TestPassArrays.cxx,NO_VALID
   TestPassSelectedArrays.cxx,NO_VALID
   TestPassThrough.cxx,NO_VALID

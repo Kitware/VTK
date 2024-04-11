@@ -33,6 +33,19 @@ public:
   vtkGetStringMacro(OutputArrayName);
   ///@}
 
+  ///@{
+  /**
+   * When set, use an alternative implementation of the filter that uses an implicit array looking
+   * up the number of vertices of the requested cell on-demand. This option reduces the memory
+   * footprint of the filter, because we don't need to store the whole number of vertices array
+   * anymore. However, using an implicit array can be slower when accessing many elements
+   * from the output array, especially for structured datasets.
+   * This option is disabled by default.
+   */
+  vtkSetMacro(UseImplicitArray, bool);
+  vtkGetMacro(UseImplicitArray, bool);
+  ///@}
+
 protected:
   vtkCountVertices();
   ~vtkCountVertices() override;
@@ -46,6 +59,8 @@ protected:
   char* OutputArrayName;
 
 private:
+  bool UseImplicitArray = false;
+
   vtkCountVertices(const vtkCountVertices&) = delete;
   void operator=(const vtkCountVertices&) = delete;
 };
