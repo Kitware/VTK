@@ -352,7 +352,7 @@ void SetupPythonPaths(bool isolated, std::string vtklib, const char* landmark)
   if (!vtkdir.empty())
   {
 #if PY_VERSION_HEX >= 0x03080000
-    vtkPythonScopeGilEnsurer gilEnsurer(false, true);
+    vtkPythonScopeGilEnsurer gilEnsurer;
     CloseDLLDirectoryCookie();
     PyObject* os = PyImport_ImportModule("os");
     if (os)
