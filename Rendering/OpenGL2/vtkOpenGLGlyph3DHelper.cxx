@@ -78,6 +78,17 @@ void vtkOpenGLGlyph3DHelper::GetShaderTemplate(
   shaders[vtkShader::Vertex]->SetSource(vtkGlyph3DVS);
 }
 
+//------------------------------------------------------------------------------
+void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
+{
+  this->Superclass::ReplaceShaderValues(shaders, ren, actor);
+#ifdef GL_ES_VERSION_3_0
+  this->ReplaceShaderPointSize(shaders, ren, actor);
+#endif
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::ReplaceShaderPositionVC(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -101,6 +112,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderPositionVC(
   this->Superclass::ReplaceShaderPositionVC(shaders, ren, actor);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -167,6 +179,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
   this->Superclass::ReplaceShaderColor(shaders, ren, actor);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::ReplaceShaderNormal(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -229,6 +242,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderClip(
   this->Superclass::ReplaceShaderClip(shaders, ren, actor);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::ReplaceShaderPicking(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor*)
 {
@@ -241,6 +255,18 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderPicking(
       FSSource, "//VTK::Picking::Impl", "  gl_FragData[0] = vec4(mapperIndex,1.0);\n");
   }
   shaders[vtkShader::Fragment]->SetSource(FSSource);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLGlyph3DHelper::ReplaceShaderPointSize(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor*)
+{
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  // Point size
+  vtkShaderProgram::Substitute(VSSource, "//VTK::PointSizeGLES30::Dec", "uniform float pointSize;");
+  vtkShaderProgram::Substitute(
+    VSSource, "//VTK::PointSizeGLES30::Impl", "gl_PointSize = pointSize;");
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
 }
 
 void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
@@ -287,7 +313,11 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
 
   if (selecting_points)
   {
+#ifndef GL_ES_VERSION_3_0
     ostate->vtkglPointSize(6.0);
+#else
+    (void)ostate;
+#endif
     representation = GL_POINTS;
   }
 
@@ -336,7 +366,12 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
           }
           program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
         }
-
+#ifdef GL_ES_VERSION_3_0
+        if (selecting_points)
+        {
+          program->SetUniformf("pointSize", 6.0);
+        }
+#endif
         glDrawRangeElements(mode, 0, static_cast<GLuint>(numVerts - 1),
           static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount), GL_UNSIGNED_INT, nullptr);
       }
@@ -351,12 +386,6 @@ void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
   this->Superclass::SetMapperShaderParameters(cellBO, ren, actor);
-
-  vtkHardwareSelector* selector = ren->GetSelector();
-  if (selector)
-  {
-    cellBO.Program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
-  }
 }
 
 void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor,

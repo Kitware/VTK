@@ -34,6 +34,9 @@ in vec4 vertexMC;
 // clipping plane vars
 //VTK::Clip::Dec
 
+// PointSize on GLES 3.0
+//VTK::PointSizeGLES30::Dec
+
 void main()
 {
   //VTK::Glyph::Impl
@@ -48,4 +51,6 @@ void main()
 
   // frag position in VC
   //VTK::PositionVC::Impl
+
+  //VTK::PointSizeGLES30::Impl
 }
