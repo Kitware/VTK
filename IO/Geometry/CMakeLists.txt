@@ -9,6 +9,7 @@ set(classes
   vtkGAMBITReader
   vtkGLTFDocumentLoader
   vtkGLTFReader
+  vtkGLTFTexture
   vtkGLTFWriter
   vtkHoudiniPolyDataWriter
   vtkIVWriter
@@ -31,8 +32,12 @@ set(private_classes
   vtkGLTFWriterUtils
   vtkGLTFUtils)
 
+set(headers
+  GLTFSampler.h)
+
 vtk_module_add_module(VTK::IOGeometry
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes}
+  HEADERS ${headers}
   )
 vtk_add_test_mangling(VTK::IOGeometry)

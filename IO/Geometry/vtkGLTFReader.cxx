@@ -10,14 +10,17 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoader.h"
+#include "vtkGLTFTexture.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLegacy.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkWeightedTransformFilter.h"
@@ -378,7 +381,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
   vtkSmartPointer<vtkMultiBlockDataSet> meshDataSet, std::string& dataSetName,
   vtkSmartPointer<vtkMatrix4x4> globalTransform,
   const std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats, bool applyDeformations,
-  std::vector<float>* morphingWeights)
+  std::vector<float>* morphingWeights, int outputPointsPrecision)
 {
   if (meshId >= m.Meshes.size())
   {
@@ -418,6 +421,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
       AddMaterialToFieldData(primitive.Material, meshPolyData->GetFieldData(), m);
 
       vtkNew<vtkTransformPolyDataFilter> filter;
+      filter->SetOutputPointsPrecision(outputPointsPrecision);
 
       // Morphing
       if (morphingWeights != nullptr && !morphingWeights->empty())
@@ -484,7 +488,8 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
 //------------------------------------------------------------------------------
 bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned int nodeId,
   vtkSmartPointer<vtkMultiBlockDataSet> parentDataSet,
-  vtkSmartPointer<vtkMultiBlockDataSet> nodeDataset, std::string nodeName, bool applyDeformations)
+  vtkSmartPointer<vtkMultiBlockDataSet> nodeDataset, std::string nodeName, bool applyDeformations,
+  int outputPointsPrecision)
 {
   if (nodeId >= m.Nodes.size())
   {
@@ -532,7 +537,8 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
     }
     std::string meshDatasetName = "Mesh_" + value_to_string(node.Mesh);
     if (!BuildMultiBlockDatasetFromMesh(m, node.Mesh, nodeDataset, meshDataSet, meshDatasetName,
-          node.GlobalTransform, jointMats, applyDeformations, morphingWeights))
+          node.GlobalTransform, jointMats, applyDeformations, morphingWeights,
+          outputPointsPrecision))
     {
       vtkErrorWithObjectMacro(
         nullptr, "Could not build vtkMultiBlockDataSet from mesh " << node.Mesh);
@@ -550,8 +556,8 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
       // find existing child dataset for this node
       childDataset = vtkMultiBlockDataSet::SafeDownCast(nodeDataset->GetBlock(blockId));
     }
-    if (!BuildMultiBlockDataSetFromNode(
-          m, child, nodeDataset, childDataset, childDatasetName, applyDeformations))
+    if (!BuildMultiBlockDataSetFromNode(m, child, nodeDataset, childDataset, childDatasetName,
+          applyDeformations, outputPointsPrecision))
     {
       vtkErrorWithObjectMacro(nullptr, "Could not build vtkMultiBlockDataSet from node " << child);
 
@@ -564,7 +570,7 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
 
 //------------------------------------------------------------------------------
 bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType sceneId,
-  vtkSmartPointer<vtkMultiBlockDataSet> dataSet, bool applyDeformations)
+  vtkSmartPointer<vtkMultiBlockDataSet> dataSet, bool applyDeformations, int outputPointsPrecision)
 {
   if (sceneId < 0 || sceneId >= static_cast<vtkIdType>(m.Scenes.size()))
   {
@@ -587,7 +593,7 @@ bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType 
       nodeDataset = vtkMultiBlockDataSet::SafeDownCast(dataSet->GetBlock(blockId));
     }
     if (!BuildMultiBlockDataSetFromNode(
-          m, node, dataSet, nodeDataset, nodeDatasetName, applyDeformations))
+          m, node, dataSet, nodeDataset, nodeDatasetName, applyDeformations, outputPointsPrecision))
     {
       vtkErrorWithObjectMacro(nullptr, "Could not build vtkMultiBlockDataSet from node " << node);
       return false;
@@ -643,10 +649,10 @@ void vtkGLTFReader::StoreTextureData()
   this->Textures.reserve(this->Loader->GetInternalModel()->Textures.size());
   for (const auto& loaderTexture : this->Loader->GetInternalModel()->Textures)
   {
-    vtkGLTFReader::GLTFTexture readerTexture;
+    vtkNew<vtkGLTFTexture> readerTexture;
     if (loaderTexture.Source >= 0 && loaderTexture.Source < nbTextures)
     {
-      readerTexture.Image = model->Images[loaderTexture.Source].ImageData;
+      readerTexture->Image = model->Images[loaderTexture.Source].ImageData;
     }
     else
     {
@@ -656,12 +662,9 @@ void vtkGLTFReader::StoreTextureData()
     if (loaderTexture.Sampler >= 0 && loaderTexture.Sampler < nbSamplers)
     {
       auto sampler = model->Samplers[loaderTexture.Sampler];
-      readerTexture.MinFilterValue = sampler.MinFilter;
-      readerTexture.MaxFilterValue = sampler.MagFilter;
-      readerTexture.WrapSValue = sampler.WrapS;
-      readerTexture.WrapTValue = sampler.WrapT;
+      readerTexture->Sampler = sampler;
     }
-    this->Textures.emplace_back(std::move(readerTexture));
+    this->Textures.emplace_back(readerTexture);
   }
 }
 
@@ -669,6 +672,7 @@ void vtkGLTFReader::StoreTextureData()
 void vtkGLTFReader::InitializeLoader()
 {
   this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+  this->Loader->SetGLBStart(this->GLBStart);
 }
 
 //------------------------------------------------------------------------------
@@ -906,8 +910,8 @@ int vtkGLTFReader::RequestData(
     selectedScene = model->DefaultScene;
   }
 
-  if (!BuildMultiBlockDataSetFromScene(
-        *(model), selectedScene, this->OutputDataSet, this->ApplyDeformationsToGeometry))
+  if (!BuildMultiBlockDataSetFromScene(*(model), selectedScene, this->OutputDataSet,
+        this->ApplyDeformationsToGeometry, this->OutputPointsPrecision))
   {
     vtkErrorMacro("Error building MultiBlockDataSet object");
     return 0;
@@ -1031,14 +1035,30 @@ vtkIdType vtkGLTFReader::GetNumberOfTextures()
 }
 
 //------------------------------------------------------------------------------
+vtkSmartPointer<vtkGLTFTexture> vtkGLTFReader::GetTexture(vtkIdType textureIndex)
+{
+  if (textureIndex < 0 || textureIndex >= static_cast<vtkIdType>(this->Textures.size()))
+  {
+    vtkErrorMacro("Out of range texture index");
+    vtkNew<vtkGLTFTexture> t;
+    return t;
+  }
+  return this->Textures[textureIndex];
+}
+
+//------------------------------------------------------------------------------
 vtkGLTFReader::GLTFTexture vtkGLTFReader::GetGLTFTexture(vtkIdType textureIndex)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkGLTFReader::GetGLTFTexture, "VTK 9.4", vtkGLTFReader::GetTexture);
   if (textureIndex < 0 || textureIndex >= static_cast<vtkIdType>(this->Textures.size()))
   {
     vtkErrorMacro("Out of range texture index");
     return vtkGLTFReader::GLTFTexture{ nullptr, 0, 0, 0, 0 };
   }
-  return this->Textures[textureIndex];
+  auto t = this->Textures[textureIndex];
+  GLTFTexture gltfTexture{ t->Image, t->Sampler.MinFilter, t->Sampler.MagFilter, t->Sampler.WrapS,
+    t->Sampler.WrapT };
+  return gltfTexture;
 }
 
 //------------------------------------------------------------------------------

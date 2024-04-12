@@ -29,7 +29,7 @@
  *
  * Materials are currently not supported in this reader. If you would like to display materials,
  * please try using vtkGLTFImporter.
- * You could also use vtkGLTFReader::GetGLTFTexture, to access the image data that was loaded from
+ * You could also use vtkGLTFReader::GetTexture, to access the image data that was loaded from
  * the glTF 2.0 document.
  *
  * This reader only supports assets that use the 2.x version of the glTF specification.
@@ -64,6 +64,8 @@ class vtkFieldData;
 class vtkGLTFDocumentLoader;
 class vtkImageData;
 class vtkStringArray;
+class vtkTexture;
+class vtkGLTFTexture;
 
 class VTKIOGEOMETRY_EXPORT vtkGLTFReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -77,7 +79,9 @@ public:
    * Materials are not directly applied to this reader's output.
    * Use GetGLTFTexture to access a specific texture's image data, and the indices present in the
    * output dataset's field data to create vtkTextures and apply them to the geometry.
+   * Note that texture coordinates need to be fliped using a texture transform.
    */
+  VTK_DEPRECATED_IN_9_4_0("Use vtkGLTFTexture instead.")
   struct GLTFTexture
   {
     vtkSmartPointer<vtkImageData> Image;
@@ -88,7 +92,9 @@ public:
   };
 
   vtkIdType GetNumberOfTextures();
+  VTK_DEPRECATED_IN_9_4_0("Use GetTexture() instead.")
   GLTFTexture GetGLTFTexture(vtkIdType textureIndex);
+  vtkSmartPointer<vtkGLTFTexture> GetTexture(vtkIdType textureIndex);
   ///@}
 
   ///@{
@@ -106,6 +112,16 @@ public:
    */
   vtkSetSmartPointerMacro(Stream, vtkResourceStream);
   vtkGetSmartPointerMacro(Stream, vtkResourceStream);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the position in the Stream where the GLB starts. By default it is 0,
+   * but can be different than 0 for file formats have a GLB embeded in it,
+   * for instance 3D Tiles B3DM.
+   */
+  vtkSetMacro(GLBStart, vtkTypeInt64);
+  vtkGetMacro(GLBStart, vtkTypeInt64);
   ///@}
 
   ///@{
@@ -185,6 +201,18 @@ public:
   vtkSetMacro(FrameRate, unsigned int);
   ///@}
 
+  ///@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings. The default is vtkAlgorithm::SINGLE_PRECISION but
+   * a 'matrix' or other transforms in the GLTF json could require vtkAlgorithm::DOUBLE_PRECISION.
+   * This feature is useful for the Cesium 3DTiles format.
+   */
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
+
   /**
    * Get a list all scenes names as a vtkStringArray, with duplicate names numbered and empty names
    * replaced by a generic name. All names are guaranteed to be unique, and their index in the array
@@ -205,7 +233,7 @@ protected:
 
   vtkSmartPointer<vtkMultiBlockDataSet> OutputDataSet;
 
-  std::vector<GLTFTexture> Textures;
+  std::vector<vtkSmartPointer<vtkGLTFTexture>> Textures;
 
   /**
    * Create and store GLTFTexture struct for each image present in the model.
@@ -220,6 +248,7 @@ protected:
 
   char* FileName = nullptr;
   vtkSmartPointer<vtkResourceStream> Stream;
+  vtkTypeInt64 GLBStart = 0;
   vtkMTimeType LastStreamTimeStamp = 0;
   vtkSmartPointer<vtkURILoader> URILoader;
 
@@ -232,6 +261,7 @@ protected:
   bool IsMetaDataLoaded = false;
 
   bool ApplyDeformationsToGeometry = true;
+  int OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
 
   vtkSmartPointer<vtkStringArray> SceneNames;
 

@@ -49,7 +49,7 @@ bool ValidateGLBFile(const std::string& magic, uint32_t version, uint32_t fileLe
  * Extract all header information from a binary glTF file
  */
 bool ExtractGLBFileInformation(vtkResourceStream* stream, uint32_t& version, uint32_t& fileLength,
-  std::vector<vtkGLTFUtils::ChunkInfoType>& chunkInfo);
+  uint32_t glbStart, std::vector<vtkGLTFUtils::ChunkInfoType>& chunkInfo);
 
 /**
  * Get int value from Json variable, with existence and type checks.

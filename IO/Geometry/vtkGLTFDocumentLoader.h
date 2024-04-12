@@ -25,6 +25,7 @@
 #ifndef vtkGLTFDocumentLoader_h
 #define vtkGLTFDocumentLoader_h
 
+#include "GLTFSampler.h"         // For "Sampler"
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkResourceStream.h" // For "vtkResourceStream"
@@ -347,27 +348,8 @@ public:
    * This struct describes a glTF sampler object.
    * Samplers specify filter and wrapping options corresponding to GL types.
    */
-  struct Sampler
+  struct Sampler : public GLTFSampler
   {
-    enum FilterType : unsigned short
-    {
-      NEAREST = 9728,
-      LINEAR = 9729,
-      NEAREST_MIPMAP_NEAREST = 9984,
-      LINEAR_MIPMAP_NEAREST = 9985,
-      NEAREST_MIPMAP_LINEAR = 9986,
-      LINEAR_MIPMAP_LINEAR = 9987
-    };
-    enum WrapType : unsigned short
-    {
-      CLAMP_TO_EDGE = 33071,
-      MIRRORED_REPEAT = 33648,
-      REPEAT = 10497
-    };
-    FilterType MagFilter;
-    FilterType MinFilter;
-    WrapType WrapS;
-    WrapType WrapT;
     std::string Name;
   };
 
@@ -622,6 +604,16 @@ public:
    */
   virtual void PrepareData() {}
 
+  ///@{
+  /**
+   * Set/Get the Stream start, where the GLB starts. By default it is 0,
+   * but can be different than 0 for file formats have a GLB embeded in it,
+   * for instance 3D Tiles B3DM.
+   */
+  vtkSetMacro(GLBStart, vtkTypeInt64);
+  vtkGetMacro(GLBStart, vtkTypeInt64);
+  ///@}
+
 protected:
   vtkGLTFDocumentLoader() = default;
   ~vtkGLTFDocumentLoader() override = default;
@@ -676,6 +668,7 @@ private:
 
   static const std::vector<std::string> SupportedExtensions;
   std::vector<std::string> UsedExtensions;
+  vtkTypeInt64 GLBStart = 0;
 };
 
 VTK_ABI_NAMESPACE_END

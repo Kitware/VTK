@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCesiumPointCloudWriter
- * @brief   export a vtkPointSet into a Cesium Point Cloud tile format
+ * @brief   export a vtkPointSet into a Cesium Point Cloud (PNTS) tile format
  *
  */
 
