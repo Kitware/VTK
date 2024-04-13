@@ -81,8 +81,8 @@ bool vtkQtSQLQuery::Execute()
     vtkErrorMacro("Query string must be non-null.");
     return false;
   }
-  this->Internals->QtQuery =
-    vtkQtSQLDatabase::SafeDownCast(this->Database)->QtDatabase.exec(this->Query);
+  this->Internals->QtQuery = QSqlQuery(vtkQtSQLDatabase::SafeDownCast(this->Database)->QtDatabase);
+  this->Internals->QtQuery.exec(this->Query);
 
   QSqlError error = this->Internals->QtQuery.lastError();
   if (error.isValid())
