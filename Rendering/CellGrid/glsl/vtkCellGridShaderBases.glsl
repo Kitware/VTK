@@ -931,6 +931,8 @@ void HGradQuadI0_basisGradientAt(in vec3 param, out float basisGradient[3])
 #endif /* BASIS_HGradQuadI0 */
 
 #ifdef BASIS_HGradQuadC1
+// From https://github.com/trilinos/Trilinos/blob/master/packages/intrepid/src
+//      /Discretization/Basis/Intrepid_HGRAD_QUAD_C1_FEMDef.hpp
 void HGradQuadC1_basisAt(in vec3 param, out float basis[4])
 {{
   basis[0] = (1.0 - param.x)*(1.0 - param.y)/4.0;
@@ -958,6 +960,64 @@ void HGradQuadC1_basisGradientAt(in vec3 param, out float basisGradient[12]) // 
   basisGradient[11] =    0.0;
 }}
 #endif /* BASIS_HGradQuadC1 */
+
+#ifdef BASIS_HGradQuadC2
+// From https://github.com/trilinos/Trilinos/blob/master/packages/intrepid/src
+//      /Discretization/Basis/Intrepid_HGRAD_QUAD_C2_FEMDef.hpp
+void HGradQuadC2_basisAt(in vec3 param, out float basis[9])
+{{
+  basis[0] = param.x*(param.x - 1.0)*param.y*(param.y - 1.0)/4.0;
+  basis[1] = param.x*(param.x + 1.0)*param.y*(param.y - 1.0)/4.0;
+  basis[2] = param.x*(param.x + 1.0)*param.y*(param.y + 1.0)/4.0;
+  basis[3] = param.x*(param.x - 1.0)*param.y*(param.y + 1.0)/4.0;
+  // edge midpoints basis functions
+  basis[4] = (1.0 - param.x)*(1.0 + param.x)*param.y*(param.y - 1.0)/2.0;
+  basis[5] = param.x*(param.x + 1.0)*(1.0 - param.y)*(1.0 + param.y)/2.0;
+  basis[6] = (1.0 - param.x)*(1.0 + param.x)*param.y*(param.y + 1.0)/2.0;
+  basis[7] = param.x*(param.x - 1.0)*(1.0 - param.y)*(1.0 + param.y)/2.0;
+  // quad bubble basis function
+  basis[8] = (1.0 - param.x)*(1.0 + param.x)*(1.0 - param.y)*(1.0 + param.y);
+}}
+
+void HGradQuadC2_basisGradientAt(in vec3 param, out float basisGradient[27]) // 9 * 3
+{{
+  basisGradient[ 0] = (-0.25 + 0.5*param.x)*(-1. + param.y)*param.y;
+  basisGradient[ 1] = (-1.0 + param.x)*param.x*(-0.25 + 0.5*param.y);
+  basisGradient[ 2] = 0.0;
+
+  basisGradient[ 3] = (0.25 + 0.5*param.x)*(-1. + param.y)*param.y;
+  basisGradient[ 4] = param.x*(1. + param.x)*(-0.25 + 0.5*param.y);
+  basisGradient[ 5] = 0.0;
+
+  basisGradient[ 6] = (0.25 + 0.5*param.x)*param.y*(1. + param.y);
+  basisGradient[ 7] = param.x*(1. + param.x)*(0.25 + 0.5*param.y);
+  basisGradient[ 8] = 0.0;
+
+  basisGradient[ 9] = (-0.25 + 0.5*param.x)*param.y*(1. + param.y);
+  basisGradient[10] = (-1. + param.x)*param.x*(0.25 + 0.5*param.y);
+  basisGradient[11] = 0.0;
+
+  basisGradient[12] = param.x*(1.0 - param.y)*param.y;
+  basisGradient[13] = 0.5*(1.0 - param.x)*(1.0 + param.x)*(-1.0 + 2.0*param.y);
+  basisGradient[14] = 0.0;
+
+  basisGradient[15] = 0.5*(1.0 - param.y)*(1.0 + param.y)*(1.0 + 2.0*param.x);
+  basisGradient[16] =-param.x*(1.0 + param.x)*param.y;
+  basisGradient[17] = 0.0;
+
+  basisGradient[18] =-param.y*(1.0 + param.y)*param.x;
+  basisGradient[19] = 0.5*(1.0 - param.x)*(1.0 + param.x)*(1.0 + 2.0*param.y);
+  basisGradient[20] = 0.0;
+
+  basisGradient[21] = 0.5*(1.0 - param.y)*(1.0+ param.y)*(-1.0 + 2.0*param.x);
+  basisGradient[22] = (1.0 - param.x)*param.x*param.y;
+  basisGradient[23] = 0.0;
+
+  basisGradient[24] =-2.0*(1.0 - param.y)*(1.0 + param.y)*param.x;
+  basisGradient[25] =-2.0*(1.0 - param.x)*(1.0 + param.x)*param.y;
+  basisGradient[26] = 0.0;
+}}
+#endif /* BASIS_HGradQuadC2 */
 
 #ifdef SHAPE_quadrilateral
 int quadrilateral_axisPermutationForSide(in int side)

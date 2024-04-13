@@ -11,6 +11,9 @@ set(shader_files
   glsl/vtkCellGridShaderBases.glsl
   glsl/vtkCellGridShaderCommonDefs.glsl
   glsl/vtkCellGridShaderFragment.glsl
+  glsl/vtkCellGridShaderTessellationControl.glsl
+  glsl/vtkCellGridShaderTessellationDebugGeometry.glsl
+  glsl/vtkCellGridShaderTessellationEvaluation.glsl
   glsl/vtkCellGridShaderUtil.glsl
   glsl/vtkCellGridShaderVertex.glsl
 )

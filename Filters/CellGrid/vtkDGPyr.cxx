@@ -20,11 +20,11 @@ vtkStandardNewMacro(vtkDGPyr);
 static bool registerType = vtkCellMetadata::RegisterType<vtkDGPyr>();
 
 const std::array<std::array<double, 3>, 5> vtkDGPyr::Parameters{ {
-  { 0., 0., 0. },   // node 0
-  { +1., 0., 0. },  // node 1
+  { -1., -1., 0. }, // node 0
+  { +1., -1., 0. }, // node 1
   { +1., +1., 0. }, // node 2
-  { 0., +1., 0. },  // node 3
-  { 0., 0., +1. }   // node 4
+  { -1., +1., 0. }, // node 3
+  { 0., 0., 1. }    // node 4
 } };
 
 const std::array<int, vtkDGPyr::Dimension + 3> vtkDGPyr::SideOffsets{ { 0, 1, 5, 6, 14, 19 } };

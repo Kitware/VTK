@@ -17,11 +17,8 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
-#include "vtkMatrix3x3.h"                       // for ivar
-#include "vtkMatrix4x4.h"                       // for ivar
 #include "vtkNew.h"                             // for ivar
 #include "vtkOpenGLArrayTextureBufferAdapter.h" // for ivar
-#include "vtkOpenGLBufferObject.h"              // for ObjectType
 #include "vtkOpenGLTexture.h"                   // for ivar
 #include "vtkOpenGLVertexArrayObject.h"         // for ivar
 #include "vtkShader.h"                          // for ivar
@@ -56,12 +53,21 @@ public:
   /// The type of primitive to output.
   enum ElementShape
   {
-    Point,         //!< Send points to the shader.
-    Line,          //!< Send line segments to the shader.
-    LineStrip,     //!< Send line segments to the shader.
-    Triangle,      //!< Send triangles to the shader.
-    TriangleStrip, //!< Send triangles to the shader (moving window of 3 vertices).
-    TriangleFan    //!< Send triangle fans to the shader (first vertex is constant).
+    Point,          //!< Send points to the shader.
+    Line,           //!< Send line segments to the shader.
+    LineStrip,      //!< Send line segments to the shader.
+    Triangle,       //!< Send triangles to the shader.
+    TriangleStrip,  //!< Send triangles to the shader (moving window of 3 vertices).
+    TriangleFan,    //!< Send triangle fans to the shader (first vertex is constant).
+    AbstractPatches //!< Send abstract patches to the shader.
+  };
+
+  /// The type of primitive that abstract patches are tessellated into.
+  enum PatchShape
+  {
+    PatchLine,          //!< Input to the essellation control shader is a line segment.
+    PatchTriangle,      //!< Input to the essellation control shader is a triangle.
+    PatchQuadrilateral, //!< Input to the essellation control shader is a quadrilateral.
   };
 
   /// Return a shader of the given type (creating as needed).
@@ -97,6 +103,16 @@ public:
   ///@}
 
   ///@{
+  /// Set/get the type of primitive an abstract patch gets tessellated into.
+  ///
+  /// This determines the number of input patch vertices to the tessellation shaders.
+  /// Values must come from the PatchShape enum;
+  /// the default is PatchShape::Triangle.
+  int GetPatchType() { return this->PatchType; }
+  virtual bool SetPatchType(int patchType);
+  ///@}
+
+  ///@{
   /// Set/get whether to upload a colormap texture.
   ///
   /// If enabled (the default), then create (if needed) and
@@ -119,10 +135,14 @@ public:
   /// Return the GLSL mods.
   vtkCollection* GetGLSLModCollection() const;
 
+  /// Return the number of vertices in the patch primitive.
+  static vtkIdType PatchVertexCountFromPrimitive(int element);
+
 protected:
   /// Set any custom uniforms provided by the actor.
   void SetCustomUniforms(vtkRenderer* ren, vtkActor* a);
   void ReadyShaderProgram(vtkRenderer* ren);
+  void ReportUnsupportedLineWidth(float width, float maxWidth, vtkMapper* mapper);
   void PreDraw(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
   void DrawInstancedElementsImpl(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
   void PostDraw(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
@@ -136,6 +156,7 @@ protected:
   vtkIdType NumberOfInstances{ 1 };
   vtkIdType NumberOfElements{ 1 };
   int ElementType{ ElementShape::TriangleStrip };
+  int PatchType{ PatchShape::PatchTriangle };
   bool IncludeColormap{ true };
   std::unordered_map<vtkStringToken, vtkOpenGLArrayTextureBufferAdapter> Arrays;
   ShaderMap Shaders;

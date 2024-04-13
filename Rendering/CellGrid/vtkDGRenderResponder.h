@@ -19,10 +19,7 @@
 #include "vtkRenderingCellGridModule.h" // For Export macro
 
 #include <string>
-#include <unordered_set>
 #include <vector>
-
-#include "vtk_glew.h" // For API.
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -48,6 +45,28 @@ public:
 
   /// If you removed all mods, call this to go back to default setting.
   void ResetModsToDefault();
+
+  /// These properties are useful to debug/show-off/understand the parameter space
+  /// and basis functions. The cell faces are shaded by colors that map to either of
+  /// these quantities. All function values are normalized to [0, 1] before being
+  /// mapped through the scalar's color map.
+  enum class ScalarVisualizationOverrideType : int
+  {
+    NONE,
+    R,
+    S,
+    T,
+    L2_NORM_R_S,
+    L2_NORM_S_T,
+    L2_NORM_T_R,
+  };
+
+  static void SetScalarVisualizationOverrideType(ScalarVisualizationOverrideType type)
+  {
+    ScalarVisualizationOverride = type;
+  }
+
+  static void SetVisualizeTessellation(bool value) { VisualizeTessellation = value; }
 
 protected:
   vtkDGRenderResponder();
@@ -102,6 +121,10 @@ protected:
     /// Various render passes are injected into the render pipeline by vtkOpenGLRenderer for fancy
     /// features like dual-depth peeling, SSAO, etc.
     mutable vtkMTimeType RenderPassStageTime;
+    /// Tessellation shaders are employed for higher order elements and quadrilaterals.
+    mutable bool UsesTessellationShaders;
+    /// Geometry shader is used to debug distance-based tessellation.
+    mutable bool UsesGeometryShaders;
     ///@}
 
     /// @name Mods
@@ -113,7 +136,7 @@ protected:
     /// \a renderer, \a actor, or \a mapper have changed since
     /// it was constructed.
     bool IsUpToDate(vtkRenderer* renderer, vtkActor* actor, vtkMapper* mapper,
-      vtkObject* debugAttachment = nullptr) const;
+      vtkDGRenderResponder* responder) const;
 
     /// Allocate a RenderHelper as needed and configure it.
     void PrepareHelper(vtkRenderer* renderer, vtkActor* actor, vtkMapper* mapper) const;
@@ -124,10 +147,18 @@ protected:
 
   std::set<CacheEntry> Helpers;
   static vtkDrawTexturedElements::ElementShape PrimitiveFromShape(vtkDGCell::Shape shape);
+  static vtkDrawTexturedElements::PatchShape PatchPrimitiveFromShape(vtkDGCell::Shape shape);
 
   std::vector<std::string> ModNames;
   std::set<std::string> ModNamesUnique;
   static std::vector<std::string> DefaultModNames;
+
+  /// Default is None. When this value is not None, that quantity is visualized
+  /// instead of the currently set color array.
+  static ScalarVisualizationOverrideType ScalarVisualizationOverride;
+
+  /// These properties are useful to debug/show-off/understand dynamic distance-based tessellation.
+  static bool VisualizeTessellation;
 
 private:
   vtkDGRenderResponder(const vtkDGRenderResponder&) = delete;
