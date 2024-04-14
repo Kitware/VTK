@@ -183,7 +183,7 @@ vtkStandardNewMacro(vtkPythonInterpreter);
 //------------------------------------------------------------------------------
 vtkPythonInterpreter::vtkPythonInterpreter()
 {
-  GlobalInterpreters->push_back(this);
+  GlobalInterpreters->emplace_back(this);
 }
 
 //------------------------------------------------------------------------------
@@ -399,7 +399,7 @@ void SetupPythonPaths(bool isolated, std::string vtklib, const char* landmark)
 //------------------------------------------------------------------------------
 void vtkPythonInterpreter::AddUserPythonPath(const char* libraryPath, const char* landmark)
 {
-  vtkPythonInterpreter::UserPythonPaths.emplace_back(std::make_pair(libraryPath, landmark));
+  vtkPythonInterpreter::UserPythonPaths.emplace_back(libraryPath, landmark);
 }
 
 int vtkPythonInterpreter::AddAtExitCallback(void (*func)())
