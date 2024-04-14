@@ -1486,7 +1486,7 @@ int vtkHDFReader::ReadRecursively(
   dataMB->SetNumberOfBlocks(static_cast<unsigned int>(datasets.size()));
   for (int i = 0; i < static_cast<int>(datasets.size()); i++)
   {
-    const std::string nodeName = datasets.at(i);
+    const std::string& nodeName = datasets.at(i);
     const std::string hdfPath = path + "/" + nodeName;
 
     dataMB->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), nodeName);
