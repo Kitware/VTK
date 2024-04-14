@@ -403,7 +403,7 @@ std::vector<vtkVector3f>* vtkProteinRibbonFilter::Subdivide(
       double z = p1.GetZ() + t * v0.GetZ() +
         t2 * (-3 * p1.GetZ() + 3 * p2.GetZ() - 2 * v0.GetZ() - v1.GetZ()) +
         t2 * t * (2 * p1.GetZ() - 2 * p2.GetZ() + v0.GetZ() + v1.GetZ());
-      ret->push_back(vtkVector3f(x, y, z));
+      ret->emplace_back(x, y, z);
     }
   }
   ret->push_back(points[points.size() - 1]);

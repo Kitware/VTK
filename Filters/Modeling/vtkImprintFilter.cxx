@@ -2098,9 +2098,9 @@ struct ProduceIntersectionPoints
           newPtId = outPts->InsertNextPoint(pIter->X);
           pIter->VTKPtId = newPtId; // Update the local VTK point id
         }
-        pList->emplace_back(vtkPointInfo(pIter->Classification, newPtId, pIter->Cells,
-          pIter->TargetEdge.V0, pIter->TargetEdge.V1, pIter->TargetEdge.Data, pIter->ImprintEdge.V0,
-          pIter->ImprintEdge.V1, pIter->ImprintEdge.Data, pIter->X));
+        pList->emplace_back(pIter->Classification, newPtId, pIter->Cells, pIter->TargetEdge.V0,
+          pIter->TargetEdge.V1, pIter->TargetEdge.Data, pIter->ImprintEdge.V0,
+          pIter->ImprintEdge.V1, pIter->ImprintEdge.Data, pIter->X);
 
         // Update the perimeter lists from line-line intersections.
         if (pIter->Classification == PointClassification::OnEdge)

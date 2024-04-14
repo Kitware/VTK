@@ -130,12 +130,12 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
             pointEndIndex = i + 1;
           }
         }
-        endIndexes->push_back(EndIndex(vtEndIndex, pointEndIndex));
+        endIndexes->emplace_back(vtEndIndex, pointEndIndex);
       }
       else
       {
         // there are no vertex textures (vt) for no_material
-        endIndexes->push_back(EndIndex(-1, -1));
+        endIndexes->emplace_back(-1, -1);
       }
     }
   }

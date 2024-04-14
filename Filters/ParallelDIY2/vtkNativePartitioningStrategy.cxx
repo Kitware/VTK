@@ -321,7 +321,7 @@ vtkNativePartitioningStrategy::ComputePartition(vtkPartitionedDataSetCollection*
       }
       else
       {
-        res.emplace_back(vtkPartitioningStrategy::PartitionInformation());
+        res.emplace_back();
       }
     }
     auto controller = this->GetController();
