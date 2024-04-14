@@ -38,7 +38,7 @@ namespace Utils
  * Otherwise, SampleSize (K) points are reselected.
  */
 template <typename T>
-static void FindPoints(vtkAbstractPointLocator* locator, T* inPts, double x[3], int searchMode,
+void FindPoints(vtkAbstractPointLocator* locator, T* inPts, double x[3], int searchMode,
   int sampleSize, double radius, vtkIdList* ids)
 {
   switch (searchMode)
