@@ -109,6 +109,7 @@ bool TestFileLoading(const std::string& tmpDir)
 
   // same as previous but with SetBaseFileName
   {
+    // NOLINTNEXTLINE(bugprone-unused-raii)
     std::ofstream{ tmpDir + "/URI Loader Tmp Ref File.txt" }; // create file
 
     vtkNew<vtkURILoader> loader;
