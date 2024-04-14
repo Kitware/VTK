@@ -1695,6 +1695,10 @@ int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> 
   }
   for (int ptId = 0; ptId < boundary->GetNumberOfPoints(); ptId++)
   {
+    // The point data is `double`, but it stores ids and the value of
+    // `isBoundary` is treated as a boolean, so while the types may appear as
+    // if these are swapped, they are not.
+    // NOLINTNEXTLINE(bugprone-swapped-arguments)
     isBoundary->SetTuple1(boundary->GetPointData()->GetArray("ids")->GetTuple1(ptId), 1);
   }
 
