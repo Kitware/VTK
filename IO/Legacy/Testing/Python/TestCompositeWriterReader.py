@@ -4,8 +4,8 @@ from vtkmodules import vtkCommonExecutionModel as em
 from vtkmodules import vtkImagingCore as ic
 from vtkmodules import vtkIOLegacy as il
 
-from vtk.test import Testing
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetTempDir
 
 import os
 
@@ -58,7 +58,7 @@ class TestCompositeWriterReader(Testing.vtkTest):
             p2 = c.GetPartitionedDataSet(i)
             self.assertTrue(p.IsA("vtkPartitionedDataSet"))
             self.assertEqual(p.GetNumberOfPartitions(), 2)
-            self.assertEqual(p.GetPartition(0).GetNumberOfCells(), p.GetPartition(0).GetNumberOfCells())
+            self.assertEqual(p.GetPartition(0).GetNumberOfCells(), p2.GetPartition(0).GetNumberOfCells())
         del(r)
         import gc
         gc.collect()
