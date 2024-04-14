@@ -640,7 +640,7 @@ bool vtkDGTranscribeUnstructuredCells::TranscribeMatchingCells(
         break;
       }
     }
-    conn->InsertNextTypedTuple(&element[0]);
+    conn->InsertNextTypedTuple(element.data());
   }
   // vtkStringToken arrayClass = typeToken.Data().substr(3);
   query->Output->GetAttributes(typeToken.GetId())->AddArray(conn);

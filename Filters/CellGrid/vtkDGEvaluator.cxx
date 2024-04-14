@@ -355,7 +355,7 @@ bool vtkDGEvaluator::EvaluatePositions(
           break;
         }
         calc->EvaluateDerivative(cellId, rst, jacobian);
-        Eigen::Map<Eigen::Matrix<double, 3, 3, Eigen::RowMajor>> map(&jacobian[0]);
+        Eigen::Map<Eigen::Matrix<double, 3, 3, Eigen::RowMajor>> map(jacobian.data());
         Eigen::Vector3d edelt(delta[0], delta[1], delta[2]);
         Eigen::HouseholderQR<Eigen::Matrix3d> solver(map);
         auto xx = solver.solve(edelt);
@@ -428,7 +428,7 @@ bool vtkDGEvaluator::InterpolatePoints(
     cellIds->GetTypedTuple(outputPointId, &cellId);
     pointParams->GetTuple(outputPointId, rst.GetData());
     calc->Evaluate(cellId, rst, value);
-    values->SetTuple(outputPointId, &value[0]);
+    values->SetTuple(outputPointId, value.data());
   }
 
   return true;

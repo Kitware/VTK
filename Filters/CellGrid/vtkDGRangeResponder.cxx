@@ -100,7 +100,7 @@ bool vtkDGRangeResponder::DiscontinuousLagrange(
       for (vtkIdType ii = 0; ii < nn; ++ii)
       {
         // Loop over all collocation points in cell ii:
-        values->GetTuple(ii, &tuple[0]);
+        values->GetTuple(ii, tuple.data());
         for (int jj = 0; jj < mm; jj += cc)
         {
           // Loop over all components of collocation point jj:
@@ -138,7 +138,7 @@ bool vtkDGRangeResponder::DiscontinuousLagrange(
       for (vtkIdType ii = 0; ii < nn; ++ii)
       {
         // Loop over all components of all collocation points in cell ii:
-        values->GetTuple(ii, &tuple[0]);
+        values->GetTuple(ii, tuple.data());
         for (int jj = 0; jj < mm; ++jj)
         {
           double value = tuple[jj];
@@ -168,7 +168,7 @@ bool vtkDGRangeResponder::DiscontinuousLagrange(
     default:
       for (vtkIdType ii = 0; ii < nn; ++ii)
       {
-        values->GetTuple(ii, &tuple[0]);
+        values->GetTuple(ii, tuple.data());
         for (int jj = componentIndex; jj < mm; jj += cc)
         {
           double value = tuple[jj];
@@ -226,11 +226,11 @@ bool vtkDGRangeResponder::ContinuousLagrange(vtkCellAttribute* attribute, vtkTyp
       for (vtkIdType ii = 0; ii < nn; ++ii)
       {
         // Loop over all (shared) collocation points in cell ii:
-        conn->GetTypedTuple(ii, &cellConn[0]);
+        conn->GetTypedTuple(ii, cellConn.data());
         for (const auto& pointId : cellConn)
         {
           // Loop over all components of each collocation point:
-          values->GetTuple(pointId, &tuple[0]);
+          values->GetTuple(pointId, tuple.data());
           double magnitudeSquared = 0.;
           for (const auto& value : tuple)
           {
@@ -265,11 +265,11 @@ bool vtkDGRangeResponder::ContinuousLagrange(vtkCellAttribute* attribute, vtkTyp
       for (vtkIdType ii = 0; ii < nn; ++ii)
       {
         // Loop over all (shared) collocation points in cell ii:
-        conn->GetTypedTuple(ii, &cellConn[0]);
+        conn->GetTypedTuple(ii, cellConn.data());
         for (const auto& pointId : cellConn)
         {
           // Loop over all components of each collocation point:
-          values->GetTuple(pointId, &tuple[0]);
+          values->GetTuple(pointId, tuple.data());
           for (const auto& value : tuple)
           {
             if (FiniteRange && (vtkMath::IsNan(value) || vtkMath::IsInf(value)))
@@ -300,11 +300,11 @@ bool vtkDGRangeResponder::ContinuousLagrange(vtkCellAttribute* attribute, vtkTyp
       for (vtkIdType ii = 0; ii < nn; ++ii)
       {
         // Loop over all (shared) collocation points in cell ii:
-        conn->GetTypedTuple(ii, &cellConn[0]);
+        conn->GetTypedTuple(ii, cellConn.data());
         for (const auto& pointId : cellConn)
         {
           // Loop over all components of each collocation point:
-          values->GetTuple(pointId, &tuple[0]);
+          values->GetTuple(pointId, tuple.data());
           double value = tuple[componentIndex];
           if (FiniteRange && (vtkMath::IsNan(value) || vtkMath::IsInf(value)))
           {
