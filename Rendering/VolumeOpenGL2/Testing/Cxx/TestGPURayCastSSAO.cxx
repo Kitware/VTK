@@ -21,8 +21,6 @@
 #include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
 
-#include "vtkTestUtilities.h"
-
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkImageData> loadImage(int argc, char* argv[])
 {
