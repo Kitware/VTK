@@ -146,7 +146,7 @@ unsigned char vtkSegYIOUtils::readUChar(std::istream& in)
 }
 
 //------------------------------------------------------------------------------
-void vtkSegYIOUtils::swap(char* a, char* b)
+void vtkSegYIOUtils::swap(char* a, char* b) noexcept
 {
   char temp = *a;
   *a = *b;

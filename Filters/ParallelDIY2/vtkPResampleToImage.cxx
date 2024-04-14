@@ -212,7 +212,7 @@ struct PointList
   vtkIdType DataSize;             // size in bytes of serialized data of one point
 };
 
-inline void swap(PointList& a, PointList& b)
+inline void swap(PointList& a, PointList& b) noexcept
 {
   a.Indices.swap(b.Indices);
   a.Data.swap(b.Data);

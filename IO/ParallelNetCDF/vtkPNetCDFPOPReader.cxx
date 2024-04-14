@@ -513,7 +513,7 @@ void vtkPNetCDFPOPReader::SetVariableArrayStatus(const char* name, int status)
 namespace
 {
 // shortcut used down in ReadAndSend()
-void swap(int& A, int& B)
+void swap(int& A, int& B) noexcept
 {
   int temp = B;
   B = A;

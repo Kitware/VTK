@@ -20,7 +20,7 @@ public:
   float readFloat(std::istream& in);
   float readIBMFloat(std::istream& in);
   unsigned char readUChar(std::istream& in);
-  void swap(char* a, char* b);
+  void swap(char* a, char* b) noexcept;
   static vtkSegYIOUtils* Instance();
   std::streamoff getFileSize(std::istream& in);
 
