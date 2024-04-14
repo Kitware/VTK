@@ -47,6 +47,7 @@ clang-analyzer-*,\
 misc-*,\
 -misc-confusable-identifiers,\
 -misc-const-correctness,\
+-misc-include-cleaner,\
 -misc-no-recursion,\
 -misc-non-private-member-variables-in-classes,\
 -misc-redundant-expression,\
@@ -74,6 +75,7 @@ modernize-*,\
 mpi-*,\
 openmp-*,\
 performance-*,\
+-performance-avoid-endl,\
 -performance-for-range-copy,\
 -performance-inefficient-string-concatenation,\
 -performance-inefficient-vector-operation,\
@@ -85,6 +87,7 @@ performance-*,\
 -performance-unnecessary-value-param,\
 portability-*,\
 readability-*,\
+-readability-avoid-unconditional-preprocessor-if,\
 -readability-braces-around-statements,\
 -readability-container-data-pointer,\
 -readability-convert-member-functions-to-static,\
