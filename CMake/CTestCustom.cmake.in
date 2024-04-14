@@ -195,6 +195,9 @@ if (NOT cdash_show_third_party_warnings)
     # Boost.Graph uses deprecated Boost headers internally.
     "define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior"
 
+    # Boost.Math is C++14; ignore warnings for now.
+    "boost/math/tools/config.hpp.*: warning: .*minimum language standard"
+
     # Warnings due to DIY
     "xmemory.*: warning C4996:.*Default Bounds constructor"
 
