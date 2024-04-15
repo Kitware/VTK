@@ -112,6 +112,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkParse.tab.c.*bugprone-sizeof-expression"
   "vtkParse.tab.c.*bugprone-suspicious-include"
   "mocs_compilation.cpp.*bugprone-suspicious-include"
+  "vtkkwiml/test/test_.*: warning: .* \\[modernize-redundant-void-arg\\]"
 
   # Ignore warnings from the standard library.
   "warning:.*__builtin_memcpy.*stringop-overflow="
