@@ -7,14 +7,18 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
-#include "vtkPointData.h"
-#include "vtkShortArray.h"
-
+#include "vtkDataObjectImplicitBackendInterface.h"
 #include "vtkIdList.h"
+#include "vtkImplicitArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkUnstructuredGrid.h"
 
+// cell classes
 #include "vtkBezierCurve.h"
 #include "vtkBezierHexahedron.h"
 #include "vtkBezierQuadrilateral.h"
@@ -65,13 +69,8 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkUnstructuredGrid.h"
-
 #include <cassert>
 #include <cmath>
-#include <map>
 #include <sstream>
 
 //------------------------------------------------------------------------------
@@ -87,6 +86,33 @@ vtkCellValidator::vtkCellValidator()
 //------------------------------------------------------------------------------
 namespace
 {
+/**
+ * Implicit array back-end returning dynamically the state of the given cell.
+ */
+struct vtkCellStateBackend : public vtkDataObjectImplicitBackendInterface<short>
+{
+  vtkCellStateBackend(vtkDataSet* dataset, double tolerance, const std::string& name, int type)
+    : vtkDataObjectImplicitBackendInterface(dataset, name, type)
+    , Tolerance(tolerance)
+    , DataSet(dataset)
+  {
+  }
+  ~vtkCellStateBackend() override = default;
+
+  short GetValueFromDataObject(const vtkIdType index) const override
+  {
+    vtkNew<vtkGenericCell> cell;
+    this->DataSet->GetCell(index, cell);
+    vtkCellValidator::State state = vtkCellValidator::Check(cell, this->Tolerance);
+
+    return static_cast<short>(state);
+  }
+
+  double Tolerance = FLT_EPSILON;
+  // Useful to avoid cast. Superclass handles its DeleteEvent
+  vtkWeakPointer<vtkDataSet> DataSet;
+};
+
 bool PointsAreCoincident(double p[3], double q[3], double tolerance)
 {
   return (std::abs(p[0] - q[0]) < tolerance && std::abs(p[1] - q[1]) < tolerance &&
@@ -1887,37 +1913,13 @@ int vtkCellValidator::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 
-  vtkNew<vtkShortArray> stateArray;
+  vtkNew<vtkImplicitArray<vtkCellStateBackend>> stateArray;
   stateArray->SetNumberOfComponents(1);
   stateArray->SetName("ValidityState"); // set the name of the value
-  stateArray->SetNumberOfTuples(input->GetNumberOfCells());
+  stateArray->SetNumberOfTuples(output->GetNumberOfCells());
+  stateArray->ConstructBackend(output, this->Tolerance, "ValidityState", vtkDataObject::CELL);
 
-  vtkGenericCell* cell = vtkGenericCell::New();
-  vtkCellIterator* it = input->NewCellIterator();
-  vtkIdType counter = 0;
-  State state;
-  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
-  {
-    if (this->CheckAbort())
-    {
-      break;
-    }
-    it->GetCell(cell);
-    state = Check(cell, this->Tolerance);
-    stateArray->SetValue(counter, static_cast<short>(state));
-    if (state != State::Valid)
-    {
-      std::stringstream s;
-      cell->Print(s);
-      vtkCellValidator::PrintState(state, s, vtkIndent(0));
-      vtkOutputWindowDisplayText(s.str().c_str());
-    }
-    ++counter;
-  }
-  cell->Delete();
-  it->Delete();
-
-  output->GetCellData()->AddArray(stateArray.GetPointer());
+  output->GetCellData()->AddArray(stateArray);
 
   return 1;
 }
