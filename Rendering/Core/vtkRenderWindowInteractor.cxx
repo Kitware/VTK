@@ -733,7 +733,6 @@ void vtkRenderWindowInteractor::RecognizeGesture(vtkCommand::EventIds event)
 
     if (this->CurrentGesture == vtkCommand::PinchEvent)
     {
-      vtkErrorMacro("See pinch");
       this->SetScale(newDistance / originalDistance);
       this->PinchEvent();
     }
@@ -1094,6 +1093,11 @@ void vtkRenderWindowInteractor::LeftButtonReleaseEvent()
     return;
   }
 
+  // Left button release event is responsible for ending any current multi-touch gestures being
+  // processed. Before invoking a release event on the first pointer and decrementing the pointers
+  // down count, note the current down count. This can be used later to call RecognizeGesture and
+  // end the gesture with a release event.
+  int previousPointersDownCount = this->PointersDownCount;
   if (this->RecognizeGestures)
   {
     if (this->PointersDown[this->PointerIndex])
@@ -1102,7 +1106,7 @@ void vtkRenderWindowInteractor::LeftButtonReleaseEvent()
       this->PointersDownCount--;
     }
     // do we have multitouch
-    if (this->PointersDownCount > 1)
+    if (previousPointersDownCount > 1)
     {
       // handle the gesture
       this->RecognizeGesture(vtkCommand::LeftButtonReleaseEvent);
