@@ -461,7 +461,7 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
 
   // Descend further into input trees only if cursor is not a leaf
   bool selected = false;
-  if (!cursor->IsLeaf())
+  if (!cursor->IsLeaf() && !cursor->IsMasked())
   {
     // Cursor is not at leaf, recurse to all all children
     int numChildren = cursor->GetNumberOfChildren();
@@ -584,8 +584,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
         }
       } // neighbor
     }   // c
-
-    if (selected)
+    if (selected && !supercursor->IsMasked())
     {
       // Node has at least one neighbor containing one contour, recurse to all children
       unsigned int numChildren = supercursor->GetNumberOfChildren();

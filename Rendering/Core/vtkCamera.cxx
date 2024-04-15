@@ -2054,6 +2054,7 @@ void vtkCamera::SetModelTransformMatrix(const double elements[16])
   this->ModelTransformMatrix->Element[3][1] = elements[13];
   this->ModelTransformMatrix->Element[3][2] = elements[14];
   this->ModelTransformMatrix->Element[3][3] = elements[15];
+  this->ModelTransformMatrix->Modified();
   this->Modified();
 }
 VTK_ABI_NAMESPACE_END

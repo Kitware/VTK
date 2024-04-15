@@ -103,7 +103,19 @@ int vtkCompositeDataProbeFilter::RequestData(
     htgProbe->SetTolerance(this->Tolerance);
     htgProbe->SetComputeTolerance(this->ComputeTolerance);
     htgProbe->Update();
-    output->ShallowCopy(htgProbe->GetOutput());
+    vtkDataSet* htgOutput = htgProbe->GetOutput();
+    output->ShallowCopy(htgOutput);
+
+    // Need to copy the MaskPoints of the htg prober
+    // so that it can be exploited in the pipeline with the
+    // vtkProbeFilter::GetValidPoints method.
+    vtkCharArray* maskArray = vtkCharArray::SafeDownCast(
+      htgOutput->GetPointData()->GetArray(this->GetValidPointMaskArrayName()));
+    if (this->MaskPoints == nullptr)
+    {
+      this->MaskPoints = vtkCharArray::New();
+    }
+    this->MaskPoints->ShallowCopy(maskArray);
     return 1;
   }
 
