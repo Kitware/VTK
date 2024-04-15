@@ -261,7 +261,12 @@ int TestCompositePolyDataMapperPicking(int argc, char* argv[])
   mapper->SetBlockColor(80, 1.0, 1.0, 1.0);
   mapper->SetBlockOpacity(80, 1.0);
   mapper->SetBlockVisibility(80, 1.0);
-
+  // turn off scalar visibility on the 80'th block, because the default global ScalarVisibility is
+  // on and the 80'th block has scalars.
+  auto* cda = mapper->GetCompositeDataDisplayAttributes();
+  auto dataObj =
+    vtkCompositeDataDisplayAttributes::DataObjectFromIndex(80, mapper->GetInputDataObject(0, 0));
+  cda->SetBlockScalarVisibility(dataObj, false);
   // Setup picker
   vtkNew<vtkInteractorStyleRubberBandPick> pickerInt;
   iren->SetInteractorStyle(pickerInt.GetPointer());
