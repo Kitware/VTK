@@ -132,20 +132,7 @@ public:
    */
   void ClearCache() { this->Cache.Clear(); }
   void ResetCacheAccessCounts() { this->Cache.ResetAccessCounts(); }
-  void ClearCacheUnused()
-  {
-    switch (this->Format)
-    {
-      case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
-        // For Catalyst, we don't want to hold on to the cache for longer than
-        // the RequestData pass. For we clear it entirely here.
-        this->Cache.Clear();
-        break;
-      default:
-        this->Cache.ClearUnused();
-        break;
-    }
-  }
+  void ClearCacheUnused() { this->Cache.ClearUnused(); }
   ///@}
 
   /**

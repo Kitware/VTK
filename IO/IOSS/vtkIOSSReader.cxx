@@ -364,10 +364,15 @@ int vtkIOSSReader::ReadMesh(
   // dbaseHandles are handles for individual files this instance will to read to
   // satisfy the request. Can be >= 0.
   const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
-  // if we have restart files, we need to release the regions that are no longer needed.
+  // if we have restart files, and the previously read regions are no longer needed.
   if (internals.HaveRestartFiles() && !internals.HaveCreatedRegions(dbaseHandles))
   {
+    // then we need to release them and, if requested, clear their cached information
     internals.ReleaseRegions();
+    if (!this->GetCaching())
+    {
+      internals.ClearCache();
+    }
   }
 
   // Read global data. Since this should be same on all ranks, we only read on
@@ -509,9 +514,7 @@ int vtkIOSSReader::ReadMesh(
       collection->GetDataAssembly()->InitializeFromXML(xml.c_str());
     }
   }
-
-  if (!this->GetCaching() ||
-    internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::CATALYST)
+  if (internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::CATALYST)
   {
     // We don't want to hold on to the cache for longer than the RequestData pass.
     // For we clear it entirely here.
@@ -519,6 +522,7 @@ int vtkIOSSReader::ReadMesh(
   }
   else
   {
+    // removed unused cache entries.
     internals.ClearCacheUnused();
   }
   return 1;
