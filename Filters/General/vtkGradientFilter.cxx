@@ -409,34 +409,36 @@ struct PointGradients : public GradientsBase<TData>
 {
   vtkDataSet* Input;
   vtkStaticCellLinks* Links;
-  int HighestDim;
+  const int MaxSpatialDimension;
   int CellOption;
-  vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell;
-  vtkSMPThreadLocal<std::vector<double>> Values;
-  vtkSMPThreadLocal<std::vector<double>> Gradient;
+  vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> TLCell;
+  vtkSMPThreadLocal<std::vector<double>> TLValues;
+  vtkSMPThreadLocal<std::vector<double>> TLGradient;
+  vtkSMPThreadLocal<int> TLMaxSpatialDimension;
 
   PointGradients(vtkDataSet* input, vtkStaticCellLinks* links, TData* a, int numComp, TData* g,
-    TData* v, TData* q, TData* d, int highestDim, int cellOption, vtkGradientFilter* filter)
+    TData* v, TData* q, TData* d, int cellOption, vtkGradientFilter* filter)
     : GradientsBase<TData>(a, numComp, g, v, q, d, filter)
     , Input(input)
     , Links(links)
-    , HighestDim(highestDim)
-    , CellOption(cellOption)
+    , MaxSpatialDimension(
+        cellOption == vtkGradientFilter::DataSetMax ? input->GetMaxSpatialDimension() : 0)
   {
   }
 
   void Initialize()
   {
-    this->Cell.Local().TakeReference(vtkGenericCell::New());
-    this->Values.Local().resize(8);
-    this->Gradient.Local().resize(this->NumComp * 3);
+    this->TLCell.Local().TakeReference(vtkGenericCell::New());
+    this->TLValues.Local().resize(8);
+    this->TLGradient.Local().resize(this->NumComp * 3);
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    auto& cell = this->Cell.Local();
-    auto& values = this->Values.Local();
-    auto& g = this->Gradient.Local();
+    auto& cell = this->TLCell.Local();
+    auto& values = this->TLValues.Local();
+    auto& g = this->TLGradient.Local();
+    auto& maxSpatialDimension = this->TLMaxSpatialDimension.Local();
     const auto array = vtk::DataArrayTupleRange(this->Array);
     vtkDataSet* input = this->Input;
     vtkStaticCellLinks* links = this->Links;
@@ -469,21 +471,25 @@ struct PointGradients : public GradientsBase<TData>
 
       if (this->CellOption == vtkGradientFilter::Patch)
       {
-        this->HighestDim = 0;
+        maxSpatialDimension = 0;
         for (vtkIdType neighbor = 0; neighbor < numCellNeighbors; neighbor++)
         {
           const auto cellType =
             static_cast<unsigned char>(input->GetCellType(cellsOnPoint[neighbor]));
           int cellDimension = vtkCellTypes::GetDimension(cellType);
-          if (cellDimension > this->HighestDim)
+          if (cellDimension > maxSpatialDimension)
           {
-            this->HighestDim = cellDimension;
-            if (this->HighestDim == maxCellDimension)
+            maxSpatialDimension = cellDimension;
+            if (maxSpatialDimension == maxCellDimension)
             {
               break;
             }
           }
         }
+      }
+      else
+      {
+        maxSpatialDimension = this->MaxSpatialDimension;
       }
       vtkIdType numValidCellNeighbors = 0;
 
@@ -492,7 +498,7 @@ struct PointGradients : public GradientsBase<TData>
       for (vtkIdType neighbor = 0; neighbor < numCellNeighbors; neighbor++)
       {
         input->GetCell(cellsOnPoint[neighbor], cell);
-        if (cell->GetCellDimension() >= this->HighestDim)
+        if (cell->GetCellDimension() >= maxSpatialDimension)
         {
           int subId;
           double parametricCoord[3], derivative[3];
@@ -566,13 +572,13 @@ struct PointGradientsWorker
   template <typename DataT>
   void operator()(DataT* array, vtkDataSet* input, vtkStaticCellLinks* links,
     vtkDataArray* gradients, vtkDataArray* vorticity, vtkDataArray* qCriterion,
-    vtkDataArray* divergence, int highestDim, int cellOption, vtkGradientFilter* filter)
+    vtkDataArray* divergence, int cellOption, vtkGradientFilter* filter)
   {
     vtkIdType numPts = input->GetNumberOfPoints();
     int numComp = array->GetNumberOfComponents();
 
     PointGradients<DataT> pg(input, links, array, numComp, (DataT*)gradients, (DataT*)vorticity,
-      (DataT*)qCriterion, (DataT*)divergence, highestDim, cellOption, filter);
+      (DataT*)qCriterion, (DataT*)divergence, cellOption, filter);
 
     vtkSMPTools::For(0, numPts, pg);
   }
@@ -807,30 +813,6 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
     }
   }
 
-  // The common fast path: ContributingCellOption::All, so the cell dimension
-  // is inconsequential. This path is threaded, and uses the modern
-  // vtkDataArray, tuple interface approach.
-  int highestCellDimension = 0;
-
-  // Slower path
-  if (this->ContributingCellOption == vtkGradientFilter::DataSetMax)
-  {
-    int maxDimension = input->IsA("vtkPolyData") == 1 ? 2 : 3;
-    for (vtkIdType i = 0; i < input->GetNumberOfCells(); i++)
-    {
-      const auto cellType = static_cast<unsigned char>(input->GetCellType(i));
-      int dim = vtkCellTypes::GetDimension(cellType);
-      if (dim > highestCellDimension)
-      {
-        highestCellDimension = dim;
-        if (highestCellDimension == maxDimension)
-        {
-          break;
-        }
-      }
-    }
-  }
-
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     if (!this->FasterApproximation)
@@ -844,10 +826,10 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
       using PointGradientsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
       PointGradientsWorker pgWorker;
       if (!PointGradientsDispatch::Execute(array, pgWorker, input, cellLinks, gradients, vorticity,
-            qCriterion, divergence, highestCellDimension, this->ContributingCellOption, this))
+            qCriterion, divergence, this->ContributingCellOption, this))
       {
         pgWorker(array, input, cellLinks, gradients, vorticity, qCriterion, divergence,
-          highestCellDimension, this->ContributingCellOption, this);
+          this->ContributingCellOption, this);
       }
 
       if (gradients)
