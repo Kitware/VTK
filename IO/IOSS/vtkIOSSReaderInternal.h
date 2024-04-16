@@ -170,6 +170,12 @@ public:
   bool UpdateTimeInformation(vtkIOSSReader* self);
 
   /**
+   * Checks if the entity and field selections have changed.
+   */
+  bool NeedToUpdateEntityAndFieldSelections(
+    vtkIOSSReader* self, const std::vector<DatabaseHandle>& dbaseHandles);
+
+  /**
    * Populates various `vtkDataArraySelection` objects on the vtkIOSSReader with
    * names for entity-blocks, -sets, and fields defined on them.
    */

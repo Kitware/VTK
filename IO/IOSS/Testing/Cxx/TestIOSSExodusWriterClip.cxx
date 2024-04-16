@@ -80,6 +80,7 @@ int TestIOSSExodusWriterClip(int argc, char* argv[])
   // Open the saved file and render it.
   vtkNew<vtkIOSSReader> reader;
   reader->SetFileName(ofname.c_str());
+  reader->ReadAllFilesToDetermineStructureOn();
   reader->SetGroupNumericVectorFieldComponents(true);
   reader->GetElementBlockSelection()->EnableAllArrays();
   reader->GetNodeSetSelection()->EnableAllArrays();
