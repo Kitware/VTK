@@ -78,7 +78,12 @@ protected:
   virtual void UpdateShaders(vtkOpenGLHelper& cellBO, vtkViewport* viewport, vtkActor2D* act);
 
   /**
-   * Set the shader parameters related to the mapper/input data, called by UpdateShader
+   * Set the value of user-defined uniform variables, called by UpdateShaders
+   */
+  virtual void SetCustomUniforms(vtkOpenGLHelper& cellBO, vtkActor2D* actor);
+
+  /**
+   * Set the shader parameters related to the mapper/input data, called by UpdateShaders
    */
   virtual void SetMapperShaderParameters(
     vtkOpenGLHelper& cellBO, vtkViewport* viewport, vtkActor2D* act);

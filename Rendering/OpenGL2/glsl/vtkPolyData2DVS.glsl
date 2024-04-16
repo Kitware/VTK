@@ -12,6 +12,9 @@
 
 in vec4 vertexWC;
 
+// Custom uniforms
+//VTK::CustomUniforms::Dec
+
 // material property values
 //VTK::Color::Dec
 

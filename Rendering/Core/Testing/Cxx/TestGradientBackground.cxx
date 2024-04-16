@@ -8,8 +8,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
-#include "vtkTestUtilities.h"
 #include "vtkViewport.h"
 
 int TestGradientBackground(int argc, char* argv[])
