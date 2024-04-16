@@ -128,7 +128,6 @@ struct BoundsFunctor
 }; // BoundsFunctor
 
 // Support for the atomic example.
-int Total = 0;
 std::atomic<vtkTypeInt32> TotalAtomic(0);
 constexpr int Target = 1000000;
 constexpr int NumThreads = 2;
@@ -137,7 +136,6 @@ VTK_THREAD_RETURN_TYPE MyFunction(void*)
 {
   for (int i = 0; i < Target / NumThreads; i++)
   {
-    ++Total;
     ++TotalAtomic;
   }
   return VTK_THREAD_RETURN_VALUE;
@@ -215,7 +213,7 @@ int TestSMPFeatures(int, char*[])
   mt->SetSingleMethod(MyFunction, nullptr);
   mt->SetNumberOfThreads(NumThreads);
   mt->SingleMethodExecute();
-  std::cout << Total << " " << TotalAtomic.load() << endl;
+  std::cout << TotalAtomic.load() << endl;
 
   return EXIT_SUCCESS;
 }
