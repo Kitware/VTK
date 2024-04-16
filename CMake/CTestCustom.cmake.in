@@ -126,6 +126,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkMultiThreshold.h:.*: warning: argument '.*' of command @param is not found in the argument list of vtkMultiThreshold::AddIntervalSet"
   "QQuickVTKRenderWindow.h:.*: warning: QQuickVTKRenderWindow::captureScreenshot has @param documentation sections but no arguments"
   "vtkInherits.h:.*: warning: documented symbol 'static vtk::ParentClasses.*::value' was not declared or defined."
+  "vtkPolyhedron.h:.*: warning: vtkPolyhedron::GetCellFaces has @param documentation sections but no arguments"
 
   # Ignore bits from gcc-12 stdlib. There seem to be some serious issues in GCC
   # 12 diagnostics. These come from the `quay.io/pypa/manylinux_2_28_x86_64`
