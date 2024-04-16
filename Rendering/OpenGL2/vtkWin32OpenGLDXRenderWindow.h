@@ -18,6 +18,7 @@
 #include <memory> // For std::unique_ptr
 
 struct ID3D11Device;
+struct ID3D11DeviceContext;
 struct ID3D11Texture2D;
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -27,6 +28,22 @@ public:
   static vtkWin32OpenGLDXRenderWindow* New();
   vtkTypeMacro(vtkWin32OpenGLDXRenderWindow, vtkWin32OpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  ///@{
+  /**
+   * Use external `D3D11DeviceContext`.
+   * The `D3D11Device` is obtained using `context->GetDevice()`
+   * from parent class `ID3D11DeviceChild`.
+   * Must be set before window initialization.
+   *
+   * The `void*` overload is meant for wrappers
+   * and simply forward the argument to the typed one.
+   *
+   * @param context ID3D11DeviceContext to initialize the window resources with.
+   */
+  void SetD3DDeviceContext(ID3D11DeviceContext* context);
+  void SetD3DDeviceContext(void* context);
+  ///@}
 
   /**
    * Overridden to create the D3D device, context and texture.
@@ -51,6 +68,11 @@ public:
   void UnregisterSharedTexture();
   ///@}
 
+  /**
+   * Register the RenderFrameBuffer of this window as a D3D shared texture
+   */
+  void RegisterSharedTexture();
+
   ///@{
   /**
    * Overridden to resize the internal D3D shared texture
@@ -68,8 +90,12 @@ public:
   ///@{
   /**
    * Blits the internal D3D shared texture into \p color and optionally \p depth.
+   *
+   * The `void*` overload is meant for wrappers
+   * and simply forward the arguments to the typed one.
    */
   void BlitToTexture(ID3D11Texture2D* color, ID3D11Texture2D* depth = nullptr);
+  void BlitToTexture(void* color, void* depth = nullptr);
   ///@}
 
   ///@{
