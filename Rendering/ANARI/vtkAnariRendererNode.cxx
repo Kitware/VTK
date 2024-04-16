@@ -132,18 +132,6 @@ struct LightState
   bool used;
   std::vector<anari::Light> Lights;
 };
-
-struct CameraState
-{
-  CameraState()
-    : changed(false)
-    , Camera(nullptr)
-  {
-  }
-
-  bool changed;
-  anari::Camera Camera;
-};
 }
 
 class vtkAnariRendererNodeInternals
@@ -153,8 +141,7 @@ public:
   ~vtkAnariRendererNodeInternals();
 
   //@{
-  void AddCamera(anari::Camera, bool);
-  anari_vtk::CameraState GetCameraState();
+  void SetCamera(anari::Camera);
   //@}
 
   //@{
@@ -244,7 +231,6 @@ public:
 
   anari::Extensions AnariExtensions{};
 
-  anari_vtk::CameraState AnariCameraState;
   anari_vtk::SurfaceState AnariSurfaceState;
   anari_vtk::VolumeState AnariVolumeState;
   anari_vtk::LightState AnariLightState;
@@ -415,16 +401,13 @@ bool vtkAnariRendererNodeInternals::InitAnari()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddCamera(anari::Camera camera, bool changed)
+void vtkAnariRendererNodeInternals::SetCamera(anari::Camera camera)
 {
-  this->AnariCameraState.Camera = camera;
-  this->AnariCameraState.changed = changed;
-}
-
-//----------------------------------------------------------------------------
-anari_vtk::CameraState vtkAnariRendererNodeInternals::GetCameraState()
-{
-  return this->AnariCameraState;
+  if (this->AnariDevice && this->AnariFrame)
+  {
+    anari::setParameter(this->AnariDevice, this->AnariFrame, "camera", camera);
+    anari::commitParameters(this->AnariDevice, this->AnariFrame);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -895,28 +878,6 @@ void vtkAnariRendererNode::UpdateAnariFrameSize()
       static_cast<unsigned>(frameSize[1]) };
     anari::setParameter(anariDevice, anariFrame, "size", frameSizeUI);
     anari::commitParameters(anariDevice, anariFrame);
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::UpdateAnariCamera()
-{
-  auto anariDevice = this->GetAnariDevice();
-  auto anariFrame = this->Internal->AnariFrame;
-  auto cameraState = this->Internal->GetCameraState();
-  if (cameraState.changed)
-  {
-    this->Internal->AnariCameraState.changed = false;
-    if (cameraState.Camera != nullptr)
-    {
-      anari::setAndReleaseParameter(anariDevice, anariFrame, "camera", cameraState.Camera);
-      anari::commitParameters(anariDevice, anariFrame);
-    }
-    else
-    {
-      anari::unsetParameter(anariDevice, anariFrame, "camera");
-      anari::commitParameters(anariDevice, anariFrame);
-    }
   }
 }
 
@@ -1919,9 +1880,9 @@ int vtkAnariRendererNode::GetCompositeOnGL(vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddCamera(anari::Camera camera, bool changed)
+void vtkAnariRendererNode::SetCamera(anari::Camera camera)
 {
-  this->Internal->AddCamera(camera, changed);
+  this->Internal->SetCamera(camera);
 }
 
 //----------------------------------------------------------------------------
@@ -1986,44 +1947,12 @@ void vtkAnariRendererNode::Traverse(int operation)
     return;
   }
 
-  // do not override other passes
-  if (operation != vtkViewNode::operation_type::render)
-  {
-    this->Superclass::Traverse(operation);
-    return;
-  }
-
   if (!this->Internal->InitFlag)
   {
     this->Internal->InitFlag = this->Internal->InitAnari();
   }
 
-  if (this->Internal->InitFlag)
-  {
-    this->Apply(operation, true);
-
-    for (auto node : this->GetChildren())
-    {
-      if (auto* child = vtkAnariCameraNode::SafeDownCast(node))
-      {
-        child->Traverse(operation);
-      }
-      else if (auto* child = vtkAnariLightNode::SafeDownCast(node))
-      {
-        child->Traverse(operation);
-      }
-      else if (auto* child = vtkAnariActorNode::SafeDownCast(node))
-      {
-        child->Traverse(operation);
-      }
-      else if (auto* child = vtkAnariVolumeNode::SafeDownCast(node))
-      {
-        child->Traverse(operation);
-      }
-    }
-
-    this->Apply(operation, false);
-  }
+  this->Superclass::Traverse(operation);
 }
 
 //----------------------------------------------------------------------------
@@ -2082,7 +2011,6 @@ void vtkAnariRendererNode::Render(bool prepass)
   else
   {
     this->UpdateAnariFrameSize();
-    this->UpdateAnariCamera();
     this->UpdateAnariLights();
     this->UpdateAnariSurfaces();
     this->UpdateAnariVolumes();

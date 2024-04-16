@@ -480,9 +480,9 @@ public:
   void AddVolume(anari::Volume, bool);
 
   /**
-   * Accessed by the AnariCameraNode to add an ANARICamera to the world.
+   * Accessed by the AnariCameraNode to set the ANARICamera on the ANARIFrame.
    */
-  void AddCamera(anari::Camera, bool);
+  void SetCamera(anari::Camera);
 
   /**
    * Get the ANARI back-end device. A device is an object which provides the
@@ -551,7 +551,6 @@ protected:
   void SetupAnariRendererParameters(vtkRenderer* ren, bool isNewRenderer);
   void InitAnariWorld();
   void UpdateAnariFrameSize();
-  void UpdateAnariCamera();
   void UpdateAnariLights();
   void UpdateAnariSurfaces();
   void UpdateAnariVolumes();

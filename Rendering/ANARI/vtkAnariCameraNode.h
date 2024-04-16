@@ -17,7 +17,12 @@
 #include "vtkCameraNode.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 
+#include <anari/anari_cpp.hpp>
+
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkAnariRendererNode;
+class vtkCamera;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariCameraNode : public vtkCameraNode
 {
@@ -27,22 +32,40 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Make ANARI calls to render me.
+   * Ensure the right type of ANARICamera object is being held.
    */
-  virtual void Render(bool prepass) override;
-
+  void Build(bool prepass) override;
+  /**
+   * Sync ANARICamera parameters with vtkCamera.
+   */
+  void Synchronize(bool prepass) override;
+  /**
+   * Set the camera on the ANARIFrame.
+   */
+  void Render(bool prepass) override;
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) override;
+  void Invalidate(bool prepass) override;
 
 protected:
   vtkAnariCameraNode() = default;
-  ~vtkAnariCameraNode() = default;
+  ~vtkAnariCameraNode();
 
 private:
   vtkAnariCameraNode(const vtkAnariCameraNode&) = delete;
   void operator=(const vtkAnariCameraNode&) = delete;
+
+  vtkCamera* GetVtkCamera() const;
+  bool NodeWasModified() const;
+
+  void UpdateAnariObjectHandles();
+  void UpdateAnariCameraParameters();
+
+  anari::Device AnariDevice{ nullptr };
+  anari::Camera AnariCamera{ nullptr };
+  bool IsParallelProjection{ false };
+  vtkAnariRendererNode* RendererNode{ nullptr };
 };
 
 VTK_ABI_NAMESPACE_END
