@@ -24,8 +24,8 @@ static char* vtkWrapPython_ConvertPascalToSnake(const char* pascalCase)
   }
 
   size_t pascalLen = strlen(pascalCase);
-  char* snakeCase = (char*)malloc((2 * pascalLen) +
-    1); // Max length is 2 times the input length (underscores added between words)
+  // Max length is 2 times the input length (underscores added between words)
+  char* snakeCase = (char*)malloc((2 * pascalLen) + 1);
   if (snakeCase == NULL)
   {
     return NULL; // Memory allocation failed
@@ -40,10 +40,16 @@ static char* vtkWrapPython_ConvertPascalToSnake(const char* pascalCase)
   {
     char currentChar = pascalCase[i];
 
-    // If the current character is uppercase, add an underscore and convert to lowercase
+    // Begin a new world only if
+    //     1. the current character is uppercase
+    // and 2. the current character follows a lowercase character
+    // or  3. the current character is followed by a lowercase character
     if (isupper(currentChar))
     {
-      snakeCase[snakeIndex++] = '_';
+      if (islower(pascalCase[i - 1]) || (i < pascalLen && islower(pascalCase[i + 1])))
+      {
+        snakeCase[snakeIndex++] = '_';
+      }
       snakeCase[snakeIndex++] = tolower(currentChar);
     }
     else
