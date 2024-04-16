@@ -1,130 +1,112 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <vtkCellArray.h>
+#include <vtkAppendDataSets.h>
+#include <vtkCellData.h>
 #include <vtkConnectivityFilter.h>
-#include <vtkFloatArray.h>
-#include <vtkMinimalStandardRandomSequence.h>
+#include <vtkDataArray.h>
+#include <vtkImageData.h>
 #include <vtkPointData.h>
-#include <vtkSmartPointer.h>
+#include <vtkRTAnalyticSource.h>
 #include <vtkUnstructuredGrid.h>
 
 namespace
 {
-void InitializeUnstructuredGrid(vtkUnstructuredGrid* unstructuredGrid, int dataType)
+//------------------------------------------------------------------------------
+void AddRegion(vtkAppendDataSets* filter)
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
-    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
-  randomSequence->SetSeed(1);
-
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
-  cells->InsertNextCell(4);
-  vtkSmartPointer<vtkFloatArray> scalars = vtkSmartPointer<vtkFloatArray>::New();
-
-  if (dataType == VTK_DOUBLE)
-  {
-    points->SetDataType(VTK_DOUBLE);
-    for (unsigned int i = 0; i < 4; ++i)
-    {
-      randomSequence->Next();
-      scalars->InsertNextValue(randomSequence->GetValue());
-      double point[3];
-      for (unsigned int j = 0; j < 3; ++j)
-      {
-        randomSequence->Next();
-        point[j] = randomSequence->GetValue();
-      }
-      cells->InsertCellPoint(points->InsertNextPoint(point));
-    }
-  }
-  else
-  {
-    points->SetDataType(VTK_FLOAT);
-    for (unsigned int i = 0; i < 4; ++i)
-    {
-      randomSequence->Next();
-      scalars->InsertNextValue(randomSequence->GetValue());
-      float point[3];
-      for (unsigned int j = 0; j < 3; ++j)
-      {
-        randomSequence->Next();
-        point[j] = static_cast<float>(randomSequence->GetValue());
-      }
-      cells->InsertCellPoint(points->InsertNextPoint(point));
-    }
-  }
-
-  scalars->Squeeze();
-  unstructuredGrid->GetPointData()->SetScalars(scalars);
-  points->Squeeze();
-  unstructuredGrid->SetPoints(points);
-  cells->Squeeze();
-  unstructuredGrid->SetCells(VTK_VERTEX, cells);
+  const int maxExtent = 5;
+  vtkNew<vtkRTAnalyticSource> dataSource;
+  dataSource->SetWholeExtent(0, maxExtent, 0, maxExtent, 0, maxExtent);
+  dataSource->Update();
+  filter->AddInputData(dataSource->GetOutput());
 }
 
-int FilterUnstructuredGridConnectivity(int dataType, int outputPointsPrecision)
+//------------------------------------------------------------------------------
+void InitializeUnstructuredGrid(
+  vtkUnstructuredGrid* unstructuredGrid, int pointsType, long long nbOfRegions)
 {
-  vtkSmartPointer<vtkUnstructuredGrid> inputUnstructuredGrid =
-    vtkSmartPointer<vtkUnstructuredGrid>::New();
-  InitializeUnstructuredGrid(inputUnstructuredGrid, dataType);
+  vtkNew<vtkAppendDataSets> filter;
+  filter->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
+  filter->SetOutputPointsPrecision(
+    pointsType == VTK_FLOAT ? vtkAlgorithm::SINGLE_PRECISION : vtkAlgorithm::DOUBLE_PRECISION);
 
-  vtkSmartPointer<vtkConnectivityFilter> connectivityFilter =
-    vtkSmartPointer<vtkConnectivityFilter>::New();
+  for (long long region = 0; region < nbOfRegions; region++)
+  {
+    AddRegion(filter);
+  }
+  filter->Update();
+
+  unstructuredGrid->ShallowCopy(filter->GetOutput());
+}
+
+bool CheckOutputPointsType(vtkUnstructuredGrid* output, int inputType, int expectedPrecision)
+{
+  vtkPoints* points = output->GetPoints();
+  int outputDataType = points->GetDataType();
+
+  int expectedType = expectedPrecision == vtkAlgorithm::DEFAULT_PRECISION
+    ? inputType
+    : expectedPrecision == vtkAlgorithm::SINGLE_PRECISION ? VTK_FLOAT : VTK_DOUBLE;
+
+  if (expectedType != outputDataType)
+  {
+    std::cerr << "ERROR: wrong output point type. Has " << outputDataType << " instead of "
+              << expectedType << "\n";
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestFilterOutputPrecision(int pointsType, int outputPointsPrecision)
+{
+  vtkNew<vtkUnstructuredGrid> inputUnstructuredGrid;
+  const int nbOfRegions = 10;
+  InitializeUnstructuredGrid(inputUnstructuredGrid, pointsType, nbOfRegions);
+
+  vtkNew<vtkConnectivityFilter> connectivityFilter;
   connectivityFilter->SetOutputPointsPrecision(outputPointsPrecision);
   connectivityFilter->ScalarConnectivityOn();
   connectivityFilter->SetScalarRange(0.25, 0.75);
   connectivityFilter->SetInputData(inputUnstructuredGrid);
-
   connectivityFilter->Update();
 
-  vtkSmartPointer<vtkPointSet> outputUnstructuredGrid = connectivityFilter->GetOutput();
-  vtkSmartPointer<vtkPoints> points = outputUnstructuredGrid->GetPoints();
+  vtkUnstructuredGrid* outputUnstructuredGrid = connectivityFilter->GetUnstructuredGridOutput();
 
-  return points->GetDataType();
-}
+  return CheckOutputPointsType(outputUnstructuredGrid, pointsType, outputPointsPrecision);
 }
 
+}
+
+bool TestOutputPointsType()
+{
+  std::cout << "TestOutputPointsType\n";
+  std::vector<int> dataTypes = { VTK_FLOAT, VTK_DOUBLE };
+  std::vector<int> outputPrecisions = { vtkAlgorithm::DEFAULT_PRECISION,
+    vtkAlgorithm::SINGLE_PRECISION, vtkAlgorithm::DOUBLE_PRECISION };
+  for (int type : dataTypes)
+  {
+    for (int precision : outputPrecisions)
+    {
+      bool success = TestFilterOutputPrecision(type, precision);
+      if (!success)
+      {
+        std::cerr << "Connectivity fails for type " << type << " and precision " << precision
+                  << "\n";
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 int TestConnectivityFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  int dataType = FilterUnstructuredGridConnectivity(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
-
-  if (dataType != VTK_FLOAT)
-  {
-    return EXIT_FAILURE;
-  }
-
-  dataType = FilterUnstructuredGridConnectivity(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
-
-  if (dataType != VTK_DOUBLE)
-  {
-    return EXIT_FAILURE;
-  }
-
-  dataType = FilterUnstructuredGridConnectivity(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
-
-  if (dataType != VTK_FLOAT)
-  {
-    return EXIT_FAILURE;
-  }
-
-  dataType = FilterUnstructuredGridConnectivity(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
-
-  if (dataType != VTK_FLOAT)
-  {
-    return EXIT_FAILURE;
-  }
-
-  dataType = FilterUnstructuredGridConnectivity(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
-
-  if (dataType != VTK_DOUBLE)
-  {
-    return EXIT_FAILURE;
-  }
-
-  dataType = FilterUnstructuredGridConnectivity(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
-
-  if (dataType != VTK_DOUBLE)
+  if (!TestOutputPointsType())
   {
     return EXIT_FAILURE;
   }

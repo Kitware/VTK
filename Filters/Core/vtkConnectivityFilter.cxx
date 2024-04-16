@@ -24,43 +24,27 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
+//-------------------------------------------------------------------------------------------------
 vtkConnectivityFilter::vtkConnectivityFilter()
 {
   this->RegionSizes = vtkIdTypeArray::New();
-  this->ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
-  this->ColorRegions = 0;
-  this->RegionIdAssignmentMode = UNSPECIFIED;
 
-  this->ScalarConnectivity = 0;
-  this->ScalarRange[0] = 0.0;
-  this->ScalarRange[1] = 1.0;
-
-  this->ClosestPoint[0] = this->ClosestPoint[1] = this->ClosestPoint[2] = 0.0;
-
-  this->CellScalars = vtkFloatArray::New();
   this->CellScalars->Allocate(8);
-
-  this->NeighborCellPointIds = vtkIdList::New();
   this->NeighborCellPointIds->Allocate(8);
 
   this->Seeds = vtkIdList::New();
   this->SpecifiedRegionIds = vtkIdList::New();
-
-  this->NewScalars = nullptr;
-  this->NewCellScalars = nullptr;
-
-  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
+//-------------------------------------------------------------------------------------------------
 vtkConnectivityFilter::~vtkConnectivityFilter()
 {
   this->RegionSizes->Delete();
-  this->CellScalars->Delete();
-  this->NeighborCellPointIds->Delete();
   this->Seeds->Delete();
   this->SpecifiedRegionIds->Delete();
 }
 
+//-------------------------------------------------------------------------------------------------
 int vtkConnectivityFilter::RequestDataObject(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -103,6 +87,7 @@ int vtkConnectivityFilter::RequestDataObject(vtkInformation* vtkNotUsed(request)
   return 0;
 }
 
+//-------------------------------------------------------------------------------------------------
 int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -174,11 +159,9 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     this->PointMap[i] = -1;
   }
 
-  this->NewScalars = vtkIdTypeArray::New();
   this->NewScalars->SetName("RegionId");
   this->NewScalars->SetNumberOfTuples(numPts);
 
-  this->NewCellScalars = vtkIdTypeArray::New();
   this->NewCellScalars->SetName("RegionId");
   this->NewCellScalars->SetNumberOfTuples(numCells);
 
@@ -368,8 +351,6 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     idx = outputCD->AddArray(this->NewCellScalars);
     outputCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
   }
-  this->NewScalars->Delete();
-  this->NewCellScalars->Delete();
 
   output->SetPoints(newPts);
   newPts->Delete();
@@ -533,9 +514,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// Mark current cell as visited and assign region number.  Note:
-// traversal occurs across shared vertices.
-//
+//-------------------------------------------------------------------------------------------------
 void vtkConnectivityFilter::TraverseAndMark(vtkDataSet* input)
 {
   vtkIdType i, j, k, cellId, numIds, ptId, numPts, numCells;
@@ -620,6 +599,7 @@ void vtkConnectivityFilter::TraverseAndMark(vtkDataSet* input)
   } // while wave is not empty
 }
 
+//-------------------------------------------------------------------------------------------------
 void vtkConnectivityFilter::OrderRegionIds(
   vtkIdTypeArray* pointRegionIds, vtkIdTypeArray* cellRegionIds)
 {
@@ -690,12 +670,13 @@ void vtkConnectivityFilter::OrderRegionIds(
   }
 }
 
-// Obtain the number of connected regions.
+//-------------------------------------------------------------------------------------------------
 int vtkConnectivityFilter::GetNumberOfExtractedRegions()
 {
   return this->RegionSizes->GetMaxId() + 1;
 }
 
+//-------------------------------------------------------------------------------------------------
 vtkTypeBool vtkConnectivityFilter::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -707,60 +688,63 @@ vtkTypeBool vtkConnectivityFilter::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-// Initialize list of point ids/cell ids used to seed regions.
+//-------------------------------------------------------------------------------------------------
 void vtkConnectivityFilter::InitializeSeedList()
 {
   this->Modified();
   this->Seeds->Reset();
 }
 
-// Add a seed id (point or cell id). Note: ids are 0-offset.
+//-------------------------------------------------------------------------------------------------
 void vtkConnectivityFilter::AddSeed(vtkIdType id)
 {
   this->Modified();
   this->Seeds->InsertNextId(id);
 }
 
-// Delete a seed id (point or cell id). Note: ids are 0-offset.
+//-------------------------------------------------------------------------------------------------
 void vtkConnectivityFilter::DeleteSeed(vtkIdType id)
 {
   this->Modified();
   this->Seeds->DeleteId(id);
 }
 
-// Initialize list of region ids to extract.
+//-------------------------------------------------------------------------------------------------
 void vtkConnectivityFilter::InitializeSpecifiedRegionList()
 {
   this->Modified();
   this->SpecifiedRegionIds->Reset();
 }
 
-// Add a region id to extract. Note: ids are 0-offset.
+//-------------------------------------------------------------------------------------------------
 void vtkConnectivityFilter::AddSpecifiedRegion(int id)
 {
   this->Modified();
   this->SpecifiedRegionIds->InsertNextId(id);
 }
 
-// Delete a region id to extract. Note: ids are 0-offset.
+//-------------------------------------------------------------------------------------------------
 void vtkConnectivityFilter::DeleteSpecifiedRegion(int id)
 {
   this->Modified();
   this->SpecifiedRegionIds->DeleteId(id);
 }
 
+//-------------------------------------------------------------------------------------------------
 int vtkConnectivityFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//-------------------------------------------------------------------------------------------------
 int vtkConnectivityFilter::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
   return 1;
 }
 
+//-------------------------------------------------------------------------------------------------
 void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -779,4 +763,5 @@ void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+
 VTK_ABI_NAMESPACE_END
