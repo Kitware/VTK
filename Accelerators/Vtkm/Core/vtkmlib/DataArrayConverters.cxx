@@ -14,6 +14,9 @@
 #include "vtkDataArray.h"
 #include "vtkPoints.h"
 
+#include <cstdint>
+#include <limits>
+
 namespace fromvtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
@@ -114,6 +117,17 @@ public:
       }
       else
       {
+        if (static_cast<std::size_t>(size) >=
+          static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()) / sizeof(ValueType))
+        {
+          this->Data = nullptr;
+          array->Delete();
+          std::ostringstream err;
+          err << "Allocation request too big: " << size << " elements of " << sizeof(ValueType)
+              << " bytes";
+          throw vtkm::cont::ErrorBadAllocation(err.str());
+        }
+
         // deep copy the memory to VTK as the memory coming from
         // a source that VTK can't represent
         ValueType* dataBuffer = new ValueType[size];
