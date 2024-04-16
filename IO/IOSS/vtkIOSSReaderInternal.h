@@ -191,7 +191,7 @@ public:
    */
   bool UpdateAssembly(vtkIOSSReader* self, int* tag);
 
-  vtkDataAssembly* GetAssembly() const { return this->Assembly; }
+  vtkDataAssembly* GetAssembly() const;
 
   /**
    * Fills up the output data-structure based on the entity blocks/sets chosen

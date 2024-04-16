@@ -6,35 +6,22 @@
 #include "vtkIOSSReaderInternal.h"
 #include "vtkIOSSUtilities.h"
 
-#include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
-#include "vtkDataSet.h"
-#include "vtkExtractGrid.h"
-#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
-#include "vtkMultiProcessStreamSerialization.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
-#include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkStructuredGrid.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkVector.h"
-#include "vtkVectorOperators.h"
-#include "vtksys/RegularExpression.hxx"
-#include "vtksys/SystemTools.hxx"
 
 // clang-format off
 #include VTK_IOSS(Ionit_Initializer.h)
@@ -63,7 +50,7 @@
 #include <memory>
 #include <set>
 #include <string>
-#include <utility>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
