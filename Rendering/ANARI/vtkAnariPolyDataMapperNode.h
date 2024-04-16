@@ -19,6 +19,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkActor;
 class vtkAnariPolyDataMapperNodeInternals;
 class vtkAnariActorNode;
 class vtkPolyData;
@@ -33,19 +34,29 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Ensure this node has been intialized.
+   */
+  void Build(bool prepass) override;
+  /**
+   * Sync ANARIGeometry + ANARIMaterial parameters with vtkPolyData.
+   */
+  void Synchronize(bool prepass) override;
+  /**
    * Make ANARI calls to render me.
    */
-  virtual void Render(bool prepass) override;
-
+  void Render(bool prepass) override;
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) override;
+  void Invalidate(bool prepass) override;
 
 protected:
   vtkAnariPolyDataMapperNode();
   ~vtkAnariPolyDataMapperNode();
 
+  vtkActor* GetVtkActor() const;
+  vtkAnariActorNode* GetAnariActorNode() const;
+  bool NodeWasModified() const;
   void RenderSurfaceModels(bool);
   void ClearSurfaces();
 

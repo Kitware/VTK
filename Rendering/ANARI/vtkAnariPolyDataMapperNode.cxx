@@ -161,46 +161,22 @@ public:
    */
   void ClearSurfaces();
 
-  vtkAnariPolyDataMapperNode* Owner;
-  vtkAnariRendererNode* AnariRendererNode;
+  vtkAnariPolyDataMapperNode* Owner{ nullptr };
+  vtkAnariRendererNode* AnariRendererNode{ nullptr };
 
   std::vector<anari::Surface> Surfaces;
 
 private:
-  anari::Library AnariLibrary;
-  anari::Device AnariDevice;
+  anari::Library AnariLibrary{ nullptr };
+  anari::Device AnariDevice{ nullptr };
   std::string AnariDeviceName;
-  anari::Extensions AnariDeviceExtensions;
+  anari::Extensions AnariDeviceExtensions{};
 };
 
 //----------------------------------------------------------------------------
 vtkAnariPolyDataMapperNodeInternals::vtkAnariPolyDataMapperNodeInternals(
   vtkAnariPolyDataMapperNode* owner)
-  : Owner(owner)
-  , AnariRendererNode(nullptr)
-  , Surfaces()
-  , AnariLibrary(nullptr)
-  , AnariDevice(nullptr)
-  , AnariDeviceName()
-  , AnariDeviceExtensions()
 {
-  if (this->AnariRendererNode != nullptr)
-  {
-    anari::Device anariDevice = this->AnariRendererNode->GetAnariDevice();
-
-    if (anariDevice)
-    {
-      for (auto surface : this->Surfaces)
-      {
-        anari::release(anariDevice, surface);
-      }
-
-      // std::vector::clear() doesn't guarantee a reallocation, this way
-      // we can force a reallocation
-      this->Surfaces.clear();
-      std::vector<anari::Surface>().swap(this->Surfaces);
-    }
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -225,13 +201,7 @@ void vtkAnariPolyDataMapperNodeInternals::ClearSurfaces()
       {
         anari::release(anariDevice, surface);
       }
-
-      // std::vector::clear() doesn't guarantee a reallocation, this way
-      // we can force a reallocation
       this->Surfaces.clear();
-      std::vector<anari::Surface>().swap(this->Surfaces);
-
-      // Reset prim counts
       this->AnariRendererNode->ResetCounts();
     }
   }
@@ -315,9 +285,8 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::ExtractORMFromVTK(std::strin
     }
   }
 
-  auto array2D = anariNewArray2D(
-    this->AnariDevice, floatData.data(), nullptr, nullptr, ANARI_FLOAT32, xsize, ysize);
-  anari::setAndReleaseParameter(this->AnariDevice, anariSampler, "image", array2D);
+  anari::setParameterArray2D(
+    this->AnariDevice, anariSampler, "image", floatData.data(), xsize, ysize);
   anari::commitParameters(this->AnariDevice, anariSampler);
 
   return anariSampler;
@@ -2068,73 +2037,111 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
 }
 
 //----------------------------------------------------------------------------
+void vtkAnariPolyDataMapperNode::Build(bool prepass)
+{
+  vtkAnariProfiling startProfiling("VTKAPDMN::Build", vtkAnariProfiling::GREEN);
+  if (!prepass || !NodeWasModified())
+  {
+    return;
+  }
+
+  auto anariRendererNode =
+    static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
+  this->SetAnariConfig(anariRendererNode);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariPolyDataMapperNode::Synchronize(bool prepass)
+{
+  vtkAnariProfiling startProfiling("VTKAPDMN::Synchronize", vtkAnariProfiling::GREEN);
+
+  if (!prepass || !NodeWasModified())
+  {
+    return;
+  }
+
+  this->ClearSurfaces();
+
+  auto* actor = GetVtkActor();
+  if (!actor->GetVisibility())
+  {
+    return;
+  }
+
+  vtkPolyData* poly = nullptr;
+  vtkPolyDataMapper* polyDataMapper = vtkPolyDataMapper::SafeDownCast(actor->GetMapper());
+
+  if (polyDataMapper && polyDataMapper->GetNumberOfInputPorts() > 0)
+  {
+    poly = polyDataMapper->GetInput();
+  }
+  else
+  {
+    vtkNew<vtkDataSetSurfaceFilter> geometryExtractor;
+
+    geometryExtractor->SetInputData(actor->GetMapper()->GetInput());
+    geometryExtractor->Update();
+
+    poly = static_cast<vtkPolyData*>(geometryExtractor->GetOutput());
+  }
+
+  if (poly)
+  {
+    vtkProperty* property = actor->GetProperty();
+    std::string materialName = "matte";
+
+    if (property->GetMaterialName() != nullptr)
+    {
+      materialName = property->GetMaterialName();
+    }
+
+    this->AnariRenderPoly(
+      this->GetAnariActorNode(), poly, property->GetColor(), property->GetOpacity(), materialName);
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperNode::Render(bool prepass)
 {
   vtkAnariProfiling startProfiling("VTKAPDMN::Render", vtkAnariProfiling::GREEN);
 
-  if (prepass)
+  if (!prepass)
   {
-    vtkAnariActorNode* anariActorNode = vtkAnariActorNode::SafeDownCast(this->Parent);
-    vtkActor* actor = vtkActor::SafeDownCast(anariActorNode->GetRenderable());
-
-    auto anariRendererNode =
-      static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
-    this->SetAnariConfig(anariRendererNode);
-
-    vtkMTimeType inTime = anariActorNode->GetMTime();
-
-    // if there are no changes, just reuse last result
-    if (this->RenderTime >= inTime)
-    {
-      this->RenderSurfaceModels(false);
-      return;
-    }
-
-    this->RenderTime = inTime;
-    this->ClearSurfaces();
-
-    if (actor->GetVisibility() != false)
-    {
-      vtkPolyData* poly = nullptr;
-      vtkPolyDataMapper* polyDataMapper = vtkPolyDataMapper::SafeDownCast(actor->GetMapper());
-
-      if (polyDataMapper && polyDataMapper->GetNumberOfInputPorts() > 0)
-      {
-        poly = polyDataMapper->GetInput();
-      }
-      else
-      {
-        vtkNew<vtkDataSetSurfaceFilter> geometryExtractor;
-
-        geometryExtractor->SetInputData(actor->GetMapper()->GetInput());
-        geometryExtractor->Update();
-
-        poly = static_cast<vtkPolyData*>(geometryExtractor->GetOutput());
-      }
-
-      if (poly)
-      {
-        vtkProperty* property = actor->GetProperty();
-        std::string materialName = "matte";
-
-        if (property->GetMaterialName() != nullptr)
-        {
-          materialName = property->GetMaterialName();
-        }
-
-        this->AnariRenderPoly(
-          anariActorNode, poly, property->GetColor(), property->GetOpacity(), materialName);
-      }
-    }
-
-    this->RenderSurfaceModels(true);
+    return;
   }
+
+  if (!NodeWasModified())
+  {
+    this->RenderSurfaceModels(false);
+    return;
+  }
+
+  this->RenderTime = this->GetAnariActorNode()->GetMTime();
+  this->RenderSurfaceModels(true);
 }
 
 //----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperNode::SetAnariConfig(vtkAnariRendererNode* anariRendererNode)
 {
   this->Internal->SetAnariConfig(anariRendererNode);
+}
+
+//----------------------------------------------------------------------------
+vtkActor* vtkAnariPolyDataMapperNode::GetVtkActor() const
+{
+  return vtkActor::SafeDownCast(this->GetAnariActorNode()->GetRenderable());
+}
+
+//----------------------------------------------------------------------------
+vtkAnariActorNode* vtkAnariPolyDataMapperNode::GetAnariActorNode() const
+{
+  return vtkAnariActorNode::SafeDownCast(this->Parent);
+}
+
+//----------------------------------------------------------------------------
+bool vtkAnariPolyDataMapperNode::NodeWasModified() const
+{
+  return this->RenderTime < this->GetAnariActorNode()->GetMTime();
 }
 
 //----------------------------------------------------------------------------
