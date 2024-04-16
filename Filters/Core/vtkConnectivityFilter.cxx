@@ -16,6 +16,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkToImplicitTypeErasureStrategy.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <map>
@@ -346,10 +347,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     this->OrderRegionIds(this->NewScalars, this->NewCellScalars);
 
-    int idx = outputPD->AddArray(this->NewScalars);
-    outputPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-    idx = outputCD->AddArray(this->NewCellScalars);
-    outputCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
+    this->AddRegionsIds(output, this->NewScalars, this->NewCellScalars);
   }
 
   output->SetPoints(newPts);
@@ -671,6 +669,43 @@ void vtkConnectivityFilter::OrderRegionIds(
 }
 
 //-------------------------------------------------------------------------------------------------
+void vtkConnectivityFilter::AddRegionsIds(
+  vtkDataSet* output, vtkDataArray* pointArray, vtkDataArray* cellArray)
+{
+  vtkPointData* outputPD = output->GetPointData();
+  vtkCellData* outputCD = output->GetCellData();
+
+  int idx = 0;
+  if (this->CompressArrays)
+  {
+    vtkSmartPointer<vtkDataArray> compressedPointScalars = this->CompressWithImplicit(pointArray);
+    idx = outputPD->AddArray(compressedPointScalars);
+    // release internal array memory
+    this->NewScalars->Initialize();
+  }
+  else
+  {
+    idx = outputPD->AddArray(pointArray);
+  }
+  outputPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
+
+  if (this->CompressArrays)
+  {
+    vtkSmartPointer<vtkDataArray> compressedCellScalars = this->CompressArrays
+      ? this->CompressWithImplicit(this->NewCellScalars)
+      : this->NewCellScalars;
+    idx = outputCD->AddArray(compressedCellScalars);
+    // release internal array memory
+    this->NewCellScalars->Initialize();
+  }
+  else
+  {
+    idx = outputCD->AddArray(cellArray);
+  }
+  outputCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
+}
+
+//-------------------------------------------------------------------------------------------------
 int vtkConnectivityFilter::GetNumberOfExtractedRegions()
 {
   return this->RegionSizes->GetMaxId() + 1;
@@ -762,6 +797,17 @@ void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
   double* range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
+  os << indent << "Compress Arrays: " << this->CompressArrays << "\n";
+}
+
+//-------------------------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataArray> vtkConnectivityFilter::CompressWithImplicit(vtkDataArray* array)
+{
+  vtkNew<vtkToImplicitTypeErasureStrategy> minTypeStrategy;
+  vtkDebugMacro(<< "Reduction factor for array <" << array->GetName()
+                << "> estimated to: " << minTypeStrategy->EstimateReduction(array).Value);
+  vtkSmartPointer<vtkDataArray> result = minTypeStrategy->Reduce(array);
+  return result;
 }
 
 VTK_ABI_NAMESPACE_END

@@ -206,6 +206,18 @@ public:
   vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
+  ///@{
+  /**
+   * Set/get the activation of the compression for the output arrays.
+   * When on, the output arrays is compressed to optimize memory.
+   * This is used only when ColorRegions is true.
+   * Default is true.
+   */
+  vtkSetMacro(CompressArrays, bool);
+  vtkGetMacro(CompressArrays, bool);
+  vtkBooleanMacro(CompressArrays, bool);
+  ///@}
+
 protected:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter() override;
@@ -224,6 +236,12 @@ protected:
   // Outputs a vtkDataSet
   int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
   ///@}
+
+  /**
+   * Add regions ids array to output dataset.
+   * Compress arrays if CompressArrays is on.
+   */
+  void AddRegionsIds(vtkDataSet* output, vtkDataArray* pointArray, vtkDataArray* cellArray);
 
   // boolean turns on/off scalar gen for separate regions
   vtkTypeBool ColorRegions = 0;
@@ -252,6 +270,15 @@ protected:
 
   void OrderRegionIds(vtkIdTypeArray* pointRegionIds, vtkIdTypeArray* cellRegionIds);
 
+  /**
+   * Compress the given array, returning a vtkImplicitArray.
+   * Useful for RegionId arrays, that offten have a small amount of different values.
+   *
+   * see ColorRegions.
+   * Uses vtkToImplicitArrayFilter and relevant strategy.
+   */
+  vtkSmartPointer<vtkDataArray> CompressWithImplicit(vtkDataArray* array);
+
 private:
   // used to support algorithm execution
   vtkNew<vtkFloatArray> CellScalars;
@@ -268,6 +295,7 @@ private:
   vtkIdList* Wave2 = nullptr;
   vtkIdList* PointIds = nullptr;
   vtkIdList* CellIds = nullptr;
+  bool CompressArrays = true;
 
   vtkConnectivityFilter(const vtkConnectivityFilter&) = delete;
   void operator=(const vtkConnectivityFilter&) = delete;
