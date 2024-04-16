@@ -4,7 +4,9 @@
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
+#include "vtkCollectionRange.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayCollection.h"
 #include "vtkImplicitArray.h"
 #include "vtkSmartPointer.h"
 
@@ -136,6 +138,22 @@ struct vtkCompositeImplicitBackend<ValueType>::Internals
   template <class Iterator>
   Internals(Iterator first, Iterator last)
   {
+    this->Initialize(first, last);
+  }
+
+  Internals(vtkDataArrayCollection* collection)
+  {
+    auto arrayRange = vtk::Range(collection);
+    this->Initialize(arrayRange.begin(), arrayRange.end());
+  }
+
+  std::vector<vtkSmartPointer<CachedArray>> CachedArrays;
+  std::vector<std::size_t> Offsets;
+
+private:
+  template <class Iterator>
+  void Initialize(Iterator first, Iterator last)
+  {
     this->CachedArrays.resize(std::distance(first, last));
     std::transform(first, last, this->CachedArrays.begin(), [](vtkDataArray* arr) {
       vtkNew<CachedArray> newCache;
@@ -155,9 +173,6 @@ struct vtkCompositeImplicitBackend<ValueType>::Internals
         });
     }
   }
-
-  std::vector<vtkSmartPointer<CachedArray>> CachedArrays;
-  std::vector<std::size_t> Offsets;
 };
 
 //-----------------------------------------------------------------------
@@ -165,6 +180,13 @@ template <typename ValueType>
 vtkCompositeImplicitBackend<ValueType>::vtkCompositeImplicitBackend(
   const std::vector<vtkDataArray*>& arrays)
   : Internal(std::unique_ptr<Internals>(new Internals(arrays.begin(), arrays.end())))
+{
+}
+
+//-----------------------------------------------------------------------
+template <typename ValueType>
+vtkCompositeImplicitBackend<ValueType>::vtkCompositeImplicitBackend(vtkDataArrayCollection* arrays)
+  : Internal(std::unique_ptr<Internals>(new Internals(arrays)))
 {
 }
 

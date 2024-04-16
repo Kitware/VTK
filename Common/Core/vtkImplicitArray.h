@@ -241,6 +241,11 @@ public:
   /**
    * Use of this method is discouraged, it creates a memory copy of the data into
    * a contiguous AoS-ordered buffer internally.
+   *
+   * Implicit array aims to limit memory consumption. Calling this method breaks
+   * this paradigm and can cause unexpected memory consumption,
+   * specially when called indirectly by some implementation details.
+   * E.g. when using the numpy wrapping, see #19304.
    */
   void* GetVoidPointer(vtkIdType valueIdx) override;
 
