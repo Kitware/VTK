@@ -207,6 +207,10 @@ void vtkOpenGLES30PolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActo
   for (int primType = 0; primType < PrimitiveEnd; ++primType)
   {
     const auto numVerts = this->PrimitiveIndexArrays[primType].size();
+    if (!numVerts)
+    {
+      continue;
+    }
     ScopedValueRollback<vtkOpenGLVertexBufferObjectGroup*> vbogBkp(
       this->VBOs, this->PrimitiveVBOGroup[primType].Get());
     this->CurrentDrawCallPrimtiveType = static_cast<PrimitiveTypes>(primType);
@@ -373,14 +377,6 @@ void vtkOpenGLES30PolyDataMapper2D::UpdateVBO(vtkActor2D* act, vtkViewport* view
     c = nullptr;
   }
 
-  // do we have texture maps?
-  bool haveTextures = false;
-  vtkInformation* info = act->GetPropertyKeys();
-  if (info && info->Has(vtkProp::GeneralTextureUnit()))
-  {
-    haveTextures = true;
-  }
-
   // Transform the points, if necessary
   vtkPoints* p = poly->GetPoints();
   if (this->TransformCoordinate)
@@ -440,7 +436,7 @@ void vtkOpenGLES30PolyDataMapper2D::UpdateVBO(vtkActor2D* act, vtkViewport* view
   VertexAttributeArrays originalVAttribs;
   originalVAttribs.colors = c;
   originalVAttribs.points = p->GetData();
-  originalVAttribs.tcoords = haveTextures ? poly->GetPointData()->GetTCoords() : nullptr;
+  originalVAttribs.tcoords = poly->GetPointData()->GetTCoords();
 
   // unlike 3D actors, 2D actors do not have different kinds of representations,
   const std::size_t PrimitiveSizes[PrimitiveEnd] = {
