@@ -309,6 +309,13 @@ int vtkIOSSReader::ReadMetaData(vtkInformation* metadata)
   }
 
   metadata->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
+  if (internals.HaveRestartFiles())
+  {
+    // All meta-data have been read successfully, so we can release all the regions.
+    // Subsequent ReadMesh calls create only the requested regions (if needed) and release previous
+    // regions (if no longer needed).
+    internals.ReleaseRegions();
+  }
   return 1;
 }
 
@@ -357,6 +364,11 @@ int vtkIOSSReader::ReadMesh(
   // dbaseHandles are handles for individual files this instance will to read to
   // satisfy the request. Can be >= 0.
   const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
+  // if we have restart files, we need to release the regions that are no longer needed.
+  if (internals.HaveRestartFiles() && !internals.HaveCreatedRegions(dbaseHandles))
+  {
+    internals.ReleaseRegions();
+  }
 
   // Read global data. Since this should be same on all ranks, we only read on
   // root node and broadcast it to all. This helps us easily handle the case
@@ -509,7 +521,6 @@ int vtkIOSSReader::ReadMesh(
   {
     internals.ClearCacheUnused();
   }
-  internals.ReleaseRegions();
   return 1;
 }
 

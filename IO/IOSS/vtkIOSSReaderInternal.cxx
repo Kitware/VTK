@@ -111,7 +111,7 @@ bool vtkIOSSReaderInternal::UpdateDatabaseNames(vtkIOSSReader* self)
   this->Cache.Clear();
 
   // Clear old Ioss::Region's since they may not be correct anymore.
-  this->RegionMap.clear();
+  this->ReleaseRegions();
 
   auto filenames = this->FileNames;
   auto controller = self->GetController();

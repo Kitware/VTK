@@ -27,6 +27,7 @@
 #include VTK_IOSS(Ioss_StructuredBlock.h)
 // clang-format on
 
+#include <algorithm>
 #include <array>
 #include <map>
 #include <set>
@@ -72,6 +73,7 @@ using DatabaseHandle = std::pair<std::string, int>;
  */
 class vtkIOSSReaderInternal
 {
+private:
   // It's okay to instantiate this multiple times.
   Ioss::Init::Initializer io;
 
@@ -232,6 +234,11 @@ public:
   bool GetGlobalFields(vtkFieldData* fd, const DatabaseHandle& handle, int timestep);
 
   /**
+   * Get if there are restart files available.
+   */
+  bool HaveRestartFiles() const { return this->DatabaseTimes.size() > 1; }
+
+  /**
    * Returns the list of fileids, if any to be read for a given "piece" for the
    * chosen timestep.
    */
@@ -280,6 +287,22 @@ public:
 
     // this is not a spatially partitioned file; just return 0.
     return 0;
+  }
+
+  /**
+   * Returns if the given database handles have regions already created.
+   */
+  bool HaveCreatedRegions(const std::vector<DatabaseHandle>& dbaseHandles)
+  {
+    if (this->RegionMap.empty())
+    {
+      return false;
+    }
+    const bool allHandlesAreNew =
+      std::all_of(dbaseHandles.begin(), dbaseHandles.end(), [&](const DatabaseHandle& handle) {
+        return this->RegionMap.find(handle) == this->RegionMap.end();
+      });
+    return !allHandlesAreNew;
   }
 
   /**
