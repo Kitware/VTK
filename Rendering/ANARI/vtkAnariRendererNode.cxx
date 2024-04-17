@@ -210,21 +210,6 @@ vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
 {
   if (this->AnariDevice != nullptr)
   {
-    for (auto surface : this->AnariSurfaceState)
-    {
-      anari::release(this->AnariDevice, surface);
-    }
-
-    for (auto volume : this->AnariVolumeState)
-    {
-      anari::release(this->AnariDevice, volume);
-    }
-
-    for (auto light : this->AnariLightState)
-    {
-      anari::release(this->AnariDevice, light);
-    }
-
     anari::release(this->AnariDevice, this->AnariGroup);
     anari::release(this->AnariDevice, this->AnariInstance);
     anari::release(this->AnariDevice, this->AnariWorld);
