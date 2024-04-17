@@ -102,11 +102,11 @@ int RunParallelConnectivity(
   std::vector<vtkIdType> regionCounts(connectivity->GetNumberOfExtractedRegions(), 0);
 
   // Count up cells with RegionIds
-  auto regionIdArray =
-    vtkIdTypeArray::SafeDownCast(ghostOutput->GetCellData()->GetArray("RegionId"));
-  for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)
+
+  vtkDataArray* regionIdArray = ghostOutput->GetCellData()->GetArray("RegionId");
+  auto regionIdRange = vtk::DataArrayValueRange(regionIdArray);
+  for (const auto regionId : regionIdRange)
   {
-    vtkIdType regionId = regionIdArray->GetValue(cellId);
     regionCounts[regionId]++;
   }
 
@@ -141,10 +141,10 @@ int RunParallelConnectivity(
   removeGhosts->Update();
 
   std::fill(regionCounts.begin(), regionCounts.end(), 0);
-  regionIdArray = vtkIdTypeArray::SafeDownCast(ghostOutput->GetCellData()->GetArray("RegionId"));
-  for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)
+  regionIdArray = ghostOutput->GetCellData()->GetArray("RegionId");
+  regionIdRange = vtk::DataArrayValueRange(regionIdArray);
+  for (const auto regionId : regionIdRange)
   {
-    vtkIdType regionId = regionIdArray->GetValue(cellId);
     regionCounts[regionId]++;
   }
 
