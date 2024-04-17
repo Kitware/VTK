@@ -47,7 +47,7 @@ protected:
   vtkAnariCompositePolyDataMapperNode() = default;
   ~vtkAnariCompositePolyDataMapperNode() = default;
 
-  void RenderBlock(vtkCompositePolyDataMapper*, vtkActor*, vtkDataObject*, unsigned int&);
+  void SynchronizeBlock(vtkCompositePolyDataMapper*, vtkActor*, vtkDataObject*, unsigned int&);
 
   class RenderBlockState
   {

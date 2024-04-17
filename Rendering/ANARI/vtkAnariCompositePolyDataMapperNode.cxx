@@ -95,7 +95,7 @@ void vtkAnariCompositePolyDataMapperNode::Synchronize(bool prepass)
 
     if (dobj)
     {
-      this->RenderBlock(cpdm, act, dobj, flat_index);
+      this->SynchronizeBlock(cpdm, act, dobj, flat_index);
     }
   }
 
@@ -108,11 +108,11 @@ void vtkAnariCompositePolyDataMapperNode::Synchronize(bool prepass)
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariCompositePolyDataMapperNode::RenderBlock(
+void vtkAnariCompositePolyDataMapperNode::SynchronizeBlock(
   vtkCompositePolyDataMapper* cpdm, vtkActor* actor, vtkDataObject* dobj, unsigned int& flat_index)
 {
   vtkAnariProfiling startProfiling(
-    "vtkAnariCompositePolyDataMapperNode::RenderBlock", vtkAnariProfiling::BROWN);
+    "vtkAnariCompositePolyDataMapperNode::SynchronizeBlock", vtkAnariProfiling::BROWN);
 
   vtkCompositeDataDisplayAttributes* cda = cpdm->GetCompositeDataDisplayAttributes();
 
@@ -156,7 +156,7 @@ void vtkAnariCompositePolyDataMapperNode::RenderBlock(
     {
       if (auto child = dataObjTree->GetChild(i))
       {
-        this->RenderBlock(cpdm, actor, child, flat_index);
+        this->SynchronizeBlock(cpdm, actor, child, flat_index);
       }
       else
       {
