@@ -72,37 +72,6 @@ void vtkExternalOpenGLRenderer::SynchronizeGLCameraMatrices()
 
   camera->SetProjectionTransformMatrix(p);
   camera->SetViewTransformMatrix(mv);
-
-  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
-  matrix->DeepCopy(mv);
-  matrix->Transpose();
-  matrix->Invert();
-
-  // Synchronize camera viewUp
-  double viewUp[4] = { 0.0, 1.0, 0.0, 0.0 }, newViewUp[4];
-  matrix->MultiplyPoint(viewUp, newViewUp);
-  vtkMath::Normalize(newViewUp);
-  camera->SetViewUp(newViewUp);
-
-  // Synchronize camera position
-  double position[4] = { 0.0, 0.0, 0.0, 1.0 }, newPosition[4];
-  matrix->MultiplyPoint(position, newPosition);
-
-  if (newPosition[3] != 0.0)
-  {
-    newPosition[0] /= newPosition[3];
-    newPosition[1] /= newPosition[3];
-    newPosition[2] /= newPosition[3];
-    newPosition[3] = 1.0;
-  }
-  camera->SetPosition(newPosition);
-
-  // Synchronize focal point
-  double focalPoint[4] = { 0.0, 0.0, -1.0, 1.0 }, newFocalPoint[4];
-  matrix->MultiplyPoint(focalPoint, newFocalPoint);
-  camera->SetFocalPoint(newFocalPoint);
-
-  matrix->Delete();
 }
 
 //------------------------------------------------------------------------------
