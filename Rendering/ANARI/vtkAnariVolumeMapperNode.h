@@ -17,9 +17,12 @@
 #include "vtkRenderingAnariModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
+#include <anari/anari_cpp.hpp>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariVolumeMapperNodeInternals;
+class vtkVolume;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariVolumeMapperNode : public vtkVolumeMapperNode
 {
@@ -45,13 +48,20 @@ public:
   //@}
 
   /**
-   * Make ANARI calls to render me.
+   * Synchronize VTK and ANARI Objects
    */
-  virtual void Render(bool prepass) override;
+  void Synchronize(bool prepass) override;
+  /**
+   * Add volume to ANARI world.
+   */
+  void Render(bool prepass) override;
 
 protected:
   vtkAnariVolumeMapperNode();
   ~vtkAnariVolumeMapperNode();
+
+  vtkVolume* GetVtkVolume() const;
+  bool NodeWasModified() const;
 
   int ColorSize;
   int OpacitySize;
