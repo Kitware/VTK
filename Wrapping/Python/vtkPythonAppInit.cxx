@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 
 #ifdef VTK_COMPILED_USING_MPI
   VTKMPICleanup.Initialize(&argc, &argv);
-  Py_AtExit(::AtExitCallback);
+  vtkPythonInterpreter::AddAtExitCallback(::AtExitCallback);
 #endif // VTK_COMPILED_USING_MPI
 
   /**

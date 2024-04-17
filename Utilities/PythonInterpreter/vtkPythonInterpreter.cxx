@@ -170,6 +170,7 @@ std::string vtkPythonInterpreter::StdErrBuffer;
 std::string vtkPythonInterpreter::StdOutBuffer;
 int vtkPythonInterpreter::LogVerbosity = vtkLogger::VERBOSITY_TRACE;
 std::vector<std::pair<std::string, std::string>> vtkPythonInterpreter::UserPythonPaths;
+std::vector<void (*)()> vtkPythonInterpreter::AtExitCallbacks;
 
 #if PY_VERSION_HEX >= 0x03000000
 struct CharDeleter
@@ -401,6 +402,17 @@ void vtkPythonInterpreter::AddUserPythonPath(const char* libraryPath, const char
   vtkPythonInterpreter::UserPythonPaths.emplace_back(std::make_pair(libraryPath, landmark));
 }
 
+int vtkPythonInterpreter::AddAtExitCallback(void (*func)())
+{
+  if (Py_IsInitialized() == 0)
+  {
+    vtkPythonInterpreter::AtExitCallbacks.emplace_back(func);
+    return 1;
+  }
+
+  return Py_AtExit(func);
+}
+
 //------------------------------------------------------------------------------
 bool vtkPythonInterpreter::InitializeWithArgs(
   int initsigs, int argc, char* argv[], const char* programName)
@@ -540,6 +552,15 @@ bool vtkPythonInterpreter::InitializeWithArgs(
     {
       vtkPrependPythonPath(PythonPaths[cc].c_str());
     }
+
+    for (auto* func : vtkPythonInterpreter::AtExitCallbacks)
+    {
+      if (Py_AtExit(func))
+      {
+        return false;
+      }
+    }
+    vtkPythonInterpreter::AtExitCallbacks.clear();
 
     NotifyInterpreters(vtkCommand::EnterEvent);
     return true;
