@@ -109,6 +109,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # Flaky timeouts
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18984
     "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
+
+    # Rendering in the wrong order.
+    "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget2$"
+    "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget3$"
     )
 endif ()
 
