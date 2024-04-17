@@ -19,12 +19,14 @@
 #include "vtkLightNode.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 
+#include <anari/anari_cpp.hpp>
+
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkAnariRendererNode;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkLight;
-class vtkAnariLightNodeInternals;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariLightNode : public vtkLightNode
 {
@@ -33,6 +35,14 @@ public:
   vtkTypeMacro(vtkAnariLightNode, vtkLightNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * Ensure the right type of ANARICamera object is being held.
+   */
+  void Build(bool prepass) override;
+  /**
+   * Sync ANARICamera parameters with vtkCamera.
+   */
+  void Synchronize(bool prepass) override;
   /**
    * Make ANARI calls to render me.
    */
@@ -111,7 +121,12 @@ private:
   vtkAnariLightNode(const vtkAnariLightNode&) = delete;
   void operator=(const vtkAnariLightNode&) = delete;
 
-  vtkAnariLightNodeInternals* Internal;
+  void ClearLight();
+  vtkLight* GetVtkLight() const;
+  bool NodeWasModified() const;
+
+  vtkAnariRendererNode* RendererNode{ nullptr };
+  anari::Light AnariLight{ nullptr };
 };
 
 VTK_ABI_NAMESPACE_END

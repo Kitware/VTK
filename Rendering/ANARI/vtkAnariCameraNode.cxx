@@ -24,24 +24,6 @@ VTK_ABI_NAMESPACE_BEGIN
 //============================================================================
 vtkStandardNewMacro(vtkAnariCameraNode);
 
-#if 0
-struct CameraCallback : vtkCommand
-{
-  vtkTypeMacro(CameraCallback, vtkCommand);
-
-  static CameraCallback *New() {
-    return new CameraCallback;
-  }
-
-  void Execute(vtkObject * vtkNotUsed(caller),
-               unsigned long vtkNotUsed(eventId),
-               void * vtkNotUsed(callData))
-  {
-    printf("CAMERA CHANGED\n");
-  }
-};
-#endif
-
 //----------------------------------------------------------------------------
 void vtkAnariCameraNode::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -76,16 +58,6 @@ void vtkAnariCameraNode::Build(bool prepass)
   {
     return;
   }
-
-#if 0
-  auto *cam = GetVtkCamera();
-  if (!cam->HasObserver(vtkCommand::ModifiedEvent))
-  {
-    vtkNew<CameraCallback> cc;
-    cam->AddObserver(vtkCommand::ModifiedEvent, cc);
-    cc->Execute(nullptr, vtkCommand::ModifiedEvent, nullptr);
-  }
-#endif
 
   if (this->RendererNode == nullptr)
   {
