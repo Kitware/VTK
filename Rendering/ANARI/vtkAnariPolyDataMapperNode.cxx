@@ -6,6 +6,7 @@
 #include "vtkAnariRendererNode.h"
 
 #include "vtkActor.h"
+#include "vtkCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkFloatArray.h"
@@ -45,6 +46,21 @@ using vec4 = anari::std_types::vec4;
 using mat4 = anari::std_types::mat4;
 
 VTK_ABI_NAMESPACE_BEGIN
+
+struct PolyDataMapperCallback : vtkCommand
+{
+  vtkTypeMacro(PolyDataMapperCallback, vtkCommand);
+
+  static PolyDataMapperCallback* New() { return new PolyDataMapperCallback; }
+
+  void Execute(
+    vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData))
+  {
+    this->RendererNode->InvalidateSceneStructure();
+  }
+
+  vtkAnariRendererNode* RendererNode{ nullptr };
+};
 
 //============================================================================
 class vtkAnariPolyDataMapperNodeInternals
@@ -184,7 +200,7 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaceModels(bool changed)
 {
   if (this->AnariRendererNode != nullptr)
   {
-    this->AnariRendererNode->AddSurfaces(this->Surfaces, changed);
+    this->AnariRendererNode->AddSurfaces(this->Surfaces);
   }
 }
 
@@ -2045,9 +2061,18 @@ void vtkAnariPolyDataMapperNode::Build(bool prepass)
     return;
   }
 
-  auto anariRendererNode =
+  auto* anariRendererNode =
     static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
   this->SetAnariConfig(anariRendererNode);
+
+  auto* actor = GetVtkActor();
+  if (!actor->HasObserver(vtkCommand::ModifiedEvent))
+  {
+    vtkNew<PolyDataMapperCallback> cc;
+    cc->RendererNode = anariRendererNode;
+    actor->AddObserver(vtkCommand::ModifiedEvent, cc);
+    cc->Execute(nullptr, vtkCommand::ModifiedEvent, nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2059,6 +2084,8 @@ void vtkAnariPolyDataMapperNode::Synchronize(bool prepass)
   {
     return;
   }
+
+  this->RenderTime = this->GetAnariActorNode()->GetMTime();
 
   this->ClearSurfaces();
 
@@ -2110,13 +2137,6 @@ void vtkAnariPolyDataMapperNode::Render(bool prepass)
     return;
   }
 
-  if (!NodeWasModified())
-  {
-    this->RenderSurfaceModels(false);
-    return;
-  }
-
-  this->RenderTime = this->GetAnariActorNode()->GetMTime();
   this->RenderSurfaceModels(true);
 }
 

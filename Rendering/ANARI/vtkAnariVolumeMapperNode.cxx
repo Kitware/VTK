@@ -130,7 +130,7 @@ void vtkAnariVolumeMapperNodeInternals::StageVolume(bool changed)
 
   if (this->AnariRendererNode != nullptr)
   {
-    this->AnariRendererNode->AddVolume(this->AnariVolume, changed);
+    this->AnariRendererNode->AddVolume(this->AnariVolume);
   }
 }
 

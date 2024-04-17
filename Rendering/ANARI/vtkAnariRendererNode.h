@@ -462,7 +462,7 @@ public:
    * Lights in ANARI are virtual objects that emit light into the world and
    * thus illuminate objects.
    */
-  void AddLight(anari::Light, bool);
+  void AddLight(anari::Light);
 
   /**
    * Accessed by the AnariPolyDataMapperNode to add Surfaces to the world.
@@ -470,14 +470,14 @@ public:
    * These take a geometry, which defines the spatial representation, and
    * applies either full-object or per-primitive color and material information.
    */
-  void AddSurfaces(const std::vector<anari::Surface>&, bool);
+  void AddSurfaces(const std::vector<anari::Surface>&);
 
   /**
    * Accessed by the AnariVolumeMapperNode to add Volumes to the world.
    * Volumes in ANARI represent volumetric objects (complementing surfaces),
    * enscapsulating spatial data as well as appearance information.
    */
-  void AddVolume(anari::Volume, bool);
+  void AddVolume(anari::Volume);
 
   /**
    * Accessed by the AnariCameraNode to set the ANARICamera on the ANARIFrame.
@@ -542,6 +542,11 @@ public:
    */
   virtual int GetDepthBufferTextureGL();
 
+  /**
+   * Indicate that a new RenderTraversal of children needs to occur next frame
+   */
+  void InvalidateSceneStructure();
+
 protected:
   vtkAnariRendererNode();
   ~vtkAnariRendererNode();
@@ -562,6 +567,9 @@ protected:
   int CurveCount;
   int TriangleCount;
   vtkAnariRendererNodeInternals* Internal;
+
+  vtkTimeStamp AnariSceneStructureModifiedMTime;
+  vtkMTimeType AnariSceneConstructedMTime{ 0 };
 
 private:
   vtkAnariRendererNode(const vtkAnariRendererNode&) = delete;

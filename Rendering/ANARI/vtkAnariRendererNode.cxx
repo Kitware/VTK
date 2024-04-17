@@ -94,44 +94,9 @@ struct RendererParameters
   std::string DebugMethod;
 };
 
-struct SurfaceState
-{
-  SurfaceState()
-    : changed(false)
-    , used(false)
-  {
-  }
-
-  bool changed;
-  bool used;
-  std::vector<anari::Surface> Surfaces;
-};
-
-struct VolumeState
-{
-  VolumeState()
-    : changed(false)
-    , used(false)
-  {
-  }
-
-  bool changed;
-  bool used;
-  std::vector<anari::Volume> Volumes;
-};
-
-struct LightState
-{
-  LightState()
-    : changed(false)
-    , used(false)
-  {
-  }
-
-  bool changed;
-  bool used;
-  std::vector<anari::Light> Lights;
-};
+using SurfaceState = std::vector<anari::Surface>;
+using VolumeState = std::vector<anari::Volume>;
+using LightState = std::vector<anari::Light>;
 }
 
 class vtkAnariRendererNodeInternals
@@ -148,8 +113,8 @@ public:
   /**
    * Methods to add, get, and clear ANARI lights.
    */
-  void AddLight(anari::Light, bool);
-  anari_vtk::LightState GetLightState();
+  void AddLight(anari::Light);
+  const anari_vtk::LightState& GetLightState();
   void ClearLights();
   //@}
 
@@ -157,8 +122,8 @@ public:
   /**
    * Methods to add, get, and clear ANARI surfaces.
    */
-  void AddSurfaces(const std::vector<anari::Surface>&, bool);
-  anari_vtk::SurfaceState GetSurfaceState();
+  void AddSurfaces(const std::vector<anari::Surface>&);
+  const anari_vtk::SurfaceState& GetSurfaceState();
   void ClearSurfaces();
   //@}
 
@@ -166,8 +131,8 @@ public:
   /**
    * Methods to add, get, and clear ANARI volumes.
    */
-  void AddVolume(anari::Volume, bool);
-  anari_vtk::VolumeState GetVolumeState();
+  void AddVolume(anari::Volume);
+  const anari_vtk::VolumeState& GetVolumeState();
   void ClearVolumes();
   //@}
 
@@ -245,17 +210,17 @@ vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
 {
   if (this->AnariDevice != nullptr)
   {
-    for (auto surface : this->AnariSurfaceState.Surfaces)
+    for (auto surface : this->AnariSurfaceState)
     {
       anari::release(this->AnariDevice, surface);
     }
 
-    for (auto volume : this->AnariVolumeState.Volumes)
+    for (auto volume : this->AnariVolumeState)
     {
       anari::release(this->AnariDevice, volume);
     }
 
-    for (auto light : this->AnariLightState.Lights)
+    for (auto light : this->AnariLightState)
     {
       anari::release(this->AnariDevice, light);
     }
@@ -411,27 +376,16 @@ void vtkAnariRendererNodeInternals::SetCamera(anari::Camera camera)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddLight(anari::Light light, bool changed)
+void vtkAnariRendererNodeInternals::AddLight(anari::Light light)
 {
   if (light != nullptr)
   {
-    if (this->AnariLightState.used)
-    {
-      this->ClearLights();
-      this->AnariLightState.used = false;
-    }
-
-    this->AnariLightState.Lights.emplace_back(light);
-  }
-
-  if (changed)
-  {
-    this->AnariLightState.changed = true;
+    this->AnariLightState.emplace_back(light);
   }
 }
 
 //----------------------------------------------------------------------------
-anari_vtk::LightState vtkAnariRendererNodeInternals::GetLightState()
+const anari_vtk::LightState& vtkAnariRendererNodeInternals::GetLightState()
 {
   return this->AnariLightState;
 }
@@ -439,37 +393,20 @@ anari_vtk::LightState vtkAnariRendererNodeInternals::GetLightState()
 //----------------------------------------------------------------------------
 void vtkAnariRendererNodeInternals::ClearLights()
 {
-  if (!this->AnariLightState.Lights.empty())
-  {
-    this->AnariLightState.Lights.clear();
-    std::vector<anari::Light>().swap(this->AnariLightState.Lights);
-    this->AnariLightState.changed = true;
-  }
+  this->AnariLightState.clear();
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddSurfaces(
-  const std::vector<anari::Surface>& surfaces, bool changed)
+void vtkAnariRendererNodeInternals::AddSurfaces(const std::vector<anari::Surface>& surfaces)
 {
-  if (this->AnariSurfaceState.used)
-  {
-    this->ClearSurfaces();
-    this->AnariSurfaceState.used = false;
-  }
-
   for (auto surface : surfaces)
   {
-    this->AnariSurfaceState.Surfaces.emplace_back(surface);
-  }
-
-  if (changed)
-  {
-    this->AnariSurfaceState.changed = true;
+    this->AnariSurfaceState.emplace_back(surface);
   }
 }
 
 //----------------------------------------------------------------------------
-anari_vtk::SurfaceState vtkAnariRendererNodeInternals::GetSurfaceState()
+const anari_vtk::SurfaceState& vtkAnariRendererNodeInternals::GetSurfaceState()
 {
   return this->AnariSurfaceState;
 }
@@ -477,36 +414,20 @@ anari_vtk::SurfaceState vtkAnariRendererNodeInternals::GetSurfaceState()
 //----------------------------------------------------------------------------
 void vtkAnariRendererNodeInternals::ClearSurfaces()
 {
-  if (!this->AnariSurfaceState.Surfaces.empty())
-  {
-    this->AnariSurfaceState.Surfaces.clear();
-    std::vector<anari::Surface>().swap(this->AnariSurfaceState.Surfaces);
-    this->AnariSurfaceState.changed = true;
-  }
+  this->AnariSurfaceState.clear();
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddVolume(anari::Volume volume, bool changed)
+void vtkAnariRendererNodeInternals::AddVolume(anari::Volume volume)
 {
-  if (this->AnariVolumeState.used)
-  {
-    this->ClearVolumes();
-    this->AnariVolumeState.used = false;
-  }
-
   if (volume != nullptr)
   {
-    this->AnariVolumeState.Volumes.emplace_back(volume);
-  }
-
-  if (changed)
-  {
-    this->AnariVolumeState.changed = true;
+    this->AnariVolumeState.emplace_back(volume);
   }
 }
 
 //----------------------------------------------------------------------------
-anari_vtk::VolumeState vtkAnariRendererNodeInternals::GetVolumeState()
+const anari_vtk::VolumeState& vtkAnariRendererNodeInternals::GetVolumeState()
 {
   return this->AnariVolumeState;
 }
@@ -514,12 +435,7 @@ anari_vtk::VolumeState vtkAnariRendererNodeInternals::GetVolumeState()
 //----------------------------------------------------------------------------
 void vtkAnariRendererNodeInternals::ClearVolumes()
 {
-  if (!this->AnariVolumeState.Volumes.empty())
-  {
-    this->AnariVolumeState.Volumes.clear();
-    std::vector<anari::Volume>().swap(this->AnariVolumeState.Volumes);
-    this->AnariVolumeState.changed = true;
-  }
+  this->AnariVolumeState.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -650,6 +566,7 @@ vtkAnariRendererNode::vtkAnariRendererNode()
   , TriangleCount(0)
 {
   this->Internal = new vtkAnariRendererNodeInternals(this);
+  InvalidateSceneStructure();
 }
 
 //----------------------------------------------------------------------------
@@ -860,25 +777,23 @@ void vtkAnariRendererNode::InitAnariWorld()
 //----------------------------------------------------------------------------
 void vtkAnariRendererNode::UpdateAnariFrameSize()
 {
+  const uvec2 frameSize = { static_cast<uint>(this->Size[0]), static_cast<uint>(this->Size[1]) };
+  if (this->Internal->ImageX == frameSize[0] && this->Internal->ImageY == frameSize[1])
+  {
+    return;
+  }
+
+  this->Internal->ImageX = frameSize[0];
+  this->Internal->ImageY = frameSize[1];
+
+  const size_t totalSize = this->Size[0] * this->Size[1];
+  this->Internal->ColorBuffer.resize(totalSize * sizeof(float));
+  this->Internal->DepthBuffer.resize(totalSize);
+
   auto anariDevice = this->GetAnariDevice();
   auto anariFrame = this->Internal->AnariFrame;
-  ivec2 frameSize = { this->Size[0], this->Size[1] };
-  int totalSize = this->Size[0] * this->Size[1];
-
-  if (this->Internal->ImageX != frameSize[0] || this->Internal->ImageY != frameSize[1])
-  {
-    this->Internal->ImageX = frameSize[0];
-    this->Internal->ImageY = frameSize[1];
-
-    this->Internal->ColorBuffer.resize(totalSize * sizeof(float));
-    this->Internal->DepthBuffer.resize(totalSize);
-
-    // Anari expects "size" to be uvec2:
-    uvec2 frameSizeUI = { static_cast<unsigned>(frameSize[0]),
-      static_cast<unsigned>(frameSize[1]) };
-    anari::setParameter(anariDevice, anariFrame, "size", frameSizeUI);
-    anari::commitParameters(anariDevice, anariFrame);
-  }
+  anari::setParameter(anariDevice, anariFrame, "size", frameSize);
+  anari::commitParameters(anariDevice, anariFrame);
 }
 
 //----------------------------------------------------------------------------
@@ -888,32 +803,25 @@ void vtkAnariRendererNode::UpdateAnariLights()
   auto lightState = this->Internal->GetLightState();
   auto anariWorld = this->Internal->AnariWorld;
 
-  if (lightState.changed)
+  if (!lightState.empty())
   {
-    this->Internal->AnariLightState.changed = false;
-
-    if (!lightState.Lights.empty())
+    for (size_t i = 0; i < lightState.size(); i++)
     {
-      for (size_t i = 0; i < lightState.Lights.size(); i++)
-      {
-        std::string lightName = "vtk_light_" + std::to_string(i);
-        anari::setParameter(anariDevice, lightState.Lights[i], "name", lightName.c_str());
-        anari::commitParameters(anariDevice, lightState.Lights[i]);
-      }
-
-      anari::setParameterArray1D(
-        anariDevice, anariWorld, "light", lightState.Lights.data(), lightState.Lights.size());
-    }
-    else
-    {
-      vtkWarningMacro(<< "No lights set on world.");
-      anari::unsetParameter(anariDevice, anariWorld, "light");
+      std::string lightName = "vtk_light_" + std::to_string(i);
+      anari::setParameter(anariDevice, lightState[i], "name", lightName.c_str());
+      anari::commitParameters(anariDevice, lightState[i]);
     }
 
-    anari::commitParameters(anariDevice, anariWorld);
+    anari::setParameterArray1D(
+      anariDevice, anariWorld, "light", lightState.data(), lightState.size());
+  }
+  else
+  {
+    vtkWarningMacro(<< "No lights set on world.");
+    anari::unsetParameter(anariDevice, anariWorld, "light");
   }
 
-  this->Internal->AnariLightState.used = true;
+  anari::commitParameters(anariDevice, anariWorld);
 }
 
 //----------------------------------------------------------------------------
@@ -923,31 +831,24 @@ void vtkAnariRendererNode::UpdateAnariSurfaces()
   auto surfaceState = this->Internal->GetSurfaceState();
   auto anariGroup = this->Internal->AnariGroup;
 
-  if (surfaceState.changed)
+  if (!surfaceState.empty())
   {
-    this->Internal->AnariSurfaceState.changed = false;
-
-    if (!surfaceState.Surfaces.empty())
+    for (size_t i = 0; i < surfaceState.size(); i++)
     {
-      for (size_t i = 0; i < surfaceState.Surfaces.size(); i++)
-      {
-        std::string surfaceName = "vtk_surface_" + std::to_string(i);
-        anari::setParameter(anariDevice, surfaceState.Surfaces[i], "name", surfaceName.c_str());
-        anari::commitParameters(anariDevice, surfaceState.Surfaces[i]);
-      }
-
-      anari::setParameterArray1D(anariDevice, anariGroup, "surface", surfaceState.Surfaces.data(),
-        surfaceState.Surfaces.size());
-    }
-    else
-    {
-      anari::unsetParameter(anariDevice, anariGroup, "surface");
+      std::string surfaceName = "vtk_surface_" + std::to_string(i);
+      anari::setParameter(anariDevice, surfaceState[i], "name", surfaceName.c_str());
+      anari::commitParameters(anariDevice, surfaceState[i]);
     }
 
-    anari::commitParameters(anariDevice, anariGroup);
+    anari::setParameterArray1D(
+      anariDevice, anariGroup, "surface", surfaceState.data(), surfaceState.size());
+  }
+  else
+  {
+    anari::unsetParameter(anariDevice, anariGroup, "surface");
   }
 
-  this->Internal->AnariSurfaceState.used = true;
+  anari::commitParameters(anariDevice, anariGroup);
 }
 
 //----------------------------------------------------------------------------
@@ -957,31 +858,24 @@ void vtkAnariRendererNode::UpdateAnariVolumes()
   auto volumeState = this->Internal->GetVolumeState();
   auto anariGroup = this->Internal->AnariGroup;
 
-  if (volumeState.changed)
+  if (!volumeState.empty())
   {
-    this->Internal->AnariVolumeState.changed = false;
-
-    if (!volumeState.Volumes.empty())
+    for (size_t i = 0; i < volumeState.size(); i++)
     {
-      for (size_t i = 0; i < volumeState.Volumes.size(); i++)
-      {
-        std::string volumeName = "vtk_volume_" + std::to_string(i);
-        anari::setParameter(anariDevice, volumeState.Volumes[i], "name", volumeName.c_str());
-        anari::commitParameters(anariDevice, volumeState.Volumes[i]);
-      }
-
-      anari::setParameterArray1D(
-        anariDevice, anariGroup, "volume", volumeState.Volumes.data(), volumeState.Volumes.size());
-    }
-    else
-    {
-      anari::unsetParameter(anariDevice, anariGroup, "volume");
+      std::string volumeName = "vtk_volume_" + std::to_string(i);
+      anari::setParameter(anariDevice, volumeState[i], "name", volumeName.c_str());
+      anari::commitParameters(anariDevice, volumeState[i]);
     }
 
-    anari::commitParameters(anariDevice, anariGroup);
+    anari::setParameterArray1D(
+      anariDevice, anariGroup, "volume", volumeState.data(), volumeState.size());
+  }
+  else
+  {
+    anari::unsetParameter(anariDevice, anariGroup, "volume");
   }
 
-  this->Internal->AnariVolumeState.used = true;
+  anari::commitParameters(anariDevice, anariGroup);
 }
 
 //----------------------------------------------------------------------------
@@ -1886,21 +1780,21 @@ void vtkAnariRendererNode::SetCamera(anari::Camera camera)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddLight(anari::Light light, bool changed)
+void vtkAnariRendererNode::AddLight(anari::Light light)
 {
-  this->Internal->AddLight(light, changed);
+  this->Internal->AddLight(light);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddSurfaces(const std::vector<anari::Surface>& surfaces, bool changed)
+void vtkAnariRendererNode::AddSurfaces(const std::vector<anari::Surface>& surfaces)
 {
-  this->Internal->AddSurfaces(surfaces, changed);
+  this->Internal->AddSurfaces(surfaces);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddVolume(anari::Volume volume, bool changed)
+void vtkAnariRendererNode::AddVolume(anari::Volume volume)
 {
-  this->Internal->AddVolume(volume, changed);
+  this->Internal->AddVolume(volume);
 }
 
 //----------------------------------------------------------------------------
@@ -1952,7 +1846,26 @@ void vtkAnariRendererNode::Traverse(int operation)
     this->Internal->InitFlag = this->Internal->InitAnari();
   }
 
-  this->Superclass::Traverse(operation);
+  if (operation == operation_type::render)
+  {
+    this->Apply(operation, true);
+    if (this->AnariSceneConstructedMTime < this->AnariSceneStructureModifiedMTime)
+    {
+      for (auto val : this->Children)
+      {
+        val->Traverse(operation);
+      }
+      this->UpdateAnariLights();
+      this->UpdateAnariSurfaces();
+      this->UpdateAnariVolumes();
+      this->AnariSceneConstructedMTime = this->AnariSceneStructureModifiedMTime;
+    }
+    this->Apply(operation, false);
+  }
+  else
+  {
+    this->Superclass::Traverse(operation);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2003,19 +1916,21 @@ void vtkAnariRendererNode::Render(bool prepass)
   if (prepass)
   {
     this->InitAnariFrame();
-    bool isNewRenderer = this->InitAnariRenderer(ren);
-    this->SetupAnariRendererParameters(ren, isNewRenderer);
+    static bool once = false;
+    if (!once)
+    {
+      bool isNewRenderer = this->InitAnariRenderer(ren);
+      this->SetupAnariRendererParameters(ren, isNewRenderer);
+      once = true;
+    }
     this->InitAnariWorld();
-    this->UpdateAnariFrameSize();
   }
   else
   {
     this->UpdateAnariFrameSize();
-    this->UpdateAnariLights();
-    this->UpdateAnariSurfaces();
-    this->UpdateAnariVolumes();
-
+#if 0
     this->DebugOutputWorldBounds();
+#endif
 
     // Render frame
     auto anariFrame = this->Internal->AnariFrame;
@@ -2174,6 +2089,15 @@ int vtkAnariRendererNode::GetColorBufferTextureGL()
 int vtkAnariRendererNode::GetDepthBufferTextureGL()
 {
   return this->Internal->DepthBufferTex;
+}
+
+//------------------------------------------------------------------------------
+void vtkAnariRendererNode::InvalidateSceneStructure()
+{
+  this->Internal->ClearLights();
+  this->Internal->ClearVolumes();
+  this->Internal->ClearSurfaces();
+  this->AnariSceneStructureModifiedMTime.Modified();
 }
 
 VTK_ABI_NAMESPACE_END
