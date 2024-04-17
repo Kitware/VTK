@@ -80,4 +80,10 @@
         - build
 
     script:
+        - .gitlab/ci/cmake.sh latest
+        - export PATH=$PWD/.gitlab/cmake/bin:$PATH
+        - cmake --version
+        - .gitlab/ci/node.sh
+        - export PATH=$PWD/.gitlab/node/bin:$PATH
+        - node --version
         - .gitlab/ci/upload_webassembly_archive.sh
