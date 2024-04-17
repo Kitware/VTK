@@ -88,7 +88,7 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkAnariVolumeMapperNodeInternals
+struct vtkAnariVolumeMapperNodeInternals
 {
 public:
   vtkAnariVolumeMapperNodeInternals(vtkAnariVolumeMapperNode*);
@@ -103,7 +103,7 @@ public:
   vtkTimeStamp PropertyTime;
 
   std::string LastArrayName;
-  int LastArrayComponent;
+  int LastArrayComponent{ -2 };
 
   vtkAnariVolumeMapperNode* Owner{ nullptr };
   vtkAnariRendererNode* AnariRendererNode{ nullptr };
@@ -114,8 +114,7 @@ public:
 //----------------------------------------------------------------------------
 vtkAnariVolumeMapperNodeInternals::vtkAnariVolumeMapperNodeInternals(
   vtkAnariVolumeMapperNode* owner)
-  : LastArrayComponent(-2)
-  , Owner(owner)
+  : Owner(owner)
 {
 }
 
@@ -225,8 +224,6 @@ vtkStandardNewMacro(vtkAnariVolumeMapperNode);
 
 //----------------------------------------------------------------------------
 vtkAnariVolumeMapperNode::vtkAnariVolumeMapperNode()
-  : ColorSize(128)
-  , OpacitySize(128)
 {
   this->Internal = new vtkAnariVolumeMapperNodeInternals(this);
 }

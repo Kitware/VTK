@@ -18,12 +18,20 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
+#include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/std.h>
+
 #include <vector>
 
 using vec3 = anari::std_types::vec3;
 
 VTK_ABI_NAMESPACE_BEGIN
+
+struct vtkAnariLightNodeInternals
+{
+  vtkAnariRendererNode* RendererNode{ nullptr };
+  anari::Light AnariLight{ nullptr };
+};
 
 //============================================================================
 vtkInformationKeyMacro(vtkAnariLightNode, IS_AMBIENT, Integer);
@@ -35,10 +43,16 @@ vtkInformationKeyMacro(vtkAnariLightNode, LIGHT_SCALE, Double);
 vtkStandardNewMacro(vtkAnariLightNode);
 
 //----------------------------------------------------------------------------
-vtkAnariLightNode::vtkAnariLightNode() = default;
+vtkAnariLightNode::vtkAnariLightNode()
+{
+  this->Internals = new vtkAnariLightNodeInternals;
+}
 
 //----------------------------------------------------------------------------
-vtkAnariLightNode::~vtkAnariLightNode() = default;
+vtkAnariLightNode::~vtkAnariLightNode()
+{
+  delete this->Internals;
+}
 
 //----------------------------------------------------------------------------
 void vtkAnariLightNode::SetLightScale(double value, vtkLight* light)
@@ -184,9 +198,9 @@ void vtkAnariLightNode::Build(bool prepass)
     return;
   }
 
-  if (this->RendererNode == nullptr)
+  if (this->Internals->RendererNode == nullptr)
   {
-    this->RendererNode =
+    this->Internals->RendererNode =
       static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
   }
 }
@@ -203,9 +217,9 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   vtkLight* light = this->GetVtkLight();
   this->RenderTime = light->GetMTime();
 
-  auto anariDevice = this->RendererNode->GetAnariDevice();
-  auto vtkRenderer = this->RendererNode->GetRenderer();
-  auto anariExtensions = this->RendererNode->GetAnariDeviceExtensions();
+  auto anariDevice = this->Internals->RendererNode->GetAnariDevice();
+  auto vtkRenderer = this->Internals->RendererNode->GetRenderer();
+  auto anariExtensions = this->Internals->RendererNode->GetAnariDeviceExtensions();
 
   this->ClearLight();
 
@@ -213,7 +227,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   const char* deviceSubtype = vtkAnariRendererNode::GetDeviceSubtype(vtkRenderer);
 
   vtkOpenGLRenderer* openGLRenderer =
-    vtkOpenGLRenderer::SafeDownCast(this->RendererNode->GetRenderable());
+    vtkOpenGLRenderer::SafeDownCast(this->Internals->RendererNode->GetRenderable());
   vtkTransform* userLightTransform = openGLRenderer->GetUserLightTransform();
 
   vtkNew<vtkMatrix4x4> cameraTransform;
@@ -222,7 +236,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   if (userLightTransform)
   {
     vtkAnariCameraNode* anariCameraNode = static_cast<vtkAnariCameraNode*>(
-      this->RendererNode->GetFirstChildOfType("vtkAnariCameraNode"));
+      this->Internals->RendererNode->GetFirstChildOfType("vtkAnariCameraNode"));
     vtkCamera* vtkCamera = vtkCamera::SafeDownCast(anariCameraNode->GetRenderable());
     vtkCamera->GetModelViewTransformObject()->GetMatrix(cameraTransform);
     vtkMatrix4x4::Invert(cameraTransform, invCameraTransform);
@@ -458,7 +472,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     anari::commitParameters(anariDevice, anariLight);
   }
 
-  this->AnariLight = anariLight;
+  this->Internals->AnariLight = anariLight;
 }
 
 //----------------------------------------------------------------------------
@@ -471,22 +485,22 @@ void vtkAnariLightNode::Render(bool prepass)
     return;
   }
 
-  if (this->RendererNode != nullptr)
+  if (this->Internals->RendererNode != nullptr)
   {
-    this->RendererNode->AddLight(this->AnariLight);
+    this->Internals->RendererNode->AddLight(this->Internals->AnariLight);
   }
 }
 
 void vtkAnariLightNode::ClearLight()
 {
-  if (this->RendererNode != nullptr)
+  if (this->Internals->RendererNode != nullptr)
   {
-    anari::Device anariDevice = this->RendererNode->GetAnariDevice();
+    anari::Device anariDevice = this->Internals->RendererNode->GetAnariDevice();
 
     if (anariDevice)
     {
-      anari::release(anariDevice, this->AnariLight);
-      this->AnariLight = nullptr;
+      anari::release(anariDevice, this->Internals->AnariLight);
+      this->Internals->AnariLight = nullptr;
     }
   }
 }

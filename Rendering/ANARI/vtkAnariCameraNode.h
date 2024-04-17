@@ -17,10 +17,9 @@
 #include "vtkCameraNode.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 
-#include <anari/anari_cpp.hpp>
-
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkAnariCameraNodeInternals;
 class vtkAnariRendererNode;
 class vtkCamera;
 
@@ -49,7 +48,7 @@ public:
   void Invalidate(bool prepass) override;
 
 protected:
-  vtkAnariCameraNode() = default;
+  vtkAnariCameraNode();
   ~vtkAnariCameraNode();
 
 private:
@@ -62,10 +61,7 @@ private:
   void UpdateAnariObjectHandles();
   void UpdateAnariCameraParameters();
 
-  anari::Device AnariDevice{ nullptr };
-  anari::Camera AnariCamera{ nullptr };
-  bool IsParallelProjection{ false };
-  vtkAnariRendererNode* RendererNode{ nullptr };
+  vtkAnariCameraNodeInternals* Internals{ nullptr };
 };
 
 VTK_ABI_NAMESPACE_END

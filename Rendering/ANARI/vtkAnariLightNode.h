@@ -19,10 +19,9 @@
 #include "vtkLightNode.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 
-#include <anari/anari_cpp.hpp>
-
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkAnariLightNodeInternals;
 class vtkAnariRendererNode;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
@@ -125,8 +124,7 @@ private:
   vtkLight* GetVtkLight() const;
   bool NodeWasModified() const;
 
-  vtkAnariRendererNode* RendererNode{ nullptr };
-  anari::Light AnariLight{ nullptr };
+  vtkAnariLightNodeInternals* Internals{ nullptr };
 };
 
 VTK_ABI_NAMESPACE_END

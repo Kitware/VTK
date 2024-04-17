@@ -17,8 +17,6 @@
 #include "vtkRenderingAnariModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
-#include <anari/anari_cpp.hpp>
-
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariVolumeMapperNodeInternals;
@@ -56,18 +54,17 @@ public:
    */
   void Render(bool prepass) override;
 
-protected:
+private:
   vtkAnariVolumeMapperNode();
   ~vtkAnariVolumeMapperNode();
 
   vtkVolume* GetVtkVolume() const;
   bool NodeWasModified() const;
 
-  int ColorSize;
-  int OpacitySize;
-  vtkAnariVolumeMapperNodeInternals* Internal;
+  int ColorSize{ 128 };
+  int OpacitySize{ 128 };
+  vtkAnariVolumeMapperNodeInternals* Internal{ nullptr };
 
-private:
   vtkAnariVolumeMapperNode(const vtkAnariVolumeMapperNode&) = delete;
   void operator=(const vtkAnariVolumeMapperNode&) = delete;
 };
