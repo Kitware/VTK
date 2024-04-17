@@ -34,9 +34,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Make ANARI calls for rendering.
+   * Sync VTK and ANARI objects.
    */
-  virtual void Render(bool prepass) override;
+  virtual void Synchronize(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.

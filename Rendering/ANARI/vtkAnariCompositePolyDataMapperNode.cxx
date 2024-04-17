@@ -34,77 +34,77 @@ void vtkAnariCompositePolyDataMapperNode::Invalidate(bool prepass)
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariCompositePolyDataMapperNode::Render(bool prepass)
+void vtkAnariCompositePolyDataMapperNode::Synchronize(bool prepass)
 {
   vtkAnariProfiling startProfiling(
     "vtkAnariCompositePolyDataMapperNode::Render", vtkAnariProfiling::BROWN);
 
-  if (prepass)
+  if (!prepass)
   {
-    vtkAnariActorNode* anariActorNode = vtkAnariActorNode::SafeDownCast(this->Parent);
-    vtkActor* act = vtkActor::SafeDownCast(anariActorNode->GetRenderable());
-
-    if (act->GetVisibility() == false)
-    {
-      return;
-    }
-
-    auto anariRendererNode =
-      static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
-    this->SetAnariConfig(anariRendererNode);
-    vtkMTimeType inTime = anariActorNode->GetMTime();
-
-    if (this->RenderTime >= inTime)
-    {
-      this->RenderSurfaceModels(false);
-      return;
-    }
-
-    this->RenderTime = inTime;
-    this->ClearSurfaces();
-    vtkProperty* prop = act->GetProperty();
-
-    // Push base-values on the state stack.
-    this->BlockState.Visibility.push(true);
-    this->BlockState.Opacity.push(prop->GetOpacity());
-    this->BlockState.AmbientColor.push(vtkColor3d(prop->GetAmbientColor()));
-    this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
-    this->BlockState.SpecularColor.push(vtkColor3d(prop->GetSpecularColor()));
-
-    const char* materialName = prop->GetMaterialName();
-
-    if (materialName != nullptr)
-    {
-      this->BlockState.Material.push(std::string(materialName));
-    }
-    else
-    {
-      this->BlockState.Material.push(std::string("matte"));
-    }
-
-    // render using the composite data attributes
-    unsigned int flat_index = 0;
-    vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(act->GetMapper());
-    vtkDataObject* dobj = nullptr;
-
-    if (cpdm)
-    {
-      dobj = cpdm->GetInputDataObject(0, 0);
-
-      if (dobj)
-      {
-        this->RenderBlock(cpdm, act, dobj, flat_index);
-        this->RenderSurfaceModels(true);
-      }
-    }
-
-    this->BlockState.Visibility.pop();
-    this->BlockState.Opacity.pop();
-    this->BlockState.AmbientColor.pop();
-    this->BlockState.DiffuseColor.pop();
-    this->BlockState.SpecularColor.pop();
-    this->BlockState.Material.pop();
+    return;
   }
+
+  vtkAnariActorNode* anariActorNode = vtkAnariActorNode::SafeDownCast(this->Parent);
+  vtkActor* act = vtkActor::SafeDownCast(anariActorNode->GetRenderable());
+
+  if (act->GetVisibility() == false)
+  {
+    return;
+  }
+
+  auto anariRendererNode =
+    static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
+  this->SetAnariConfig(anariRendererNode);
+  vtkMTimeType inTime = anariActorNode->GetMTime();
+
+  if (this->RenderTime >= inTime)
+  {
+    return;
+  }
+
+  this->RenderTime = inTime;
+  this->ClearSurfaces();
+  vtkProperty* prop = act->GetProperty();
+
+  // Push base-values on the state stack.
+  this->BlockState.Visibility.push(true);
+  this->BlockState.Opacity.push(prop->GetOpacity());
+  this->BlockState.AmbientColor.push(vtkColor3d(prop->GetAmbientColor()));
+  this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
+  this->BlockState.SpecularColor.push(vtkColor3d(prop->GetSpecularColor()));
+
+  const char* materialName = prop->GetMaterialName();
+
+  if (materialName != nullptr)
+  {
+    this->BlockState.Material.push(std::string(materialName));
+  }
+  else
+  {
+    this->BlockState.Material.push(std::string("matte"));
+  }
+
+  // render using the composite data attributes
+  unsigned int flat_index = 0;
+  vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(act->GetMapper());
+  vtkDataObject* dobj = nullptr;
+
+  if (cpdm)
+  {
+    dobj = cpdm->GetInputDataObject(0, 0);
+
+    if (dobj)
+    {
+      this->RenderBlock(cpdm, act, dobj, flat_index);
+    }
+  }
+
+  this->BlockState.Visibility.pop();
+  this->BlockState.Opacity.pop();
+  this->BlockState.AmbientColor.pop();
+  this->BlockState.DiffuseColor.pop();
+  this->BlockState.SpecularColor.pop();
+  this->BlockState.Material.pop();
 }
 
 //------------------------------------------------------------------------------
