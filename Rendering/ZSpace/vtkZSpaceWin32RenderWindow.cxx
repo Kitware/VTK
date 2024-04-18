@@ -95,7 +95,9 @@ void vtkZSpaceWin32RenderWindow::Frame()
 
   // Send textures to the zSpace API
   vtkZSpaceSDKManager* sdkManager = vtkZSpaceSDKManager::GetInstance();
-  if (sdkManager)
+  // Ensure at this point that stereo is enabled. If not, textures aren't
+  // configured properly and the zSpace SubmitFrame method cannot handle it.
+  if (sdkManager && this->GetStereoRender())
   {
     vtkTextureObject* leftTex = this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0);
     auto leftId = leftTex->GetHandle();
