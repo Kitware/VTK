@@ -170,7 +170,7 @@ public:
   /**
    * Send surfaces to the renderer.
    */
-  void RenderSurfaceModels(bool);
+  void RenderSurfaceModels();
 
   /**
    * Remove the cached surfaces.
@@ -182,7 +182,6 @@ public:
 
   std::vector<anari::Surface> Surfaces;
 
-private:
   anari::Library AnariLibrary{ nullptr };
   anari::Device AnariDevice{ nullptr };
   std::string AnariDeviceName;
@@ -202,30 +201,36 @@ vtkAnariPolyDataMapperNodeInternals::~vtkAnariPolyDataMapperNodeInternals()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNodeInternals::RenderSurfaceModels(bool changed)
+void vtkAnariPolyDataMapperNodeInternals::RenderSurfaceModels()
 {
-  if (this->AnariRendererNode != nullptr)
+  if (this->AnariRendererNode == nullptr)
   {
-    this->AnariRendererNode->AddSurfaces(this->Surfaces);
+    return;
+  }
+
+  for (auto s : this->Surfaces)
+  {
+    this->AnariRendererNode->AddSurface(s);
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperNodeInternals::ClearSurfaces()
 {
-  if (this->AnariRendererNode != nullptr)
+  if (this->AnariRendererNode == nullptr)
   {
-    anari::Device anariDevice = this->AnariRendererNode->GetAnariDevice();
+    return;
+  }
 
-    if (anariDevice)
+  anari::Device anariDevice = this->AnariRendererNode->GetAnariDevice();
+
+  if (anariDevice)
+  {
+    for (auto surface : this->Surfaces)
     {
-      for (auto surface : this->Surfaces)
-      {
-        anari::release(anariDevice, surface);
-      }
-      this->Surfaces.clear();
-      this->AnariRendererNode->ResetCounts();
+      anari::release(anariDevice, surface);
     }
+    this->Surfaces.clear();
   }
 }
 
@@ -303,7 +308,7 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::ExtractORMFromVTK(std::strin
   {
     for (int j = 0; j < xsize; j++)
     {
-      floatData.emplace_back(imageData->GetScalarComponentAsFloat(j, i, 0, textureIdx));
+      floatData.push_back(imageData->GetScalarComponentAsFloat(j, i, 0, textureIdx));
     }
   }
 
@@ -379,12 +384,11 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
         comps = 3;
       }
 
-      auto appMemory = charData.empty() ? imageData->GetScalarPointer() : charData.data();
+      const auto* appMemory = charData.empty() ? imageData->GetScalarPointer() : charData.data();
       auto dataType = sRGB ? anariLinearColorFormats[comps - 1] : anariColorFormats[comps - 1];
 
-      auto array2D =
-        anariNewArray2D(this->AnariDevice, appMemory, nullptr, nullptr, dataType, xsize, ysize);
-      anari::setAndReleaseParameter(this->AnariDevice, anariSampler, "image", array2D);
+      anari::setParameterArray2D(
+        this->AnariDevice, anariSampler, "image", dataType, appMemory, xsize, ysize);
       break;
     }
     case VTK_FLOAT:
@@ -410,10 +414,9 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
         comps = 3;
       }
 
-      auto appMemory = floatData.empty() ? imageData->GetScalarPointer() : floatData.data();
-      auto array2D = anariNewArray2D(
-        this->AnariDevice, appMemory, nullptr, nullptr, anariColorFormats[comps - 1], xsize, ysize);
-      anari::setAndReleaseParameter(this->AnariDevice, anariSampler, "image", array2D);
+      const auto* appMemory = floatData.empty() ? imageData->GetScalarPointer() : floatData.data();
+      anari::setParameterArray2D(this->AnariDevice, anariSampler, "image",
+        anariColorFormats[comps - 1], appMemory, xsize, ysize);
       break;
     }
     case VTK_SHORT:
@@ -444,10 +447,9 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
         comps = 3;
       }
 
-      auto appMemory = shortData.empty() ? imageData->GetScalarPointer() : shortData.data();
-      auto array2D = anariNewArray2D(
-        this->AnariDevice, appMemory, nullptr, nullptr, anariColorFormats[comps - 1], xsize, ysize);
-      anari::setAndReleaseParameter(this->AnariDevice, anariSampler, "image", array2D);
+      const auto* appMemory = shortData.empty() ? imageData->GetScalarPointer() : shortData.data();
+      anari::setParameterArray2D(this->AnariDevice, anariSampler, "image",
+        anariColorFormats[comps - 1], appMemory, xsize, ysize);
       break;
     }
     default: // All other types are converted to float
@@ -469,9 +471,8 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
         }
       }
 
-      auto array2D = anariNewArray2D(this->AnariDevice, floatData.data(), nullptr, nullptr,
-        anariColorFormats[comps - 1], xsize, ysize);
-      anari::setAndReleaseParameter(this->AnariDevice, anariSampler, "image", array2D);
+      anari::setParameterArray2D(this->AnariDevice, anariSampler, "image",
+        anariColorFormats[comps - 1], floatData.data(), xsize, ysize);
     }
   }
 
@@ -557,32 +558,6 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
   mat4 inTransform = { vec4{ 1.0f, 0.0f, 0.0f, 0.0f }, vec4{ 0.0f, 1.0f, 0.0f, 0.0f },
     vec4{ 0.0f, 0.0f, 1.0f, 0.0f }, vec4{ 0.0f, 0.0f, 0.0f, 1.0f } };
 
-  // base color
-  float materialColor[3] = { 0.0f, 0.0f, 0.0f };
-
-  if (baseColorSampler == nullptr && colorStr == nullptr)
-  {
-    if (color != nullptr)
-    {
-      for (int i = 0; i < 3; i++)
-      {
-        materialColor[i] = color[i];
-      }
-    }
-    else
-    {
-      double* actorColor = vtkProperty->GetColor();
-
-      if (actorColor != nullptr)
-      {
-        for (int i = 0; i < 3; i++)
-        {
-          materialColor[i] = static_cast<float>(actorColor[i]);
-        }
-      }
-    }
-  }
-
   if (baseColorSampler != nullptr)
   {
     anari::setAndReleaseParameter(this->AnariDevice, anariMaterial, "baseColor", baseColorSampler);
@@ -593,6 +568,32 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
   }
   else
   {
+    // base color
+    float materialColor[3] = { 0.0f, 0.0f, 0.0f };
+
+    if (baseColorSampler == nullptr && colorStr == nullptr)
+    {
+      if (color != nullptr)
+      {
+        for (int i = 0; i < 3; i++)
+        {
+          materialColor[i] = color[i];
+        }
+      }
+      else
+      {
+        double* actorColor = vtkProperty->GetColor();
+
+        if (actorColor != nullptr)
+        {
+          for (int i = 0; i < 3; i++)
+          {
+            materialColor[i] = static_cast<float>(actorColor[i]);
+          }
+        }
+      }
+    }
+
     anari::setParameter(this->AnariDevice, anariMaterial, "baseColor", materialColor);
   }
 
@@ -703,11 +704,17 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
 void vtkAnariPolyDataMapperNodeInternals::SetMatteMaterialParameters(anari::Material anariMaterial,
   vtkProperty* vtkProperty, float* color, anari::Sampler sampler, const char* colorStr)
 {
-  // Material Color
-  float materialColor[3] = { 0.0f, 0.0f, 0.0f };
-
-  if (sampler == nullptr && colorStr == nullptr)
+  if (sampler != nullptr)
   {
+    anari::setAndReleaseParameter(this->AnariDevice, anariMaterial, "color", sampler);
+  }
+  else if (colorStr != nullptr)
+  {
+    anari::setParameter(this->AnariDevice, anariMaterial, "color", colorStr);
+  }
+  else
+  {
+    float materialColor[3] = { 0.0f, 0.0f, 0.0f };
     if (color != nullptr)
     {
       for (int i = 0; i < 3; i++)
@@ -727,26 +734,12 @@ void vtkAnariPolyDataMapperNodeInternals::SetMatteMaterialParameters(anari::Mate
         }
       }
     }
-  }
-
-  if (sampler != nullptr)
-  {
-    anari::setAndReleaseParameter(this->AnariDevice, anariMaterial, "color", sampler);
-  }
-  else if (colorStr != nullptr)
-  {
-    anari::setParameter(this->AnariDevice, anariMaterial, "color", colorStr);
-  }
-  else
-  {
     anari::setParameter(this->AnariDevice, anariMaterial, "color", materialColor);
   }
 
   // opacity
   const float opacity = static_cast<float>(vtkProperty->GetOpacity());
   anari::setParameter(this->AnariDevice, anariMaterial, "opacity", opacity);
-
-  // Control cut-out transparency
   anari::setParameter(this->AnariDevice, anariMaterial, "alphaMode", "blend");
 }
 
@@ -897,13 +890,6 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   {
     triangleGeometry = anari::newObject<anari::Geometry>(this->AnariDevice, "triangle");
     std::string usdTriangleName("vtk_triangles_");
-
-    if (this->AnariRendererNode != nullptr)
-    {
-      int triangleCount = this->AnariRendererNode->GetTriangleCount();
-      usdTriangleName.append(std::to_string(triangleCount++));
-      this->AnariRendererNode->SetTriangleCount(triangleCount);
-    }
 
     anari::setParameter(
       this->AnariDevice, triangleGeometry, "name", ANARI_STRING, usdTriangleName.c_str());
@@ -1122,13 +1108,6 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
     cylinderGeometry = anari::newObject<anari::Geometry>(this->AnariDevice, "cylinder");
     std::string usdCylinderName("vtk_cylinders_");
 
-    if (this->AnariRendererNode != nullptr)
-    {
-      int cylinderCount = this->AnariRendererNode->GetCylinderCount();
-      usdCylinderName.append(std::to_string(cylinderCount++));
-      this->AnariRendererNode->SetCylinderCount(cylinderCount);
-    }
-
     anari::setParameter(
       this->AnariDevice, cylinderGeometry, "name", ANARI_STRING, usdCylinderName.c_str());
 
@@ -1329,13 +1308,6 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
     curveGeometry = anari::newObject<anari::Geometry>(this->AnariDevice, "curve");
     std::string usdCurveName("vtk_curves_");
 
-    if (this->AnariRendererNode != nullptr)
-    {
-      int curveCount = this->AnariRendererNode->GetCurveCount();
-      usdCurveName.append(std::to_string(curveCount++));
-      this->AnariRendererNode->SetCurveCount(curveCount);
-    }
-
     anari::setParameter(
       this->AnariDevice, curveGeometry, "name", ANARI_STRING, usdCurveName.c_str());
 
@@ -1534,13 +1506,6 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
   {
     sphereGeometry = anari::newObject<anari::Geometry>(this->AnariDevice, "sphere");
     std::string usdSphereName("vtk_spheres_");
-
-    if (this->AnariRendererNode != nullptr)
-    {
-      int sphereCount = this->AnariRendererNode->GetSphereCount();
-      usdSphereName.append(std::to_string(sphereCount++));
-      this->AnariRendererNode->SetSphereCount(sphereCount);
-    }
 
     anari::setParameter(
       this->AnariDevice, sphereGeometry, "name", ANARI_STRING, usdSphereName.c_str());
@@ -2062,20 +2027,27 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
 void vtkAnariPolyDataMapperNode::Build(bool prepass)
 {
   vtkAnariProfiling startProfiling("VTKAPDMN::Build", vtkAnariProfiling::GREEN);
-  if (!prepass || !NodeWasModified())
+  if (!prepass || !ActorWasModified())
   {
     return;
   }
 
-  auto* anariRendererNode =
-    static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
-  this->SetAnariConfig(anariRendererNode);
+  if (!this->RendererNode)
+  {
+    this->RendererNode =
+      static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
+  }
+
+  if (!this->Internal->AnariDevice)
+  {
+    this->Internal->SetAnariConfig(this->RendererNode);
+  }
 
   auto* actor = GetVtkActor();
   if (!actor->HasObserver(vtkCommand::ModifiedEvent))
   {
     vtkNew<PolyDataMapperCallback> cc;
-    cc->RendererNode = anariRendererNode;
+    cc->RendererNode = this->RendererNode;
     actor->AddObserver(vtkCommand::ModifiedEvent, cc);
     cc->Execute(nullptr, vtkCommand::ModifiedEvent, nullptr);
   }
@@ -2086,13 +2058,12 @@ void vtkAnariPolyDataMapperNode::Synchronize(bool prepass)
 {
   vtkAnariProfiling startProfiling("VTKAPDMN::Synchronize", vtkAnariProfiling::GREEN);
 
-  if (!prepass || !NodeWasModified())
+  if (!prepass || !ActorWasModified())
   {
     return;
   }
 
-  this->RenderTime = this->GetAnariActorNode()->GetMTime();
-
+  this->RenderTime = this->GetVtkActor()->GetMTime();
   this->ClearSurfaces();
 
   auto* actor = GetVtkActor();
@@ -2118,19 +2089,21 @@ void vtkAnariPolyDataMapperNode::Synchronize(bool prepass)
     poly = static_cast<vtkPolyData*>(geometryExtractor->GetOutput());
   }
 
-  if (poly)
+  if (!poly)
   {
-    vtkProperty* property = actor->GetProperty();
-    std::string materialName = "matte";
-
-    if (property->GetMaterialName() != nullptr)
-    {
-      materialName = property->GetMaterialName();
-    }
-
-    this->AnariRenderPoly(
-      this->GetAnariActorNode(), poly, property->GetColor(), property->GetOpacity(), materialName);
+    return;
   }
+
+  vtkProperty* property = actor->GetProperty();
+  std::string materialName = "matte";
+
+  if (property->GetMaterialName() != nullptr)
+  {
+    materialName = property->GetMaterialName();
+  }
+
+  this->AnariRenderPoly(
+    this->GetAnariActorNode(), poly, property->GetColor(), property->GetOpacity(), materialName);
 }
 
 //----------------------------------------------------------------------------
@@ -2143,13 +2116,7 @@ void vtkAnariPolyDataMapperNode::Render(bool prepass)
     return;
   }
 
-  this->RenderSurfaceModels(true);
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNode::SetAnariConfig(vtkAnariRendererNode* anariRendererNode)
-{
-  this->Internal->SetAnariConfig(anariRendererNode);
+  this->RenderSurfaceModels();
 }
 
 //----------------------------------------------------------------------------
@@ -2165,16 +2132,16 @@ vtkAnariActorNode* vtkAnariPolyDataMapperNode::GetAnariActorNode() const
 }
 
 //----------------------------------------------------------------------------
-bool vtkAnariPolyDataMapperNode::NodeWasModified() const
+bool vtkAnariPolyDataMapperNode::ActorWasModified() const
 {
-  return this->RenderTime < this->GetAnariActorNode()->GetMTime();
+  return this->RenderTime < this->GetVtkActor()->GetMTime();
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNode::RenderSurfaceModels(bool changed)
+void vtkAnariPolyDataMapperNode::RenderSurfaceModels()
 {
   vtkAnariProfiling startProfiling("VTKAPDMN::RenderSurfaceModels", vtkAnariProfiling::GREEN);
-  this->Internal->RenderSurfaceModels(changed);
+  this->Internal->RenderSurfaceModels();
 }
 
 //----------------------------------------------------------------------------
@@ -2182,6 +2149,7 @@ void vtkAnariPolyDataMapperNode::ClearSurfaces()
 {
   vtkAnariProfiling startProfiling("VTKAPDMN::ClearSurfaces", vtkAnariProfiling::GREEN);
   this->Internal->ClearSurfaces();
+  this->RendererNode->InvalidateSceneStructure();
 }
 
 VTK_ABI_NAMESPACE_END

@@ -59,7 +59,7 @@ private:
   ~vtkAnariVolumeMapperNode();
 
   vtkVolume* GetVtkVolume() const;
-  bool NodeWasModified() const;
+  bool VolumeWasModified() const;
 
   int ColorSize{ 128 };
   int OpacitySize{ 128 };

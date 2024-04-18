@@ -56,7 +56,7 @@ private:
   void operator=(const vtkAnariCameraNode&) = delete;
 
   vtkCamera* GetVtkCamera() const;
-  bool NodeWasModified() const;
+  bool CameraWasModified() const;
 
   void UpdateAnariObjectHandles();
   void UpdateAnariCameraParameters();

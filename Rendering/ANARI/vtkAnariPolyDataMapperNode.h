@@ -56,15 +56,15 @@ protected:
 
   vtkActor* GetVtkActor() const;
   vtkAnariActorNode* GetAnariActorNode() const;
-  bool NodeWasModified() const;
-  void RenderSurfaceModels(bool);
+  bool ActorWasModified() const;
+  void RenderSurfaceModels();
   void ClearSurfaces();
 
-  void AnariRenderPoly(vtkAnariActorNode* anariActorNode, vtkPolyData* poly, double* diffuse,
-    double opacity, const std::string& materialName);
-  void SetAnariConfig(vtkAnariRendererNode*);
+  void AnariRenderPoly(vtkAnariActorNode* const anariActorNode, vtkPolyData* const poly,
+    double* const diffuse, const double opacity, const std::string& materialName);
 
-  vtkAnariPolyDataMapperNodeInternals* Internal;
+  vtkAnariPolyDataMapperNodeInternals* Internal{ nullptr };
+  vtkAnariRendererNode* RendererNode{ nullptr };
 
 private:
   vtkAnariPolyDataMapperNode(const vtkAnariPolyDataMapperNode&) = delete;

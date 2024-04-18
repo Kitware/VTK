@@ -71,7 +71,7 @@ vtkAnariCameraNode::~vtkAnariCameraNode()
 void vtkAnariCameraNode::Build(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariCameraNode::Build", vtkAnariProfiling::BROWN);
-  if (!prepass || !NodeWasModified())
+  if (!prepass || !CameraWasModified())
   {
     return;
   }
@@ -89,7 +89,7 @@ void vtkAnariCameraNode::Build(bool prepass)
 void vtkAnariCameraNode::Synchronize(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariCameraNode::Synchronize", vtkAnariProfiling::BROWN);
-  if (!prepass || !NodeWasModified())
+  if (!prepass || !CameraWasModified())
   {
     return;
   }
@@ -279,7 +279,7 @@ vtkCamera* vtkAnariCameraNode::GetVtkCamera() const
   return static_cast<vtkCamera*>(this->Renderable);
 }
 
-bool vtkAnariCameraNode::NodeWasModified() const
+bool vtkAnariCameraNode::CameraWasModified() const
 {
   return this->RenderTime < GetVtkCamera()->GetMTime();
 }

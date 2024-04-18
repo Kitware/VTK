@@ -39,31 +39,20 @@ void vtkAnariCompositePolyDataMapperNode::Synchronize(bool prepass)
   vtkAnariProfiling startProfiling(
     "vtkAnariCompositePolyDataMapperNode::Render", vtkAnariProfiling::BROWN);
 
-  if (!prepass)
+  if (!prepass || !ActorWasModified())
   {
     return;
   }
 
-  vtkAnariActorNode* anariActorNode = vtkAnariActorNode::SafeDownCast(this->Parent);
-  vtkActor* act = vtkActor::SafeDownCast(anariActorNode->GetRenderable());
-
-  if (act->GetVisibility() == false)
-  {
-    return;
-  }
-
-  auto anariRendererNode =
-    static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
-  this->SetAnariConfig(anariRendererNode);
-  vtkMTimeType inTime = anariActorNode->GetMTime();
-
-  if (this->RenderTime >= inTime)
-  {
-    return;
-  }
-
-  this->RenderTime = inTime;
+  this->RenderTime = this->GetVtkActor()->GetMTime();
   this->ClearSurfaces();
+
+  vtkActor* act = this->GetVtkActor();
+  if (!act->GetVisibility())
+  {
+    return;
+  }
+
   vtkProperty* prop = act->GetProperty();
 
   // Push base-values on the state stack.

@@ -36,38 +36,6 @@ public:
   vtkTypeMacro(vtkAnariRendererNode, vtkRendererNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
-  /**
-   * Convenience method to set/get sphere count.
-   */
-  vtkSetMacro(SphereCount, int);
-  vtkGetMacro(SphereCount, int);
-  //@}
-
-  //@{
-  /**
-   * Convenience method to set/get cylinder count.
-   */
-  vtkSetMacro(CylinderCount, int);
-  vtkGetMacro(CylinderCount, int);
-  //@}
-
-  //@{
-  /**
-   * Convenience method to set/get curve count.
-   */
-  vtkSetMacro(CurveCount, int);
-  vtkGetMacro(CurveCount, int);
-  //@}
-
-  //@{
-  /**
-   * Convenience method to set/get triangle count.
-   */
-  vtkSetMacro(TriangleCount, int);
-  vtkGetMacro(TriangleCount, int);
-  //@}
-
   /**
    * Builds objects for this renderer.
    */
@@ -447,11 +415,6 @@ public:
   static int GetCompositeOnGL(vtkRenderer* renderer);
   //@}
 
-  /**
-   * Convenience method to reset the surface geometry prim counts to zero.
-   */
-  void ResetCounts();
-
   //@{
   /**
    * Methods for other nodes to access
@@ -465,12 +428,12 @@ public:
   void AddLight(anari::Light);
 
   /**
-   * Accessed by the AnariPolyDataMapperNode to add Surfaces to the world.
+   * Accessed by the AnariPolyDataMapperNode to an ANARISurface to the world.
    * Geometries are matched with appearance information through Surfaces.
    * These take a geometry, which defines the spatial representation, and
    * applies either full-object or per-primitive color and material information.
    */
-  void AddSurfaces(const std::vector<anari::Surface>&);
+  void AddSurface(anari::Surface);
 
   /**
    * Accessed by the AnariVolumeMapperNode to add Volumes to the world.
@@ -567,10 +530,6 @@ protected:
   void CopyAnariFrameBufferData();
   void DebugOutputWorldBounds();
 
-  int SphereCount{ 0 };
-  int CylinderCount{ 0 };
-  int CurveCount{ 0 };
-  int TriangleCount{ 0 };
   vtkAnariRendererNodeInternals* Internal{ nullptr };
 
   vtkTimeStamp AnariSceneStructureModifiedMTime;

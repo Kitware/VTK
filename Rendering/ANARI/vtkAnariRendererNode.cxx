@@ -923,14 +923,11 @@ void vtkAnariRendererNode::AddLight(anari::Light light)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddSurfaces(const std::vector<anari::Surface>& surfaces)
+void vtkAnariRendererNode::AddSurface(anari::Surface surface)
 {
-  for (auto surface : surfaces)
+  if (surface != nullptr)
   {
-    if (surface)
-    {
-      this->Internal->AnariSurfaces.push_back(surface);
-    }
+    this->Internal->AnariSurfaces.push_back(surface);
   }
 }
 
@@ -980,7 +977,6 @@ void vtkAnariRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkAnariRendererNode::Traverse(int operation)
 {
-
   vtkRenderer* renderer = vtkRenderer::SafeDownCast(this->GetRenderable());
   if (!renderer)
   {
@@ -990,6 +986,13 @@ void vtkAnariRendererNode::Traverse(int operation)
   if (!this->Internal->InitFlag)
   {
     this->Internal->InitFlag = this->Internal->InitAnari();
+    if (!this->Internal->InitFlag)
+    {
+      return;
+    }
+
+    this->InitAnariFrame(renderer);
+    this->InitAnariWorld();
   }
 
   if (operation == operation_type::render)
@@ -997,6 +1000,9 @@ void vtkAnariRendererNode::Traverse(int operation)
     this->Apply(operation, true);
     if (this->AnariSceneConstructedMTime < this->AnariSceneStructureModifiedMTime)
     {
+      this->Internal->AnariLights.clear();
+      this->Internal->AnariVolumes.clear();
+      this->Internal->AnariSurfaces.clear();
       for (auto val : this->Children)
       {
         val->Traverse(operation);
@@ -1048,43 +1054,30 @@ void vtkAnariRendererNode::Render(bool prepass)
   vtkAnariProfiling startProfiling("vtkAnariRendererNode::Render", vtkAnariProfiling::BLUE);
 
   vtkRenderer* ren = this->GetRenderer();
-  if (!ren)
+  if (prepass || !ren)
   {
     return;
   }
 
-  auto anariDevice = this->GetAnariDevice();
-  if (anariDevice == nullptr)
-  {
-    return;
-  }
-
-  if (prepass)
-  {
-    this->InitAnariFrame(ren);
-    this->InitAnariRenderer(ren);
-    this->SetupAnariRendererParameters(ren);
-    this->InitAnariWorld();
-  }
-  else
-  {
-    this->UpdateAnariFrameSize();
+  this->InitAnariRenderer(ren);
+  this->SetupAnariRendererParameters(ren);
+  this->UpdateAnariFrameSize();
 #if 0
     this->DebugOutputWorldBounds();
 #endif
 
-    // Render frame
-    auto anariFrame = this->Internal->AnariFrame;
-    int accumulationCount = this->GetAccumulationCount(ren);
-    for (int i = 0; i < accumulationCount; i++)
-    {
-      anari::render(anariDevice, anariFrame);
-    }
-
-    anari::wait(anariDevice, anariFrame);
-
-    CopyAnariFrameBufferData();
+  // Render frame
+  auto anariDevice = this->GetAnariDevice();
+  auto anariFrame = this->Internal->AnariFrame;
+  int accumulationCount = this->GetAccumulationCount(ren);
+  for (int i = 0; i < accumulationCount; i++)
+  {
+    anari::render(anariDevice, anariFrame);
   }
+
+  anari::wait(anariDevice, anariFrame);
+
+  CopyAnariFrameBufferData();
 }
 
 //----------------------------------------------------------------------------
@@ -1170,15 +1163,6 @@ void vtkAnariRendererNode::WriteLayer(
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariRendererNode::ResetCounts()
-{
-  this->SphereCount = 0;
-  this->CylinderCount = 0;
-  this->CurveCount = 0;
-  this->TriangleCount = 0;
-}
-
-//------------------------------------------------------------------------------
 vtkRenderer* vtkAnariRendererNode::GetRenderer()
 {
   return vtkRenderer::SafeDownCast(this->GetRenderable());
@@ -1235,9 +1219,6 @@ int vtkAnariRendererNode::GetDepthBufferTextureGL()
 //------------------------------------------------------------------------------
 void vtkAnariRendererNode::InvalidateSceneStructure()
 {
-  this->Internal->AnariLights.clear();
-  this->Internal->AnariVolumes.clear();
-  this->Internal->AnariSurfaces.clear();
   this->AnariSceneStructureModifiedMTime.Modified();
 }
 

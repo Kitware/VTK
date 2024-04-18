@@ -486,7 +486,7 @@ vtkVolume* vtkAnariVolumeMapperNode::GetVtkVolume() const
   return static_cast<vtkVolume*>(this->Renderable);
 }
 
-bool vtkAnariVolumeMapperNode::NodeWasModified() const
+bool vtkAnariVolumeMapperNode::VolumeWasModified() const
 {
   return this->RenderTime < GetVtkVolume()->GetMTime();
 }
