@@ -92,7 +92,7 @@ struct vtkAnariVolumeMapperNodeInternals
 {
 public:
   vtkAnariVolumeMapperNodeInternals(vtkAnariVolumeMapperNode*);
-  ~vtkAnariVolumeMapperNodeInternals() = default;
+  ~vtkAnariVolumeMapperNodeInternals();
 
   void UpdateTransferFunction(vtkVolume*, double, double);
   vtkDataArray* ConvertScalarData(vtkDataArray*, int, int);
@@ -107,6 +107,7 @@ public:
 
   vtkAnariVolumeMapperNode* Owner{ nullptr };
   vtkAnariRendererNode* AnariRendererNode{ nullptr };
+  anari::Device AnariDevice{ nullptr };
   anari::Volume AnariVolume{ nullptr };
   std::unique_ptr<anari_structured::TransferFunction> TransferFunction;
 };
@@ -116,6 +117,13 @@ vtkAnariVolumeMapperNodeInternals::vtkAnariVolumeMapperNodeInternals(
   vtkAnariVolumeMapperNode* owner)
   : Owner(owner)
 {
+}
+
+//----------------------------------------------------------------------------
+vtkAnariVolumeMapperNodeInternals::~vtkAnariVolumeMapperNodeInternals()
+{
+  anari::retain(this->AnariDevice, this->AnariVolume);
+  anari::retain(this->AnariDevice, this->AnariDevice);
 }
 
 //----------------------------------------------------------------------------
@@ -308,6 +316,12 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
     this->Internal->AnariRendererNode =
       static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
     auto anariDevice = this->Internal->AnariRendererNode->GetAnariDevice();
+
+    if (!this->Internal->AnariDevice)
+    {
+      this->Internal->AnariDevice = anariDevice;
+      anari::retain(anariDevice, anariDevice);
+    }
 
     //
     // Create ANARI Volume
