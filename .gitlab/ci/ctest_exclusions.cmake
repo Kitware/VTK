@@ -113,6 +113,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # Rendering in the wrong order.
     "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget2$"
     "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget3$"
+
+    # MPI detects bad memory handling
+    "^VTK::IOPIOPython-MPI-TestPIOReader$"
     )
 endif ()
 
