@@ -71,22 +71,20 @@ int TestUserShader2D(int argc, char* argv[])
   coord->SetReferenceCoordinate(pCoord);
   mapper->SetTransformCoordinate(coord);
 
-  // render white noise (like a TV that displays noise signal)
+  // render an animation that zooms out of a grid (only visible in interactive mode)
   vtkShaderProperty* sp = actor->GetShaderProperty();
   sp->AddFragmentShaderReplacement(
     "//VTK::CustomUniforms::Dec", // replace the custom uniforms block
     true,                         // before the standard replacements
     R"(
 uniform float time;
-float generateRandom (vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233) + sin(time))) * 43758.5453123); }
 )",
     false // only do it once
   );
   sp->AddFragmentShaderReplacement("//VTK::Color::Impl", // replace the color block
     true,                                                // before the standard replacements
     R"(
-float noise = mix(-1.0f, 1.0f, generateRandom(tcoordVCVSOutput));
-gl_FragData[0] = vec4(noise, noise, noise, 1.0);
+gl_FragData[0] = vec4(sin(tcoordVCVSOutput.xy * time * 0.01), 0.0, 1.0);
 )",                                                      // but we add this
     false                                                // only do it once
   );
@@ -103,21 +101,26 @@ gl_FragData[0] = vec4(noise, noise, noise, 1.0);
     return EXIT_FAILURE;
   }
 
-  TestUserShader2D_TimerData timerData;
-  timerData.shaderProperty = sp;
-  timerData.time = 0;
-  timerData.id = iren->CreateRepeatingTimer(10);
-
-  vtkNew<vtkCallbackCommand> timerCmd;
-  timerCmd->SetClientData(&timerData);
-  timerCmd->SetCallback(::TestUserShader2D_OnTimerCallback);
-  iren->AddObserver(vtkCommand::TimerEvent, timerCmd);
+  sp->GetFragmentCustomUniforms()->SetUniformf("time", 150);
 
   renderWindow->Render();
 
   int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
+    auto* timerData = new TestUserShader2D_TimerData();
+    timerData->shaderProperty = sp;
+    timerData->time = 0;
+    timerData->id = iren->CreateRepeatingTimer(10);
+
+    vtkNew<vtkCallbackCommand> timerCmd;
+    timerCmd->SetClientData(timerData);
+    timerCmd->SetCallback(::TestUserShader2D_OnTimerCallback);
+    timerCmd->SetClientDataDeleteCallback([](void* dPtr) {
+      auto tdPtr = static_cast<TestUserShader2D_TimerData*>(dPtr);
+      delete tdPtr;
+    });
+    iren->AddObserver(vtkCommand::TimerEvent, timerCmd);
     iren->Start();
   }
 
