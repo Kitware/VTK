@@ -14,6 +14,11 @@ get_filename_component(VTK_TOP_DIR "${VTKTestExternal_SOURCE_DIR}/../.." ABSOLUT
 set(ExternalData_SOURCE_ROOT "${VTK_TOP_DIR}")
 set(VTK_SOURCE_DIR "${VTK_TOP_DIR}")
 
+configure_file(
+  "${VTK_SOURCE_DIR}/CMake/CTestCustom.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
+  @ONLY)
+
 # Find the VTK build or install tree.  Assume the version matches exactly.
 # One should provide VTK_DIR explicitly in our intended use cases.
 find_package(VTK REQUIRED NO_MODULE)
