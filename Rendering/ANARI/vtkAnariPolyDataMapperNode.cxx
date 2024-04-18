@@ -67,7 +67,7 @@ class vtkAnariPolyDataMapperNodeInternals
 {
 public:
   vtkAnariPolyDataMapperNodeInternals(vtkAnariPolyDataMapperNode*);
-  ~vtkAnariPolyDataMapperNodeInternals() = default;
+  ~vtkAnariPolyDataMapperNodeInternals();
 
   /**
    * Create an ANARI surface based on edge visibility and representation type
@@ -193,6 +193,12 @@ private:
 vtkAnariPolyDataMapperNodeInternals::vtkAnariPolyDataMapperNodeInternals(
   vtkAnariPolyDataMapperNode* owner)
 {
+}
+
+//----------------------------------------------------------------------------
+vtkAnariPolyDataMapperNodeInternals::~vtkAnariPolyDataMapperNodeInternals()
+{
+  this->ClearSurfaces();
 }
 
 //----------------------------------------------------------------------------
