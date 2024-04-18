@@ -102,13 +102,13 @@ class TestVTKFiles:
         self.HasClass = False
         self.HasFunction = False
 
-        classre = "^class(\s+VTK_DEPRECATED)?(\s+[^\s]*_EXPORT)?\s+(vtkm?[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
+        classre = "^class(\\s+VTK_DEPRECATED)?(\\s+[^\\s]*_EXPORT)?\\s+(vtkm?[A-Z0-9_][^ :\n]*)\\s*:\\s*public\\s+(vtk[^ \n\\{]*)"
         regx = re.compile(classre)
         try:
             file = open(filename, encoding='ascii', errors='ignore')
             self.FileLines = file.readlines()
             file.close()
-            funcre = "[a-zA-Z0-9_]*\s+[a-zA-Z0-9_]*\s*\([^\n\{]*\);"
+            funcre = "[a-zA-Z0-9_]*\\s+[a-zA-Z0-9_]*\\s*\\([^\n\\{]*\\);"
             funcregex = re.compile(funcre)
 
             for l in self.FileLines:
@@ -199,8 +199,8 @@ class TestVTKFiles:
         lines = []
         nplines = []
         unlines = []
-        includere = "^\s*#\s*include\s*[\"<]([^>\"]+)"
-        ignincludere = ".*\/\/.*"
+        includere = "^\\s*#\\s*include\\s*[\"<]([^>\"]+)"
+        ignincludere = ".*\\/\\/.*"
         regx = re.compile(includere)
         regx1 = re.compile(ignincludere)
         cc = 0
@@ -298,7 +298,7 @@ class TestVTKFiles:
         if not self.HasClass:
             return
 
-        classre = "^class(\s+VTK_DEPRECATED)?(\s+[^\s]*_EXPORT)?\s+(vtkm?[A-Z0-9_][^ :\n]*)\s*<?[^\n\{]*>?\s*:\s*public\s+(vtk[^ \n\{<>]*)<?[^\n\{]*>?"
+        classre = "^class(\\s+VTK_DEPRECATED)?(\\s+[^\\s]*_EXPORT)?\\s+(vtkm?[A-Z0-9_][^ :\n]*)\\s*<?[^\n\\{]*>?\\s*:\\s*public\\s+(vtk[^ \n\\{<>]*)<?[^\n\\{]*>?"
         cname = ""
         pname = ""
         classlines = []
@@ -351,8 +351,8 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        typere = "^\s*vtk(Abstract|Base)?Type(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*"
-        typesplitre = "^\s*vtk(Abstract|Base)?Type(Revision)*Macro\s*\("
+        typere = "^\\s*vtk(Abstract|Base)?Type(Revision)*Macro\\s*\\(\\s*(vtk[^ ,]+)\\s*,\\s*(vtk[^ \\)]+)\\s*\\)\\s*"
+        typesplitre = "^\\s*vtk(Abstract|Base)?Type(Revision)*Macro\\s*\\("
 
         regx = re.compile(typere)
         regxs = re.compile(typesplitre)
@@ -411,8 +411,8 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\) = delete;" % ( self.ClassName, self.ClassName)
-        asgnoperator = "^\s*(void|%s\s*&)\s*operator\s*=\s*\(\s*const\s*%s\s*&\s*\) = delete;" % (self.ClassName, self.ClassName)
+        copyoperator = "^\\s*%s\\s*\\(\\s*const\\s*%s\\s*&\\s*\\) = delete;" % ( self.ClassName, self.ClassName)
+        asgnoperator = "^\\s*(void|%s\\s*&)\\s*operator\\s*=\\s*\\(\\s*const\\s*%s\\s*&\\s*\\) = delete;" % (self.ClassName, self.ClassName)
         #self.Print( copyoperator
         regx1 = re.compile(copyoperator)
         regx2 = re.compile(asgnoperator)
@@ -467,8 +467,8 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        constructor = "^\s*%s\s*\(([^ )]*)\)" % self.ClassName
-        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*implemented(\.)*" % ( self.ClassName, self.ClassName)
+        constructor = "^\\s*%s\\s*\\(([^ )]*)\\)" % self.ClassName
+        copyoperator = "^\\s*%s\\s*\\(\\s*const\\s*%s\\s*&\\s*\\)\\s*;\\s*\\/\\/\\s*Not\\s*implemented(\\.)*" % ( self.ClassName, self.ClassName)
         regx1 = re.compile(constructor)
         regx2 = re.compile(copyoperator)
         cc = 0
@@ -490,8 +490,8 @@ class TestVTKFiles:
     def CheckPrintSelf(self):
         if not self.ClassName:
             return
-        typere = "^\s*void\s*PrintSelf\s*\(\s*ostream\s*&\s*os*\s*,\s*vtkIndent\s*indent\s*\)"
-        newtypere = "^\s*virtual\s*void\s*PrintSelf\s*\(\s*ostream\s*&\s*os*\s*,\s*vtkIndent\s*indent\s*\)"
+        typere = "^\\s*void\\s*PrintSelf\\s*\\(\\s*ostream\\s*&\\s*os*\\s*,\\s*vtkIndent\\s*indent\\s*\\)"
+        newtypere = "^\\s*virtual\\s*void\\s*PrintSelf\\s*\\(\\s*ostream\\s*&\\s*os*\\s*,\\s*vtkIndent\\s*indent\\s*\\)"
         regx1 = re.compile(typere)
         regx2 = re.compile(newtypere)
         found = 0
@@ -516,7 +516,7 @@ class TestVTKFiles:
         # This version will leave out comment lines but we probably do
         # not want to refer to mangled (hopefully deprecated) methods
         # in comments.
-        # regx2 = re.compile("^(\s*//|\s*\*|.*VTK_LEGACY).*$")
+        # regx2 = re.compile("^(\\s*//|\\s*\\*|.*VTK_LEGACY).*$")
         cc = 1
         for a in self.FileLines:
             line = a.strip()

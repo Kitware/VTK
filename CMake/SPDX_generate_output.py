@@ -66,7 +66,7 @@ def generate_spdx_file(
     :param skip_regex: On regex match of a filename with this pattern, skip the parsing of the file.
     :param input_files: List of source files.
     """
-    spdx_comment_regex_begin = "^(?:#|\/\/|<!--|!)"
+    spdx_comment_regex_begin = "^(?:#|//|<!--|!)"
     spdx_comment_regex_end = "(?= -->|$)"
     spdx_lic_regex = spdx_comment_regex_begin + " SPDX-License-Identifier: (.+?)" + spdx_comment_regex_end
     spdx_cpy_regex = spdx_comment_regex_begin + " SPDX-FileCopyrightText: (.+?)" + spdx_comment_regex_end
