@@ -547,13 +547,18 @@ public:
    */
   void InvalidateSceneStructure();
 
+  /**
+   * Indicate that the parameters to the underlying ANARIRenderer need to be set.
+   */
+  static void InvalidateRendererParameters();
+
 protected:
   vtkAnariRendererNode();
   ~vtkAnariRendererNode();
 
-  void InitAnariFrame();
-  bool InitAnariRenderer(vtkRenderer* ren);
-  void SetupAnariRendererParameters(vtkRenderer* ren, bool isNewRenderer);
+  void InitAnariFrame(vtkRenderer* ren);
+  void InitAnariRenderer(vtkRenderer* ren);
+  void SetupAnariRendererParameters(vtkRenderer* ren);
   void InitAnariWorld();
   void UpdateAnariFrameSize();
   void UpdateAnariLights();
@@ -562,14 +567,16 @@ protected:
   void CopyAnariFrameBufferData();
   void DebugOutputWorldBounds();
 
-  int SphereCount;
-  int CylinderCount;
-  int CurveCount;
-  int TriangleCount;
-  vtkAnariRendererNodeInternals* Internal;
+  int SphereCount{ 0 };
+  int CylinderCount{ 0 };
+  int CurveCount{ 0 };
+  int TriangleCount{ 0 };
+  vtkAnariRendererNodeInternals* Internal{ nullptr };
 
   vtkTimeStamp AnariSceneStructureModifiedMTime;
   vtkMTimeType AnariSceneConstructedMTime{ 0 };
+  static vtkTimeStamp AnariRendererModifiedTime;
+  vtkMTimeType AnariRendererUpdatedTime{ 0 };
 
 private:
   vtkAnariRendererNode(const vtkAnariRendererNode&) = delete;
