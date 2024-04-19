@@ -97,17 +97,6 @@ void vtkAnariCameraNode::Synchronize(bool prepass)
   this->RenderTime = GetVtkCamera()->GetMTime();
 }
 
-//----------------------------------------------------------------------------
-void vtkAnariCameraNode::Render(bool prepass)
-{
-  vtkAnariProfiling startProfiling("vtkAnariCameraNode::Render", vtkAnariProfiling::BROWN);
-  if (!prepass)
-  {
-    return;
-  }
-  this->Internals->RendererNode->SetCamera(this->Internals->AnariCamera);
-}
-
 void vtkAnariCameraNode::UpdateAnariObjectHandles()
 {
   if (!this->Internals->AnariDevice)
@@ -123,6 +112,7 @@ void vtkAnariCameraNode::UpdateAnariObjectHandles()
     this->Internals->AnariCamera = anari::newObject<anari::Camera>(
       this->Internals->AnariDevice, parallel ? "orthographic" : "perspective");
     this->Internals->IsParallelProjection = parallel;
+    this->Internals->RendererNode->SetCamera(this->Internals->AnariCamera);
   }
 }
 

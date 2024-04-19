@@ -39,10 +39,6 @@ public:
    */
   void Synchronize(bool prepass) override;
   /**
-   * Set the camera on the ANARIFrame.
-   */
-  void Render(bool prepass) override;
-  /**
    * Invalidates cached rendering data.
    */
   void Invalidate(bool prepass) override;
