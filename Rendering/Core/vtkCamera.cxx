@@ -1460,6 +1460,16 @@ void vtkCamera::ShallowCopy(vtkCamera* source)
     this->ProjectionTransform->Register(this);
   }
 
+  if (this->ExplicitProjectionTransformMatrix != nullptr)
+  {
+    this->ExplicitProjectionTransformMatrix->Delete();
+  }
+  this->ExplicitProjectionTransformMatrix = source->ExplicitProjectionTransformMatrix;
+  if (this->ExplicitProjectionTransformMatrix != nullptr)
+  {
+    this->ExplicitProjectionTransformMatrix->Register(this);
+  }
+
   if (this->Transform != nullptr)
   {
     this->Transform->Delete();
@@ -1604,6 +1614,23 @@ void vtkCamera::DeepCopy(vtkCamera* source)
         static_cast<vtkPerspectiveTransform*>(source->ProjectionTransform->MakeTransform());
     }
     this->ProjectionTransform->DeepCopy(source->ProjectionTransform);
+  }
+
+  if (source->ExplicitProjectionTransformMatrix == nullptr)
+  {
+    if (this->ExplicitProjectionTransformMatrix != nullptr)
+    {
+      this->ExplicitProjectionTransformMatrix->UnRegister(this);
+      this->ExplicitProjectionTransformMatrix = nullptr;
+    }
+  }
+  else
+  {
+    if (this->ExplicitProjectionTransformMatrix == nullptr)
+    {
+      this->ExplicitProjectionTransformMatrix = vtkMatrix4x4::New();
+    }
+    this->ExplicitProjectionTransformMatrix->DeepCopy(source->ExplicitProjectionTransformMatrix);
   }
 
   if (source->Transform == nullptr)
@@ -1762,6 +1789,7 @@ void vtkCamera::PartialCopy(vtkCamera* source)
   this->Distance = source->Distance;
   this->UseHorizontalViewAngle = source->UseHorizontalViewAngle;
   this->UseOffAxisProjection = source->UseOffAxisProjection;
+  this->UseExplicitProjectionTransformMatrix = source->UseExplicitProjectionTransformMatrix;
   this->OffAxisClippingAdjustment = source->OffAxisClippingAdjustment;
 
   this->FocalDisk = source->FocalDisk;
