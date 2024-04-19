@@ -122,7 +122,7 @@ private:
 
   void ClearLight();
   vtkLight* GetVtkLight() const;
-  bool NodeWasModified() const;
+  bool LightWasModified() const;
 
   vtkAnariLightNodeInternals* Internals{ nullptr };
 };

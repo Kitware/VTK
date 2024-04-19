@@ -193,7 +193,7 @@ void vtkAnariLightNode::Invalidate(bool prepass)
 void vtkAnariLightNode::Build(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariLightNode::Build", vtkAnariProfiling::BROWN);
-  if (!prepass || !NodeWasModified())
+  if (!prepass || !LightWasModified())
   {
     return;
   }
@@ -209,7 +209,7 @@ void vtkAnariLightNode::Build(bool prepass)
 void vtkAnariLightNode::Synchronize(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariLightNode::Synchronize", vtkAnariProfiling::BROWN);
-  if (!prepass || !NodeWasModified())
+  if (!prepass || !LightWasModified())
   {
     return;
   }
@@ -480,7 +480,7 @@ void vtkAnariLightNode::Render(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariLightNode::Render", vtkAnariProfiling::BROWN);
 
-  if (!prepass || !NodeWasModified())
+  if (!prepass)
   {
     return;
   }
@@ -510,7 +510,7 @@ vtkLight* vtkAnariLightNode::GetVtkLight() const
   return static_cast<vtkLight*>(this->Renderable);
 }
 
-bool vtkAnariLightNode::NodeWasModified() const
+bool vtkAnariLightNode::LightWasModified() const
 {
   return this->RenderTime < GetVtkLight()->GetMTime();
 }
