@@ -22,7 +22,8 @@ struct VortexBackend
   {
     int iComp = idx % 3;
     int iTuple = idx / 3;
-    double* pt = this->Geometry->GetPoint(iTuple);
+    double pt[3];
+    this->Geometry->GetPoint(iTuple, pt);
     switch (iComp)
     {
       case (0):
