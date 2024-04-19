@@ -35,7 +35,7 @@ static std::string GetFileName(int argc, char* argv[], const std::string& fnameC
   return fname;
 }
 
-int TestIOSSExodusParitionedFiles(int argc, char* argv[])
+int TestIOSSExodusPartitionedFiles(int argc, char* argv[])
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> contr;
