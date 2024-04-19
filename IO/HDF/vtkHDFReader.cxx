@@ -818,16 +818,18 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
   {
     vtkSmartPointer<vtkAbstractArray> array;
     vtkIdType offset = -1;
-    vtkIdType size = -1;
+    std::array<vtkIdType, 2> size = { -1, -1 };
     if (this->Impl->GetDataSetType() != VTK_OVERLAPPING_AMR && this->GetHasTemporalData())
     {
-      // If the field data is temporal we expect it to have NumberSteps number of tuples
-      // and as many components as necessary
-      size = 1;
+      size = this->Impl->GetFieldArraySize(this->Step, name);
       offset = this->Impl->GetArrayOffset(this->Step, vtkDataObject::FIELD, name);
+      if (size[0] == 0 && size[1] == 0)
+      {
+        continue;
+      }
     }
     if (this->UseCache &&
-      this->Cache->CheckExistsAndEqual(vtkDataObject::FIELD, name, offset, size))
+      this->Cache->CheckExistsAndEqual(vtkDataObject::FIELD, name, offset, size[1]))
     {
       array = this->Cache->Get(vtkDataObject::FIELD, name);
       if (!array)
@@ -838,24 +840,18 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
     }
     else
     {
-      if ((array = vtk::TakeSmartPointer(this->Impl->NewFieldArray(name.c_str(), offset, size))) ==
-        nullptr)
+      if ((array = vtk::TakeSmartPointer(
+             this->Impl->NewFieldArray(name.c_str(), offset, size[1], size[0]))) == nullptr)
       {
         vtkErrorMacro("Error reading array " << name);
         return 0;
       }
       array->SetName(name.c_str());
     }
-    if (this->GetHasTemporalData())
-    {
-      vtkIdType len = array->GetNumberOfComponents();
-      array->SetNumberOfComponents(1);
-      array->SetNumberOfTuples(len);
-    }
     data->GetAttributesAsFieldData(vtkDataObject::FIELD)->AddArray(array);
     if (this->UseCache)
     {
-      this->Cache->Set(vtkDataObject::FIELD, name, offset, size, array);
+      this->Cache->Set(vtkDataObject::FIELD, name, offset, size[1], array);
     }
   }
   if (this->GetHasTemporalData())

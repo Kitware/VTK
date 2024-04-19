@@ -1241,6 +1241,9 @@ step (relevant for `Unstructured Grid` and `Poly Data`).
 many values to offset reading into the given array for the associated time step. In the
 absence of a data set, the appropriate geometry offsetting for the time step is used in its
 place.
+* `FieldDataSizes/{ArrayName}` [dims = (NSteps, 2)]: each entry indicates the field data
+component and tuple size. In the absence of a data set, the maximum number of components
+and one tuple per step are considered.
 
 ```{figure} vtkhdf_images/transient_hdf_schema.png
 :width: 640px
