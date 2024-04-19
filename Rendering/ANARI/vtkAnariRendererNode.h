@@ -462,7 +462,7 @@ public:
    * Lights in ANARI are virtual objects that emit light into the world and
    * thus illuminate objects.
    */
-  void AddLight(anari::Light, const bool);
+  void AddLight(anari::Light, bool);
 
   /**
    * Accessed by the AnariPolyDataMapperNode to add Surfaces to the world.
@@ -470,19 +470,19 @@ public:
    * These take a geometry, which defines the spatial representation, and
    * applies either full-object or per-primitive color and material information.
    */
-  void AddSurfaces(const std::vector<anari::Surface>&, const bool);
+  void AddSurfaces(const std::vector<anari::Surface>&, bool);
 
   /**
    * Accessed by the AnariVolumeMapperNode to add Volumes to the world.
    * Volumes in ANARI represent volumetric objects (complementing surfaces),
    * enscapsulating spatial data as well as appearance information.
    */
-  void AddVolume(anari::Volume, const bool);
+  void AddVolume(anari::Volume, bool);
 
   /**
    * Accessed by the AnariCameraNode to add an ANARICamera to the world.
    */
-  void AddCamera(anari::Camera, const bool);
+  void AddCamera(anari::Camera, bool);
 
   /**
    * Get the ANARI back-end device. A device is an object which provides the

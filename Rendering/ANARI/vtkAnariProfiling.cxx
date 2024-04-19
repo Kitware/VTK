@@ -16,7 +16,7 @@ vtkAnariProfiling::vtkAnariProfiling()
 }
 
 //----------------------------------------------------------------------------
-vtkAnariProfiling::vtkAnariProfiling(const char* label, const uint32_t color)
+vtkAnariProfiling::vtkAnariProfiling(const char* label, uint32_t color)
 {
   this->StartProfiling(label, color);
 }
@@ -28,7 +28,7 @@ vtkAnariProfiling::~vtkAnariProfiling()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariProfiling::StartProfiling(const char* label, const uint32_t color)
+void vtkAnariProfiling::StartProfiling(const char* label, uint32_t color)
 {
 #ifdef USE_NVTX
   // Initialize

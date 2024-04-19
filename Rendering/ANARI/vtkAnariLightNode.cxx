@@ -32,7 +32,7 @@ public:
   vtkAnariLightNodeInternals(vtkAnariLightNode* owner);
   ~vtkAnariLightNodeInternals();
 
-  void RenderLight(const bool);
+  void RenderLight(bool);
   void ClearLight();
 
   vtkAnariLightNode* Owner;
@@ -57,7 +57,7 @@ vtkAnariLightNodeInternals::~vtkAnariLightNodeInternals()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariLightNodeInternals::RenderLight(const bool changed)
+void vtkAnariLightNodeInternals::RenderLight(bool changed)
 {
   if (this->AnariRendererNode != nullptr)
   {

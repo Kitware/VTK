@@ -123,7 +123,7 @@ vtkAnariVolumeMapperNodeInternals::vtkAnariVolumeMapperNodeInternals(
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariVolumeMapperNodeInternals::StageVolume(const bool changed)
+void vtkAnariVolumeMapperNodeInternals::StageVolume(bool changed)
 {
   vtkAnariProfiling startProfiling(
     "vtkAnariVolumeMapperNode::RenderVolumes", vtkAnariProfiling::GREEN);
@@ -136,7 +136,7 @@ void vtkAnariVolumeMapperNodeInternals::StageVolume(const bool changed)
 
 //------------------------------------------------------------------------------
 void vtkAnariVolumeMapperNodeInternals::UpdateTransferFunction(
-  vtkVolume* const vtkVol, const double low, const double high)
+  vtkVolume* vtkVol, double low, double high)
 {
   this->TransferFunction.reset(new anari_structured::TransferFunction());
   vtkVolumeProperty* volProperty = vtkVol->GetProperty();
@@ -195,7 +195,7 @@ void vtkAnariVolumeMapperNodeInternals::UpdateTransferFunction(
 
 //------------------------------------------------------------------------------
 vtkDataArray* vtkAnariVolumeMapperNodeInternals::ConvertScalarData(
-  vtkDataArray* const scalarData, const int vectorComponent, const int vectorMode)
+  vtkDataArray* scalarData, int vectorComponent, int vectorMode)
 {
   int numComponents = scalarData->GetNumberOfComponents();
   const vtkIdType numTuples = scalarData->GetNumberOfTuples();

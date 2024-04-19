@@ -49,7 +49,7 @@ public:
   ~vtkAnariPassInternals() { delete this->OpenGLQuadHelper; }
 
   void Init(vtkOpenGLRenderWindow* openGLRenderWindow, const anari::Extensions& extensions,
-    vtkRenderer* const ren)
+    vtkRenderer* ren)
   {
     std::string fragShader = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
     vtkShaderProgram::Substitute(fragShader, "//VTK::FSQ::Decl",
@@ -198,7 +198,7 @@ void vtkAnariPass::RenderInternal(const vtkRenderState* s)
       win->GetTileScale(tileScale);
     }
 
-    vtkAnariRendererNode* const anariRendererNode =
+    vtkAnariRendererNode* anariRendererNode =
       vtkAnariRendererNode::SafeDownCast(this->SceneGraph->GetViewNodeFor(ren));
     anariRendererNode->SetSize(viewportWidth, viewportHeight);
     anariRendererNode->SetViewport(tileViewport);

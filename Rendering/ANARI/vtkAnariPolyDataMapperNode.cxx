@@ -58,73 +58,72 @@ public:
    * (e.g., wireframe or points).
    */
   void RenderSurfaces(anari::Sampler, vtkActor*, vtkPolyData*, std::vector<vec3>&,
-    std::vector<u_int>&, const bool, const double, const double, vtkDataArray*,
-    vtkPiecewiseFunction*, std::vector<vec2>&, std::vector<float>&, std::vector<vec4>&,
-    vtkPolyDataMapperNode::vtkPDConnectivity& conn, const int);
+    std::vector<u_int>&, bool, double, double, vtkDataArray*, vtkPiecewiseFunction*,
+    std::vector<vec2>&, std::vector<float>&, std::vector<vec4>&,
+    vtkPolyDataMapperNode::vtkPDConnectivity& conn, int);
 
   /**
    * Create an ANARI surface with a geometry consisting of individual spheres, each
    * of which can have its own radius.
    */
   anari::Surface RenderAsSpheres(anari::Sampler, vtkProperty*, std::vector<vec3>&,
-    std::vector<u_int>&, const double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
-    std::vector<float>&, std::vector<vec4>&, const int);
+    std::vector<u_int>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
+    std::vector<float>&, std::vector<vec4>&, int);
 
   /**
    * Create an ANARI surface with a geometry consisting of individual cylinders, each
    * of which can have its own radius.
    */
   anari::Surface RenderAsCylinders(anari::Sampler, vtkProperty* property, std::vector<vec3>&,
-    std::vector<u_int>&, const double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
-    std::vector<float>&, std::vector<vec4>&, const int);
+    std::vector<u_int>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
+    std::vector<float>&, std::vector<vec4>&, int);
 
   /**
    * Create an ANARI surface with a geometry consisting of curves, each
    * of which can have its own radius.
    */
   anari::Surface RenderAsCurves(anari::Sampler, vtkProperty* property, std::vector<vec3>&,
-    std::vector<u_int>&, const double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
-    std::vector<float>&, std::vector<vec4>&, const int);
+    std::vector<u_int>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
+    std::vector<float>&, std::vector<vec4>&, int);
 
   /**
    * Create an ANARI surface with a geometry consisting of triangles.
    */
   anari::Surface RenderAsTriangles(anari::Sampler anariSampler, vtkProperty* property,
     std::vector<vec3>&, std::vector<u_int>& indexArray, std::vector<vec3>& normals,
-    std::vector<vec2>& textureCoords, std::vector<float>&, std::vector<vec4>&, const int);
+    std::vector<vec2>& textureCoords, std::vector<float>&, std::vector<vec4>&, int);
 
   /**
    * Create an ANARI material from VTK properties
    */
-  anari::Material MakeMaterial(vtkProperty* const, float* const df = nullptr,
-    anari::Sampler sampler = nullptr, const char* colorStr = nullptr);
+  anari::Material MakeMaterial(vtkProperty*, float* df = nullptr, anari::Sampler sampler = nullptr,
+    const char* colorStr = nullptr);
 
   //@{
   /**
    * Utility methods for setting the material parameters.
    */
   void SetPhysicallyBasedMaterialParameters(
-    anari::Material, vtkProperty* const, float* const, anari::Sampler, const char*);
+    anari::Material, vtkProperty*, float*, anari::Sampler, const char*);
 
   void SetMatteMaterialParameters(
-    anari::Material, vtkProperty* const, float* const, anari::Sampler, const char*);
+    anari::Material, vtkProperty*, float*, anari::Sampler, const char*);
   //@}
 
   /**
    * Utility function to get the VTK texture from a named property.
    */
-  vtkImageData* GetTextureMap(vtkProperty* const, const char*);
+  vtkImageData* GetTextureMap(vtkProperty*, const char*);
 
   /**
    * Return the result of applying the VTK piecewise function to an input value.
    */
-  float MapThroughPWF(const double, vtkPiecewiseFunction* const);
+  float MapThroughPWF(double, vtkPiecewiseFunction*);
 
   /**
    * Converts a 2D VTK texture to a 2D ANARI sampler.
    */
-  anari::Sampler VTKToAnariSampler(
-    std::string, std::string, mat4 inTransform, vtkImageData* const, const bool);
+  anari::Sampler VTKToAnariSampler(std::string, std::string, mat4 inTransform, vtkImageData*, bool);
 
   /**
    * Extracts individual textures (occlusion, roughness, metallic) from the combined VTK
@@ -133,19 +132,19 @@ public:
    * extract where the occlusion texture index is 0, roughness texture index is 1, and the
    * metallic texture index is 2.
    */
-  anari::Sampler ExtractORMFromVTK(std::string name, const int textureIdx, std::string inAttribute,
-    mat4 inTransform, vtkImageData* const imageData, const bool sRGB);
+  anari::Sampler ExtractORMFromVTK(std::string name, int textureIdx, std::string inAttribute,
+    mat4 inTransform, vtkImageData* imageData, bool sRGB);
 
   /**
    * Utility function for applying a transform to VTK normals and placing in a container
    * for easy consumption by the ANARI API.
    */
-  void VTKToAnariNormals(vtkDataArray* const, std::vector<vec3>&, vtkMatrix3x3* const);
+  void VTKToAnariNormals(vtkDataArray*, std::vector<vec3>&, vtkMatrix3x3*);
 
   /**
    * Methods for setting/getting the ANARI library and device parameters
    */
-  void SetAnariConfig(vtkAnariRendererNode* const);
+  void SetAnariConfig(vtkAnariRendererNode*);
 
   /**
    * Converts the given string to lowercase.
@@ -155,7 +154,7 @@ public:
   /**
    * Send surfaces to the renderer.
    */
-  void RenderSurfaceModels(const bool);
+  void RenderSurfaceModels(bool);
 
   /**
    * Remove the cached surfaces.
@@ -205,7 +204,7 @@ vtkAnariPolyDataMapperNodeInternals::vtkAnariPolyDataMapperNodeInternals(
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNodeInternals::RenderSurfaceModels(const bool changed)
+void vtkAnariPolyDataMapperNodeInternals::RenderSurfaceModels(bool changed)
 {
   if (this->AnariRendererNode != nullptr)
   {
@@ -240,7 +239,7 @@ void vtkAnariPolyDataMapperNodeInternals::ClearSurfaces()
 
 //----------------------------------------------------------------------------
 float vtkAnariPolyDataMapperNodeInternals::MapThroughPWF(
-  const double in, vtkPiecewiseFunction* const scaleFunction)
+  double in, vtkPiecewiseFunction* scaleFunction)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::MapThroughPWF", vtkAnariProfiling::LIME);
   double out = in;
@@ -255,7 +254,7 @@ float vtkAnariPolyDataMapperNodeInternals::MapThroughPWF(
 
 //----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperNodeInternals::VTKToAnariNormals(
-  vtkDataArray* const vtkNormals, std::vector<vec3>& vertexNormals, vtkMatrix3x3* const matrix)
+  vtkDataArray* vtkNormals, std::vector<vec3>& vertexNormals, vtkMatrix3x3* matrix)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::VTKToAnariNormals", vtkAnariProfiling::LIME);
   const int numNormals = vtkNormals->GetNumberOfTuples();
@@ -274,8 +273,7 @@ void vtkAnariPolyDataMapperNodeInternals::VTKToAnariNormals(
 
 //----------------------------------------------------------------------------
 anari::Sampler vtkAnariPolyDataMapperNodeInternals::ExtractORMFromVTK(std::string name,
-  const int textureIdx, std::string inAttribute, mat4 inTransform, vtkImageData* const imageData,
-  const bool sRGB)
+  int textureIdx, std::string inAttribute, mat4 inTransform, vtkImageData* imageData, bool sRGB)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::ExtractORMFromVTK", vtkAnariProfiling::LIME);
 
@@ -326,8 +324,8 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::ExtractORMFromVTK(std::strin
 }
 
 //----------------------------------------------------------------------------
-anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(std::string name,
-  std::string inAttribute, mat4 inTransform, vtkImageData* const imageData, const bool sRGB)
+anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
+  std::string name, std::string inAttribute, mat4 inTransform, vtkImageData* imageData, bool sRGB)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::VTKToAnariSampler", vtkAnariProfiling::LIME);
 
@@ -492,7 +490,7 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(std::strin
 
 //----------------------------------------------------------------------------
 anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
-  vtkProperty* const property, float* const color, anari::Sampler sampler, const char* colorStr)
+  vtkProperty* property, float* color, anari::Sampler sampler, const char* colorStr)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::MakeMaterial", vtkAnariProfiling::LIME);
 
@@ -559,7 +557,7 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
 
 //----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
-  anari::Material anariMaterial, vtkProperty* const vtkProperty, float* const color,
+  anari::Material anariMaterial, vtkProperty* vtkProperty, float* color,
   anari::Sampler baseColorSampler, const char* colorStr)
 {
   vtkTexture* texture = nullptr;
@@ -712,7 +710,7 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
 
 //----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperNodeInternals::SetMatteMaterialParameters(anari::Material anariMaterial,
-  vtkProperty* const vtkProperty, float* const color, anari::Sampler sampler, const char* colorStr)
+  vtkProperty* vtkProperty, float* color, anari::Sampler sampler, const char* colorStr)
 {
   // Material Color
   float materialColor[3] = { 0.0f, 0.0f, 0.0f };
@@ -762,8 +760,7 @@ void vtkAnariPolyDataMapperNodeInternals::SetMatteMaterialParameters(anari::Mate
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNodeInternals::SetAnariConfig(
-  vtkAnariRendererNode* const anariRendererNode)
+void vtkAnariPolyDataMapperNodeInternals::SetAnariConfig(vtkAnariRendererNode* anariRendererNode)
 {
   this->AnariRendererNode = anariRendererNode;
   this->AnariLibrary = anariRendererNode->GetAnariLibrary();
@@ -782,7 +779,7 @@ std::string vtkAnariPolyDataMapperNodeInternals::StrToLower(std::string s)
 
 //----------------------------------------------------------------------------
 vtkImageData* vtkAnariPolyDataMapperNodeInternals::GetTextureMap(
-  vtkProperty* const property, const char* name)
+  vtkProperty* property, const char* name)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::GetTextureMap", vtkAnariProfiling::LIME);
   vtkTexture* texture = property->GetTexture(name);
@@ -798,10 +795,10 @@ vtkImageData* vtkAnariPolyDataMapperNodeInternals::GetTextureMap(
 //----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSampler,
   vtkActor* actor, vtkPolyData* poly, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
-  const bool isTriangleIndex, const double pointSize, const double lineWidth,
-  vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
+  bool isTriangleIndex, double pointSize, double lineWidth, vtkDataArray* scaleArray,
+  vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
   std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors,
-  vtkPolyDataMapperNode::vtkPDConnectivity& conn, const int cellFlag)
+  vtkPolyDataMapperNode::vtkPDConnectivity& conn, int cellFlag)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderSurfaces", vtkAnariProfiling::LIME);
   vtkProperty* property = actor->GetProperty();
@@ -897,7 +894,7 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSam
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sampler anariSampler,
   vtkProperty* property, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
   std::vector<vec3>& normals, std::vector<vec2>& textureCoords,
-  std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors, const int cellFlag)
+  std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors, int cellFlag)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderAsTriangles", vtkAnariProfiling::LIME);
   // Geometries in ANARI are objects that describe the spatial representation of a surface
@@ -1118,9 +1115,9 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sampler anariSampler,
   vtkProperty* property, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
-  const double lineWidth, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
+  double lineWidth, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
   std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
-  std::vector<vec4>& pointColors, const int cellFlag)
+  std::vector<vec4>& pointColors, int cellFlag)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderAsCylinders", vtkAnariProfiling::LIME);
 
@@ -1325,9 +1322,9 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sampler anariSampler,
   vtkProperty* property, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
-  const double lineWidth, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
+  double lineWidth, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
   std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
-  std::vector<vec4>& pointColors, const int cellFlag)
+  std::vector<vec4>& pointColors, int cellFlag)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderAsCurves", vtkAnariProfiling::LIME);
   // Geometries in ANARI are objects that describe the spatial representation of a surface
@@ -1528,9 +1525,9 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampler anariSampler,
   vtkProperty* property, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
-  const double pointSize, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
+  double pointSize, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
   std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
-  std::vector<vec4>& pointColors, const int cellFlag)
+  std::vector<vec4>& pointColors, int cellFlag)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderAsSpheres", vtkAnariProfiling::LIME);
 
@@ -1753,9 +1750,8 @@ void vtkAnariPolyDataMapperNode::Invalidate(bool prepass)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariActorNode,
-  vtkPolyData* const poly, double* const diffuse, const double opacity,
-  const std::string materialName)
+void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNode,
+  vtkPolyData* poly, double* diffuse, double opacity, const std::string materialName)
 {
   vtkAnariProfiling startProfiling("VTKAPDMN::AnariRenderPoly", vtkAnariProfiling::GREEN);
 
@@ -2136,13 +2132,13 @@ void vtkAnariPolyDataMapperNode::Render(bool prepass)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNode::SetAnariConfig(vtkAnariRendererNode* const anariRendererNode)
+void vtkAnariPolyDataMapperNode::SetAnariConfig(vtkAnariRendererNode* anariRendererNode)
 {
   this->Internal->SetAnariConfig(anariRendererNode);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNode::RenderSurfaceModels(const bool changed)
+void vtkAnariPolyDataMapperNode::RenderSurfaceModels(bool changed)
 {
   vtkAnariProfiling startProfiling("VTKAPDMN::RenderSurfaceModels", vtkAnariProfiling::GREEN);
   this->Internal->RenderSurfaceModels(changed);

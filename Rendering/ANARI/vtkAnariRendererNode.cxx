@@ -153,7 +153,7 @@ public:
   ~vtkAnariRendererNodeInternals();
 
   //@{
-  void AddCamera(anari::Camera, const bool);
+  void AddCamera(anari::Camera, bool);
   anari_vtk::CameraState GetCameraState();
   //@}
 
@@ -161,7 +161,7 @@ public:
   /**
    * Methods to add, get, and clear ANARI lights.
    */
-  void AddLight(anari::Light, const bool);
+  void AddLight(anari::Light, bool);
   anari_vtk::LightState GetLightState();
   void ClearLights();
   //@}
@@ -170,7 +170,7 @@ public:
   /**
    * Methods to add, get, and clear ANARI surfaces.
    */
-  void AddSurfaces(const std::vector<anari::Surface>&, const bool);
+  void AddSurfaces(const std::vector<anari::Surface>&, bool);
   anari_vtk::SurfaceState GetSurfaceState();
   void ClearSurfaces();
   //@}
@@ -179,7 +179,7 @@ public:
   /**
    * Methods to add, get, and clear ANARI volumes.
    */
-  void AddVolume(anari::Volume, const bool);
+  void AddVolume(anari::Volume, bool);
   anari_vtk::VolumeState GetVolumeState();
   void ClearVolumes();
   //@}
@@ -415,7 +415,7 @@ bool vtkAnariRendererNodeInternals::InitAnari()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddCamera(anari::Camera camera, const bool changed)
+void vtkAnariRendererNodeInternals::AddCamera(anari::Camera camera, bool changed)
 {
   this->AnariCameraState.Camera = camera;
   this->AnariCameraState.changed = changed;
@@ -428,7 +428,7 @@ anari_vtk::CameraState vtkAnariRendererNodeInternals::GetCameraState()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddLight(anari::Light light, const bool changed)
+void vtkAnariRendererNodeInternals::AddLight(anari::Light light, bool changed)
 {
   if (light != nullptr)
   {
@@ -466,7 +466,7 @@ void vtkAnariRendererNodeInternals::ClearLights()
 
 //----------------------------------------------------------------------------
 void vtkAnariRendererNodeInternals::AddSurfaces(
-  const std::vector<anari::Surface>& surfaces, const bool changed)
+  const std::vector<anari::Surface>& surfaces, bool changed)
 {
   if (this->AnariSurfaceState.used)
   {
@@ -503,7 +503,7 @@ void vtkAnariRendererNodeInternals::ClearSurfaces()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddVolume(anari::Volume volume, const bool changed)
+void vtkAnariRendererNodeInternals::AddVolume(anari::Volume volume, bool changed)
 {
   if (this->AnariVolumeState.used)
   {
@@ -1919,26 +1919,25 @@ int vtkAnariRendererNode::GetCompositeOnGL(vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddCamera(anari::Camera camera, const bool changed)
+void vtkAnariRendererNode::AddCamera(anari::Camera camera, bool changed)
 {
   this->Internal->AddCamera(camera, changed);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddLight(anari::Light light, const bool changed)
+void vtkAnariRendererNode::AddLight(anari::Light light, bool changed)
 {
   this->Internal->AddLight(light, changed);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddSurfaces(
-  const std::vector<anari::Surface>& surfaces, const bool changed)
+void vtkAnariRendererNode::AddSurfaces(const std::vector<anari::Surface>& surfaces, bool changed)
 {
   this->Internal->AddSurfaces(surfaces, changed);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddVolume(anari::Volume volume, const bool changed)
+void vtkAnariRendererNode::AddVolume(anari::Volume volume, bool changed)
 {
   this->Internal->AddVolume(volume, changed);
 }
