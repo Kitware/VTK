@@ -50,7 +50,7 @@ protected:
   void ClearSurfaces();
 
   void AnariRenderPoly(vtkAnariActorNode* anariActorNode, vtkPolyData* poly, double* diffuse,
-    double opacity, const std::string materialName);
+    double opacity, const std::string& materialName);
   void SetAnariConfig(vtkAnariRendererNode*);
 
   vtkAnariPolyDataMapperNodeInternals* Internal;

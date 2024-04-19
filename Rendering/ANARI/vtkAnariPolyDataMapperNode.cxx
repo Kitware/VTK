@@ -1751,7 +1751,7 @@ void vtkAnariPolyDataMapperNode::Invalidate(bool prepass)
 
 //----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNode,
-  vtkPolyData* poly, double* diffuse, double opacity, const std::string materialName)
+  vtkPolyData* poly, double* diffuse, double opacity, const std::string& materialName)
 {
   vtkAnariProfiling startProfiling("VTKAPDMN::AnariRenderPoly", vtkAnariProfiling::GREEN);
 
