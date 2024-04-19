@@ -83,6 +83,10 @@ void vtkZSpaceGenericRenderWindow::Frame()
 {
   this->MakeCurrent();
 
+  // Front face orientation is not saved with the state and should be manually
+  // retaured after `SubmitFrame` call (which modifies it)
+  GLint frontFace = GL_CCW;
+  glGetIntegerv(GL_FRONT_FACE, &frontFace);
   auto ostate = this->GetState();
   ostate->Push();
 
@@ -114,6 +118,7 @@ void vtkZSpaceGenericRenderWindow::Frame()
   }
 
   ostate->Pop();
+  glFrontFace(frontFace);
 
   // Indicate listener (managing OpenGL context)
   // that buffers can be swapped
