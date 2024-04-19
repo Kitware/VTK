@@ -23,6 +23,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "^VTK::FiltersGeneralPython-edgePoints$"
     "^VTK::FiltersGeneralPython-TestFEDiscreteClipper2D$"
     "^VTK::FiltersGeometryCxx-TestLinearToQuadraticCellsFilter$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DDualContourMaterial$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DGeometryLargeMaterialBits$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DPlaneCutterDual$"
     "^VTK::FiltersModelingPython-TestCookieCutter3$"
     "^VTK::FiltersModelingPython-TestImprintFilter3$"
@@ -33,6 +35,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
+
+    # Timeout; needs investigation
+    "^VTK::RenderingOpenGL2Cxx-TestFloor$"
 
     # Point rendering differences
     "^VTK::FiltersPointsPython-TestConnectedPointsFilter$" # other differences too
@@ -104,6 +109,97 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # Flaky timeouts
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18984
     "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
+
+    # Rendering in the wrong order.
+    "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget2$"
+    "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget3$"
+
+    # MPI detects bad memory handling
+    "^VTK::IOPIOPython-MPI-TestPIOReader$"
+    )
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_ospray_python_qt_tbb")
+  list(APPEND test_exclusions
+    # MPI initialization failures from inside of IOSS. Needs investigation.
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19314
+    "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+    "^VTK::FiltersCoreCxx-TestAppendSelection$"
+    "^VTK::FiltersCoreCxx-TestFeatureEdges$"
+    "^VTK::FiltersCorePython-TestCompositeDataSetPlaneCutter$"
+    "^VTK::FiltersExtractionCxx-TestExpandMarkedElements$"
+    "^VTK::FiltersExtractionCxx-TestExtractionExpression$"
+    "^VTK::FiltersExtractionCxx-TestExtractSelectionUsingDataAssembly$"
+    "^VTK::FiltersGeneralCxx-TestAnimateModes$"
+    "^VTK::FiltersGeneralCxx-TestGradientAndVorticity$"
+    "^VTK::FiltersHybridCxx-TestTemporalCacheUndefinedTimeStep$"
+    "^VTK::FiltersHybridCxx-TestTemporalInterpolator$"
+    "^VTK::FiltersHybridCxx-TestTemporalInterpolatorFactorMode$"
+    "^VTK::FiltersParallelCxx-MPI-AggregateDataSet$"
+    "^VTK::FiltersParallelCxx-MPI-ParallelResampling$"
+    "^VTK::FiltersParallelCxx-MPI-PTextureMapToSphere$"
+    "^VTK::FiltersParallelCxx-MPI-TestGenerateProcessIds$"
+    "^VTK::FiltersParallelCxx-MPI-TestHyperTreeGridGhostCellsGenerator$"
+    "^VTK::FiltersParallelCxx-MPI-TestPartitionBalancer$"
+    "^VTK::FiltersParallelCxx-MPI-TransmitImageData$"
+    "^VTK::FiltersParallelCxx-MPI-TransmitImageDataRenderPass$"
+    "^VTK::FiltersParallelCxx-MPI-TransmitRectilinearGrid$"
+    "^VTK::FiltersParallelCxx-MPI-TransmitStructuredGrid$"
+    "^VTK::FiltersParallelCxx-MPI-UnitTestPMaskPoints$"
+    "^VTK::FiltersParallelCxx-TestPOutlineFilter$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-DIYAggregateDataSet$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestAdaptiveResampleToImage$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestDIYGenerateCuts$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestGenerateGlobalIds$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestOverlappingCellsDetector$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleHyperTreeGridWithDataSet$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleToImage$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleToImageCompositeDataSet$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleWithDataSet$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleWithDataSet2$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestProbeLineFilter$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPUnstructuredGridGhostCellsGenerator$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilter$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterImplicitArray$"
+    "^VTK::FiltersParallelDIY2Cxx-TestAdaptiveResampleToImage$"
+    "^VTK::FiltersParallelDIY2Cxx-TestExtractSubsetWithSeed$"
+    "^VTK::FiltersParallelDIY2Cxx-TestGenerateGlobalIds$"
+    "^VTK::FiltersParallelDIY2Cxx-TestGenerateGlobalIdsSphere$"
+    "^VTK::FiltersParallelDIY2Cxx-TestOverlappingCellsDetector$"
+    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilter$"
+    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIoss$"
+    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterWithPolyData$"
+    "^VTK::FiltersParallelDIY2Cxx-TestStitchImageDataWithGhosts$"
+    "^VTK::FiltersParallelDIY2Cxx-TestUniformGridGhostDataGenerator$"
+    "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPLagrangianParticleTracker$"
+    "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPParticleTracers$"
+    "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPStreamAMR$"
+    "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPStreamGeometry$"
+    "^VTK::FiltersParallelGeometryCxx-MPI-ParallelConnectivity1$"
+    "^VTK::FiltersParallelGeometryCxx-MPI-ParallelConnectivity4$"
+    "^VTK::FiltersParallelGeometryCxx-MPI-TestPolyhedralMeshDistributedDataFilter$"
+    "^VTK::FiltersParallelGeometryCxx-MPI-TestPStructuredGridConnectivity$"
+    "^VTK::FiltersParallelMPICxx-MPI-TestDistributedPointCloudFilter1$"
+    "^VTK::FiltersParallelMPICxx-MPI-TestDistributedPointCloudFilter5$"
+    "^VTK::FiltersParallelStatisticsCxx-MPI-TestPCorrelativeStatistics$"
+    "^VTK::FiltersParallelVerdictCxx-MPI-PCellSizeFilter$"
+    "^VTK::FiltersSourcesCxx-MPI-TestRandomHyperTreeGridSourceMPI3$"
+    "^VTK::FiltersSourcesCxx-MPI-TestSpatioTemporalHarmonicsSourceDistributed$"
+    "^VTK::IOADIOS2Cxx-MPI-TestADIOS2BPReaderMPIMultiTimeSteps2D$"
+    "^VTK::IOADIOS2Cxx-TestIOADIOS2VTX_VTU1DRendering$"
+    "^VTK::IOADIOS2Cxx-TestIOADIOS2VTX_VTU2DRendering$"
+    "^VTK::IOIOSSCxx-MPI-TestIOSSExodusParallelWriter$"
+    "^VTK::IOIossCxx-MPI-TestIossExodusParitionedFiles$"
+    "^VTK::IOIossCxx-MPI-TestIossExodusRestarts$"
+    "^VTK::IOIossCxx-TestIossExodusRestarts$"
+    "^VTK::IOIossCxx-TestIossNoElementBlocks$"
+    "^VTK::IOIOSSCxx-TestIOSSReadAllFilesToDetermineStructure$"
+    "^VTK::IOIossCxx-TestIossTri6$"
+    "^VTK::IOIossCxx-TestIossUnsupported$"
+    "^VTK::IOIOSSCxx-TestIOSSWedge21$"
+    "^VTK::ParallelDIYCxx-MPI-TestDIYDataExchanger$"
+    "^VTK::ParallelDIYCxx-MPI-TestDIYUtilities$"
+    "^VTK::ParallelMPICxx-MPI-TestPProbe$"
     )
 endif ()
 

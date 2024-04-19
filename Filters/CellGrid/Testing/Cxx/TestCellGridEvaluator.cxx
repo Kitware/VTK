@@ -101,7 +101,7 @@ bool LoadAndEvaluate(const char* filename, const std::vector<std::array<double, 
       // std::cout << "  " << ii << " point " << pointIDs->GetValue(ii)
       //   << " contained in cell " << cellIndices->GetValue(ii) << " " << rst << "\n";
       pointsInside.insert(pointIDs->GetValue(ii));
-      values->GetTuple(ii, &tuple[0]);
+      values->GetTuple(ii, tuple.data());
       double err = tupleDiffMag(tuple, expectedValues[ii], ok);
       if (err > 1e-5)
       {

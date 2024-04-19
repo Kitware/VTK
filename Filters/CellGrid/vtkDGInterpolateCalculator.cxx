@@ -792,7 +792,7 @@ void vtkDGInterpolateCalculator::Evaluate(
   if (tokenId == "CG HGRAD C1"_hash)
   {
     // Continuous fields share point coordinates via connectivity. Fetch it:
-    this->FieldConnectivity->GetTypedTuple(cellId, &conn[0]);
+    this->FieldConnectivity->GetTypedTuple(cellId, conn.data());
     // Now use connectivity as an indirection when fetching value tuples:
     for (int ii = 0; ii < this->NumberOfBasisFunctions; ++ii)
     {
@@ -808,7 +808,7 @@ void vtkDGInterpolateCalculator::Evaluate(
     // Discontinuous fields do not share point coordinates.
     for (int ii = 0; ii < this->NumberOfBasisFunctions; ++ii)
     {
-      this->FieldValues->GetTuple(cellId, &coefficients[0]);
+      this->FieldValues->GetTuple(cellId, coefficients.data());
       for (int dd = 0; dd < basisValueSize; ++dd)
       {
         for (std::size_t jj = 0; jj < coeffSize; ++jj)
@@ -928,11 +928,11 @@ void vtkDGInterpolateCalculator::InternalDerivative(
       conn.resize(this->NumberOfBasisFunctions);
       if (UseShape)
       {
-        this->ShapeConnectivity->GetTypedTuple(cellId, &conn[0]);
+        this->ShapeConnectivity->GetTypedTuple(cellId, conn.data());
       }
       else
       {
-        this->FieldConnectivity->GetTypedTuple(cellId, &conn[0]);
+        this->FieldConnectivity->GetTypedTuple(cellId, conn.data());
       }
       for (int ii = 0; ii < this->NumberOfBasisFunctions; ++ii)
       {
@@ -952,11 +952,11 @@ void vtkDGInterpolateCalculator::InternalDerivative(
     // Fetch the cell's coefficients as a single row.
     if (UseShape)
     {
-      this->ShapeValues->GetTuple(cellId, &fieldCoefficients[0]);
+      this->ShapeValues->GetTuple(cellId, fieldCoefficients.data());
     }
     else
     {
-      this->FieldValues->GetTuple(cellId, &fieldCoefficients[0]);
+      this->FieldValues->GetTuple(cellId, fieldCoefficients.data());
     }
   }
   else

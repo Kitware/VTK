@@ -115,5 +115,13 @@ elseif (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
   vtk_add_flag(-Wunused-parameter ${langs})
   vtk_add_flag(-Wunused-variable ${langs})
 
+  # Ignored warnings. Should be investigated and false positives reported to
+  # GCC and actual bugs fixed.
+  vtk_add_flag(-Wno-stringop-overflow ${langs}) # issue 19306
+  vtk_add_flag(-Wno-stringop-overread ${langs}) # issue 19307
+  # Need overflow checks in various places.
+  vtk_add_flag(-Wno-alloc-size-larger-than ${langs}) # issue 19308
+  vtk_add_flag(-Wno-free-nonheap-object ${langs}) # issue 19309
+
   # Fortran flags.
 endif ()

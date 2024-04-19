@@ -102,12 +102,14 @@ bool TestFileLoading(const std::string& tmpDir)
 
     std::string text;
     text.resize(12);
+    // NOLINTNEXTLINE(readability-container-data-pointer)
     Check(stream->Read(&text[0], text.size()) == text.size(), "Truncated stream");
     Check(text == "Hello world!", "Wrong data");
   }
 
   // same as previous but with SetBaseFileName
   {
+    // NOLINTNEXTLINE(bugprone-unused-raii)
     std::ofstream{ tmpDir + "/URI Loader Tmp Ref File.txt" }; // create file
 
     vtkNew<vtkURILoader> loader;
@@ -120,6 +122,7 @@ bool TestFileLoading(const std::string& tmpDir)
 
     std::string text;
     text.resize(12);
+    // NOLINTNEXTLINE(readability-container-data-pointer)
     Check(stream->Read(&text[0], text.size()) == text.size(), "Truncated stream");
     Check(text == "Hello world!", "Wrong data");
   }
@@ -135,6 +138,7 @@ bool TestBase64DataLoading()
 
   std::string text;
   text.resize(12);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
   Check(stream->Read(&text[0], text.size()) == text.size(), "Truncated stream");
   Check(text == "Hello world!", "Wrong data");
 

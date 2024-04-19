@@ -8,18 +8,24 @@ vtk_module_add_module(VTK::IOLAS
   CLASSES ${classes})
 
 set(liblas_boost_dependencies)
-if (libLAS_VERSION VERSION_LESS "1.8.2")
+if (libLAS_VERSION VERSION_LESS "1.8.2" OR
+    libLAS_VERSION STREQUAL "1.8.2b1")
+  if (libLAS_VERSION STREQUAL "1.8.2b1")
+    set(boost_components
+      iostreams program_options serialization thread)
+  else ()
+    set(boost_components
+      program_options thread system iostreams filesystem)
+  endif ()
   vtk_module_find_package(PRIVATE_IF_SHARED
     PACKAGE Boost
-    COMPONENTS program_options thread system iostreams filesystem
+    COMPONENTS ${boost_components}
     FORWARD_VERSION_REQ EXACT
     VERSION_VAR         "@Boost_MAJOR_VERSION@.@Boost_MINOR_VERSION@.@Boost_SUBMINOR_VERSION@")
-  list(APPEND liblas_boost_dependencies
-    Boost::filesystem
-    Boost::iostreams
-    Boost::program_options
-    Boost::system
-    Boost::thread)
+  foreach (boost_component IN LISTS boost_components)
+    list(APPEND liblas_boost_dependencies
+      "Boost::${boost_component}")
+  endforeach ()
 endif ()
 
 vtk_module_link(VTK::IOLAS

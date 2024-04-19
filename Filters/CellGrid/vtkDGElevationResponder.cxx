@@ -111,7 +111,7 @@ bool vtkDGElevationResponder::Query(
   elevation->SetNumberOfTuples(conn->GetNumberOfTuples());
   for (vtkIdType ii = 0; ii < conn->GetNumberOfTuples(); ++ii)
   {
-    conn->GetTypedTuple(ii, &entry[0]);
+    conn->GetTypedTuple(ii, entry.data());
     for (int jj = 0; jj < nc; ++jj)
     {
       pts->GetTuple(entry[jj], pcoord.GetData());
